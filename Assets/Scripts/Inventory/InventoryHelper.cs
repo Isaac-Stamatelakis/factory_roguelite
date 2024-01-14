@@ -27,7 +27,7 @@ public class InventoryHelper
         GameObject number = new GameObject();
         TextMeshPro textMeshPro = number.AddComponent<TMPro.TextMeshPro>();
         textMeshPro.text = amount.ToString();
-        textMeshPro.fontSize = 4;
+        textMeshPro.fontSize = 72;
         textMeshPro.rectTransform.sizeDelta = new Vector2(Global.InventoryScale,Global.InventoryScale);
         textMeshPro.alignment = alignmentOptions;
         return number;

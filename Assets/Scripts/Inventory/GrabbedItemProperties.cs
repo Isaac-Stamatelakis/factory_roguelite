@@ -1,23 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
+
 public class GrabbedItemProperties : MonoBehaviour
 {
     private Matter grabbedItemData;
     public Matter GrabbedItemData {get{return grabbedItemData;} set{grabbedItemData = value;}}
-    private SpriteRenderer spriteRenderer;
+    private Image image;
     // Start is called before the first frame update
     void Start()
     {
-        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+        image = gameObject.GetComponent<Image>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        position.z = -5;
+        Vector3 position = Input.mousePosition;
+        position.z = 0;
         transform.position = position;
     }
 
@@ -25,28 +27,35 @@ public class GrabbedItemProperties : MonoBehaviour
         GameObject previousNumber = Global.findChild(transform, "Amount");
         if (previousNumber != null) {
             Destroy(previousNumber);
-        }
+        }   
         if (grabbedItemData != null && grabbedItemData.id > 0) {
+            image.enabled = true;
             if (grabbedItemData.state is Solid) {
                 if (grabbedItemData is TypableMatter) {
 
                 } else if (grabbedItemData is ActionItem) {
 
                 } else {
-                    spriteRenderer.sprite = IdDataMap.getInstance().GetSprite(grabbedItemData.id);
-                    float scale = InventoryHelper.getItemSize(spriteRenderer.sprite);
-                    transform.localScale = new Vector3(scale,scale,1);
-                    GameObject number = InventoryHelper.generateNumberText(grabbedItemData.amount, TextAlignmentOptions.BottomLeft);
+                    image.sprite = IdDataMap.getInstance().GetSprite(grabbedItemData.id);
+                    GetComponent<RectTransform>().sizeDelta = InventoryGrid.getItemSize(image.sprite);
+
+                    GameObject number = new GameObject();
+                    TextMeshProUGUI textMeshProUGUI = number.AddComponent<TextMeshProUGUI>();
+                    textMeshProUGUI.text = grabbedItemData.amount.ToString();
+                    textMeshProUGUI.alignment = TextAlignmentOptions.BottomRight;
+                    textMeshProUGUI.fontSize = 30;
+                    RectTransform rectTransform = number.GetComponent<RectTransform>();
+                    rectTransform.sizeDelta = new Vector2(50,50);
                     number.name = "Amount";
                     number.transform.SetParent(transform);
-                    number.transform.localPosition = new Vector3(0,0,-1);
-                    Debug.Log(true);
+                    number.transform.localPosition = new Vector3(-50,-25,-1);
                 } 
             }   
             
                
         } else {
-            spriteRenderer.sprite = null;
+            image.enabled = false;
+            image.sprite = null;
         }
     }
 }
