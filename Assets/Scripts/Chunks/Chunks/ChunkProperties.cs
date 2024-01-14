@@ -1,0 +1,189 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class ChunkProperties : MonoBehaviour
+{
+    protected JsonData jsonData;
+    protected bool fullLoaded = false;
+    public bool FullLoaded {get{return fullLoaded;}}
+    protected Vector2Int chunkPosition;
+    public Vector2Int ChunkPosition {get{return chunkPosition;}}
+    protected int dim;
+    public int Dim {get{return dim;}}
+    protected Transform entityContainer;
+    public Transform EntityContainer {get{return entityContainer;}}
+    // Start is called before the first frame update
+    public virtual void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    public virtual void Update()
+    {
+        
+    }
+
+    public virtual void fullLoadChunk() {
+        if (fullLoaded) {
+            return;
+        }   
+        this.fullLoaded = true;
+        StartCoroutine(fullLoadChunkCoroutine());
+
+    }
+
+    public virtual void initalize(int dim, Vector2Int chunkPosition, JsonData jsonData, Transform closedSystemTransform) {
+        // Set variables
+        this.dim = dim;
+        this.chunkPosition = chunkPosition;
+        this.jsonData = jsonData;
+        transform.localPosition = new Vector3(8f*chunkPosition.x+4f,8f*chunkPosition.y+4f,0);
+        gameObject.AddComponent<BoxCollider2D>();
+        gameObject.GetComponent<BoxCollider2D>().size = new Vector2(Global.ChunkSize/2, Global.ChunkSize/2);
+        gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
+        gameObject.transform.SetParent(Global.findChild(closedSystemTransform,"Chunks").transform);
+        StartCoroutine(softLoadChunk(jsonData));
+    }
+
+    protected virtual IEnumerator fullLoadChunkCoroutine() {
+        Coroutine a = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBlocks")),"TileBlocks"));
+        Coroutine b = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBackgrounds")),"TileBackgrounds"));
+        Coroutine c = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileObjects")),"TileObjects"));
+        
+        yield return a;
+        yield return b;
+        yield return c;
+        
+        GameObject tileEntityContainer = Global.findChild(transform,"TileEntities");
+        Coroutine d = StartCoroutine(tileEntityContainer.GetComponent<TileEntityContainerController>().fullLoadAllTileEntities());
+
+        yield return d;
+        
+        initEntityContainer(jsonData);
+
+        fullLoaded = true;
+        gameObject.name = gameObject.name +"|FullLoaded";
+        gameObject.layer = LayerMask.NameToLayer("Chunk");
+        yield return null;
+    }
+
+    public IEnumerator softLoadChunk(JsonData jsonData) {
+        GameObject tileEntities = new GameObject();
+        tileEntities.transform.localPosition = new Vector3(transform.position.x-4,transform.position.y-4, 0);
+        tileEntities.name="TileEntities";
+        tileEntities.transform.SetParent(transform);
+        tileEntities.AddComponent<TileEntityContainerController>();
+        Global.setStatic(tileEntities);
+        Coroutine a = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileBlocks"),"TileBlocks"));
+        Coroutine b = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileBackgrounds"),"TileBackgrounds"));
+        Coroutine c = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileObjects"),"TileObjects"));
+        yield return a;
+        yield return b;
+        yield return c;
+    }
+
+    protected IEnumerator initTileEntitities(SeralizedChunkTileData chunkTileData, string tileContainerName) {
+        Transform tileEntityContainer = Global.findChild(transform,"TileEntities").transform;
+        IdDataMap idDataMap = IdDataMap.getInstance();
+        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+                /*
+                int id = chunkTileData.ids[xIter][yIter];
+                if (id < 0) {
+                    continue;
+                }
+                SDictionary tileEntityOptions = SDictionary.copy(idDataMap.getIdTileData(id).tileEntityOptions);
+                if (tileEntityOptions.Count > 0) {
+                    Dictionary<string,object> dynamicTileOptions = chunkTileData.sTileEntityOptions[xIter][yIter];
+                    if (dynamicTileOptions.Count > 0) {
+                        tileEntityOptions.dynamicDict = dynamicTileOptions;
+                    } 
+                    
+                    TileEntityFactory.softLoadTileEntity(tileEntityOptions,tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
+                }
+                */
+            }
+            yield return new WaitForSeconds(0.01f);
+        }
+        yield return null;
+    }
+
+    public virtual void unfullLoadChunk() {
+        if (!fullLoaded) {
+            return;
+        }
+        gameObject.name = gameObject.name.Split("|")[0];
+        gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
+        fullLoaded = false;
+        destroyContainers();
+    }
+
+    protected IEnumerator addTilesToContainer(ChunkData tileData,string containerName) {
+        TileGridMap tileGridMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<TileGridMap>();
+        Coroutine a = StartCoroutine(tileGridMap.load(tileData, chunkPosition));
+        yield return a;
+
+    }
+
+    protected virtual void destroyContainers() {
+        TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, "TileBlocks").GetComponent<TileGridMap>();
+        tileBlockGridMap.instantlyRemoveChunk(chunkPosition);
+
+        TileGridMap tileBackgroundGripMap = Global.findChild(transform.parent.parent.transform, "TileBackgrounds").GetComponent<TileGridMap>();
+        tileBackgroundGripMap.instantlyRemoveChunk(chunkPosition);
+
+        TileGridMap tileObjectGridMap = Global.findChild(transform.parent.parent.transform, "TileObjects").GetComponent<TileGridMap>();
+        tileObjectGridMap.instantlyRemoveChunk(chunkPosition);
+    }
+
+    protected void initEntityContainer(JsonData jsonData) {
+        GameObject entityContainer = new GameObject();
+        entityContainer.name = "Entities";
+        entityContainer.transform.SetParent(transform);
+        this.entityContainer = entityContainer.transform;
+        List<EntityData> entityDataList = (List<EntityData>) jsonData.get("Entities");
+        foreach (EntityData entityData in entityDataList) {
+            GameObject entityObject = new GameObject();
+            if (entityData.tileType != null) {
+                entityObject.AddComponent<TileItemEntityProperties>();
+                TileItemEntityProperties itemEntityProperties = entityObject.GetComponent<TileItemEntityProperties>();
+                itemEntityProperties.Id = entityData.id;
+                itemEntityProperties.initalize(entityData.amount);
+                itemEntityProperties.setLocation(entityData.x, entityData.y);
+                itemEntityProperties.setParent(entityContainer.transform);
+            }
+        }
+    }
+
+    protected ChunkData deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
+        List<List<IdData>> nestedTileDataList = new List<List<IdData>>();
+        for (int xIter = 0; xIter < 16; xIter ++) {
+            List<IdData> tileDataList = new List<IdData>();
+            for (int yIter = 0; yIter < 16; yIter ++) {
+                int id = seralizedChunkTileData.ids[xIter][yIter];
+                if (id > 0) {
+                    IdData idData = IdDataMap.getInstance().GetIdData(id);
+                    if (idData is TileData) {
+                        TileData tileData = (TileData) idData;
+                        tileData.tileOptions.dynamicDict = seralizedChunkTileData.sTileOptions[xIter][yIter];
+                        //tileData.tileEntityOptions.dynamicDict = seralizedChunkTileData.sTileOptions[xIter][yIter];
+                        tileDataList.Add(tileData); 
+                    } else {
+                        tileDataList.Add(null);
+                    }
+                } else {
+                    tileDataList.Add(null);
+                }
+                
+                        
+            }
+            nestedTileDataList.Add(tileDataList);
+        }
+        ChunkData chunkTileData = new ChunkData() {
+            data = nestedTileDataList
+        };
+        return chunkTileData;
+    }
+}

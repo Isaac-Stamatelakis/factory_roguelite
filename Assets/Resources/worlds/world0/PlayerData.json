@@ -1,0 +1,172 @@
+{
+    "inventory": [
+      {
+        "id" : 13,
+        "amount" : 69
+      },
+      {
+        "id" : 2,
+        "amount" : 1 
+      },
+      {
+        "id" : 1,
+        "amount" : 1
+      },
+      {
+        "id" : 6,
+        "amount" : 1 
+      },
+      {
+        "id" : 8,
+        "amount" : 1 
+      },
+      {
+        "id" : 0,
+        "amount" : 2
+      },
+      {
+        "id" : 3,
+        "amount" : 4
+      },
+      {
+        "id" : 9,
+        "amount" : 2 
+      },
+      {
+        "id" : 5,
+        "amount" : 19
+      },
+      {
+        "id" : 4,
+        "amount" : 2
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      },
+      {
+        "id" : -1,
+        "amount" : -1 
+      }
+    ],
+    "hp" : 10,
+    "location" : {
+      "x" : 0,
+      "y" : 0
+    },
+    "name" : "thunerlego56"
+
+
+  }

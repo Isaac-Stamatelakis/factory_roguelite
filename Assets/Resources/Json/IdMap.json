@@ -1,0 +1,406 @@
+{
+    "idData": [
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 0,
+        "spritePath": "Sprites/pixil-frame-0|pixil-frame-0",
+        "name": "weirdstone1",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 1,
+        "spritePath": "Sprites/pixeltest|pixeltest",
+        "name": "weirdstone2",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 2,
+        "spritePath": "Sprites/pixel2|pixel2",
+        "name": "weirdstone3",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBackground",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 3,
+        "spritePath": "Sprites/stonewallbackground|stonewallbackground",
+        "name": "stonewallbackground",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "tileEntityOptions" :{
+          "path": "CompactMachine1"
+        },
+        "id": 4,
+        "spritePath": "Sprites/compactmachine|compactmachine",
+        "name": "compactmachine1",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 5,
+        "spritePath": "Sprites/tileobject48by48|tileobject48by48",
+        "name": "test2",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 6,
+        "spritePath": "Sprites/tileobject64by64|tileobject64by64",
+        "name": "test3",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 7,
+        "spritePath": "Sprites/tileobject16by16|tileobject16by16",
+        "name": "test1",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "tileEntityOptions" :{
+          "path": "Chest1"
+        },
+        "id": 8,
+        "spritePath": "Sprites/testChest|testChest",
+        "name": "chest",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              "rotation" : 0
+            }
+        },
+        "id": 9,
+        "spritePath": "Sprites/slantedBlock|slantedBlock",
+        "name": "slant",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "tileEntityOptions" :{
+          "path": "Alloyer"
+        },
+        "id": 10,
+        "spritePath": "Sprites/alloyer|alloyer_6",
+        "name": "alloyer",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 4
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 11,
+        "spritePath": "Sprites/ingot_copper|ingot_copper",
+        "name": "copper_ingot",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 2
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "tileEntityOptions" :{
+          "path": "Torch"
+        },
+        "id": 12,
+        "spritePath": "Sprites/weirdtorch|weirdtorch",
+        "name": "weirdtorch",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 100
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 13,
+        "spritePath": "Sprites/gregstatue|gregstatue",
+        "name": "gregstatue",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileObject",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 100
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 14,
+        "spritePath": "Sprites/gregstatue2|gregstatue2",
+        "name": "gregstatue2",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 3,
+              "ruletile" : "RuleTiles/ChiseledStone"
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 15,
+        "spritePath": "Sprites/chiseledstone|chiseledstone",
+        "name": "connectedstone",
+        "dataType": "Tile"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 3,
+              "animated" : "AnimatedTiles/AnimatedTileTest"
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 16,
+        "spritePath": "Sprites/animatedbrick|animatedbrick",
+        "name": "animatedbrick",
+        "dataType": "Tile"
+      },
+      {
+        "resourceOptions": {
+          "staticDict": 
+            {
+              "states" : {
+                "0" : {
+                  "spritePath" : "Sprites/biomatter/biomatter"
+                },
+                "1" : {
+                  "prefix" : "pulverized",
+                  "spritePath" : "Sprites/biomatter/pulverized_biomatter"
+                },
+                "2" : {
+                  "prefix" : "compressed",
+                  "spritePath" : "Sprites/biomatter/compressed_biomatter"
+                }
+              }
+            },
+          "dynamicDict" : 
+            {
+              "state" : 0
+            }
+        },
+        "id": 17,
+        "spritePath": "Sprites/bioball|bioball",
+        "name": "plantball",
+        "dataType": "Resource"
+      },
+      {
+        "actionOptions" : {
+
+        },
+        "id": 18,
+        "spritePath": "Sprites/bioball|bioball",
+        "name": "laserdrill",
+        "dataType": "ActionItem"
+      },
+      {
+        "tileType": "TileBlock",
+        "tileOptions": {
+          "staticDict": 
+            {
+              "hardness": 3,
+              "animated" : "AnimatedTiles/futuraAE"
+            },
+          "dynamicDict" : 
+            {
+              
+            }
+        },
+        "id": 19,
+        "spritePath": "Sprites/futuraAE/futura1|futura1",
+        "name": "animatedbrick",
+        "dataType": "Tile"
+      },
+      {
+        "conduitType": "energy",
+        "id": 20,
+        "speed" : 32,
+        "color" : [0,0,0],
+        "spritePath": "Sprites/energyConduit/energy",
+        "ruleTilePath" : "RuleTiles/energyconduit2",
+        "name": "basicEnergyConduit",
+        "hardness" : 4,
+        "dataType": "Conduit"
+      },
+      {
+        "conduitType": "item",
+        "id": 21,
+        "speed" : 32,
+        "color" : [0,0,0],
+        "spritePath": "Sprites/itemConduit/item[]",
+        "ruleTilePath" : "RuleTiles/itemconduit",
+        "name": "BasicItemConduit",
+        "hardness" : 4,
+        "dataType": "Conduit"
+      },
+      {
+        "conduitType": "fluid",
+        "id": 22,
+        "speed" : 32,
+        "color" : [0,0,0],
+        "spritePath": "Sprites/fluidConduit/fluid[]",
+        "ruleTilePath" : "RuleTiles/fluidconduit",
+        "name": "BasicFluidConduit",
+        "hardness" : 4,
+        "dataType": "Conduit"
+      },
+      {
+        "conduitType": "signal",
+        "id": 23,
+        "speed" : 32,
+        "color" : [0,0,0],
+        "spritePath": "Sprites/signalConduit/signal[]",
+        "ruleTilePath" : "RuleTiles/signalconduit",
+        "name": "SignalConduit",
+        "hardness" : 4,
+        "dataType": "Conduit"
+      }
+    ]
+  }

@@ -1,0 +1,52 @@
+{
+  "idData": [
+    {
+      "hardness": 4,
+      "tileType": "TileBlock",
+      "decorators": {
+        "decoratorData": [
+          {
+            "lightLevel": 15
+          },
+          {
+            "animated": true
+          }
+        ]
+      },
+      "id": 0,
+      "spritePath": "Sprites/pixil-frame-0|pixil-frame-0",
+      "name": "weirdstone1",
+      "dataType": "Tile"
+    },
+    {
+      "hardness": 6,
+      "tileType": "TileBlock",
+      "decorators": {
+        "decoratorData": [
+          {
+            "lightLevel": 15
+          }
+        ]
+      },
+      "id": 1,
+      "spritePath": "Sprites/pixeltest|pixeltest",
+      "name": "weirdstone2",
+      "dataType": "Tile"
+    },
+    {
+      "hardness": 6,
+      "tileType": "TileBlock",
+      "decorators": {
+        "decoratorData": [
+          {
+            "animated": true
+          }
+        ]
+      },
+      "id": 2,
+      "spritePath": "Sprites/pixel2|pixel2",
+      "name": "weirdstone2",
+      "dataType": "Tile"
+    }
+  ]
+}
