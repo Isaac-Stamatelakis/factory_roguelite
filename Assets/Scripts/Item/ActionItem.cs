@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ActionItem : Matter
+/// An action which when used has an action
+public class ActionItem
 {
-    public ActionItem(int id, int amount) : base(id,new Solid(),amount) {
-        
-    }
+
     public Dictionary<string,object> data;
 }

@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class ItemInventoryGrid : DynamicInventoryGrid
 {
-    protected override GameObject loadItemAmountNumber(GameObject slot, object data)
+    protected override GameObject loadItemAmountNumber(GameObject slot, Dictionary<string,object> data)
     {
-        if (data is null || !(data is Matter)) {
+        if (data is null) {
             return null;
         }
-        Matter matter = (Matter) data;
-        if (matter.id == -1) {
+        int id = Convert.ToInt32(data["id"]);
+        int amount = Convert.ToInt32(data["amount"]);
+        if (id == -1) {
             return null;
         }
         GameObject number = base.loadItemAmountNumber(slot, data);
         TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-        textMeshPro.text = matter.amount.ToString();
+        textMeshPro.text = amount.ToString();
         
         
         textMeshPro.fontSize = 30;
@@ -29,13 +31,13 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         return number;
     }
 
-    protected override GameObject loadItemImage(GameObject slot, object data)
+    protected override GameObject loadItemImage(GameObject slot, Dictionary<string,object> data)
     {
-        if (data is null || !(data is Matter)) {
+        if (data is null) {
             return null;
         }
-        Matter matter = (Matter) data;
-        if (matter.id == -1) {
+        int id = Convert.ToInt32(data["id"]);
+        if (id == -1) {
             return null;
         }
         GameObject imageObject = base.loadItemImage(slot, data);
@@ -43,22 +45,17 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
         Image image = imageObject.AddComponent<Image>();
 
-        if (matter is TypableMatter) {
-            TypableMatter typableMatter = (TypableMatter) matter;
-            
-        } else if (matter is ActionItem) {
-            ActionItem actionItem = (ActionItem) matter;
-        } else {
-            image.sprite = IdDataMap.getInstance().GetSprite(matter.id);
-        }
+        image.sprite = IdDataMap.getInstance().GetSprite(id);
         
         
         rectTransform.sizeDelta = getItemSize(image.sprite);
         return imageObject;
     }
 
+    /*
     protected override bool validateData(Matter data)
     {
         return data.state == null || data.state is Solid;
     }
+    */
 }

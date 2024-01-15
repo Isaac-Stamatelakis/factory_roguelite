@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public class PlayerIO : MonoBehaviour
 {
@@ -51,15 +53,13 @@ public class PlayerIO : MonoBehaviour
             -5
         );
         playerData["hp"] = (float) jObject["hp"];
-        ItemContainer inventory = new ItemContainer(MatterImporter.jsonToMatter(jObject["inventory"].ToString()));
-        playerData["inventory"] = inventory;
+        playerData["inventory"] = JsonConvert.DeserializeObject<List<Dictionary<string,object>>>(jObject["inventory"].ToString());
         playerData["enablePlacePreview"] = devMode.placePreview;
         tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
-        Debug.Log(inventory.Count);
     }
 
-    public ItemContainer getPlayerInventory() {
-        return (ItemContainer) playerData["inventory"];
+    public List<Dictionary<string,object>> getPlayerInventory() {
+        return (List<Dictionary<string,object>>) playerData["inventory"];
     }
 
 }

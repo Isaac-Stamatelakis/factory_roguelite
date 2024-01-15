@@ -76,8 +76,13 @@ public class TileEntityFactory
             tileEntity.transform.localPosition = new Vector3(placePosition.x/2f,placePosition.y/2f,0);
             TileEntityProperties tileEntityProperties = tileEntity.GetComponent<TileEntityProperties>();
             tileEntityProperties.TileContainerName = tileContainerName;
+            tileEntityProperties.TileEntityOptions = new SDictionary();
             tileEntityProperties.Position = placePosition;
             tileEntity.name = tileContainerName + "[" + placePosition.x + "," + placePosition.y +"]";
+            TileEntityStorageProperties tileEntityStorageProperties = tileEntity.GetComponent<TileEntityStorageProperties>();
+            if (tileEntityStorageProperties != null) {
+                tileEntityProperties.TileEntityOptions.addDynamic("storage", null);
+            }
         }
         /*
         GameObject tileEntity = new GameObject();
@@ -141,44 +146,11 @@ public class TileEntityFactory
     }
 
     private static void initStorage(Dictionary<string, object> storageOptions, GameObject tileEntity) {
-        /*
         TileEntityStorageProperties storageProperties = tileEntity.AddComponent<TileEntityStorageProperties>();
         if (storageOptions.ContainsKey("items")) {
             List<List<List<int>>> SeralizedItemInventories = JsonConvert.DeserializeObject<List<List<List<int>>>>(storageOptions["items"].ToString());
-            List<ItemInventory> itemInventories = new List<ItemInventory>();
-            foreach (List<List<int>> sItemInventory in SeralizedItemInventories) {
-                if (sItemInventory.Count < 1) {
-                    continue;
-                }
-                Vector2Int size = new Vector2Int(sItemInventory[0][0], sItemInventory[0][1]); // first element in array gives size of inventory
-                List<ItemInventoryData> itemInventoryData = new List<ItemInventoryData>();
-                for (int n = 1; n < size.x * size.y+1; n ++) {
-                    if (n < sItemInventory.Count) {
-                        itemInventoryData.Add(new ItemInventoryData() {
-                            id = sItemInventory[n][0],
-                            amount = sItemInventory[n][1]
-                        });
-                    } else {
-                        itemInventoryData.Add(new ItemInventoryData() {
-                            id = -1,
-                            amount = -1
-                        });
-                    }
-                    
-                }
-                ItemInventory itemInventory = new ItemInventory(itemInventoryData);
-                itemInventory.Size = size;
-                itemInventories.Add(itemInventory); 
-            }
-            storageProperties.setItemInventories(itemInventories);
+            Debug.Log(SeralizedItemInventories);
         }
-        if (storageOptions.ContainsKey("energy")) {
-
-        }
-        if (storageOptions.ContainsKey("fluids")) {
-            
-        }
-        */
     }
 
     private static void initOnClick(Dictionary<string, object> clickOptions, GameObject tileEntity) {

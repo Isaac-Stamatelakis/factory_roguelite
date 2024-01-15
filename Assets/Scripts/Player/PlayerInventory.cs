@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-
+using System;
 public class PlayerInventory : MonoBehaviour
 {
 
     private static int entityLayer;
     private int selectedSlot = 0;
     private static Vector2Int inventorySize = new Vector2Int(10,4);
-    private ItemContainer inventory;
+    private List<Dictionary<string,object>> inventory;
     private PlayerInventoryGrid playerInventoryGrid;
     private GameObject inventoryContainer;
     private GameObject inventoryItemContainer;
@@ -71,36 +71,36 @@ public class PlayerInventory : MonoBehaviour
                 bool alreadyInInventory = false;
                 int firstOpenSlot = -1;
                 for (int n = inventory.Count-1; n >= 0; n --) {
-                    Matter inventorySlot = inventory.get(n);
-                    if (inventorySlot == null || inventorySlot.id == -1) {
+                    Dictionary<string,object> inventorySlot = inventory[n];
+                    if (inventorySlot == null || Convert.ToInt32(inventorySlot["id"]) == -1) {
                         firstOpenSlot = n;
                         continue;
                     }
-                    if (inventorySlot.id == itemEntityProperities.Id && inventorySlot.amount < Global.MaxSize) {
+                    int id = Convert.ToInt32(inventorySlot["id"]);
+                    int amount = Convert.ToInt32(inventorySlot["amount"]);
+                    if (id == itemEntityProperities.Id && amount < Global.MaxSize) {
                         alreadyInInventory = true;
-                        inventorySlot.amount += itemEntityProperities.Amount;
-                        itemEntityProperities.Amount = inventorySlot.amount;
-                        if (inventorySlot.amount > Global.MaxSize) {
-                            inventorySlot.amount = Global.MaxSize; 
+                        amount += itemEntityProperities.Amount;
+                        itemEntityProperities.Amount = amount;
+                        if (amount > Global.MaxSize) {
+                            amount = Global.MaxSize; 
                         }
                         
-                        itemEntityProperities.Amount -= inventorySlot.amount;
+                        itemEntityProperities.Amount -= amount;
                         if (itemEntityProperities.Amount <= 0) {
                             Destroy(itemEntityProperities.gameObject);
                         }
-                        playerInventoryGrid.updateAmount(n,inventorySlot.amount);
+                        playerInventoryGrid.updateAmount(n,amount);
                     }
                 }
                 if (!alreadyInInventory && firstOpenSlot >= 0) {
-                    inventory.set(firstOpenSlot, 
-                    new Matter(
-                        itemEntityProperities.Id,
-                        new Solid(),
-                        itemEntityProperities.Amount
-                    ));
+                    inventory[firstOpenSlot] = new Dictionary<string, object>{
+                            {"id", itemEntityProperities.Id},
+                            {"amount",itemEntityProperities.Amount}
+                    };
                     Destroy(itemEntityProperities.gameObject);
                     if (firstOpenSlot < inventorySize.x * inventorySize.y) {
-                        playerInventoryGrid.setItem(firstOpenSlot, inventory.get(firstOpenSlot));
+                        playerInventoryGrid.setItem(firstOpenSlot, inventory[firstOpenSlot]);
                     }
                 }
             }
@@ -109,16 +109,17 @@ public class PlayerInventory : MonoBehaviour
     
 
     public void deiterateInventoryAmount() {
-        Matter itemInventoryData = inventory.get(selectedSlot);
+        Dictionary<string,object> itemInventoryData = inventory[selectedSlot];
         if (itemInventoryData == null) {
             return;
         }
-        itemInventoryData.amount --;
-        if (itemInventoryData.amount == 0) {
-            itemInventoryData.id = -1;
+        int amount = Convert.ToInt32(itemInventoryData["amount"]);
+        amount--;
+        if (amount == 0) {
+            itemInventoryData["id"] = -1;
             playerInventoryGrid.unloadItem(selectedSlot);
         } else {
-            playerInventoryGrid.updateAmount(selectedSlot,itemInventoryData.amount);
+            playerInventoryGrid.updateAmount(selectedSlot,amount);
         }
     }
 
@@ -131,9 +132,9 @@ public class PlayerInventory : MonoBehaviour
     }
 
     public int getSelectedTileId() {
-        if (inventory.get(selectedSlot) == null) {
+        if (inventory[selectedSlot] == null) {
             return -1;
         }
-        return inventory.get(selectedSlot).id;
+        return Convert.ToInt32(inventory[selectedSlot]["id"]);
     }
 }

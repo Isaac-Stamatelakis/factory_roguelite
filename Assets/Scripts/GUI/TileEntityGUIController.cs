@@ -61,7 +61,7 @@ public class TileEntityGUIController : MonoBehaviour
             if (inventoryGrids.Length > 0) {
                 InventoryGrid inventoryGrid = inventoryGrids[0];
                 if (inventoryGrid is ItemInventoryGrid) {
-                    inventoryGrid.initalize((ItemContainer) tileEntityStorageProperties.getContainer(storageContainerName));
+                    inventoryGrid.initalize(tileEntityStorageProperties.getContainer(storageContainerName));
                 }
 
             }

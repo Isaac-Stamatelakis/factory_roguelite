@@ -176,7 +176,7 @@ public class PlayerMouse : MonoBehaviour
     private bool handleInventoryClick(Vector2 mousePosition) {
         if (!EventSystem.current.IsPointerOverGameObject()) {
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.GrabbedItemData != null && grabbedItemProperties.GrabbedItemData.id > 0) {
+            if (grabbedItemProperties.GrabbedItemData != null && grabbedItemProperties.Id > 0) {
                 GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
                 if (chunkGameObject == null) {
                     return false;
@@ -184,8 +184,8 @@ public class PlayerMouse : MonoBehaviour
                 Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
                 ItemEntityHelper.spawnItemEntityWithVelocity(
                     new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.GrabbedItemData.id,
-                    grabbedItemProperties.GrabbedItemData.amount,
+                    grabbedItemProperties.Id,
+                    grabbedItemProperties.Amount,
                     Global.findChild(chunkGameObject.transform, "Entities").transform,
                     calculateItemVelocity(mousePosition)
                 );

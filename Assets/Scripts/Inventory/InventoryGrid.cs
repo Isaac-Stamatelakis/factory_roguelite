@@ -8,22 +8,19 @@ public class InventoryGrid : MonoBehaviour
 {
     private static string TAG = "InventoryGrid: ";
     protected List<GameObject> slots = new List<GameObject>();
-    protected MatterContainer inventory;
+    protected List<Dictionary<string,object>> inventory;
     [SerializeField] protected Vector2Int size;
     public Vector2Int Size {get{return size;}}
     public int SizeInt{get{return size.x*size.y;}}
 
-    ///
-    ///
-
-    public void initalize(MatterContainer inventory, Vector2Int size) {
+    public void initalize(List<Dictionary<string,object>> inventory, Vector2Int size) {
         this.inventory = inventory;
         this.size = size;
         initalizeSlots();
         
     }
 
-    public void initalize(MatterContainer inventory) {
+    public void initalize(List<Dictionary<string,object>> inventory) {
         this.inventory = inventory;
         initalizeSlots();
     }
@@ -31,9 +28,6 @@ public class InventoryGrid : MonoBehaviour
     protected void initalizeSlots() {
         for (int n = 0; n < SizeInt; n ++) {
             initSlot(n);
-        }
-
-        for (int n = 0; n < SizeInt;n++) {
             loadItem(n);
         }
     }
@@ -56,25 +50,29 @@ public class InventoryGrid : MonoBehaviour
             return;
         }
 
-        Matter data = inventory.get(n);
+        Dictionary<string,object> data = inventory[n];
+        /*
         if (!validateData(data)) {
             return;
         }
+        */
         loadItemImage(slot,data);
         loadItemAmountNumber(slot,data);   
         
     }
 
-    protected virtual bool validateData(Matter data) {
+    /*
+    protected virtual bool validateData(Dictionary<string,object> data) {
         return false;
     }
+    */
 
-    public virtual void setItem(int n, Matter data) {
+    public virtual void setItem(int n, Dictionary<string,object> data) {
         GameObject slot = slots[n];
         if (itemGuard(slot, n,"set item")) {
             return;
         }
-        inventory.set(n,data);
+        inventory[n]=data;
         loadItem(n);
     }
     public virtual void unloadItem(int n) {
@@ -109,13 +107,13 @@ public class InventoryGrid : MonoBehaviour
             return true;
         }
 
-        Matter data = inventory.get(n);
+        Dictionary<string,object> data = inventory[n];
         if (data == null) {
             return true;
         }
         return false;
     }
-    protected virtual GameObject loadItemImage(GameObject slot, object data) {
+    protected virtual GameObject loadItemImage(GameObject slot, Dictionary<string,object> data) {
         GameObject imageObject = new GameObject();
         imageObject.name = "item";
         imageObject.transform.SetParent(slot.transform);
@@ -124,7 +122,7 @@ public class InventoryGrid : MonoBehaviour
         return imageObject;
     }
 
-    protected virtual GameObject loadItemAmountNumber(GameObject slot, object data) {
+    protected virtual GameObject loadItemAmountNumber(GameObject slot, Dictionary<string,object> data) {
         GameObject number = new GameObject();
         number.name = "amount";
         number.transform.SetParent(slot.transform);
@@ -139,10 +137,10 @@ public class InventoryGrid : MonoBehaviour
             Debug.LogError(TAG + "GrabbedItem is null");
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        Matter grabbedItemData = grabbedItemProperties.GrabbedItemData;
-        grabbedItemProperties.GrabbedItemData = inventory.get(n);
-        inventory.set(n,grabbedItemData);
-        if (inventory.get(n) == null || inventory.get(n).id == -1) {
+        Dictionary<string,object> grabbedItemData = grabbedItemProperties.GrabbedItemData;
+        grabbedItemProperties.GrabbedItemData = inventory[n];
+        inventory[n] = grabbedItemData;
+        if (inventory[n] == null || System.Convert.ToInt32(inventory[n]["id"]) == -1) {
             unloadItem(n);
         } else {
             loadItem(n);

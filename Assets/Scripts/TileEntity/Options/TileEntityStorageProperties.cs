@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
 {
     [SerializeField] protected List<AssemblyInstruction> assemblyInstructions;
-    private Dictionary<string, object> storageContainers = new Dictionary<string, object>();
+    private Dictionary<string, List<Dictionary<string, object>>> storageContainers = new Dictionary<string, List<Dictionary<string, object>>>();
     public List<string> containerNames {get{
         List<string> strings = new List<string>();
         foreach (string key in storageContainers.Keys) {
@@ -15,32 +15,18 @@ public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
         return strings;
         }
     }
-    // Start is called before the first frame update
+    
     void Start() {
         foreach (AssemblyInstruction assemblyInstruction in assemblyInstructions) {
-            if (assemblyInstruction.type == 0) {
-                ItemContainer ItemContainer = new ItemContainer(new List<Matter>());
-                for (int n = 0; n < assemblyInstruction.size; n ++) {
-                    ItemContainer.add(null);
-                }
-                storageContainers[assemblyInstruction.name] = ItemContainer;
-            } else if (assemblyInstruction.type == 1) {
-                FluidContainer fluidMatterContainer = new FluidContainer(new List<Matter>());
-                for (int n = 0; n < assemblyInstruction.size; n ++) {
-                    fluidMatterContainer.add(null);
-                }
-                storageContainers[assemblyInstruction.name] = fluidMatterContainer;
-            } else if (assemblyInstruction.type == 2) {
-                List<int> energies = new List<int>();
-                for (int n = 0; n < assemblyInstruction.size; n ++) {
-                    energies.Add(0);
-                }
-                storageContainers[assemblyInstruction.name] = energies;
+            List<Dictionary<string,object>> container = new List<Dictionary<string, object>>();
+            for (int n = 0; n < assemblyInstruction.size; n ++) { 
+                container.Add(null);
             }
+            storageContainers[assemblyInstruction.name] = container;
         }   
     }
 
-    public object getContainer(string key) {
+    public List<Dictionary<string,object>> getContainer(string key) {
         if (storageContainers.ContainsKey(key)) {
             return storageContainers[key];
         }
@@ -56,7 +42,7 @@ public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
     public void seralize() {
         /*
         Dictionary<string,object> seralizedDict = new Dictionary<string, object>();
-        if (storageDictionary.ContainsKey("items")) {
+        if (storageContainers.ContainsKey("items")) {
             List<List<List<int>>> seralizedInventories = new List<List<List<int>>>();
             foreach (ItemInventory itemInventory in (List<ItemInventory>) storageDictionary["items"]) {
                 List<List<int>> seralizedItems = new List<List<int>>();
@@ -80,10 +66,11 @@ public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
             }
             seralizedDict["items"] = seralizedInventories;
         }
-
         TileEntityProperties tileEntityProperties = GetComponent<TileEntityProperties>();
         tileEntityProperties.TileEntityOptions.set("storage", seralizedDict);
         */
+        TileEntityProperties tileEntityProperties = GetComponent<TileEntityProperties>();
+        tileEntityProperties.TileEntityOptions.set("storage", storageContainers);
     }
     [System.Serializable]
     protected class AssemblyInstruction {
