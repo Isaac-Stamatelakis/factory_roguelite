@@ -89,21 +89,13 @@ public abstract class ChunkProperties : MonoBehaviour
         IdDataMap idDataMap = IdDataMap.getInstance();
         for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                /*
                 int id = chunkTileData.ids[xIter][yIter];
                 if (id < 0) {
                     continue;
                 }
-                SDictionary tileEntityOptions = SDictionary.copy(idDataMap.getIdTileData(id).tileEntityOptions);
-                if (tileEntityOptions.Count > 0) {
-                    Dictionary<string,object> dynamicTileOptions = chunkTileData.sTileEntityOptions[xIter][yIter];
-                    if (dynamicTileOptions.Count > 0) {
-                        tileEntityOptions.dynamicDict = dynamicTileOptions;
-                    } 
-                    
-                    TileEntityFactory.softLoadTileEntity(tileEntityOptions,tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
-                }
-                */
+                TileData tileData = idDataMap.getIdTileData(id);
+                string prefabPath = tileData.tileEntityPrefabPath;  
+                TileEntityFactory.softLoadTileEntity(prefabPath,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
             }
             yield return new WaitForSeconds(0.01f);
         }

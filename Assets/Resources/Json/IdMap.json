@@ -151,9 +151,7 @@
               
             }
         },
-        "tileEntityOptions" :{
-          "path": "Chest1"
-        },
+        "tileEntityPath": "Chest1",
         "id": 8,
         "spritePath": "Sprites/testChest|testChest",
         "name": "chest",
@@ -188,9 +186,7 @@
               
             }
         },
-        "tileEntityOptions" :{
-          "path": "Alloyer"
-        },
+        "tileEntityPath": "Alloyer",
         "id": 10,
         "spritePath": "Sprites/alloyer|alloyer_6",
         "name": "alloyer",

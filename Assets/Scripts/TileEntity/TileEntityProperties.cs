@@ -7,8 +7,8 @@ A tileEntity is a tileObject with special properties
 **/
 public class TileEntityProperties : MonoBehaviour
 {
-    private SDictionary tileEntityOptions;
-    public SDictionary TileEntityOptions {get{return tileEntityOptions;} set{tileEntityOptions=value;}}
+    private Dictionary<string, object> data;
+    public Dictionary<string,object> Data {get{return data;} set{data=value;}}
     private string tileContainerName;
     public string TileContainerName {get{return tileContainerName;} set{tileContainerName = value;}}
     private Vector2Int position;

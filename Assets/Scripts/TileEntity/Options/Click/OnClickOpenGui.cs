@@ -5,7 +5,7 @@ using UnityEngine;
 public class OnClickOpenGui : OnClick
 {
     private string path;
-    GameObject guiGameObject = null;
+    private GameObject guiGameObject = null;
     public OnClickOpenGui(string path) {
         this.path = path;
     }

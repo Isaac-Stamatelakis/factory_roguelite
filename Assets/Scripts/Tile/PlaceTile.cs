@@ -152,7 +152,7 @@ public class PlaceTile {
         GameObject tileEntityContainer = Global.findChild(chunkGameObject.transform,"TileEntities");
         
         TileEntityFactory.createTileEntity(
-            IdDataMap.getInstance().getIdTileData(id).tileEntityOptions,tileEntityContainer.transform,containerName,
+            IdDataMap.getInstance().getIdTileData(id).tileEntityPrefabPath,null,tileEntityContainer.transform,containerName,
             new Vector2Int(Global.modInt(placePosition.x,16),Global.modInt(placePosition.y,16))
         );
         tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,id);

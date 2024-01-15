@@ -19,15 +19,14 @@ public class IdDataMap
             string spritePath = (string) jsonObject["spritePath"];
             string name = (string) jsonObject["name"];
             string dataType = (string) jsonObject["dataType"];
+            string tileEntityPath = null;
+            if (jsonObject.ContainsKey("tileEntityPath")) {
+                tileEntityPath = (string) jsonObject["tileEntityPath"];
+            }
             switch (dataType) {
                 case "Tile":
                     string tileType = (string) jsonObject["tileType"];
                     SDictionary tileOptions = JsonConvert.DeserializeObject<SDictionary>(jsonObject["tileOptions"].ToString());
-                     Dictionary<string,object> tileEntityOptions = null;
-                    if (jsonObject.ContainsKey("tileEntityOptions")) {
-                        tileEntityOptions = JsonConvert.DeserializeObject<Dictionary<string,object>>(jsonObject["tileEntityOptions"].ToString());
-                    }
-                    
                     TileData tileData = new TileData {
                         id = id,
                         spritePath = spritePath,
@@ -35,7 +34,7 @@ public class IdDataMap
                         dataType = dataType,
                         tileType = tileType,
                         tileOptions = tileOptions,
-                        tileEntityOptions = tileEntityOptions
+                        tileEntityPrefabPath = tileEntityPath
                     };
                     idMap.Add(tileData.id, tileData);
                     break;
@@ -116,7 +115,7 @@ public class IdDataMap
             dataType = tileData.dataType,
             tileType = tileData.tileType,
             tileOptions = SDictionary.copy(tileData.tileOptions),
-            tileEntityOptions = tileData.tileEntityOptions
+            tileEntityPrefabPath = tileData.tileEntityPrefabPath
         };
         return copy;
     }

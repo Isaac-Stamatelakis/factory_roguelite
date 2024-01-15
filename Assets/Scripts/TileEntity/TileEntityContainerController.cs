@@ -37,7 +37,7 @@ public class TileEntityContainerController : MonoBehaviour
             GameObject tileEntity = transform.GetChild(n).gameObject;
             TileEntityProperties tileEntityProperties = tileEntity.GetComponent<TileEntityProperties>();
             if (tileEntityProperties.TileContainerName == tileContainerName) {
-                dynamicTileOptions[tileEntityProperties.Position.x][tileEntityProperties.Position.y] = tileEntity.GetComponent<TileEntityProperties>().TileEntityOptions.dynamicDict;
+                dynamicTileOptions[tileEntityProperties.Position.x][tileEntityProperties.Position.y] = tileEntity.GetComponent<TileEntityProperties>().Data;
             }
         }
 

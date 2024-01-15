@@ -9,5 +9,5 @@ public class TileData : IdData
 {
     public string tileType;
     public SDictionary tileOptions;
-    public Dictionary<string,object> tileEntityOptions;
+    public string tileEntityPrefabPath;
 }
