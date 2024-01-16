@@ -19,7 +19,7 @@ public class DynamicInventoryGrid : InventoryGrid
         }
         GameObject slot = Instantiate(Resources.Load<GameObject>("Prefabs/GUI/ItemInventorySlot"));
         slot.name = "slot" + (slots.Count).ToString();
-        slot.transform.SetParent(transform);
+        slot.transform.SetParent(transform,false);
         slots.Add(slot);
         loadItem(slots.Count-1);
         return true;

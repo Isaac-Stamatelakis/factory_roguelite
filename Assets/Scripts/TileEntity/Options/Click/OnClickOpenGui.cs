@@ -26,6 +26,7 @@ public class OnClickOpenGui : OnClick
             Debug.LogError("TileEntityGUIController is null somehow");
             return;
         }
+
         tileEntityGUIController.toggleGUI(path,tileEntity);
     }
 }

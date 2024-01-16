@@ -93,9 +93,10 @@ public abstract class ChunkProperties : MonoBehaviour
                 if (id < 0) {
                     continue;
                 }
-                TileData tileData = idDataMap.getIdTileData(id);
-                string prefabPath = tileData.tileEntityPrefabPath;  
-                TileEntityFactory.softLoadTileEntity(prefabPath,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
+                TileData tileData = IdDataMap.getInstance().getIdTileData(id);
+                if (tileData.tileEntityPrefabPath != null) {
+                    TileEntityFactory.softLoadTileEntity(id,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
+                }
             }
             yield return new WaitForSeconds(0.01f);
         }

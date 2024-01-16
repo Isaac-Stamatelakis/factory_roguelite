@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class OnTileEntityClickController : MonoBehaviour
 {
+    protected int clickRange = 5;
     [SerializeField] protected List<AssemblyInstruction> assemblyInstructions;
     protected List<OnClick> onClicks = new List<OnClick>();
+    
     public virtual void Start() {
         if (assemblyInstructions == null) {
             return;
@@ -22,9 +24,13 @@ public class OnTileEntityClickController : MonoBehaviour
     }
 
     public void activeClick() {
-        foreach (OnClick onClick in onClicks) {
-            onClick.clicked(gameObject);
+        Vector2 playerLocation = GameObject.Find("Player").transform.transform.position;
+        if (Vector2.Distance(playerLocation,new Vector2(transform.position.x,transform.position.y)) < clickRange) {
+            foreach (OnClick onClick in onClicks) {
+                onClick.clicked(gameObject);
+            }
         }
+        
     }
     [System.Serializable]
     protected class AssemblyInstruction {

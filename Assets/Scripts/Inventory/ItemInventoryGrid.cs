@@ -51,11 +51,4 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         rectTransform.sizeDelta = getItemSize(image.sprite);
         return imageObject;
     }
-
-    /*
-    protected override bool validateData(Matter data)
-    {
-        return data.state == null || data.state is Solid;
-    }
-    */
 }

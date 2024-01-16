@@ -11,19 +11,12 @@ using Newtonsoft.Json;
 /// </summary>
 public class TileEntityFactory
 {
-    public static void createTileEntity(String path, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
-        if (path == null) {
-            return;
-        }
-        GameObject tileEntity = initalizeTileEntityGameObject(path, data, tileEntityContainer,tileContainerName,placePosition);
+    public static void createTileEntity(int id, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+        GameObject tileEntity = initalizeTileEntityGameObject(id, data, tileEntityContainer,tileContainerName,placePosition);
     }
     
-    public static void softLoadTileEntity(String path, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
-        if (path == null) {
-            return;
-        }
-        
-        GameObject tileEntity = initalizeTileEntityGameObject(path,data, tileEntityContainer,tileContainerName,placePosition);
+    public static void softLoadTileEntity(int id, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+        GameObject tileEntity = initalizeTileEntityGameObject(id,data, tileEntityContainer,tileContainerName,placePosition);
     }
 
     /// <summary>
@@ -55,24 +48,37 @@ public class TileEntityFactory
 
     }
 
-    private static GameObject initalizeTileEntityGameObject(String prefabPath, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+    private static GameObject initalizeTileEntityGameObject(int id, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
         GameObject tileEntity = null;
         
         if (data == null) {
             data = new Dictionary<string, object>();
         }
+        
+        string prefabPath = IdDataMap.getInstance().getIdTileData(id).tileEntityPrefabPath;
+        if (prefabPath == null) {
+            return null;
+        }
         string folderPath = "Prefabs/TileEntities/" + prefabPath + "/";
+
         tileEntity = GameObject.Instantiate(Resources.Load<GameObject>(folderPath + "TileEntity"));
         tileEntity.transform.SetParent(tileEntityContainer);
-        tileEntity.transform.localPosition = new Vector3(placePosition.x/2f,placePosition.y/2f,0);
+        
         TileEntityProperties tileEntityProperties = tileEntity.GetComponent<TileEntityProperties>();
+
         tileEntityProperties.Data = data;
         tileEntityProperties.TileContainerName = tileContainerName;
+
+        Vector2 spriteSize = Global.getSpriteSize(id);
+        tileEntity.transform.localPosition = new Vector3(placePosition.x/2f+spriteSize.x/2,placePosition.y/2f+spriteSize.y/2,0);
         tileEntityProperties.Position = placePosition;
+
         tileEntity.name = tileContainerName + "[" + placePosition.x + "," + placePosition.y +"]";
         TileEntityStorageProperties tileEntityStorageProperties = tileEntity.GetComponent<TileEntityStorageProperties>();
         if (tileEntityStorageProperties != null) {
-            tileEntityStorageProperties.StorageContainers = JsonConvert.DeserializeObject<Dictionary<string, List<Dictionary<string, object>>>>(data["storage"].ToString());
+            if (data.ContainsKey("storage")) {
+                tileEntityStorageProperties.StorageContainers = JsonConvert.DeserializeObject<Dictionary<string, List<Dictionary<string, object>>>>(data["storage"].ToString());
+            }
         }
         return tileEntity;
     }

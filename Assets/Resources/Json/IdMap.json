@@ -221,9 +221,7 @@
               
             }
         },
-        "tileEntityOptions" :{
-          "path": "Torch"
-        },
+        "tileEntityPath":"Torch",
         "id": 12,
         "spritePath": "Sprites/weirdtorch|weirdtorch",
         "name": "weirdtorch",

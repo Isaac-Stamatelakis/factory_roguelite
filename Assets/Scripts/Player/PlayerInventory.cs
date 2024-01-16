@@ -15,6 +15,7 @@ public class PlayerInventory : MonoBehaviour
     private GameObject inventoryItemContainer;
     private GameObject uiPlayerInventoryContainer;
     private GameObject hotbarNumbersContainer;
+    private bool expanded = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +35,7 @@ public class PlayerInventory : MonoBehaviour
         inventory = GetComponent<PlayerIO>().getPlayerInventory();
         hotbarNumbersContainer = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/GUI/InventoryHotbar"));
         GameObject inventoryContainer = Global.findChild(hotbarNumbersContainer.transform,"Inventory");
-        hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform);
+        hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform,false);
         playerInventoryGrid = inventoryContainer.AddComponent<PlayerInventoryGrid>();
         playerInventoryGrid.initalize(inventory,new Vector2Int(10,1));
     }
@@ -45,12 +46,12 @@ public class PlayerInventory : MonoBehaviour
     }
 
     public void toggleInventory() {
-        if (playerInventoryGrid.Size.y == 1) {
+        expanded = !expanded;
+        if (expanded) {
             playerInventoryGrid.updateSize(new Vector2Int(10,4));
         } else {
             playerInventoryGrid.updateSize(new Vector2Int(10,1));
         }
-        
     }
     public void changeSelectedSlot(int slot) {
         selectedSlot = slot;
