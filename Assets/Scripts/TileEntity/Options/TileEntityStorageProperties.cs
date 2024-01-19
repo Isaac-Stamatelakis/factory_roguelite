@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
 {
     [SerializeField] protected List<AssemblyInstruction> assemblyInstructions;
-    private Dictionary<string, List<Dictionary<string, object>>> storageContainers = null;
-    public Dictionary<string, List<Dictionary<string, object>>> StorageContainers {get{return storageContainers;} set{storageContainers=value;}}
+    private Dictionary<string, List<ItemSlot>> storageContainers = null;
+    public Dictionary<string, List<ItemSlot>> StorageContainers {get{return storageContainers;} set{storageContainers=value;}}
     
     public List<string> containerNames {get{
         List<string> strings = new List<string>();
@@ -21,10 +21,12 @@ public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
     void Start() {
         // Only init containers if data does not already exist
         if (storageContainers == null) {
-            storageContainers = new Dictionary<string, List<Dictionary<string, object>>>();
+            storageContainers = new Dictionary<string, List<ItemSlot>>();
             foreach (AssemblyInstruction assemblyInstruction in assemblyInstructions) {
                 storageContainers[assemblyInstruction.name] = initContainer(assemblyInstruction);
-            }   
+            }
+
+
         } else {
             // Resolves changes to assemblyInstructions which may not be represented in seralized data
             
@@ -36,15 +38,15 @@ public class TileEntityStorageProperties : MonoBehaviour, SeralizableTileOption
         }
     }
 
-    List<Dictionary<string,object>> initContainer(AssemblyInstruction assemblyInstruction) {
-        List<Dictionary<string,object>> container = new List<Dictionary<string, object>>();
+    List<ItemSlot> initContainer(AssemblyInstruction assemblyInstruction) {
+        List<ItemSlot> container = new List<ItemSlot>();
         for (int n = 0; n < assemblyInstruction.size; n ++) { 
             container.Add(null);
         }
         return container;
     }
 
-    public List<Dictionary<string,object>> getContainer(string key) {
+    public List<ItemSlot> getContainer(string key) {
         if (storageContainers.ContainsKey(key)) {
             return storageContainers[key];
         }

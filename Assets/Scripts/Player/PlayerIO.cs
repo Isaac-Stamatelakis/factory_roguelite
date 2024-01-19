@@ -58,8 +58,8 @@ public class PlayerIO : MonoBehaviour
         tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
     }
 
-    public List<Dictionary<string,object>> getPlayerInventory() {
-        return (List<Dictionary<string,object>>) playerData["inventory"];
+    public Dictionary<string,object> getPlayerData() {
+        return playerData;
     }
 
 }
