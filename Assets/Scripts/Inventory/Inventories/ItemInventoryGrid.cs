@@ -12,7 +12,7 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         if (itemSlot is null) {
             return null;
         }
-        if (itemSlot.itemObject.id == null) {
+        if (itemSlot.itemObject == null) {
             return null;
         }
         GameObject number = base.loadItemAmountNumber(slot, itemSlot);
@@ -34,7 +34,7 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         if (itemSlot is null) {
             return null;
         }
-        if (itemSlot.itemObject.id == null) {
+        if (itemSlot.itemObject == null) {
             return null;
         }
         GameObject imageObject = base.loadItemImage(slot, itemSlot);

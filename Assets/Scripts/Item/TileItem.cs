@@ -69,6 +69,7 @@ public class TileEntityOptionFactory {
         }
     }
 }
+[CreateAssetMenu(fileName ="New Tile",menuName="Item Register/Tile")]
 public class TileItem : ItemObject
 {
     public TileType tileType;

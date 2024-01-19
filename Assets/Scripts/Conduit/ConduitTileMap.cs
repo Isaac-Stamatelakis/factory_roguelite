@@ -8,7 +8,7 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
 {
     protected override void setTile(int x, int y, ConduitData conduitData)
     {
-        if (conduitData == null) {
+        if (conduitData == null || conduitData.itemObject == null) {
             return;
         }
         RuleTile ruleTile = conduitData.itemObject.ruleTile;

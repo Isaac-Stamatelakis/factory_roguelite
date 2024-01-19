@@ -32,7 +32,7 @@ public class PlayerInventory : MonoBehaviour
     }
 
     private void loadInventoryUI() {
-        inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerData());
+        inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerData()["inventory"]);
         hotbarNumbersContainer = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/GUI/InventoryHotbar"));
         GameObject inventoryContainer = Global.findChild(hotbarNumbersContainer.transform,"Inventory");
         hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform,false);

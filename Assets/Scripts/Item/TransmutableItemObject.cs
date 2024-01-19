@@ -36,7 +36,7 @@ public class TransmutableItemStateFactory {
             
     }
 }
-[CreateAssetMenu(fileName ="New Transmutable Object",menuName="Item Register/Transmutable")]
+[CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item Register/Transmutable Material")]
 public class TransmutableItemObject : ItemObject
 {
     [Header("Color of default sprite")]

@@ -9,16 +9,16 @@ public enum ItemSlotOption {
 
 public class ItemSlotFactory 
 {
-    public static List<ItemSlot> deserialize(Dictionary<string,object> json) {
+    public static List<ItemSlot> deserialize(object json) {
+        ItemRegister itemRegister = ItemRegister.getInstance();
         List<ItemSlot> itemSlots = new List<ItemSlot>();
-        foreach (string key in json.Keys) {
-            var jsonVal = json[key];
-            try {
-                List<ItemSlot> items = JsonConvert.DeserializeObject<List<ItemSlot>>(jsonVal.ToString());
-                itemSlots.AddRange(items);
-            } catch (JsonException e) {
-                Debug.LogError(e);
-            }
+        List<SerializedItemSlot> serializedItems = JsonConvert.DeserializeObject<List<SerializedItemSlot>>(json.ToString());
+        foreach (SerializedItemSlot serializedItemSlot in serializedItems) {
+            itemSlots.Add(new ItemSlot(
+                itemObject: itemRegister.getItemObject(serializedItemSlot.id),
+                amount: serializedItemSlot.amount,
+                nbt: new Dictionary<ItemSlotOption, object>()
+            ));   
         }
         return itemSlots;
     }

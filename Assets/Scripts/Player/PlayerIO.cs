@@ -53,7 +53,7 @@ public class PlayerIO : MonoBehaviour
             -5
         );
         playerData["hp"] = (float) jObject["hp"];
-        playerData["inventory"] = JsonConvert.DeserializeObject<List<Dictionary<string,object>>>(jObject["inventory"].ToString());
+        playerData["inventory"] = jObject["inventory"];
         playerData["enablePlacePreview"] = devMode.placePreview;
         tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
     }

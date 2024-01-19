@@ -2,32 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemRegisterLoader : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-
-        // Loads in all items
-        ItemObject[] items = Resources.LoadAll<ItemObject>("");
-        foreach (ItemObject itemObject in items) {
-            print(itemObject.name);
-        }
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}
-
 /// Singleton
 public class ItemRegister {
     private static Dictionary<string,ItemObject> items;
     private static ItemRegister instance;
     private ItemRegister() {
+        items = new Dictionary<string, ItemObject>();
         ItemObject[] itemObjects = Resources.LoadAll<ItemObject>("");
         foreach (ItemObject itemObject in itemObjects) {
             if (!items.ContainsKey(itemObject.id)) {
@@ -65,7 +45,7 @@ public class ItemRegister {
         if (!items.ContainsKey(id)) {
             return null;
         }
-        return items[id];
+        return items[id];   
     }
     ///
     /// Returns ConduitItem if id maps to ConduitItem, null otherwise

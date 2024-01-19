@@ -163,10 +163,15 @@ public abstract class ChunkProperties : MonoBehaviour
                 string id = seralizedChunkTileData.ids[xIter][yIter];
                 if (id != null) {
                     TileItem tileItem = itemRegister.getTileItem(id);
-                    TileData tileData = new TileData(itemObject: tileItem, options: tileItem.getOptions());
-                    Dictionary<string,object> serializedData =  seralizedChunkTileData.sTileOptions[xIter][yIter];
-                    TileEntityOptionFactory.deseralizeOptions(serializedData:serializedData,tileData.options);
-                    tileDataList.Add(tileData); 
+                    if (tileItem == null) {
+                        tileDataList.Add(null);
+                    } else {
+                        TileData tileData = new TileData(itemObject: tileItem, options: tileItem.getOptions());
+                        Dictionary<string,object> serializedData =  seralizedChunkTileData.sTileOptions[xIter][yIter];
+                        TileEntityOptionFactory.deseralizeOptions(serializedData:serializedData,tileData.options);
+                        tileDataList.Add(tileData); 
+                    }
+                    
                 } else {
                     tileDataList.Add(null);
                 }        
