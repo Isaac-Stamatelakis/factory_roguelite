@@ -7,10 +7,8 @@ using System;
 
 public class GrabbedItemProperties : MonoBehaviour
 {
-    private Dictionary<string,object> grabbedItemData;
-    public Dictionary<string,object> GrabbedItemData {get{return grabbedItemData;} set{grabbedItemData = value;}}
-    public int Id {get{return getIntFromDict("id");}}
-    public int Amount {get{return getIntFromDict("amount");}}
+    
+    public ItemSlot itemSlot;
     private Image image;
     // Start is called before the first frame update
     void Start()
@@ -31,17 +29,15 @@ public class GrabbedItemProperties : MonoBehaviour
         if (previousNumber != null) {
             Destroy(previousNumber);
         }   
-        int id = this.Id;
-        int amount = this.Amount;
-        if (grabbedItemData != null && id > 0) {
+        if (itemSlot != null && itemSlot.itemObject.id != null) {
             image.enabled = true;
 
-            image.sprite = IdDataMap.getInstance().GetSprite(id);
+            image.sprite = itemSlot.itemObject.sprite; 
             GetComponent<RectTransform>().sizeDelta = InventoryGrid.getItemSize(image.sprite);
 
             GameObject number = new GameObject();
             TextMeshProUGUI textMeshProUGUI = number.AddComponent<TextMeshProUGUI>();
-            textMeshProUGUI.text = amount.ToString();
+            textMeshProUGUI.text = itemSlot.amount.ToString();
             textMeshProUGUI.alignment = TextAlignmentOptions.BottomRight;
             textMeshProUGUI.fontSize = 30;
             RectTransform rectTransform = number.GetComponent<RectTransform>();
@@ -52,17 +48,6 @@ public class GrabbedItemProperties : MonoBehaviour
         } else {
             image.enabled = false;
             image.sprite = null;
-        }
-    }
-
-    private int getIntFromDict(string key) {
-        if (grabbedItemData == null) {
-            return -1;
-        }
-        if (grabbedItemData.ContainsKey(key)) {
-            return Convert.ToInt32(grabbedItemData[key]);
-        } else {
-            return -1;
         }
     }
 }

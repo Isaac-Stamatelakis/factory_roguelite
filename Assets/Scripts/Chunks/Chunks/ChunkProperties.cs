@@ -86,16 +86,16 @@ public abstract class ChunkProperties : MonoBehaviour
 
     protected IEnumerator initTileEntitities(SeralizedChunkTileData chunkTileData, string tileContainerName) {
         Transform tileEntityContainer = Global.findChild(transform,"TileEntities").transform;
-        IdDataMap idDataMap = IdDataMap.getInstance();
+        ItemRegister itemRegister = ItemRegister.getInstance();
         for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                int id = chunkTileData.ids[xIter][yIter];
-                if (id < 0) {
+                string id = chunkTileData.ids[xIter][yIter];
+                if (id == null) {
                     continue;
                 }
-                TileData tileData = IdDataMap.getInstance().getIdTileData(id);
-                if (tileData.tileEntityPrefabPath != null) {
-                    TileEntityFactory.softLoadTileEntity(id,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
+                TileItem tileItem = itemRegister.getTileItem(id);
+                if (tileItem!= null && tileItem.tileEntityOptions.Count != 0) {
+                    TileEntityFactory.softLoadTileEntity(tileItem,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
                 }
             }
             yield return new WaitForSeconds(0.01f);
@@ -113,7 +113,7 @@ public abstract class ChunkProperties : MonoBehaviour
         destroyContainers();
     }
 
-    protected IEnumerator addTilesToContainer(ChunkData tileData,string containerName) {
+    protected IEnumerator addTilesToContainer(ChunkData<TileData> tileData,string containerName) {
         TileGridMap tileGridMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<TileGridMap>();
         Coroutine a = StartCoroutine(tileGridMap.load(tileData, chunkPosition));
         yield return a;
@@ -137,44 +137,43 @@ public abstract class ChunkProperties : MonoBehaviour
         entityContainer.transform.SetParent(transform);
         this.entityContainer = entityContainer.transform;
         List<EntityData> entityDataList = (List<EntityData>) jsonData.get("Entities");
+        ItemRegister itemRegister = ItemRegister.getInstance();
+        // TODO refactor item entities
+        /*
         foreach (EntityData entityData in entityDataList) {
             GameObject entityObject = new GameObject();
             if (entityData.tileType != null) {
                 entityObject.AddComponent<TileItemEntityProperties>();
                 TileItemEntityProperties itemEntityProperties = entityObject.GetComponent<TileItemEntityProperties>();
-                itemEntityProperties.Id = entityData.id;
+                itemEntityProperties.itemObject =  itemRegister.getItemObject(id);
                 itemEntityProperties.initalize(entityData.amount);
                 itemEntityProperties.setLocation(entityData.x, entityData.y);
                 itemEntityProperties.setParent(entityContainer.transform);
             }
         }
+        */
     }
 
-    protected ChunkData deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
-        List<List<IdData>> nestedTileDataList = new List<List<IdData>>();
+    protected ChunkData<TileData> deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
+        List<List<TileData>> nestedTileDataList = new List<List<TileData>>();
+        ItemRegister itemRegister = ItemRegister.getInstance();
         for (int xIter = 0; xIter < 16; xIter ++) {
-            List<IdData> tileDataList = new List<IdData>();
+            List<TileData> tileDataList = new List<TileData>();
             for (int yIter = 0; yIter < 16; yIter ++) {
-                int id = seralizedChunkTileData.ids[xIter][yIter];
-                if (id > 0) {
-                    IdData idData = IdDataMap.getInstance().GetIdData(id);
-                    if (idData is TileData) {
-                        TileData tileData = (TileData) idData;
-                        tileData.tileOptions.dynamicDict = seralizedChunkTileData.sTileOptions[xIter][yIter];
-                        //tileData.tileEntityOptions.dynamicDict = seralizedChunkTileData.sTileOptions[xIter][yIter];
-                        tileDataList.Add(tileData); 
-                    } else {
-                        tileDataList.Add(null);
-                    }
+                string id = seralizedChunkTileData.ids[xIter][yIter];
+                if (id != null) {
+                    TileItem tileItem = itemRegister.getTileItem(id);
+                    TileData tileData = new TileData(itemObject: tileItem, options: tileItem.getOptions());
+                    Dictionary<string,object> serializedData =  seralizedChunkTileData.sTileOptions[xIter][yIter];
+                    TileEntityOptionFactory.deseralizeOptions(serializedData:serializedData,tileData.options);
+                    tileDataList.Add(tileData); 
                 } else {
                     tileDataList.Add(null);
-                }
-                
-                        
+                }        
             }
             nestedTileDataList.Add(tileDataList);
         }
-        ChunkData chunkTileData = new ChunkData() {
+        ChunkData<TileData> chunkTileData = new ChunkData<TileData>() {
             data = nestedTileDataList
         };
         return chunkTileData;

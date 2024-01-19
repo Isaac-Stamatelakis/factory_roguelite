@@ -30,8 +30,11 @@ public class PlayerMouse : MonoBehaviour
         handleLeftClick(mousePosition);
         if (devMode.spawnItem) {
             if (Input.GetMouseButton(0)) {
-                ItemEntityHelper.spawnItemEntity(mousePosition,(int) devMode.spawnItemID,1,
-                Global.findChild(ChunkHelper.snapChunk(mousePosition.x,mousePosition.y).transform,"TileEntities").transform);
+                ItemEntityHelper.spawnItemEntity(
+                    mousePosition,
+                    new ItemSlot(itemObject:ItemRegister.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                    Global.findChild(ChunkHelper.snapChunk(mousePosition.x,mousePosition.y).transform,"TileEntities").transform
+                );
             }
         } else {
             breakMouseHover(mousePosition);
@@ -101,12 +104,12 @@ public class PlayerMouse : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
         if (hit.collider != null) {
             GameObject container = hit.collider.gameObject;
-            AbstractTileMap[] mapArray = container.GetComponents<AbstractTileMap>();
+            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>[] mapArray = container.GetComponents<AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>>();
             if (mapArray == null || mapArray.Length == 0) {
                 return;
             }
             
-            AbstractTileMap abstractTileMap = mapArray[0];
+            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>> abstractTileMap = mapArray[0];
             if (devMode.instantBreak) {
                 abstractTileMap.deleteTile(position);
             } else {
@@ -153,18 +156,18 @@ public class PlayerMouse : MonoBehaviour
     }
 
     private bool handlePlace(Vector2 mousePosition) {
-        int id;
+        string id;
         if (devMode.placeSelectedID) {
-            id = (int)devMode.placeID;
+            id = devMode.placeID;
         } else {
             id = playerInventory.getSelectedTileId();
         }
-        if (id < 0) {
+        if (id == null) {
             return false;
         }
         bool placed = false;
-        IdData idData = IdDataMap.getInstance().GetIdData(id);
-        placed = PlaceTile.Place(idData,mousePosition);
+        ItemObject itemObject = ItemRegister.getInstance().getItemObject(id);
+        placed = PlaceTile.Place(itemObject,mousePosition);
         
         if (placed && !devMode.noPlaceCost) {
             playerInventory.deiterateInventoryAmount();
@@ -176,7 +179,7 @@ public class PlayerMouse : MonoBehaviour
     private bool handleInventoryClick(Vector2 mousePosition) {
         if (!EventSystem.current.IsPointerOverGameObject()) {
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.GrabbedItemData != null && grabbedItemProperties.Id > 0) {
+            if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
                 GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
                 if (chunkGameObject == null) {
                     return false;
@@ -184,12 +187,11 @@ public class PlayerMouse : MonoBehaviour
                 Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
                 ItemEntityHelper.spawnItemEntityWithVelocity(
                     new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.Id,
-                    grabbedItemProperties.Amount,
+                    grabbedItemProperties.itemSlot,
                     Global.findChild(chunkGameObject.transform, "Entities").transform,
                     calculateItemVelocity(mousePosition)
                 );
-                grabbedItemProperties.GrabbedItemData = null;
+                grabbedItemProperties.itemSlot = null;
                 grabbedItemProperties.updateSprite();
                 return true;
             }

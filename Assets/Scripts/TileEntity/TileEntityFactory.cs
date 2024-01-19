@@ -11,12 +11,12 @@ using Newtonsoft.Json;
 /// </summary>
 public class TileEntityFactory
 {
-    public static void createTileEntity(int id, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
-        GameObject tileEntity = initalizeTileEntityGameObject(id, data, tileEntityContainer,tileContainerName,placePosition);
+    public static void createTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+        GameObject tileEntity = initalizeTileEntityGameObject(tileItem, data, tileEntityContainer,tileContainerName,placePosition);
     }
     
-    public static void softLoadTileEntity(int id, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
-        GameObject tileEntity = initalizeTileEntityGameObject(id,data, tileEntityContainer,tileContainerName,placePosition);
+    public static void softLoadTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+        GameObject tileEntity = initalizeTileEntityGameObject(tileItem,data, tileEntityContainer,tileContainerName,placePosition);
     }
 
     /// <summary>
@@ -48,9 +48,11 @@ public class TileEntityFactory
 
     }
 
-    private static GameObject initalizeTileEntityGameObject(int id, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
-        GameObject tileEntity = null;
+    private static GameObject initalizeTileEntityGameObject(TileItem tileItem, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
         
+        
+        GameObject tileEntity = null;
+        /*
         if (data == null) {
             data = new Dictionary<string, object>();
         }
@@ -80,6 +82,7 @@ public class TileEntityFactory
                 tileEntityStorageProperties.StorageContainers = JsonConvert.DeserializeObject<Dictionary<string, List<Dictionary<string, object>>>>(data["storage"].ToString());
             }
         }
+        */
         return tileEntity;
     }
 

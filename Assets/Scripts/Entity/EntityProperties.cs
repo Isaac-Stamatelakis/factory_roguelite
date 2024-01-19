@@ -5,11 +5,6 @@ using UnityEngine;
 public class EntityProperties : MonoBehaviour
 {
 
-    protected int id;
-    public int Id {
-        get {return id;}
-        set{id = value;}
-        }
     // Start is called before the first frame update
     void Start()
     {

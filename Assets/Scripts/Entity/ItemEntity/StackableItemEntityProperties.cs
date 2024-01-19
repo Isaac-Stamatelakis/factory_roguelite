@@ -7,7 +7,7 @@ public class StackableItemEntity : ItemEntityProperties
     private float timeSinceLastUpdate;
     private float updateInterval = 0.25f;
     public bool amountMaxed() {
-        return this.amount == Global.MaxSize;
+        return itemSlot.amount == Global.MaxSize;
     }
 
     public override void Update()
@@ -17,7 +17,7 @@ public class StackableItemEntity : ItemEntityProperties
         combineStacks();
     }
     private void combineStacks() {
-        if (amount == Global.MaxSize) {
+        if (amountMaxed()) {
             return;
         }
 
@@ -50,23 +50,27 @@ public class StackableItemEntity : ItemEntityProperties
         }
         StackableItemEntity hitObjectProperties = (StackableItemEntity) properties[0];
         if (hitObjectProperties == null) {
+            return;
         }
+        if (itemSlot == null) {
+            return;
+        }
+        ItemSlot hitObjectSlot = hitObjectProperties.itemSlot;
         if (
             hitObjectProperties != null 
             && hitObjectProperties.gameObject != gameObject
             && !hitObjectProperties.amountMaxed() 
-            && id == hitObjectProperties.id 
-            ) {
-            
-            if (amount + hitObjectProperties.Amount > Global.MaxSize) {
-                amount = Global.MaxSize;
-                hitObjectProperties.Amount = Global.MaxSize-amount;
+            && itemSlot.itemObject.id == hitObjectSlot.itemObject.id 
+            ) 
+        {
+            if (itemSlot.amount + hitObjectSlot.amount > Global.MaxSize) {
+                itemSlot.amount = Global.MaxSize;
+                hitObjectSlot.amount = Global.MaxSize-itemSlot.amount;
             } else {
-                amount += hitObjectProperties.Amount;
+                itemSlot.amount += hitObjectSlot.amount;
                 this.lifeTime = (lifeTime + hitObjectProperties.LifeTime)/2;
                 Destroy(hitObjectProperties.gameObject);
             }
-            
         }
     }
 }

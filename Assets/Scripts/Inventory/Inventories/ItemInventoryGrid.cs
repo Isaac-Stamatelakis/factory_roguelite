@@ -7,19 +7,17 @@ using System;
 
 public class ItemInventoryGrid : DynamicInventoryGrid
 {
-    protected override GameObject loadItemAmountNumber(GameObject slot, Dictionary<string,object> data)
+    protected override GameObject loadItemAmountNumber(GameObject slot, ItemSlot itemSlot)
     {
-        if (data is null) {
+        if (itemSlot is null) {
             return null;
         }
-        int id = Convert.ToInt32(data["id"]);
-        int amount = Convert.ToInt32(data["amount"]);
-        if (id == -1) {
+        if (itemSlot.itemObject.id == null) {
             return null;
         }
-        GameObject number = base.loadItemAmountNumber(slot, data);
+        GameObject number = base.loadItemAmountNumber(slot, itemSlot);
         TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-        textMeshPro.text = amount.ToString();
+        textMeshPro.text = itemSlot.amount.ToString();
         
         
         textMeshPro.fontSize = 30;
@@ -31,23 +29,19 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         return number;
     }
 
-    protected override GameObject loadItemImage(GameObject slot, Dictionary<string,object> data)
+    protected override GameObject loadItemImage(GameObject slot, ItemSlot itemSlot)
     {
-        if (data is null) {
+        if (itemSlot is null) {
             return null;
         }
-        int id = Convert.ToInt32(data["id"]);
-        if (id == -1) {
+        if (itemSlot.itemObject.id == null) {
             return null;
         }
-        GameObject imageObject = base.loadItemImage(slot, data);
+        GameObject imageObject = base.loadItemImage(slot, itemSlot);
         imageObject.AddComponent<CanvasRenderer>();
         RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
         Image image = imageObject.AddComponent<Image>();
-
-        image.sprite = IdDataMap.getInstance().GetSprite(id);
-        
-        
+        image.sprite = itemSlot.itemObject.sprite;
         rectTransform.sizeDelta = getItemSize(image.sprite);
         return imageObject;
     }

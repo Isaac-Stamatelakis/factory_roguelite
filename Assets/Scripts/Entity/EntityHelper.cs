@@ -14,12 +14,15 @@ public class EntityHelper
                 EntityProperties entityProperties = container.GetChild(n).GetComponent<EntityProperties>();
                 if (entityProperties is TileItemEntityProperties) {
                     TileItemEntityProperties tileItemEntityProperties = (TileItemEntityProperties) entityProperties;
-                    if (tileItemEntityProperties.Id > 0) {
+                    if (tileItemEntityProperties.itemSlot != null) {
+                        ItemSlot itemSlot = tileItemEntityProperties.itemSlot;
+                        Dictionary<string, object> data = new Dictionary<string, object>();
                         EntityData entityData = new EntityData();
-                        entityData.amount = tileItemEntityProperties.Amount;
-                        entityData.id = tileItemEntityProperties.Id;
+                        data["amount"] = itemSlot.amount;
+                        entityData.id = itemSlot.itemObject.id;
                         entityData.x = tileItemEntityProperties.transform.position.x;
                         entityData.y = tileItemEntityProperties.transform.position.y;
+                        entityData.data = data;
                         entityDataList.Add(entityData);
                     }
                 }

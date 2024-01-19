@@ -25,26 +25,25 @@ public class PlaceTile {
     iii) tileblock below, above, left, or right, or a tilebackground at the location.
     **/
 
-    public static bool Place(IdData idData, Vector2 worldPlaceLocation) {
-        if (idData is TileData) {
-            string tileType = ((TileData) idData).tileType;
-            switch (tileType) {
-                case "TileBlock":
-                    return PlaceTile.placeTileBlock(idData.id, worldPlaceLocation);
-                case "TileBackground":
-                    return PlaceTile.placeTileBackground(idData.id, worldPlaceLocation); 
-                case "TileObject":
-                    return PlaceTile.placeTileObject(idData.id, worldPlaceLocation);
+    public static bool Place(ItemObject itemObject, Vector2 worldPlaceLocation) {
+        if (itemObject is TileItem) {
+            TileItem tileItem = (TileItem) itemObject;
+            switch (tileItem.tileType) {
+                case TileType.Block:
+                    return PlaceTile.placeTileBlock(tileItem, worldPlaceLocation);
+                case TileType.Background:
+                    return PlaceTile.placeTileBackground(tileItem, worldPlaceLocation); 
+                case TileType.Object:
+                    return PlaceTile.placeTileObject(tileItem, worldPlaceLocation);
             }
-        } else if (idData is ConduitData) {
-            string conduitType = ((ConduitData) idData).conduitType;
-            return PlaceTile.placeConduit(idData.id,conduitType, worldPlaceLocation);
+        } else if (itemObject is ConduitItem) {
+            ConduitItem conduitItem = ((ConduitItem) itemObject);
+            return PlaceTile.placeConduit(conduitItem, worldPlaceLocation);
         }
         return false;
     }
-    public static bool tileBlockPlacable(int id,float x, float y) { 
-            
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(id));
+    public static bool tileBlockPlacable(TileItem tileItem,float x, float y) { 
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.sprite));
         if (tileWithinIntervalAreaRange(intervalVector,tileBlockLayer)) {
             return false;
         }
@@ -68,8 +67,8 @@ public class PlaceTile {
     i) no tileBackground within sprite size.
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
-    public static bool tileBackgroundPlacable(int id,float x, float y) { 
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(id));
+    public static bool tileBackgroundPlacable(TileItem tileItem,float x, float y) { 
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.sprite));
         if (tileWithinRange(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound,tileBackgroundLayer)) {
             return false;
         }
@@ -87,8 +86,8 @@ public class PlaceTile {
     /**
     Is placable iff a tileBlock is placable
     **/ 
-    public static bool tileObjectPlacable(int id,float x, float y) {
-        return tileBlockPlacable(id, x, y);
+    public static bool tileObjectPlacable(TileItem tileItem,float x, float y) {
+        return tileBlockPlacable(tileItem, x, y);
         
     }
     /// <summary>
@@ -98,12 +97,11 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileBlock(int id, Vector2 worldPlaceLocation) {
-        
-        if(!tileBlockPlacable(id,worldPlaceLocation.x,worldPlaceLocation.y)) {
+    public static bool placeTileBlock(TileItem tileItem, Vector2 worldPlaceLocation) {
+        if(!tileBlockPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
             return false;
         }
-        placeTile(id,worldPlaceLocation.x,worldPlaceLocation.y,"TileBlocks");
+        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileBlocks");
         return true;
 
     }
@@ -114,11 +112,11 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileBackground(int id, Vector2 worldPlaceLocation) {
-        if (!tileBackgroundPlacable(id,worldPlaceLocation.x,worldPlaceLocation.y)) {
+    public static bool placeTileBackground(TileItem tileItem, Vector2 worldPlaceLocation) {
+        if (!tileBackgroundPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
             return false;
         }
-        placeTile(id,worldPlaceLocation.x,worldPlaceLocation.y,"TileBackgrounds");
+        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileBackgrounds");
         return true;
     }
     /// <summary>
@@ -128,11 +126,11 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileObject(int id, Vector2 worldPlaceLocation) {
-        if (!tileObjectPlacable(id,worldPlaceLocation.x,worldPlaceLocation.y)) {
+    public static bool placeTileObject(TileItem tileItem, Vector2 worldPlaceLocation) {
+        if (!tileObjectPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
             return false;
         }
-        placeTile(id,worldPlaceLocation.x,worldPlaceLocation.y,"TileObjects");
+        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileObjects");
         return true;
     }
     /// <summary>
@@ -142,8 +140,8 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-    private static void placeTile(int id, float x, float y, string containerName) {
-        Vector2Int placePosition = getPlacePosition(id,x,y);
+    private static void placeTile(TileItem tileItem, float x, float y, string containerName) {
+        Vector2Int placePosition = getPlacePosition(tileItem,x,y);
         GameObject chunkGameObject = ChunkHelper.snapChunk(x,y);   
         if (chunkGameObject == null) {
             return;
@@ -152,16 +150,16 @@ public class PlaceTile {
         GameObject tileEntityContainer = Global.findChild(chunkGameObject.transform,"TileEntities");
         
         TileEntityFactory.createTileEntity(
-            id,
+            tileItem,
             null,
             tileEntityContainer.transform,containerName,
             new Vector2Int(Global.modInt(placePosition.x,16),Global.modInt(placePosition.y,16))
         );
-        tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,id);
+        tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,tileItem);
     }
 
-    public static Vector2Int getPlacePosition(int id, float x, float y) {
-        Vector2 spriteSize = Global.getSpriteSize(id);
+    public static Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
+        Vector2 spriteSize = Global.getSpriteSize(tileItem.sprite);
         return new Vector2Int(snap(x),snap(y));
     }
     /**
@@ -232,19 +230,19 @@ public class PlaceTile {
         return tileWithinParameter(floatIntervalVector.X.LowerBound,floatIntervalVector.X.UpperBound,floatIntervalVector.Y.LowerBound,floatIntervalVector.Y.UpperBound,layer);
     }
 
-    public static bool placeConduit(int id, string conduitType, Vector2 placePosition) {
-        if (conduitPlacable(id,conduitType,placePosition)) {
-            ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitType);
+    public static bool placeConduit(ConduitItem conduitItem, Vector2 placePosition) {
+        if (conduitPlacable(conduitItem,placePosition)) {
+            ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.type);
             Vector3Int tileMapPosition = conduitTileMap.mTileMap.WorldToCell(placePosition);
-            conduitTileMap.placeTileAtLocation(tileMapPosition.x,tileMapPosition.y,id);
+            conduitTileMap.placeTileAtLocation(tileMapPosition.x,tileMapPosition.y,conduitItem);
             
             return true;
         }
         return false;
     }
 
-    public static bool conduitPlacable(int id, string conduitType, Vector2 placePosition) {
-        ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitType);
+    public static bool conduitPlacable(ConduitItem conduitItem, Vector2 placePosition) {
+        ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.type);
         
         if (conduitTileMap == null) {
             return false;
@@ -260,20 +258,20 @@ public class PlaceTile {
         return true;
     }
 
-    private static ConduitTileMap GetConduitTileMap(Vector2 position, string conduitType) {
+    private static ConduitTileMap GetConduitTileMap(Vector2 position, ConduitType type) {
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, chunkLayer);
         if (hit.collider == null) {
             return null;
         }
         Transform systemContainer = hit.transform.parent.parent;
-        switch (conduitType) {
-            case "energy":
+        switch (type) {
+            case ConduitType.Energy:
                 return Global.findChild(systemContainer,"EnergyConduits").GetComponent<ConduitTileMap>();
-            case "item":
+            case ConduitType.Item:
                 return Global.findChild(systemContainer,"ItemConduits").GetComponent<ConduitTileMap>();
-            case "fluid":
+            case ConduitType.Fluid:
                 return Global.findChild(systemContainer,"FluidConduits").GetComponent<ConduitTileMap>();
-            case "signal":
+            case ConduitType.Signal:
                 return Global.findChild(systemContainer,"SignalConduits").GetComponent<ConduitTileMap>();
         }
         return null;

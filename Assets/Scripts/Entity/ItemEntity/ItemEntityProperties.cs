@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class ItemEntityProperties : EntityProperties
 {
-    [SerializeField] protected int amount;
+    [SerializeField] public ItemSlot itemSlot;
     [SerializeField] protected float lifeTime = 0f;
-    public int Amount {get{return amount;} set{amount = value;}}
     public float LifeTime {get{return lifeTime;}}
 
     protected void iterateLifeTime() {

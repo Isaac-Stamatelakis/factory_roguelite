@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IInterval
+public class ItemData 
 {
-    
+    public string id;
 }

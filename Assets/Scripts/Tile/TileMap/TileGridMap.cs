@@ -8,35 +8,37 @@ using System;
 /**
 Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
 **/
-public class TileGridMap : AbstractTileMap
+public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
-    protected override IdData initTileData(int id) {
-        TileData tileData = null;
+    protected override TileData initTileData(TileItem tileItem) {
+        /*
         if (id >= 0) {
             tileData = IdDataMap.getInstance().copyTileData(id);
             if (tileData.tileOptions.containsKey("rotation")) {
                 tileData.tileOptions.set("rotation",devMode.rotation);
             }
         }
-        return tileData;
+        */
+        return null;
+        //return tileData;
     }
 
-    protected override void spawnItemEntity(IdData idData, Vector2Int hitTilePosition, Vector2 worldPosition) {
-        TileData tileData = (TileData) idData;
+    protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {
         GameObject chunk = ChunkHelper.snapChunk(worldPosition.x,worldPosition.y);
         Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;    
 
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
 
-        Vector2 spriteSize =  Global.getSpriteSize(tileData.id);
+        Vector2 spriteSize =  Global.getSpriteSize(tileItem.sprite);
         if (PlaceTile.mod(spriteSize.x,2) == 0) {
             realXPosition += 0.25f;
         }
         if (PlaceTile.mod(spriteSize.y,2) == 0) {
             realYPosition += 0.25f;
         }
-        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),tileData.id,1,entityContainer);
+        ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<ItemSlotOption, object>());
+        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
     }
 
     protected override Vector2Int getHitTilePosition(Vector2 position)
@@ -101,18 +103,18 @@ public class TileGridMap : AbstractTileMap
         dimensionChunkData[chunkPosition].data[tilePositionInChunk.x][tilePositionInChunk.y] = null;
     }
 
-    protected override bool hitHardness(IdData idData) {
-        TileData tileData = (TileData) idData;
-        if (!tileData.tileOptions.containsKey("hardness")) { // uninteractable
+    protected override bool hitHardness(TileData tileData) {
+        if (!tileData.options.ContainsKey(TileItemOption.Hardness)) { // uninteractable
             return false;
         }
-        tileData.tileOptions.set("hardness",Convert.ToInt32(tileData.tileOptions.get("hardness"))-1);
-        return Convert.ToInt32(tileData.tileOptions.get("hardness")) == 0;
+        int hardness = Convert.ToInt32(tileData.options[TileItemOption.Hardness]) -1;
+        tileData.options[TileItemOption.Hardness] = hardness;
+        return hardness == 0;
     }
 
-    protected override void setTile(int x, int y,IdData idData) {
-        if (idData != null) {
-            tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile((TileData) idData));
+    protected override void setTile(int x, int y,TileData tileData) {
+        if (tileData != null) {
+            tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile(tileData));
         }
         
     }
@@ -126,23 +128,24 @@ public class TileGridMap : AbstractTileMap
         return false;
     }
     public List<List<Dictionary<string,object>>> getSeralizedTileOptions(Vector2Int chunkPosition) {
-        ChunkData chunkData = dimensionChunkData[chunkPosition];
+        ChunkData<TileData> chunkData = dimensionChunkData[chunkPosition];
         List<List<Dictionary<string,object>>> nestedTileOptionList = new List<List<Dictionary<string, object>>>();
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<Dictionary<string,object>> tileOptionList = new List<Dictionary<string,object>>();
             for (int yIter = 0; yIter < 16; yIter ++) {
-                IdData idData = chunkData.data[xIter][yIter];
-                if (idData == null) {
+                TileData tileData = chunkData.data[xIter][yIter];
+                if (tileData == null) {
                     tileOptionList.Add(new Dictionary<string, object>());
                     continue;
                 }
-                TileData tileData = (TileData) idData;
-                SDictionary sDictionary = tileData.tileOptions;
-                if (sDictionary == null) {
-                    tileOptionList.Add(new Dictionary<string, object>());
-                    continue;
-                } 
-                tileOptionList.Add(tileData.tileOptions.dynamicDict);
+                Dictionary<string,object> serialized = new Dictionary<string, object>();
+                 
+                foreach (TileItemOption tileItemOption in tileData.options.Keys) {
+                    if (TileEntityOptionFactory.isSerizable(tileItemOption)) {
+                        TileEntityOptionFactory.serializeOption(tileItemOption,tileData.options[tileItemOption],serialized);
+                    }
+                }
+                tileOptionList.Add(serialized);
             }
             nestedTileOptionList.Add(tileOptionList);
         }

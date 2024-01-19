@@ -10,7 +10,7 @@ public class TilePlacePreviewer : MonoBehaviour
     private Tilemap tilemap;
     private DevMode devMode;
     private PlayerInventory playerInventory;
-    private int previousId = -1;
+    private string previousId = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,40 +25,50 @@ public class TilePlacePreviewer : MonoBehaviour
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (devMode.placeSelectedID) {
-            previewTile((int) devMode.placeID,mousePosition.x,mousePosition.y);
+            previewTile(devMode.placeID,mousePosition.x,mousePosition.y);
         } else {
             previewTile(playerInventory.getSelectedTileId(), mousePosition.x, mousePosition.y);
         }
         
     }   
-    public void previewTile(int id, float x, float y) {
-        if (id < 0) {
+    public void previewTile(string id, float x, float y) {
+        if (id == null) {
             return;
         }
-        //Vector3Int adjustedChunkPosition = new Vector3Int(16 * Mathf.FloorToInt(x/8f),16 * Mathf.FloorToInt(y/8f),0);
-        Vector3Int placePosition = (Vector3Int)PlaceTile.getPlacePosition(id,x,y);
+        ItemObject itemObject = ItemRegister.getInstance().getItemObject(id);
+        if (itemObject == null) {
+            return;
+        }
+        Vector3Int placePosition = Vector3Int.zero;
+        if (itemObject is TileItem) {
+            TileItem tileItem = (TileItem) itemObject;
+            placePosition = (Vector3Int)PlaceTile.getPlacePosition(tileItem,x,y);
+        } else if (itemObject is ConduitItem) {
+
+        }
+        
 
         
         if (previouslyPreviewed == placePosition && previousId == id) {
             return;
         }
         
-        IdData idData = IdDataMap.getInstance().GetIdData(id);
-        if (idData is TileData) {
-            TileData tileData = IdDataMap.getInstance().copyTileData(id);
-            if (tileData.tileOptions.containsKey("rotation")) {
-                tileData.tileOptions.set("rotation", devMode.rotation);
+        if (itemObject is TileItem) {
+            TileItem tileItem = (TileItem) itemObject;
+            TileData tileData = new TileData(itemObject: tileItem,options:tileItem.getOptions());
+            if (tileData.options.ContainsKey(TileItemOption.Rotation)) {
+                tileData.options[TileItemOption.Rotation] = devMode.rotation;
             }
             tilemap.SetTile(placePosition, TileFactory.generateTile(tileData));
-            if (PlaceTile.tileBlockPlacable(id,x,y)) {
+            if (PlaceTile.tileBlockPlacable(tileItem,x,y)) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);
             } else {
                 tilemap.color = new Color(255f/255f,153f/255f,153/255f);
             }
-        } else if (idData is ConduitData) {
-            ConduitData conduitData = (ConduitData) idData;
-            tilemap.SetTile(placePosition, Resources.Load<RuleTile>(conduitData.ruleTilePath));
-            if (PlaceTile.conduitPlacable(id,conduitData.conduitType, new Vector2(x,y))) {
+        } else if (itemObject is ConduitItem) {
+            ConduitItem conduitItem = (ConduitItem) itemObject;
+            tilemap.SetTile(placePosition, conduitItem.ruleTile);
+            if (PlaceTile.conduitPlacable(conduitItem, new Vector2(x,y))) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);
             } else {
                 tilemap.color = new Color(255f/255f,153f/255f,153/255f);

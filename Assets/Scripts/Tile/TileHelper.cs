@@ -25,11 +25,11 @@ public class TileHelper
         float minY = getRealTileCenter(realPlacePosition.y) -(Mathf.Ceil(spriteSize.y/2)-1)/2;
         float maxY = getRealTileCenter(realPlacePosition.y) + (Mathf.Floor(spriteSize.y/2))/2;
         return new FloatIntervalVector(
-            new FloatInterval(
+            new Interval<float>(
                 getRealTileCenter(realPlacePosition.x) -(Mathf.Ceil(spriteSize.x/2)-1)/2,
                 getRealTileCenter(realPlacePosition.x) + (Mathf.Floor(spriteSize.x/2))/2
             ),
-            new FloatInterval (
+            new Interval<float> (
                 getRealTileCenter(realPlacePosition.y) -(Mathf.Ceil(spriteSize.y/2)-1)/2,
                 getRealTileCenter(realPlacePosition.y) + (Mathf.Floor(spriteSize.y/2))/2
             )

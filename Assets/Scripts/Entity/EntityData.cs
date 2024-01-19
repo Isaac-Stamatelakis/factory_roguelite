@@ -4,12 +4,10 @@ using UnityEngine;
 
 [System.Serializable]
 public class EntityData {
-    public int id;
+    public string id;
     public float x;
     public float y;
-    public string tileType;
-    public int amount;
-    public float hp;
+    public Dictionary<string, object> data;
 }
 
 

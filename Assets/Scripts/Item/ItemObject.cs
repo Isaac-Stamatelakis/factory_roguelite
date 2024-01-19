@@ -7,4 +7,5 @@ abstract public class ItemObject : ScriptableObject
 {
     [Header("Unique identifier for this item")]
     public string id;
+    public Sprite sprite;
 }

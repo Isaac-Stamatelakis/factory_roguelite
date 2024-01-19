@@ -60,10 +60,6 @@ public class Global
     public static int modInt(float x, float m) {
         return (int) mod(x,m);
     }
-    public static Vector2 getSpriteSize(int id) {
-        Sprite sprite = IdDataMap.getInstance().GetSprite(id);
-        return new Vector2((int) (sprite.texture.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
-    }
 
     public static Vector2 getSpriteSize(Sprite sprite) {
         return new Vector2((int) (sprite.texture.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));

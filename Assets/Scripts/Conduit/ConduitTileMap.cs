@@ -4,39 +4,40 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 
-public class ConduitTileMap : AbstractTileMap
+public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
 {
-    protected override void setTile(int x, int y, IdData idData)
+    protected override void setTile(int x, int y, ConduitData conduitData)
     {
-        if (idData == null) {
+        if (conduitData == null) {
             return;
         }
-        RuleTile ruleTile = Resources.Load<RuleTile>(((ConduitData) idData).ruleTilePath);
+        RuleTile ruleTile = conduitData.itemObject.ruleTile;
         tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
     }
 
-    protected override bool hitHardness(IdData idData)
+    protected override bool hitHardness(ConduitData conduitData)
     {
-        ConduitData conduitData = (ConduitData) idData;
+        /*
         conduitData.hardness--;
         return conduitData.hardness == 0;
+        */
+        return true;
     }
-    protected override IdData initTileData(int id)
+    protected override ConduitData initTileData(ConduitItem conduitItem)
     {
-        return base.initTileData(id);
+        return base.initTileData(conduitItem);
     }
     public List<List<ConduitOptions>> getConduitOptions(Vector2Int chunkPosition) {
-        ChunkData chunkData = dimensionChunkData[chunkPosition];
+        ChunkData<ConduitData> chunkData = dimensionChunkData[chunkPosition];
         List<List<ConduitOptions>> nestedConduitOptions = new List<List<ConduitOptions>>();
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<ConduitOptions> conduitOptionsList = new List<ConduitOptions>();
             for (int yIter = 0; yIter < 16; yIter ++) {
-                IdData idData = chunkData.data[xIter][yIter];
-                if (idData == null) {
+                ConduitData conduitData = chunkData.data[xIter][yIter];
+                if (conduitData == null) {
                     conduitOptionsList.Add(null);
                     continue;
                 }
-                ConduitData conduitData = (ConduitData) idData;
                 conduitOptionsList.Add(conduitData.conduitOptions);
             }
             nestedConduitOptions.Add(conduitOptionsList);

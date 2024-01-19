@@ -12,13 +12,13 @@ public class DevMode : MonoBehaviour
     [SerializeField] public bool noHit;
     [SerializeField] public bool noPlaceCost;
     [SerializeField] public bool placeSelectedID;
-    [SerializeField] public uint placeID;
+    [SerializeField] public string placeID;
     [SerializeField] public uint breakType;
     [SerializeField] public bool noPlaceLimit;
     [SerializeField] public uint rotation;
     [SerializeField] public bool placePreview;
     [SerializeField] public bool spawnItem;
-    [SerializeField] public uint spawnItemID;
+    [SerializeField] public string spawnItemID;
    
 
 }

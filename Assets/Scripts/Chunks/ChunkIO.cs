@@ -111,14 +111,14 @@ public class ChunkIO {
 
 [System.Serializable]
 public class SeralizedChunkTileData {
-    public List<List<int>> ids;
+    public List<List<string>> ids;
     public List<List<Dictionary<string,object>>> sTileOptions;
     public List<List<Dictionary<string,object>>> sTileEntityOptions;
 }
 
 [System.Serializable]
 public class SeralizedChunkConduitData {
-    public List<List<int>> ids;
+    public List<List<string>> ids;
     public List<List<ConduitOptions>> conduitOptions;
 }
 

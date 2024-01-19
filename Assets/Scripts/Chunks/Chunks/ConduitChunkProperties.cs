@@ -6,29 +6,25 @@ using System;
 
 public class DynamicConduitChunkProperties : DynamicChunkProperties
 {
-    protected IEnumerator AddConduitsToContainer(ChunkData chunkConduitData,string containerName) {
+    protected IEnumerator AddConduitsToContainer(ChunkData<ConduitData> chunkConduitData,string containerName) {
         ConduitTileMap conduitTileMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<ConduitTileMap>();
         Coroutine a = StartCoroutine(conduitTileMap.load(chunkConduitData, this.chunkPosition));
         yield return a;
 
     }
-    protected ChunkData deseralizeConduitChunkTileData(SeralizedChunkConduitData seralizedChunkConduitData) {
-        ChunkData chunkConduitData = new ChunkData();
-        chunkConduitData.data = new List<List<IdData>>();
+    protected ChunkData<ConduitData> deseralizeConduitChunkTileData(SeralizedChunkConduitData seralizedChunkConduitData) {
+        ChunkData<ConduitData> chunkConduitData = new ChunkData<ConduitData>();
+        chunkConduitData.data = new List<List<ConduitData>>();
+        ItemRegister itemRegister = ItemRegister.getInstance();
         for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-            List<IdData> conduitDataList = new List<IdData>();
+            List<ConduitData> conduitDataList = new List<ConduitData>();
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                int id = seralizedChunkConduitData.ids[xIter][yIter];
-                if (id > 0) {
-                    IdData idData = IdDataMap.getInstance().GetIdData(id);
-                    if (idData is ConduitData) {
-                        ConduitData conduitData = (ConduitData) idData;
-                        conduitData.conduitOptions = seralizedChunkConduitData.conduitOptions[xIter][yIter];
-                        conduitDataList.Add(conduitData);
-                    } else {
-                        conduitDataList.Add(null);
-                    }
-                    
+                string id = seralizedChunkConduitData.ids[xIter][yIter];
+                if (id != null) {
+                    ConduitItem conduitItem = itemRegister.GetConduitItem(id);
+                    ConduitData conduitData = new ConduitData(itemObject: conduitItem);
+                    // TODO add deseralize conduit options
+                    conduitDataList.Add(conduitData);
                 } else {
                     conduitDataList.Add(null);
                 }  

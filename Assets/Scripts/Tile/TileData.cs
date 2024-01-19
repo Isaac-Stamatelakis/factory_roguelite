@@ -5,9 +5,12 @@ using UnityEngine;
 /**
 Represents data with
 **/
-public class TileData : IdData
+public class TileData : PlacedItemObject<TileItem>
 {
-    public string tileType;
-    public SDictionary tileOptions;
-    public string tileEntityPrefabPath;
+    public Dictionary<TileItemOption,object> options;
+
+    public TileData(TileItem itemObject, Dictionary<TileItemOption,object> options) : base(itemObject)
+    {
+        this.options = options;
+    }
 }
