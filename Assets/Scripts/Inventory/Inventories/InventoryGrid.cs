@@ -37,25 +37,7 @@ public class InventoryGrid : MonoBehaviour
     }
     public virtual void loadItem(int n) {
         GameObject slot = slots[n];
-
-        if (itemGuard(slot, n,"load item")) {
-            return;
-        }
-        
-        if (Global.findChild(slot.transform,"item") != null) {
-            return;
-        } 
-
-        if (Global.findChild(slot.transform,"amount") != null) {
-            return;
-        }
-
         ItemSlot itemSlot = inventory[n];
-        /*
-        if (!validateData(data)) {
-            return;
-        }
-        */
         loadItemImage(slot,itemSlot);
         loadItemAmountNumber(slot,itemSlot);   
         
@@ -130,7 +112,6 @@ public class InventoryGrid : MonoBehaviour
         return number;
     }
     
-
     public virtual void swapWithGrabbedItem(int n) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
@@ -140,11 +121,15 @@ public class InventoryGrid : MonoBehaviour
         ItemSlot temp = inventory[n];
         inventory[n] = grabbedItemProperties.itemSlot;
         grabbedItemProperties.itemSlot = temp;
-        if (inventory[n] == null || inventory[n].itemObject.id == null) {
-            unloadItem(n);
+        unloadItem(n);
+        loadItem(n);
+        /*
+        if (inventory[n] == null || inventory[n].itemObject == null) {
+           
         } else {
-            loadItem(n);
+            
         }
+        */
         grabbedItemProperties.updateSprite();
     }
 

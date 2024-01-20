@@ -41,7 +41,7 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         imageObject.AddComponent<CanvasRenderer>();
         RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
         Image image = imageObject.AddComponent<Image>();
-        image.sprite = itemSlot.itemObject.sprite;
+        image.sprite = itemSlot.itemObject.getSprite();
         rectTransform.sizeDelta = getItemSize(image.sprite);
         return imageObject;
     }

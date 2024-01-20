@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public enum IntTileItemOption {
-    Rotation = TileItemOption.Rotation,
     Hardness = TileItemOption.Hardness,
+    Rotation = TileItemOption.Rotation,
     Chisel = TileItemOption.Chisel
 }
 
@@ -73,8 +73,11 @@ public class TileEntityOptionFactory {
 public class TileItem : ItemObject
 {
     public TileType tileType;
+    public Sprite sprite;
     [Tooltip("Specify the integer value for given tile options")]
-    public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions;
+    public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
+      new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 
+    };
     [Tooltip("Specify the integer value for given tile options\nNote if both RuleTile and AnimatedTile are provided, RuleTile is used")]
     public List<TileItemOptionValue<ScriptableTileItemOption, ScriptableObject>> scriptableOptions;
     public List<TileEntityOptionValue> tileEntityOptions;
@@ -91,10 +94,19 @@ public class TileItem : ItemObject
         }
         return dict;
     }
+
+    public override Sprite getSprite()
+    {
+        return sprite;
+    }
 }
 
 [System.Serializable]
 public class TileItemOptionValue<G,T> {
+    public TileItemOptionValue(G option, T value) {
+        this.option = option;
+        this.value = value;
+    }
     public G option;
     public T value;
 }

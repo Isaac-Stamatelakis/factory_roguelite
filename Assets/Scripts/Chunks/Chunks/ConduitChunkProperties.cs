@@ -15,7 +15,7 @@ public class DynamicConduitChunkProperties : DynamicChunkProperties
     protected ChunkData<ConduitData> deseralizeConduitChunkTileData(SeralizedChunkConduitData seralizedChunkConduitData) {
         ChunkData<ConduitData> chunkConduitData = new ChunkData<ConduitData>();
         chunkConduitData.data = new List<List<ConduitData>>();
-        ItemRegister itemRegister = ItemRegister.getInstance();
+        ItemRegistry itemRegister = ItemRegistry.getInstance();
         for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             List<ConduitData> conduitDataList = new List<ConduitData>();
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {

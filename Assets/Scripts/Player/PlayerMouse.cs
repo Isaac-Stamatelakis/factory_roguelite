@@ -32,7 +32,7 @@ public class PlayerMouse : MonoBehaviour
             if (Input.GetMouseButton(0)) {
                 ItemEntityHelper.spawnItemEntity(
                     mousePosition,
-                    new ItemSlot(itemObject:ItemRegister.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
                     Global.findChild(ChunkHelper.snapChunk(mousePosition.x,mousePosition.y).transform,"TileEntities").transform
                 );
             }
@@ -104,16 +104,11 @@ public class PlayerMouse : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
         if (hit.collider != null) {
             GameObject container = hit.collider.gameObject;
-            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>[] mapArray = container.GetComponents<AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>>();
-            if (mapArray == null || mapArray.Length == 0) {
-                return;
-            }
-            
-            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>> abstractTileMap = mapArray[0];
+            HitableTileMap hitableTileMap = container.GetComponent<HitableTileMap>();
             if (devMode.instantBreak) {
-                abstractTileMap.deleteTile(position);
+                hitableTileMap.deleteTile(position);
             } else {
-                abstractTileMap.hitTile(position);
+                hitableTileMap.hitTile(position);
             }
             
         }
@@ -166,7 +161,7 @@ public class PlayerMouse : MonoBehaviour
             return false;
         }
         bool placed = false;
-        ItemObject itemObject = ItemRegister.getInstance().getItemObject(id);
+        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
         placed = PlaceTile.Place(itemObject,mousePosition);
         
         if (placed && !devMode.noPlaceCost) {
@@ -179,18 +174,21 @@ public class PlayerMouse : MonoBehaviour
     private bool handleInventoryClick(Vector2 mousePosition) {
         if (!EventSystem.current.IsPointerOverGameObject()) {
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
+            if (grabbedItemProperties.itemSlot != null) {
                 GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
                 if (chunkGameObject == null) {
                     return false;
                 }
                 Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
-                ItemEntityHelper.spawnItemEntityWithVelocity(
-                    new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.itemSlot,
-                    Global.findChild(chunkGameObject.transform, "Entities").transform,
-                    calculateItemVelocity(mousePosition)
-                );
+                if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
+                        ItemEntityHelper.spawnItemEntityWithVelocity(
+                        new Vector2(transform.position.x,transform.position.y) + spriteCenter,
+                        grabbedItemProperties.itemSlot,
+                        Global.findChild(chunkGameObject.transform, "Entities").transform,
+                        calculateItemVelocity(mousePosition)
+                    );
+                }
+                
                 grabbedItemProperties.itemSlot = null;
                 grabbedItemProperties.updateSprite();
                 return true;

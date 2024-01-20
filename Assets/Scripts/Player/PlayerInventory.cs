@@ -73,7 +73,7 @@ public class PlayerInventory : MonoBehaviour
                 int firstOpenSlot = -1;
                 for (int n = inventory.Count-1; n >= 0; n --) {
                     ItemSlot inventorySlot = inventory[n];
-                    if (inventorySlot == null || inventorySlot.itemObject.id == null) {
+                    if (inventorySlot == null || inventorySlot.itemObject == null) {
                         firstOpenSlot = n;
                         continue;
                     }
@@ -127,7 +127,7 @@ public class PlayerInventory : MonoBehaviour
     }
 
     public string getSelectedTileId() {
-        if (inventory[selectedSlot] == null) {
+        if (inventory[selectedSlot] == null || inventory[selectedSlot].itemObject == null) {
             return null;
         }
         return inventory[selectedSlot].itemObject.id;

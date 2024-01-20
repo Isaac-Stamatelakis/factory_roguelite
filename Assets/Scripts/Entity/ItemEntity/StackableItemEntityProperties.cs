@@ -56,6 +56,7 @@ public class StackableItemEntity : ItemEntityProperties
             return;
         }
         ItemSlot hitObjectSlot = hitObjectProperties.itemSlot;
+        
         if (
             hitObjectProperties != null 
             && hitObjectProperties.gameObject != gameObject
