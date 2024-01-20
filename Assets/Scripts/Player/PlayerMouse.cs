@@ -174,7 +174,7 @@ public class PlayerMouse : MonoBehaviour
     private bool handleInventoryClick(Vector2 mousePosition) {
         if (!EventSystem.current.IsPointerOverGameObject()) {
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
+            if (grabbedItemProperties.itemSlot != null) {
                 GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
                 if (chunkGameObject == null) {
                     return false;

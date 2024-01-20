@@ -61,4 +61,17 @@ public class ItemRegister {
             return null;
         }
     }
+
+    public List<ItemObject> query(string serach, int limit) {
+        List<ItemObject> queried = new List<ItemObject>();
+        foreach (ItemObject itemObject in items.Values) {
+            if (queried.Count >= limit) {
+                return queried;
+            }
+            if (itemObject.name.ToLower().Contains(serach.ToLower())) {
+                queried.Add(itemObject);
+            }
+        }
+        return queried;
+    }
 }

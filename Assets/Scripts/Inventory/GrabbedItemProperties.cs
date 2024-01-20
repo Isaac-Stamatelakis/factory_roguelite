@@ -29,7 +29,7 @@ public class GrabbedItemProperties : MonoBehaviour
         if (previousNumber != null) {
             Destroy(previousNumber);
         }   
-        if (itemSlot != null && itemSlot.itemObject.id != null) {
+        if (itemSlot != null && itemSlot.itemObject != null && itemSlot.itemObject.id != null) {
             image.enabled = true;
 
             image.sprite = itemSlot.itemObject.sprite; 
