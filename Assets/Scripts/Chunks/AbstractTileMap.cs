@@ -5,10 +5,14 @@ using UnityEngine.Tilemaps;
 using System;
 
 
+public interface HitableTileMap {
+    public void hitTile(Vector2 position);
+    public void deleteTile(Vector2 position);
+}
 /**
 Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
 **/
-public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour where Item: ItemObject where PlacedItem : PlacedItemObject<Item>
+public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableTileMap where Item: ItemObject where PlacedItem : PlacedItemObject<Item>
 {
     protected Tilemap tilemap;
     public Tilemap mTileMap {get{return tilemap;}}
@@ -77,14 +81,7 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour where Ite
         
     }
 
-    protected virtual PlacedItem initTileData(Item itemObject) {
-        /*
-        if (id > 0) {
-            return IdDataMap.getInstance().GetIdData(id);
-        }
-        */
-        return null;
-    }
+    protected abstract PlacedItem initTileData(Item itemObject);
     protected Vector2Int getChunkPosition(Vector2Int position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/16f), Mathf.FloorToInt(position.y/16f));
     }
@@ -154,11 +151,11 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour where Ite
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<string> idList = new List<string>();
             for (int yIter = 0; yIter < 16; yIter ++) {
-                
-                if (chunkData.data[xIter][yIter] == null) {
-                    idList.Add(null);
+                PlacedItem placedItem = chunkData.data[xIter][yIter];
+                if (placedItem == null || placedItem.itemObject == null) {
+                     idList.Add(null);
                 } else {
-                    idList.Add(chunkData.data[xIter][yIter].itemObject.id);
+                    idList.Add(placedItem.itemObject.id);
                 }
                 
             }

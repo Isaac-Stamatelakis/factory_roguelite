@@ -11,16 +11,10 @@ Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
 public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
     protected override TileData initTileData(TileItem tileItem) {
-        /*
-        if (id >= 0) {
-            tileData = IdDataMap.getInstance().copyTileData(id);
-            if (tileData.tileOptions.containsKey("rotation")) {
-                tileData.tileOptions.set("rotation",devMode.rotation);
-            }
-        }
-        */
-        return null;
-        //return tileData;
+        return new TileData(
+            itemObject: tileItem,
+            options: tileItem.getOptions()
+        );
     }
 
     protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {

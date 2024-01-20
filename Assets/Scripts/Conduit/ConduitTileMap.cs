@@ -25,7 +25,7 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
     }
     protected override ConduitData initTileData(ConduitItem conduitItem)
     {
-        return base.initTileData(conduitItem);
+        return null;
     }
     public List<List<ConduitOptions>> getConduitOptions(Vector2Int chunkPosition) {
         ChunkData<ConduitData> chunkData = dimensionChunkData[chunkPosition];

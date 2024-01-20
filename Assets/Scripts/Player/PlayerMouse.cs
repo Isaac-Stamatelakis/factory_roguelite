@@ -104,16 +104,11 @@ public class PlayerMouse : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
         if (hit.collider != null) {
             GameObject container = hit.collider.gameObject;
-            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>[] mapArray = container.GetComponents<AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>>>();
-            if (mapArray == null || mapArray.Length == 0) {
-                return;
-            }
-            
-            AbstractTileMap<ItemObject,PlacedItemObject<ItemObject>> abstractTileMap = mapArray[0];
+            HitableTileMap hitableTileMap = container.GetComponent<HitableTileMap>();
             if (devMode.instantBreak) {
-                abstractTileMap.deleteTile(position);
+                hitableTileMap.deleteTile(position);
             } else {
-                abstractTileMap.hitTile(position);
+                hitableTileMap.hitTile(position);
             }
             
         }
