@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// Singleton
-public class ItemRegister {
+public class ItemRegistry {
     private static Dictionary<string,ItemObject> items;
-    private static ItemRegister instance;
-    private ItemRegister() {
+    private static ItemRegistry instance;
+    private ItemRegistry() {
         items = new Dictionary<string, ItemObject>();
         ItemObject[] itemObjects = Resources.LoadAll<ItemObject>("");
         foreach (ItemObject itemObject in itemObjects) {
@@ -20,9 +20,9 @@ public class ItemRegister {
 
     }
 
-    public static ItemRegister getInstance() {
+    public static ItemRegistry getInstance() {
         if (instance == null) {
-            instance = new ItemRegister();
+            instance = new ItemRegistry();
         }
         return instance;
     }
@@ -62,12 +62,9 @@ public class ItemRegister {
         }
     }
 
-    public List<ItemObject> query(string serach, int limit) {
+    public List<ItemObject> query(string serach) {
         List<ItemObject> queried = new List<ItemObject>();
         foreach (ItemObject itemObject in items.Values) {
-            if (queried.Count >= limit) {
-                return queried;
-            }
             if (itemObject.name.ToLower().Contains(serach.ToLower())) {
                 queried.Add(itemObject);
             }

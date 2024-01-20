@@ -32,7 +32,7 @@ public class PlayerMouse : MonoBehaviour
             if (Input.GetMouseButton(0)) {
                 ItemEntityHelper.spawnItemEntity(
                     mousePosition,
-                    new ItemSlot(itemObject:ItemRegister.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
                     Global.findChild(ChunkHelper.snapChunk(mousePosition.x,mousePosition.y).transform,"TileEntities").transform
                 );
             }
@@ -161,7 +161,7 @@ public class PlayerMouse : MonoBehaviour
             return false;
         }
         bool placed = false;
-        ItemObject itemObject = ItemRegister.getInstance().getItemObject(id);
+        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
         placed = PlaceTile.Place(itemObject,mousePosition);
         
         if (placed && !devMode.noPlaceCost) {
@@ -180,12 +180,15 @@ public class PlayerMouse : MonoBehaviour
                     return false;
                 }
                 Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
-                ItemEntityHelper.spawnItemEntityWithVelocity(
-                    new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.itemSlot,
-                    Global.findChild(chunkGameObject.transform, "Entities").transform,
-                    calculateItemVelocity(mousePosition)
-                );
+                if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
+                        ItemEntityHelper.spawnItemEntityWithVelocity(
+                        new Vector2(transform.position.x,transform.position.y) + spriteCenter,
+                        grabbedItemProperties.itemSlot,
+                        Global.findChild(chunkGameObject.transform, "Entities").transform,
+                        calculateItemVelocity(mousePosition)
+                    );
+                }
+                
                 grabbedItemProperties.itemSlot = null;
                 grabbedItemProperties.updateSprite();
                 return true;

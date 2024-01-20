@@ -86,7 +86,7 @@ public abstract class ChunkProperties : MonoBehaviour
 
     protected IEnumerator initTileEntitities(SeralizedChunkTileData chunkTileData, string tileContainerName) {
         Transform tileEntityContainer = Global.findChild(transform,"TileEntities").transform;
-        ItemRegister itemRegister = ItemRegister.getInstance();
+        ItemRegistry itemRegister = ItemRegistry.getInstance();
         for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                 string id = chunkTileData.ids[xIter][yIter];
@@ -137,7 +137,7 @@ public abstract class ChunkProperties : MonoBehaviour
         entityContainer.transform.SetParent(transform);
         this.entityContainer = entityContainer.transform;
         List<EntityData> entityDataList = (List<EntityData>) jsonData.get("Entities");
-        ItemRegister itemRegister = ItemRegister.getInstance();
+        ItemRegistry itemRegister = ItemRegistry.getInstance();
         // TODO refactor item entities
         /*
         foreach (EntityData entityData in entityDataList) {
@@ -156,7 +156,7 @@ public abstract class ChunkProperties : MonoBehaviour
 
     protected ChunkData<TileData> deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
         List<List<TileData>> nestedTileDataList = new List<List<TileData>>();
-        ItemRegister itemRegister = ItemRegister.getInstance();
+        ItemRegistry itemRegister = ItemRegistry.getInstance();
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<TileData> tileDataList = new List<TileData>();
             for (int yIter = 0; yIter < 16; yIter ++) {

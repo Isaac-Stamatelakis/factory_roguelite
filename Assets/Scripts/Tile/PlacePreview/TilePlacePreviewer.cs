@@ -35,7 +35,7 @@ public class TilePlacePreviewer : MonoBehaviour
         if (id == null) {
             return;
         }
-        ItemObject itemObject = ItemRegister.getInstance().getItemObject(id);
+        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
         if (itemObject == null) {
             return;
         }

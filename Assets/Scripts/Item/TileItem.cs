@@ -73,6 +73,7 @@ public class TileEntityOptionFactory {
 public class TileItem : ItemObject
 {
     public TileType tileType;
+    public Sprite sprite;
     [Tooltip("Specify the integer value for given tile options")]
     public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
       new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 
@@ -92,6 +93,11 @@ public class TileItem : ItemObject
             dict[option] = tileItemOptionValue.value;
         }
         return dict;
+    }
+
+    public override Sprite getSprite()
+    {
+        return sprite;
     }
 }
 

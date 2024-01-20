@@ -32,7 +32,7 @@ public class GrabbedItemProperties : MonoBehaviour
         if (itemSlot != null && itemSlot.itemObject != null && itemSlot.itemObject.id != null) {
             image.enabled = true;
 
-            image.sprite = itemSlot.itemObject.sprite; 
+            image.sprite = itemSlot.itemObject.getSprite(); 
             GetComponent<RectTransform>().sizeDelta = InventoryGrid.getItemSize(image.sprite);
 
             GameObject number = new GameObject();

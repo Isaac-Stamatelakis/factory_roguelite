@@ -232,7 +232,7 @@ public class PlaceTile {
 
     public static bool placeConduit(ConduitItem conduitItem, Vector2 placePosition) {
         if (conduitPlacable(conduitItem,placePosition)) {
-            ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.type);
+            ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.getType());
             Vector3Int tileMapPosition = conduitTileMap.mTileMap.WorldToCell(placePosition);
             conduitTileMap.placeTileAtLocation(tileMapPosition.x,tileMapPosition.y,conduitItem);
             
@@ -242,7 +242,7 @@ public class PlaceTile {
     }
 
     public static bool conduitPlacable(ConduitItem conduitItem, Vector2 placePosition) {
-        ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.type);
+        ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.getType());
         
         if (conduitTileMap == null) {
             return false;

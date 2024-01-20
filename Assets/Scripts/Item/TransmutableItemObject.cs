@@ -48,8 +48,11 @@ public class TransmutableItemObject : ItemObject
     [Header("If clicked, all gas states are used")]
     public bool useAllGasStates;
     public List<TransmutableStateOptions> states;
-    
-    
+
+    public override Sprite getSprite()
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 [System.Serializable]

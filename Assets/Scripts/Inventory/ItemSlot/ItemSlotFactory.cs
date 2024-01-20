@@ -10,7 +10,7 @@ public enum ItemSlotOption {
 public class ItemSlotFactory 
 {
     public static List<ItemSlot> deserialize(object json) {
-        ItemRegister itemRegister = ItemRegister.getInstance();
+        ItemRegistry itemRegister = ItemRegistry.getInstance();
         List<ItemSlot> itemSlots = new List<ItemSlot>();
         List<SerializedItemSlot> serializedItems = JsonConvert.DeserializeObject<List<SerializedItemSlot>>(json.ToString());
         foreach (SerializedItemSlot serializedItemSlot in serializedItems) {
