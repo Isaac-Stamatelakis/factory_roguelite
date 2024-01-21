@@ -12,6 +12,7 @@ public class ItemRegistry {
         foreach (ItemObject itemObject in itemObjects) {
             addToDict(itemObject);
         }
+        TransmutableItemSprites sprites = TransmutableItemSprites.getInstance();
         TransmutableItemMaterial[] transmutableItemMaterials = Resources.LoadAll<TransmutableItemMaterial>("");
         foreach (TransmutableItemMaterial transmutableItemMaterial in transmutableItemMaterials) {
             TransmutableMaterialDict dict = new TransmutableMaterialDict(transmutableItemMaterial);
@@ -19,22 +20,33 @@ public class ItemRegistry {
                 transmutableItemMaterial.color.a = 1;
                 TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
                 itemObject.materialDict = dict;
-                Sprite sprite = itemConstructionData.sprite;
-                Texture2D texture2D = sprite.texture;
-                Rect rect = new Rect(0, 0, texture2D.width, texture2D.height);
-                Vector2 pivot = new Vector2(0.5f, 0.5f); // Adjust pivot as needed
-                Color[] pixels = texture2D.GetPixels();
-                for (int i = 0; i < pixels.Length; i++)
-                {
-                    pixels[i] *= transmutableItemMaterial.color;
-                    Debug.Log(pixels[i]);  
+                if (itemConstructionData.sprite == null) {
+                    Sprite sprite = sprites.getSprite(itemConstructionData.state);
+                    if (sprite == null) {
+                        itemObject.sprite = Resources.Load<Sprite>("Sprites/tileobject16by16");
+                        Debug.LogError("Attempted to load transmutable item sprite for " + itemConstructionData.state.ToString() + " which does not exist");
+                    } else {
+                        Texture2D texture2D = sprite.texture;
+                        Rect rect = new Rect(0, 0, texture2D.width, texture2D.height);
+                        Vector2 pivot = new Vector2(0.5f, 0.5f); 
+                        Color[] pixels = texture2D.GetPixels();
+                        for (int i = 0; i < pixels.Length; i++)
+                        {
+                            pixels[i] *= transmutableItemMaterial.color;
+                        }
+                        Texture2D newTexture = new Texture2D(texture2D.width, texture2D.height, TextureFormat.RGBA32, texture2D.mipmapCount > 1);
+                        newTexture.SetPixels(pixels);
+                        newTexture.Apply();
+                        Sprite newSprite = Sprite.Create(newTexture, rect, pivot);
+                        itemObject.state = itemConstructionData.state;
+                        itemObject.sprite = newSprite;
+                    }
+                    
+                } else {
+                    itemObject.sprite = itemConstructionData.sprite;
                 }
-                Texture2D newTexture = new Texture2D(texture2D.width, texture2D.height, TextureFormat.RGBA32, texture2D.mipmapCount > 1);
-                newTexture.SetPixels(pixels);
-                newTexture.Apply();
-                Sprite newSprite = Sprite.Create(newTexture, rect, pivot);
-                itemObject.state = itemConstructionData.state;
-                itemObject.sprite = newSprite;
+                
+                
                 if (itemConstructionData.prefix.Length == 0) {
                     itemObject.name += TransmutableItemStateFactory.getPrefix(itemObject.state);
                 } else {
@@ -52,6 +64,7 @@ public class ItemRegistry {
                 addToDict(itemObject);
             }
         }
+        Debug.Log("Item registry loaded  " + items.Count + " items");
     }
 
     private bool addToDict(ItemObject itemObject) {

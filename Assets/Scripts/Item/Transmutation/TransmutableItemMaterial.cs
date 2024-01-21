@@ -67,7 +67,7 @@ public class TransmutableItemStateFactory {
         {TransmutableItemState.Gas, ""},
         {TransmutableItemState.Plasma, ""},
     };
-    
+
     public static string getPrefix(TransmutableItemState state) {
         if (prefixs.ContainsKey(state)) {
             return prefixs[state];
@@ -80,6 +80,38 @@ public class TransmutableItemStateFactory {
             return suffixs[state];
         }
         return "";
+    }
+}
+
+public class TransmutableItemSprites {
+    private static Dictionary<TransmutableItemState, Sprite> dict = new Dictionary<TransmutableItemState, Sprite>();
+    private static TransmutableItemSprites instance;
+    private TransmutableItemSprites() {
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/TransmutableSprites");
+        Debug.Log("Loaded " + sprites.Length + " Base Transmutation Sprites");
+        foreach (TransmutableItemState state in (TransmutableItemState.GetValues(typeof(TransmutableItemState)))) {
+            foreach (Sprite sprite in sprites) {
+                if (sprite.name == state.ToString()) {
+                    if (!dict.ContainsKey(state)) {
+                        dict[state] = sprite;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    public static TransmutableItemSprites getInstance() {
+        if (instance == null) {
+            instance = new TransmutableItemSprites();
+        }
+        return instance;
+    }
+
+    public Sprite getSprite(TransmutableItemState state) {
+        if (dict.ContainsKey(state)) {
+            return dict[state];
+        }
+        return null;
     }
 }
 ///
