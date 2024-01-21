@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class ItemSlot
 {
     public ItemSlot(ItemObject itemObject, int amount, Dictionary<ItemSlotOption, object> nbt) {

@@ -10,16 +10,46 @@ public class ItemRegistry {
         items = new Dictionary<string, ItemObject>();
         ItemObject[] itemObjects = Resources.LoadAll<ItemObject>("");
         foreach (ItemObject itemObject in itemObjects) {
-            if (!items.ContainsKey(itemObject.id)) {
-                items[itemObject.id] = itemObject;
-            } else {
-                ItemObject contained = items[itemObject.id];
-                Debug.LogError("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
+            addToDict(itemObject);
+        }
+        TransmutableItemMaterial[] transmutableItemMaterials = Resources.LoadAll<TransmutableItemMaterial>("");
+        foreach (TransmutableItemMaterial transmutableItemMaterial in transmutableItemMaterials) {
+            TransmutableMaterialDict dict = new TransmutableMaterialDict(transmutableItemMaterial);
+            foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.states) {
+                TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
+                itemObject.materialDict = dict;
+                itemObject.sprite = itemConstructionData.sprite;
+                itemObject.state = itemConstructionData.state;
+                if (itemConstructionData.prefix.Length == 0) {
+                    itemObject.name += TransmutableItemStateFactory.getPrefix(itemObject.state);
+                } else {
+                    itemObject.name = itemConstructionData.prefix;
+                }
+
+                itemObject.name += " " + transmutableItemMaterial.name + " ";
+                if (itemConstructionData.suffix.Length == 0) {
+                    itemObject.name += TransmutableItemStateFactory.getSuffix(itemObject.state);
+                } else {
+                    itemObject.name += itemConstructionData.suffix;
+                }
+                
+                itemObject.id = itemObject.name.ToLower().Replace(" ","_");
+                
+                addToDict(itemObject);
             }
         }
-
     }
 
+    private bool addToDict(ItemObject itemObject) {
+        if (!items.ContainsKey(itemObject.id)) {
+            items[itemObject.id] = itemObject;
+            return true;
+        } else {
+            ItemObject contained = items[itemObject.id];
+            Debug.LogError("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
+            return false;
+        }
+    }
     public static ItemRegistry getInstance() {
         if (instance == null) {
             instance = new ItemRegistry();

@@ -116,12 +116,10 @@ public class ItemCatalogueController : MonoBehaviour
                 break;
             }
             if (!displayedIDs.Contains(itemObject.id)) { // Only create image if was not previously displayed
-                if (itemObject is TransmutableItemObject) {
-                    continue; // TODO Implement TransmutableItems for JEI (Mutable will be displayed for each itemobject)
-                }
                 displayedIDs.Add(itemObject.id);
                 GameObject itemObjectImage = new GameObject();
                 Button button = itemObjectImage.AddComponent<Button>();
+                
                 button.onClick.AddListener(() => {
                     handleClick(itemObject);
                 });

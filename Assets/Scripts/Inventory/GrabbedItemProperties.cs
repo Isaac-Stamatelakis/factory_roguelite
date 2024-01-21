@@ -7,7 +7,7 @@ using System;
 
 public class GrabbedItemProperties : MonoBehaviour
 {
-    
+    [SerializeField]
     public ItemSlot itemSlot;
     private Image image;
     // Start is called before the first frame update
