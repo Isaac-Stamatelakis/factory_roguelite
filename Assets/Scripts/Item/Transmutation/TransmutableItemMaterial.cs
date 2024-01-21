@@ -66,8 +66,8 @@ public class TransmutableItemStateFactory {
         {TransmutableItemState.Liquid, ""},
         {TransmutableItemState.Gas, ""},
         {TransmutableItemState.Plasma, ""},
-
     };
+    
     public static string getPrefix(TransmutableItemState state) {
         if (prefixs.ContainsKey(state)) {
             return prefixs[state];

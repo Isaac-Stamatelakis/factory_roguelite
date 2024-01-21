@@ -16,10 +16,25 @@ public class ItemRegistry {
         foreach (TransmutableItemMaterial transmutableItemMaterial in transmutableItemMaterials) {
             TransmutableMaterialDict dict = new TransmutableMaterialDict(transmutableItemMaterial);
             foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.states) {
+                transmutableItemMaterial.color.a = 1;
                 TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
                 itemObject.materialDict = dict;
-                itemObject.sprite = itemConstructionData.sprite;
+                Sprite sprite = itemConstructionData.sprite;
+                Texture2D texture2D = sprite.texture;
+                Rect rect = new Rect(0, 0, texture2D.width, texture2D.height);
+                Vector2 pivot = new Vector2(0.5f, 0.5f); // Adjust pivot as needed
+                Color[] pixels = texture2D.GetPixels();
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    pixels[i] *= transmutableItemMaterial.color;
+                    Debug.Log(pixels[i]);  
+                }
+                Texture2D newTexture = new Texture2D(texture2D.width, texture2D.height, TextureFormat.RGBA32, texture2D.mipmapCount > 1);
+                newTexture.SetPixels(pixels);
+                newTexture.Apply();
+                Sprite newSprite = Sprite.Create(newTexture, rect, pivot);
                 itemObject.state = itemConstructionData.state;
+                itemObject.sprite = newSprite;
                 if (itemConstructionData.prefix.Length == 0) {
                     itemObject.name += TransmutableItemStateFactory.getPrefix(itemObject.state);
                 } else {
@@ -32,7 +47,6 @@ public class ItemRegistry {
                 } else {
                     itemObject.name += itemConstructionData.suffix;
                 }
-                
                 itemObject.id = itemObject.name.ToLower().Replace(" ","_");
                 
                 addToDict(itemObject);
