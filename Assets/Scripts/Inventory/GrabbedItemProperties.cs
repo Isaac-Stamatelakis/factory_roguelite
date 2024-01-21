@@ -41,7 +41,7 @@ public class GrabbedItemProperties : MonoBehaviour
             textMeshProUGUI.alignment = TextAlignmentOptions.BottomRight;
             textMeshProUGUI.fontSize = 30;
             RectTransform rectTransform = number.GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(50,50);
+            rectTransform.sizeDelta = new Vector2(80,50);
             number.name = "Amount";
             number.transform.SetParent(transform);
             number.transform.localPosition = new Vector3(-50,-25,-1); 
