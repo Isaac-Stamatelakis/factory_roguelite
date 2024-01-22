@@ -27,11 +27,12 @@ public class PlayerIO : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        /*
         playerData["enablePlacePreview"] = devMode.placePreview;
         if (devMode.placePreview != tilePlacePreviewController.On) {
             tilePlacePreviewController.toggle();
         }
+        */
     }
 
     void Destroy() {

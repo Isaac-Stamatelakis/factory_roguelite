@@ -7,11 +7,33 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 public class ChunkIO {
-    public static GameObject getChunkFromJson(Vector2Int chunkPosition, int dim, Transform closedSystemTransform) {
+
+    public static bool jsonExists(Vector2Int chunkPosition, int dim) {
         string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
         string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
-        string json = File.ReadAllText(filePath);
+        return (Directory.Exists(filePath));
+    }
+    public static GameObject getChunkFromJson(Vector2Int chunkPosition, int dim, ClosedChunkSystem closedChunkSystem) {
+        string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
+        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
+        string json = null;
+        if (File.Exists(filePath))
+        {
+            Debug.Log("Loading chunk for dim " + dim);
+            json = File.ReadAllText(filePath);
+        } else {
+            if (closedChunkSystem is ConduitTileClosedChunkSystem) {
+                json = File.ReadAllText(Application.dataPath+"/Resources/Json/conduit_chunk_empty.json");
+            } else if (closedChunkSystem is TileClosedChunkSystem) {
+                json = File.ReadAllText(Application.dataPath+"/Resources/Json/dynamic_chunk_empty.json");
+            } 
+            Debug.Log("Created new chunk " + chunkName + " dim " + dim);
+        }
+        if (json == null) { 
+            return null;
+        }
         Dictionary<string, object> dict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,object>>(json);
+
         JsonData jsonData = new JsonData();
 
         if (dict.ContainsKey("Type")) {
@@ -52,18 +74,18 @@ public class ChunkIO {
             case "Static":
                 chunkGameObject.name = "static" + chunkName;
                 StaticChunkProperties staticChunkProperties = chunkGameObject.AddComponent<StaticChunkProperties>();
-                staticChunkProperties.initalize(dim,chunkPosition,jsonData,closedSystemTransform);
+                staticChunkProperties.initalize(dim,chunkPosition,jsonData,closedChunkSystem.transform);
                 
                 break;
             case "Dynamic":
                 chunkGameObject.name = "dynamic" + chunkName;
                 DynamicChunkProperties dynamicChunkProperties = chunkGameObject.AddComponent<DynamicChunkProperties>();
-                dynamicChunkProperties.initalize(dim,chunkPosition,jsonData,closedSystemTransform);
+                dynamicChunkProperties.initalize(dim,chunkPosition,jsonData,closedChunkSystem.transform);
                 break;
             case "DynamicConduit":
                 chunkGameObject.name = "dynamicconduit" + chunkName;
                 DynamicConduitChunkProperties dynamicConduitChunkProperties = chunkGameObject.AddComponent<DynamicConduitChunkProperties>();
-                dynamicConduitChunkProperties.initalize(dim,chunkPosition,jsonData,closedSystemTransform);
+                dynamicConduitChunkProperties.initalize(dim,chunkPosition,jsonData,closedChunkSystem.transform);
                 break;
         }
         return chunkGameObject;
@@ -105,7 +127,6 @@ public class ChunkIO {
         }
         Debug.Log(printString);
     }
-    
 
 }
 
