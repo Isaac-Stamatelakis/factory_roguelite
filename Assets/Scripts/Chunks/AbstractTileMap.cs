@@ -29,13 +29,6 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
         
-        CompositeCollider2D compositeCollider2D = gameObject.AddComponent<CompositeCollider2D>();
-        compositeCollider2D.geometryType = CompositeCollider2D.GeometryType.Polygons;
-
-        Rigidbody2D rigidbody2D = gameObject.GetComponent<Rigidbody2D>();
-        rigidbody2D.bodyType=RigidbodyType2D.Static;
-        tilemapCollider.usedByComposite=true;
-        
     }
     public virtual void Start() {
         devMode = GameObject.Find("Player").GetComponent<DevMode>();

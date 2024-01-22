@@ -5,11 +5,12 @@ using UnityEngine;
 /// <summary>
 /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
 /// A Dimension can have a collection of ClosedChunkSystems 
+/// ChunkList must be initated
 /// </summary>
-public abstract class ClosedChunkSystem : MonoBehaviour
+public abstract class ClosedChunkSystem:  MonoBehaviour
 {
     protected Transform playerTransform;
-    protected ChunkList chunkList;
+    public ChunkList chunkList;
     protected ChunkLoader chunkLoader;
     protected IntervalVector coveredArea;
     protected ChunkUnloader chunkUnloader;    
@@ -24,15 +25,25 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         Transform chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
         chunkUnloader = chunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
         chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
-
+        playerTransform = GameObject.Find("Player").GetComponent<Transform>();
     }
 
-    public virtual void initalize(IntervalVector coveredArea, int dim)
+    public virtual void initalize(IntervalVector coveredArea, int dim, ChunkList chunkList)
     {
+        this.chunkList = chunkList;
+        if (chunkList == null) {
+            Debug.LogError("Attempted to load dim " + dim + " when chunk list was null");
+            return;
+        }
+        chunkList.initChunks();
         this.dim = dim;
         this.coveredArea = coveredArea;
-        initChunkList();
-        loadChunksNearPlayer(Global.ChunkLoadRange,Global.ChunkLoadRange);
+        if (false) {
+            loadChunksNearPlayer(20,20);
+        } else {
+            loadChunksNearPlayer(Global.ChunkLoadRange,Global.ChunkLoadRange);
+        }
+        
         
     }
 
@@ -52,18 +63,7 @@ public abstract class ClosedChunkSystem : MonoBehaviour
                 }
             }
         }
-    }
-
-    /**
-    Initiates the all the chunks within the hub and places them into chunklist.
-    **/
-    protected void initChunkList() {
-        chunkList = new ChunkList(coveredArea.X.UpperBound,coveredArea.X.LowerBound,coveredArea.Y.UpperBound,coveredArea.Y.LowerBound,this.dim);
-        chunkList.initChunks(transform);
-        playerTransform = GameObject.Find("Player").GetComponent<Transform>();
-        
-    }
-    
+    }    
     public List<ChunkProperties> getUnloadedChunksNearPlayer() {
         Vector2Int playerChunk = getPlayerChunk();
         List<ChunkProperties> chunksToLoad = new List<ChunkProperties>();
@@ -84,7 +84,10 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         for (int x = playerChunk.x-xRange; x <= playerChunk.x+xRange; x++) {
             for (int y = playerChunk.y-yRange; y <= playerChunk.y+yRange; y ++) {
                 if (chunkList.inChunkBoundary(x,y)) {
-                    chunkList.GetChunk(x,y).fullLoadChunk();
+                    ChunkProperties chunkProperties = chunkList.GetChunk(x,y);
+                    if (chunkProperties != null) {
+                        chunkProperties.fullLoadChunk();
+                    }
                 }
             }
         }
@@ -98,28 +101,28 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         List<ChunkProperties> chunksToUnload = new List<ChunkProperties>();
         for (int x = chunkList.MinX; x < playerChunk.x-Global.ChunkLoadRange; x ++) {
             for (int y = chunkList.MinY; y <= chunkList.MaxX; y ++) {
-                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y).FullLoaded) {
+                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y) != null && chunkList.GetChunk(x,y).FullLoaded) {
                     chunksToUnload.Add(chunkList.GetChunk(x,y));
                 }
             }
         }
         for (int x = playerChunk.x + Global.ChunkLoadRange+1; x <= chunkList.MaxX; x ++) {
             for (int y = chunkList.MinY; y <= chunkList.MaxX; y ++) {
-                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y).FullLoaded) {
+                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y) != null && chunkList.GetChunk(x,y).FullLoaded) {
                     chunksToUnload.Add(chunkList.GetChunk(x,y));
                 }
             }
         }
         for (int x = playerChunk.x - Global.ChunkLoadRange; x < playerChunk.x + Global.ChunkLoadRange; x ++) {
             for (int y = chunkList.MinY; y < playerChunk.y - Global.ChunkLoadRange; y ++) {
-                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y).FullLoaded) {
+                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y) != null && chunkList.GetChunk(x,y).FullLoaded) {
                     chunksToUnload.Add(chunkList.GetChunk(x,y));
                 }
             }
         }
         for (int x = playerChunk.x - Global.ChunkLoadRange; x < playerChunk.x + Global.ChunkLoadRange; x ++) {
             for (int y = playerChunk.y + Global.ChunkLoadRange+1; y <= chunkList.MaxY; y ++) {
-                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y).FullLoaded) {
+                if (chunkList.inChunkBoundary(x,y) && chunkList.GetChunk(x,y) != null && chunkList.GetChunk(x,y).FullLoaded) {
                     chunksToUnload.Add(chunkList.GetChunk(x,y));
                 }
             }
