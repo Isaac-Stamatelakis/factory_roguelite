@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class ChunkProperties : MonoBehaviour
 {
     protected JsonData jsonData;
+    [SerializeField]
     protected bool fullLoaded = false;
     public bool FullLoaded {get{return fullLoaded;}}
     protected Vector2Int chunkPosition;
@@ -25,15 +26,14 @@ public abstract class ChunkProperties : MonoBehaviour
         
     }
 
-    public virtual void fullLoadChunk() {
+    public IEnumerator fullLoadChunk(int sectionAmount, Vector2Int direction) {
         if (fullLoaded) {
-            return;
+            yield return null;
         }   
         this.fullLoaded = true;
-        StartCoroutine(fullLoadChunkCoroutine());
+        yield return StartCoroutine(fullLoadChunkCoroutine(sectionAmount,direction));
 
     }
-
     public virtual void initalize(int dim, Vector2Int chunkPosition, JsonData jsonData, Transform closedSystemTransform) {
         // Set variables
         this.dim = dim;
@@ -47,10 +47,25 @@ public abstract class ChunkProperties : MonoBehaviour
         StartCoroutine(softLoadChunk(jsonData));
     }
 
-    protected virtual IEnumerator fullLoadChunkCoroutine() {
-        Coroutine a = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBlocks")),"TileBlocks"));
-        Coroutine b = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBackgrounds")),"TileBackgrounds"));
-        Coroutine c = StartCoroutine(addTilesToContainer(deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileObjects")),"TileObjects"));
+    protected virtual IEnumerator fullLoadChunkCoroutine(int sectionAmount, Vector2Int direction) {
+        Coroutine a = StartCoroutine(addTilesToContainer(
+            deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBlocks")),
+            "TileBlocks",
+            sectionAmount,
+            direction
+        ));
+        Coroutine b = StartCoroutine(addTilesToContainer(deseralizeChunkTileData(
+            (SeralizedChunkTileData) jsonData.get("TileBackgrounds")),
+            "TileBackgrounds",
+            sectionAmount,
+            direction
+        ));
+        Coroutine c = StartCoroutine(addTilesToContainer(
+            deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileObjects")),
+            "TileObjects",
+            sectionAmount,
+            direction
+        ));
         
         yield return a;
         yield return b;
@@ -68,6 +83,7 @@ public abstract class ChunkProperties : MonoBehaviour
         gameObject.layer = LayerMask.NameToLayer("Chunk");
         yield return null;
     }
+
 
     public IEnumerator softLoadChunk(JsonData jsonData) {
         GameObject tileEntities = new GameObject();
@@ -103,24 +119,48 @@ public abstract class ChunkProperties : MonoBehaviour
         yield return null;
     }
 
-    public virtual void unfullLoadChunk() {
+    public virtual IEnumerator unfullLoadChunk() {
+        if (!fullLoaded) {
+            yield return null;
+        }
+        gameObject.name = gameObject.name.Split("|")[0];
+        gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
+        fullLoaded = false;
+        yield return destroyContainers();
+    }
+
+    public virtual void instantlyUnFullLoadChunk() {
         if (!fullLoaded) {
             return;
         }
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         fullLoaded = false;
-        destroyContainers();
+        instantlyDestroyContainers();
     }
 
-    protected IEnumerator addTilesToContainer(ChunkData<TileData> tileData,string containerName) {
+    protected IEnumerator addTilesToContainer(ChunkData<TileData> tileData,string containerName,int sectionAmount, Vector2Int direction) {
         TileGridMap tileGridMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<TileGridMap>();
-        Coroutine a = StartCoroutine(tileGridMap.load(tileData, chunkPosition));
+        Coroutine a = StartCoroutine(tileGridMap.load(tileData, chunkPosition,sectionAmount,direction));
         yield return a;
 
     }
 
-    protected virtual void destroyContainers() {
+    protected virtual IEnumerator destroyContainers() {
+        TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, "TileBlocks").GetComponent<TileGridMap>();
+        Coroutine a = StartCoroutine(tileBlockGridMap.removeChunk(chunkPosition));
+
+        TileGridMap tileBackgroundGripMap = Global.findChild(transform.parent.parent.transform, "TileBackgrounds").GetComponent<TileGridMap>();
+        Coroutine b = StartCoroutine(tileBackgroundGripMap.removeChunk(chunkPosition));
+
+        TileGridMap tileObjectGridMap = Global.findChild(transform.parent.parent.transform, "TileObjects").GetComponent<TileGridMap>();
+        Coroutine c = StartCoroutine(tileObjectGridMap.removeChunk(chunkPosition));
+        yield return a;
+        yield return b;
+        yield return c;
+    }
+
+    protected virtual void instantlyDestroyContainers() {
         TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, "TileBlocks").GetComponent<TileGridMap>();
         tileBlockGridMap.instantlyRemoveChunk(chunkPosition);
 

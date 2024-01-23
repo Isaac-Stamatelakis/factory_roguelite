@@ -16,7 +16,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
             options: tileItem.getOptions()
         );
     }
-
+    
     protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {
         GameObject chunk = ChunkHelper.snapChunk(worldPosition.x,worldPosition.y);
         Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;    
