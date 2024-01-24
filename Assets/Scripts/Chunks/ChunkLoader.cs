@@ -48,13 +48,16 @@ public class ChunkLoader : MonoBehaviour
                 continue;
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-            Vector2 playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
             ChunkProperties closestChunk = loadQueue.Dequeue();
             if (closestChunk.FullLoaded) {
                 activeCoroutines--;
                 continue;
             }
-            StartCoroutine(loadChunk(closestChunk,loadAmount));
+            Vector2Int dif = playerChunkPosition-closestChunk.ChunkPosition;
+            double angle = Mathf.Atan2(dif.y,dif.x);
+            StartCoroutine(loadChunk(closestChunk,loadAmount,angle));
+            
             if (loadAmount*uploadAmountThreshold >= rapidUploadThreshold) { // Instant upload after threshhold reached
                 yield return new WaitForEndOfFrame();
             } else { // upload speed increases rapidally if there are many chunks to upload
@@ -63,11 +66,11 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator loadChunk(ChunkProperties chunk, int loadAmount) {
+    private IEnumerator loadChunk(ChunkProperties chunk, int loadAmount, double angle) {
         if (loadAmount < rapidUploadThreshold) {
-                yield return chunk.fullLoadChunk(sectionAmount:16,Vector2Int.zero);
+                yield return chunk.fullLoadChunk(sectionAmount:16,angle);
             } else {
-                yield return chunk.fullLoadChunk(sectionAmount:loadAmount,Vector2Int.zero);
+                yield return chunk.fullLoadChunk(sectionAmount:loadAmount,angle);
         }
         activeCoroutines--;
     }

@@ -69,11 +69,12 @@ public class TileEntityOptionFactory {
         }
     }
 }
-[CreateAssetMenu(fileName ="New Tile",menuName="Item Register/Tile")]
+[CreateAssetMenu(fileName ="New Tile Item",menuName="Item Register/Tile")]
 public class TileItem : ItemObject
 {
     public TileType tileType;
     public Sprite sprite;
+    public TileBase tile;
     [Tooltip("Specify the integer value for given tile options")]
     public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
       new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 

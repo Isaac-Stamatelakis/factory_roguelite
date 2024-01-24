@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+[CreateAssetMenu(fileName ="New Tile",menuName="Tile/Tile")]
 public class CustomizableTile : Tile {
     public int rotation = 0;
     
