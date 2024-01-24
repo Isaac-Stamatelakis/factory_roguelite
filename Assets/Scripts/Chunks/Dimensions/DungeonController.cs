@@ -4,20 +4,36 @@ using UnityEngine;
 
 public class DungeonController : DimController
 {
-    [SerializeField]
-    Vector2Int xChunkRange;
-    [SerializeField]
-    Vector2Int yChunkRange;
     public override void Awake() {
         base.Awake();
         GameObject closedChunkSystemObject = new GameObject();
         closedChunkSystemObject.name="Cave";
         TileClosedChunkSystem area = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
         closedChunkSystems.Add(area);
+        Cave cave = new Cave();
+        cave.areas.Add(new CaveArea(
+            new Vector2Int(-20,20),
+            new Vector2Int(-20,10),
+            2,
+            14,
+            0.58F,
+            5
+        ));
+        // r = 2, n = 13, d = 0.58, i = 5, floating islands
+        cave.areas.Add(new CaveArea(
+            new Vector2Int(-20,20),
+            new Vector2Int(10,30),
+            2,
+            13,
+            0.58F,
+            5
+        ));
+        
+        IntervalVector coveredArea = cave.getCoveredArea();
         area.initalize(
-            new IntervalVector(new Interval<int>(xChunkRange.x,xChunkRange.y), new Interval<int>(yChunkRange.x,yChunkRange.x)),
+            coveredArea,
             -1,
-            new DungeonChunkList(xChunkRange.y,xChunkRange.x,yChunkRange.y,yChunkRange.x,-1,area)
+            new DungeonChunkList(cave,-1,area)
         );
 
     }

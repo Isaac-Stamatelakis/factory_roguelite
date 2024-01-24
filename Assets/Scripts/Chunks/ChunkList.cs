@@ -155,9 +155,12 @@ public class PreGeneratedChunkList : ChunkList
 
 public class DungeonChunkList : ChunkList
 {
-
-    public DungeonChunkList(int maxX, int minX, int maxY, int minY, int dim, ClosedChunkSystem closedChunkSystem) : base(maxX, minX, maxY, minY, dim, closedChunkSystem)
+    public Cave cave;
+    public DungeonChunkList(Cave cave, int dim, ClosedChunkSystem closedChunkSystem) : base(
+        cave.getCoveredArea().X.UpperBound, cave.getCoveredArea().X.LowerBound, cave.getCoveredArea().Y.UpperBound, cave.getCoveredArea().Y.LowerBound, dim, closedChunkSystem
+        )
     {
+        this.cave = cave;
     }
 
     public override ChunkProperties GetChunk(int x, int y)
@@ -181,10 +184,10 @@ public class DungeonChunkList : ChunkList
 
     public override void initChunks()
     {
-        int width = (Mathf.Abs(maxX-minX)+1)*16;
-        int height = (Mathf.Abs(maxY-minY)+1)*16;
-        DungeonGenerator dungeonGenerator = new DungeonGenerator(width,height);
+
+        CaveGenerator dungeonGenerator = new CaveGenerator(cave);
         int[,] grid = dungeonGenerator.generate();
+        Vector2Int caveSize = cave.getChunkDimensions();
         for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
             for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                 GameObject chunkObject = new GameObject();
@@ -195,13 +198,13 @@ public class DungeonChunkList : ChunkList
                 tileData.ids = new List<List<string>>();
                 tileData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 tileData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                int index = ((chunkX-minX)+(chunkY-minY)*width)*16;
+                int index = ((chunkX-minX)+(chunkY-minY)*caveSize.x)*16;
                 for (int tileX = 0; tileX < 16; tileX ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
                     for (int  tileY= 0; tileY < 16; tileY ++) {
-                        int tileIndex = index + tileX + tileY * width;
+                        int tileIndex = index + tileX + tileY * caveSize.x;
                         if (grid[(chunkX-minX)*16+tileX,(chunkY-minY)*16+tileY] == 1) {
                             tempIds.Add("weird_stone1");
                         } else {
