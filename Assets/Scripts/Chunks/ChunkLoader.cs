@@ -1,11 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 public class ChunkLoader : MonoBehaviour
 {
+    [SerializeField]
+    public bool active = false;
     private ClosedChunkSystem closedChunkSystem;
-    private float delay = 0.05f;
+    [SerializeField]
+    public float delay = 0.08f;
+    [SerializeField]
+    public int rapidUploadThreshold = 6;
+    [SerializeField]
+    public int uploadAmountThreshold = 2;
+    [SerializeField]
+    public int activeCoroutines = 0;
+    public bool Activated {get{return activeCoroutines != 0;}}
+    public Queue<ChunkProperties> loadQueue;
 
     void Start()
     {
@@ -14,28 +26,53 @@ public class ChunkLoader : MonoBehaviour
         if (closedChunkSystems.Length > 1) {
             Debug.LogError("ChunkUnloader belongs to multiple dimensions");
         }
+        loadQueue = new Queue<ChunkProperties>();
         closedChunkSystem = closedChunkSystems[0];
+        StartCoroutine(load());
     }
-    public IEnumerator load(List<ChunkProperties> chunksToLoad) {
-        while (chunksToLoad.Count > 0) {
-            Vector2 playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            ChunkProperties closestChunk = chunksToLoad[0];
-            for (int n = 1; n < chunksToLoad.Count; n++) {
-                if 
-                (
-                    Mathf.Pow(playerChunkPosition.x-chunksToLoad[n].ChunkPosition.x,2) + Mathf.Pow(playerChunkPosition.y-chunksToLoad[n].ChunkPosition.y,2)
-                    < 
-                    Mathf.Pow(playerChunkPosition.x-closestChunk.ChunkPosition.x,2) + Mathf.Pow(playerChunkPosition.y-closestChunk.ChunkPosition.y,2)
-                ) {
-                    closestChunk = chunksToLoad[n];
-                }
-            }
-            closestChunk.fullLoadChunk();
-            chunksToLoad.Remove(closestChunk);
-            yield return new WaitForSeconds(this.delay);
+
+    public void addToQueue(List<ChunkProperties> chunksToLoad) {
+        activeCoroutines += chunksToLoad.Count;
+        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        chunksToLoad.Sort((a, b) => distance(playerChunkPosition,b).CompareTo(distance(playerChunkPosition, a)));
+        for (int j =0 ;j < chunksToLoad.Count; j++) {
+            loadQueue.Enqueue(chunksToLoad[j]);
         }
+        chunksToLoad.Clear();
         
-        
+    }
+    public IEnumerator load() {
+        while (true) {
+            if (loadQueue.Count == 0) {
+                yield return new WaitForSeconds(this.delay);
+                continue;
+            }
+            int loadAmount = activeCoroutines/uploadAmountThreshold+1;
+            Vector2 playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            ChunkProperties closestChunk = loadQueue.Dequeue();
+            if (closestChunk.FullLoaded) {
+                activeCoroutines--;
+                continue;
+            }
+            StartCoroutine(loadChunk(closestChunk,loadAmount));
+            if (loadAmount*uploadAmountThreshold >= rapidUploadThreshold) { // Instant upload after threshhold reached
+                yield return new WaitForEndOfFrame();
+            } else { // upload speed increases rapidally if there are many chunks to upload
+                yield return new WaitForSeconds(this.delay/uploadAmountThreshold);   
+            }
+        }
+    }
+
+    private IEnumerator loadChunk(ChunkProperties chunk, int loadAmount) {
+        if (loadAmount < rapidUploadThreshold) {
+                yield return chunk.fullLoadChunk(sectionAmount:16,Vector2Int.zero);
+            } else {
+                yield return chunk.fullLoadChunk(sectionAmount:loadAmount,Vector2Int.zero);
+        }
+        activeCoroutines--;
+    }
+    private double distance(Vector2Int playerPosition,ChunkProperties chunk) {
+        return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
     }
 }
 

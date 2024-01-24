@@ -26,6 +26,11 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         tilemap = gameObject.AddComponent<Tilemap>();
         dimensionChunkData = new Dictionary<Vector2Int, ChunkData<PlacedItem>>();
         tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
+
+        
+        tilemapRenderer.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Manual;
+        tilemapRenderer.chunkCullingBounds = new Vector3(16,16,0);
+
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
         
@@ -34,10 +39,10 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         devMode = GameObject.Find("Player").GetComponent<DevMode>();
     }
     
-    public IEnumerator load(ChunkData<PlacedItem> chunkData, Vector2Int chunkPosition) {
+    public IEnumerator load(ChunkData<PlacedItem> chunkData, Vector2Int chunkPosition,int sectionAmount, Vector2Int direction) {
         dimensionChunkData[chunkPosition] = chunkData;
-        Coroutine b = StartCoroutine(slowPlaceTiles(chunkPosition));
-        yield return b;
+        
+        yield return StartCoroutine(slowPlaceTiles(chunkPosition,sectionAmount,direction));
         
     }
 
@@ -73,6 +78,9 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     protected virtual void setTile(int x, int y,PlacedItem placedItem) {
         
     }
+    public bool containsChunk(Vector2Int chunkPosition) {
+        return dimensionChunkData.ContainsKey(chunkPosition);
+    }
 
     protected abstract PlacedItem initTileData(Item itemObject);
     protected Vector2Int getChunkPosition(Vector2Int position) {
@@ -103,15 +111,29 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<ItemSlotOption, object>());
         ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
     }
-    protected IEnumerator slowPlaceTiles(Vector2Int chunkPosition) {
+    protected IEnumerator slowPlaceTiles(Vector2Int chunkPosition,int sectionAmount, Vector2Int direction) {
+        ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
+        if (direction.x > 0 && direction.y > 0) { // approahin
+
+        }
+        for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
+            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+                setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+            }
+            if (xIter % sectionAmount == 0) {
+                yield return new WaitForEndOfFrame();
+            }
+            
+        }
+        yield return null;
+    }
+    protected void instantlyPlaceTiles(Vector2Int chunkPosition) {
         ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
         for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                 setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
             }
-            yield return new WaitForEndOfFrame();
         }
-        yield return null;
     }
 
     protected Vector2Int getChunk(Vector2Int tileMapPosition) {
@@ -130,6 +152,7 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     }
 
     public void instantlyRemoveChunk(Vector2Int chunkPosition) {
+        
         dimensionChunkData.Remove(chunkPosition);
         for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {

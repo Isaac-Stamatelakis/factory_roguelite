@@ -5,15 +5,15 @@ using UnityEditor;
 
 public class DynamicChunkProperties : ChunkProperties
 {
-    public override void unfullLoadChunk() {
+    public override IEnumerator unfullLoadChunk() {
         if (!fullLoaded) {
-            return;
+            yield return null;
         }
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         fullLoaded = false;
         saveContainers();
-        destroyContainers();
+        yield return destroyContainers();
     }
 
     protected virtual void saveContainers() {
@@ -38,10 +38,11 @@ public class DynamicChunkProperties : ChunkProperties
     protected void saveTileContainer(string containerName) {
         SeralizedChunkTileData seralizedChunkTileData = (SeralizedChunkTileData) jsonData.get(containerName);
         TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<TileGridMap>();
-        seralizedChunkTileData.ids = tileBlockGridMap.getTileIds(chunkPosition);
-        seralizedChunkTileData.sTileOptions = tileBlockGridMap.getSeralizedTileOptions(chunkPosition);
-        jsonData.set(containerName,seralizedChunkTileData);
-        
+        if (tileBlockGridMap.containsChunk(chunkPosition)) {
+            seralizedChunkTileData.ids = tileBlockGridMap.getTileIds(chunkPosition);
+            seralizedChunkTileData.sTileOptions = tileBlockGridMap.getSeralizedTileOptions(chunkPosition);
+            jsonData.set(containerName,seralizedChunkTileData);
+        } 
     }
     /**
     Loads only gameobjects required for machine processing to function.
@@ -52,7 +53,7 @@ public class DynamicChunkProperties : ChunkProperties
     public void saveToJson() {
         if (fullLoaded) {
             saveContainers();
-            destroyContainers();
+            instantlyDestroyContainers();
             saveTileEntities();
             ChunkIO.writeChunk(jsonData,this);
         } else {

@@ -6,9 +6,9 @@ using System;
 
 public class DynamicConduitChunkProperties : DynamicChunkProperties
 {
-    protected IEnumerator AddConduitsToContainer(ChunkData<ConduitData> chunkConduitData,string containerName) {
+    protected IEnumerator AddConduitsToContainer(ChunkData<ConduitData> chunkConduitData,string containerName,int sectionAmount, Vector2Int direction) {
         ConduitTileMap conduitTileMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<ConduitTileMap>();
-        Coroutine a = StartCoroutine(conduitTileMap.load(chunkConduitData, this.chunkPosition));
+        Coroutine a = StartCoroutine(conduitTileMap.load(chunkConduitData, this.chunkPosition,sectionAmount,direction));
         yield return a;
 
     }
@@ -33,13 +33,33 @@ public class DynamicConduitChunkProperties : DynamicChunkProperties
         }
         return chunkConduitData;
     }
-    protected override IEnumerator fullLoadChunkCoroutine()
+    protected override IEnumerator fullLoadChunkCoroutine(int sectionAmount, Vector2Int direction)
     {
-        Coroutine e = StartCoroutine(AddConduitsToContainer(deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("EnergyConduits")),"EnergyConduits"));
-        Coroutine f = StartCoroutine(AddConduitsToContainer(deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("ItemConduits")),"ItemConduits"));
-        Coroutine g = StartCoroutine(AddConduitsToContainer(deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("FluidConduits")),"FluidConduits"));
-        Coroutine h = StartCoroutine(AddConduitsToContainer(deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("SignalConduits")),"SignalConduits"));
-        yield return base.fullLoadChunkCoroutine();
+        Coroutine e = StartCoroutine(AddConduitsToContainer(
+            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("EnergyConduits")),
+            "EnergyConduits",
+            sectionAmount,
+            direction
+        ));
+        Coroutine f = StartCoroutine(AddConduitsToContainer(
+            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("ItemConduits")),
+            "ItemConduits",
+            sectionAmount,
+            direction
+        ));
+        Coroutine g = StartCoroutine(AddConduitsToContainer(
+            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("FluidConduits")),
+            "FluidConduits",
+            sectionAmount,
+            direction
+        ));
+        Coroutine h = StartCoroutine(AddConduitsToContainer(
+            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("SignalConduits")),
+            "SignalConduits",
+            sectionAmount,
+            direction
+        ));
+        yield return base.fullLoadChunkCoroutine(sectionAmount, direction);
         
     }
 
