@@ -8,16 +8,9 @@ public enum IntTileItemOption {
     Rotation = TileItemOption.Rotation,
     Chisel = TileItemOption.Chisel
 }
-
-public enum ScriptableTileItemOption {
-    RuleTile = TileItemOption.RuleTile,
-    AnimatedTile = TileItemOption.AnimatedTile
-}
 public enum TileItemOption {
     Rotation,
     Hardness,
-    RuleTile,
-    AnimatedTile,
     Chisel
 }
 public enum TileEntityOption {
@@ -50,7 +43,7 @@ public class TileEntityOptionFactory {
         return dynamic.Contains(option);
     }
     public static bool isSerizable(TileItemOption option) {
-        return dynamic.Contains(option);
+        return serizable.Contains(option);
     }
     public static void serializeOption(TileItemOption option, object value, Dictionary<string,object> dict) {
         if (!isSerizable(option)) {
@@ -73,14 +66,12 @@ public class TileEntityOptionFactory {
 public class TileItem : ItemObject
 {
     public TileType tileType;
-    public Sprite sprite;
     public TileBase tile;
     [Tooltip("Specify the integer value for given tile options")]
     public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
       new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 
     };
     [Tooltip("Specify the integer value for given tile options\nNote if both RuleTile and AnimatedTile are provided, RuleTile is used")]
-    public List<TileItemOptionValue<ScriptableTileItemOption, ScriptableObject>> scriptableOptions;
     public List<TileEntityOptionValue> tileEntityOptions;
 
     public Dictionary<TileItemOption,object> getOptions() {
@@ -89,16 +80,19 @@ public class TileItem : ItemObject
             TileItemOption option = (TileItemOption)tileItemOptionValue.option;
             dict[option] = tileItemOptionValue.value;
         }
-        foreach (TileItemOptionValue<ScriptableTileItemOption,ScriptableObject> tileItemOptionValue in scriptableOptions) {
-            TileItemOption option = (TileItemOption)tileItemOptionValue.option;
-            dict[option] = tileItemOptionValue.value;
-        }
         return dict;
     }
 
     public override Sprite getSprite()
     {
-        return sprite;
+        if (tile is StandardTile) {
+            return ((StandardTile) tile).sprite;
+        } else if (tile is AnimatedTile) {
+            return ((AnimatedTile) tile).m_AnimatedSprites[0];
+        } else if (tile is RuleTile) {
+            return ((RuleTile) tile).m_DefaultSprite;
+        }
+        return null;
     }
 }
 

@@ -11,6 +11,8 @@ namespace TarodevController {
     /// If you hve any questions or would like to brag about your score, come to discord: https://discord.gg/GqeHHnhHpz
     /// </summary>
     public class PlayerController : MonoBehaviour {
+        [SerializeField]
+        public float flightSpeed;
         // Public for external hooks
         public Vector3 Velocity { get; private set; }
         public DevMode devMode;
@@ -62,7 +64,7 @@ namespace TarodevController {
             if (devMode.flight) {
                 float horizontalInput = Input.GetAxis("Horizontal");
                 float verticalInput = Input.GetAxis("Vertical");
-                Vector3 movement = new Vector3(horizontalInput, verticalInput, 0f) * 10f;
+                Vector3 movement = new Vector3(horizontalInput, verticalInput, 0f) * flightSpeed;
                 characterController.Move(movement * Time.deltaTime);
                 return;
             }

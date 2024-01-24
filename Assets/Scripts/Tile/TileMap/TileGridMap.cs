@@ -24,7 +24,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
 
-        Vector2 spriteSize =  Global.getSpriteSize(tileItem.sprite);
+        Vector2 spriteSize =  Global.getSpriteSize(tileItem.getSprite());
         if (PlaceTile.mod(spriteSize.x,2) == 0) {
             realXPosition += 0.25f;
         }

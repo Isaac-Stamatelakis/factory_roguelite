@@ -128,9 +128,10 @@ public abstract class ChunkProperties : MonoBehaviour
         }
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
-        fullLoaded = false;
         scheduledForUnloading = false;
         yield return destroyContainers();
+        fullLoaded = false;
+        
     }
 
     public virtual void instantlyUnFullLoadChunk() {
@@ -140,6 +141,7 @@ public abstract class ChunkProperties : MonoBehaviour
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         fullLoaded = false;
+        scheduledForUnloading = false;
         instantlyDestroyContainers();
     }
 

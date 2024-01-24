@@ -2,31 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-[CreateAssetMenu(fileName ="New Tile",menuName="Tile/Tile")]
-public class CustomizableTile : Tile {
+
+[CreateAssetMenu(fileName ="New Rotatable Tile",menuName="Tile/RotatableTile")]
+public class RotatableTile : Tile {
     public int rotation = 0;
-    
     public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData) {
         base.GetTileData(position, tilemap, ref tileData);
         tileData.transform = TileSetter.setTile(tileData,sprite,rotation);
-    }
-}
-
-public class CustomizableRuleTile : RuleTile {
-    public int rotation = 0;
-    public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-    {
-        base.GetTileData(position, tilemap, ref tileData);
-        tileData.transform = TileSetter.setTile(tileData,m_DefaultSprite,rotation);
-    }
-}
-
-public class CustomizableAnimatedTile : AnimatedTile {
-    public int rotation = 0;
-    public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-    {
-        base.GetTileData(position, tilemap, ref tileData);
-        tileData.transform = TileSetter.setTile(tileData,m_AnimatedSprites[0],rotation);
     }
 }
 

@@ -31,8 +31,10 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         tilemapRenderer.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Manual;
         tilemapRenderer.chunkCullingBounds = new Vector3(16,16,0);
 
+
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
+        tilemapCollider.maximumTileChangeCount=100000000;
         
     }
     public virtual void Start() {

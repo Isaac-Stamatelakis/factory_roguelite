@@ -40,12 +40,7 @@ public abstract class ClosedChunkSystem:  MonoBehaviour
         chunkList.initChunks();
         this.dim = dim;
         this.coveredArea = coveredArea;
-        if (false) {
-            loadChunksNearPlayer(20,20);
-        } else {
-            loadChunksNearPlayer(Global.ChunkLoadRangeX,Global.ChunkLoadRangeY);
-        }
-        
+        loadChunksNearPlayer(Global.ChunkLoadRangeX,Global.ChunkLoadRangeY);
         
     }
 
@@ -74,6 +69,7 @@ public abstract class ClosedChunkSystem:  MonoBehaviour
             for (int y = playerChunk.y-Global.ChunkLoadRangeY; y <= playerChunk.y+Global.ChunkLoadRangeY; y ++) {
                 if (chunkList.inChunkBoundary(x,y) && !chunkList.GetChunk(x,y).FullLoaded) {
                     chunksToLoad.Add(chunkList.GetChunk(x,y));
+                    chunkList.GetChunk(x,y).ScheduledForUnloading=false;
                 }
             }
         }
@@ -103,7 +99,7 @@ public abstract class ClosedChunkSystem:  MonoBehaviour
     Slowly unloads the chunks far from the player.
     **/
     public List<ChunkProperties> getLoadedChunksFar() {
-        int chunkUnloadRange = Global.ChunkLoadRangeX;
+        int chunkUnloadRange = Global.ChunkLoadRangeX+2;
         Vector2Int playerChunk = getPlayerChunk();
         List<ChunkProperties> chunksToUnload = new List<ChunkProperties>();
         for (int x = chunkList.MinX; x <= chunkList.MaxX; x ++ ){

@@ -35,7 +35,7 @@ public class Global
     public static float SignalConduitZ {get {return signalConduitZ;}}
     private static float chunkOffset = -0.25f;  
     public static float ChunkOffset {get {return chunkOffset;}}
-    private static Vector2Int chunkLoadRange = new Vector2Int(2,2);
+    private static Vector2Int chunkLoadRange = new Vector2Int(2,1);
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
