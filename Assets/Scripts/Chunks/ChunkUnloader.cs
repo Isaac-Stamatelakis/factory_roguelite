@@ -7,10 +7,10 @@ public class ChunkUnloader : MonoBehaviour
     private ChunkLoader chunkLoader;
     public ChunkLoader Loader {set{chunkLoader = value;}}
     [SerializeField]
-    public float delay = 0.5f;
+    public float delay = 0.1f;
     [SerializeField]
-    public int rapidDeleteThreshold = 150;
-    public int speedIncreaseThreshold = 50;
+    public int rapidDeleteThreshold = 1000;
+    public int speedIncreaseThreshold = 200;
     [SerializeField]
     public int activeCoroutines = 0;
     private ClosedChunkSystem closedChunkSystem;
@@ -54,7 +54,7 @@ public class ChunkUnloader : MonoBehaviour
             }
             ChunkProperties farthestChunk = chunkQueue.Dequeue();
             Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            if (distance(playerChunkPosition,farthestChunk) < 49) {
+            if (distance(playerChunkPosition,farthestChunk) < (Global.ChunkLoadRangeX+1)*(Global.ChunkLoadRangeX+1)) {
                 activeCoroutines--;
                 farthestChunk.ScheduledForUnloading = false;
                 continue;

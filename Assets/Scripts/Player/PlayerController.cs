@@ -62,7 +62,7 @@ namespace TarodevController {
             if (devMode.flight) {
                 float horizontalInput = Input.GetAxis("Horizontal");
                 float verticalInput = Input.GetAxis("Vertical");
-                Vector3 movement = new Vector3(horizontalInput, verticalInput, 0f) * 25f;
+                Vector3 movement = new Vector3(horizontalInput, verticalInput, 0f) * 10f;
                 characterController.Move(movement * Time.deltaTime);
                 return;
             }

@@ -108,7 +108,8 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
 
     protected override void setTile(int x, int y,TileData tileData) {
         if (tileData != null) {
-            tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile(tileData));
+            //tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile(tileData));
+            tilemap.SetTile(new Vector3Int(x,y,0),tileData.itemObject.tile);
         }
         
     }
