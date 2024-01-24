@@ -35,8 +35,10 @@ public class Global
     public static float SignalConduitZ {get {return signalConduitZ;}}
     private static float chunkOffset = -0.25f;  
     public static float ChunkOffset {get {return chunkOffset;}}
-    private static int chunkLoadRange = 2;
-    public static int ChunkLoadRange {get {return chunkLoadRange;}}
+    private static Vector2Int chunkLoadRange = new Vector2Int(2,2);
+    
+    public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
+    public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
     private static float tileItemEntityScalar = 0.5f;
     private static int maxSize = 100;
     public static int MaxSize {get{return maxSize;}}

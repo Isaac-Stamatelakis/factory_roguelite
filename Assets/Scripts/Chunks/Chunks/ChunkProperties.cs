@@ -7,7 +7,10 @@ public abstract class ChunkProperties : MonoBehaviour
     protected JsonData jsonData;
     [SerializeField]
     protected bool fullLoaded = false;
-    public bool FullLoaded {get{return fullLoaded;}}
+    [SerializeField]
+    protected bool scheduledForUnloading = false;
+    public bool ScheduledForUnloading {set{scheduledForUnloading=value;} get{return scheduledForUnloading;}}
+    public bool FullLoaded {set{fullLoaded = value;} get{return fullLoaded;}}
     protected Vector2Int chunkPosition;
     public Vector2Int ChunkPosition {get{return chunkPosition;}}
     protected int dim;
@@ -126,6 +129,7 @@ public abstract class ChunkProperties : MonoBehaviour
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         fullLoaded = false;
+        scheduledForUnloading = false;
         yield return destroyContainers();
     }
 

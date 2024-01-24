@@ -9,12 +9,12 @@ public class ChunkUnloader : MonoBehaviour
     [SerializeField]
     public float delay = 0.5f;
     [SerializeField]
-    public int rapidDeleteThreshold = 75;
-    [SerializeField]
-    public int removalAmountThreshold = 15;
+    public int rapidDeleteThreshold = 150;
+    public int speedIncreaseThreshold = 50;
     [SerializeField]
     public int activeCoroutines = 0;
     private ClosedChunkSystem closedChunkSystem;
+    Queue<ChunkProperties> chunkQueue = new Queue<ChunkProperties>();
     // Start is called before the first frame update
     void Start()
     {
@@ -24,27 +24,49 @@ public class ChunkUnloader : MonoBehaviour
             Debug.LogError("ChunkUnloader belongs to multiple dimensions");
         }
         closedChunkSystem = closedChunkSystems[0];
+        StartCoroutine(unload());
     }
     /// <summary>
     /// unloads the furthest chunk from the player at an interval
     /// </summary>
-    public IEnumerator unload(List<ChunkProperties> chunksToUnload) {
+
+    public void addToQueue(List<ChunkProperties> chunksToUnload) {
         activeCoroutines += chunksToUnload.Count;
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-        chunksToUnload.Sort((a, b) => distance(playerChunkPosition,b).CompareTo(distance(playerChunkPosition, a)));
-        while (chunksToUnload.Count > 0) {
-            if (chunkLoader.Activated) {
-                yield return new WaitForSeconds(delay*10);
+        chunksToUnload.Sort((a, b) => distance(playerChunkPosition,a).CompareTo(distance(playerChunkPosition, b)));
+        for (int j =0;j < chunksToUnload.Count; j++) {
+            ChunkProperties chunkProperties = chunksToUnload[j];
+            chunkProperties.ScheduledForUnloading = true;
+            chunkQueue.Enqueue(chunkProperties);
+             
+        }
+        chunksToUnload.Clear();
+    }
+    public IEnumerator unload() {
+        while (true) {
+            if (chunkQueue.Count == 0) {
+                yield return new WaitForSeconds(delay);
                 continue;
             }
-            int removalAmount = activeCoroutines/removalAmountThreshold+1;
-            ChunkProperties farthestChunk = chunksToUnload[0];
-            chunksToUnload.Remove(farthestChunk);
-            StartCoroutine(unloadChunk(farthestChunk,removalAmount < rapidDeleteThreshold));
-            if (removalAmount*removalAmountThreshold >= rapidDeleteThreshold) { // Instant removal after threshhold reached
+            if (chunkLoader.Activated && chunkQueue.Count < speedIncreaseThreshold) {
+                yield return new WaitForSeconds(delay);
+                continue;
+            }
+            ChunkProperties farthestChunk = chunkQueue.Dequeue();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            if (distance(playerChunkPosition,farthestChunk) < 49) {
+                activeCoroutines--;
+                farthestChunk.ScheduledForUnloading = false;
+                continue;
+            }
+            int speedIncrease = chunkQueue.Count/speedIncreaseThreshold+1;
+            if (chunkQueue.Count >= rapidDeleteThreshold) { // Instant removal after threshhold reached
+                StartCoroutine(unloadChunk(farthestChunk,true));
                 yield return new WaitForEndOfFrame();
-            } else { // Removal speed increases rapidally if there are many chunks to delete
-                yield return new WaitForSeconds(this.delay/removalAmount);
+                
+            } else { // 
+                StartCoroutine(unloadChunk(farthestChunk,false));
+                yield return new WaitForSeconds(this.delay/speedIncrease);
             }
             
         }
@@ -53,12 +75,11 @@ public class ChunkUnloader : MonoBehaviour
     public IEnumerator unloadChunk(ChunkProperties chunk, bool fast) {
         if (fast) {
             chunk.instantlyUnFullLoadChunk(); 
+            //yield return chunk.unfullLoadChunk();
         } else {
             yield return chunk.unfullLoadChunk();
         }
         activeCoroutines--;
-        
-
     }
 
     public List<ChunkProperties> getMax(List<ChunkProperties> chunksToUnload,int m,Vector2Int playerPosition) {

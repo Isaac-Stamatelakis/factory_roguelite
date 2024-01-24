@@ -26,8 +26,11 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         tilemap = gameObject.AddComponent<Tilemap>();
         dimensionChunkData = new Dictionary<Vector2Int, ChunkData<PlacedItem>>();
         tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
+
+        
         tilemapRenderer.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Manual;
         tilemapRenderer.chunkCullingBounds = new Vector3(16,16,0);
+
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
         
