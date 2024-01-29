@@ -31,8 +31,10 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         tilemapRenderer.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Manual;
         tilemapRenderer.chunkCullingBounds = new Vector3(16,16,0);
 
+
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
+        tilemapCollider.maximumTileChangeCount=100000000;
         
     }
     public virtual void Start() {
@@ -114,75 +116,7 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     protected IEnumerator slowPlaceTiles(Vector2Int chunkPosition,int sectionAmount, double angle) {
         ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
         double deg = Mathf.Rad2Deg*angle;
-        if (30 <= deg && deg < 60) { // moving up right
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (xIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-        } else if (60 <= deg && deg < 120) { // moving up
-            for (int yIter=0; yIter < Global.ChunkSize; yIter ++) {
-                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (yIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-        } else if (120 <= deg && deg < 150) { // moving up left
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (xIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-
-        } else if (150 <= deg && deg < 210) { // Moving left
-            
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (xIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-        } else if (210 <= deg && deg < 240) { // Moving down left
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (xIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-
-        } else if (240 <= deg && deg < 300) { // Moving down
-            for (int yIter=Global.ChunkSize-1; yIter >= 0; yIter --) {
-                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (yIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-        } else if (300 <= deg && deg < 330) { // moving down right
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
-                }
-                if (xIter % sectionAmount == 0) {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
-
-        } else { // -30 <= deg < 30 // moving right
-            
+        if (45 <= deg && deg < 135) { // moving up
             for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
                 for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                     setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
@@ -191,7 +125,36 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
                     yield return new WaitForEndOfFrame();
                 }
             }
+        } else if (135 <= deg && deg < 215) { // moving left
+            for (int yIter=0; yIter < Global.ChunkSize; yIter ++) {
+                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+                }
+                if (yIter % sectionAmount == 0) {
+                    yield return new WaitForEndOfFrame();
+                }
+            }
+        } else if (225 <= deg && deg < 315) { // moving down
+           for (int yIter=Global.ChunkSize-1; yIter >= 0; yIter --) {
+                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+                }
+                if (yIter % sectionAmount == 0) {
+                    yield return new WaitForEndOfFrame();
+                }
+            }
+
+        } else {
+            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
+                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+                }
+                if (xIter % sectionAmount == 0) {
+                    yield return new WaitForEndOfFrame();
+                }
+            }
         }
+        
         yield return null;
     }
     protected void instantlyPlaceTiles(Vector2Int chunkPosition) {
@@ -204,13 +167,14 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     }
 
     protected Vector2Int getChunk(Vector2Int tileMapPosition) {
-        return new Vector2Int(Mathf.FloorToInt(tileMapPosition.x/16f),Mathf.FloorToInt(tileMapPosition.y/16f));
+        return new Vector2Int(Mathf.FloorToInt(tileMapPosition.x/Global.ChunkSize),Mathf.FloorToInt(tileMapPosition.y/Global.ChunkSize));
     }
 
     public IEnumerator removeChunk(Vector2Int chunkPosition) {
         dimensionChunkData.Remove(chunkPosition);
         for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
             for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+                
                 tilemap.SetTile(new Vector3Int(xIter + Global.ChunkSize*chunkPosition.x,yIter+Global.ChunkSize*chunkPosition.y,0),null);
             }
             yield return new WaitForEndOfFrame();
@@ -231,9 +195,9 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     public List<List<string>> getTileIds(Vector2Int chunkPosition) {
         ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
         List<List<string>> nestedIds = new List<List<string>>();
-        for (int xIter = 0; xIter < 16; xIter ++) {
+        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             List<string> idList = new List<string>();
-            for (int yIter = 0; yIter < 16; yIter ++) {
+            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                 PlacedItem placedItem = chunkData.data[xIter][yIter];
                 if (placedItem == null || placedItem.itemObject == null) {
                      idList.Add(null);

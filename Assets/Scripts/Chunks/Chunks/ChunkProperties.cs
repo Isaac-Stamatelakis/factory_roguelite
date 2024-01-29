@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
-public abstract class ChunkProperties : MonoBehaviour
+public abstract class Chunk : MonoBehaviour
 {
     protected JsonData jsonData;
     [SerializeField]
@@ -37,20 +38,21 @@ public abstract class ChunkProperties : MonoBehaviour
         yield return StartCoroutine(fullLoadChunkCoroutine(sectionAmount,angle));
 
     }
-    public virtual void initalize(int dim, Vector2Int chunkPosition, JsonData jsonData, Transform closedSystemTransform) {
+    public virtual void initalize(int dim, JsonData jsonData, Vector2Int chunkPosition, Transform closedSystemTransform) {
         // Set variables
+        this.jsonData = jsonData;
         this.dim = dim;
         this.chunkPosition = chunkPosition;
-        this.jsonData = jsonData;
-        transform.localPosition = new Vector3(8f*chunkPosition.x+4f,8f*chunkPosition.y+4f,0);
+        transform.localPosition = new Vector3(Global.ChunkSize/2*(chunkPosition.x+0.5F),Global.ChunkSize/2*(chunkPosition.y+0.5F),0);
         gameObject.AddComponent<BoxCollider2D>();
         gameObject.GetComponent<BoxCollider2D>().size = new Vector2(Global.ChunkSize/2, Global.ChunkSize/2);
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         gameObject.transform.SetParent(Global.findChild(closedSystemTransform,"Chunks").transform);
-        StartCoroutine(softLoadChunk(jsonData));
     }
 
     protected virtual IEnumerator fullLoadChunkCoroutine(int sectionAmount, double angle) {
+
+        StartCoroutine(softLoadChunk(jsonData));
         Coroutine a = StartCoroutine(addTilesToContainer(
             deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBlocks")),
             "TileBlocks",
@@ -128,9 +130,14 @@ public abstract class ChunkProperties : MonoBehaviour
         }
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
-        fullLoaded = false;
         scheduledForUnloading = false;
         yield return destroyContainers();
+        string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
+        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
+        File.WriteAllText(filePath, Newtonsoft.Json.JsonConvert.SerializeObject(jsonData));
+        jsonData = null;    
+        fullLoaded = false;
+        
     }
 
     public virtual void instantlyUnFullLoadChunk() {
@@ -140,6 +147,7 @@ public abstract class ChunkProperties : MonoBehaviour
         gameObject.name = gameObject.name.Split("|")[0];
         gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
         fullLoaded = false;
+        scheduledForUnloading = false;
         instantlyDestroyContainers();
     }
 
@@ -201,9 +209,9 @@ public abstract class ChunkProperties : MonoBehaviour
     protected ChunkData<TileData> deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
         List<List<TileData>> nestedTileDataList = new List<List<TileData>>();
         ItemRegistry itemRegister = ItemRegistry.getInstance();
-        for (int xIter = 0; xIter < 16; xIter ++) {
+        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             List<TileData> tileDataList = new List<TileData>();
-            for (int yIter = 0; yIter < 16; yIter ++) {
+            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                 string id = seralizedChunkTileData.ids[xIter][yIter];
                 if (id != null) {
                     TileItem tileItem = itemRegister.getTileItem(id);

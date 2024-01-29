@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class DynamicChunkProperties : ChunkProperties
+public class DynamicChunkProperties : Chunk
 {
     public override IEnumerator unfullLoadChunk() {
         if (!fullLoaded) {

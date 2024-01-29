@@ -24,7 +24,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
 
-        Vector2 spriteSize =  Global.getSpriteSize(tileItem.sprite);
+        Vector2 spriteSize =  Global.getSpriteSize(tileItem.getSprite());
         if (PlaceTile.mod(spriteSize.x,2) == 0) {
             realXPosition += 0.25f;
         }
@@ -125,9 +125,9 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
     public List<List<Dictionary<string,object>>> getSeralizedTileOptions(Vector2Int chunkPosition) {
         ChunkData<TileData> chunkData = dimensionChunkData[chunkPosition];
         List<List<Dictionary<string,object>>> nestedTileOptionList = new List<List<Dictionary<string, object>>>();
-        for (int xIter = 0; xIter < 16; xIter ++) {
+        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
             List<Dictionary<string,object>> tileOptionList = new List<Dictionary<string,object>>();
-            for (int yIter = 0; yIter < 16; yIter ++) {
+            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
                 TileData tileData = chunkData.data[xIter][yIter];
                 if (tileData == null) {
                     tileOptionList.Add(new Dictionary<string, object>());

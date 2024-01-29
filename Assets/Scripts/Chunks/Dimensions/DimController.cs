@@ -21,8 +21,8 @@ public class DimController : MonoBehaviour
     {
         previousPlayerXChunk = playerXChunk;
         previousPlayerYChunk = playerYChunk;
-        playerXChunk = (int) Mathf.Floor(playerTransform.position.x / 8f);
-        playerYChunk = (int) Mathf.Floor(playerTransform.position.y / 8f);
+        playerXChunk = (int) Mathf.Floor(playerTransform.position.x / (Global.ChunkSize/2));
+        playerYChunk = (int) Mathf.Floor(playerTransform.position.y / (Global.ChunkSize/2));
         if (previousPlayerXChunk != playerXChunk || previousPlayerYChunk != playerYChunk) {
             foreach (ClosedChunkSystem closedChunkSystem in closedChunkSystems) {
                 closedChunkSystem.playerChunkUpdate();

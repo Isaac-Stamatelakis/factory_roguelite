@@ -27,10 +27,10 @@ public abstract class ChunkList {
     public int MinY {
         get {return minY;}
     }
-    protected List<List<ChunkProperties>> posXposYChunks;
-    protected List<List<ChunkProperties>> posXnegYChunks;
-    protected List<List<ChunkProperties>> negXposYChunks;
-    protected List<List<ChunkProperties>> negXnegYChunks;
+    protected List<List<Chunk>> posXposYChunks;
+    protected List<List<Chunk>> posXnegYChunks;
+    protected List<List<Chunk>> negXposYChunks;
+    protected List<List<Chunk>> negXnegYChunks;
     public ChunkList(int maxX, int minX, int maxY, int minY, int dim, ClosedChunkSystem closedChunkSystem) {
         this.closedChunkSystem = closedChunkSystem;
         this.maxX = maxX;
@@ -38,41 +38,41 @@ public abstract class ChunkList {
         this.maxY = maxY;
         this.minY = minY;
         this.dim = dim;
-        posXposYChunks = new List<List<ChunkProperties>>();
-        posXnegYChunks = new List<List<ChunkProperties>>();
-        negXposYChunks = new List<List<ChunkProperties>>();
-        negXnegYChunks = new List<List<ChunkProperties>>();
+        posXposYChunks = new List<List<Chunk>>();
+        posXnegYChunks = new List<List<Chunk>>();
+        negXposYChunks = new List<List<Chunk>>();
+        negXnegYChunks = new List<List<Chunk>>();
 
         for (int x = 0 ; x <= maxX; x ++) {
-            List<ChunkProperties> tempList = new List<ChunkProperties>();
+            List<Chunk> tempList = new List<Chunk>();
             for (int y = 0; y <= maxY; y ++) {
                 tempList.Add(null);
             }
             posXposYChunks.Add(tempList);
         }
         for (int x = 0 ; x <= maxX; x ++) {
-            List<ChunkProperties> tempList = new List<ChunkProperties>();
+            List<Chunk> tempList = new List<Chunk>();
             for (int y = 0; y <= -minY; y ++) {
                 tempList.Add(null);
             }
             posXnegYChunks.Add(tempList);
         }
         for (int x = 0 ; x <= -minX; x ++) {
-            List<ChunkProperties> tempList = new List<ChunkProperties>();
+            List<Chunk> tempList = new List<Chunk>();
             for (int y = 0; y <= maxY; y ++) {
                 tempList.Add(null);
             }
             negXposYChunks.Add(tempList);
         }
         for (int x = 0 ; x <= -minX; x ++) {
-            List<ChunkProperties> tempList = new List<ChunkProperties>();
+            List<Chunk> tempList = new List<Chunk>();
             for (int y = 0; y <= -minY; y ++) {
                 tempList.Add(null);
             }
             negXnegYChunks.Add(tempList);
         }
     }
-    public virtual ChunkProperties GetChunk(int x,int y) {
+    public virtual Chunk GetChunk(int x,int y) {
         if (x >= 0 && y >= 0) {
             return posXposYChunks[x][y];
         }
@@ -87,7 +87,7 @@ public abstract class ChunkList {
         }
         return null;
     }
-    public virtual void setChunk(ChunkProperties chunk, int x, int y) {
+    public virtual void setChunk(Chunk chunk, int x, int y) {
         if (x >= 0 && y >= 0) {
             posXposYChunks[x][y] = chunk;
         }
@@ -124,7 +124,7 @@ public class PreGeneratedChunkList : ChunkList
         if (Directory.Exists(filePath))
         {
             Debug.Log("Reading dimension data from path: " + filePath);
-        } else {
+        } else {    
             Debug.Log("Created new dimension directory: " + filePath);
             Directory.CreateDirectory(filePath);
         }
@@ -132,7 +132,7 @@ public class PreGeneratedChunkList : ChunkList
             for (int x = minX; x <= maxX; x ++) {
                 GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Vector2Int(x,y),dim,this.closedChunkSystem);
                 if (chunkGameObject != null) {
-                    ChunkProperties[] chunkPropertiesList = chunkGameObject.GetComponents<ChunkProperties>();
+                    Chunk[] chunkPropertiesList = chunkGameObject.GetComponents<Chunk>();
                     if (chunkPropertiesList == null || chunkPropertiesList.Length == 0) {
                         Debug.LogError("Failed to import chunk at[" + x + "," + y + "]dim:" + dim);
                         this.setChunk(null,x,y);
@@ -147,7 +147,7 @@ public class PreGeneratedChunkList : ChunkList
         }
     }
 
-    public override void setChunk(ChunkProperties chunk, int x, int y)
+    public override void setChunk(Chunk chunk, int x, int y)
     {
         base.setChunk(chunk, x, y);
     }
@@ -155,24 +155,27 @@ public class PreGeneratedChunkList : ChunkList
 
 public class DungeonChunkList : ChunkList
 {
-
-    public DungeonChunkList(int maxX, int minX, int maxY, int minY, int dim, ClosedChunkSystem closedChunkSystem) : base(maxX, minX, maxY, minY, dim, closedChunkSystem)
+    public Cave cave;
+    public DungeonChunkList(Cave cave, int dim, ClosedChunkSystem closedChunkSystem) : base(
+        cave.getCoveredArea().X.UpperBound, cave.getCoveredArea().X.LowerBound, cave.getCoveredArea().Y.UpperBound, cave.getCoveredArea().Y.LowerBound, dim, closedChunkSystem
+        )
     {
+        this.cave = cave;
     }
 
-    public override ChunkProperties GetChunk(int x, int y)
+    public override Chunk GetChunk(int x, int y)
     {
-        ChunkProperties chunk = base.GetChunk(x, y);
+        Chunk chunk = base.GetChunk(x, y);
         if (chunk != null) {
             return chunk;
         }
         return loadChunk(x,y);
     }
 
-    private ChunkProperties loadChunk(int x, int y) {
+    private Chunk loadChunk(int x, int y) {
         if (ChunkIO.jsonExists(new Vector2Int(x,y),dim)) {
             GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Vector2Int(x,y),dim,closedChunkSystem);
-            ChunkProperties chunkProperties = chunkGameObject.GetComponent<ChunkProperties>();
+            Chunk chunkProperties = chunkGameObject.GetComponent<Chunk>();
             this.setChunk(chunkProperties,x,y);
             return chunkProperties;
         }
@@ -181,10 +184,10 @@ public class DungeonChunkList : ChunkList
 
     public override void initChunks()
     {
-        int width = (Mathf.Abs(maxX-minX)+1)*16;
-        int height = (Mathf.Abs(maxY-minY)+1)*16;
-        DungeonGenerator dungeonGenerator = new DungeonGenerator(width,height);
+
+        CaveGenerator dungeonGenerator = new CaveGenerator(cave);
         int[,] grid = dungeonGenerator.generate();
+        Vector2Int caveSize = cave.getChunkDimensions();
         for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
             for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                 GameObject chunkObject = new GameObject();
@@ -195,14 +198,14 @@ public class DungeonChunkList : ChunkList
                 tileData.ids = new List<List<string>>();
                 tileData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 tileData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                int index = ((chunkX-minX)+(chunkY-minY)*width)*16;
-                for (int tileX = 0; tileX < 16; tileX ++) {
+                int index = ((chunkX-minX)+(chunkY-minY)*caveSize.x)*Global.ChunkSize;
+                for (int tileX = 0; tileX < Global.ChunkSize; tileX ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int  tileY= 0; tileY < 16; tileY ++) {
-                        int tileIndex = index + tileX + tileY * width;
-                        if (grid[(chunkX-minX)*16+tileX,(chunkY-minY)*16+tileY] == 1) {
+                    for (int  tileY= 0; tileY < Global.ChunkSize; tileY ++) {
+                        int tileIndex = index + tileX + tileY * caveSize.x;
+                        if (grid[(chunkX-minX)*Global.ChunkSize+tileX,(chunkY-minY)*Global.ChunkSize+tileY] == 1) {
                             tempIds.Add("weird_stone1");
                         } else {
                             tempIds.Add(null);
@@ -218,11 +221,11 @@ public class DungeonChunkList : ChunkList
                 backgroundData.ids = new List<List<string>>();
                 backgroundData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 backgroundData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                for (int x2 = 0; x2 < 16; x2 ++) {
+                for (int x2 = 0; x2 < Global.ChunkSize; x2 ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int y2 = 0; y2 < 16; y2 ++) {
+                    for (int y2 = 0; y2 < Global.ChunkSize; y2 ++) {
                         tempIds.Add(null);
                         sTile.Add(new Dictionary<string, object>());
                         sEntity.Add(new Dictionary<string, object>());
@@ -235,11 +238,11 @@ public class DungeonChunkList : ChunkList
                 objectData.ids = new List<List<string>>();
                 objectData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 objectData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                for (int x2 = 0; x2 < 16; x2 ++) {
+                for (int x2 = 0; x2 < Global.ChunkSize; x2 ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int y2 = 0; y2 < 16; y2 ++) {
+                    for (int y2 = 0; y2 < Global.ChunkSize; y2 ++) {
                         tempIds.Add(null);
                         sTile.Add(new Dictionary<string, object>());
                         sEntity.Add(new Dictionary<string, object>());
@@ -252,7 +255,8 @@ public class DungeonChunkList : ChunkList
                 jsonData.dict["TileBackgrounds"] = backgroundData;
                 jsonData.dict["TileObjects"] = objectData;
                 jsonData.dict["Entities"] = new List<EntityData>();
-                chunk.initalize(dim,new Vector2Int(chunkX,chunkY),jsonData,this.closedChunkSystem.transform);
+                chunk.initalize(dim,jsonData,new Vector2Int(chunkX,chunkY),this.closedChunkSystem.transform);
+                //File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(jsonData));
                 this.setChunk(chunk,chunkX,chunkY);
             }
         }

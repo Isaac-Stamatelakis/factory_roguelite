@@ -43,7 +43,7 @@ public class PlaceTile {
         return false;
     }
     public static bool tileBlockPlacable(TileItem tileItem,float x, float y) { 
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.sprite));
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.getSprite()));
         if (tileWithinIntervalAreaRange(intervalVector,tileBlockLayer)) {
             return false;
         }
@@ -68,7 +68,7 @@ public class PlaceTile {
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
     public static bool tileBackgroundPlacable(TileItem tileItem,float x, float y) { 
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.sprite));
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.getSprite()));
         if (tileWithinRange(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound,tileBackgroundLayer)) {
             return false;
         }
@@ -159,7 +159,7 @@ public class PlaceTile {
     }
 
     public static Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
-        Vector2 spriteSize = Global.getSpriteSize(tileItem.sprite);
+        Vector2 spriteSize = Global.getSpriteSize(tileItem.getSprite());
         return new Vector2Int(snap(x),snap(y));
     }
     /**
