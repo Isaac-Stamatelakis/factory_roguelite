@@ -9,7 +9,7 @@ public class ChunkLoader : MonoBehaviour
     public bool active = false;
     private ClosedChunkSystem closedChunkSystem;
     [SerializeField]
-    public float delay = 0.08f;
+    public float delay = 0.00f;
     [SerializeField]
     public int rapidUploadThreshold = 6;
     [SerializeField]
@@ -17,7 +17,7 @@ public class ChunkLoader : MonoBehaviour
     [SerializeField]
     public int activeCoroutines = 0;
     public bool Activated {get{return activeCoroutines != 0;}}
-    public Queue<ChunkProperties> loadQueue;
+    public Queue<Chunk> loadQueue;
 
     void Start()
     {
@@ -26,12 +26,12 @@ public class ChunkLoader : MonoBehaviour
         if (closedChunkSystems.Length > 1) {
             Debug.LogError("ChunkUnloader belongs to multiple dimensions");
         }
-        loadQueue = new Queue<ChunkProperties>();
+        loadQueue = new Queue<Chunk>();
         closedChunkSystem = closedChunkSystems[0];
         StartCoroutine(load());
     }
 
-    public void addToQueue(List<ChunkProperties> chunksToLoad) {
+    public void addToQueue(List<Chunk> chunksToLoad) {
         activeCoroutines += chunksToLoad.Count;
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         chunksToLoad.Sort((a, b) => distance(playerChunkPosition,b).CompareTo(distance(playerChunkPosition, a)));
@@ -49,7 +49,7 @@ public class ChunkLoader : MonoBehaviour
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
             Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            ChunkProperties closestChunk = loadQueue.Dequeue();
+            Chunk closestChunk = loadQueue.Dequeue();
             if (closestChunk.FullLoaded) {
                 activeCoroutines--;
                 continue;
@@ -66,7 +66,7 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator loadChunk(ChunkProperties chunk, int loadAmount, double angle) {
+    private IEnumerator loadChunk(Chunk chunk, int loadAmount, double angle) {
         if (loadAmount < rapidUploadThreshold) {
                 yield return chunk.fullLoadChunk(sectionAmount:16,angle);
             } else {
@@ -74,7 +74,7 @@ public class ChunkLoader : MonoBehaviour
         }
         activeCoroutines--;
     }
-    private double distance(Vector2Int playerPosition,ChunkProperties chunk) {
+    private double distance(Vector2Int playerPosition,Chunk chunk) {
         return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
     }
 }

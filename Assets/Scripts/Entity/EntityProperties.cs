@@ -34,7 +34,7 @@ public class EntityProperties : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        this.setParent(chunkObject.GetComponent<ChunkProperties>().EntityContainer);
+        this.setParent(chunkObject.GetComponent<Chunk>().EntityContainer);
     }
 
 }

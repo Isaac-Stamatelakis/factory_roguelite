@@ -7,14 +7,14 @@ public class ChunkUnloader : MonoBehaviour
     private ChunkLoader chunkLoader;
     public ChunkLoader Loader {set{chunkLoader = value;}}
     [SerializeField]
-    public float delay = 0.04F;
+    public float delay = 0.05F;
     [SerializeField]
     public int rapidDeleteThreshold = 100000;
-    public int speedIncreaseThreshold = 10;
+    public int speedIncreaseThreshold = 200;
     [SerializeField]
     public int activeCoroutines = 0;
     private ClosedChunkSystem closedChunkSystem;
-    Queue<ChunkProperties> chunkQueue = new Queue<ChunkProperties>();
+    Queue<Chunk> chunkQueue = new Queue<Chunk>();
     // Start is called before the first frame update
     void Start()
     {
@@ -30,12 +30,12 @@ public class ChunkUnloader : MonoBehaviour
     /// unloads the furthest chunk from the player at an interval
     /// </summary>
 
-    public void addToQueue(List<ChunkProperties> chunksToUnload) {
+    public void addToQueue(List<Chunk> chunksToUnload) {
         activeCoroutines += chunksToUnload.Count;
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         chunksToUnload.Sort((a, b) => distance(playerChunkPosition,a).CompareTo(distance(playerChunkPosition, b)));
         for (int j =0;j < chunksToUnload.Count; j++) {
-            ChunkProperties chunkProperties = chunksToUnload[j];
+            Chunk chunkProperties = chunksToUnload[j];
             chunkProperties.ScheduledForUnloading = true;
             chunkQueue.Enqueue(chunkProperties);
              
@@ -52,7 +52,7 @@ public class ChunkUnloader : MonoBehaviour
                 yield return new WaitForSeconds(delay);
                 continue;
             }
-            ChunkProperties farthestChunk = chunkQueue.Dequeue();
+            Chunk farthestChunk = chunkQueue.Dequeue();
             Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
             if (distance(playerChunkPosition,farthestChunk) < (Global.ChunkLoadRangeX+2)*(Global.ChunkLoadRangeX+2)) {
                 activeCoroutines--;
@@ -72,7 +72,7 @@ public class ChunkUnloader : MonoBehaviour
         }
     }
 
-    public IEnumerator unloadChunk(ChunkProperties chunk, bool fast) {
+    public IEnumerator unloadChunk(Chunk chunk, bool fast) {
         if (fast) {
             chunk.instantlyUnFullLoadChunk(); 
             //yield return chunk.unfullLoadChunk();
@@ -82,14 +82,14 @@ public class ChunkUnloader : MonoBehaviour
         activeCoroutines--;
     }
 
-    public List<ChunkProperties> getMax(List<ChunkProperties> chunksToUnload,int m,Vector2Int playerPosition) {
+    public List<Chunk> getMax(List<Chunk> chunksToUnload,int m,Vector2Int playerPosition) {
         if (chunksToUnload.Count < m)
         {
            return chunksToUnload;
         }
 
-        List<ChunkProperties> furthestChunks = chunksToUnload.Take(m).ToList();
-        foreach (ChunkProperties chunk in chunksToUnload.Skip(m))
+        List<Chunk> furthestChunks = chunksToUnload.Take(m).ToList();
+        foreach (Chunk chunk in chunksToUnload.Skip(m))
         {
             double dist = distance(playerPosition, chunk);
             if (dist > distance(playerPosition, furthestChunks[m-1]))
@@ -102,7 +102,7 @@ public class ChunkUnloader : MonoBehaviour
         return furthestChunks;
     }
 
-    private double distance(Vector2Int playerPosition,ChunkProperties chunk) {
+    private double distance(Vector2Int playerPosition,Chunk chunk) {
         return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
     }
 }

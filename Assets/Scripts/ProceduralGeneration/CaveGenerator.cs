@@ -15,7 +15,7 @@ public class CaveGenerator
     
     //int iterations = 7;
     //int iterations = 15; float fillPercent = 0.58F; // Good combo for wide open caves
-    int iterations = 5; float fillPercent = 0.58F; // Radius = 2, neighborCount = 14 Good for less connected caves, lots of small rock formations inside larger caves
+   // Radius = 2, neighborCount = 14 Good for less connected caves, lots of small rock formations inside larger caves
     //int iterations = 5; float fillPercent = 0.55F; // Not very connected, many small caves
     public int[,] generate() {
         //UnityEngine.Random.InitState(seed);
@@ -33,11 +33,12 @@ public class CaveGenerator
         int caveMinX = caveCoveredArea.X.LowerBound;
         //Debug.Log(caveCoveredArea.X.LowerBound + "," + caveCoveredArea.X.UpperBound + ";" + caveCoveredArea.Y.LowerBound + "," + caveCoveredArea.Y.UpperBound);
         int caveMinY = caveCoveredArea.Y.LowerBound;
+        Debug.Log(caveMinX + "," +caveMinY);
         foreach (CaveArea caveArea in cave.areas) { // fills areas with given density
-            int startX = 16*(caveArea.xInterval.x-caveMinX);
-            int endX =  16*(caveArea.xInterval.y-caveMinX);
-            int startY = 16*(caveArea.yInterval.x-caveMinY);
-            int endY = 16*(caveArea.yInterval.y-caveMinY);
+            int startX = Global.ChunkSize*(caveArea.xInterval.x-caveMinX);
+            int endX =  Global.ChunkSize*(caveArea.xInterval.y-caveMinX);
+            int startY = Global.ChunkSize*(caveArea.yInterval.x-caveMinY);
+            int endY = Global.ChunkSize*(caveArea.yInterval.y-caveMinY);
             
             for (int x = startX; x < endX; x ++) {
                 for (int y = startY; y < endY; y++) {
@@ -47,6 +48,8 @@ public class CaveGenerator
                     } else {
                         noiseField[x, y] = 0;
                     }
+                    
+                    
                 }
             }
         }
@@ -60,9 +63,7 @@ public class CaveGenerator
         int caveMinX = caveCoveredArea.X.LowerBound;
         int caveMinY = caveCoveredArea.Y.LowerBound;
         
-        foreach (CaveArea caveArea in cave.areas) { // fills areas with given density
-            //Vector2Int chunkSize = caveArea.getSize();
-           // Debug.Log(chunkSize);
+        foreach (CaveArea caveArea in cave.areas) { 
             int xStart = 0;
             int xEnd = Global.ChunkSize*(caveArea.xInterval.y-caveArea.xInterval.x+1);
             int yStart = 0;
@@ -79,7 +80,10 @@ public class CaveGenerator
                 for (int x = xStart; x < xEnd+2*radius; x ++) {
                     for (int y = yStart; y < yEnd+2*radius; y ++) {
                         if (x < radius || x >= xEnd || y < radius || y >= yEnd) {
-                            continue;
+                            if (x+xOffset < 0 || x+xOffset >= maxX || y+yOffset < 0 || y+yOffset >= maxY) {
+                                continue;
+                            }
+                            tempGrid[x,y] = grid[x+xOffset,y+yOffset];
                         } else {
                             tempGrid[x,y] = grid[x+xOffset,y+yOffset];
                         }

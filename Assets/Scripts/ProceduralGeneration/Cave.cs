@@ -49,7 +49,7 @@ public class Cave
             maxYChunk = Mathf.Max(maxYChunk,caveArea.yInterval.y);
             index ++;
         }
-        return new IntervalVector(new Interval<int>(minXChunk, maxXChunk),new Interval<int>(minXChunk,maxYChunk));
+        return new IntervalVector(new Interval<int>(minXChunk, maxXChunk),new Interval<int>(minYChunk,maxYChunk));
     }
 }
 
@@ -73,4 +73,14 @@ public class CaveArea {
     public Vector2Int getSize() {
         return new Vector2Int(Mathf.Abs(xInterval.y-xInterval.x+1),Mathf.Abs(yInterval.y-yInterval.x+1));
     }
+}
+
+public class ProceduralTileGeneration {
+    public string id;
+    public string frequency;
+    public string size;
+}
+
+public class ProceduralStructure {
+    
 }
