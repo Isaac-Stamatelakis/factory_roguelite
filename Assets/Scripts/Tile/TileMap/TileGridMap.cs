@@ -5,9 +5,6 @@ using UnityEngine.Tilemaps;
 using System;
 
 
-/**
-Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
-**/
 public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
     protected override TileData initTileData(TileItem tileItem) {
@@ -17,7 +14,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         );
     }
     
-    protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {
+    protected override void spawnItemEntity(TileItem tileItem, Pos2D hitTilePosition, Vector2 worldPosition) {
         GameObject chunk = ChunkHelper.snapChunk(worldPosition.x,worldPosition.y);
         Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;    
 
@@ -35,9 +32,9 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
     }
 
-    protected override Vector2Int getHitTilePosition(Vector2 position)
+    protected override Pos2D getHitTilePosition(Vector2 position)
     {
-        Vector2Int hitPosition = Global.Vector3IntToVector2Int(tilemap.WorldToCell(position));
+        Pos2D hitPosition = getTilePosition(position);
         int maxSearchWidth = 16;
         int searchWidth = 1;
         while (searchWidth < maxSearchWidth) {
@@ -45,26 +42,26 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y-(searchWidth/2),0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
+                        return new Pos2D(hitPosition.x+x,hitPosition.y-(searchWidth/2));
                     }
                 }
                 for (int y = -searchWidth/2+1; y <= searchWidth/2-1; y ++) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x-(searchWidth/2),hitPosition.y+y,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x-(searchWidth/2), hitPosition.y+y);
+                        return new Pos2D(hitPosition.x-(searchWidth/2), hitPosition.y+y);
                     }
                 }
             } else {
                 for (int x = -(searchWidth-1)/2; x <= (searchWidth-1)/2; x ++) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
+                        return new Pos2D(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
                     }
                 }
                 for (int y = (searchWidth-1)/2-1; y >= -(searchWidth-1)/2; y --) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+(searchWidth-1)/2,hitPosition.y+y,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
+                        return new Pos2D(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
                     }
                 }
             }
@@ -73,7 +70,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         // Mathematically impossible to ever get here if maxSearchDist is infinity.
         // Since the biggest tile I'm probably ever gonna put in the game is 16x16, will never get here.
         Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
-        return new Vector2Int(2147483647,2147483647);
+        return new Pos2D(2147483647,2147483647);
     }
     private bool isHitTile(TileBase tileBase, int searchWidth) {
         int spriteY = 0;
@@ -86,15 +83,15 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         }
         return spriteY >= searchWidth;
     } 
-    protected override void breakTile(Vector2Int position) {
-        Vector2Int chunkPosition = getChunk(position);
+    protected override void breakTile(Pos2D position) {
+        Pos2D chunkPosition = getChunk(position);
         GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
-        Vector2Int tilePositionInChunk = getTilePosition(position);
+        Pos2D tilePosition = getTilePositionInPartition(position);
         Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
-        deleteTileEntity(tileEntityContainer,new Vector3Int(tilePositionInChunk.x,tilePositionInChunk.y,0));
+        deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
 
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-        dimensionChunkData[chunkPosition].data[tilePositionInChunk.x][tilePositionInChunk.y] = null;
+        partitions[chunkPosition][tilePosition.x,tilePosition.y] = null;
     }
 
     protected override bool hitHardness(TileData tileData) {
@@ -108,7 +105,6 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
 
     protected override void setTile(int x, int y,TileData tileData) {
         if (tileData != null) {
-            //tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile(tileData));
             tilemap.SetTile(new Vector3Int(x,y,0),tileData.itemObject.tile);
         }
         
@@ -123,11 +119,12 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         return false;
     }
     public List<List<Dictionary<string,object>>> getSeralizedTileOptions(Vector2Int chunkPosition) {
-        ChunkData<TileData> chunkData = dimensionChunkData[chunkPosition];
+        /*
+        ChunkData<TileData> chunkData = partitions[chunkPosition];
         List<List<Dictionary<string,object>>> nestedTileOptionList = new List<List<Dictionary<string, object>>>();
-        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+        for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
             List<Dictionary<string,object>> tileOptionList = new List<Dictionary<string,object>>();
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
                 TileData tileData = chunkData.data[xIter][yIter];
                 if (tileData == null) {
                     tileOptionList.Add(new Dictionary<string, object>());
@@ -146,6 +143,8 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         }
         
         return nestedTileOptionList;
+        */
+        return null;
     }
 }
 

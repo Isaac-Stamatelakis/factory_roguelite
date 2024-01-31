@@ -13,33 +13,33 @@ public class FindTileAtLocation
     /// <param name = "tilemap">The tilemap that is hit</param>
     /// <returns>The position of the tile that is hit at hitPosition in the tilemap </returns>
     /// </summary>
-    public static Vector2Int find(Vector2Int hitPosition, Tilemap tilemap) {
+    public static Pos2D find(Pos2D hitPosition, Tilemap tilemap) {
         int searchWidth = 1;
         while (searchWidth < maxSearchWidth) {
             if (Global.modInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y-(searchWidth/2),0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
+                        return new Pos2D(hitPosition.x+x,hitPosition.y-(searchWidth/2));
                     }
                 }
                 for (int y = -searchWidth/2+1; y <= searchWidth/2-1; y ++) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x-(searchWidth/2),hitPosition.y+y,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x-(searchWidth/2), hitPosition.y+y);
+                        return new Pos2D(hitPosition.x-(searchWidth/2), hitPosition.y+y);
                     }
                 }
             } else {
                 for (int x = -(searchWidth-1)/2; x <= (searchWidth-1)/2; x ++) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
+                        return new Pos2D(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
                     }
                 }
                 for (int y = (searchWidth-1)/2-1; y >= -(searchWidth-1)/2; y --) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+(searchWidth-1)/2,hitPosition.y+y,0));
                     if (isHitTile(tileBase,searchWidth)) {
-                        return new Vector2Int(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
+                        return new Pos2D(hitPosition.x+(searchWidth-1)/2, hitPosition.y+y);
                     }
                 }
             }
@@ -48,7 +48,7 @@ public class FindTileAtLocation
         // Mathematically impossible to ever get here if maxSearchDist is infinity.
         // Since the biggest tile I'm probably ever gonna put in the game is 16x16, will never get here.
         Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
-        return new Vector2Int(2147483647,2147483647);
+        return new Pos2D(2147483647,2147483647);
     }
 
     /// <summary>

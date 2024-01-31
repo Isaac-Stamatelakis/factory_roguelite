@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class DynamicChunkProperties : Chunk
+public class DynamicChunkProperties : Chunk, ISerizable
 {
+    /*
     public override IEnumerator unfullLoadChunk() {
         if (!fullLoaded) {
             yield return null;
@@ -44,10 +45,10 @@ public class DynamicChunkProperties : Chunk
             jsonData.set(containerName,seralizedChunkTileData);
         } 
     }
-    /**
-    Loads only gameobjects required for machine processing to function.
-    ie, tileEntities and conduits.
-    **/
+    ///
+    ///Loads only gameobjects required for machine processing to function.
+    ///ie, tileEntities and conduits.
+    ///
     
 
     public void saveToJson() {
@@ -71,5 +72,10 @@ public class DynamicChunkProperties : Chunk
             GameObject.Destroy(entityContainer.gameObject);
         }
         
+    }
+    */
+    public void serialze()
+    {
+        throw new System.NotImplementedException();
     }
 }

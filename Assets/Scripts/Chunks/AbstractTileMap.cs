@@ -14,17 +14,18 @@ Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
 **/
 public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableTileMap where Item: ItemObject where PlacedItem : PlacedItemObject<Item>
 {
+    public TileMapType type;
     protected Tilemap tilemap;
     public Tilemap mTileMap {get{return tilemap;}}
     protected TilemapRenderer tilemapRenderer;
     protected TilemapCollider2D tilemapCollider;
-    protected Dictionary<Vector2Int, ChunkData<PlacedItem>> dimensionChunkData;
+    protected Dictionary<Pos2D, PlacedItem[,]> partitions;
     protected DevMode devMode;
 
 
     public virtual void Awake() {
         tilemap = gameObject.AddComponent<Tilemap>();
-        dimensionChunkData = new Dictionary<Vector2Int, ChunkData<PlacedItem>>();
+        partitions = new Dictionary<Pos2D, PlacedItem[,]>();
         tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
 
         
@@ -41,20 +42,27 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         devMode = GameObject.Find("Player").GetComponent<DevMode>();
     }
     
-    public IEnumerator load(ChunkData<PlacedItem> chunkData, Vector2Int chunkPosition,int sectionAmount, double angle) {
-        dimensionChunkData[chunkPosition] = chunkData;
-        
-        yield return StartCoroutine(slowPlaceTiles(chunkPosition,sectionAmount,angle));
-        
+    public void initPartition(Pos2D partitionPosition) {
+        partitions[partitionPosition] = new PlacedItem[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+    }
+
+    public void removePartition(Pos2D partitionPosition) {
+        if (this.containsPartition(partitionPosition)) {
+            partitions.Remove(partitionPosition);
+        }
+    }
+
+    public bool containsPartition(Pos2D partitionPosition) {
+        return this.partitions.ContainsKey(partitionPosition);
     }
 
     public void placeTileAtLocation(int x, int y, Item itemObject) {
-        addTile(itemObject, getChunkPosition(new Vector2Int(x,y)), getTilePosition(new Vector2Int(x,y)));
-        setTile(x,y, getIdDataInChunk(new Vector2Int(x,y)));
+        addTile(itemObject, getChunkPosition(new Pos2D(x,y)), getTilePosition(new Vector2(x,y)));
+        setTile(x,y, getIdDataInChunk(new Pos2D(x,y)));
         
     }
     public void hitTile(Vector2 position) {
-        Vector2Int hitTilePosition = getHitTilePosition(position);
+        Pos2D hitTilePosition = getHitTilePosition(position);
         PlacedItem placedData = getIdDataInChunk(hitTilePosition);
         if (placedData == null) {
             return;
@@ -66,45 +74,47 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     }
 
     public void deleteTile(Vector2 position) {
-        Vector2Int hitTilePosition = getHitTilePosition(position);
+        Pos2D hitTilePosition = getHitTilePosition(position);
         breakTile(hitTilePosition);
         
     }
-    protected void addTile(Item itemObject, Vector2Int chunkPosition, Vector2Int tilePosition) {
-        dimensionChunkData[chunkPosition].data[tilePosition.x][tilePosition.y] = initTileData(itemObject);
+    protected void addTile(Item itemObject, Pos2D partitionPosition, Pos2D tilePosition) {
+        partitions[partitionPosition][tilePosition.x,tilePosition.y] = initTileData(itemObject);
     }
-    public PlacedItem getIdDataInChunk(Vector2Int realTilePosition) {
-        Vector2Int tilePosition = getTilePosition(realTilePosition);
-        return (PlacedItem) dimensionChunkData[getChunkPosition(realTilePosition)].data[tilePosition.x][tilePosition.y];
+    public PlacedItem getIdDataInChunk(Pos2D realTilePosition) {
+        Pos2D tilePosition = getTilePositionInPartition(realTilePosition);
+        return (PlacedItem) partitions[getPartitionPosition(realTilePosition)][tilePosition.x,tilePosition.y];
     }
     protected virtual void setTile(int x, int y,PlacedItem placedItem) {
         
     }
-    public bool containsChunk(Vector2Int chunkPosition) {
-        return dimensionChunkData.ContainsKey(chunkPosition);
-    }
-
     protected abstract PlacedItem initTileData(Item itemObject);
-    protected Vector2Int getChunkPosition(Vector2Int position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/16f), Mathf.FloorToInt(position.y/16f));
+    protected Pos2D getChunkPosition(Pos2D position) {
+        return new Pos2D(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
     }
-    protected Vector2Int getTilePosition(Vector2Int position) {
-        return new Vector2Int(Global.modInt(position.x,Global.ChunkSize),Global.modInt(position.y,Global.ChunkSize));
+    protected Pos2D getPartitionPosition(Pos2D position) {
+        return new Pos2D(Mathf.FloorToInt(position.x/(Global.ChunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkPartitionSize/2)));
+    }
+    protected Pos2D getTilePositionInPartition(Pos2D position) {
+        return new Pos2D(Global.modInt(position.x,Global.ChunkPartitionSize),Global.modInt(position.y,Global.ChunkPartitionSize));
     }
 
-    protected virtual Vector2Int getHitTilePosition(Vector2 position) {
-        return Global.Vector3IntToVector2Int(tilemap.WorldToCell(position));
+    protected abstract Pos2D getHitTilePosition(Vector2 position);
+
+    protected Pos2D getTilePosition(Vector2 position) {
+        Vector3Int vect = tilemap.WorldToCell(position);
+        return new Pos2D(vect.x,vect.y);
     }
     protected virtual bool hitHardness(PlacedItem placedItem) {
         return false;
     }
-    protected virtual void breakTile(Vector2Int position) {
-        Vector2Int chunkPosition = getChunk(position);
+    protected virtual void breakTile(Pos2D position) {
+        Pos2D chunkPartition = getPartitionPosition(position);
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-        Vector2Int tilePositon = getTilePosition(position);
-        dimensionChunkData[chunkPosition].data[tilePositon.x][tilePositon.y] = null;
+        Pos2D tilePositon = getTilePositionInPartition(position);
+        partitions[chunkPartition][tilePositon.x,tilePositon.y] = null;
     }
-    protected virtual void spawnItemEntity(Item itemObject, Vector2Int hitTilePosition, Vector2 worldPosition) {
+    protected virtual void spawnItemEntity(Item itemObject, Pos2D hitTilePosition, Vector2 worldPosition) {
         GameObject chunk = ChunkHelper.snapChunk(hitTilePosition.x,hitTilePosition.y);
         Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;       
 
@@ -113,31 +123,32 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
         ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<ItemSlotOption, object>());
         ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
     }
-    protected IEnumerator slowPlaceTiles(Vector2Int chunkPosition,int sectionAmount, double angle) {
-        ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
+    protected IEnumerator slowPlaceTiles(Pos2D chunkPosition,int sectionAmount, double angle) {
+        /*
+        ChunkData<PlacedItem> chunkData = partitions[chunkPosition];
         double deg = Mathf.Rad2Deg*angle;
         if (45 <= deg && deg < 135) { // moving up
-            for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+            for (int xIter=0; xIter < Global.PartitionsPerChunk; xIter ++) {
+                for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
+                    setTile(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter + Global.PartitionsPerChunk*chunkPosition.y,chunkData.data[xIter][yIter]);
                 }
                 if (xIter % sectionAmount == 0) {
                     yield return new WaitForEndOfFrame();
                 }
             }
         } else if (135 <= deg && deg < 215) { // moving left
-            for (int yIter=0; yIter < Global.ChunkSize; yIter ++) {
-                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+            for (int yIter=0; yIter < Global.PartitionsPerChunk; yIter ++) {
+                for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
+                    setTile(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter + Global.PartitionsPerChunk*chunkPosition.y,chunkData.data[xIter][yIter]);
                 }
                 if (yIter % sectionAmount == 0) {
                     yield return new WaitForEndOfFrame();
                 }
             }
         } else if (225 <= deg && deg < 315) { // moving down
-           for (int yIter=Global.ChunkSize-1; yIter >= 0; yIter --) {
-                for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+           for (int yIter=Global.PartitionsPerChunk-1; yIter >= 0; yIter --) {
+                for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
+                    setTile(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter + Global.PartitionsPerChunk*chunkPosition.y,chunkData.data[xIter][yIter]);
                 }
                 if (yIter % sectionAmount == 0) {
                     yield return new WaitForEndOfFrame();
@@ -145,37 +156,39 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
             }
 
         } else {
-            for (int xIter=Global.ChunkSize-1; xIter >= 0; xIter --) {
-                for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                    setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+            for (int xIter=Global.PartitionsPerChunk-1; xIter >= 0; xIter --) {
+                for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
+                    setTile(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter + Global.PartitionsPerChunk*chunkPosition.y,chunkData.data[xIter][yIter]);
                 }
                 if (xIter % sectionAmount == 0) {
                     yield return new WaitForEndOfFrame();
                 }
             }
         }
-        
+        */
         yield return null;
     }
     protected void instantlyPlaceTiles(Vector2Int chunkPosition) {
-        ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
-        for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                setTile(xIter + Global.ChunkSize*chunkPosition.x,yIter + Global.ChunkSize*chunkPosition.y,chunkData.data[xIter][yIter]);
+        /*
+        ChunkData<PlacedItem> chunkData = partitions[chunkPosition];
+        for (int xIter=0; xIter < Global.PartitionsPerChunk; xIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
+                setTile(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter + Global.PartitionsPerChunk*chunkPosition.y,chunkData.data[xIter][yIter]);
             }
         }
+        */
     }
 
-    protected Vector2Int getChunk(Vector2Int tileMapPosition) {
-        return new Vector2Int(Mathf.FloorToInt(tileMapPosition.x/Global.ChunkSize),Mathf.FloorToInt(tileMapPosition.y/Global.ChunkSize));
+    protected Pos2D getChunk(Pos2D tileMapPosition) {
+        return new Pos2D(Mathf.FloorToInt(tileMapPosition.x/Global.PartitionsPerChunk),Mathf.FloorToInt(tileMapPosition.y/Global.PartitionsPerChunk));
     }
 
-    public IEnumerator removeChunk(Vector2Int chunkPosition) {
-        dimensionChunkData.Remove(chunkPosition);
-        for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+    public IEnumerator removeChunk(Pos2D chunkPosition) {
+        partitions.Remove(chunkPosition);
+        for (int xIter=0; xIter < Global.PartitionsPerChunk; xIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
                 
-                tilemap.SetTile(new Vector3Int(xIter + Global.ChunkSize*chunkPosition.x,yIter+Global.ChunkSize*chunkPosition.y,0),null);
+                tilemap.SetTile(new Vector3Int(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter+Global.PartitionsPerChunk*chunkPosition.y,0),null);
             }
             yield return new WaitForEndOfFrame();
         }
@@ -183,21 +196,23 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
     }
 
     public void instantlyRemoveChunk(Vector2Int chunkPosition) {
-        
-        dimensionChunkData.Remove(chunkPosition);
-        for (int xIter=0; xIter < Global.ChunkSize; xIter ++) {
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-                tilemap.SetTile(new Vector3Int(xIter + Global.ChunkSize*chunkPosition.x,yIter+Global.ChunkSize*chunkPosition.y,0),null);
+        /*
+        partitions.Remove(chunkPosition);
+        for (int xIter=0; xIter < Global.PartitionsPerChunk; xIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
+                tilemap.SetTile(new Vector3Int(xIter + Global.PartitionsPerChunk*chunkPosition.x,yIter+Global.PartitionsPerChunk*chunkPosition.y,0),null);
             }
         }
+        */
     }
 
-    public List<List<string>> getTileIds(Vector2Int chunkPosition) {
-        ChunkData<PlacedItem> chunkData = dimensionChunkData[chunkPosition];
+    public List<List<string>> getTileIds(Pos2D chunkPosition) {
+        /*
+        ChunkData<PlacedItem> chunkData = partitions[chunkPosition];
         List<List<string>> nestedIds = new List<List<string>>();
-        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+        for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
             List<string> idList = new List<string>();
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
                 PlacedItem placedItem = chunkData.data[xIter][yIter];
                 if (placedItem == null || placedItem.itemObject == null) {
                      idList.Add(null);
@@ -209,6 +224,8 @@ public abstract class AbstractTileMap<Item,PlacedItem> : MonoBehaviour, HitableT
             nestedIds.Add(idList);
         }
         return nestedIds;
+        */
+        return null;
     }
 }
 

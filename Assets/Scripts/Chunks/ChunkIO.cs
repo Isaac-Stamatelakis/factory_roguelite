@@ -8,175 +8,63 @@ using Newtonsoft.Json.Linq;
 
 public class ChunkIO {
 
-    public static bool jsonExists(Vector2Int chunkPosition, int dim) {
-        string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
-        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
+    public static bool jsonExists(Pos2D chunkPosition, int dim) {
+        string chunkName = getName(chunkPosition);
+        string filePath = getPath(chunkPosition,dim);
         return (Directory.Exists(filePath));
     }
-     public static GameObject getChunkFromJson(Vector2Int chunkPosition, int dim, ClosedChunkSystem closedChunkSystem) {
-        string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
-        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
+    public static GameObject getChunkFromJson(Pos2D chunkPosition, ClosedChunkSystem closedChunkSystem) {
+        string chunkName = getName(chunkPosition);
+        string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
         string json = null;
         if (File.Exists(filePath))
         {
-            Debug.Log("Loading chunk for dim " + dim);
             json = File.ReadAllText(filePath);
         } else {
+            /*
             if (closedChunkSystem is ConduitTileClosedChunkSystem) {
                 json = File.ReadAllText(Application.dataPath+"/Resources/Json/conduit_chunk_empty.json");
             } else if (closedChunkSystem is TileClosedChunkSystem) {
                 json = File.ReadAllText(Application.dataPath+"/Resources/Json/dynamic_chunk_empty.json");
             } 
-            Debug.Log("Created new chunk " + chunkName + " dim " + dim);
+            Debug.Log("Created new chunk " + chunkName + " dim " + closedChunkSystem.Dim);
+            */
         }
         if (json == null) { 
             return null;
         }
-        Dictionary<string, object> dict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,object>>(json);
+        List<SerializedTileData> chunkPartitionDataList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json);
 
-        JsonData jsonData = new JsonData();
-
-        if (dict.ContainsKey("Type")) {
-            jsonData.set("Type",dict["Type"].ToString());
+        List<ChunkPartitionData> chunkPartitionData = new List<ChunkPartitionData>();
+        foreach (SerializedTileData serializedTileData in chunkPartitionDataList) {
+            chunkPartitionData.Add(serializedTileData);
         }
-        if (dict.ContainsKey("TileBlocks")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileBlocks");
-        }
-        if (dict.ContainsKey("TileBackgrounds")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileBackgrounds");
-        }
-        if (dict.ContainsKey("TileObjects")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileObjects");
-        }
-        if (dict.ContainsKey("Entities")) {
-            jsonData.set("Entities",Newtonsoft.Json.JsonConvert.DeserializeObject<List<EntityData>>(dict["Entities"].ToString()));
-        }
-        if (dict.ContainsKey("EnergyConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"EnergyConduits");
-        }
-        if (dict.ContainsKey("ItemConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"ItemConduits");
-        }
-        if (dict.ContainsKey("FluidConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"FluidConduits");
-        }
-        if (dict.ContainsKey("SignalConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"SignalConduits");
-        }
-        
-        if (jsonData == null) {
-            Debug.LogError("Failed to import " + chunkName);
-            return null;
-        }
-      
         GameObject chunkGameObject = new GameObject();
-        switch ((string) jsonData.get("Type")) {
-            /*
-            case "Static":
-                chunkGameObject.name = "static" + chunkName;
-                StaticChunkProperties staticChunkProperties = chunkGameObject.AddComponent<StaticChunkProperties>();
-                staticChunkProperties.initalize(dim,jsonData,chunkPosition,closedChunkSystem.transform);
-                
-                break;
-            */
-            case "Dynamic":
-                chunkGameObject.name = "dynamic" + chunkName;
-                DynamicChunkProperties dynamicChunkProperties = chunkGameObject.AddComponent<DynamicChunkProperties>();
-                dynamicChunkProperties.initalize(dim,jsonData,chunkPosition,closedChunkSystem.transform);
-                break;
-            case "DynamicConduit":
-                chunkGameObject.name = "dynamicconduit" + chunkName;
-                DynamicConduitChunkProperties dynamicConduitChunkProperties = chunkGameObject.AddComponent<DynamicConduitChunkProperties>();
-                dynamicConduitChunkProperties.initalize(dim,jsonData,chunkPosition,closedChunkSystem.transform);
-                break;
-        }
+        chunkGameObject.name = chunkName;
+        Chunk chunk = chunkGameObject.AddComponent<Chunk>();
+        chunk.initalize(closedChunkSystem.Dim,chunkPartitionData,chunkPosition,closedChunkSystem);
+        closedChunkSystem.addChunk(chunk);
         return chunkGameObject;
 
         
     }
 
-    public static JsonData getChunkJson(Vector2Int chunkPosition, int dim) {
-        string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
-        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
-        string json = null;
-        Debug.Log(filePath);
-        if (File.Exists(filePath))
-        {
-            Debug.Log("Loading chunk for dim " + dim);
-            json = File.ReadAllText(filePath);
-        } else {
-            return null;
-        }
-        if (json == null) { 
-            return null;
-        }
-        Dictionary<string, object> dict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string,object>>(json);
-
-        JsonData jsonData = new JsonData();
-
-        if (dict.ContainsKey("Type")) {
-            jsonData.set("Type",dict["Type"].ToString());
-        }
-        if (dict.ContainsKey("TileBlocks")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileBlocks");
-        }
-        if (dict.ContainsKey("TileBackgrounds")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileBackgrounds");
-        }
-        if (dict.ContainsKey("TileObjects")) {
-            readSeralizedChunkTileData(jsonData,dict,"TileObjects");
-        }
-        if (dict.ContainsKey("Entities")) {
-            jsonData.set("Entities",Newtonsoft.Json.JsonConvert.DeserializeObject<List<EntityData>>(dict["Entities"].ToString()));
-        }
-        if (dict.ContainsKey("EnergyConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"EnergyConduits");
-        }
-        if (dict.ContainsKey("ItemConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"ItemConduits");
-        }
-        if (dict.ContainsKey("FluidConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"FluidConduits");
-        }
-        if (dict.ContainsKey("SignalConduits")) {
-            readSeralizedChunkConduitData(jsonData,dict,"SignalConduits");
-        }
-        
-        if (jsonData == null) {
-            Debug.LogError("Failed to import " + chunkName);
-            return null;
-        }
-      
-       
-        return jsonData;
-
-        
+    public static void writeChunk(Chunk chunk) {
+        File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
+    }
+    public static string getPath(Pos2D chunkPosition, int dim) {
+        return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + getName(chunkPosition);
     }
 
-    public static string getPath(Chunk chunkProperties) {
-        return Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + chunkProperties.Dim + "/" + getName(chunkProperties);
+    public static string getPath(Chunk chunk) {
+        return getPath(chunk.ChunkPosition,chunk.Dim);
+    }
+    public static string getName(Pos2D chunkPosition) {
+        return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
     }
 
-    public static string getName(Chunk chunkProperties) {
-        return "chunk[" + chunkProperties.ChunkPosition.x + "," + chunkProperties.ChunkPosition.y + "].json";
-    }
-    private static void readSeralizedChunkTileData(JsonData jsonData,Dictionary<string,object> dict, string containerName) {
-        jsonData.set(containerName,Newtonsoft.Json.JsonConvert.DeserializeObject<SeralizedChunkTileData>(dict[containerName].ToString()));
-    }
-    private static void readSeralizedChunkConduitData(JsonData jsonData,Dictionary<string,object> dict, string containerName) {
-        jsonData.set(containerName,Newtonsoft.Json.JsonConvert.DeserializeObject<SeralizedChunkConduitData>(dict[containerName].ToString()));
-    }
-    public static void writeChunk(JsonData jsonData, Chunk chunkProperties) {
-        
-        
-        string filePath = Application.dataPath + "/Resources/worlds/"  + Global.WorldName + "/Chunks/dim" + chunkProperties.Dim + "/chunk[" + chunkProperties.ChunkPosition.x + "," + chunkProperties.ChunkPosition.y + "].json";
-        
-        
-        string json = Newtonsoft.Json.JsonConvert.SerializeObject(jsonData.dict);
-        System.IO.File.WriteAllText(filePath, json);
-        
-        
-        
+    public static void writeNewChunk(Pos2D chunkPosition, int dim, List<ChunkPartitionData> data) {
+        File.WriteAllText(ChunkIO.getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
     }
 
     private static List<List<Dictionary<string,object>>> getSeralizedOptions(string tilePath, string json, string optionPath) {

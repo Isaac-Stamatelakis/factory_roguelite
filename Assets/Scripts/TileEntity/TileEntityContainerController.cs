@@ -25,9 +25,9 @@ public class TileEntityContainerController : MonoBehaviour
     public List<List<Dictionary<string, object>>> getDynamicTileEntityOptions(string tileContainerName) {
         List<List<Dictionary<string,object>>> dynamicTileOptions = new List<List<Dictionary<string, object>>>();
         // Create Empty List
-        for (int x = 0; x < Global.ChunkSize; x ++) {
+        for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
             List<Dictionary<string,object>> tempList = new List<Dictionary<string, object>>();
-            for (int y = 0; y < Global.ChunkSize; y ++) {
+            for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
                 tempList.Add(new Dictionary<string, object>());
             }
             dynamicTileOptions.Add(tempList);

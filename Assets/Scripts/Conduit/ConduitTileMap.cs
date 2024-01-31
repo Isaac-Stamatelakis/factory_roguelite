@@ -28,7 +28,8 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
         return null;
     }
     public List<List<ConduitOptions>> getConduitOptions(Vector2Int chunkPosition) {
-        ChunkData<ConduitData> chunkData = dimensionChunkData[chunkPosition];
+        /*
+        ChunkData<ConduitData> chunkData = partitions[chunkPosition];
         List<List<ConduitOptions>> nestedConduitOptions = new List<List<ConduitOptions>>();
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<ConduitOptions> conduitOptionsList = new List<ConduitOptions>();
@@ -44,8 +45,13 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
         }
         
         return nestedConduitOptions;
+        */
+        return null;
     }
 
-    
+    protected override Pos2D getHitTilePosition(Vector2 position)
+    {
+        throw new NotImplementedException();
+    }
 }
 

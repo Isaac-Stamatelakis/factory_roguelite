@@ -127,7 +127,8 @@ public class PlayerMouse : MonoBehaviour
         if (tilemap != null) {
             TileGridMap tileGridMap = tilemap.GetComponent<TileGridMap>();
             if (tileGridMap != null) {
-                Vector2Int tilePosition = FindTileAtLocation.find(Global.Vector3IntToVector2Int(tileGridMap.mTileMap.WorldToCell(mousePosition)),tileGridMap.mTileMap);
+                Vector3Int vect = tileGridMap.mTileMap.WorldToCell(mousePosition);
+                Pos2D tilePosition = FindTileAtLocation.find(new Pos2D(vect.x,vect.y),tileGridMap.mTileMap);
                 TileData tileData = (TileData) tileGridMap.getIdDataInChunk(tilePosition);
                 if (tileData != null) {
                     GameObject chunk = ChunkHelper.snapChunk(tilePosition.x/2f,tilePosition.y/2f);

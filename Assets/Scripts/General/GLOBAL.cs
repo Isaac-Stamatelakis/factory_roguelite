@@ -14,13 +14,14 @@ public class Global
     public static string WorldName {get{return worldName;}}
     private static float pixelsPerBlock = 16;
     public static float PixelsPerBlock {get {return pixelsPerBlock;}}
-
-    private static int chunkCollectionSize = 8;
-    private static int chunkSize = 8;
-    public static int ChunkSize {get{return chunkSize;}}
+    private static int partitionsPerChunk = 6;
+    public static int PartitionsPerChunk {get{return partitionsPerChunk;}}
+    public static int ChunkSize {get{return partitionsPerChunk*chunkPartitionSize;}}
     private static int chunkPartitionSize = 4;
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
-    private static Vector2Int chunkLoadRange = new Vector2Int(3,2);
+    private static Vector2Int chunkLoadRange = new Vector2Int(1,1);
+    public static Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
+    private static Vector2Int chunkPartitionLoadRange = new Vector2Int(4,2);
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
@@ -82,4 +83,15 @@ public class Global
     }
 
 
+}
+
+public struct Pos2D
+{
+    public int x;
+    public int y;
+    public Pos2D(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
 }

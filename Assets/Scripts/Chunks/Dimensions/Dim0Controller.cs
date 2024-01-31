@@ -12,8 +12,7 @@ public class Dim0Controller : DimController
         closedChunkSystems.Add(mainArea);
         mainArea.initalize(
             coveredArea: new IntervalVector(new Interval<int>(-8,8), new Interval<int>(-4,8)),
-            dim: 0,
-            chunkList: new PreGeneratedChunkList(8,-8,8,-4,0,mainArea)
+            dim: 0
         );
 
     }

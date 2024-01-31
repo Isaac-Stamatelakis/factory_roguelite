@@ -21,8 +21,8 @@ public class DungeonController : DimController
         // r = 4, n = 48, d = 0.60, i = 20, very wide areas
 
         cave.areas.Add(new CaveArea(
-            new Vector2Int(-40,40),
-            new Vector2Int(-40,40),
+            new Vector2Int(-2,2),
+            new Vector2Int(-2,2),
             2,
             14,
             0.58F,
@@ -38,13 +38,10 @@ public class DungeonController : DimController
             10
         ));
         */
-        
+        CaveGenerator caveGenerator = new CaveGenerator(cave);
+        caveGenerator.generate();
         IntervalVector coveredArea = cave.getCoveredArea();
-        area.initalize(
-            coveredArea,
-            -1,
-            new DungeonChunkList(cave,-1,area)
-        );
+        area.initalize(coveredArea,-1);
 
     }
 }

@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum TileMapType {
+    Block = TileType.Block,
+    Background = TileType.Background,
+    Object = TileType.Object,
+    ItemConduit = ConduitType.Item,
+    FluidConduit = ConduitType.Fluid,
+    EnergyConduit = ConduitType.Energy,
+    SignalCOnduit = ConduitType.Signal
+}
 public class TileClosedChunkSystem : ClosedChunkSystem
 {
     public override void Awake()
     {
         base.Awake();
-        initTileMapContainer("TileBlocks", LayerMask.NameToLayer("TileBlock"),Global.TileBlockZ);
-        initTileMapContainer("TileBackgrounds",LayerMask.NameToLayer("TileBackground"),Global.TileBackGroundZ);
-        initTileMapContainer("TileObjects",LayerMask.NameToLayer("TileObject"),Global.TileObjectZ);
+        initTileMapContainer("TileBlocks", LayerMask.NameToLayer("TileBlock"),Global.TileBlockZ,TileMapType.Block);
+        initTileMapContainer("TileBackgrounds",LayerMask.NameToLayer("TileBackground"),Global.TileBackGroundZ,TileMapType.Background);
+        initTileMapContainer("TileObjects",LayerMask.NameToLayer("TileObject"),Global.TileObjectZ,TileMapType.Object);
     }
 
-    protected void initTileMapContainer(string containerName, int layer, float z) {
+    
+
+    protected void initTileMapContainer(string containerName, int layer, float z, TileMapType tileType) {
         GameObject container = new GameObject();
         container.transform.SetParent(gameObject.transform);
         container.name = containerName;
@@ -20,7 +30,8 @@ public class TileClosedChunkSystem : ClosedChunkSystem
         container.transform.localPosition = new Vector3(0,0,z);
         Grid grid = container.AddComponent<Grid>();
         grid.cellSize = new Vector3(0.5f,0.5f,1f);
-        container.AddComponent<TileGridMap>();
-        Global.setStatic(container);
+        TileGridMap tileGridMap = container.AddComponent<TileGridMap>();
+        tileGridMap.type = tileType;
+        tileGridMaps[tileType] = tileGridMap;
     }
 }

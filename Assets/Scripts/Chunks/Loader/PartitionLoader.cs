@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
 
-public class ChunkLoader : MonoBehaviour
+public class PartitionLoader : MonoBehaviour
 {
     [SerializeField]
     public bool active = false;
@@ -17,7 +17,7 @@ public class ChunkLoader : MonoBehaviour
     [SerializeField]
     public int activeCoroutines = 0;
     public bool Activated {get{return activeCoroutines != 0;}}
-    public Queue<Chunk> loadQueue;
+    public Queue<IChunkPartition> loadQueue;
 
     void Start()
     {
@@ -26,19 +26,19 @@ public class ChunkLoader : MonoBehaviour
         if (closedChunkSystems.Length > 1) {
             Debug.LogError("ChunkUnloader belongs to multiple dimensions");
         }
-        loadQueue = new Queue<Chunk>();
+        loadQueue = new Queue<IChunkPartition>();
         closedChunkSystem = closedChunkSystems[0];
         StartCoroutine(load());
     }
 
-    public void addToQueue(List<Chunk> chunksToLoad) {
-        activeCoroutines += chunksToLoad.Count;
-        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-        chunksToLoad.Sort((a, b) => distance(playerChunkPosition,b).CompareTo(distance(playerChunkPosition, a)));
-        for (int j =0 ;j < chunksToLoad.Count; j++) {
-            loadQueue.Enqueue(chunksToLoad[j]);
+    public void addToQueue(List<IChunkPartition> partitionsToLoad) {
+        activeCoroutines += partitionsToLoad.Count;
+        Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        partitionsToLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
+        for (int j =0 ;j < partitionsToLoad.Count; j++) {
+            loadQueue.Enqueue(partitionsToLoad[j]);
         }
-        chunksToLoad.Clear();
+        partitionsToLoad.Clear();
         
     }
     public IEnumerator load() {
@@ -48,15 +48,16 @@ public class ChunkLoader : MonoBehaviour
                 continue;
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            Chunk closestChunk = loadQueue.Dequeue();
-            if (closestChunk.FullLoaded) {
+            Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            IChunkPartition closestPartition = loadQueue.Dequeue();
+            if (closestPartition.getLoaded()) {
                 activeCoroutines--;
                 continue;
             }
-            Vector2Int dif = playerChunkPosition-closestChunk.ChunkPosition;
+            Pos2D pos = closestPartition.getRealPosition();
+            Pos2D dif = new Pos2D(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
             double angle = Mathf.Atan2(dif.y,dif.x);
-            StartCoroutine(loadChunk(closestChunk,loadAmount,angle));
+            StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
             
             if (loadAmount*uploadAmountThreshold >= rapidUploadThreshold) { // Instant upload after threshhold reached
                 yield return new WaitForEndOfFrame();
@@ -66,16 +67,10 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator loadChunk(Chunk chunk, int loadAmount, double angle) {
-        if (loadAmount < rapidUploadThreshold) {
-                yield return chunk.fullLoadChunk(sectionAmount:16,angle);
-            } else {
-                yield return chunk.fullLoadChunk(sectionAmount:loadAmount,angle);
-        }
+    private IEnumerator loadChunkPartition(IChunkPartition partition, int loadAmount, double angle) {
+        yield return closedChunkSystem.loadChunkPartition(partition,angle);
         activeCoroutines--;
     }
-    private double distance(Vector2Int playerPosition,Chunk chunk) {
-        return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
-    }
+
 }
 

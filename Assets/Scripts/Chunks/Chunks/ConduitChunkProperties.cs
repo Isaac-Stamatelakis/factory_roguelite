@@ -6,6 +6,7 @@ using System;
 
 public class DynamicConduitChunkProperties : DynamicChunkProperties
 {
+    /*
     protected IEnumerator AddConduitsToContainer(ChunkData<ConduitData> chunkConduitData,string containerName,int sectionAmount, double angle) {
         ConduitTileMap conduitTileMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<ConduitTileMap>();
         Coroutine a = StartCoroutine(conduitTileMap.load(chunkConduitData, this.chunkPosition,sectionAmount,angle));
@@ -33,45 +34,14 @@ public class DynamicConduitChunkProperties : DynamicChunkProperties
         }
         return chunkConduitData;
     }
-    protected override IEnumerator fullLoadChunkCoroutine(int sectionAmount, double angle)
-    {
-        Coroutine e = StartCoroutine(AddConduitsToContainer(
-            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("EnergyConduits")),
-            "EnergyConduits",
-            sectionAmount,
-            angle
-        ));
-        Coroutine f = StartCoroutine(AddConduitsToContainer(
-            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("ItemConduits")),
-            "ItemConduits",
-            sectionAmount,
-            angle
-        ));
-        Coroutine g = StartCoroutine(AddConduitsToContainer(
-            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("FluidConduits")),
-            "FluidConduits",
-            sectionAmount,
-            angle
-        ));
-        Coroutine h = StartCoroutine(AddConduitsToContainer(
-            deseralizeConduitChunkTileData((SeralizedChunkConduitData) jsonData.get("SignalConduits")),
-            "SignalConduits",
-            sectionAmount,
-            angle
-        ));
-        yield return base.fullLoadChunkCoroutine(sectionAmount, angle);
-        
-    }
 
     protected override void saveContainers()
     {
-        
         base.saveContainers();
         saveConduitContainer("EnergyConduits");
         saveConduitContainer("ItemConduits");
         saveConduitContainer("FluidConduits");
         saveConduitContainer("SignalConduits");
-
     }
 
     private void saveConduitContainer(string containerName) {
@@ -80,4 +50,5 @@ public class DynamicConduitChunkProperties : DynamicChunkProperties
         ((SeralizedChunkConduitData) jsonData.get(containerName)).conduitOptions = conduitTileMap.getConduitOptions(chunkPosition);
         conduitTileMap.instantlyRemoveChunk(chunkPosition);
     }
+    */
 }
