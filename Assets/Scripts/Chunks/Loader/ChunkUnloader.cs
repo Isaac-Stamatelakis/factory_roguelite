@@ -31,7 +31,7 @@ public class ChunkUnloader : MonoBehaviour
 
     public void addToQueue(List<Chunk> chunksToUnLoad) {
         activeCoroutines += chunksToUnLoad.Count;
-        Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         
         
         chunksToUnLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));

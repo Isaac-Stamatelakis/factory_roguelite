@@ -5,13 +5,13 @@ using System.IO;
 public interface IChunk {
     public List<List<IChunkPartition>> getChunkPartitions();
     public List<ChunkPartitionData> getChunkPartitionData();
-    public List<IChunkPartition> getUnloadedPartitionsCloseTo(Pos2D target);
+    public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
     /// <summary>
     /// Deletes all chunk partitions
     /// </summary>
     public void unload();
-    public float distanceFrom(Pos2D target);
-    public bool inRange(Pos2D target, int xRange, int yRange);
+    public float distanceFrom(Vector2Int target);
+    public bool inRange(Vector2Int target, int xRange, int yRange);
     public bool isChunkLoaded();
     
 }
@@ -33,8 +33,8 @@ public class Chunk : MonoBehaviour, IChunk
     /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
     /// </summary>
     protected bool chunkLoaded = false;
-    protected Pos2D chunkPosition; 
-    public Pos2D ChunkPosition {get{return chunkPosition;}}
+    protected Vector2Int chunkPosition; 
+    public Vector2Int ChunkPosition {get{return chunkPosition;}}
     protected int dim;
     public int Dim {get{return dim;}}
     protected Transform entityContainer;
@@ -51,11 +51,11 @@ public class Chunk : MonoBehaviour, IChunk
     }
     */
 
-    public float distanceFrom(Pos2D target)
+    public float distanceFrom(Vector2Int target)
     {
         return Mathf.Pow(target.x-chunkPosition.x,2) + Mathf.Pow(target.y-chunkPosition.y,2);
     }
-    public virtual void initalize(int dim, List<ChunkPartitionData> chunkPartitionDataList, Pos2D chunkPosition, ClosedChunkSystem closedSystemTransform) {
+    public virtual void initalize(int dim, List<ChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedSystemTransform) {
         this.dim = dim;
         this.chunkPosition = chunkPosition;
         this.partitions = new List<List<IChunkPartition>>();
@@ -69,7 +69,7 @@ public class Chunk : MonoBehaviour, IChunk
             List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
             for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
                 generatePartitionCollider(x,y);
-                chunkPartitions.Add(generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Pos2D(x,y)));
+                chunkPartitions.Add(generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y)));
             }
             partitions.Add(chunkPartitions);
         }
@@ -83,7 +83,7 @@ public class Chunk : MonoBehaviour, IChunk
     /// <summary>
     /// Generates a partition
     /// </summary>
-    protected virtual IChunkPartition generatePartition(ChunkPartitionData data, Pos2D position) {
+    protected virtual IChunkPartition generatePartition(ChunkPartitionData data, Vector2Int position) {
         if (data is SerializedTileData) {
             return new TileChunkPartition<SerializedTileData>((SerializedTileData) data,position,this);
         } else if (data is SerializedTileConduitData) {
@@ -114,30 +114,22 @@ public class Chunk : MonoBehaviour, IChunk
         return this.partitions;
     }
 
-    public List<IChunkPartition> getUnloadedPartitionsCloseTo(Pos2D target)
+    public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target)
     {
         List<IChunkPartition> close = new List<IChunkPartition>();
         foreach (List<IChunkPartition> partitionList in partitions) {
             foreach (IChunkPartition partition in partitionList) {
-                if (!partition.getLoaded()) {
-                    Pos2D realPosition = partition.getRealPosition();
-                    if (
-                        Mathf.Abs(target.x-realPosition.x) <= Global.ChunkPartitionLoadRange.x 
-                        && 
-                        Mathf.Abs(target.y-realPosition.y) <= Global.ChunkPartitionLoadRange.y
-                        ) 
-                    {
-                        close.Add(partition);
-                    }
+                if (!partition.getLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                    close.Add(partition);
                 } 
             }
         }
         return close;
     }
 
-    public bool inRange(Pos2D target, int xRange, int yRange)
+    public bool inRange(Vector2Int target, int xRange, int yRange)
     {
-        return Mathf.Abs(target.x-chunkPosition.x) >= xRange && Mathf.Abs(target.y-chunkPosition.y) >= yRange;
+        return Mathf.Abs(target.x-chunkPosition.x) <= xRange && Mathf.Abs(target.y-chunkPosition.y) <= yRange;
     }
 
     public bool isChunkLoaded()

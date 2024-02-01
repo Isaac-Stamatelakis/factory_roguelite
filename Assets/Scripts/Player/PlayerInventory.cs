@@ -8,7 +8,7 @@ public class PlayerInventory : MonoBehaviour
 
     private static int entityLayer;
     private int selectedSlot = 0;
-    private static Vector2Int inventorySize = new Vector2Int(10,4);
+    private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
     private List<ItemSlot> inventory;
     private PlayerInventoryGrid playerInventoryGrid;
     private GameObject inventoryContainer;
@@ -37,7 +37,7 @@ public class PlayerInventory : MonoBehaviour
         GameObject inventoryContainer = Global.findChild(hotbarNumbersContainer.transform,"Inventory");
         hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform,false);
         playerInventoryGrid = inventoryContainer.AddComponent<PlayerInventoryGrid>();
-        playerInventoryGrid.initalize(inventory,new Vector2Int(10,1));
+        playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
     }
     // Update is called 50 times per second
     void Update()
@@ -48,9 +48,9 @@ public class PlayerInventory : MonoBehaviour
     public void toggleInventory() {
         expanded = !expanded;
         if (expanded) {
-            playerInventoryGrid.updateSize(new Vector2Int(10,4));
+            playerInventoryGrid.updateSize(new UnityEngine.Vector2Int(10,4));
         } else {
-            playerInventoryGrid.updateSize(new Vector2Int(10,1));
+            playerInventoryGrid.updateSize(new UnityEngine.Vector2Int(10,1));
         }
     }
     public void changeSelectedSlot(int slot) {

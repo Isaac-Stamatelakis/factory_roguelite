@@ -32,7 +32,7 @@ public class PartitionUnloader : MonoBehaviour
 
     public void addToQueue(List<IChunkPartition> partitionsToUnload) {
         activeCoroutines += partitionsToUnload.Count;
-        Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         partitionsToUnload.Sort((a, b) => a.distanceFrom(playerChunkPosition).CompareTo(b.distanceFrom(playerChunkPosition)));
         for (int j =0;j < partitionsToUnload.Count; j++) {
             IChunkPartition partition = partitionsToUnload[j];
@@ -53,7 +53,7 @@ public class PartitionUnloader : MonoBehaviour
                 continue;
             }
             IChunkPartition farthestPartition = unloadQueue.Dequeue();
-            Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
             if (farthestPartition.distanceFrom(playerChunkPosition) < (Global.ChunkPartitionLoadRange.x+2)*(Global.ChunkPartitionLoadRange.x+2)) {
                 activeCoroutines--;
                 farthestPartition.setScheduleForUnloading(false);
@@ -77,7 +77,7 @@ public class PartitionUnloader : MonoBehaviour
         activeCoroutines--;
     }
 
-    private double distance(Vector2Int playerPosition,Chunk chunk) {
+    private double distance(UnityEngine.Vector2Int playerPosition,Chunk chunk) {
         return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
     }
 }

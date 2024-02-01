@@ -25,7 +25,7 @@ public class CaveGenerator
     }
 
     public void saveToJson(WorldTileData worldTileData) {
-        Vector2Int caveSize = cave.getChunkDimensions();
+        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         IntervalVector caveCoveredArea = cave.getCoveredArea();
         int tileMaxX = Global.ChunkSize*caveSize.x;
         int tileMaxY = Global.ChunkSize*caveSize.y;
@@ -84,13 +84,13 @@ public class CaveGenerator
                         chunkPartitionDataList.Add(partitionData);
                     }
                 }
-                ChunkIO.writeNewChunk(new Pos2D(chunkX,chunkY),-1,chunkPartitionDataList);
+                ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),-1,chunkPartitionDataList);
             }
         }
     }
 
     private int[,] generateNoiseField() {
-        Vector2Int caveSize = cave.getChunkDimensions();
+        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         IntervalVector caveCoveredArea = cave.getCoveredArea();
         Debug.Log(caveSize);
         int[,] noiseField = new int[Global.ChunkSize * caveSize.x,Global.ChunkSize*caveSize.y];
@@ -116,7 +116,7 @@ public class CaveGenerator
         return noiseField;
     }
     private int[,] cellular_automaton(int[,] grid) {
-        Vector2Int caveSize = cave.getChunkDimensions();
+        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         int maxX = Global.ChunkSize*caveSize.x;
         int maxY = Global.ChunkSize*caveSize.y;
         IntervalVector caveCoveredArea = cave.getCoveredArea();
@@ -178,7 +178,7 @@ public class CaveGenerator
     }
 
     private WorldTileData generateWorld(int[,] grid) {
-        Vector2Int caveSize = cave.getChunkDimensions();
+        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         int tileMaxX = Global.ChunkSize * caveSize.x;
         int tileMaxY = Global.ChunkSize*caveSize.y;
 

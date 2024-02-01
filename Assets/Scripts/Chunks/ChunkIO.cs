@@ -8,12 +8,12 @@ using Newtonsoft.Json.Linq;
 
 public class ChunkIO {
 
-    public static bool jsonExists(Pos2D chunkPosition, int dim) {
+    public static bool jsonExists(Vector2Int chunkPosition, int dim) {
         string chunkName = getName(chunkPosition);
         string filePath = getPath(chunkPosition,dim);
         return (Directory.Exists(filePath));
     }
-    public static GameObject getChunkFromJson(Pos2D chunkPosition, ClosedChunkSystem closedChunkSystem) {
+    public static GameObject getChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
         string chunkName = getName(chunkPosition);
         string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
         string json = null;
@@ -52,18 +52,18 @@ public class ChunkIO {
     public static void writeChunk(Chunk chunk) {
         File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
     }
-    public static string getPath(Pos2D chunkPosition, int dim) {
+    public static string getPath(Vector2Int chunkPosition, int dim) {
         return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + getName(chunkPosition);
     }
 
     public static string getPath(Chunk chunk) {
         return getPath(chunk.ChunkPosition,chunk.Dim);
     }
-    public static string getName(Pos2D chunkPosition) {
+    public static string getName(Vector2Int chunkPosition) {
         return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
     }
 
-    public static void writeNewChunk(Pos2D chunkPosition, int dim, List<ChunkPartitionData> data) {
+    public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<ChunkPartitionData> data) {
         File.WriteAllText(ChunkIO.getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
     }
 

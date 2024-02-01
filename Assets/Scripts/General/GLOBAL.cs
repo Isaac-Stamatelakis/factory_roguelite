@@ -19,9 +19,9 @@ public class Global
     public static int ChunkSize {get{return partitionsPerChunk*chunkPartitionSize;}}
     private static int chunkPartitionSize = 4;
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
-    private static Vector2Int chunkLoadRange = new Vector2Int(1,1);
-    public static Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static Vector2Int chunkPartitionLoadRange = new Vector2Int(4,2);
+    private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(1,1);
+    public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,4);
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
@@ -71,27 +71,16 @@ public class Global
         return new Vector2((int) (sprite.texture.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
     }
 
-    public static Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
-        return new Vector2Int(vector3Int.x, vector3Int.y);
+    public static UnityEngine.Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
+        return new UnityEngine.Vector2Int(vector3Int.x, vector3Int.y);
     }
 
     public static void setStatic(GameObject anObject) {
         GameObjectUtility.SetStaticEditorFlags(anObject, StaticEditorFlags.NavigationStatic | StaticEditorFlags.BatchingStatic);
     }
-    public static Vector2Int getChunk(Vector2 position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/8f),Mathf.FloorToInt(position.y/8f));
+    public static UnityEngine.Vector2Int getChunk(Vector2 position) {
+        return new UnityEngine.Vector2Int(Mathf.FloorToInt(position.x/8f), Mathf.FloorToInt(position.y/8f));
     }
 
 
-}
-
-public struct Pos2D
-{
-    public int x;
-    public int y;
-    public Pos2D(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-    }
 }

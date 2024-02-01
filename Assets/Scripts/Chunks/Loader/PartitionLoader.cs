@@ -33,7 +33,7 @@ public class PartitionLoader : MonoBehaviour
 
     public void addToQueue(List<IChunkPartition> partitionsToLoad) {
         activeCoroutines += partitionsToLoad.Count;
-        Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         partitionsToLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
         for (int j =0 ;j < partitionsToLoad.Count; j++) {
             loadQueue.Enqueue(partitionsToLoad[j]);
@@ -48,14 +48,14 @@ public class PartitionLoader : MonoBehaviour
                 continue;
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-            Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
             IChunkPartition closestPartition = loadQueue.Dequeue();
             if (closestPartition.getLoaded()) {
                 activeCoroutines--;
                 continue;
             }
-            Pos2D pos = closestPartition.getRealPosition();
-            Pos2D dif = new Pos2D(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
+            Vector2Int pos = closestPartition.getRealPosition();
+            Vector2Int dif = new Vector2Int(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
             double angle = Mathf.Atan2(dif.y,dif.x);
             StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
             

@@ -11,8 +11,8 @@ public class TileEntityProperties : MonoBehaviour
     public Dictionary<string,object> Data {get{return data;} set{data=value;}}
     private string tileContainerName;
     public string TileContainerName {get{return tileContainerName;} set{tileContainerName = value;}}
-    private Vector2Int position;
-    public Vector2Int Position {get{return position;} set{position=value;}}
+    private UnityEngine.Vector2Int position;
+    public UnityEngine.Vector2Int Position {get{return position;} set{position=value;}}
 
     
 }

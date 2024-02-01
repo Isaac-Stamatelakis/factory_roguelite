@@ -11,11 +11,11 @@ using Newtonsoft.Json;
 /// </summary>
 public class TileEntityFactory
 {
-    public static void createTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+    public static void createTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, UnityEngine.Vector2Int placePosition) {
         GameObject tileEntity = initalizeTileEntityGameObject(tileItem, data, tileEntityContainer,tileContainerName,placePosition);
     }
     
-    public static void softLoadTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+    public static void softLoadTileEntity(TileItem tileItem, Dictionary<string,object> data, Transform tileEntityContainer, string tileContainerName, UnityEngine.Vector2Int placePosition) {
         GameObject tileEntity = initalizeTileEntityGameObject(tileItem,data, tileEntityContainer,tileContainerName,placePosition);
     }
 
@@ -48,7 +48,7 @@ public class TileEntityFactory
 
     }
 
-    private static GameObject initalizeTileEntityGameObject(TileItem tileItem, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, Vector2Int placePosition) {
+    private static GameObject initalizeTileEntityGameObject(TileItem tileItem, Dictionary<string,object> data,Transform tileEntityContainer, string tileContainerName, UnityEngine.Vector2Int placePosition) {
         
         
         GameObject tileEntity = null;

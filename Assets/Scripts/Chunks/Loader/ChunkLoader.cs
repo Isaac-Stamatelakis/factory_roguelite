@@ -16,7 +16,7 @@ public class ChunkLoader : MonoBehaviour
     [SerializeField]
     public int activeCoroutines = 0;
     public bool Activated {get{return activeCoroutines != 0;}}
-    public Queue<Pos2D> loadQueue;
+    public Queue<Vector2Int> loadQueue;
 
     void Awake()
     {
@@ -24,15 +24,15 @@ public class ChunkLoader : MonoBehaviour
         if (closedChunkSystems.Length > 1) {
             Debug.LogError("ChunkUnloader belongs to multiple dimensions");
         }
-        loadQueue = new Queue<Pos2D>();
+        loadQueue = new Queue<Vector2Int>();
         closedChunkSystem = closedChunkSystems[0];
         StartCoroutine(load());
     }
 
-    public void addToQueue(List<Pos2D> chunkPositionToLoad) {
+    public void addToQueue(List<Vector2Int> chunkPositionToLoad) {
         activeCoroutines += chunkPositionToLoad.Count;
-        Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
-        foreach (Pos2D vect in chunkPositionToLoad) {
+        Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+        foreach (Vector2Int vect in chunkPositionToLoad) {
             loadQueue.Enqueue(vect);
         }
         
@@ -50,8 +50,8 @@ public class ChunkLoader : MonoBehaviour
                 continue;
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-            Pos2D playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            Pos2D closestPosition = loadQueue.Dequeue();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            Vector2Int closestPosition = loadQueue.Dequeue();
             if (closedChunkSystem.chunkIsCached(closestPosition)) {
                 activeCoroutines--;
                 continue;
@@ -61,7 +61,7 @@ public class ChunkLoader : MonoBehaviour
         }
     }
 
-    private void cacheChunk(Pos2D closestPosition) {
+    private void cacheChunk(Vector2Int closestPosition) {
         ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
 
         activeCoroutines--;

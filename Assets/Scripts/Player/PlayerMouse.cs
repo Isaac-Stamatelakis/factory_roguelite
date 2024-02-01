@@ -128,7 +128,7 @@ public class PlayerMouse : MonoBehaviour
             TileGridMap tileGridMap = tilemap.GetComponent<TileGridMap>();
             if (tileGridMap != null) {
                 Vector3Int vect = tileGridMap.mTileMap.WorldToCell(mousePosition);
-                Pos2D tilePosition = FindTileAtLocation.find(new Pos2D(vect.x,vect.y),tileGridMap.mTileMap);
+                Vector2Int tilePosition = FindTileAtLocation.find(new Vector2Int(vect.x,vect.y),tileGridMap.mTileMap);
                 TileData tileData = (TileData) tileGridMap.getIdDataInChunk(tilePosition);
                 if (tileData != null) {
                     GameObject chunk = ChunkHelper.snapChunk(tilePosition.x/2f,tilePosition.y/2f);
@@ -136,7 +136,7 @@ public class PlayerMouse : MonoBehaviour
                     GameObject tileEntity = TileEntityHelper.getTileEntity(
                         tileEntityContainer.transform,
                         tilemap.name,
-                        new Vector2Int(Global.modInt(tilePosition.x,16),Global.modInt(tilePosition.y,16))
+                        new UnityEngine.Vector2Int(Global.modInt(tilePosition.x,16), Global.modInt(tilePosition.y,16))
                     );
                     if (tileEntity != null) {
                         OnTileEntityClickController clickController = tileEntity.GetComponent<OnTileEntityClickController>();

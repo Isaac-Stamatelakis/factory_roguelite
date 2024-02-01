@@ -1,15 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum TileMapType {
-    Block = TileType.Block,
-    Background = TileType.Background,
-    Object = TileType.Object,
-    ItemConduit = ConduitType.Item,
-    FluidConduit = ConduitType.Fluid,
-    EnergyConduit = ConduitType.Energy,
-    SignalCOnduit = ConduitType.Signal
-}
+
 public class TileClosedChunkSystem : ClosedChunkSystem
 {
     public override void Awake()
@@ -19,8 +11,6 @@ public class TileClosedChunkSystem : ClosedChunkSystem
         initTileMapContainer("TileBackgrounds",LayerMask.NameToLayer("TileBackground"),Global.TileBackGroundZ,TileMapType.Background);
         initTileMapContainer("TileObjects",LayerMask.NameToLayer("TileObject"),Global.TileObjectZ,TileMapType.Object);
     }
-
-    
 
     protected void initTileMapContainer(string containerName, int layer, float z, TileMapType tileType) {
         GameObject container = new GameObject();

@@ -141,26 +141,30 @@ public class PlaceTile {
     /// <param name = "y"> The y position to be placed at </param>
     /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
     private static void placeTile(TileItem tileItem, float x, float y, string containerName) {
-        Vector2Int placePosition = getPlacePosition(tileItem,x,y);
+        UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, x, y);
         GameObject chunkGameObject = ChunkHelper.snapChunk(x,y);   
         if (chunkGameObject == null) {
             return;
         }
         GameObject tileContainer = Global.findChild(chunkGameObject.transform.parent.parent.transform,containerName);
         GameObject tileEntityContainer = Global.findChild(chunkGameObject.transform,"TileEntities");
-        
+
         TileEntityFactory.createTileEntity(
             tileItem,
             null,
-            tileEntityContainer.transform,containerName,
-            new Vector2Int(Global.modInt(placePosition.x,16),Global.modInt(placePosition.y,16))
+            tileEntityContainer.transform, containerName,
+            new UnityEngine.Vector2Int(Global.modInt(placePosition.x,16), Global.modInt(placePosition.y,16))
         );
-        tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,tileItem);
+        TileData tileData = new TileData(
+            tileItem,
+            tileItem.getOptions()
+        );
+        tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,tileData);
     }
 
-    public static Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
+    public static UnityEngine.Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
         Vector2 spriteSize = Global.getSpriteSize(tileItem.getSprite());
-        return new Vector2Int(snap(x),snap(y));
+        return new UnityEngine.Vector2Int(snap(x), snap(y));
     }
     /**
     Snaps the given x,y onto the grid. 
@@ -234,7 +238,10 @@ public class PlaceTile {
         if (conduitPlacable(conduitItem,placePosition)) {
             ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.getType());
             Vector3Int tileMapPosition = conduitTileMap.mTileMap.WorldToCell(placePosition);
-            conduitTileMap.placeTileAtLocation(tileMapPosition.x,tileMapPosition.y,conduitItem);
+            ConduitData conduitData = new ConduitData(
+                conduitItem
+            );
+            conduitTileMap.placeTileAtLocation(tileMapPosition.x,tileMapPosition.y,conduitData);
             
             return true;
         }
