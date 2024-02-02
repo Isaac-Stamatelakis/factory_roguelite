@@ -12,10 +12,11 @@ public interface HitableTileMap {
 
 public interface ITileMap {
     public void initPartition(Vector2Int partitionPosition);
-    public void removePartition(Vector2Int partitionPosition);
+    public IEnumerator removePartition(Vector2Int partitionPosition);
     public bool containsPartition(Vector2Int partitionPosition);
     public void placeTileAtLocation(int x, int y, IPlacedItemObject itemObject);
     public void placeTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, IPlacedItemObject itemObject);
+    public IPlacedItemObject[,] getPartitionData(Vector2Int partition);
 }
 /**
 Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
@@ -52,12 +53,24 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
     }
     
     public abstract void initPartition(UnityEngine.Vector2Int partitionPosition);
-    public void removePartition(UnityEngine.Vector2Int partitionPosition) {
-        if (this.containsPartition(partitionPosition)) {
-            partitions.Remove(partitionPosition);
+    public IEnumerator removePartition(Vector2Int partitionPosition) {
+        if (!containsPartition(partitionPosition)) {
+            yield return null;
+        }
+        partitions.Remove(partitionPosition);
+        int partitionX = partitionPosition.x*Global.ChunkPartitionSize;
+        int partitionY = partitionPosition.y*Global.ChunkPartitionSize;
+        for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+            for (int y =0; y < Global.ChunkPartitionSize; y ++) {
+                removeTile(partitionX+x,partitionY+y);
+            }
+            yield return new WaitForEndOfFrame();
         }
     }
 
+    protected void removeTile(int x, int y) {
+        tilemap.SetTile(new Vector3Int(x,y,0),null);
+    }
     public bool containsPartition(UnityEngine.Vector2Int partitionPosition) {
         return this.partitions.ContainsKey(partitionPosition);
     }
@@ -163,7 +176,13 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         return null;
     }
 
-    
+    public IPlacedItemObject[,] getPartitionData(Vector2Int partition)
+    {
+        if (partitions.ContainsKey(partition)) {
+            return partitions[partition];
+        }
+        return null;
+    }
 }
 
 

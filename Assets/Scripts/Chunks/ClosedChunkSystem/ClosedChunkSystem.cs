@@ -44,7 +44,6 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         playerTransform = GameObject.Find("Player").GetComponent<Transform>();
 
         cachedChunks = new Dictionary<Vector2Int, Chunk>();
-        //playerChunkUpdate();
     }
 
     public void addChunk(Chunk chunk) {
@@ -80,12 +79,17 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         
         List<IChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
         List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
+        Vector2Int playerPartition = getPlayerChunkPartition();
         foreach (IChunk chunk in chunksNearPlayer) {
-            partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(getPlayerChunkPartition()));
+            partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition));
         }
         partitionLoader.addToQueue(partitionsToLoad);
-        
-        //partitionUnloader.addToQueue();
+
+        List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
+        foreach (IChunk chunk in cachedChunks.Values) {
+            partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition));
+        }
+        partitionUnloader.addToQueue(partitionsToUnload);
     }
     public virtual void OnDisable() {
         foreach (Chunk chunk in cachedChunks.Values) {
@@ -237,7 +241,7 @@ public abstract class ClosedChunkSystem : MonoBehaviour
     }
 
     public IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
-        yield return chunkPartition.load(tileGridMaps);
+        yield return chunkPartition.load(tileGridMaps,angle);
     }
     public IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
         yield return chunkPartition.unload(tileGridMaps);

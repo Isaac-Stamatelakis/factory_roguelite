@@ -10,13 +10,13 @@ public interface IChunkPartition {
     public float distanceFrom(UnityEngine.Vector2Int target);
     public bool getScheduledForUnloading();
     public void setScheduleForUnloading(bool val);
-    public IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps);
+    public IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle);
     public IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps);
     public bool inRange(Vector2Int target, int xRange, int yRange);
 }
 public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartitionData
 {
-    protected bool fullLoaded = false;
+    protected bool tileLoaded = false;
     protected bool scheduledForUnloading = false;
     protected UnityEngine.Vector2Int position;
     protected T data;
@@ -41,7 +41,7 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
 
     public bool getLoaded()
     {
-        return fullLoaded;
+        return tileLoaded;
     }
 
     public UnityEngine.Vector2Int getRealPosition()
@@ -59,21 +59,23 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
         Vector2Int rPosition = getRealPosition();
         return Mathf.Abs(target.x-rPosition.x) <= xRange && Mathf.Abs(target.y-rPosition.y) <= yRange;
     }
-
-    public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+    /// <summary> 
+    /// loads chunkpartition into tilegridmaps at given angle
+    /// </summary>
+    public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
+        this.tileLoaded = true;
         foreach (TileGridMap tileGridMap in tileGridMaps.Values) {
             UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
             if (!tileGridMap.containsPartition(realPartitionPosition)) {
                 tileGridMap.initPartition(realPartitionPosition);
             }
         }
-        this.fullLoaded = true;
         yield return null;
     }
 
     public void setLoaded(bool val)
     {
-        fullLoaded = val;
+        tileLoaded = val;
     }
 
     public void setScheduleForUnloading(bool val)
@@ -81,10 +83,7 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
         scheduledForUnloading = val;
     }
 
-    public IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps)
-    {
-        throw new System.NotImplementedException();
-    }
+    public abstract IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps);
 }
 
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -94,35 +93,82 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
     }
 
-    public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps)
+    public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle)
     {
-        yield return base.load(tileGridMaps);
+        yield return base.load(tileGridMaps,angle);
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
         Vector2Int realPosition = getRealPosition();
-        for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+        if (angle > 45 && angle <= 135) { // up
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                string baseId = data.baseData.ids[x][y];
-                Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
-                if (baseId != null) {
-                    TileItem tileItem = itemRegistry.getTileItem(baseId);
-                    Dictionary<TileItemOption,object> options = tileItem.getOptions();
-                    if (tileItem != null) {
-                        TileData tileData = new TileData(
-                            tileItem,
-                            options
-                        );
-                        ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
-                        tileGridMap.placeTileAtLocation(
-                            realPosition,
-                            new Vector2Int(x,y),
-                            tileData
-                        );
+                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+        } else if (angle <= 225) { // left
+            for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                for (int x = Global.ChunkPartitionSize-1; x >=0 ; x --) {
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+        } else if (angle <= 315) { // down
+            for (int y = Global.ChunkPartitionSize-1; y >= 0; y --) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+        } else { // right
+            for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+        }
+    }
+
+    public override IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps)
+    {
+        Vector2Int position = getRealPosition();
+        this.tileLoaded = false;
+        foreach (ITileMap tileMap in tileGridMaps.Values) {
+            IPlacedItemObject[,] data = tileMap.getPartitionData(position);
+            if (data == null) {
+                continue;
+            }
+            yield return tileMap.removePartition(position);
+            for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                    if (data[x,y] != null) {
+                        TileData tileData = (TileData) data[x,y];
+                        TileItem tileItem = (TileItem) tileData.getItemObject();
                     }
                 }
-                
-                
             }
-            yield return new WaitForEndOfFrame();
+            
+        }
+    }
+
+    protected void iterate(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
+        string baseId = data.baseData.ids[x][y];
+        Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
+        if (baseId != null) {
+            TileItem tileItem = itemRegistry.getTileItem(baseId);
+            Dictionary<TileItemOption,object> options = tileItem.getOptions();
+            if (tileItem != null) {
+                TileData tileData = new TileData(
+                    tileItem,
+                    options
+                );
+                ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
+                tileGridMap.placeTileAtLocation(
+                    realPosition,
+                    new Vector2Int(x,y),
+                    tileData
+                );
+            }
         }
     }
 }
@@ -133,8 +179,8 @@ public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduit
     {
     }
 
-    public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps)
+    public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle)
     {
-        return base.load(tileGridMaps);
+        return base.load(tileGridMaps,angle);
     }
 }

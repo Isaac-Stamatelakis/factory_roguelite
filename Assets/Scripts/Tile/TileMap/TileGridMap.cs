@@ -78,14 +78,14 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         return spriteY >= searchWidth;
     } 
     protected override void breakTile(Vector2Int position) {
-        Vector2Int chunkPosition = getChunk(position);
-        GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
-        Vector2Int tilePosition = getTilePositionInPartition(position);
-        Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
-        deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
+        Vector2Int partitionPosition = getPartitionPosition(position);
+        //GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
+        Vector2Int tilePartitionPosition = getTilePositionInPartition(position);
+        //Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
+        //deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
 
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-        partitions[chunkPosition][tilePosition.x,tilePosition.y] = null;
+        partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
     }
 
     protected override bool hitHardness(TileData tileData) {
@@ -100,6 +100,8 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
     protected override void setTile(int x, int y,TileData tileData) {
         if (tileData != null) {
             tilemap.SetTile(new Vector3Int(x,y,0),((TileItem) tileData.getItemObject()).tile);
+        } else {
+            tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
         
     }

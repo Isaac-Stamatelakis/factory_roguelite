@@ -19,9 +19,9 @@ public class Global
     public static int ChunkSize {get{return partitionsPerChunk*chunkPartitionSize;}}
     private static int chunkPartitionSize = 4;
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
-    private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(1,1);
+    private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,4);
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(7,5);
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}

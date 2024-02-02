@@ -6,6 +6,7 @@ public interface IChunk {
     public List<List<IChunkPartition>> getChunkPartitions();
     public List<ChunkPartitionData> getChunkPartitionData();
     public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
+    public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
     /// <summary>
     /// Deletes all chunk partitions
     /// </summary>
@@ -135,6 +136,19 @@ public class Chunk : MonoBehaviour, IChunk
     public bool isChunkLoaded()
     {
         return this.chunkLoaded;
+    }
+
+    public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target)
+    {
+        List<IChunkPartition> far = new List<IChunkPartition>();
+        foreach (List<IChunkPartition> partitionList in partitions) {
+            foreach (IChunkPartition partition in partitionList) {
+                if (partition.getLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                    far.Add(partition);
+                } 
+            }
+        }
+        return far;
     }
     /*
 protected virtual IEnumerator fullLoadChunkCoroutine(int sectionAmount, double angle) {

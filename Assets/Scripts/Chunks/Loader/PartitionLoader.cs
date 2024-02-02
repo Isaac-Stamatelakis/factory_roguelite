@@ -56,7 +56,7 @@ public class PartitionLoader : MonoBehaviour
             }
             Vector2Int pos = closestPartition.getRealPosition();
             Vector2Int dif = new Vector2Int(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
-            double angle = Mathf.Atan2(dif.y,dif.x);
+            double angle = Mathf.Rad2Deg*Mathf.Atan2(dif.y,dif.x)+180;
             StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
             
             if (loadAmount*uploadAmountThreshold >= rapidUploadThreshold) { // Instant upload after threshhold reached

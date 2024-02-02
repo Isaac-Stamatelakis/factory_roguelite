@@ -53,10 +53,9 @@ public class PartitionUnloader : MonoBehaviour
                 continue;
             }
             IChunkPartition farthestPartition = unloadQueue.Dequeue();
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            if (farthestPartition.distanceFrom(playerChunkPosition) < (Global.ChunkPartitionLoadRange.x+2)*(Global.ChunkPartitionLoadRange.x+2)) {
+            Vector2Int playerPartition = closedChunkSystem.getPlayerChunkPartition();
+            if (!farthestPartition.getLoaded() && !farthestPartition.inRange(playerPartition,Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
                 activeCoroutines--;
-                farthestPartition.setScheduleForUnloading(false);
                 continue;
             }
             int speedIncrease = unloadQueue.Count/speedIncreaseThreshold+1;
@@ -64,7 +63,7 @@ public class PartitionUnloader : MonoBehaviour
                 StartCoroutine(unloadChunk(farthestPartition,true));
                 yield return new WaitForEndOfFrame();
                 
-            } else { // 
+            } else {
                 StartCoroutine(unloadChunk(farthestPartition,false));
                 yield return new WaitForSeconds(this.delay/speedIncrease);
             }
