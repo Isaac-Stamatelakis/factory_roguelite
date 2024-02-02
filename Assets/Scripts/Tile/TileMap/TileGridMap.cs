@@ -103,7 +103,6 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         } else {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
-        
     }
 
     private bool deleteTileEntity(Transform tileEntityContainer, Vector3Int position) {

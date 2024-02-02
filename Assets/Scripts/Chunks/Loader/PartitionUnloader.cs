@@ -7,10 +7,10 @@ public class PartitionUnloader : MonoBehaviour
     private PartitionLoader chunkLoader;
     public PartitionLoader Loader {set{chunkLoader = value;}}
     [SerializeField]
-    public float delay = 0.05F;
+    public float delay = 0.05F; // 0.05F
     [SerializeField]
-    public int rapidDeleteThreshold = 100000;
-    public int speedIncreaseThreshold = 200;
+    public int rapidDeleteThreshold = 1600;
+    public int speedIncreaseThreshold = 800; //200
     [SerializeField]
     public int activeCoroutines = 0;
     private ClosedChunkSystem closedChunkSystem;
@@ -33,7 +33,10 @@ public class PartitionUnloader : MonoBehaviour
     public void addToQueue(List<IChunkPartition> partitionsToUnload) {
         activeCoroutines += partitionsToUnload.Count;
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-        partitionsToUnload.Sort((a, b) => a.distanceFrom(playerChunkPosition).CompareTo(b.distanceFrom(playerChunkPosition)));
+        // Sort by distance from player
+        partitionsToUnload.Sort((a, b) => a.distanceFrom(playerChunkPosition).CompareTo(b.distanceFrom(playerChunkPosition))); 
+
+        // List is now sorted, enqueue into queue.
         for (int j =0;j < partitionsToUnload.Count; j++) {
             IChunkPartition partition = partitionsToUnload[j];
             partition.setScheduleForUnloading(true);
@@ -51,32 +54,30 @@ public class PartitionUnloader : MonoBehaviour
             if (chunkLoader.Activated && unloadQueue.Count < speedIncreaseThreshold) {
                 yield return new WaitForSeconds(delay);
                 continue;
-            }
-            IChunkPartition farthestPartition = unloadQueue.Dequeue();
-            Vector2Int playerPartition = closedChunkSystem.getPlayerChunkPartition();
-            if (!farthestPartition.getLoaded() && !farthestPartition.inRange(playerPartition,Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
+            }   
+            
+            int unloadAmount = unloadQueue.Count/speedIncreaseThreshold+1;
+            unloadAmount = Mathf.Min(unloadAmount,2);
+            while (unloadAmount > 0 && unloadQueue.Count != 0) {
                 activeCoroutines--;
-                continue;
+                IChunkPartition farthestPartition = unloadQueue.Dequeue();
+                // If partition is close to not loaded or partition is to close to the player, do not unload
+                if (!farthestPartition.getLoaded() || farthestPartition.inRange(closedChunkSystem.getPlayerChunkPartition(),Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
+                    continue;
+                }
+                farthestPartition.setLoaded(false);
+                StartCoroutine(closedChunkSystem.unloadChunkPartition(farthestPartition));
+                unloadAmount --;
             }
-            int speedIncrease = unloadQueue.Count/speedIncreaseThreshold+1;
+            yield return new WaitForEndOfFrame();
+            /*
             if (unloadQueue.Count >= rapidDeleteThreshold) { // Instant removal after threshhold reached
-                StartCoroutine(unloadChunk(farthestPartition,true));
                 yield return new WaitForEndOfFrame();
-                
             } else {
-                StartCoroutine(unloadChunk(farthestPartition,false));
-                yield return new WaitForSeconds(this.delay/speedIncrease);
+                yield return new WaitForSeconds(this.delay);
             }
+            */
             
         }
-    }
-
-    public IEnumerator unloadChunk(IChunkPartition partition, bool fast) {
-        yield return closedChunkSystem.unloadChunkPartition(partition);
-        activeCoroutines--;
-    }
-
-    private double distance(UnityEngine.Vector2Int playerPosition,Chunk chunk) {
-        return Mathf.Pow(playerPosition.x-chunk.ChunkPosition.x,2) + Mathf.Pow(playerPosition.y-chunk.ChunkPosition.y,2);
     }
 }

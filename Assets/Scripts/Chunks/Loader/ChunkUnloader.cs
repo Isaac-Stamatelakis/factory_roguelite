@@ -8,7 +8,7 @@ public class ChunkUnloader : MonoBehaviour
     public bool active = false;
     private ClosedChunkSystem closedChunkSystem;
     [SerializeField]
-    public float delay = 1F;
+    public float delay = 1F; // 1
     [SerializeField]
     public int rapidUploadThreshold = 10000;
     [SerializeField]

@@ -48,22 +48,21 @@ public class PartitionLoader : MonoBehaviour
                 continue;
             }
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            IChunkPartition closestPartition = loadQueue.Dequeue();
-            if (closestPartition.getLoaded()) {
-                activeCoroutines--;
-                continue;
+            while (loadAmount > 0 && loadQueue.Count != 0) {
+                Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+                IChunkPartition closestPartition = loadQueue.Dequeue();
+                if (closestPartition.getLoaded()) {
+                    activeCoroutines--;
+                    continue;
+                }
+                Vector2Int pos = closestPartition.getRealPosition();
+                Vector2Int dif = new Vector2Int(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
+                double angle = Mathf.Rad2Deg*Mathf.Atan2(dif.y,dif.x)+180;
+                closestPartition.setLoaded(true);
+                StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
+                loadAmount --;
             }
-            Vector2Int pos = closestPartition.getRealPosition();
-            Vector2Int dif = new Vector2Int(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
-            double angle = Mathf.Rad2Deg*Mathf.Atan2(dif.y,dif.x)+180;
-            StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
-            
-            if (loadAmount*uploadAmountThreshold >= rapidUploadThreshold) { // Instant upload after threshhold reached
-                yield return new WaitForEndOfFrame();
-            } else { // upload speed increases rapidally if there are many chunks to upload
-                yield return new WaitForSeconds(this.delay/uploadAmountThreshold);   
-            }
+            yield return new WaitForEndOfFrame();
         }
     }
 

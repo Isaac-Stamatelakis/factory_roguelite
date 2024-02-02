@@ -107,7 +107,10 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         
     }
     protected void addTile(IPlacedItemObject placedItem, Vector2Int partitionPosition, Vector2Int tilePosition) {
-        partitions[partitionPosition][tilePosition.x,tilePosition.y] = (T) placedItem;
+        if (partitions.ContainsKey(partitionPosition)) {
+            partitions[partitionPosition][tilePosition.x,tilePosition.y] = (T) placedItem;
+        }
+        
     }
     public T getIdDataInChunk(Vector2Int realTilePosition) {
         Vector2Int tilePosition = getTilePositionInPartition(realTilePosition);
