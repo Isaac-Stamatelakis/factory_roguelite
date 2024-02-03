@@ -134,6 +134,9 @@ public class InventoryGrid : MonoBehaviour
     }
 
     public static Vector2 getItemSize(Sprite sprite) {
+        if (sprite == null) {
+            return Vector2.zero;
+        }
         Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
         if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
             return new Vector2(32,32);

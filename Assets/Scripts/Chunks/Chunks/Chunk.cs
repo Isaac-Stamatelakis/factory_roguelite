@@ -14,6 +14,8 @@ public interface IChunk {
     public float distanceFrom(Vector2Int target);
     public bool inRange(Vector2Int target, int xRange, int yRange);
     public bool isChunkLoaded();
+    public Vector2Int getPosition();
+    public int getDim();
     
 }
 
@@ -34,10 +36,8 @@ public class Chunk : MonoBehaviour, IChunk
     /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
     /// </summary>
     protected bool chunkLoaded = false;
-    protected Vector2Int chunkPosition; 
-    public Vector2Int ChunkPosition {get{return chunkPosition;}}
+    protected Vector2Int position; 
     protected int dim;
-    public int Dim {get{return dim;}}
     protected Transform entityContainer;
     public Transform EntityContainer {get{return entityContainer;}}
 
@@ -54,11 +54,11 @@ public class Chunk : MonoBehaviour, IChunk
 
     public float distanceFrom(Vector2Int target)
     {
-        return Mathf.Pow(target.x-chunkPosition.x,2) + Mathf.Pow(target.y-chunkPosition.y,2);
+        return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
     }
     public virtual void initalize(int dim, List<ChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedSystemTransform) {
         this.dim = dim;
-        this.chunkPosition = chunkPosition;
+        this.position = chunkPosition;
         this.partitions = new List<List<IChunkPartition>>();
         transform.SetParent(closedSystemTransform.ChunkContainerTransform);
         generatePartitions(chunkPartitionDataList);
@@ -130,7 +130,7 @@ public class Chunk : MonoBehaviour, IChunk
 
     public bool inRange(Vector2Int target, int xRange, int yRange)
     {
-        return Mathf.Abs(target.x-chunkPosition.x) <= xRange && Mathf.Abs(target.y-chunkPosition.y) <= yRange;
+        return Mathf.Abs(target.x-position.x) <= xRange && Mathf.Abs(target.y-position.y) <= yRange;
     }
 
     public bool isChunkLoaded()
@@ -150,6 +150,18 @@ public class Chunk : MonoBehaviour, IChunk
         }
         return far;
     }
+
+    public Vector2Int getPosition()
+    {
+        return this.position;
+    }
+
+    public int getDim()
+    {
+        return this.dim;
+    }
+
+
     /*
 protected virtual IEnumerator fullLoadChunkCoroutine(int sectionAmount, double angle) {
 

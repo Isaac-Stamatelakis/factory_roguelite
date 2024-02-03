@@ -63,7 +63,6 @@ public class ChunkLoader : MonoBehaviour
 
     private void cacheChunk(Vector2Int closestPosition) {
         ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
-
         activeCoroutines--;
     }
 }

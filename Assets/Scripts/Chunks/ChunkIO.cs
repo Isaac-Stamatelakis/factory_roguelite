@@ -49,15 +49,15 @@ public class ChunkIO {
         
     }
 
-    public static void writeChunk(Chunk chunk) {
+    public static void writeChunk(IChunk chunk) {
         File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
     }
     public static string getPath(Vector2Int chunkPosition, int dim) {
         return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + getName(chunkPosition);
     }
 
-    public static string getPath(Chunk chunk) {
-        return getPath(chunk.ChunkPosition,chunk.Dim);
+    public static string getPath(IChunk chunk) {
+        return getPath(chunk.getPosition(),chunk.getDim());
     }
     public static string getName(Vector2Int chunkPosition) {
         return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class DungeonController : DimController
 {
+    [SerializeField] 
+    public bool generate;
     public override void Awake() {
         base.Awake();
         GameObject closedChunkSystemObject = new GameObject();
@@ -38,8 +40,10 @@ public class DungeonController : DimController
             10
         ));
         */
-        CaveGenerator caveGenerator = new CaveGenerator(cave);
-        caveGenerator.generate();
+        if (generate) {
+            CaveGenerator caveGenerator = new CaveGenerator(cave);
+            caveGenerator.generate();
+        }
         IntervalVector coveredArea = cave.getCoveredArea();
         area.initalize(coveredArea,-1);
 

@@ -22,20 +22,24 @@ public enum TileEntityOption {
 public enum TileType {
     Block,
     Background,
-    Object
+    Object,
+    SlipperyBlock,
+    ColladableObject,
+    ClimableObject,
+    Platform
 }
 
-public class TileEntityOptionFactory {
+public class TileOptionFactory {
 
-    private static Dictionary<string,TileItemOption> stringOptionDict = new Dictionary<string, TileItemOption>{
+    private static readonly Dictionary<string,TileItemOption> stringOptionDict = new Dictionary<string, TileItemOption>{
         {"Rotation",TileItemOption.Rotation},
     };
-    private static HashSet<TileItemOption> dynamic = new HashSet<TileItemOption>{
+    private static readonly HashSet<TileItemOption> dynamic = new HashSet<TileItemOption>{
         TileItemOption.Hardness,
         TileItemOption.Rotation
     };
 
-    private static HashSet<TileItemOption> serizable = new HashSet<TileItemOption>{
+    private static readonly HashSet<TileItemOption> serizable = new HashSet<TileItemOption>{
         TileItemOption.Rotation
     };
 
@@ -51,6 +55,17 @@ public class TileEntityOptionFactory {
         }
         dict[option.ToString()] = value;
     } 
+
+    public static Dictionary<string,object> serializeOptions(Dictionary<TileItemOption,object> options) {
+        Dictionary<string,object> returnDict = new Dictionary<string, object>();
+        foreach (TileItemOption option in options.Keys) {
+            if (!isSerizable(option)) {
+                continue;
+            }
+            returnDict[option.ToString()] = options[option];
+        }
+        return returnDict;
+    }
 
     public static void deseralizeOptions(Dictionary<string,object> serializedData, Dictionary<TileItemOption, object> dynamicValues) {
         foreach (string key in serializedData.Keys) {

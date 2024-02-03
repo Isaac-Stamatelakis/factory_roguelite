@@ -12,6 +12,7 @@ public interface IChunkPartition {
     public void setScheduleForUnloading(bool val);
     public IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle);
     public IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps);
+    public void save(Dictionary<TileMapType, ITileMap> tileGridMaps);
     public bool inRange(Vector2Int target, int xRange, int yRange);
 }
 public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartitionData
@@ -46,7 +47,7 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
 
     public UnityEngine.Vector2Int getRealPosition()
     {
-        return new UnityEngine.Vector2Int(parent.ChunkPosition.x * Global.PartitionsPerChunk + position.x, parent.ChunkPosition.y * Global.PartitionsPerChunk + position.y);
+        return  parent.getPosition()*Global.PartitionsPerChunk + position;
     }
 
     public bool getScheduledForUnloading()
@@ -73,6 +74,8 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
         yield return null;
     }
 
+    public abstract void save(Dictionary<TileMapType, ITileMap> tileGridMaps);
+
     public void setLoaded(bool val)
     {
         tileLoaded = val;
@@ -83,7 +86,13 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
         scheduledForUnloading = val;
     }
 
-    public abstract IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps);
+    public IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        save(tileGridMaps);
+        Vector2Int realPosition = getRealPosition();
+        foreach (ITileMap tileMap in tileGridMaps.Values) {
+            yield return tileMap.removePartition(realPosition);
+        }
+    }
 }
 
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -129,25 +138,51 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         }
     }
 
-    public override IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps)
+    public override void save(Dictionary<TileMapType, ITileMap> tileGridMaps)
     {
         Vector2Int position = getRealPosition();
         this.tileLoaded = false;
+        SerializedTileData data = (SerializedTileData) getData();
+        // Clear data
+        for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+            for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                data.baseData.ids[x][y] = null;
+                data.baseData.sTileOptions[x][y] = null;
+                data.backgroundData.ids[x][y] = null;
+                data.backgroundData.sTileOptions[x][y] = null;
+            }
+        }
+        
+        // Iterate through tilemaps
         foreach (ITileMap tileMap in tileGridMaps.Values) {
-            IPlacedItemObject[,] data = tileMap.getPartitionData(position);
-            if (data == null) {
+            TileMapType tileMapType = tileMap.getType();
+            if (!TileMapTypeFactory.typeIsTile(tileMapType)) { // type is valid tile type
                 continue;
             }
-            yield return tileMap.removePartition(position);
+            // get layer to serialze in (base or background)
+            SerializeLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+            IPlacedItemObject[,] tileItemdata = tileMap.getPartitionData(position);
+            if (tileItemdata == null) {
+                continue;
+            }
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    if (data[x,y] != null) {
-                        TileData tileData = (TileData) data[x,y];
+                    if (tileItemdata[x,y] != null) {
+                        TileData tileData = (TileData) tileItemdata[x,y];
                         TileItem tileItem = (TileItem) tileData.getItemObject();
+                        switch (layer) {
+                            case SerializeLayer.Base:
+                                data.baseData.ids[x][y] = tileItem.id;
+                                data.baseData.sTileOptions[x][y] = TileOptionFactory.serializeOptions(tileItem.getOptions());
+                                break;
+                            case SerializeLayer.Background:
+                                data.backgroundData.ids[x][y] = tileItem.id;
+                                data.backgroundData.sTileOptions[x][y] = TileOptionFactory.serializeOptions(tileItem.getOptions());
+                                break;
+                        }
                     }
                 }
             }
-            
         }
     }
 

@@ -17,6 +17,7 @@ public interface ITileMap {
     public void placeTileAtLocation(int x, int y, IPlacedItemObject itemObject);
     public void placeTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, IPlacedItemObject itemObject);
     public IPlacedItemObject[,] getPartitionData(Vector2Int partition);
+    public TileMapType getType();
 }
 /**
 Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
@@ -185,6 +186,11 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
             return partitions[partition];
         }
         return null;
+    }
+
+    public TileMapType getType()
+    {
+        return type;
     }
 }
 
