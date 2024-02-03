@@ -25,13 +25,13 @@ public class TilePlacePreviewer : MonoBehaviour
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (devMode.placeSelectedID) {
-            previewTile(devMode.placeID,mousePosition.x,mousePosition.y);
+            previewTile(devMode.placeID,mousePosition);
         } else {
-            previewTile(playerInventory.getSelectedTileId(), mousePosition.x, mousePosition.y);
+            previewTile(playerInventory.getSelectedTileId(), mousePosition);
         }
         
     }   
-    public void previewTile(string id, float x, float y) {
+    public void previewTile(string id, Vector2 position) {
         if (id == null) {
             return;
         }
@@ -42,13 +42,11 @@ public class TilePlacePreviewer : MonoBehaviour
         Vector3Int placePosition = Vector3Int.zero;
         if (itemObject is TileItem) {
             TileItem tileItem = (TileItem) itemObject;
-            placePosition = (Vector3Int)PlaceTile.getPlacePosition(tileItem,x,y);
+            placePosition = (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
         } else if (itemObject is ConduitItem) {
 
         }
-        
 
-        
         if (previouslyPreviewed == placePosition && previousId == id) {
             return;
         }
@@ -60,7 +58,7 @@ public class TilePlacePreviewer : MonoBehaviour
                 tileData.options[TileItemOption.Rotation] = devMode.rotation;
             }
             tilemap.SetTile(placePosition, TileFactory.generateTile(tileData));
-            if (PlaceTile.tileBlockPlacable(tileItem,x,y)) {
+            if (PlaceTile.baseTilePlacable(tileItem,position)) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);
             } else {
                 tilemap.color = new Color(255f/255f,153f/255f,153/255f);
@@ -68,7 +66,7 @@ public class TilePlacePreviewer : MonoBehaviour
         } else if (itemObject is ConduitItem) {
             ConduitItem conduitItem = (ConduitItem) itemObject;
             tilemap.SetTile(placePosition, conduitItem.ruleTile);
-            if (PlaceTile.conduitPlacable(conduitItem, new Vector2(x,y))) {
+            if (PlaceTile.conduitPlacable(conduitItem, position)) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);
             } else {
                 tilemap.color = new Color(255f/255f,153f/255f,153/255f);

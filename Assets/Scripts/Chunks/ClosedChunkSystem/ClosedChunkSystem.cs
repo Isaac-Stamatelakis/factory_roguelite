@@ -23,33 +23,13 @@ public abstract class ClosedChunkSystem : MonoBehaviour
     protected PartitionLoader partitionLoader;
     protected PartitionUnloader partitionUnloader;    
     protected Transform chunkContainerTransform;
-    protected ChunkSaveOnDestroy chunkSaveOnDestroy;
     public Transform ChunkContainerTransform {get{return chunkContainerTransform;}}
     protected int dim;
     public int Dim {get{return dim;}}
 
     
     public virtual void Awake () {
-        transform.SetParent(GameObject.Find("dim" + dim).transform);
-        GameObject chunkContainer = new GameObject();
-        chunkContainer.name = "Chunks";
-        chunkContainer.transform.SetParent(transform);
-        chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
         
-        chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
-        chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
-
-        partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
-        partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
-        partitionUnloader.Loader = partitionLoader;
-        playerTransform = GameObject.Find("Player").GetComponent<Transform>();
-
-        cachedChunks = new Dictionary<Vector2Int, IChunk>();
-
-        GameObject chunkSave = new GameObject();
-        chunkSaveOnDestroy = chunkSave.AddComponent<ChunkSaveOnDestroy>();
-        chunkSave.name = "Save";
-        chunkSave.transform.SetParent(transform);
     }
 
     public void addChunk(IChunk chunk) {
@@ -63,45 +43,84 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         }
     }
 
-    public virtual void initalize(IntervalVector coveredArea, int dim)
+    public IChunk getChunk(Vector2Int position) {
+        if (cachedChunks.ContainsKey(position)) {
+            return cachedChunks[position];
+        }
+        return null;
+    }
+
+    public bool containsChunk(Vector2Int position) {
+        return cachedChunks.ContainsKey(position);
+    }
+
+    public bool containsTileMap(TileMapType tileMapType) {
+        return tileGridMaps.ContainsKey(tileMapType);
+    }
+
+    public ITileMap getTileMap(TileMapType tileMapType) {
+        if (tileGridMaps.ContainsKey(tileMapType)) {
+            return tileGridMaps[tileMapType];
+        }
+        return null;
+    }
+    
+    public virtual void initalize(Transform dimTransform, IntervalVector coveredArea, int dim)
     {
-        Debug.Log("Closed Chunk System Dim:" + dim + " Initalized");
+        transform.SetParent(dimTransform);
+        GameObject chunkContainer = new GameObject();
+        chunkContainer.name = "Chunks";
+        chunkContainer.transform.SetParent(transform);
+        chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
+        
+        chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
+        chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
+
+        partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
+        partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
+        partitionUnloader.Loader = partitionLoader;
+        playerTransform = GameObject.Find("Player").GetComponent<Transform>();
+        cachedChunks = new Dictionary<Vector2Int, IChunk>();
         this.dim = dim;
         this.coveredArea = coveredArea;
-        
+        Debug.Log("Closed Chunk System " + name + "For Dim" + dim + " Initalized");
         StartCoroutine(initalLoad());
-        
-        /*
-        if (false) {
-            loadChunksNearPlayer(Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound+1),Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound+1));
-        } else {
-            loadChunksNearPlayer(Global.ChunkLoadRangeX,Global.ChunkLoadRangeY);
-        }
-        */
-        
-        
     }
 
     protected IEnumerator initalLoad() {
         yield return StartCoroutine(initalLoadChunks());
         playerPartitionUpdate();
+        Debug.Log("Partitions Near Player Loaded");
     }
 
+    protected void initTileMapContainer(TileMapType tileType) {
+        GameObject container = new GameObject();
+        container.transform.SetParent(gameObject.transform);
+        container.name = tileType.ToString();
+        container.layer = LayerMask.NameToLayer(tileType.ToString());
+        container.transform.localPosition = new Vector3(0,0,TileMapTypeFactory.getTileMapZValue(tileType));
+        Grid grid = container.AddComponent<Grid>();
+        grid.cellSize = new Vector3(0.5f,0.5f,1f);
+        TileGridMap tileGridMap = container.AddComponent<TileGridMap>();
+        tileGridMap.type = tileType;
+        tileGridMaps[tileType] = tileGridMap;
+    }
     public IEnumerator initalLoadChunks() {
         List<Vector2Int> chunks = getUnCachedChunkPositionsNearPlayer();
         foreach (Vector2Int vector in chunks) {
             ChunkIO.getChunkFromJson(vector, this);
         }
         yield return null;
+        Debug.Log("Chunks Near Player Loaded");
     }
 
+    
     public virtual void playerChunkUpdate() {
         chunkLoader.addToQueue(getUnCachedChunkPositionsNearPlayer());
         chunkUnloader.addToQueue(getLoadedChunksOutsideRange());
     }
 
     public virtual void playerPartitionUpdate() {
-        
         List<IChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
         List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
         Vector2Int playerPartition = getPlayerChunkPartition();

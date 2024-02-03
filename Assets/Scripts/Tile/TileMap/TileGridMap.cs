@@ -9,8 +9,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
     
     protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {
-        GameObject chunk = ChunkHelper.snapChunk(worldPosition.x,worldPosition.y);
-        Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;    
+        IChunk chunk = getChunk(hitTilePosition);  
 
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
@@ -23,7 +22,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
             realYPosition += 0.25f;
         }
         ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<ItemSlotOption, object>());
-        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
+        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
     }
 
     protected override Vector2Int getHitTilePosition(Vector2 position)

@@ -68,6 +68,9 @@ public class Global
     }
 
     public static Vector2 getSpriteSize(Sprite sprite) {
+        if (sprite == null) {
+            return Vector2.zero;
+        }
         return new Vector2((int) (sprite.texture.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
     }
 
@@ -79,7 +82,7 @@ public class Global
         GameObjectUtility.SetStaticEditorFlags(anObject, StaticEditorFlags.NavigationStatic | StaticEditorFlags.BatchingStatic);
     }
     public static UnityEngine.Vector2Int getChunk(Vector2 position) {
-        return new UnityEngine.Vector2Int(Mathf.FloorToInt(position.x/8f), Mathf.FloorToInt(position.y/8f));
+        return new UnityEngine.Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
     }
 
 

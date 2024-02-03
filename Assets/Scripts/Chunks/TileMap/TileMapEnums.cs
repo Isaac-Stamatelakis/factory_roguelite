@@ -16,7 +16,7 @@ public enum TileMapType {
     SignalConduit,
 }
 
-public enum SerializeLayer {
+public enum TileMapLayer {
     Base,
     Background,
     Item,
@@ -26,6 +26,10 @@ public enum SerializeLayer {
     Null,
 }
 
+public class TileMapTypeBundle {
+    public int z;
+    public LayerMask layerMask;
+}
 public class TileMapTypeFactory {
     protected static readonly Dictionary<TileType, TileMapType> tilesToMap = new Dictionary<TileType, TileMapType>{
         {TileType.Block, TileMapType.Block},
@@ -43,19 +47,19 @@ public class TileMapTypeFactory {
         {ConduitType.Energy, TileMapType.EnergyConduit},
         {ConduitType.Signal, TileMapType.SignalConduit},
     };
-    
-    private static readonly Dictionary<TileMapType, SerializeLayer> tileMapTypeToSerializeLayer = new Dictionary<TileMapType, SerializeLayer> {
-        { TileMapType.Block, SerializeLayer.Base },
-        { TileMapType.Background, SerializeLayer.Background },
-        { TileMapType.Object, SerializeLayer.Base },
-        { TileMapType.SlipperyBlock, SerializeLayer.Base },
-        { TileMapType.ClimableObject, SerializeLayer.Base },
-        { TileMapType.Platform, SerializeLayer.Base },
-        { TileMapType.ColladableObject, SerializeLayer.Base },
-        { TileMapType.ItemConduit, SerializeLayer.Item },
-        { TileMapType.FluidConduit, SerializeLayer.Fluid},
-        { TileMapType.EnergyConduit, SerializeLayer.Energy},
-        { TileMapType.SignalConduit, SerializeLayer.Signal}
+    private static Dictionary<TileMapLayer, List<TileMapType>> layerToTileMapTypes;
+    private static readonly Dictionary<TileMapType, TileMapLayer> tileMapTypeToSerializeLayer = new Dictionary<TileMapType, TileMapLayer> {
+        { TileMapType.Block, TileMapLayer.Base },
+        { TileMapType.Background, TileMapLayer.Background },
+        { TileMapType.Object, TileMapLayer.Base },
+        { TileMapType.SlipperyBlock, TileMapLayer.Base },
+        { TileMapType.ClimableObject, TileMapLayer.Base },
+        { TileMapType.Platform, TileMapLayer.Base },
+        { TileMapType.ColladableObject, TileMapLayer.Base },
+        { TileMapType.ItemConduit, TileMapLayer.Item },
+        { TileMapType.FluidConduit, TileMapLayer.Fluid},
+        { TileMapType.EnergyConduit, TileMapLayer.Energy},
+        { TileMapType.SignalConduit, TileMapLayer.Signal}
     };
     private static readonly HashSet<TileMapType> tileTypeSet = new HashSet<TileMapType>
     {
@@ -75,8 +79,8 @@ public class TileMapTypeFactory {
         TileMapType.SignalConduit
     };
 
-    public static SerializeLayer MapToSerializeLayer(TileMapType type) {
-        return tileMapTypeToSerializeLayer.TryGetValue(type, out var serializeLayer) ? serializeLayer : SerializeLayer.Null;
+    public static TileMapLayer MapToSerializeLayer(TileMapType type) {
+        return tileMapTypeToSerializeLayer.TryGetValue(type, out var serializeLayer) ? serializeLayer : TileMapLayer.Null;
     }
     public static TileMapType tileToMapType(TileType tileType) {
         return tilesToMap[tileType];
@@ -91,4 +95,65 @@ public class TileMapTypeFactory {
     public static bool typeIsConduit(TileMapType tileType) {
         return conduitTypeSet.Contains(tileType);
     }
+
+    public static List<TileMapType> getTileTypesInLayer(TileMapLayer layer) {
+        if (layerToTileMapTypes == null) {
+            initLayerToTIleMapType();
+        }
+        return layerToTileMapTypes[layer];
+    }
+
+    protected static void initLayerToTIleMapType() {
+        layerToTileMapTypes = new Dictionary<TileMapLayer, List<TileMapType>>();
+        foreach (var keyValuePair in tileMapTypeToSerializeLayer){
+            TileMapLayer dictLayer = keyValuePair.Value;
+            TileMapType dictType = keyValuePair.Key;
+
+            if (!layerToTileMapTypes.ContainsKey(dictLayer))
+            {
+                layerToTileMapTypes[dictLayer] = new List<TileMapType>();
+            }
+            layerToTileMapTypes[dictLayer].Add(dictType);
+        }
+    }
+    public static List<LayerMask> getLayerMasksInLayer(TileMapLayer layer) {
+        if (layerToTileMapTypes == null) {
+            initLayerToTIleMapType();
+        }
+        List<TileMapType> tileMapTypes = layerToTileMapTypes[layer];
+        List<LayerMask> layers = new List<LayerMask>();
+        foreach (TileMapType tileMapType in tileMapTypes) {
+            layers.Add(1 << LayerMask.NameToLayer(tileMapType.ToString()));
+        }
+        return layers;
+    }
+    public static float getTileMapZValue(TileMapType tileMapType) {
+        switch (tileMapType) {
+            case TileMapType.Block:
+                return 1;
+            case TileMapType.Background:
+                return 3;
+            case TileMapType.Object:
+                return 1;
+            case TileMapType.Platform:
+                return 1;
+            case TileMapType.SlipperyBlock:
+                return 1;
+            case TileMapType.ColladableObject:
+                return 1;
+            case TileMapType.ClimableObject:
+                return 1;
+            case TileMapType.ItemConduit:
+                return 4;
+            case TileMapType.FluidConduit:
+                return 3;
+            case TileMapType.EnergyConduit:
+                return 2;
+            case TileMapType.SignalConduit:
+                return 1;
+            default:
+                return -9999;
+        }
+    }
+
 }

@@ -15,9 +15,7 @@ public class PlaceTile {
     private static ConduitTileMap itemConduitMap;
     private static ConduitTileMap fluidConduitMap;
     private static ConduitTileMap signalConduitMap;
-    public static bool inChunk(float x, float y) {
-        return ChunkHelper.snapChunk(x,y) != null;
-    }
+
     /**
     Conditions:
     i) no tileBlock within sprite size.
@@ -25,37 +23,57 @@ public class PlaceTile {
     iii) tileblock below, above, left, or right, or a tilebackground at the location.
     **/
 
-    public static bool Place(ItemObject itemObject, Vector2 worldPlaceLocation) {
+    public static bool Place(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
         if (itemObject is TileItem) {
             TileItem tileItem = (TileItem) itemObject;
-            switch (tileItem.tileType) {
-                case TileType.Block:
-                    return PlaceTile.placeTileBlock(tileItem, worldPlaceLocation);
-                case TileType.Background:
-                    return PlaceTile.placeTileBackground(tileItem, worldPlaceLocation); 
-                case TileType.Object:
-                    return PlaceTile.placeTileObject(tileItem, worldPlaceLocation);
+            TileMapType tileMapType = TileMapTypeFactory.tileToMapType(tileItem.tileType);
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+            switch (layer) {
+                case TileMapLayer.Base:
+                    if (!baseTilePlacable(tileItem,worldPlaceLocation)) {
+                        return false;
+                    }
+                    break; 
+                case TileMapLayer.Background:
+                    if (!tileBackgroundPlacable(tileItem,worldPlaceLocation)) {
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
             }
+            placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType));
+            return true;
         } else if (itemObject is ConduitItem) {
             ConduitItem conduitItem = ((ConduitItem) itemObject);
-            return PlaceTile.placeConduit(conduitItem, worldPlaceLocation);
+            TileMapType tileMapType = TileMapTypeFactory.tileToMapType(conduitItem.getType());
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+            switch (layer) {
+                case TileMapLayer.Item:
+                    break;
+                case TileMapLayer.Fluid:
+                    break;
+                case TileMapLayer.Energy:
+                    break;
+                case TileMapLayer.Signal:
+                    break;
+            }
         }
         return false;
     }
-    public static bool tileBlockPlacable(TileItem tileItem,float x, float y) { 
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.getSprite()));
-        if (tileWithinIntervalAreaRange(intervalVector,tileBlockLayer)) {
+    public static bool baseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation) { 
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.getSpriteSize(tileItem.getSprite()));
+        if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
             return false;
         }
-        if (tileWithinIntervalAreaRange(intervalVector,tileObjectLayer)) {
+        if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
             return false;
         }
         if (GameObject.Find("Player").GetComponent<DevMode>().noPlaceLimit) {
             return true;
         } 
-        if (!tileWithinIntervalParameter(intervalVector,tileBlockLayer) && 
-            !tileWithinIntervalParameter(intervalVector,tileObjectLayer) &&
-            !tileWithinIntervalParameter(intervalVector,tileBackgroundLayer)) {
+        if (!tileWithinIntervalParameter(intervalVector,TileMapLayer.Base) && 
+            !tileWithinIntervalParameter(intervalVector,TileMapLayer.Background)) {
             return false;
         }
         return true;
@@ -67,72 +85,46 @@ public class PlaceTile {
     i) no tileBackground within sprite size.
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
-    public static bool tileBackgroundPlacable(TileItem tileItem,float x, float y) { 
-        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(new Vector2(x,y),Global.getSpriteSize(tileItem.getSprite()));
-        if (tileWithinRange(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound,tileBackgroundLayer)) {
+    public static bool tileBackgroundPlacable(TileItem tileItem,Vector2 worldPosition) { 
+        FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.getSpriteSize(tileItem.getSprite()));
+        if (tileWithinRange(
+            intervalVector.X.LowerBound,
+            intervalVector.X.UpperBound,
+            intervalVector.Y.LowerBound,
+            intervalVector.Y.UpperBound,
+            TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Background)
+        )) {
             return false;
         }
         if (GameObject.Find("Player").GetComponent<DevMode>().noPlaceLimit) {
             return true;
         } 
-        if (!tileWithinParameter(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound, tileBlockLayer) && 
-            !tileWithinParameter(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound, tileObjectLayer) &&
-            !tileWithinParameter(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound, tileBackgroundLayer) &&
-            !tileWithinRange(intervalVector.X.LowerBound,intervalVector.X.UpperBound,intervalVector.Y.LowerBound,intervalVector.Y.UpperBound, tileBlockLayer)) {
+        if (!tileWithinParameter(
+                intervalVector.X.LowerBound,
+                intervalVector.X.UpperBound,
+                intervalVector.Y.LowerBound,
+                intervalVector.Y.UpperBound, 
+                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Base)
+            ) && 
+            !tileWithinParameter(
+                intervalVector.X.LowerBound,
+                intervalVector.X.UpperBound,
+                intervalVector.Y.LowerBound,
+                intervalVector.Y.UpperBound,
+                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Background)
+            ) &&
+            !tileWithinRange(
+                intervalVector.X.LowerBound,
+                intervalVector.X.UpperBound,
+                intervalVector.Y.LowerBound,
+                intervalVector.Y.UpperBound, 
+                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Base)
+            )) {
             return false;
         }
         return true;
     }
-    /**
-    Is placable iff a tileBlock is placable
-    **/ 
-    public static bool tileObjectPlacable(TileItem tileItem,float x, float y) {
-        return tileBlockPlacable(tileItem, x, y);
-        
-    }
-    /// <summary>
-    /// Places a TileBlock at a given location if is a valid placement
-    /// </summary>
-    /// <param name = "id"> The id of the TileBlock to be placed </param>
-    /// <param name = "x"> The x position to be placed at</param>
-    /// <param name = "y"> The y position to be placed at </param>
-    /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileBlock(TileItem tileItem, Vector2 worldPlaceLocation) {
-        if(!tileBlockPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
-            return false;
-        }
-        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileBlocks");
-        return true;
-
-    }
-    /// <summary>
-    /// Places a TileBackground at a given location if is a valid placement
-    /// </summary>
-    /// <param name = "id"> The id of the TileBlock to be placed </param>
-    /// <param name = "x"> The x position to be placed at</param>
-    /// <param name = "y"> The y position to be placed at </param>
-    /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileBackground(TileItem tileItem, Vector2 worldPlaceLocation) {
-        if (!tileBackgroundPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
-            return false;
-        }
-        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileBackgrounds");
-        return true;
-    }
-    /// <summary>
-    /// Places a TileObject at a given location if is a valid placement
-    /// </summary>
-    /// <param name = "id"> The id of the TileBlock to be placed </param>
-    /// <param name = "x"> The x position to be placed at</param>
-    /// <param name = "y"> The y position to be placed at </param>
-    /// <returns>true if placed, false if not placed </returns>
-    public static bool placeTileObject(TileItem tileItem, Vector2 worldPlaceLocation) {
-        if (!tileObjectPlacable(tileItem,worldPlaceLocation.x,worldPlaceLocation.y)) {
-            return false;
-        }
-        placeTile(tileItem,worldPlaceLocation.x,worldPlaceLocation.y,"TileObjects");
-        return true;
-    }
+    
     /// <summary>
     /// Places a Tile at a given location.
     /// </summary>
@@ -140,26 +132,30 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-    private static void placeTile(TileItem tileItem, float x, float y, string containerName) {
-        UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, x, y);
-        GameObject chunkGameObject = ChunkHelper.snapChunk(x,y);   
-        if (chunkGameObject == null) {
+    private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap) {
+        if (tileMap == null) {
             return;
         }
+        UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+        TileData tileData = new TileData(
+            tileItem,
+            tileItem.getOptions()
+        );
+        tileMap.placeTileAtLocation(placePosition.x,placePosition.y,tileData);
+        /*
         GameObject tileContainer = Global.findChild(chunkGameObject.transform.parent.parent.transform,containerName);
         GameObject tileEntityContainer = Global.findChild(chunkGameObject.transform,"TileEntities");
-
+        
         TileEntityFactory.createTileEntity(
             tileItem,
             null,
             tileEntityContainer.transform, containerName,
             new UnityEngine.Vector2Int(Global.modInt(placePosition.x,16), Global.modInt(placePosition.y,16))
         );
-        TileData tileData = new TileData(
-            tileItem,
-            tileItem.getOptions()
-        );
+        
+        
         tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,tileData);
+        */
     }
 
     public static UnityEngine.Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
@@ -199,18 +195,22 @@ public class PlaceTile {
     /// <summary>
     /// raycasts a given position in a 0.5f, 0.5f box.
     /// </summary>
-    public static bool raycastTileInBox(Vector2 position, int layer) {
-        return Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layer).collider != null;
+    public static bool raycastTileInBox(Vector2 position, List<LayerMask> layers) {
+        foreach (LayerMask layerMask in layers) {
+            if (Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layerMask).collider != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
     returns true if there is a tile within the range, inclusive
     **/
-    public static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layer) {
-        
+    public static bool tileWithinRange(float minX, float maxX, float minY, float maxY, List<LayerMask> layers) {
         for (float x = minX; x <= maxX; x += 1/2f) {
             for (float y = minY; y <= maxY; y += 1/2f) {
-                if (raycastTileInBox(new Vector2(x,y), layer)) {
+                if (raycastTileInBox(new Vector2(x,y), layers)) {
                     return true;
                 }
             }
@@ -218,20 +218,34 @@ public class PlaceTile {
         return false;
     }
 
-    public static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, int layer) {
+    public static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, List<LayerMask> layers) {
         return (
-            tileWithinRange(minX-0.5f,minX-0.5f,minY,maxY,layer) ||
-            tileWithinRange(maxX+0.5f,maxX+0.5f,minY,maxY,layer) ||
-            tileWithinRange(minX,maxX,minY-0.5f,minY-0.5f,layer) ||
-            tileWithinRange(minX,maxX,maxY+0.5f,maxY+0.5f,layer));
+            tileWithinRange(minX-0.5f,minX-0.5f,minY,maxY,layers) ||
+            tileWithinRange(maxX+0.5f,maxX+0.5f,minY,maxY,layers) ||
+            tileWithinRange(minX,maxX,minY-0.5f,minY-0.5f,layers) ||
+            tileWithinRange(minX,maxX,maxY+0.5f,maxY+0.5f,layers));
     }
 
-    public static bool tileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, int layer) {
-        return tileWithinRange(floatIntervalVector.X.LowerBound,floatIntervalVector.X.UpperBound,floatIntervalVector.Y.LowerBound,floatIntervalVector.Y.UpperBound,layer);
+    public static bool tileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
+        List<LayerMask> layers = TileMapTypeFactory.getLayerMasksInLayer(layer);
+        return tileWithinRange(
+            floatIntervalVector.X.LowerBound,
+            floatIntervalVector.X.UpperBound,
+            floatIntervalVector.Y.LowerBound,
+            floatIntervalVector.Y.UpperBound,
+            layers
+        );
     }
 
-    public static bool tileWithinIntervalParameter(FloatIntervalVector floatIntervalVector, int layer) {
-        return tileWithinParameter(floatIntervalVector.X.LowerBound,floatIntervalVector.X.UpperBound,floatIntervalVector.Y.LowerBound,floatIntervalVector.Y.UpperBound,layer);
+    public static bool tileWithinIntervalParameter(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
+        List<LayerMask> layers = TileMapTypeFactory.getLayerMasksInLayer(layer);
+        return tileWithinParameter(
+            floatIntervalVector.X.LowerBound,
+            floatIntervalVector.X.UpperBound,
+            floatIntervalVector.Y.LowerBound,
+            floatIntervalVector.Y.UpperBound,
+            layers
+        );
     }
 
     public static bool placeConduit(ConduitItem conduitItem, Vector2 placePosition) {

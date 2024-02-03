@@ -40,12 +40,13 @@ public class DungeonController : DimController
             10
         ));
         */
+        Debug.Log(Application.persistentDataPath);
         if (generate) {
             CaveGenerator caveGenerator = new CaveGenerator(cave);
             caveGenerator.generate();
         }
         IntervalVector coveredArea = cave.getCoveredArea();
-        area.initalize(coveredArea,-1);
+        area.initalize(transform,coveredArea,-1);
 
     }
 }

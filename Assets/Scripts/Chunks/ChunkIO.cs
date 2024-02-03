@@ -50,6 +50,7 @@ public class ChunkIO {
     }
 
     public static void writeChunk(IChunk chunk) {
+
         File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
     }
     public static string getPath(Vector2Int chunkPosition, int dim) {

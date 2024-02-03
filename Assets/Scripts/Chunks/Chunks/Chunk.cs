@@ -16,6 +16,8 @@ public interface IChunk {
     public bool isChunkLoaded();
     public Vector2Int getPosition();
     public int getDim();
+    public Transform getEntityContainer();
+    public Transform getTileEntityContainer();
     
 }
 
@@ -39,7 +41,7 @@ public class Chunk : MonoBehaviour, IChunk
     protected Vector2Int position; 
     protected int dim;
     protected Transform entityContainer;
-    public Transform EntityContainer {get{return entityContainer;}}
+    protected Transform tileEntityContainer;
 
     /*
     public IEnumerator fullLoadChunk(int sectionAmount, double angle) {
@@ -63,6 +65,16 @@ public class Chunk : MonoBehaviour, IChunk
         transform.SetParent(closedSystemTransform.ChunkContainerTransform);
         generatePartitions(chunkPartitionDataList);
         transform.localPosition = new Vector3(Global.ChunkSize/2*(chunkPosition.x+0.5F),Global.ChunkSize/2*(chunkPosition.y+0.5F),0);
+
+        GameObject tileEntityContainerObject = new GameObject();
+        tileEntityContainerObject.name = "TileEntities";
+        tileEntityContainer = tileEntityContainerObject.transform;
+        tileEntityContainer.transform.SetParent(transform);
+
+        GameObject entityContainerObject = new GameObject();
+        entityContainerObject.name = "Entities";
+        entityContainer = entityContainerObject.transform;
+        entityContainer.transform.SetParent(transform);
     }
 
     protected void generatePartitions(List<ChunkPartitionData> chunkPartitionDataList) {
@@ -159,6 +171,16 @@ public class Chunk : MonoBehaviour, IChunk
     public int getDim()
     {
         return this.dim;
+    }
+
+    public Transform getEntityContainer()
+    {
+        return entityContainer;
+    }
+
+    public Transform getTileEntityContainer()
+    {
+        return tileEntityContainer;
     }
 
 

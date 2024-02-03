@@ -110,28 +110,28 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         if (angle > 45 && angle <= 135) { // up
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                    place(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else if (angle <= 225) { // left
             for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                 for (int x = Global.ChunkPartitionSize-1; x >=0 ; x --) {
-                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                    place(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else if (angle <= 315) { // down
             for (int y = Global.ChunkPartitionSize-1; y >= 0; y --) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                    place(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else { // right
             for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
+                    place(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
@@ -141,7 +141,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
     public override void save(Dictionary<TileMapType, ITileMap> tileGridMaps)
     {
         Vector2Int position = getRealPosition();
-        this.tileLoaded = false;
         SerializedTileData data = (SerializedTileData) getData();
         // Clear data
         for (int x = 0; x < Global.ChunkPartitionSize; x++) {
@@ -160,7 +159,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 continue;
             }
             // get layer to serialze in (base or background)
-            SerializeLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
             IPlacedItemObject[,] tileItemdata = tileMap.getPartitionData(position);
             if (tileItemdata == null) {
                 continue;
@@ -171,11 +170,11 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                         TileData tileData = (TileData) tileItemdata[x,y];
                         TileItem tileItem = (TileItem) tileData.getItemObject();
                         switch (layer) {
-                            case SerializeLayer.Base:
+                            case TileMapLayer.Base:
                                 data.baseData.ids[x][y] = tileItem.id;
                                 data.baseData.sTileOptions[x][y] = TileOptionFactory.serializeOptions(tileItem.getOptions());
                                 break;
-                            case SerializeLayer.Background:
+                            case TileMapLayer.Background:
                                 data.backgroundData.ids[x][y] = tileItem.id;
                                 data.backgroundData.sTileOptions[x][y] = TileOptionFactory.serializeOptions(tileItem.getOptions());
                                 break;
@@ -186,11 +185,29 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         }
     }
 
-    protected void iterate(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
+    protected void place(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
         string baseId = data.baseData.ids[x][y];
+        string backgroundID = data.backgroundData.ids[x][y];
         Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
+        Dictionary<string,object> backgroundOptions = data.backgroundData.sTileOptions[x][y];
         if (baseId != null) {
             TileItem tileItem = itemRegistry.getTileItem(baseId);
+            Dictionary<TileItemOption,object> options = tileItem.getOptions();
+            if (tileItem != null) {
+                TileData tileData = new TileData(
+                    tileItem,
+                    options
+                );
+                ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
+                tileGridMap.placeTileAtLocation(
+                    realPosition,
+                    new Vector2Int(x,y),
+                    tileData
+                );
+            }
+        }
+        if (backgroundID != null) {
+            TileItem tileItem = itemRegistry.getTileItem(backgroundID);
             Dictionary<TileItemOption,object> options = tileItem.getOptions();
             if (tileItem != null) {
                 TileData tileData = new TileData(

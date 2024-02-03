@@ -39,14 +39,11 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         partitions = new Dictionary<Vector2Int, T[,]>();
         tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
 
-        
-        //tilemapRenderer.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Manual;
-        //tilemapRenderer.chunkCullingBounds = new Vector3(16,16,0);
-
-
         tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
-        tilemapCollider.maximumTileChangeCount=100000000;
+
+        // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
+        tilemapCollider.maximumTileChangeCount=100000000; 
         
     }
     public virtual void Start() {
@@ -77,8 +74,11 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
     }
 
     public void placeTileAtLocation(int x, int y, IPlacedItemObject placedItem) {
-        addTile(placedItem, getPartitionPosition(new UnityEngine.Vector2Int(x, y)), getTilePositionInPartition(new Vector2Int(x, y)));
-        setTile(x, y, getIdDataInChunk(new UnityEngine.Vector2Int(x, y)));
+        Vector2Int vect = new Vector2Int(x,y);
+        Vector2Int partitionPosition = getPartitionPosition(vect);
+        Vector2Int tilePosition = getTilePositionInPartition(vect);
+        addTile(placedItem, partitionPosition, tilePosition);
+        setTile(x, y, (T) placedItem);
     }
 
     public void placeTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, IPlacedItemObject placedItem)
@@ -119,7 +119,7 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
     }
     protected abstract void setTile(int x, int y,T placedItem);
     protected Vector2Int getChunkPosition(Vector2Int position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize)), Mathf.FloorToInt(position.y/(Global.ChunkSize)));
     }
     protected Vector2Int getPartitionPosition(Vector2Int position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkPartitionSize)), Mathf.FloorToInt(position.y/(Global.ChunkPartitionSize)));
@@ -144,42 +144,21 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         partitions[chunkPartition][tilePositon.x,tilePositon.y] = null;
     }
     protected virtual void spawnItemEntity(G itemObject, Vector2Int hitTilePosition, Vector2 worldPosition) {
-        GameObject chunk = ChunkHelper.snapChunk(hitTilePosition.x,hitTilePosition.y);
-        Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;       
-
+        IChunk chunk = getChunk(hitTilePosition);
+        if (chunk == null) {
+            return;
+        }
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
         ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<ItemSlotOption, object>());
-        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
+        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
     }
 
-
-    protected Vector2Int getChunk(Vector2Int tileMapPosition) {
-        return new Vector2Int(Mathf.FloorToInt(tileMapPosition.x/Global.PartitionsPerChunk),Mathf.FloorToInt(tileMapPosition.y/Global.PartitionsPerChunk));
+    protected IChunk getChunk(Vector2Int hitTilePosition) {
+        Vector2Int chunkPosition = getChunkPosition(hitTilePosition);
+        ClosedChunkSystem closedChunkSystem = transform.parent.GetComponent<ClosedChunkSystem>();
+        return closedChunkSystem.getChunk(chunkPosition);
     }
-
-    public List<List<string>> getTileIds(Vector2Int chunkPosition) {
-        /*
-        ChunkData<PlacedItem> chunkData = partitions[chunkPosition];
-        List<List<string>> nestedIds = new List<List<string>>();
-        for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
-            List<string> idList = new List<string>();
-            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
-                PlacedItem placedItem = chunkData.data[xIter][yIter];
-                if (placedItem == null || placedItem.itemObject == null) {
-                     idList.Add(null);
-                } else {
-                    idList.Add(placedItem.itemObject.id);
-                }
-                
-            }
-            nestedIds.Add(idList);
-        }
-        return nestedIds;
-        */
-        return null;
-    }
-
     public IPlacedItemObject[,] getPartitionData(Vector2Int partition)
     {
         if (partitions.ContainsKey(partition)) {
