@@ -29,12 +29,14 @@ public class EntityProperties : MonoBehaviour
         transform.parent = parentTransform;
     }
     protected virtual void setEntityToCurrentChunk() {
+        /*
         GameObject chunkObject = ChunkHelper.snapChunk(transform.position.x, transform.position.y);
         if (chunkObject == null) {
             Destroy(gameObject);
             return;
         }
         this.setParent(chunkObject.GetComponent<Chunk>().EntityContainer);
+        */
     }
 
 }

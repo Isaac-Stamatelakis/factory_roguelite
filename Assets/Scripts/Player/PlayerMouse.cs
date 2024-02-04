@@ -11,6 +11,7 @@ public class PlayerMouse : MonoBehaviour
     private float timeSinceLastUpdate = 0f;
     private GameObject testObject;
     private PlayerInventory playerInventory;
+    private ClosedChunkSystem[] closedChunkSystems;
     private DevMode devMode;
     private GameObject grabbedItem;
 
@@ -30,11 +31,16 @@ public class PlayerMouse : MonoBehaviour
         handleLeftClick(mousePosition);
         if (devMode.spawnItem) {
             if (Input.GetMouseButton(0)) {
-                ItemEntityHelper.spawnItemEntity(
-                    mousePosition,
-                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
-                    Global.findChild(ChunkHelper.snapChunk(mousePosition.x,mousePosition.y).transform,"TileEntities").transform
-                );
+                
+                IChunk chunk = getChunk(mousePosition);
+                if (chunk != null) {
+                        ItemEntityHelper.spawnItemEntity(
+                        mousePosition,
+                        new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                        chunk.getEntityContainer()
+                    );
+                }
+                
             }
         } else {
             breakMouseHover(mousePosition);
@@ -43,11 +49,29 @@ public class PlayerMouse : MonoBehaviour
         if (Input.GetMouseButton(0)) {
             handleInventoryClick(mousePosition);
         }
-        
-        
-        
     }
 
+    private IChunk getChunk(Vector2 mousePosition) {
+        ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+        if (closedChunkSystem == null) {
+            return null;
+        }
+        Vector2Int chunkPosition = Global.getChunk(mousePosition);
+        return closedChunkSystem.getChunk(chunkPosition);
+    }
+
+    private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
+        if (closedChunkSystems == null) {
+            closedChunkSystems = GameObject.Find("DimController").GetComponentsInChildren<ClosedChunkSystem>();
+        }
+        Vector2Int chunkPosition = Global.getChunk(mousePosition);
+        foreach (ClosedChunkSystem closedChunkSystem in closedChunkSystems) {
+            if (closedChunkSystem.containsChunk(chunkPosition)) {
+                return closedChunkSystem;
+            }
+        }
+        return null;
+    }
     private void handleLeftClick(Vector2 mousePosition) {
         bool tileEntityClicked = false;
         if (Input.GetMouseButtonDown(1)) {
@@ -55,7 +79,7 @@ public class PlayerMouse : MonoBehaviour
         }
         if (Input.GetMouseButton(1)) {
             if (!tileEntityClicked) {
-                handlePlace(mousePosition);
+                handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
             }
         }
     }
@@ -83,24 +107,17 @@ public class PlayerMouse : MonoBehaviour
     }
     
     public void handleBreak(Vector2 mousePosition) {
-        if (devMode.breakType == 0) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("TileBlock"));
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("TileObject"));
-        } else if (devMode.breakType == 1) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("TileBackground"));
-        } else if (devMode.breakType == 2) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("EnergyConduit"));
-        } else if (devMode.breakType == 3) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("ItemConduit"));
-        } else if (devMode.breakType == 4) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("FluidConduit"));
-        } else if (devMode.breakType == 5) {
-            raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer("SignalConduit"));
+        TileMapLayer tileMapLayer = devMode.breakType;
+        List<TileMapType> layerTypes = TileMapTypeFactory.getTileTypesInLayer(tileMapLayer);
+        foreach (TileMapType tileMapType in layerTypes) {
+            if (raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer(tileMapType.ToString()))) {
+                break;
+            }
+            
         }
-        
     }
 
-    private void raycastHitBlock(Vector2 position, int layer) {
+    private bool raycastHitBlock(Vector2 position, int layer) {
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
         if (hit.collider != null) {
             GameObject container = hit.collider.gameObject;
@@ -110,8 +127,9 @@ public class PlayerMouse : MonoBehaviour
             } else {
                 hitableTileMap.hitTile(position);
             }
-            
+            return true;            
         }
+        return false;
     }
 
     private GameObject raycastTileMap(Vector2 position, int layer) {
@@ -127,15 +145,15 @@ public class PlayerMouse : MonoBehaviour
         if (tilemap != null) {
             TileGridMap tileGridMap = tilemap.GetComponent<TileGridMap>();
             if (tileGridMap != null) {
-                Vector2Int tilePosition = FindTileAtLocation.find(Global.Vector3IntToVector2Int(tileGridMap.mTileMap.WorldToCell(mousePosition)),tileGridMap.mTileMap);
+                Vector3Int vect = tileGridMap.mTileMap.WorldToCell(mousePosition);
+                Vector2Int tilePosition = FindTileAtLocation.find(new Vector2Int(vect.x,vect.y),tileGridMap.mTileMap);
                 TileData tileData = (TileData) tileGridMap.getIdDataInChunk(tilePosition);
                 if (tileData != null) {
-                    GameObject chunk = ChunkHelper.snapChunk(tilePosition.x/2f,tilePosition.y/2f);
-                    GameObject tileEntityContainer = Global.findChild(chunk.transform, "TileEntities");
+                    IChunk chunk = getChunk(mousePosition);
                     GameObject tileEntity = TileEntityHelper.getTileEntity(
-                        tileEntityContainer.transform,
+                        chunk.getTileEntityContainer(),
                         tilemap.name,
-                        new Vector2Int(Global.modInt(tilePosition.x,16),Global.modInt(tilePosition.y,16))
+                        new UnityEngine.Vector2Int(Global.modInt(tilePosition.x,Global.ChunkSize), Global.modInt(tilePosition.y,Global.ChunkSize))
                     );
                     if (tileEntity != null) {
                         OnTileEntityClickController clickController = tileEntity.GetComponent<OnTileEntityClickController>();
@@ -150,7 +168,10 @@ public class PlayerMouse : MonoBehaviour
         return false;
     }
 
-    private bool handlePlace(Vector2 mousePosition) {
+    private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
+        if (closedChunkSystem == null) {
+            return false;
+        }
         string id;
         if (devMode.placeSelectedID) {
             id = devMode.placeID;
@@ -162,7 +183,7 @@ public class PlayerMouse : MonoBehaviour
         }
         bool placed = false;
         ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
-        placed = PlaceTile.Place(itemObject,mousePosition);
+        placed = PlaceTile.Place(itemObject,mousePosition,closedChunkSystem);
         
         if (placed && !devMode.noPlaceCost) {
             playerInventory.deiterateInventoryAmount();
@@ -175,8 +196,8 @@ public class PlayerMouse : MonoBehaviour
         if (!EventSystem.current.IsPointerOverGameObject()) {
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
             if (grabbedItemProperties.itemSlot != null) {
-                GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
-                if (chunkGameObject == null) {
+                IChunk chunk = getChunk(mousePosition);
+                if (chunk == null) {
                     return false;
                 }
                 Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
@@ -184,7 +205,7 @@ public class PlayerMouse : MonoBehaviour
                         ItemEntityHelper.spawnItemEntityWithVelocity(
                         new Vector2(transform.position.x,transform.position.y) + spriteCenter,
                         grabbedItemProperties.itemSlot,
-                        Global.findChild(chunkGameObject.transform, "Entities").transform,
+                        chunk.getEntityContainer(),
                         calculateItemVelocity(mousePosition)
                     );
                 }

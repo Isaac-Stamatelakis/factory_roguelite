@@ -9,11 +9,11 @@ public class InventoryGrid : MonoBehaviour
     private static string TAG = "InventoryGrid: ";
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
-    [SerializeField] protected Vector2Int size;
-    public Vector2Int Size {get{return size;}}
+    [SerializeField] protected UnityEngine.Vector2Int size;
+    public UnityEngine.Vector2Int Size {get{return size;}}
     public int SizeInt{get{return size.x*size.y;}}
 
-    public void initalize(List<ItemSlot> inventory, Vector2Int size) {
+    public void initalize(List<ItemSlot> inventory, UnityEngine.Vector2Int size) {
         this.inventory = inventory;
         this.size = size;
         initalizeSlots();
@@ -134,6 +134,9 @@ public class InventoryGrid : MonoBehaviour
     }
 
     public static Vector2 getItemSize(Sprite sprite) {
+        if (sprite == null) {
+            return Vector2.zero;
+        }
         Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
         if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
             return new Vector2(32,32);

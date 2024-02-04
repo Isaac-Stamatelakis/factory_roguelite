@@ -34,7 +34,7 @@ public class DynamicInventoryGrid : InventoryGrid
         return true;
     }
 
-    public void updateSize(Vector2Int newSize) {
+    public void updateSize(UnityEngine.Vector2Int newSize) {
         this.size = newSize;
         while (slots.Count < SizeInt) {
             addSlot();

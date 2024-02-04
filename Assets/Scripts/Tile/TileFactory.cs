@@ -7,7 +7,7 @@ using System;
 public class TileFactory
 {
     public static TileBase generateTile(TileData tileData) {
-        TileBase tile = tileData.itemObject.tile;
+        TileBase tile = ((TileItem)tileData.getItemObject()).tile;
         Dictionary<TileItemOption, object> options = tileData.options;
         int chisel = 0;
         if (options.ContainsKey(TileItemOption.Chisel)) {

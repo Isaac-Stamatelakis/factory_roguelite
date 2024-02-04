@@ -13,7 +13,7 @@ public class DevMode : MonoBehaviour
     [SerializeField] public bool noPlaceCost;
     [SerializeField] public bool placeSelectedID;
     [SerializeField] public string placeID;
-    [SerializeField] public uint breakType;
+    [SerializeField] public TileMapLayer breakType;
     [SerializeField] public bool noPlaceLimit;
     [SerializeField] public uint rotation;
     [SerializeField] public bool placePreview;

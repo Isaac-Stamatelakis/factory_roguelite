@@ -8,6 +8,7 @@ maxX, minX, maxY, minY are inclusive
 Hub Size is x:[-8,8], y:[-4,4]
 17 x 9 chunks.
 **/
+/*
 public abstract class ChunkList {
     protected ClosedChunkSystem closedChunkSystem;
     protected int dim;
@@ -130,7 +131,7 @@ public class PreGeneratedChunkList : ChunkList
         }
         for (int y = minY; y <= maxY; y ++) {
             for (int x = minX; x <= maxX; x ++) {
-                GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Vector2Int(x,y),dim,this.closedChunkSystem);
+                GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Pos2D(x,y),this.closedChunkSystem);
                 if (chunkGameObject != null) {
                     Chunk[] chunkPropertiesList = chunkGameObject.GetComponents<Chunk>();
                     if (chunkPropertiesList == null || chunkPropertiesList.Length == 0) {
@@ -173,8 +174,8 @@ public class DungeonChunkList : ChunkList
     }
 
     private Chunk loadChunk(int x, int y) {
-        if (ChunkIO.jsonExists(new Vector2Int(x,y),dim)) {
-            GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Vector2Int(x,y),dim,closedChunkSystem);
+        if (ChunkIO.jsonExists(new Pos2D(x,y),dim)) {
+            GameObject chunkGameObject = ChunkIO.getChunkFromJson(new Pos2D(x,y),closedChunkSystem);
             Chunk chunkProperties = chunkGameObject.GetComponent<Chunk>();
             this.setChunk(chunkProperties,x,y);
             return chunkProperties;
@@ -185,27 +186,26 @@ public class DungeonChunkList : ChunkList
     public override void initChunks()
     {
 
-        CaveGenerator dungeonGenerator = new CaveGenerator(cave);
-        int[,] grid = dungeonGenerator.generate();
+        CaveGenerator caveGenerator = new CaveGenerator(cave);
         Vector2Int caveSize = cave.getChunkDimensions();
+        
         for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
             for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                 GameObject chunkObject = new GameObject();
                 DynamicChunkProperties chunk = chunkObject.AddComponent<DynamicChunkProperties>();
                 chunk.name = "chunk[" + chunkX + "," + chunkY + "]";
-                JsonData jsonData = new JsonData();
                 SeralizedChunkTileData tileData = new SeralizedChunkTileData();
                 tileData.ids = new List<List<string>>();
                 tileData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 tileData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                int index = ((chunkX-minX)+(chunkY-minY)*caveSize.x)*Global.ChunkSize;
-                for (int tileX = 0; tileX < Global.ChunkSize; tileX ++) {
+                int index = ((chunkX-minX)+(chunkY-minY)*caveSize.x)*Global.PartitionsPerChunk;
+                for (int tileX = 0; tileX < Global.PartitionsPerChunk; tileX ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int  tileY= 0; tileY < Global.ChunkSize; tileY ++) {
+                    for (int  tileY= 0; tileY < Global.PartitionsPerChunk; tileY ++) {
                         int tileIndex = index + tileX + tileY * caveSize.x;
-                        if (grid[(chunkX-minX)*Global.ChunkSize+tileX,(chunkY-minY)*Global.ChunkSize+tileY] == 1) {
+                        if (grid[(chunkX-minX)*Global.PartitionsPerChunk+tileX,(chunkY-minY)*Global.PartitionsPerChunk+tileY] == 1) {
                             tempIds.Add("weird_stone1");
                         } else {
                             tempIds.Add(null);
@@ -221,11 +221,11 @@ public class DungeonChunkList : ChunkList
                 backgroundData.ids = new List<List<string>>();
                 backgroundData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 backgroundData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                for (int x2 = 0; x2 < Global.ChunkSize; x2 ++) {
+                for (int x2 = 0; x2 < Global.PartitionsPerChunk; x2 ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int y2 = 0; y2 < Global.ChunkSize; y2 ++) {
+                    for (int y2 = 0; y2 < Global.PartitionsPerChunk; y2 ++) {
                         tempIds.Add(null);
                         sTile.Add(new Dictionary<string, object>());
                         sEntity.Add(new Dictionary<string, object>());
@@ -238,11 +238,11 @@ public class DungeonChunkList : ChunkList
                 objectData.ids = new List<List<string>>();
                 objectData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
                 objectData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                for (int x2 = 0; x2 < Global.ChunkSize; x2 ++) {
+                for (int x2 = 0; x2 < Global.PartitionsPerChunk; x2 ++) {
                     List<string> tempIds = new List<string>();
                     List<Dictionary<string,object>> sEntity = new List<Dictionary<string, object>>();
                     List<Dictionary<string,object>> sTile = new List<Dictionary<string, object>>();
-                    for (int y2 = 0; y2 < Global.ChunkSize; y2 ++) {
+                    for (int y2 = 0; y2 < Global.PartitionsPerChunk; y2 ++) {
                         tempIds.Add(null);
                         sTile.Add(new Dictionary<string, object>());
                         sEntity.Add(new Dictionary<string, object>());
@@ -251,14 +251,15 @@ public class DungeonChunkList : ChunkList
                     objectData.sTileEntityOptions.Add(sEntity);
                     objectData.sTileOptions.Add(sTile);
                 }
-                jsonData.dict["TileBlocks"] = tileData;
-                jsonData.dict["TileBackgrounds"] = backgroundData;
-                jsonData.dict["TileObjects"] = objectData;
+                jsonData.dict["Base"] = tileData;
+                jsonData.dict["Background"] = backgroundData;
                 jsonData.dict["Entities"] = new List<EntityData>();
                 chunk.initalize(dim,jsonData,new Vector2Int(chunkX,chunkY),this.closedChunkSystem.transform);
-                //File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(jsonData));
+                
                 this.setChunk(chunk,chunkX,chunkY);
             }
         }
+        
     }
 }
+*/

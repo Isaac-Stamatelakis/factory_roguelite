@@ -5,21 +5,11 @@ using UnityEngine.Tilemaps;
 using System;
 
 
-/**
-Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
-**/
 public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
-    protected override TileData initTileData(TileItem tileItem) {
-        return new TileData(
-            itemObject: tileItem,
-            options: tileItem.getOptions()
-        );
-    }
     
     protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition, Vector2 worldPosition) {
-        GameObject chunk = ChunkHelper.snapChunk(worldPosition.x,worldPosition.y);
-        Transform entityContainer = Global.findChild(chunk.transform, "Entities").transform;    
+        IChunk chunk = getChunk(hitTilePosition);  
 
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
@@ -32,12 +22,12 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
             realYPosition += 0.25f;
         }
         ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<ItemSlotOption, object>());
-        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,entityContainer);
+        ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
     }
 
     protected override Vector2Int getHitTilePosition(Vector2 position)
     {
-        Vector2Int hitPosition = Global.Vector3IntToVector2Int(tilemap.WorldToCell(position));
+        Vector2Int hitPosition = getTilePosition(position);
         int maxSearchWidth = 16;
         int searchWidth = 1;
         while (searchWidth < maxSearchWidth) {
@@ -87,14 +77,14 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         return spriteY >= searchWidth;
     } 
     protected override void breakTile(Vector2Int position) {
-        Vector2Int chunkPosition = getChunk(position);
-        GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
-        Vector2Int tilePositionInChunk = getTilePosition(position);
-        Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
-        deleteTileEntity(tileEntityContainer,new Vector3Int(tilePositionInChunk.x,tilePositionInChunk.y,0));
+        Vector2Int partitionPosition = getPartitionPosition(position);
+        //GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
+        Vector2Int tilePartitionPosition = getTilePositionInPartition(position);
+        //Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
+        //deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
 
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-        dimensionChunkData[chunkPosition].data[tilePositionInChunk.x][tilePositionInChunk.y] = null;
+        partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
     }
 
     protected override bool hitHardness(TileData tileData) {
@@ -108,10 +98,10 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
 
     protected override void setTile(int x, int y,TileData tileData) {
         if (tileData != null) {
-            //tilemap.SetTile(new Vector3Int(x,y,0),TileFactory.generateTile(tileData));
-            tilemap.SetTile(new Vector3Int(x,y,0),tileData.itemObject.tile);
+            tilemap.SetTile(new Vector3Int(x,y,0),((TileItem) tileData.getItemObject()).tile);
+        } else {
+            tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
-        
     }
 
     private bool deleteTileEntity(Transform tileEntityContainer, Vector3Int position) {
@@ -122,12 +112,13 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         }
         return false;
     }
-    public List<List<Dictionary<string,object>>> getSeralizedTileOptions(Vector2Int chunkPosition) {
-        ChunkData<TileData> chunkData = dimensionChunkData[chunkPosition];
+    public List<List<Dictionary<string,object>>> getSeralizedTileOptions(UnityEngine.Vector2Int chunkPosition) {
+        /*
+        ChunkData<TileData> chunkData = partitions[chunkPosition];
         List<List<Dictionary<string,object>>> nestedTileOptionList = new List<List<Dictionary<string, object>>>();
-        for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
+        for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
             List<Dictionary<string,object>> tileOptionList = new List<Dictionary<string,object>>();
-            for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
+            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
                 TileData tileData = chunkData.data[xIter][yIter];
                 if (tileData == null) {
                     tileOptionList.Add(new Dictionary<string, object>());
@@ -146,6 +137,13 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         }
         
         return nestedTileOptionList;
+        */
+        return null;
+    }
+
+    public override void initPartition(Vector2Int partitionPosition)
+    {
+        partitions[partitionPosition] = new TileData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
     }
 }
 

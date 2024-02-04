@@ -11,7 +11,7 @@ public class PlayerIO : MonoBehaviour
     TilePlacePreviewController tilePlacePreviewController;
     DevMode devMode;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         
         devMode = GetComponent<DevMode>();
@@ -55,8 +55,9 @@ public class PlayerIO : MonoBehaviour
         );
         playerData["hp"] = (float) jObject["hp"];
         playerData["inventory"] = jObject["inventory"];
-        playerData["enablePlacePreview"] = devMode.placePreview;
-        tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
+        //playerData["enablePlacePreview"] = devMode.placePreview;
+        //tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
+        tilePlacePreviewController.setActive(true);
     }
 
     public Dictionary<string,object> getPlayerData() {

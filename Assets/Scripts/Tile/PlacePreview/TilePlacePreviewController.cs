@@ -5,12 +5,12 @@ using UnityEngine.Tilemaps;
 
 public class TilePlacePreviewController : MonoBehaviour
 {
-    private bool on = false;
-    public bool On {get{return on;} set{on=value;}}
+    [SerializeField]
+    public bool on;
     // Start is called before the first frame update
     void Start()
     {
-        this.toggle();
+       
     }
 
     // Update is called once per frame

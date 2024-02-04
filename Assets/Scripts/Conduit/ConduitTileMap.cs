@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 
-public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
+public class ConduitTileMap : AbstractTileMap<ConduitItem, ConduitData>
 {
     protected override void setTile(int x, int y, ConduitData conduitData)
     {
-        if (conduitData == null || conduitData.itemObject == null) {
+        if (conduitData == null || conduitData.getItemObject() == null) {
             return;
         }
-        RuleTile ruleTile = conduitData.itemObject.ruleTile;
+        RuleTile ruleTile = ((ConduitItem) conduitData.getItemObject()).ruleTile;
         tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
     }
 
@@ -23,12 +23,9 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
         */
         return true;
     }
-    protected override ConduitData initTileData(ConduitItem conduitItem)
-    {
-        return null;
-    }
-    public List<List<ConduitOptions>> getConduitOptions(Vector2Int chunkPosition) {
-        ChunkData<ConduitData> chunkData = dimensionChunkData[chunkPosition];
+    public List<List<ConduitOptions>> getConduitOptions(UnityEngine.Vector2Int chunkPosition) {
+        /*
+        ChunkData<ConduitData> chunkData = partitions[chunkPosition];
         List<List<ConduitOptions>> nestedConduitOptions = new List<List<ConduitOptions>>();
         for (int xIter = 0; xIter < 16; xIter ++) {
             List<ConduitOptions> conduitOptionsList = new List<ConduitOptions>();
@@ -44,8 +41,18 @@ public class ConduitTileMap : AbstractTileMap<ConduitItem,ConduitData>
         }
         
         return nestedConduitOptions;
+        */
+        return null;
     }
 
-    
+    protected override Vector2Int getHitTilePosition(Vector2 position)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void initPartition(Vector2Int partitionPosition)
+    {
+        partitions[partitionPosition] = new ConduitData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+    }
 }
 
