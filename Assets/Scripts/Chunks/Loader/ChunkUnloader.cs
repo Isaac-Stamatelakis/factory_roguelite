@@ -50,7 +50,7 @@ public class ChunkUnloader : MonoBehaviour
             int loadAmount = activeCoroutines/uploadAmountThreshold+1;
             Chunk farthestChunk = unloadQueue.Dequeue();
             activeCoroutines--;
-            if (farthestChunk != null && closedChunkSystem.chunkIsCached(farthestChunk.getPosition())) {
+            if (farthestChunk != null && closedChunkSystem.chunkIsCached(farthestChunk.getPosition()) && farthestChunk.partionsAreAllUnloaded()) {
                 closedChunkSystem.removeChunk(farthestChunk);
                 farthestChunk.unload();
                 yield return new WaitForSeconds(delay);

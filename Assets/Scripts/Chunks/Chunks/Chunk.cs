@@ -7,6 +7,7 @@ public interface IChunk {
     public List<ChunkPartitionData> getChunkPartitionData();
     public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
     public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
+    public bool partionsAreAllUnloaded();
     /// <summary>
     /// Deletes all chunk partitions
     /// </summary>
@@ -183,192 +184,15 @@ public class Chunk : MonoBehaviour, IChunk
         return tileEntityContainer;
     }
 
-
-    /*
-protected virtual IEnumerator fullLoadChunkCoroutine(int sectionAmount, double angle) {
-
-StartCoroutine(softLoadChunk(jsonData));
-Coroutine a = StartCoroutine(addTilesToContainer(
-deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileBlocks")),
-"TileBlocks",
-sectionAmount,
-angle
-));
-Coroutine b = StartCoroutine(addTilesToContainer(deseralizeChunkTileData(
-(SeralizedChunkTileData) jsonData.get("TileBackgrounds")),
-"TileBackgrounds",
-sectionAmount,
-angle
-));
-Coroutine c = StartCoroutine(addTilesToContainer(
-deseralizeChunkTileData((SeralizedChunkTileData) jsonData.get("TileObjects")),
-"TileObjects",
-sectionAmount,
-angle
-));
-
-yield return a;
-yield return b;
-yield return c;
-
-GameObject tileEntityContainer = Global.findChild(transform,"TileEntities");
-Coroutine d = StartCoroutine(tileEntityContainer.GetComponent<TileEntityContainerController>().fullLoadAllTileEntities());
-
-yield return d;
-
-initEntityContainer(jsonData);
-
-fullLoaded = true;
-gameObject.name = gameObject.name +"|FullLoaded";
-gameObject.layer = LayerMask.NameToLayer("Chunk");
-yield return null;
-}
-
-
-public IEnumerator softLoadChunk(JsonData jsonData) {
-GameObject tileEntities = new GameObject();
-tileEntities.transform.localPosition = new Vector3(transform.position.x-4,transform.position.y-4, 0);
-tileEntities.name="TileEntities";
-tileEntities.transform.SetParent(transform);
-tileEntities.AddComponent<TileEntityContainerController>();
-Global.setStatic(tileEntities);
-Coroutine a = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileBlocks"),"TileBlocks"));
-Coroutine b = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileBackgrounds"),"TileBackgrounds"));
-Coroutine c = StartCoroutine(initTileEntitities((SeralizedChunkTileData) jsonData.get("TileObjects"),"TileObjects"));
-yield return a;
-yield return b;
-yield return c;
-}
-
-protected IEnumerator initTileEntitities(SeralizedChunkTileData chunkTileData, string tileContainerName) {
-Transform tileEntityContainer = Global.findChild(transform,"TileEntities").transform;
-ItemRegistry itemRegister = ItemRegistry.getInstance();
-for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-string id = chunkTileData.ids[xIter][yIter];
-if (id == null) {
-continue;
-}
-TileItem tileItem = itemRegister.getTileItem(id);
-if (tileItem!= null && tileItem.tileEntityOptions.Count != 0) {
-TileEntityFactory.softLoadTileEntity(tileItem,chunkTileData.sTileEntityOptions[xIter][yIter],tileEntityContainer,tileContainerName,new Vector2Int(xIter,yIter));
-}
-}
-yield return new WaitForSeconds(0.01f);
-}
-yield return null;
-}
-
-public virtual IEnumerator unfullLoadChunk() {
-if (!fullLoaded) {
-yield return null;
-}
-gameObject.name = gameObject.name.Split("|")[0];
-gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
-scheduledForUnloading = false;
-yield return destroyContainers();
-string chunkName = "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
-string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + chunkName;
-File.WriteAllText(filePath, Newtonsoft.Json.JsonConvert.SerializeObject(jsonData));
-jsonData = null;    
-fullLoaded = false;
-
-}
-
-public virtual void instantlyUnFullLoadChunk() {
-if (!fullLoaded) {
-return;
-}
-gameObject.name = gameObject.name.Split("|")[0];
-gameObject.layer = LayerMask.NameToLayer("UnloadedChunk");
-fullLoaded = false;
-scheduledForUnloading = false;
-instantlyDestroyContainers();
-}
-
-protected IEnumerator addTilesToContainer(ChunkData<TileData> tileData,string containerName,int sectionAmount, double angle) {
-TileGridMap tileGridMap = Global.findChild(transform.parent.parent.transform, containerName).GetComponent<TileGridMap>();
-Coroutine a = StartCoroutine(tileGridMap.load(tileData, chunkPosition,sectionAmount,angle));
-yield return a;
-
-}
-
-protected virtual IEnumerator destroyContainers() {
-TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, "TileBlocks").GetComponent<TileGridMap>();
-Coroutine a = StartCoroutine(tileBlockGridMap.removeChunk(chunkPosition));
-
-TileGridMap tileBackgroundGripMap = Global.findChild(transform.parent.parent.transform, "TileBackgrounds").GetComponent<TileGridMap>();
-Coroutine b = StartCoroutine(tileBackgroundGripMap.removeChunk(chunkPosition));
-
-TileGridMap tileObjectGridMap = Global.findChild(transform.parent.parent.transform, "TileObjects").GetComponent<TileGridMap>();
-Coroutine c = StartCoroutine(tileObjectGridMap.removeChunk(chunkPosition));
-yield return a;
-yield return b;
-yield return c;
-}
-
-protected virtual void instantlyDestroyContainers() {
-TileGridMap tileBlockGridMap = Global.findChild(transform.parent.parent.transform, "TileBlocks").GetComponent<TileGridMap>();
-tileBlockGridMap.instantlyRemoveChunk(chunkPosition);
-
-TileGridMap tileBackgroundGripMap = Global.findChild(transform.parent.parent.transform, "TileBackgrounds").GetComponent<TileGridMap>();
-tileBackgroundGripMap.instantlyRemoveChunk(chunkPosition);
-
-TileGridMap tileObjectGridMap = Global.findChild(transform.parent.parent.transform, "TileObjects").GetComponent<TileGridMap>();
-tileObjectGridMap.instantlyRemoveChunk(chunkPosition);
-}
-
-protected void initEntityContainer(JsonData jsonData) {
-GameObject entityContainer = new GameObject();
-entityContainer.name = "Entities";
-entityContainer.transform.SetParent(transform);
-this.entityContainer = entityContainer.transform;
-List<EntityData> entityDataList = (List<EntityData>) jsonData.get("Entities");
-ItemRegistry itemRegister = ItemRegistry.getInstance();
-// TODO refactor item entities
-/*
-foreach (EntityData entityData in entityDataList) {
-GameObject entityObject = new GameObject();
-if (entityData.tileType != null) {
-entityObject.AddComponent<TileItemEntityProperties>();
-TileItemEntityProperties itemEntityProperties = entityObject.GetComponent<TileItemEntityProperties>();
-itemEntityProperties.itemObject =  itemRegister.getItemObject(id);
-itemEntityProperties.initalize(entityData.amount);
-itemEntityProperties.setLocation(entityData.x, entityData.y);
-itemEntityProperties.setParent(entityContainer.transform);
-}
-}
-
-}
-
-protected ChunkData<TileData> deseralizeChunkTileData(SeralizedChunkTileData seralizedChunkTileData) {
-List<List<TileData>> nestedTileDataList = new List<List<TileData>>();
-ItemRegistry itemRegister = ItemRegistry.getInstance();
-for (int xIter = 0; xIter < Global.ChunkSize; xIter ++) {
-List<TileData> tileDataList = new List<TileData>();
-for (int yIter = 0; yIter < Global.ChunkSize; yIter ++) {
-string id = seralizedChunkTileData.ids[xIter][yIter];
-if (id != null) {
-TileItem tileItem = itemRegister.getTileItem(id);
-if (tileItem == null) {
-tileDataList.Add(null);
-} else {
-TileData tileData = new TileData(itemObject: tileItem, options: tileItem.getOptions());
-Dictionary<string,object> serializedData =  seralizedChunkTileData.sTileOptions[xIter][yIter];
-TileEntityOptionFactory.deseralizeOptions(serializedData:serializedData,tileData.options);
-tileDataList.Add(tileData); 
-}
-
-} else {
-tileDataList.Add(null);
-}        
-}
-nestedTileDataList.Add(tileDataList);
-}
-ChunkData<TileData> chunkTileData = new ChunkData<TileData>() {
-data = nestedTileDataList
-};
-return chunkTileData;
-}
-*/
+    public bool partionsAreAllUnloaded()
+    {
+        foreach (List<IChunkPartition> partitionList in partitions) {
+            foreach (IChunkPartition partition in partitionList) {
+                if (partition.getLoaded() || partition.getScheduledForUnloading()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

@@ -75,8 +75,10 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
 
     public void placeTileAtLocation(int x, int y, IPlacedItemObject placedItem) {
         Vector2Int vect = new Vector2Int(x,y);
-        Vector2Int partitionPosition = getPartitionPosition(vect);
         Vector2Int tilePosition = getTilePositionInPartition(vect);
+        Vector2Int partitionPosition = getPartitionPosition(vect);
+        
+        //Debug.Log("Given: " + vect.x + ","+vect.y + "calc:" + partitionPosition + "|" + tilePosition);
         addTile(placedItem, partitionPosition, tilePosition);
         setTile(x, y, (T) placedItem);
     }
@@ -122,7 +124,9 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize)), Mathf.FloorToInt(position.y/(Global.ChunkSize)));
     }
     protected Vector2Int getPartitionPosition(Vector2Int position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkPartitionSize)), Mathf.FloorToInt(position.y/(Global.ChunkPartitionSize)));
+        float x = (float) position.x;
+        float y = (float) position.y;
+        return new Vector2Int(Mathf.FloorToInt(x/Global.ChunkPartitionSize), Mathf.FloorToInt((y/Global.ChunkPartitionSize)));
     }
     protected Vector2Int getTilePositionInPartition(Vector2Int position) {
         return new Vector2Int(Global.modInt(position.x,Global.ChunkPartitionSize),Global.modInt(position.y,Global.ChunkPartitionSize));

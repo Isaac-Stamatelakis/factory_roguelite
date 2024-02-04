@@ -45,6 +45,10 @@ public class PartitionUnloader : MonoBehaviour
         }
         partitionsToUnload.Clear();
     }
+
+    public void clearAll() {
+        unloadQueue.Clear();
+    }
     public IEnumerator unload() {
         while (true) {
             if (unloadQueue.Count == 0) {

@@ -177,7 +177,7 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         Vector2Int playerPosition = getPlayerChunk();
         List<Chunk> chunksToUnload = new List<Chunk>();
         foreach (Chunk chunk in cachedChunks.Values) {
-            if (!chunk.isChunkLoaded() && !chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY)) {
+            if (!chunk.isChunkLoaded() && !chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY) && chunk.partionsAreAllUnloaded()) {
                 chunksToUnload.Add(chunk);
             }
         }
@@ -193,13 +193,20 @@ public abstract class ClosedChunkSystem : MonoBehaviour
 
     public IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
         yield return chunkPartition.load(tileGridMaps,angle);
+        chunkPartition.setLoaded(true);
     }
     public IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
         yield return StartCoroutine(chunkPartition.unload(tileGridMaps));
+        chunkPartition.setLoaded(false);
+        chunkPartition.setScheduleForUnloading(false);
     }
 
+    /// <summary> 
+    /// This is called when game ends. Saves all partitions
+    /// </summary>
     public void OnDisable()
     {
+        partitionUnloader.clearAll();
         foreach (IChunk chunk in cachedChunks.Values) {
             foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
                 foreach (IChunkPartition partition in chunkPartitionList) {

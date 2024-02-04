@@ -47,7 +47,7 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
 
     public UnityEngine.Vector2Int getRealPosition()
     {
-        return  parent.getPosition()*Global.PartitionsPerChunk + position;
+        return parent.getPosition()*Global.PartitionsPerChunk + position;
     }
 
     public bool getScheduledForUnloading()
@@ -64,7 +64,6 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
     /// loads chunkpartition into tilegridmaps at given angle
     /// </summary>
     public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
-        this.tileLoaded = true;
         foreach (TileGridMap tileGridMap in tileGridMaps.Values) {
             UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
             if (!tileGridMap.containsPartition(realPartitionPosition)) {
@@ -204,6 +203,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     new Vector2Int(x,y),
                     tileData
                 );
+                
             }
         }
         if (backgroundID != null) {
