@@ -3,19 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlaceTile {
-    private static int tileBlockLayer = 1 << LayerMask.NameToLayer("TileBlock");
-    private static int tileObjectLayer = 1 << LayerMask.NameToLayer("TileObject");
-    private static int tileBackgroundLayer = 1 << LayerMask.NameToLayer("TileBackground");
-    private static int chunkLayer = 1 << LayerMask.NameToLayer("Chunk");
-    
-    private static TileGridMap tileBlockMap;
-    private static TileGridMap tileBackgroundMap;
-    private static TileGridMap tileObjectMap;
-    private static ConduitTileMap energyConduitMap;
-    private static ConduitTileMap itemConduitMap;
-    private static ConduitTileMap fluidConduitMap;
-    private static ConduitTileMap signalConduitMap;
-
     /**
     Conditions:
     i) no tileBlock within sprite size.
@@ -66,9 +53,7 @@ public class PlaceTile {
         if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
             return false;
         }
-        if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
-            return false;
-        }
+
         if (GameObject.Find("Player").GetComponent<DevMode>().noPlaceLimit) {
             return true;
         } 
@@ -272,15 +257,18 @@ public class PlaceTile {
         if (conduitTileMap.mTileMap.GetTile(new Vector3Int(tileMapPosition.x,tileMapPosition.y,0)) != null) {
             return false;
         }
-        
+        /*
         if (raycastTileAtLocation(placePosition,tileBlockLayer)) {
             return false;
         }
+        */
         return true;
     }
 
     private static ConduitTileMap GetConduitTileMap(Vector2 position, ConduitType type) {
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, chunkLayer);
+        /*
+        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, chunkLayer); 
+
         if (hit.collider == null) {
             return null;
         }
@@ -295,6 +283,8 @@ public class PlaceTile {
             case ConduitType.Signal:
                 return Global.findChild(systemContainer,"SignalConduits").GetComponent<ConduitTileMap>();
         }
+        return null;
+        */
         return null;
     }
 }

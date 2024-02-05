@@ -39,7 +39,7 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         partitions = new Dictionary<Vector2Int, T[,]>();
         tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
 
-        tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
+        //tilemapRenderer.material = Resources.Load<Material>("Material/ShadedMaterial");
         tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
 
         // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC

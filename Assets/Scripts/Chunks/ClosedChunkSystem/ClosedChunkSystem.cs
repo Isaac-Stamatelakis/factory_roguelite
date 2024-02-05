@@ -83,6 +83,7 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         cachedChunks = new Dictionary<Vector2Int, IChunk>();
         this.dim = dim;
         this.coveredArea = coveredArea;
+        Debug.Log(Application.persistentDataPath);
         Debug.Log("Closed Chunk System " + name + "For Dim" + dim + " Initalized");
         StartCoroutine(initalLoad());
     }

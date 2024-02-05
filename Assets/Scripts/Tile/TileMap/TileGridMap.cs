@@ -62,7 +62,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         }
         // Mathematically impossible to ever get here if maxSearchDist is infinity.
         // Since the biggest tile I'm probably ever gonna put in the game is 16x16, will never get here.
-        Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
+        //Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
         return new Vector2Int(2147483647,2147483647);
     }
     private bool isHitTile(TileBase tileBase, int searchWidth) {
@@ -84,7 +84,10 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         //deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
 
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-        partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
+        if (partitions.ContainsKey(partitionPosition)) {
+            partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
+        }
+        
     }
 
     protected override bool hitHardness(TileData tileData) {
@@ -97,8 +100,9 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
     }
 
     protected override void setTile(int x, int y,TileData tileData) {
+        TileBase tileBase = ((TileItem) tileData.getItemObject()).tile;
         if (tileData != null) {
-            tilemap.SetTile(new Vector3Int(x,y,0),((TileItem) tileData.getItemObject()).tile);
+            tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
         } else {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }

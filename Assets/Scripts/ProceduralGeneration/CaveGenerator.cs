@@ -178,6 +178,8 @@ public class CaveGenerator
     }
 
     private WorldTileData generateWorld(int[,] grid) {
+        // TODO Make it change based on which caveare you are in im lazy for now
+        string defaultBlockID = cave.areas[0].defaultBlockID;
         UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         int tileMaxX = Global.ChunkSize * caveSize.x;
         int tileMaxY = Global.ChunkSize*caveSize.y;
@@ -203,7 +205,7 @@ public class CaveGenerator
 
             for (int y = 0; y < tileMaxY; y ++) {
                 if (grid[x,y] == 1) {
-                    idListBase.Add("weird_stone1");
+                    idListBase.Add(defaultBlockID);
                 } else {
                     idListBase.Add(null);
                 }

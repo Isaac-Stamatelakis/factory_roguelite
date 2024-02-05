@@ -67,11 +67,11 @@ public class Global
         return (int) mod(x,m);
     }
 
-    public static Vector2 getSpriteSize(Sprite sprite) {
+    public static Vector2Int getSpriteSize(Sprite sprite) {
         if (sprite == null) {
-            return Vector2.zero;
+            return Vector2Int.zero;
         }
-        return new Vector2((int) (sprite.texture.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
+        return new Vector2Int((int) (sprite.rect.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
     }
 
     public static UnityEngine.Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {

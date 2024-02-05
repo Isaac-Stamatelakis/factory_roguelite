@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[System.Serializable]
 public class Cave
 {
+    [SerializeField]
     public List<CaveArea> areas = new List<CaveArea>();
     public UnityEngine.Vector2Int getChunkDimensions() {
         int index = 0;
@@ -52,7 +53,7 @@ public class Cave
         return new IntervalVector(new Interval<int>(minXChunk, maxXChunk),new Interval<int>(minYChunk,maxYChunk));
     }
 }
-
+[System.Serializable]
 
 public class CaveArea {
     public UnityEngine.Vector2Int xInterval;
@@ -60,14 +61,25 @@ public class CaveArea {
     public int cellRadius;
     public int cellNeighboorCount;
     public float fillPercent;
+    public string defaultBlockID;
     public int smoothIterations;
-    public CaveArea(UnityEngine.Vector2Int xInterval, UnityEngine.Vector2Int yInterval, int cellRadius, int cellNeighboorCount, float fillPercent, int smoothIterations) {
+    public CaveArea(
+        UnityEngine.Vector2Int xInterval, 
+        UnityEngine.Vector2Int yInterval, 
+        string defaultBlockID,
+        int cellRadius, 
+        int cellNeighboorCount, 
+        float fillPercent, 
+        int smoothIterations
+        
+        ) {
         this.xInterval = xInterval;
         this.yInterval = yInterval;
         this.cellRadius = cellRadius;
         this.cellNeighboorCount = cellNeighboorCount;
         this.fillPercent = fillPercent;
         this.smoothIterations = smoothIterations;
+        this.defaultBlockID = defaultBlockID;
     }
 
     public UnityEngine.Vector2Int getSize() {

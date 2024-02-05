@@ -109,28 +109,28 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         if (angle > 45 && angle <= 135) { // up
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    place(x,y,itemRegistry,tileGridMaps,realPosition);
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else if (angle <= 225) { // left
             for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                 for (int x = Global.ChunkPartitionSize-1; x >=0 ; x --) {
-                    place(x,y,itemRegistry,tileGridMaps,realPosition);
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else if (angle <= 315) { // down
             for (int y = Global.ChunkPartitionSize-1; y >= 0; y --) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    place(x,y,itemRegistry,tileGridMaps,realPosition);
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
         } else { // right
             for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    place(x,y,itemRegistry,tileGridMaps,realPosition);
+                    iterate(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
@@ -184,43 +184,59 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         }
     }
 
-    protected void place(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
+    protected void iterate(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
+        Vector2Int partitionPosition = new Vector2Int(x,y);
         string baseId = data.baseData.ids[x][y];
-        string backgroundID = data.backgroundData.ids[x][y];
-        Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
-        Dictionary<string,object> backgroundOptions = data.backgroundData.sTileOptions[x][y];
         if (baseId != null) {
-            TileItem tileItem = itemRegistry.getTileItem(baseId);
-            Dictionary<TileItemOption,object> options = tileItem.getOptions();
-            if (tileItem != null) {
-                TileData tileData = new TileData(
-                    tileItem,
-                    options
-                );
-                ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
-                tileGridMap.placeTileAtLocation(
-                    realPosition,
-                    new Vector2Int(x,y),
-                    tileData
-                );
-                
+            Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
+            Dictionary<string,object> baseTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
+            place(
+                id: baseId,
+                tileOptions: baseOptions,
+                tileEntityOptions: baseTileEntityOptions,
+                itemRegistry: itemRegistry,
+                tileGridMaps: tileGridMaps,
+                realPosition: realPosition,
+                positionInPartition: partitionPosition
+            );
+        }
+        string backgroundID = data.backgroundData.ids[x][y];
+        if (backgroundID != null) {
+            Dictionary<string,object> backgroundOptions = data.baseData.sTileOptions[x][y];
+            Dictionary<string,object> backgroundTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
+            place(
+                id: backgroundID,
+                tileOptions: backgroundOptions,
+                tileEntityOptions: backgroundTileEntityOptions,
+                itemRegistry: itemRegistry,
+                tileGridMaps: tileGridMaps,
+                realPosition: realPosition,
+                positionInPartition: partitionPosition
+            );
+        }
+    }
+
+    protected void place(string id, Dictionary<string,object> tileOptions, Dictionary<string,object> tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+        TileItem tileItem = itemRegistry.getTileItem(id);
+        TileEntity tileEntity = tileItem.tileEntity;
+        if (tileEntity != null) {
+            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);
+            if (tileEntity is ILoadableTileEntity) {
+                ((ILoadableTileEntity) tileEntity).load();
             }
         }
-        if (backgroundID != null) {
-            TileItem tileItem = itemRegistry.getTileItem(backgroundID);
-            Dictionary<TileItemOption,object> options = tileItem.getOptions();
-            if (tileItem != null) {
-                TileData tileData = new TileData(
-                    tileItem,
-                    options
-                );
-                ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
-                tileGridMap.placeTileAtLocation(
-                    realPosition,
-                    new Vector2Int(x,y),
-                    tileData
-                );
-            }
+        Dictionary<TileItemOption,object> options = tileItem.getOptions();
+        if (tileItem != null) {
+            TileData tileData = new TileData(
+                tileItem,
+                options
+            );
+            ITileMap tileGridMap = tileGridMaps[TileMapTypeFactory.tileToMapType(tileItem.tileType)];
+            tileGridMap.placeTileAtLocation(
+                realPosition,
+                positionInPartition,
+                tileData
+            );
         }
     }
 }
