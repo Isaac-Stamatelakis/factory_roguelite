@@ -77,12 +77,17 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         return spriteY >= searchWidth;
     } 
     protected override void breakTile(Vector2Int position) {
+        IChunk chunk = getChunk(position);
         Vector2Int partitionPosition = getPartitionPosition(position);
-        //GameObject chunk = ChunkHelper.snapChunk(position.x/2,position.y/2);
-        Vector2Int tilePartitionPosition = getTilePositionInPartition(position);
-        //Transform tileEntityContainer = Global.findChild(chunk.transform, "TileEntities").transform;
-        //deleteTileEntity(tileEntityContainer,new Vector3Int(tilePosition.x,tilePosition.y,0));
+        Vector2Int tilePartitionPosition = position-partitionPosition*Global.ChunkPartitionSize;
 
+        TileData tileData = getIdDataInChunk(position);
+        if (((TileItem) tileData.getItemObject()).tileEntity != null) {
+            Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
+            IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(type);
+            chunkPartition.removeTileEntity(layer,tilePartitionPosition);
+        }
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
         if (partitions.ContainsKey(partitionPosition)) {
             partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
@@ -106,43 +111,6 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         } else {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
-    }
-
-    private bool deleteTileEntity(Transform tileEntityContainer, Vector3Int position) {
-        GameObject tileEntity = TileEntityHelper.getTileEntity(tileEntityContainer,gameObject.name,Global.Vector3IntToVector2Int(position));
-        if (tileEntity != null) {
-            GameObject.Destroy(tileEntity);
-            return true;
-        }
-        return false;
-    }
-    public List<List<Dictionary<string,object>>> getSeralizedTileOptions(UnityEngine.Vector2Int chunkPosition) {
-        /*
-        ChunkData<TileData> chunkData = partitions[chunkPosition];
-        List<List<Dictionary<string,object>>> nestedTileOptionList = new List<List<Dictionary<string, object>>>();
-        for (int xIter = 0; xIter < Global.PartitionsPerChunk; xIter ++) {
-            List<Dictionary<string,object>> tileOptionList = new List<Dictionary<string,object>>();
-            for (int yIter = 0; yIter < Global.PartitionsPerChunk; yIter ++) {
-                TileData tileData = chunkData.data[xIter][yIter];
-                if (tileData == null) {
-                    tileOptionList.Add(new Dictionary<string, object>());
-                    continue;
-                }
-                Dictionary<string,object> serialized = new Dictionary<string, object>();
-                 
-                foreach (TileItemOption tileItemOption in tileData.options.Keys) {
-                    if (TileEntityOptionFactory.isSerizable(tileItemOption)) {
-                        TileEntityOptionFactory.serializeOption(tileItemOption,tileData.options[tileItemOption],serialized);
-                    }
-                }
-                tileOptionList.Add(serialized);
-            }
-            nestedTileOptionList.Add(tileOptionList);
-        }
-        
-        return nestedTileOptionList;
-        */
-        return null;
     }
 
     public override void initPartition(Vector2Int partitionPosition)

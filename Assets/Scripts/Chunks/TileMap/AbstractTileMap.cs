@@ -122,7 +122,9 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
     }
     protected abstract void setTile(int x, int y,T placedItem);
     protected Vector2Int getChunkPosition(Vector2Int position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize)), Mathf.FloorToInt(position.y/(Global.ChunkSize)));
+        float x = (float) position.x;
+        float y = (float) position.y;
+        return new Vector2Int(Mathf.FloorToInt(x/(Global.ChunkSize)), Mathf.FloorToInt(y/(Global.ChunkSize)));
     }
     protected Vector2Int getPartitionPosition(Vector2Int position) {
         float x = (float) position.x;
