@@ -21,7 +21,7 @@ public class Global
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
     private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(7,5);
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(8,6);
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
@@ -74,15 +74,19 @@ public class Global
         return new Vector2Int((int) (sprite.rect.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
     }
 
-    public static UnityEngine.Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
-        return new UnityEngine.Vector2Int(vector3Int.x, vector3Int.y);
+    public static Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
+        return new Vector2Int(vector3Int.x, vector3Int.y);
     }
 
     public static void setStatic(GameObject anObject) {
         GameObjectUtility.SetStaticEditorFlags(anObject, StaticEditorFlags.NavigationStatic | StaticEditorFlags.BatchingStatic);
     }
-    public static UnityEngine.Vector2Int getChunk(Vector2 position) {
-        return new UnityEngine.Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+    public static Vector2Int getChunk(Vector2 position) {
+        return new  Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+    }
+
+    public static Vector2Int getPartition(Vector2 position) {
+        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.chunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.chunkPartitionSize/2)));
     }
 
 

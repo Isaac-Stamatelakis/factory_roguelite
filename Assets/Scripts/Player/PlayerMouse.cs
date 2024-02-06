@@ -14,6 +14,7 @@ public class PlayerMouse : MonoBehaviour
     private ClosedChunkSystem[] closedChunkSystems;
     private DevMode devMode;
     private GameObject grabbedItem;
+    private LayerMask UILayer;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +22,7 @@ public class PlayerMouse : MonoBehaviour
         devMode = GetComponent<DevMode>();
         playerInventory = GetComponent<PlayerInventory>();
         grabbedItem = GameObject.Find("GrabbedItem");
+        UILayer = 1 << LayerMask.NameToLayer("UI");
     }
 
     // Update is called once per frame
@@ -172,6 +174,7 @@ public class PlayerMouse : MonoBehaviour
         if (closedChunkSystem == null) {
             return false;
         }
+        if (EventSystem.current.IsPointerOverGameObject()) return false;
         string id;
         if (devMode.placeSelectedID) {
             id = devMode.placeID;
@@ -181,6 +184,7 @@ public class PlayerMouse : MonoBehaviour
         if (id == null) {
             return false;
         }
+       
         bool placed = false;
         ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
         placed = PlaceTile.Place(itemObject,mousePosition,closedChunkSystem);

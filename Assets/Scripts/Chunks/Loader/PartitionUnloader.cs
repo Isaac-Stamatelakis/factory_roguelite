@@ -66,10 +66,10 @@ public class PartitionUnloader : MonoBehaviour
                 activeCoroutines--;
                 IChunkPartition farthestPartition = unloadQueue.Dequeue();
                 // If partition is close to not loaded or partition is to close to the player, do not unload
-                if (!farthestPartition.getLoaded() || farthestPartition.inRange(closedChunkSystem.getPlayerChunkPartition(),Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
+                if (!farthestPartition.getTileLoaded() || farthestPartition.inRange(closedChunkSystem.getPlayerChunkPartition(),Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
                     continue;
                 }
-                farthestPartition.setLoaded(false);
+                farthestPartition.setTileLoaded(false);
                 StartCoroutine(closedChunkSystem.unloadChunkPartition(farthestPartition));
                 unloadAmount --;
             }

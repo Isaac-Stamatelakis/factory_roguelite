@@ -27,7 +27,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
 
     protected override Vector2Int getHitTilePosition(Vector2 position)
     {
-        Vector2Int hitPosition = getTilePosition(position);
+        Vector2Int hitPosition = worldToTileMapPosition(position);
         int maxSearchWidth = 16;
         int searchWidth = 1;
         while (searchWidth < maxSearchWidth) {

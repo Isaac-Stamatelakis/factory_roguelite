@@ -194,11 +194,11 @@ public abstract class ClosedChunkSystem : MonoBehaviour
 
     public IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
         yield return chunkPartition.load(tileGridMaps,angle);
-        chunkPartition.setLoaded(true);
+        chunkPartition.setTileLoaded(true);
     }
     public IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
-        yield return StartCoroutine(chunkPartition.unload(tileGridMaps));
-        chunkPartition.setLoaded(false);
+        yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
+        chunkPartition.setTileLoaded(false);
         chunkPartition.setScheduleForUnloading(false);
     }
 
@@ -211,7 +211,7 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         foreach (IChunk chunk in cachedChunks.Values) {
             foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
                 foreach (IChunkPartition partition in chunkPartitionList) {
-                    if (partition.getLoaded()) {
+                    if (partition.getTileLoaded()) {
                         partition.save(tileGridMaps);
                     }
                 }

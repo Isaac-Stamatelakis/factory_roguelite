@@ -7,6 +7,7 @@ public interface IChunk {
     public List<ChunkPartitionData> getChunkPartitionData();
     public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
     public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
+    public IChunkPartition getPartition(Vector2Int position);
     public bool partionsAreAllUnloaded();
     /// <summary>
     /// Deletes all chunk partitions
@@ -43,17 +44,15 @@ public class Chunk : MonoBehaviour, IChunk
     protected int dim;
     protected Transform entityContainer;
     protected Transform tileEntityContainer;
-
-    /*
-    public IEnumerator fullLoadChunk(int sectionAmount, double angle) {
-        if (fullLoaded) {
-            yield return null;
-        }   
-        this.fullLoaded = true;
-        yield return StartCoroutine(fullLoadChunkCoroutine(sectionAmount,angle));
-
+    public void FixedUpdate() {
+        foreach (List<IChunkPartition> partitionList in partitions) {
+            foreach (IChunkPartition partition in partitionList) {
+                if (partition.getEntityLoaded()) {
+                    partition.tick();
+                }
+            }
+        }
     }
-    */
 
     public float distanceFrom(Vector2Int target)
     {
@@ -63,37 +62,33 @@ public class Chunk : MonoBehaviour, IChunk
         this.dim = dim;
         this.position = chunkPosition;
         this.partitions = new List<List<IChunkPartition>>();
+
         transform.SetParent(closedSystemTransform.ChunkContainerTransform);
         generatePartitions(chunkPartitionDataList);
-        transform.localPosition = new Vector3(Global.ChunkSize/2*(chunkPosition.x+0.5F),Global.ChunkSize/2*(chunkPosition.y+0.5F),0);
+        transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
 
         GameObject tileEntityContainerObject = new GameObject();
         tileEntityContainerObject.name = "TileEntities";
         tileEntityContainer = tileEntityContainerObject.transform;
-        tileEntityContainer.transform.SetParent(transform);
+        tileEntityContainer.transform.SetParent(transform,false);
 
         GameObject entityContainerObject = new GameObject();
         entityContainerObject.name = "Entities";
         entityContainer = entityContainerObject.transform;
-        entityContainer.transform.SetParent(transform);
+        entityContainer.transform.SetParent(transform,false);
     }
 
     protected void generatePartitions(List<ChunkPartitionData> chunkPartitionDataList) {
         for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
             List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
             for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
-                generatePartitionCollider(x,y);
                 chunkPartitions.Add(generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y)));
             }
             partitions.Add(chunkPartitions);
         }
     }
-    /// <summary>
-    /// Generates colliders for partitions so that entities don't fall through them
-    /// </summary>
-    protected void generatePartitionCollider(int x, int y) {
 
-    }
+    
     /// <summary>
     /// Generates a partition
     /// </summary>
@@ -133,7 +128,7 @@ public class Chunk : MonoBehaviour, IChunk
         List<IChunkPartition> close = new List<IChunkPartition>();
         foreach (List<IChunkPartition> partitionList in partitions) {
             foreach (IChunkPartition partition in partitionList) {
-                if (!partition.getLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                if (!partition.getTileLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
                     close.Add(partition);
                 } 
             }
@@ -156,7 +151,7 @@ public class Chunk : MonoBehaviour, IChunk
         List<IChunkPartition> far = new List<IChunkPartition>();
         foreach (List<IChunkPartition> partitionList in partitions) {
             foreach (IChunkPartition partition in partitionList) {
-                if (partition.getLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                if (partition.getTileLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
                     far.Add(partition);
                 } 
             }
@@ -188,11 +183,16 @@ public class Chunk : MonoBehaviour, IChunk
     {
         foreach (List<IChunkPartition> partitionList in partitions) {
             foreach (IChunkPartition partition in partitionList) {
-                if (partition.getLoaded() || partition.getScheduledForUnloading()) {
+                if (partition.getTileLoaded() || partition.getScheduledForUnloading()) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    public IChunkPartition getPartition(Vector2Int position)
+    {
+        return this.partitions[position.x][position.y];
     }
 }

@@ -10,7 +10,7 @@ public class Torch : TileEntity, ILoadableTileEntity
     public int radius = 10;
     public float falloff = 0.7f;
     public Color color = Color.white;
-    public Vector3 positionInTile;
+    public Vector2 positionInTile;
     protected GameObject lightObject;
     public void load()
     {
@@ -22,10 +22,11 @@ public class Torch : TileEntity, ILoadableTileEntity
             light.lightType = Light2D.LightType.Point;
             light.intensity = intensity;
             light.color = color;
+            light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
             light.pointLightOuterRadius=radius;
             light.falloffIntensity=falloff;
-            lightObject.transform.position = getRealPosition()+positionInTile;
-            lightObject.transform.SetParent(chunk.getTileEntityContainer());
+            lightObject.transform.position = (Vector2) tilePosition/2 + positionInTile;
+            lightObject.transform.SetParent(chunk.getTileEntityContainer(),false);
         }
     }
 
