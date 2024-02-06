@@ -46,7 +46,7 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         tilemapCollider.maximumTileChangeCount=100000000; 
 
         closedChunkSystem = transform.parent.GetComponent<ClosedChunkSystem>();
-         devMode = GameObject.Find("Player").GetComponent<DevMode>();
+        devMode = GameObject.Find("Player").GetComponent<DevMode>();
         
     }
 

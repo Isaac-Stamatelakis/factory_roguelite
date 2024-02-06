@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor;
 
 public class Global
 {
@@ -78,9 +77,6 @@ public class Global
         return new Vector2Int(vector3Int.x, vector3Int.y);
     }
 
-    public static void setStatic(GameObject anObject) {
-        GameObjectUtility.SetStaticEditorFlags(anObject, StaticEditorFlags.NavigationStatic | StaticEditorFlags.BatchingStatic);
-    }
     public static Vector2Int getChunk(Vector2 position) {
         return new  Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
     }
