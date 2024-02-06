@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemEntityProperties : EntityProperties
+public abstract class ItemEntity : Entity
 {
     [SerializeField] public ItemSlot itemSlot;
     [SerializeField] protected float lifeTime = 0f;
@@ -15,9 +15,8 @@ public class ItemEntityProperties : EntityProperties
         }
     }
 
-    public override void Update()
+    public virtual void Update()
     {
-        base.Update();
         iterateLifeTime();
     }
 }

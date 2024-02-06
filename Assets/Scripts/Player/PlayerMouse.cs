@@ -33,7 +33,6 @@ public class PlayerMouse : MonoBehaviour
         handleLeftClick(mousePosition);
         if (devMode.spawnItem) {
             if (Input.GetMouseButton(0)) {
-                
                 IChunk chunk = getChunk(mousePosition);
                 if (chunk != null) {
                         ItemEntityHelper.spawnItemEntity(

@@ -165,6 +165,45 @@ public class EditorRuleTileFactory
         return ruleTile;
     }
 
+    public static Sprite[] spritesFrom64x64Texture(Texture2D texture, string spritePath, string name) {
+        if (texture.width % 16 != 0 || texture.height % 16 != 0) {
+            Debug.Log("Invalid dimensions for texture");
+            return null;
+        }
+        
+        AssetDatabase.CreateFolder(spritePath, "Sprites");
+        Sprite[] sprites = new Sprite[16];
+        spritePath += "/Sprites/";
+        int rows = texture.height/16;
+        int columns = texture.width/16;
+        for (int y = 0; y < rows ; y++) {
+            for (int x = 0; x < columns; x ++) {
+                int index = y*columns+x;
+                RuleVal ruleVal = indexToRule(index);
+
+                Color[] pixels = texture.GetPixels(16*x,16*y,16,16);
+                Texture2D spliteTexture = new Texture2D(16,16);
+                spliteTexture.SetPixels(0,0,16,16,pixels);
+                
+
+                string spriteSavePath = spritePath + "S~" + name +"-" + index.ToString();
+                byte[] pngBytes = spliteTexture.EncodeToPNG();
+                File.WriteAllBytes(spriteSavePath+".png", pngBytes);
+                AssetDatabase.Refresh();
+
+                TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath + ".png") as TextureImporter;
+                textureImporter.textureType = TextureImporterType.Sprite;
+                textureImporter.spritePixelsPerUnit = 32;
+                AssetDatabase.ImportAsset(spriteSavePath + ".png", ImportAssetOptions.ForceUpdate);
+                AssetDatabase.Refresh();
+
+                Sprite sprite1 = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath + ".png");
+                sprites[index]=sprite1;
+            }
+        }
+        return sprites;
+    }
+
     private static RuleVal indexToRule(int index) {
         switch(index) {
         case 0:

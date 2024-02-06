@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StackableItemEntity : ItemEntityProperties
+public abstract class StackableItemEntity : ItemEntity
 {
     private float timeSinceLastUpdate;
     private float updateInterval = 0.25f;
@@ -10,12 +10,18 @@ public class StackableItemEntity : ItemEntityProperties
         return itemSlot.amount == Global.MaxSize;
     }
 
-    public override void Update()
+    public override EntityData GetData()
     {
-
-        base.Update();
-        combineStacks();
+        return new EntityData(
+            itemSlot.itemObject.id,
+            transform.position.x,
+            transform.position.y,
+            new Dictionary<string, object> {
+                {"amount" , itemSlot.amount}
+            }
+        );
     }
+
     private void combineStacks() {
         if (amountMaxed()) {
             return;
