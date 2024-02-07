@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 
-public class EditorRuleTileFactory
+public class EditorFactory
 {
     /* 
         Mappings from Sprites to Rule Tile
@@ -28,7 +28,7 @@ public class EditorRuleTileFactory
         f(14) → [u,r,l]
         f(15) → [u,r,d,l]
     */
-    public static RuleTile from64x64Texture(Texture2D texture, string spritePath, string name) {
+    public static RuleTile ruleTilefrom64x64Texture(Texture2D texture, string spritePath, string name) {
         Vector2 textureSize = new Vector2(texture.width,texture.height);
         Vector2Int adjustedTextureSize = new Vector2Int(Mathf.FloorToInt(textureSize.x/16f),Mathf.FloorToInt(textureSize.y/16f));
         if (adjustedTextureSize.x != 4 || adjustedTextureSize.y != 4) {
@@ -202,6 +202,99 @@ public class EditorRuleTileFactory
             }
         }
         return sprites;
+    }
+
+    public static RuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {
+    
+        if (texture.width != 24 || texture.height != 24) {
+            Debug.Log("Invalid dimensions for creating background ruletile. Must be 24 x 24");
+            return null;
+        }
+        
+        RuleTile ruleTile = ScriptableObject.CreateInstance<RuleTile>();
+        ruleTile.m_TilingRules = new List<RuleTile.TilingRule>();
+        
+        AssetDatabase.CreateFolder(spritePath, "Sprites");
+        Sprite[] sprites = new Sprite[16];
+        spritePath += "/Sprites/";
+        // 1 include, 0 exclude
+        for (int up = 0; up <=1 ; up++) {
+            for (int right = 0; right <= 1; right++) {
+                for (int down = 0; down <= 1; down++) {
+                    for (int left = 0; left <= 1; left++) {
+                        int xStart; int yStart; int xSize; int ySize;
+                        xStart = (right == 1) ? 0 : 4;
+                        yStart = (up == 1) ? 0 : 4;
+                        xSize = (left == 1) ? 24-xStart : 20-xStart;
+                        ySize = (down == 1) ? 24-yStart : 20-yStart; 
+                        Color[] pixels = texture.GetPixels(xStart,yStart,xSize,ySize);
+                        Texture2D spliteTexture = new Texture2D(xSize,ySize);
+                        spliteTexture.SetPixels(0,0,xSize,ySize,pixels);
+                        
+                        string spriteName = name + "[";
+                        if (up == 1) {
+                            spriteName += "U";
+                        }
+                        if (right == 1) {
+                            spriteName += "R";
+                        }
+                        if (down == 1) {
+                            spriteName += "D";
+                        }
+                        if (left == 1) {
+                            spriteName += "L";
+                        }
+                        spriteName += "]";
+                        string spriteSavePath = spritePath + "S~" + spriteName;
+                        byte[] pngBytes = spliteTexture.EncodeToPNG();
+                        File.WriteAllBytes(spriteSavePath+".png", pngBytes);
+                        AssetDatabase.Refresh();
+
+                        TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath + ".png") as TextureImporter;
+                        textureImporter.textureType = TextureImporterType.Sprite;
+                        textureImporter.spritePixelsPerUnit = 32;
+                        AssetDatabase.ImportAsset(spriteSavePath + ".png", ImportAssetOptions.ForceUpdate);
+                        AssetDatabase.Refresh();
+
+                        Sprite sprite1 = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath + ".png");
+
+                        RuleTile.TilingRule rule = new RuleTile.TilingRule();
+                        rule.m_ColliderType = Tile.ColliderType.Grid;
+                        rule.m_Sprites = new Sprite[1];
+                        rule.m_Sprites[0] = sprite1;
+                        List<int> neighborRules = new List<int> {
+                            0,1,0,1,1,0,1,0
+                        };
+                        if (up == 1) {
+                            neighborRules[1] = 2;
+                        }
+                        if (right == 1) {
+                            neighborRules[3] = 2;
+                        }
+                        if (left == 1) {
+                            neighborRules[4] = 2;
+                        }
+                        if (down == 1) {
+                            neighborRules[6] = 2;
+                        }
+                        // Default sprite is 16 x 16
+                        if (up == 0 && right == 0 && left == 0 && down == 0) {
+                            ruleTile.m_DefaultSprite = sprite1;
+                        }
+                        
+                        // Collider is only grid if 16 x 16
+                        if (up == 1 || right == 1 || left == 1 || down == 1) {
+                            rule.m_ColliderType = Tile.ColliderType.Sprite;
+                        }
+                        rule.m_Neighbors = neighborRules;
+                        ruleTile.m_TilingRules.Add(rule);
+                    }
+                }
+                
+            }
+        }
+        ruleTile.m_DefaultColliderType = Tile.ColliderType.Grid;
+        return ruleTile;
     }
 
     private static RuleVal indexToRule(int index) {

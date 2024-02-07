@@ -71,6 +71,7 @@ public class PlaceTile {
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
     public static bool tileBackgroundPlacable(TileItem tileItem,Vector2 worldPosition) { 
+        Debug.Log(Global.getSpriteSize(tileItem.getSprite()));
         FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.getSpriteSize(tileItem.getSprite()));
         if (tileWithinRange(
             intervalVector.X.LowerBound,

@@ -117,6 +117,9 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         
     }
     public T getIdDataInChunk(Vector2Int realTilePosition) {
+        if (realTilePosition == new Vector2Int(-2147483647,-2147483647)) {
+            return null;
+        }
         Vector2Int tilePosition = getTilePositionInPartition(realTilePosition);
         return partitions[getPartitionPosition(realTilePosition)][tilePosition.x,tilePosition.y];
     }

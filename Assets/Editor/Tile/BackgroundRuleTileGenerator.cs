@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
-using System.IO;
 
-public class RuleTileGenerator : EditorWindow {
+public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/RuleTile")]
+    [MenuItem("Tools/Item Constructors/Tile/Background")]
     public static void ShowWindow()
     {
-        RuleTileGenerator window = (RuleTileGenerator)EditorWindow.GetWindow(typeof(RuleTileGenerator));
-        window.titleContent = new GUIContent("Rule Tile Item Generator");
+        BackgroundGeneratorWindow window = (BackgroundGeneratorWindow)EditorWindow.GetWindow(typeof(BackgroundGeneratorWindow));
+        window.titleContent = new GUIContent("Background Generator");
     }
 
     void OnGUI()
     {
         GUILayout.Label("Select Texture to Convert", EditorStyles.boldLabel);
-        GUILayout.Label("Ensure texture is formatted correctly");
+        GUILayout.Label("Ensure texture is 24 pixels by 24 pixels");
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
         texture = EditorGUILayout.ObjectField("Texture", texture, typeof(Texture2D), true) as Texture2D;
@@ -31,13 +30,13 @@ public class RuleTileGenerator : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-        if (GUILayout.Button("Generate Tile Item"))
+        if (GUILayout.Button("Generate Background Item"))
         {
-            createRuleTile();
+            createTileItem();
         }
     }
 
-    void createRuleTile()
+    void createTileItem()
     {
         string path = "Assets/EditorCreations/" + tileName + "/";
         
@@ -46,15 +45,16 @@ public class RuleTileGenerator : EditorWindow {
             return;
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        RuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
+        RuleTile ruleTile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
         AssetDatabase.CreateAsset(ruleTile, path + "T~" +tileName + ".asset");
 
         TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
         tileItem.name = tileName;
         tileItem.tile = ruleTile;
         tileItem.id = tileName;
+        tileItem.tileType = TileType.Background;
         tileItem.id = tileItem.id.ToLower().Replace(" ","_");
-
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
+        Debug.Log("Background Tile Created at Path: " + path);
     }
 }
