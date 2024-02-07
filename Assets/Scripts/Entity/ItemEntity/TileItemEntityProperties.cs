@@ -19,11 +19,6 @@ public class TileItemEntityProperties : StackableItemEntity
         boxCollider.size = spriteRenderer.sprite.bounds.size;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     public override void Update()

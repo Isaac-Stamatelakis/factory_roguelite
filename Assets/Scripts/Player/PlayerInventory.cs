@@ -63,7 +63,7 @@ public class PlayerInventory : MonoBehaviour
         Vector2 position = new Vector2(transform.position.x-0.25f,transform.position.y);
         RaycastHit2D[] hits = Physics2D.CircleCastAll(position, 0.5f,Vector2.zero, 0.25f, entityLayer);
         foreach (RaycastHit2D hit in hits) {
-            ItemEntityProperties itemEntityProperities = hit.collider.gameObject.GetComponent<ItemEntityProperties>();
+            ItemEntity itemEntityProperities = hit.collider.gameObject.GetComponent<ItemEntity>();
             
             if (itemEntityProperities != null) {
                 if (itemEntityProperities.LifeTime < 1f) {

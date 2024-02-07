@@ -71,7 +71,6 @@ public class ItemRegistry {
                             newTexture.SetPixels(pixels);
                             newTexture.Apply();
                             
-                            Sprite newSprite = Sprite.Create(newTexture, rect, pivot);
                             string spritePath = path + name.Replace(" ", "") +"Sprite";
                             byte[] pngBytes = newTexture.EncodeToPNG();
                             File.WriteAllBytes(spritePath+".png", pngBytes);

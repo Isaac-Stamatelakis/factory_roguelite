@@ -3,19 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlaceTile {
-    private static int tileBlockLayer = 1 << LayerMask.NameToLayer("TileBlock");
-    private static int tileObjectLayer = 1 << LayerMask.NameToLayer("TileObject");
-    private static int tileBackgroundLayer = 1 << LayerMask.NameToLayer("TileBackground");
-    private static int chunkLayer = 1 << LayerMask.NameToLayer("Chunk");
-    
-    private static TileGridMap tileBlockMap;
-    private static TileGridMap tileBackgroundMap;
-    private static TileGridMap tileObjectMap;
-    private static ConduitTileMap energyConduitMap;
-    private static ConduitTileMap itemConduitMap;
-    private static ConduitTileMap fluidConduitMap;
-    private static ConduitTileMap signalConduitMap;
-
     /**
     Conditions:
     i) no tileBlock within sprite size.
@@ -42,7 +29,7 @@ public class PlaceTile {
                 default:
                     return false;
             }
-            placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType));
+            placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem);
             return true;
         } else if (itemObject is ConduitItem) {
             ConduitItem conduitItem = ((ConduitItem) itemObject);
@@ -66,9 +53,7 @@ public class PlaceTile {
         if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
             return false;
         }
-        if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
-            return false;
-        }
+
         if (GameObject.Find("Player").GetComponent<DevMode>().noPlaceLimit) {
             return true;
         } 
@@ -86,6 +71,7 @@ public class PlaceTile {
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
     public static bool tileBackgroundPlacable(TileItem tileItem,Vector2 worldPosition) { 
+        Debug.Log(Global.getSpriteSize(tileItem.getSprite()));
         FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.getSpriteSize(tileItem.getSprite()));
         if (tileWithinRange(
             intervalVector.X.LowerBound,
@@ -132,32 +118,39 @@ public class PlaceTile {
     /// <param name = "x"> The x position to be placed at</param>
     /// <param name = "y"> The y position to be placed at </param>
     /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-    private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap) {
+    private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem) {
         if (tileMap == null) {
             return;
         }
         UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+        if (tileItem.tileEntity != null) {
+            Vector2Int chunkPosition = Global.getChunk(worldPosition);
+            Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
+            Vector2Int partitionPosition = Global.getPartition(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
+            Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
+            Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
+            IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            if (chunk == null) {
+                Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
+                return;
+            }
+            IChunkPartition partition = chunk.getPartition(partitionPosition);
+            if (partition == null) {
+                Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
+                return;
+            }
+            TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
+            tileEntity.initalize(positionInChunk, chunk);
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMap.getType());
+            partition.addTileEntity(layer,tileEntity,positionInPartition);
+        }
+        
         TileData tileData = new TileData(
             tileItem,
             tileItem.getOptions()
         );
         tileMap.placeTileAtLocation(placePosition.x,placePosition.y,tileData);
-        /*
-        GameObject tileContainer = Global.findChild(chunkGameObject.transform.parent.parent.transform,containerName);
-        GameObject tileEntityContainer = Global.findChild(chunkGameObject.transform,"TileEntities");
-        
-        TileEntityFactory.createTileEntity(
-            tileItem,
-            null,
-            tileEntityContainer.transform, containerName,
-            new UnityEngine.Vector2Int(Global.modInt(placePosition.x,16), Global.modInt(placePosition.y,16))
-        );
-        
-        
-        tileContainer.GetComponent<TileGridMap>().placeTileAtLocation(placePosition.x,placePosition.y,tileData);
-        */
     }
-
     public static UnityEngine.Vector2Int getPlacePosition(TileItem tileItem, float x, float y) {
         Vector2 spriteSize = Global.getSpriteSize(tileItem.getSprite());
         return new UnityEngine.Vector2Int(snap(x), snap(y));
@@ -272,15 +265,18 @@ public class PlaceTile {
         if (conduitTileMap.mTileMap.GetTile(new Vector3Int(tileMapPosition.x,tileMapPosition.y,0)) != null) {
             return false;
         }
-        
+        /*
         if (raycastTileAtLocation(placePosition,tileBlockLayer)) {
             return false;
         }
+        */
         return true;
     }
 
     private static ConduitTileMap GetConduitTileMap(Vector2 position, ConduitType type) {
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, chunkLayer);
+        /*
+        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, chunkLayer); 
+
         if (hit.collider == null) {
             return null;
         }
@@ -295,6 +291,8 @@ public class PlaceTile {
             case ConduitType.Signal:
                 return Global.findChild(systemContainer,"SignalConduits").GetComponent<ConduitTileMap>();
         }
+        return null;
+        */
         return null;
     }
 }

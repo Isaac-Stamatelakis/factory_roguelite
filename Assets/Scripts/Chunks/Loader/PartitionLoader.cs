@@ -51,14 +51,14 @@ public class PartitionLoader : MonoBehaviour
             while (loadAmount > 0 && loadQueue.Count != 0) {
                 Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
                 IChunkPartition closestPartition = loadQueue.Dequeue();
-                if (closestPartition.getLoaded()) {
+                if (closestPartition.getTileLoaded()) {
                     activeCoroutines--;
                     continue;
                 }
                 Vector2Int pos = closestPartition.getRealPosition();
                 Vector2Int dif = new Vector2Int(playerChunkPosition.x-pos.x,playerChunkPosition.y-pos.y);
                 double angle = Mathf.Rad2Deg*Mathf.Atan2(dif.y,dif.x)+180;
-                closestPartition.setLoaded(true);
+                closestPartition.setTileLoaded(true);
                 StartCoroutine(loadChunkPartition(closestPartition,loadAmount,angle));
                 loadAmount --;
             }

@@ -14,7 +14,7 @@ public enum ResourceConduitType {
     Energy = ConduitType.Energy
 }
 
-abstract public class ConduitItem : ItemObject
+public abstract class ConduitItem : ItemObject
 {
     public RuleTile ruleTile;
     public int hardness;

@@ -82,13 +82,12 @@ public class TileItem : ItemObject
 {
     public TileType tileType;
     public TileBase tile;
+    public TileEntity tileEntity;
     [Tooltip("Specify the integer value for given tile options")]
     public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
       new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 
     };
-    [Tooltip("Specify the integer value for given tile options\nNote if both RuleTile and AnimatedTile are provided, RuleTile is used")]
-    public List<TileEntityOptionValue> tileEntityOptions;
-
+    
     public Dictionary<TileItemOption,object> getOptions() {
         Dictionary<TileItemOption, object> dict = new Dictionary<TileItemOption, object>();
         foreach (TileItemOptionValue<IntTileItemOption,int> tileItemOptionValue in integerOptions) {
@@ -119,10 +118,4 @@ public class TileItemOptionValue<G,T> {
     }
     public G option;
     public T value;
-}
-
-[System.Serializable]
-public class TileEntityOptionValue {
-    public TileEntityOption option;
-    public GameObject prefab;
 }
