@@ -10,9 +10,12 @@ public class Chest : TileEntity, IClickableTileEntity
     public uint columns;
     [Tooltip("GUI Opened when clicked")]
     public GameObject gui;
+    protected ItemSlot[,] items;
+
 
     public void onClick()
     {
-        throw new System.NotImplementedException();
+        items = new ItemSlot[rows,columns];
+        Debug.Log("I am clicked yay!");
     }
 }

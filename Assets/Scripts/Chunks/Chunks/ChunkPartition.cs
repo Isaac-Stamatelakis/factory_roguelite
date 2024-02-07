@@ -19,6 +19,7 @@ public interface IChunkPartition {
     public void tick();
     public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);
     public void removeTileEntity(TileMapLayer layer, Vector2Int position);
+    public bool clickTileEntity(TileMapLayer layer, Vector2Int position);
 }
 public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartitionData
 {
@@ -188,6 +189,21 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
             }
             tileEntities[layer][position.x,position.y] = null;
         }
+    }
+
+    public bool clickTileEntity(TileMapLayer layer, Vector2Int position)
+    {
+        if (tileEntities.ContainsKey(layer)) {
+            TileEntity tileEntity = tileEntities[layer][position.x,position.y];
+            if (tileEntity == null) {
+                return false;
+            }
+            if (tileEntity is IClickableTileEntity) {
+                ((IClickableTileEntity) tileEntity).onClick();
+                return true;
+            }
+        }
+        return false;
     }
 }
 

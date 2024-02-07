@@ -35,11 +35,12 @@ public class TransmutableItemGenerator : EditorWindow {
     }
 
     protected void regenerate() {
-        if (Directory.Exists(GenerateFolder))
+        if (Directory.Exists(FolderPath))
         {
-            Directory.Delete(GenerateFolder, true);
-            Debug.Log("Folder deleted: " + GenerateFolder);
+            Directory.Delete(FolderPath, true);
+            Debug.Log("Folder deleted: " + FolderPath);
         }
+        AssetDatabase.Refresh();
         generateNew();
     }
     protected void generateNew() {
@@ -57,7 +58,6 @@ public class TransmutableItemGenerator : EditorWindow {
                 AssetDatabase.CreateFolder(FolderPath,transmutableItemMaterial.name);
                 string materialPath = FolderPath + "/" +transmutableItemMaterial.name + "/";
                 foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.states) {
-                    Debug.Log("Creating itemobjects for material" + transmutableItemMaterial.name);
                     string prefix = TransmutableItemStateFactory.getPrefix(itemConstructionData.state);
                     string suffix = TransmutableItemStateFactory.getSuffix(itemConstructionData.state);
                     string name = "";
@@ -98,6 +98,8 @@ public class TransmutableItemGenerator : EditorWindow {
                             string spritePath = materialPath + name.Replace(" ", "") +"Sprite";
                             byte[] pngBytes = newTexture.EncodeToPNG();
                             File.WriteAllBytes(spritePath+".png", pngBytes);
+                            AssetDatabase.Refresh();
+
                             TextureImporter textureImporter = AssetImporter.GetAtPath(spritePath + ".png") as TextureImporter;
                             textureImporter.textureType = TextureImporterType.Sprite;
                             textureImporter.spritePixelsPerUnit = sprite.pixelsPerUnit;
@@ -113,6 +115,7 @@ public class TransmutableItemGenerator : EditorWindow {
                     itemObject.id = (prefix + "_"+ transmutableItemMaterial.id + "_" + suffix).ToLower();
                     AssetDatabase.CreateAsset(itemObject,materialPath + name.Replace(" ","") + ".asset");
                 }
+                Debug.Log(transmutableItemMaterial.states.Count + " Item's created for " + transmutableItemMaterial.name);
             }
             
         }

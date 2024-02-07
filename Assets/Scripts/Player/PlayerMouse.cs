@@ -29,31 +29,14 @@ public class PlayerMouse : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        
-        handleLeftClick(mousePosition);
-        if (devMode.spawnItem) {
-            if (Input.GetMouseButton(0)) {
-                IChunk chunk = getChunk(mousePosition);
-                if (chunk != null) {
-                        ItemEntityHelper.spawnItemEntity(
-                        mousePosition,
-                        new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
-                        chunk.getEntityContainer()
-                    );
-                }
-                
-            }
-        } else {
-            if (!eventSystem.IsPointerOverGameObject()) {
-                breakMouseHover(mousePosition);
-            }
+    {   
+        if (Input.GetMouseButton(0)) {
+            handleRightClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }
+        if (Input.GetMouseButton(1)) {
+            handleLeftClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
         handleInventoryControls();
-        if (Input.GetMouseButton(0)) {
-            handleInventoryClick(mousePosition);
-        }
     }
 
     private IChunk getChunk(Vector2 mousePosition) {
@@ -77,16 +60,30 @@ public class PlayerMouse : MonoBehaviour
         }
         return null;
     }
-    private void handleLeftClick(Vector2 mousePosition) {
-        bool tileEntityClicked = false;
-        if (Input.GetMouseButtonDown(1)) {
-            tileEntityClicked = handleTileEntityClick(mousePosition);
-        }
-        if (Input.GetMouseButton(1)) {
-            if (!tileEntityClicked) {
-                handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
+
+    private void handleRightClick(Vector2 mousePosition) {
+        handleDrop(mousePosition);
+        if (devMode.spawnItem) {
+            IChunk chunk = getChunk(mousePosition);
+            if (chunk != null) {
+                    ItemEntityHelper.spawnItemEntity(
+                    mousePosition,
+                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                    chunk.getEntityContainer()
+                );
             }
+            return;
         }
+        if (!eventSystem.IsPointerOverGameObject()) {
+            breakMouseHover(mousePosition);
+        }
+    }
+    private void handleLeftClick(Vector2 mousePosition) {
+        bool tileEntityClicked = handleTileEntityClick(mousePosition);
+        if (!tileEntityClicked) {
+            handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
+        }
+        
     }
 
     private void breakMouseHover(Vector2 mousePosition) {
@@ -122,6 +119,7 @@ public class PlayerMouse : MonoBehaviour
         }
     }
 
+
     private bool raycastHitBlock(Vector2 position, int layer) {
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
         if (hit.collider != null) {
@@ -146,38 +144,36 @@ public class PlayerMouse : MonoBehaviour
     }
 
     private bool handleTileEntityClick(Vector2 mousePosition) {
-        GameObject tilemap = raycastTileMap(mousePosition,1 << LayerMask.NameToLayer("TileObject"));
-        if (tilemap != null) {
-            TileGridMap tileGridMap = tilemap.GetComponent<TileGridMap>();
-            if (tileGridMap != null) {
-                Vector3Int vect = tileGridMap.mTileMap.WorldToCell(mousePosition);
-                Vector2Int tilePosition = FindTileAtLocation.find(new Vector2Int(vect.x,vect.y),tileGridMap.mTileMap);
-                TileData tileData = (TileData) tileGridMap.getIdDataInChunk(tilePosition);
-                if (tileData != null) {
-                    IChunk chunk = getChunk(mousePosition);
-                    GameObject tileEntity = TileEntityHelper.getTileEntity(
-                        chunk.getTileEntityContainer(),
-                        tilemap.name,
-                        new UnityEngine.Vector2Int(Global.modInt(tilePosition.x,Global.ChunkSize), Global.modInt(tilePosition.y,Global.ChunkSize))
-                    );
-                    if (tileEntity != null) {
-                        OnTileEntityClickController clickController = tileEntity.GetComponent<OnTileEntityClickController>();
-                        if (clickController != null) {
-                            clickController.activeClick();
-                            return true;
-                        }
-                    }
+        List<TileMapLayer> tileMapLayers = new List<TileMapLayer> {
+            TileMapLayer.Base,
+            TileMapLayer.Background
+        };
+        TileMapLayer hitLayer = TileMapLayer.Null;
+        foreach (TileMapLayer tileMapLayer in tileMapLayers) {
+            List<TileMapType> layerTypes = TileMapTypeFactory.getTileTypesInLayer(tileMapLayer);
+            foreach (TileMapType tileMapType in layerTypes) {
+                if (raycastTileMap(mousePosition,1 << LayerMask.NameToLayer(tileMapType.ToString()))) {
+                    hitLayer = tileMapLayer;
+                    break;
                 }
             }
         }
-        return false;
+        if (hitLayer == TileMapLayer.Null) {
+            return false;
+        }
+        IChunk chunk = getChunk(mousePosition);
+        Vector2Int partitionPosition = Global.getPartition(mousePosition);
+        Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+        Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
+        Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
+        IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+        return chunkPartition.clickTileEntity(hitLayer, tilePositionInPartition);
     }
 
     private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
         if (closedChunkSystem == null) {
             return false;
         }
-        if (EventSystem.current.IsPointerOverGameObject()) return false;
         string id;
         if (devMode.placeSelectedID) {
             id = devMode.placeID;
@@ -199,69 +195,38 @@ public class PlayerMouse : MonoBehaviour
     }
 
     
-    private bool handleInventoryClick(Vector2 mousePosition) {
-        if (!EventSystem.current.IsPointerOverGameObject()) {
-            GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.itemSlot != null) {
-                IChunk chunk = getChunk(mousePosition);
-                if (chunk == null) {
-                    return false;
-                }
-                Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
-                if (grabbedItemProperties.itemSlot != null && grabbedItemProperties.itemSlot.itemObject != null && grabbedItemProperties.itemSlot.itemObject.id != null) {
-                        ItemEntityHelper.spawnItemEntityWithVelocity(
-                        new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                        grabbedItemProperties.itemSlot,
-                        chunk.getEntityContainer(),
-                        calculateItemVelocity(mousePosition)
-                    );
-                }
-                
-                grabbedItemProperties.itemSlot = null;
-                grabbedItemProperties.updateSprite();
-                return true;
-            }
+    private bool handleDrop(Vector2 mousePosition) {
+        if (eventSystem.IsPointerOverGameObject()) {
+            return false;
         }
-        return false;
-        /*
-        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity,1 << LayerMask.NameToLayer("Inventory"));
-        if (hit.collider != null) {
-            GameObject hitInventory = hit.collider.gameObject;
-            InventoryTileMap inventoryTileMap = hitInventory.transform.parent.GetComponent<InventoryTileMap>();
-            inventoryTileMap.swapWithGrabbedItem(mousePosition, grabbedItem);
-            return true;
-        } else {
-            GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.GrabbedItemData != null && grabbedItemProperties.GrabbedItemData.id > 0) {
-                GameObject chunkGameObject = ChunkHelper.snapChunk(mousePosition.x,mousePosition.y);
-                if (chunkGameObject == null) {
-                    return false;
-                }
-                Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
-                ItemEntityHelper.spawnItemEntityWithVelocity(
-                    new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.GrabbedItemData.id,
-                    grabbedItemProperties.GrabbedItemData.amount,
-                    Global.findChild(chunkGameObject.transform, "Entities").transform,
-                    calculateItemVelocity(mousePosition)
-                );
-                grabbedItemProperties.GrabbedItemData = null;
-                grabbedItemProperties.updateSprite();
-                return true;
-            }
+        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
+        if (grabbedItemProperties.itemSlot == null) {
+            return false;
         }
-        */
+        IChunk chunk = getChunk(mousePosition);
+        if (chunk == null) {
+            return false;
+        }
+        Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
+        if (
+            grabbedItemProperties.itemSlot != null && 
+            grabbedItemProperties.itemSlot.itemObject != null && 
+            grabbedItemProperties.itemSlot.itemObject.id != null
+        ) {
+            ItemEntityHelper.spawnItemEntityWithVelocity(
+                new Vector2(transform.position.x,transform.position.y) + spriteCenter,
+                grabbedItemProperties.itemSlot,
+                chunk.getEntityContainer(),
+                calculateItemVelocity(mousePosition)
+            );
+        }
+        grabbedItemProperties.itemSlot = null;
+        grabbedItemProperties.updateSprite();
+        return true;
     }
     
 
     private void handleInventoryControls() {
-        /*
-        if (Input.GetMouseButtonDown(0)) {
-            if (Input.GetKey(KeyCode.LeftControl)) {
-                handleInventorySelect();
-            }
-        }
-        */
         if (Input.mouseScrollDelta.y != 0) {
             float y = Input.mouseScrollDelta.y;
             if (y < 0) {
