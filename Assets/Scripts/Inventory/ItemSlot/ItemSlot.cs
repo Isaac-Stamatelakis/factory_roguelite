@@ -5,12 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class ItemSlot
 {
-    public ItemSlot(ItemObject itemObject, int amount, Dictionary<ItemSlotOption, object> nbt) {
+    public ItemSlot(ItemObject itemObject, int amount, Dictionary<string, object> nbt) {
         this.itemObject = itemObject;
         this.amount = amount;
         this.nbt = nbt;
     }
     public ItemObject itemObject;
     public int amount;
-    public Dictionary<ItemSlotOption,object> nbt;
+    public Dictionary<string,object> nbt;
 }
+

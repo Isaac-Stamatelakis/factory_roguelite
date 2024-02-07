@@ -68,7 +68,7 @@ public class PlayerMouse : MonoBehaviour
             if (chunk != null) {
                     ItemEntityHelper.spawnItemEntity(
                     mousePosition,
-                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<ItemSlotOption, object>()),
+                    new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<string, object>()),
                     chunk.getEntityContainer()
                 );
             }

@@ -90,7 +90,7 @@ public class ChunkIO {
 public class SeralizedChunkTileData {
     public List<List<string>> ids;
     public List<List<Dictionary<string,object>>> sTileOptions;
-    public List<List<Dictionary<string,object>>> sTileEntityOptions;
+    public List<List<string>> sTileEntityOptions;
 }
 
 [System.Serializable]
