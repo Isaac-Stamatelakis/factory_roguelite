@@ -15,6 +15,7 @@ public class PlayerMouse : MonoBehaviour
     private DevMode devMode;
     private GameObject grabbedItem;
     private LayerMask UILayer;
+    private EventSystem eventSystem;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +24,7 @@ public class PlayerMouse : MonoBehaviour
         playerInventory = GetComponent<PlayerInventory>();
         grabbedItem = GameObject.Find("GrabbedItem");
         UILayer = 1 << LayerMask.NameToLayer("UI");
+        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
     }
 
     // Update is called once per frame
@@ -44,7 +46,9 @@ public class PlayerMouse : MonoBehaviour
                 
             }
         } else {
-            breakMouseHover(mousePosition);
+            if (!eventSystem.IsPointerOverGameObject()) {
+                breakMouseHover(mousePosition);
+            }
         }
         handleInventoryControls();
         if (Input.GetMouseButton(0)) {
