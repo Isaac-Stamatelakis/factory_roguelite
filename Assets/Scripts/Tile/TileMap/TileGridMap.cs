@@ -21,7 +21,7 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         if (PlaceTile.mod(spriteSize.y,2) == 0) {
             realYPosition += 0.25f;
         }
-        ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<ItemSlotOption, object>());
+        ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<string, object>());
         ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
     }
 

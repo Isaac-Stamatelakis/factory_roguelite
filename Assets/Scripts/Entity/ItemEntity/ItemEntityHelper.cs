@@ -13,7 +13,6 @@ public class ItemEntityHelper
         TileItemEntityProperties itemProperties = tileItemEntity.GetComponent<TileItemEntityProperties>();
         itemProperties.itemSlot = itemSlot;
         itemProperties.transform.position = new Vector3(position.x,position.y,0);
-        itemProperties.transform.position = new Vector3(position.x,position.y,0);
         itemProperties.transform.parent = entityContainer;
         itemProperties.initalize();
         return tileItemEntity;

@@ -161,7 +161,7 @@ public abstract class AbstractTileMap<G,T> : MonoBehaviour, HitableTileMap, ITil
         }
         float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
         float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-        ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<ItemSlotOption, object>());
+        ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<string, object>());
         ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
     }
 

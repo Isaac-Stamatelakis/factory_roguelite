@@ -19,6 +19,7 @@ public interface IChunkPartition {
     public void tick();
     public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);
     public void removeTileEntity(TileMapLayer layer, Vector2Int position);
+    public bool clickTileEntity(TileMapLayer layer, Vector2Int position);
 }
 public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartitionData
 {
@@ -189,6 +190,21 @@ public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartiti
             tileEntities[layer][position.x,position.y] = null;
         }
     }
+
+    public bool clickTileEntity(TileMapLayer layer, Vector2Int position)
+    {
+        if (tileEntities.ContainsKey(layer)) {
+            TileEntity tileEntity = tileEntities[layer][position.x,position.y];
+            if (tileEntity == null) {
+                return false;
+            }
+            if (tileEntity is IClickableTileEntity) {
+                ((IClickableTileEntity) tileEntity).onClick();
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -260,22 +276,34 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             }
         }
 
+
         if (tileEntities != null) {
             if (tileEntities.ContainsKey(TileMapLayer.Base)) {
-                foreach (TileEntity tileEntity in tileEntities[TileMapLayer.Base]) {
-                    if (tileEntity is ISerializableTileEntity) {
-                        ISerializableTileEntity serializableTileEntity = (ISerializableTileEntity) tileEntity;
-                        Vector2Int positionInPartition = tileEntity.getPositionInChunk() - position*Global.ChunkPartitionSize;
-                        data.baseData.sTileEntityOptions[positionInPartition.x][positionInPartition.y] = serializableTileEntity.serialize();
+                TileEntity[,] tempArr = tileEntities[TileMapLayer.Base];
+                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                        TileEntity tileEntity = tempArr[x,y];
+                        if (tileEntity == null) {
+                            continue;
+                        }
+                        if (tileEntity is ISerializableTileEntity) {
+                            data.baseData.sTileEntityOptions[x][y] = ((ISerializableTileEntity) tileEntity).serialize();
+                        }
                     }
                 }
             }
             if (tileEntities.ContainsKey(TileMapLayer.Background)) {
-                foreach (TileEntity tileEntity in tileEntities[TileMapLayer.Background]) {
-                    if (tileEntity is ISerializableTileEntity) {
-                        ISerializableTileEntity serializableTileEntity = (ISerializableTileEntity) tileEntity;
-                        Vector2Int positionInPartition = tileEntity.getPositionInChunk() - position*Global.ChunkPartitionSize;
-                        data.baseData.sTileEntityOptions[positionInPartition.x][positionInPartition.y] = serializableTileEntity.serialize();
+                TileEntity[,] tempArr = tileEntities[TileMapLayer.Background];
+                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                        TileEntity tileEntity = tempArr[x,y];
+                        if (tileEntity == null) {
+                            continue;
+                        }
+                        if (tileEntity is ISerializableTileEntity) {
+                            data.backgroundData.sTileEntityOptions[x][y] = ((ISerializableTileEntity) tileEntity).serialize();
+                        }
+                        
                     }
                 }
             }
@@ -339,7 +367,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         string baseId = data.baseData.ids[x][y];
         if (baseId != null) {
             Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
-            Dictionary<string,object> baseTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
+            string baseTileEntityOptions = data.baseData.sTileEntityOptions[x][y];
             place(
                 id: baseId,
                 tileOptions: baseOptions,
@@ -354,7 +382,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         string backgroundID = data.backgroundData.ids[x][y];
         if (backgroundID != null) {
             Dictionary<string,object> backgroundOptions = data.baseData.sTileOptions[x][y];
-            Dictionary<string,object> backgroundTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
+            string backgroundTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
             place(
                 id: backgroundID,
                 tileOptions: backgroundOptions,
@@ -368,7 +396,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         }
     }
 
-    protected void place(string id, Dictionary<string,object> tileOptions, Dictionary<string,object> tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
+    protected void place(string id, Dictionary<string,object> tileOptions, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
         TileItem tileItem = itemRegistry.getTileItem(id);
         if (tileItem.tileEntity != null) {
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);

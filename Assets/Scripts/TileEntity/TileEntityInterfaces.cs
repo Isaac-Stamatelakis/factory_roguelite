@@ -13,11 +13,15 @@ public interface IClickableTileEntity
 }
 
 public interface ISerializableTileEntity {
-    public Dictionary<string,object> serialize();
-    public void unserialize(Dictionary<string,object> dict);
+    public string serialize();
+    public void unserialize(string data);
 }
 
 public interface ILoadableTileEntity {
     public void load();
     public void unload();
+}
+
+public interface IBreakActionTileEntity {
+    public void onBreak();
 }

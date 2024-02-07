@@ -33,6 +33,7 @@ public class TilePlacePreviewer : MonoBehaviour
     }   
     public void previewTile(string id, Vector2 position) {
         if (id == null) {
+            tilemap.SetTile(previouslyPreviewed, null);
             return;
         }
         ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
@@ -74,8 +75,8 @@ public class TilePlacePreviewer : MonoBehaviour
         }
 
         if (previouslyPreviewed != placePosition) {
-                tilemap.SetTile(previouslyPreviewed, null);
-            }
+            tilemap.SetTile(previouslyPreviewed, null);
+        }
         
         previouslyPreviewed = placePosition;
         previousId = id;

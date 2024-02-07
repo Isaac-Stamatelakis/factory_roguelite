@@ -45,21 +45,21 @@ public class CaveGenerator
                         partitionData.baseData = new SeralizedChunkTileData();
                         partitionData.baseData.ids = new List<List<string>>();
                         partitionData.baseData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                        partitionData.baseData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
+                        partitionData.baseData.sTileEntityOptions = new List<List<string>>();
 
                         partitionData.backgroundData = new SeralizedChunkTileData();
                         partitionData.backgroundData.ids = new List<List<string>>();
                         partitionData.backgroundData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                        partitionData.backgroundData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
+                        partitionData.backgroundData.sTileEntityOptions = new List<List<string>>();
 
                         for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
                             List<string> idsBase = new List<string>();
                             List<Dictionary<string,object>> sTileOptionsBase = new List<Dictionary<string, object>>();
-                            List<Dictionary<string,object>> sTileEntityOptionsBase = new List<Dictionary<string, object>>();
+                            List<string> sTileEntityOptionsBase = new List<string>();
 
                             List<string> idsBackground = new List<string>();
                             List<Dictionary<string,object>> sTileOptionsBackground = new List<Dictionary<string, object>>();
-                            List<Dictionary<string,object>> sTileEntityOptionsBackground = new List<Dictionary<string, object>>();
+                            List<string> sTileEntityOptionsBackground = new List<string>();
                             for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
                                 int xIndex = xStart+tileX;
                                 int yIndex = yStart+tileY;
@@ -186,21 +186,21 @@ public class CaveGenerator
 
         SeralizedChunkTileData baseTileData = new SeralizedChunkTileData();
         baseTileData.ids = new List<List<string>>();
-        baseTileData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
+        baseTileData.sTileEntityOptions = new List<List<string>>();
         baseTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
 
         SeralizedChunkTileData backgroundTileData = new SeralizedChunkTileData();
         backgroundTileData.ids = new List<List<string>>();
-        backgroundTileData.sTileEntityOptions = new List<List<Dictionary<string, object>>>();
+        backgroundTileData.sTileEntityOptions = new List<List<string>>();
         backgroundTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
 
         for (int x = 0; x < tileMaxX; x ++) {
             List<string> idListBase = new List<string>();
             List<Dictionary<string,object>> sTileBase = new List<Dictionary<string, object>>();
-            List<Dictionary<string,object>> sEntityBase = new List<Dictionary<string, object>>();
+            List<string> sEntityBase = new List<string>();
 
             List<string> idListBackground = new List<string>();
-            List<Dictionary<string,object>> sEntityBackground = new List<Dictionary<string, object>>();
+            List<string> sEntityBackground = new List<string>();
             List<Dictionary<string,object>> sTileBackground = new List<Dictionary<string, object>>();
 
             for (int y = 0; y < tileMaxY; y ++) {
@@ -210,10 +210,10 @@ public class CaveGenerator
                     idListBase.Add(null);
                 }
                 sTileBase.Add(new Dictionary<string, object>());
-                sEntityBase.Add(new Dictionary<string, object>());
+                sEntityBase.Add(null);
 
                 idListBackground.Add(null);
-                sEntityBackground.Add(new Dictionary<string, object>());
+                sEntityBackground.Add(null);
                 sTileBackground.Add(new Dictionary<string, object>());
             }
             baseTileData.ids.Add(idListBase);
