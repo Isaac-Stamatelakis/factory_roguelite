@@ -20,7 +20,9 @@ public class Global
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
     private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(8,6);
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(7,6);
+    private static int chunkPartitionExtraTileEntityLoadRange = 2;
+    public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
     public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}

@@ -37,10 +37,10 @@ public class ItemCatalogueController : MonoBehaviour
         editButtonImage = editButton.GetComponent<Image>();
 
         GameObject leftButton = Global.findChild(transform,"LeftButton");
-        leftButton.GetComponent<Button>().onClick.AddListener(onEditButtonClick);
+        leftButton.GetComponent<Button>().onClick.AddListener(onLeftButtonPress);
 
         GameObject rightButton = Global.findChild(transform,"RightButton");
-        rightButton.GetComponent<Button>().onClick.AddListener(onEditButtonClick);
+        rightButton.GetComponent<Button>().onClick.AddListener(onRightButtonPress);
 
         pageDisplay = Global.findChild(transform,"PageCounter").GetComponent<TextMeshProUGUI>();
         resultContainer = Global.findChild(transform,"Results").transform;
@@ -89,7 +89,7 @@ public class ItemCatalogueController : MonoBehaviour
         setPageDisplay();
         List<ItemObject> toDisplay;
         if (queriedItems.Count < page*limit) {
-            toDisplay = queriedItems.GetRange((page-1)*limit,queriedItems.Count);
+            toDisplay = queriedItems.GetRange((page-1)*limit,queriedItems.Count-(page-1)*limit);
         } else {
             toDisplay = queriedItems.GetRange((page-1)*limit,page*limit);
         }
