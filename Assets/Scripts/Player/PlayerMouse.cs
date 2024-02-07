@@ -79,7 +79,10 @@ public class PlayerMouse : MonoBehaviour
         }
     }
     private void handleLeftClick(Vector2 mousePosition) {
-        bool tileEntityClicked = handleTileEntityClick(mousePosition);
+        bool tileEntityClicked = false;
+        if (Input.GetMouseButtonDown(1)) {
+            tileEntityClicked = handleTileEntityClick(mousePosition);
+        }
         if (!tileEntityClicked) {
             handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
         }
