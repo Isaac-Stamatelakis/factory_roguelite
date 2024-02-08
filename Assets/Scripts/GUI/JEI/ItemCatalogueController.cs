@@ -91,7 +91,7 @@ public class ItemCatalogueController : MonoBehaviour
         if (queriedItems.Count < page*limit) {
             toDisplay = queriedItems.GetRange((page-1)*limit,queriedItems.Count-(page-1)*limit);
         } else {
-            toDisplay = queriedItems.GetRange((page-1)*limit,page*limit);
+            toDisplay = queriedItems.GetRange((page-1)*limit,limit);
         }
         if (lastSearch == null || lastSearch.Length < currentSearch.Length) { // When appending to a search, order is always perserved
             HashSet<string> newDisplay = new HashSet<string>();

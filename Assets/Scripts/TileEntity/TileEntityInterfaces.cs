@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+namespace TileEntityModule {
 public interface ITickableTileEntity 
 {
     public void tickUpdate();
@@ -24,4 +24,6 @@ public interface ILoadableTileEntity {
 
 public interface IBreakActionTileEntity {
     public void onBreak();
+}
+
 }

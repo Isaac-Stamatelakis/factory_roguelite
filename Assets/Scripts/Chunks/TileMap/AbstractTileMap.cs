@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-
+using ChunkModule;
 
 public interface HitableTileMap {
     public void hitTile(Vector2 position);

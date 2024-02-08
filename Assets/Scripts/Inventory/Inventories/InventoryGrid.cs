@@ -43,12 +43,6 @@ public class InventoryGrid : MonoBehaviour
         
     }
 
-    /*
-    protected virtual bool validateData(Dictionary<string,object> data) {
-        return false;
-    }
-    */
-
     public virtual void setItem(int n, ItemSlot data) {
         GameObject slot = slots[n];
         if (itemGuard(slot, n,"set item")) {
