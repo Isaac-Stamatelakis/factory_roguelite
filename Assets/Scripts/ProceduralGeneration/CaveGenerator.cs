@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using ChunkModule.IO;
+using WaveFunctionCollaps;
+using UnityEngine.Tilemaps;
 
 public class CaveGenerator
 {
@@ -19,76 +21,13 @@ public class CaveGenerator
    // Radius = 2, neighborCount = 14 Good for less connected caves, lots of small rock formations inside larger caves
     //int iterations = 5; float fillPercent = 0.55F; // Not very connected, many small caves
     public void generate() {
-        //UnityEngine.Random.InitState(seed);
+        UnityEngine.Random.InitState(seed);
         int[,] noiseField = generateNoiseField();
         int[,] grid = cellular_automaton(noiseField);
-        saveToJson(generateWorld(grid));
+        ProcGenHelper.saveToJson(generateWorld(grid),cave);
     }
 
-    public void saveToJson(WorldTileData worldTileData) {
-        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
-        IntervalVector caveCoveredArea = cave.getCoveredArea();
-        int tileMaxX = Global.ChunkSize*caveSize.x;
-        int tileMaxY = Global.ChunkSize*caveSize.y;
-        int minX = caveCoveredArea.X.LowerBound; int maxX = caveCoveredArea.X.UpperBound;
-        int minY = caveCoveredArea.Y.LowerBound; int maxY = caveCoveredArea.Y.UpperBound;
-        for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
-            for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
-                List<ChunkPartitionData> chunkPartitionDataList = new List<ChunkPartitionData>();
-                for (int partitionX = 0; partitionX < Global.PartitionsPerChunk; partitionX ++) {
-                    for (int partitionY = 0; partitionY < Global.PartitionsPerChunk; partitionY ++) {
-                        int xStart = partitionX*Global.ChunkPartitionSize + Global.ChunkSize * (chunkX-minX);
-                        int yStart = partitionY*Global.ChunkPartitionSize + Global.ChunkSize * (chunkY-minY);
-                        SerializedTileData partitionData = new SerializedTileData();
-                        // TODO ENTITIES
-                        partitionData.entityData = new List<EntityData>(); 
-                        
-                        partitionData.baseData = new SeralizedChunkTileData();
-                        partitionData.baseData.ids = new List<List<string>>();
-                        partitionData.baseData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                        partitionData.baseData.sTileEntityOptions = new List<List<string>>();
-
-                        partitionData.backgroundData = new SeralizedChunkTileData();
-                        partitionData.backgroundData.ids = new List<List<string>>();
-                        partitionData.backgroundData.sTileOptions = new List<List<Dictionary<string, object>>>();
-                        partitionData.backgroundData.sTileEntityOptions = new List<List<string>>();
-
-                        for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
-                            List<string> idsBase = new List<string>();
-                            List<Dictionary<string,object>> sTileOptionsBase = new List<Dictionary<string, object>>();
-                            List<string> sTileEntityOptionsBase = new List<string>();
-
-                            List<string> idsBackground = new List<string>();
-                            List<Dictionary<string,object>> sTileOptionsBackground = new List<Dictionary<string, object>>();
-                            List<string> sTileEntityOptionsBackground = new List<string>();
-                            for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
-                                int xIndex = xStart+tileX;
-                                int yIndex = yStart+tileY;
-                                //Debug.Log("Chunk[" + chunkX + "," + chunkY + "], Partition[" + partitionX + "," + partitionY + "], index [" + xIndex + "," + yIndex + "]");
-                                idsBase.Add(worldTileData.baseData.ids[xIndex][yIndex]);
-                                sTileOptionsBase.Add(worldTileData.baseData.sTileOptions[xIndex][yIndex]);
-                                sTileEntityOptionsBase.Add(worldTileData.baseData.sTileEntityOptions[xIndex][yIndex]);
-
-                                idsBackground.Add(worldTileData.backgroundData.ids[xIndex][yIndex]);
-                                sTileOptionsBackground.Add(worldTileData.backgroundData.sTileOptions[xIndex][yIndex]);
-                                sTileEntityOptionsBackground.Add(worldTileData.backgroundData.sTileEntityOptions[xIndex][yIndex]);
-
-                            }
-                            partitionData.baseData.ids.Add(idsBase);
-                            partitionData.baseData.sTileOptions.Add(sTileOptionsBase);
-                            partitionData.baseData.sTileEntityOptions.Add(sTileEntityOptionsBase);
-
-                            partitionData.backgroundData.ids.Add(idsBackground);
-                            partitionData.backgroundData.sTileOptions.Add(sTileOptionsBackground);
-                            partitionData.backgroundData.sTileEntityOptions.Add(sTileEntityOptionsBackground);
-                        }
-                        chunkPartitionDataList.Add(partitionData);
-                    }
-                }
-                ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),-1,chunkPartitionDataList);
-            }
-        }
-    }
+    
 
     private int[,] generateNoiseField() {
         UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
@@ -267,4 +206,113 @@ public class CaveGenerator
         return grid;
     }
      */
+}
+
+
+public class WFCGenerator {
+    public WFCGenerator(Cave cave,GameObject tileMapPrefab, int patternSize) {
+        this.cave = cave;
+        this.tileMapPrefab = tileMapPrefab;
+        this.patternSize = patternSize;
+    }
+    private int seed;
+    public Cave cave;
+    public GameObject tileMapPrefab;
+    public Tilemap outputImage;
+    public int patternSize;
+    public void generate() {
+        GameObject temp = new GameObject();
+        outputImage = temp.AddComponent<Tilemap>();
+        UnityEngine.Random.InitState(seed);
+        string[,] strings = generateWFC();
+        Debug.Log(strings.Length);
+        WorldTileData worldTileData = generateWorld(strings);
+        ProcGenHelper.saveToJson(worldTileData,cave);
+        GameObject.Destroy(temp);
+    }
+
+    public string[,] generateWFC()
+    {  
+        Vector2Int size = cave.getChunkDimensions() * Global.ChunkSize;
+        WaveFunctionCollapse wfc = new WaveFunctionCollapse(this.tileMapPrefab.GetComponent<Tilemap>(), this.outputImage, patternSize, size.x, size.y, 100, false);
+        wfc.CreateNewTileMap();
+        Tilemap output = wfc.GetOutputTileMap();
+        
+        string[,] outputStrings = new string[size.x,size.y];
+        BoundsInt bounds = output.cellBounds;
+        for (int x = bounds.min.x; x < bounds.max.x; x++)
+        {
+            for (int y = bounds.min.y; y < bounds.max.y; y++)
+            {
+                Vector3Int tilePosition = new Vector3Int(x, y, 0);
+
+                if (output.HasTile(tilePosition))
+                {
+                    TileBase tile = output.GetTile(tilePosition);
+                    if (tile is StandardTile) {
+                        Debug.Log(((StandardTile) tile).id);
+                        outputStrings[x-bounds.min.x,y-bounds.min.x]=((StandardTile) tile).id;
+                    }
+                   
+                }
+            }
+        }
+        return outputStrings;
+    }
+
+    private WorldTileData generateWorld(string[,] grid) {
+        // TODO Make it change based on which caveare you are in im lazy for now
+        string defaultBlockID = cave.areas[0].defaultBlockID;
+        UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
+        int tileMaxX = Global.ChunkSize * caveSize.x;
+        int tileMaxY = Global.ChunkSize*caveSize.y;
+
+        SeralizedChunkTileData baseTileData = new SeralizedChunkTileData();
+        baseTileData.ids = new List<List<string>>();
+        baseTileData.sTileEntityOptions = new List<List<string>>();
+        baseTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+
+        SeralizedChunkTileData backgroundTileData = new SeralizedChunkTileData();
+        backgroundTileData.ids = new List<List<string>>();
+        backgroundTileData.sTileEntityOptions = new List<List<string>>();
+        backgroundTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+
+        for (int x = 0; x < tileMaxX; x ++) {
+            List<string> idListBase = new List<string>();
+            List<Dictionary<string,object>> sTileBase = new List<Dictionary<string, object>>();
+            List<string> sEntityBase = new List<string>();
+
+            List<string> idListBackground = new List<string>();
+            List<string> sEntityBackground = new List<string>();
+            List<Dictionary<string,object>> sTileBackground = new List<Dictionary<string, object>>();
+
+            for (int y = 0; y < tileMaxY; y ++) {
+                if (grid[x,y] == null || grid[x,y].Length == 0) {
+                    idListBase.Add(null);
+                } else {
+                    idListBase.Add(grid[x,y]);
+                }
+                
+                sTileBase.Add(new Dictionary<string, object>());
+                sEntityBase.Add(null);
+
+                idListBackground.Add(null);
+                sEntityBackground.Add(null);
+                sTileBackground.Add(new Dictionary<string, object>());
+            }
+            baseTileData.ids.Add(idListBase);
+            baseTileData.sTileEntityOptions.Add(sEntityBase);
+            baseTileData.sTileOptions.Add(sTileBase);
+
+            backgroundTileData.ids.Add(idListBackground);
+            backgroundTileData.sTileEntityOptions.Add(sEntityBackground);
+            backgroundTileData.sTileOptions.Add(sTileBackground);
+        }
+        WorldTileData worldTileData = new WorldTileData(
+            entityData:new List<EntityData>(),
+            baseData: baseTileData, 
+            backgroundData: backgroundTileData
+        );
+        return worldTileData;
+    }
 }
