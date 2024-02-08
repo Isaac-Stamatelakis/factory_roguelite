@@ -28,7 +28,6 @@ public class PlayerRobot : MonoBehaviour
     protected void rebuildCollider() {
         Sprite sprite = spriteRenderer.sprite;
         polygonCollider.pathCount = sprite.GetPhysicsShapeCount();
-        Debug.Log(polygonCollider.pathCount);
         List<Vector2> path = new List<Vector2>();
             for (int i = 0; i < polygonCollider.pathCount; i++) {
             path.Clear();

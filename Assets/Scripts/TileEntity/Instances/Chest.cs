@@ -19,7 +19,17 @@ namespace TileEntityModule.Instances
 
         public void onBreak()
         {
-            throw new System.NotImplementedException();
+            if (items == null) {
+                return;
+            }
+            
+            foreach (ItemSlot itemSlot in items) {
+                ItemEntityHelper.spawnItemEntityFromBreak(
+                    getWorldPosition(),
+                    itemSlot,
+                    chunk.getEntityContainer()
+                );
+            }
         }
 
         public void onClick()

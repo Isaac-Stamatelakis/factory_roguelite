@@ -16,6 +16,10 @@ namespace TileEntityModule {
         public Vector2Int getPositionInChunk() {
             return tilePosition;
         }
+
+        public Vector2 getWorldPosition() {
+            return (tilePosition + chunk.getPosition() * Global.ChunkSize)/2;
+        }
     }
 
 

@@ -20,7 +20,7 @@ namespace ChunkModule {
         public bool inRange(Vector2Int target, int xRange, int yRange);
         public void tick();
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);
-        public void removeTileEntity(TileMapLayer layer, Vector2Int position);
+        public void breakTileEntity(TileMapLayer layer, Vector2Int position);
         public bool clickTileEntity(TileMapLayer layer, Vector2Int position);
     }
     public abstract class ChunkPartition<T> : IChunkPartition where T : ChunkPartitionData
@@ -182,10 +182,13 @@ namespace ChunkModule {
             }
         }
 
-        public void removeTileEntity(TileMapLayer layer, Vector2Int position)
+        public void breakTileEntity(TileMapLayer layer, Vector2Int position)
         {
             if (tileEntities.ContainsKey(layer)) {
                 TileEntity tileEntity = tileEntities[layer][position.x,position.y];
+                if (tileEntity is IBreakActionTileEntity) {
+                    ((IBreakActionTileEntity) tileEntity).onBreak();
+                }
                 if (tileEntity is ILoadableTileEntity) {
                     ((ILoadableTileEntity) tileEntity).unload();
                 }

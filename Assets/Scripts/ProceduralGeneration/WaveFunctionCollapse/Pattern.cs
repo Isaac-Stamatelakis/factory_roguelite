@@ -9,7 +9,7 @@ using System.Reflection;
 
 
 namespace WaveFunctionCollapseManagers {
-/*
+
 public class PatternManager {
     Dictionary<int, PatternData> patternDataIndexDict;
     Dictionary<int, PatternNeighbors> patternPossibleNeighborsDictionary;
@@ -377,5 +377,5 @@ public static class DirectionHelper {
         }
     }
 }
-*/
+
 } // namespace end

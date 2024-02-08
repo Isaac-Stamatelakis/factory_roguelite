@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 using ChunkModule;
+using TileEntityModule;
 
 public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    
@@ -82,11 +83,12 @@ public class TileGridMap : AbstractTileMap<TileItem,TileData>
         if (tileData == null) {
             return;
         }
-        if (((TileItem) tileData.getItemObject()).tileEntity != null) {
+        TileEntity tileEntity = ((TileItem) tileData.getItemObject()).tileEntity;
+        if (tileEntity != null) {
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
             IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
             TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(type);
-            chunkPartition.removeTileEntity(layer,tilePartitionPosition);
+            chunkPartition.breakTileEntity(layer,tilePartitionPosition);
         }
         tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
         if (partitions.ContainsKey(partitionPosition)) {
