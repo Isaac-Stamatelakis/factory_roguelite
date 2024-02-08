@@ -15,16 +15,8 @@ public class TileItemEntityProperties : StackableItemEntity
         BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
     
         spriteRenderer.sprite = itemSlot.itemObject.getSprite();
-        Vector2Int spriteSize = Global.getSpriteSize(spriteRenderer.sprite);
-        int xScale = 1;
-        if (spriteSize.x > 2) {
-            xScale = 1/spriteSize.x;
-        }
-        int yScale = 1;
-        if (spriteSize.y > 2) {
-            yScale = 1/spriteSize.y;
-        }
-        transform.localScale = new Vector3(xScale, yScale,1f);
+        
+        transform.localScale = new Vector3(0.5f, 0.5f,1f);
         boxCollider.size = spriteRenderer.sprite.bounds.size;
     }
 

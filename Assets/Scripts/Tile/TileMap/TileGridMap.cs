@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-
+using ChunkModule;
 
 public class TileGridMap : AbstractTileMap<TileItem,TileData>
 {    

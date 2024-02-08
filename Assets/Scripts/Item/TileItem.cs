@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using TileEntityModule;
 
 public enum IntTileItemOption {
     Hardness = TileItemOption.Hardness,

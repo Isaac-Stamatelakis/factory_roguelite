@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ChunkModule;
 
 public class PlayerMouse : MonoBehaviour
 {
@@ -30,13 +31,17 @@ public class PlayerMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {   
+        handleInventoryControls();
+        if (eventSystem.IsPointerOverGameObject()) {
+           return;
+        }
         if (Input.GetMouseButton(0)) {
             handleRightClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
         if (Input.GetMouseButton(1)) {
             handleLeftClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
-        handleInventoryControls();
+        
     }
 
     private IChunk getChunk(Vector2 mousePosition) {
@@ -74,9 +79,7 @@ public class PlayerMouse : MonoBehaviour
             }
             return;
         }
-        if (!eventSystem.IsPointerOverGameObject()) {
-            breakMouseHover(mousePosition);
-        }
+        breakMouseHover(mousePosition);
     }
     private void handleLeftClick(Vector2 mousePosition) {
         bool tileEntityClicked = false;
