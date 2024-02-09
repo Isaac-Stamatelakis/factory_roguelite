@@ -55,16 +55,22 @@ public class Cave
     }
 }
 [System.Serializable]
-
 public class CaveArea {
+    public CaveArea(UnityEngine.Vector2Int xInterval,  UnityEngine.Vector2Int yInterval) {
+        this.xInterval= xInterval;
+        this.yInterval = yInterval;
+    }
     public UnityEngine.Vector2Int xInterval;
     public UnityEngine.Vector2Int yInterval;
+}
+
+public class CellularCaveArea : CaveArea{
     public int cellRadius;
     public int cellNeighboorCount;
     public float fillPercent;
     public string defaultBlockID;
     public int smoothIterations;
-    public CaveArea(
+    public CellularCaveArea(
         UnityEngine.Vector2Int xInterval, 
         UnityEngine.Vector2Int yInterval, 
         string defaultBlockID,
@@ -72,10 +78,7 @@ public class CaveArea {
         int cellNeighboorCount, 
         float fillPercent, 
         int smoothIterations
-        
-        ) {
-        this.xInterval = xInterval;
-        this.yInterval = yInterval;
+    ) : base(xInterval,yInterval){ 
         this.cellRadius = cellRadius;
         this.cellNeighboorCount = cellNeighboorCount;
         this.fillPercent = fillPercent;

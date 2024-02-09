@@ -12,8 +12,8 @@ public class WFCCaveController : DimController
     public Cave cave;
     [SerializeField] 
     public int patternSize;
-    public override void Awake() {
-        base.Awake();
+    public override void Start() {
+        base.Start();
         GameObject closedChunkSystemObject = new GameObject();
         closedChunkSystemObject.name="Cave";
         TileClosedChunkSystem area = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();

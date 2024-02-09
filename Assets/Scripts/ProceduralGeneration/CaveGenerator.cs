@@ -24,7 +24,7 @@ public class CaveGenerator
         UnityEngine.Random.InitState(seed);
         int[,] noiseField = generateNoiseField();
         int[,] grid = cellular_automaton(noiseField);
-        ProcGenHelper.saveToJson(generateWorld(grid),cave);
+        ProcGenHelper.saveToJson(generateWorld(grid),cave,-1);
     }
 
     
@@ -38,20 +38,24 @@ public class CaveGenerator
         int caveMinX = caveCoveredArea.X.LowerBound;
         int caveMinY = caveCoveredArea.Y.LowerBound;
         foreach (CaveArea caveArea in cave.areas) { // fills areas with given density
-            int startX = Global.ChunkSize*(caveArea.xInterval.x-caveMinX);
-            int endX =  Global.ChunkSize*(caveArea.xInterval.y-caveMinX);
-            int startY = Global.ChunkSize*(caveArea.yInterval.x-caveMinY);
-            int endY = Global.ChunkSize*(caveArea.yInterval.y-caveMinY);
-            for (int x = startX; x < endX; x ++) {
-                for (int y = startY; y < endY; y++) {
-                    float r = UnityEngine.Random.Range(0f, 1f);
-                    if (r < caveArea.fillPercent) {
-                        noiseField[x, y] = 1;
-                    } else {
-                        noiseField[x, y] = 0;
+            if (caveArea is CellularCaveArea) {
+                CellularCaveArea cellularCaveArea = (CellularCaveArea) caveArea;
+                int startX = Global.ChunkSize*(caveArea.xInterval.x-caveMinX);
+                int endX =  Global.ChunkSize*(caveArea.xInterval.y-caveMinX);
+                int startY = Global.ChunkSize*(caveArea.yInterval.x-caveMinY);
+                int endY = Global.ChunkSize*(caveArea.yInterval.y-caveMinY);
+                for (int x = startX; x < endX; x ++) {
+                    for (int y = startY; y < endY; y++) {
+                        float r = UnityEngine.Random.Range(0f, 1f);
+                        if (r < cellularCaveArea.fillPercent) {
+                            noiseField[x, y] = 1;
+                        } else {
+                            noiseField[x, y] = 0;
+                        }
                     }
                 }
             }
+            
         }
         return noiseField;
     }
@@ -64,53 +68,56 @@ public class CaveGenerator
         int caveMinY = caveCoveredArea.Y.LowerBound;
         
         foreach (CaveArea caveArea in cave.areas) { 
-            int xStart = 0;
-            int xEnd = Global.ChunkSize*(caveArea.xInterval.y-caveArea.xInterval.x+1);
-            int yStart = 0;
-            int yEnd = Global.ChunkSize*(caveArea.yInterval.y-caveArea.yInterval.x+1);
-            int radius = caveArea.cellRadius;
-            int neighboorCount = caveArea.cellNeighboorCount;
-            int xOffset = Global.ChunkSize*(caveArea.xInterval.x-caveMinX);
-            int yOffset = Global.ChunkSize*(caveArea.yInterval.x-caveMinY);
-            for (int n = 0; n < caveArea.smoothIterations; n ++) {
-                int[,] tempGrid = new int[xEnd+caveArea.cellRadius*2, yEnd+caveArea.cellRadius*2];
-                for (int x = xStart; x < xEnd+2*radius; x ++) {
-                    for (int y = yStart; y < yEnd+2*radius; y ++) {
-                        if (x < radius || x >= xEnd || y < radius || y >= yEnd) {
-                            if (x+xOffset < 0 || x+xOffset >= maxX || y+yOffset < 0 || y+yOffset >= maxY) {
-                                continue;
+            if (caveArea is CellularCaveArea) {
+                CellularCaveArea cellularCaveArea = (CellularCaveArea) caveArea;
+                int xStart = 0;
+                int xEnd = Global.ChunkSize*(caveArea.xInterval.y-caveArea.xInterval.x+1);
+                int yStart = 0;
+                int yEnd = Global.ChunkSize*(caveArea.yInterval.y-caveArea.yInterval.x+1);
+                int radius = cellularCaveArea.cellRadius;
+                int neighboorCount = cellularCaveArea.cellNeighboorCount;
+                int xOffset = Global.ChunkSize*(caveArea.xInterval.x-caveMinX);
+                int yOffset = Global.ChunkSize*(caveArea.yInterval.x-caveMinY);
+                for (int n = 0; n < cellularCaveArea.smoothIterations; n ++) {
+                    int[,] tempGrid = new int[xEnd+cellularCaveArea.cellRadius*2, yEnd+cellularCaveArea.cellRadius*2];
+                    for (int x = xStart; x < xEnd+2*radius; x ++) {
+                        for (int y = yStart; y < yEnd+2*radius; y ++) {
+                            if (x < radius || x >= xEnd || y < radius || y >= yEnd) {
+                                if (x+xOffset < 0 || x+xOffset >= maxX || y+yOffset < 0 || y+yOffset >= maxY) {
+                                    continue;
+                                }
+                                tempGrid[x,y] = grid[x+xOffset,y+yOffset];
+                            } else {
+                                tempGrid[x,y] = grid[x+xOffset,y+yOffset];
                             }
-                            tempGrid[x,y] = grid[x+xOffset,y+yOffset];
+                        }
+                    }  
+                    for (int x = xStart; x < xEnd; x ++) {
+                        for (int y = yStart; y < yEnd;y++) {
+                        int neighboors = 0;
+                        for (int j = -radius; j <= radius; j ++) {
+                            for (int k = -radius; k <= radius; k ++) {
+                                if (j == 0 && k == 0) {
+                                    continue;
+                                }
+                                int xIndex = x+j; 
+                                int yIndex = y+k;
+                                if (xIndex < 0  || xIndex >= xEnd+radius || yIndex < 0 || yIndex >= yEnd+radius) {
+                                    neighboors ++;
+                                    continue;
+                                }
+                                if (tempGrid[xIndex,yIndex] == 1) {
+                                    neighboors ++;
+                                }
+                            }
+                        }
+                        if (neighboors > neighboorCount) {
+                            grid[x+xOffset,y+yOffset] = 0;
                         } else {
-                            tempGrid[x,y] = grid[x+xOffset,y+yOffset];
+                            grid[x+xOffset,y+yOffset] = 1;
                         }
                     }
-                }  
-                for (int x = xStart; x < xEnd; x ++) {
-                    for (int y = yStart; y < yEnd;y++) {
-                    int neighboors = 0;
-                    for (int j = -radius; j <= radius; j ++) {
-                        for (int k = -radius; k <= radius; k ++) {
-                            if (j == 0 && k == 0) {
-                                continue;
-                            }
-                            int xIndex = x+j; 
-                            int yIndex = y+k;
-                            if (xIndex < 0  || xIndex >= xEnd+radius || yIndex < 0 || yIndex >= yEnd+radius) {
-                                neighboors ++;
-                                continue;
-                            }
-                            if (tempGrid[xIndex,yIndex] == 1) {
-                                neighboors ++;
-                            }
-                        }
                     }
-                    if (neighboors > neighboorCount) {
-                        grid[x+xOffset,y+yOffset] = 0;
-                    } else {
-                        grid[x+xOffset,y+yOffset] = 1;
-                    }
-                }
                 }
             }
         } 
@@ -119,7 +126,7 @@ public class CaveGenerator
 
     private WorldTileData generateWorld(int[,] grid) {
         // TODO Make it change based on which caveare you are in im lazy for now
-        string defaultBlockID = cave.areas[0].defaultBlockID;
+        string defaultBlockID = ((CellularCaveArea) cave.areas[0]).defaultBlockID;
         UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         int tileMaxX = Global.ChunkSize * caveSize.x;
         int tileMaxY = Global.ChunkSize*caveSize.y;
@@ -127,21 +134,21 @@ public class CaveGenerator
         SeralizedChunkTileData baseTileData = new SeralizedChunkTileData();
         baseTileData.ids = new List<List<string>>();
         baseTileData.sTileEntityOptions = new List<List<string>>();
-        baseTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+        baseTileData.sTileOptions = new List<List<string>>();
 
         SeralizedChunkTileData backgroundTileData = new SeralizedChunkTileData();
         backgroundTileData.ids = new List<List<string>>();
         backgroundTileData.sTileEntityOptions = new List<List<string>>();
-        backgroundTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+        backgroundTileData.sTileOptions = new List<List<string>>();
 
         for (int x = 0; x < tileMaxX; x ++) {
             List<string> idListBase = new List<string>();
-            List<Dictionary<string,object>> sTileBase = new List<Dictionary<string, object>>();
+            List<string> sTileBase = new List<string>();
             List<string> sEntityBase = new List<string>();
 
             List<string> idListBackground = new List<string>();
             List<string> sEntityBackground = new List<string>();
-            List<Dictionary<string,object>> sTileBackground = new List<Dictionary<string, object>>();
+            List<string> sTileBackground = new List<string>();
 
             for (int y = 0; y < tileMaxY; y ++) {
                 if (grid[x,y] == 1) {
@@ -149,12 +156,12 @@ public class CaveGenerator
                 } else {
                     idListBase.Add(null);
                 }
-                sTileBase.Add(new Dictionary<string, object>());
+                sTileBase.Add(null);
                 sEntityBase.Add(null);
 
                 idListBackground.Add(null);
                 sEntityBackground.Add(null);
-                sTileBackground.Add(new Dictionary<string, object>());
+                sTileBackground.Add(null);
             }
             baseTileData.ids.Add(idListBase);
             baseTileData.sTileEntityOptions.Add(sEntityBase);
@@ -227,14 +234,22 @@ public class WFCGenerator {
         string[,] strings = generateWFC();
         Debug.Log(strings.Length);
         WorldTileData worldTileData = generateWorld(strings);
-        ProcGenHelper.saveToJson(worldTileData,cave);
+        ProcGenHelper.saveToJson(worldTileData,cave,-1);
         GameObject.Destroy(temp);
     }
 
     public string[,] generateWFC()
     {  
         Vector2Int size = cave.getChunkDimensions() * Global.ChunkSize;
-        WaveFunctionCollapse wfc = new WaveFunctionCollapse(this.tileMapPrefab.GetComponent<Tilemap>(), this.outputImage, patternSize, size.x, size.y, 100, false);
+        WaveFunctionCollapse wfc = new WaveFunctionCollapse(
+            this.tileMapPrefab.GetComponent<Tilemap>(), 
+            this.outputImage, 
+            patternSize, 
+            size.x, 
+            size.y, 
+            1, 
+            false
+        );
         wfc.CreateNewTileMap();
         Tilemap output = wfc.GetOutputTileMap();
         
@@ -261,8 +276,6 @@ public class WFCGenerator {
     }
 
     private WorldTileData generateWorld(string[,] grid) {
-        // TODO Make it change based on which caveare you are in im lazy for now
-        string defaultBlockID = cave.areas[0].defaultBlockID;
         UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         int tileMaxX = Global.ChunkSize * caveSize.x;
         int tileMaxY = Global.ChunkSize*caveSize.y;
@@ -270,21 +283,21 @@ public class WFCGenerator {
         SeralizedChunkTileData baseTileData = new SeralizedChunkTileData();
         baseTileData.ids = new List<List<string>>();
         baseTileData.sTileEntityOptions = new List<List<string>>();
-        baseTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+        baseTileData.sTileOptions = new List<List<string>>();
 
         SeralizedChunkTileData backgroundTileData = new SeralizedChunkTileData();
         backgroundTileData.ids = new List<List<string>>();
         backgroundTileData.sTileEntityOptions = new List<List<string>>();
-        backgroundTileData.sTileOptions = new List<List<Dictionary<string, object>>>();
+        backgroundTileData.sTileOptions = new List<List<string>>();
 
         for (int x = 0; x < tileMaxX; x ++) {
             List<string> idListBase = new List<string>();
-            List<Dictionary<string,object>> sTileBase = new List<Dictionary<string, object>>();
+            List<string> sTileBase = new List<string>();
             List<string> sEntityBase = new List<string>();
 
             List<string> idListBackground = new List<string>();
             List<string> sEntityBackground = new List<string>();
-            List<Dictionary<string,object>> sTileBackground = new List<Dictionary<string, object>>();
+            List<string> sTileBackground = new List<string>();
 
             for (int y = 0; y < tileMaxY; y ++) {
                 if (grid[x,y] == null || grid[x,y].Length == 0) {
@@ -293,12 +306,12 @@ public class WFCGenerator {
                     idListBase.Add(grid[x,y]);
                 }
                 
-                sTileBase.Add(new Dictionary<string, object>());
+                sTileBase.Add(null);
                 sEntityBase.Add(null);
 
                 idListBackground.Add(null);
                 sEntityBackground.Add(null);
-                sTileBackground.Add(new Dictionary<string, object>());
+                sTileBackground.Add(null);
             }
             baseTileData.ids.Add(idListBase);
             baseTileData.sTileEntityOptions.Add(sEntityBase);

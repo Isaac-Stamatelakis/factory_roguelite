@@ -4,25 +4,26 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using WorldDataModule;
 
 public class PlayerIO : MonoBehaviour
 {
-    private Dictionary<string, object> playerData = new Dictionary<string, object>();
+    [SerializeField]
+    public PlayerData playerData;
     TilePlacePreviewController tilePlacePreviewController;
     DevMode devMode;
     // Start is called before the first frame update
     void Awake()
     {
-        
         devMode = GetComponent<DevMode>();
         tilePlacePreviewController = GameObject.Find("PlacePreviewController").GetComponent<TilePlacePreviewController>();
     }
 
     public void initRead() {
-        playerData = new Dictionary<string, object>();
-        readPlayerData();
-
-        transform.position = (Vector3) playerData["location"];
+        string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
+        string json = File.ReadAllText(playerJsonPath);
+        playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
+        transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
     }
     // Update is called once per frame
     void Update()
@@ -35,33 +36,32 @@ public class PlayerIO : MonoBehaviour
         */
     }
 
-    void Destroy() {
-        playerData["location"] = transform.position;
-        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/PlayerData.json";
-        string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(playerData, Newtonsoft.Json.Formatting.Indented);
-        File.WriteAllText(filePath, jsonString);
+    void OnDestroy() {
+        playerData.x = transform.position.x;
+        playerData.y = transform.position.y;
+        playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
+        string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
+        File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));
     }
-    private void readPlayerData() {
-        string filePath = Application.dataPath + "/Resources/worlds/" + Global.WorldName + "/PlayerData.json";
-        string json = File.ReadAllText(filePath);
-        Newtonsoft.Json.Linq.JObject jObject = Newtonsoft.Json.Linq.JObject.Parse(json);
-        playerData["name"] = (string) jObject["name"];
-        string locationJson = jObject["location"].ToString();
-        Newtonsoft.Json.Linq.JObject locationJObject = Newtonsoft.Json.Linq.JObject.Parse(locationJson);
-        playerData["location"] = new Vector3(
-            (float) locationJObject["x"],
-            (float) locationJObject["y"],
-            -5
-        );
-        playerData["hp"] = (float) jObject["hp"];
-        playerData["inventory"] = jObject["inventory"];
-        //playerData["enablePlacePreview"] = devMode.placePreview;
-        //tilePlacePreviewController.setActive((bool) playerData["enablePlacePreview"]);
-        tilePlacePreviewController.setActive(true);
+    
+    public string getPlayerInventoryData() {
+        return playerData.inventoryJson;
     }
 
-    public Dictionary<string,object> getPlayerData() {
-        return playerData;
-    }
+}
 
+[System.Serializable]
+public class PlayerData {
+    public PlayerData(float x, float y, string robotID, string name, string inventoryJson) {
+        this.x = x;
+        this.y = y;
+        this.robotID = robotID;
+        this.name = name;
+        this.inventoryJson = inventoryJson;
+    }
+    public float x;
+    public float y;
+    public string robotID;
+    public string name;
+    public string inventoryJson;
 }

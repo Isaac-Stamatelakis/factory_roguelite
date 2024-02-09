@@ -4,7 +4,7 @@ using UnityEngine;
 using ChunkModule.IO;
 
 public static class ProcGenHelper {
-    public static void saveToJson(WorldTileData worldTileData, Cave cave) {
+    public static void saveToJson(WorldTileData worldTileData, Cave cave, int dim) {
         UnityEngine.Vector2Int caveSize = cave.getChunkDimensions();
         IntervalVector caveCoveredArea = cave.getCoveredArea();
         int tileMaxX = Global.ChunkSize*caveSize.x;
@@ -24,21 +24,21 @@ public static class ProcGenHelper {
                         
                         partitionData.baseData = new SeralizedChunkTileData();
                         partitionData.baseData.ids = new List<List<string>>();
-                        partitionData.baseData.sTileOptions = new List<List<Dictionary<string, object>>>();
+                        partitionData.baseData.sTileOptions = new List<List<string>>();
                         partitionData.baseData.sTileEntityOptions = new List<List<string>>();
 
                         partitionData.backgroundData = new SeralizedChunkTileData();
                         partitionData.backgroundData.ids = new List<List<string>>();
-                        partitionData.backgroundData.sTileOptions = new List<List<Dictionary<string, object>>>();
+                        partitionData.backgroundData.sTileOptions = new List<List<string>>();
                         partitionData.backgroundData.sTileEntityOptions = new List<List<string>>();
 
                         for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
                             List<string> idsBase = new List<string>();
-                            List<Dictionary<string,object>> sTileOptionsBase = new List<Dictionary<string, object>>();
+                            List<string> sTileOptionsBase = new List<string>();
                             List<string> sTileEntityOptionsBase = new List<string>();
 
                             List<string> idsBackground = new List<string>();
-                            List<Dictionary<string,object>> sTileOptionsBackground = new List<Dictionary<string, object>>();
+                            List<string> sTileOptionsBackground = new List<string>();
                             List<string> sTileEntityOptionsBackground = new List<string>();
                             for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
                                 int xIndex = xStart+tileX;
@@ -64,7 +64,7 @@ public static class ProcGenHelper {
                         chunkPartitionDataList.Add(partitionData);
                     }
                 }
-                ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),-1,chunkPartitionDataList);
+                ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList);
             }
         }
     }

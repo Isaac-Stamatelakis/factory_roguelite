@@ -57,7 +57,7 @@ public class TransmutableItemGenerator : EditorWindow {
                 Debug.Log("Generating Material " + transmutableItemMaterial.name);
                 AssetDatabase.CreateFolder(FolderPath,transmutableItemMaterial.name);
                 string materialPath = FolderPath + "/" +transmutableItemMaterial.name + "/";
-                foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.states) {
+                foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.getStates()) {
                     string prefix = TransmutableItemStateFactory.getPrefix(itemConstructionData.state);
                     string suffix = TransmutableItemStateFactory.getSuffix(itemConstructionData.state);
                     string name = "";
@@ -115,7 +115,7 @@ public class TransmutableItemGenerator : EditorWindow {
                     itemObject.id = (prefix + "_"+ transmutableItemMaterial.id + "_" + suffix).ToLower();
                     AssetDatabase.CreateAsset(itemObject,materialPath + name.Replace(" ","") + ".asset");
                 }
-                Debug.Log(transmutableItemMaterial.states.Count + " Item's created for " + transmutableItemMaterial.name);
+                Debug.Log(transmutableItemMaterial.getStates().Count + " Item's created for " + transmutableItemMaterial.name);
             }
             
         }

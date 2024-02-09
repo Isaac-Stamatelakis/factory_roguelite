@@ -35,6 +35,20 @@ public class ItemSlotFactory
         return itemSlots;
     }
 
+    public static string createEmptyInventory(int size) {
+        List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
+        for (int n = 0; n < size; n ++) {
+            itemSlots.Add(initEmptyItemSlot());
+        }
+        return Newtonsoft.Json.JsonConvert.SerializeObject(itemSlots);
+    }
+    private static SerializedItemSlot initEmptyItemSlot() {
+        return new SerializedItemSlot(
+            null,
+            0,
+            null
+        );
+    }
     public static string serializeList(List<ItemSlot> items) {
         List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>();
         foreach (ItemSlot itemSlot in items) {

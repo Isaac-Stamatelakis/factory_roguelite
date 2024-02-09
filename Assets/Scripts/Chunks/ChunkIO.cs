@@ -6,6 +6,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ChunkModule;
+using UI.Title;
 
 namespace ChunkModule.IO {
     public class ChunkIO {
@@ -56,7 +57,7 @@ namespace ChunkModule.IO {
             File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
         }
         public static string getPath(Vector2Int chunkPosition, int dim) {
-            return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Chunks/dim" + dim + "/" + getName(chunkPosition);
+            return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Dimensions/dim" + dim + "/" + getName(chunkPosition);
         }
 
         public static string getPath(IChunk chunk) {
@@ -67,7 +68,7 @@ namespace ChunkModule.IO {
         }
 
         public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<ChunkPartitionData> data) {
-            File.WriteAllText(ChunkIO.getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
+            File.WriteAllText(getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
         }
 
         private static List<List<Dictionary<string,object>>> getSeralizedOptions(string tilePath, string json, string optionPath) {
@@ -91,7 +92,7 @@ namespace ChunkModule.IO {
     [System.Serializable]
     public class SeralizedChunkTileData {
         public List<List<string>> ids;
-        public List<List<Dictionary<string,object>>> sTileOptions;
+        public List<List<string>> sTileOptions;
         public List<List<string>> sTileEntityOptions;
     }
 
