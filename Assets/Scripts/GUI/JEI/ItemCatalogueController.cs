@@ -60,6 +60,8 @@ public class ItemCatalogueController : MonoBehaviour
     private void onLeftButtonPress() {
         if (page > 1) {
             page -= 1;
+        } else {
+            page = maxPages;
         }
         populateResults();
     }
@@ -67,6 +69,8 @@ public class ItemCatalogueController : MonoBehaviour
     private void onRightButtonPress() {
         if (page < maxPages) {
             page += 1;
+        } else {
+            page = 1;
         }
         populateResults();
     }

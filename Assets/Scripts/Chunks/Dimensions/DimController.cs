@@ -16,7 +16,7 @@ public class DimController : MonoBehaviour
     private int previousPlayerXPartition;
     private int previousPlayerYPartition;
     
-    public virtual void Awake() {
+    public virtual void Start() {
         closedChunkSystems = new List<ClosedChunkSystem>();
         playerTransform = GameObject.Find("Player").transform;
     }

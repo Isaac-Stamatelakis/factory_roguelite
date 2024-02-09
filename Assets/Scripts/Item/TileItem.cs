@@ -57,24 +57,23 @@ public class TileOptionFactory {
         dict[option.ToString()] = value;
     } 
 
-    public static Dictionary<string,object> serializeOptions(Dictionary<TileItemOption,object> options) {
-        Dictionary<string,object> returnDict = new Dictionary<string, object>();
+    public static string serializeOptions(Dictionary<TileItemOption,object> options) {
+        Dictionary<TileItemOption,object> returnDict = new Dictionary<TileItemOption, object>();
         foreach (TileItemOption option in options.Keys) {
             if (!isSerizable(option)) {
                 continue;
             }
-            returnDict[option.ToString()] = options[option];
+            returnDict[option] = options[option];
         }
-        return returnDict;
+        return Newtonsoft.Json.JsonConvert.SerializeObject(returnDict);
     }
 
-    public static void deseralizeOptions(Dictionary<string,object> serializedData, Dictionary<TileItemOption, object> dynamicValues) {
-        foreach (string key in serializedData.Keys) {
-            if (!stringOptionDict.ContainsKey(key)) {
-                continue;
+    public static void deseralizeOptions(string data, Dictionary<TileItemOption, object> dynamicValues) {
+        Dictionary<TileItemOption, object> serializedOptions = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<TileItemOption,object>>(data);
+        foreach (TileItemOption key in dynamicValues.Keys) {
+            if (serializedOptions.ContainsKey(key)) {
+                dynamicValues[key] = serializedOptions[key];
             }
-            TileItemOption tileItemOption = stringOptionDict[key];
-            dynamicValues[tileItemOption] = serializedData[key];
         }
     }
 }

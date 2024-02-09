@@ -32,7 +32,7 @@ public class PlayerInventory : MonoBehaviour
     }
 
     private void loadInventoryUI() {
-        inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerData()["inventory"].ToString());
+        inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
         hotbarNumbersContainer = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/GUI/InventoryHotbar"));
         GameObject inventoryContainer = Global.findChild(hotbarNumbersContainer.transform,"Inventory");
         hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform,false);
@@ -131,5 +131,9 @@ public class PlayerInventory : MonoBehaviour
             return null;
         }
         return inventory[selectedSlot].itemObject.id;
+    }
+
+    public string getJson() {
+        return ItemSlotFactory.serializeList(inventory);
     }
 }

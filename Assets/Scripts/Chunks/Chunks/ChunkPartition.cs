@@ -370,7 +370,7 @@ namespace ChunkModule {
             Vector2Int partitionPosition = new Vector2Int(x,y);
             string baseId = data.baseData.ids[x][y];
             if (baseId != null) {
-                Dictionary<string,object> baseOptions = data.baseData.sTileOptions[x][y];
+                string baseOptions = data.baseData.sTileOptions[x][y];
                 string baseTileEntityOptions = data.baseData.sTileEntityOptions[x][y];
                 place(
                     id: baseId,
@@ -385,7 +385,7 @@ namespace ChunkModule {
             }
             string backgroundID = data.backgroundData.ids[x][y];
             if (backgroundID != null) {
-                Dictionary<string,object> backgroundOptions = data.baseData.sTileOptions[x][y];
+                string backgroundOptions = data.baseData.sTileOptions[x][y];
                 string backgroundTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
                 place(
                     id: backgroundID,
@@ -400,7 +400,7 @@ namespace ChunkModule {
             }
         }
 
-        protected void place(string id, Dictionary<string,object> tileOptions, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
+        protected void place(string id, string tileOptions, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
             TileItem tileItem = itemRegistry.getTileItem(id);
             if (tileItem.tileEntity != null) {
                 TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);

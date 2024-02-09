@@ -15,7 +15,12 @@ public enum TransmutableItemState {
     Screw,
     Liquid,
     Gas,
-    Plasma
+    Plasma,
+    Magnificent_Gem,
+    Exceptional_Gem,
+    Gem,
+    Mediocre_Gem,
+    Poor_Gem
 }
 
 public class TransmutableItemStateFactory {
@@ -50,6 +55,12 @@ public class TransmutableItemStateFactory {
         {TransmutableItemState.Liquid, "Liquid"},
         {TransmutableItemState.Gas, "Gas"},
         {TransmutableItemState.Plasma, "Plasma"},
+        {TransmutableItemState.Magnificent_Gem, "Magnificent"},
+        {TransmutableItemState.Exceptional_Gem, "Exceptional"},
+        {TransmutableItemState.Gem, ""},
+        {TransmutableItemState.Mediocre_Gem, "Mediocre"},
+        {TransmutableItemState.Poor_Gem, "Poor"},
+
 
     };
     private static Dictionary<TransmutableItemState, string> prefixs = new Dictionary<TransmutableItemState, string>{
@@ -66,6 +77,11 @@ public class TransmutableItemStateFactory {
         {TransmutableItemState.Liquid, ""},
         {TransmutableItemState.Gas, ""},
         {TransmutableItemState.Plasma, ""},
+        {TransmutableItemState.Magnificent_Gem, ""},
+        {TransmutableItemState.Exceptional_Gem, ""},
+        {TransmutableItemState.Gem, ""},
+        {TransmutableItemState.Mediocre_Gem, ""},
+        {TransmutableItemState.Poor_Gem, ""},
     };
 
     public static string getPrefix(TransmutableItemState state) {
@@ -117,19 +133,16 @@ public class TransmutableItemSprites {
 ///
 /// Creates ItemObjects for each transmutable object state
 ///
-[CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item Register/Transmutable Material")]
+[CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item Register/Transmutable/Empty")]
 public class TransmutableItemMaterial : ScriptableObject
 {
     public string id;
     [Header("Color of default sprite")]
     public Color color;
-    [Header("If clicked, all states are used")]
-    public bool useAllStates;
-    [Header("If clicked, all metal states are used")]
-    public bool useAllMetalStates;
-    [Header("If clicked, all gas states are used")]
-    public bool useAllGasStates;
     public List<TransmutableStateOptions> states;
+    public virtual List<TransmutableStateOptions> getStates() {
+        return this.states;
+    }
 }
 
 public class TransmutableMaterialDict {
@@ -147,6 +160,12 @@ public class TransmutableMaterialDict {
 }
 [System.Serializable]
 public class TransmutableStateOptions {
+    public TransmutableStateOptions(TransmutableItemState state, Sprite sprite, string prefix, string suffix) {
+        this.state = state;
+        this.sprite = sprite;
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
     public TransmutableItemState state;
     
     [Header("Custom sprite\nIf left blank then\ncolor will be used on a default")]
