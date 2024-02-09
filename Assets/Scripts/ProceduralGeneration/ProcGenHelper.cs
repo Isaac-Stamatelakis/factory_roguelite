@@ -44,6 +44,9 @@ public static class ProcGenHelper {
                                 int xIndex = xStart+tileX;
                                 int yIndex = yStart+tileY;
                                 //Debug.Log("Chunk[" + chunkX + "," + chunkY + "], Partition[" + partitionX + "," + partitionY + "], index [" + xIndex + "," + yIndex + "]");
+                                if (worldTileData.baseData.ids[xIndex][yIndex] != null) {
+                                    Debug.Log(chunkX + "," + chunkY);
+                                }
                                 idsBase.Add(worldTileData.baseData.ids[xIndex][yIndex]);
                                 sTileOptionsBase.Add(worldTileData.baseData.sTileOptions[xIndex][yIndex]);
                                 sTileEntityOptionsBase.Add(worldTileData.baseData.sTileEntityOptions[xIndex][yIndex]);

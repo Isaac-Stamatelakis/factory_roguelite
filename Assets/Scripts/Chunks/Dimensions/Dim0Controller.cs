@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WorldDataModule;
 
 public class Dim0Controller : DimController
 {
@@ -10,9 +11,10 @@ public class Dim0Controller : DimController
         closedChunkSystemObject.name="Dim0System";
         ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
         closedChunkSystems.Add(mainArea);
+        IntervalVector bounds = WorldCreation.getDim0Bounds();
         mainArea.initalize(
             transform,
-            coveredArea: new IntervalVector(new Interval<int>(-4,4), new Interval<int>(-2,2)),
+            coveredArea: bounds,
             dim: 0
         );
 

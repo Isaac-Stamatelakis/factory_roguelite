@@ -72,9 +72,11 @@ namespace WorldDataModule {
             createDimFolder(name,0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
             Cave cave = new Cave();
+            IntervalVector dim0Bounds = getDim0Bounds();
+
             CaveArea caveArea = new CaveArea(
-                new Vector2Int(-4,4),
-                new Vector2Int(-2,2)
+                new Vector2Int(dim0Bounds.X.LowerBound,dim0Bounds.X.UpperBound),
+                new Vector2Int(dim0Bounds.Y.LowerBound,dim0Bounds.Y.UpperBound)
             );
             WorldTileData dim0Data = prefabToWorldTileData(dim0Prefab,caveArea);
             cave.areas = new List<CaveArea> {
@@ -83,6 +85,12 @@ namespace WorldDataModule {
             ProcGenHelper.saveToJson(dim0Data,cave,0);
         }
 
+        public static IntervalVector getDim0Bounds() {
+            return new IntervalVector(
+                new Interval<int>(-4,4),
+                new Interval<int>(-3,3)
+            );
+        }
         public static WorldTileData prefabToWorldTileData(GameObject prefab, CaveArea caveArea) {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
@@ -141,17 +149,10 @@ namespace WorldDataModule {
                         TileBase tile = tilemap.GetTile(tilePosition);
                         if (tile is StandardTile) {
                             string id = ((StandardTile) tile).id;
-                            Debug.Log(id);  
                             if (id == null || id == "") {
                                 continue;
                             }
-                            ItemObject itemObject = itemRegistry.getItemObject(id);
-                            if (itemObject == null) {
-                                continue;
-                            }
-                            if (itemObject is TileItem) {
-                                ids[x][y]= id;
-                            }
+                            ids[x][y]= id;
                         }
                     }
                 }

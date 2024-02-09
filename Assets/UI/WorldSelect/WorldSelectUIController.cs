@@ -7,15 +7,17 @@ using WorldDataModule;
 namespace UI.Title {
     public class WorldSelectUIController : MonoBehaviour
     {
-        [SerializeField]
-        public UIDocument m_UIDocument;
+        private UIDocument m_UIDocument;
         [SerializeField]
         public GameObject titleScreenDocument;
+        public GameObject worldEditDocument;
         private Label m_Label;
         private List<Button> slotButtons;
+        private List<Button> editButtons;
         private Button m_BackButton;
         public void Start()
         {
+            m_UIDocument = GetComponent<UIDocument>();
             var rootElement = m_UIDocument.rootVisualElement;
 
             slotButtons = new List<Button>();
@@ -27,8 +29,18 @@ namespace UI.Title {
                 } else {
                     button.text = "Empty Slot " + n;
                 }
-                
                 button.clickable.clicked += () => slotPressed(k);
+                slotButtons.Add(button);
+            }
+            editButtons = new List<Button>();
+            for (int n = 0; n < 3; n++) {
+                int k = n;
+                Button button = rootElement.Q<Button>("slot_" + k + "_edit");
+                button.clickable.clicked += () => editPressed(k);
+                if (!WorldCreation.worldExists("world " + n)) {
+                    //button.SetEnabled(false);
+                }
+                editButtons.Add(button);
             }
             m_BackButton = rootElement.Q<Button>("back_button");
             m_BackButton.clickable.clicked += goBack;
@@ -52,6 +64,13 @@ namespace UI.Title {
                  //slotButtons[n].name = "Slot " + n;
             }
             OpenWorld.loadWorld(name);
+        }
+
+        private void editPressed(int n) {
+            GameObject editWorldPage = GameObject.Instantiate(worldEditDocument);
+            WorldEditUIController worldEditUIController = editWorldPage.GetComponent<WorldEditUIController>();
+            worldEditUIController.WorldName = "world" + n;
+            GameObject.Destroy(gameObject);
         }
 
         private void goBack() {

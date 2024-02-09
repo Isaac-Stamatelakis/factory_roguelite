@@ -6,8 +6,7 @@ using UnityEngine.UIElements;
 namespace UI.Title {
     public class TitleScreenUIHandler : MonoBehaviour
     {
-        [SerializeField]
-        public UIDocument m_UIDocument;
+        private UIDocument m_UIDocument;
         [SerializeField]
         public GameObject worldSelectDocument;
         private Label m_Label;
@@ -16,6 +15,7 @@ namespace UI.Title {
         private Button m_OptionButton;
         public void Start()
         {
+            m_UIDocument = GetComponent<UIDocument>();
             var rootElement = m_UIDocument.rootVisualElement;
 
             m_PlayButton = rootElement.Q<Button>("play_button");
