@@ -19,24 +19,17 @@ public class ChunkLoader : MonoBehaviour
     public bool Activated {get{return activeCoroutines != 0;}}
     public Queue<Vector2Int> loadQueue;
 
-    void Awake()
-    {
-        ClosedChunkSystem[] closedChunkSystems = transform.parent.GetComponents<ClosedChunkSystem>();
-        if (closedChunkSystems.Length > 1) {
-            Debug.LogError("ChunkUnloader belongs to multiple dimensions");
-        }
+    public void init(ClosedChunkSystem closedChunkSystem) {
+        this.closedChunkSystem = closedChunkSystem;
         loadQueue = new Queue<Vector2Int>();
-        closedChunkSystem = closedChunkSystems[0];
         StartCoroutine(load());
     }
-
     public void addToQueue(List<Vector2Int> chunkPositionToLoad) {
         activeCoroutines += chunkPositionToLoad.Count;
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         foreach (Vector2Int vect in chunkPositionToLoad) {
             loadQueue.Enqueue(vect);
         }
-        
         //chunkPositionToLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
         //for (int j =0 ;j < chunkPositionToLoad.Count; j++) {
          //   loadQueue.Enqueue(chunkPositionToLoad[j]);

@@ -5,8 +5,7 @@ using ChunkModule;
 
 public class PartitionUnloader : MonoBehaviour
 {
-    private PartitionLoader chunkLoader;
-    public PartitionLoader Loader {set{chunkLoader = value;}}
+    private PartitionLoader loader;
     [SerializeField]
     public float delay = 0.05F; // 0.05F
     [SerializeField]
@@ -17,14 +16,10 @@ public class PartitionUnloader : MonoBehaviour
     private ClosedChunkSystem closedChunkSystem;
     Queue<IChunkPartition> unloadQueue = new Queue<IChunkPartition>();
     // Start is called before the first frame update
-    void Start()
-    {
-
-        ClosedChunkSystem[] closedChunkSystems = transform.parent.GetComponents<ClosedChunkSystem>();
-        if (closedChunkSystems.Length > 1) {
-            Debug.LogError("ChunkUnloader belongs to multiple dimensions");
-        }
-        closedChunkSystem = closedChunkSystems[0];
+    public void init(ClosedChunkSystem closedChunkSystem, PartitionLoader partitionLoader) {
+        this.closedChunkSystem = closedChunkSystem;
+        this.loader = partitionLoader;
+        unloadQueue = new Queue<IChunkPartition>();
         StartCoroutine(unload());
     }
     /// <summary>
@@ -56,7 +51,7 @@ public class PartitionUnloader : MonoBehaviour
                 yield return new WaitForSeconds(delay);
                 continue;
             }
-            if (chunkLoader.Activated && unloadQueue.Count < speedIncreaseThreshold) {
+            if (loader.Activated && unloadQueue.Count < speedIncreaseThreshold) {
                 yield return new WaitForSeconds(delay);
                 continue;
             }   

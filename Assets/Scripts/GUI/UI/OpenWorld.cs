@@ -11,7 +11,6 @@ namespace WorldDataModule {
                 Debug.LogError("Attempted to open world which doesn't exist");
             }
             Global.WorldName = worldName;
-            SceneManager.sceneLoaded += test;
             SceneManager.LoadScene("MainScene");
         }
 
@@ -23,10 +22,11 @@ namespace WorldDataModule {
             }
             
         }
-        private static void test(Scene scene, LoadSceneMode mode) {
-            SceneManager.sceneLoaded -= test;
-            int dim = 0;
-            createDimController(dim);
+        
+
+        public static void loadWorldFromMain(string worldName) {
+            
+            createDimController(0);
         }
     }
 

@@ -11,17 +11,29 @@ namespace RobotModule.Instances {
     {
         public override void handleMovement(Transform playerTransform)
         {
-            Vector3 position = playerTransform.position;
+            Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
+            PlayerRobot playerRobot = playerTransform.GetComponent<PlayerRobot>();
+
+            Vector2 velocity = Vector2.zero;
+            velocity.y = rb.velocity.y;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-                position.x -= 1;
+                velocity.x = -4f;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-                position.x += 1;
+                velocity.x = +4f;
             }
-            if (Input.GetKey(KeyCode.Space)) {
-                position.y += 1;
+            if (playerRobot.OnGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
+                if (Input.GetKey(KeyCode.S)) {
+                    playerRobot.NoCollisionWithPlatformCounter=5;
+                } else {
+                    velocity.y += 10f;
+                }
+                
+                playerRobot.OnGround = false;
             }
-            playerTransform.position = position;
+            
+            
+            rb.velocity = velocity;
         }
 
         public override void init(GameObject playerGameObject)

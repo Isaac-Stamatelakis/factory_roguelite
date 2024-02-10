@@ -27,7 +27,7 @@ namespace UI.Title {
                 if (WorldCreation.worldExists("world" + n)) {
                     button.text = "Slot " + n;
                 } else {
-                    button.text = "Empty Slot " + n;
+                    button.text = "Empty Slot";
                 }
                 button.clickable.clicked += () => slotPressed(k);
                 slotButtons.Add(button);
@@ -37,8 +37,8 @@ namespace UI.Title {
                 int k = n;
                 Button button = rootElement.Q<Button>("slot_" + k + "_edit");
                 button.clickable.clicked += () => editPressed(k);
-                if (!WorldCreation.worldExists("world " + n)) {
-                    //button.SetEnabled(false);
+                if (!WorldCreation.worldExists("world" + n)) {
+                    button.visible=false;
                 }
                 editButtons.Add(button);
             }

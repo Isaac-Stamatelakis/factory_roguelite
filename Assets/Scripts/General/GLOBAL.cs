@@ -9,7 +9,7 @@ public class Global
     public static int Rotation {get{return rotation;} set{rotation = value;}}
     private static float inventoryScale = 1.2f;
     public static float InventoryScale {get{return inventoryScale;}}
-    private static string worldName = "world0";
+    private static string worldName = "world2";
     public static string WorldName {set{worldName=value;} get{return worldName;}}
     private static float pixelsPerBlock = 16;
     public static float PixelsPerBlock {get {return pixelsPerBlock;}}
