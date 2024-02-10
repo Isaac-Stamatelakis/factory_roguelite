@@ -16,10 +16,11 @@ public class PlayerRobot : MonoBehaviour
 
     [SerializeField]
     public RobotItem robotItem;
+    [SerializeField]
+    public Robot overrideRobot;
+    private Robot currentRobot;
     void Start() {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        Robot robot = robotItem.robot;
-        spriteRenderer.sprite = robot.defaultSprite;
         rb = GetComponent<Rigidbody2D>();
     }
     
@@ -37,19 +38,26 @@ public class PlayerRobot : MonoBehaviour
         if (raycastHit.collider != null) {
             onGround = true;
         }
-        if (noCollisionWithPlatformCounter > 0) {
+        int platformLayer = (1 << LayerMask.NameToLayer("Platform"));
+        RaycastHit2D platformCast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.2f),0,Vector2.zero,Mathf.Infinity,layers);
+        if (platformCast.collider == null) {
             Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), true);
+        } else {
+            if (noCollisionWithPlatformCounter > 0) {
+                Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), true);
+            }
+            if (rb.velocity.y > 0.2) {
+                noCollisionWithPlatformCounter=5;
+            }
+            if (noCollisionWithPlatformCounter == 0) {
+                Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), false);
+            }
         }
-        if (rb.velocity.y > 0.2) {
-            noCollisionWithPlatformCounter=5;
-        }
-        if (noCollisionWithPlatformCounter == 0) {
-            Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), false);
-        }
-        if (robotItem == null) {
+        
+        if (currentRobot == null) {
             handleEngineerMovement();
         } else {
-            robotItem.robot.handleMovement(transform);
+            currentRobot.handleMovement(transform);
         }
     }
 
@@ -64,12 +72,18 @@ public class PlayerRobot : MonoBehaviour
         if (rb == null) {
             rb = GetComponent<Rigidbody2D>();
         }
-        this.robotItem = robotItem;
-        if (robotItem == null) {
+        if (overrideRobot != null) {
+            currentRobot = overrideRobot;
+        } else {
+            this.robotItem = robotItem;
+            currentRobot = robotItem.robot;
+        }
+        
+        if (currentRobot == null) {
             // Play as engineer
         } else {
-            robotItem.robot.init(gameObject);
-            spriteRenderer.sprite = robotItem.robot.defaultSprite;
+            currentRobot.init(gameObject);
+            spriteRenderer.sprite = currentRobot.defaultSprite;
         }
     }
     void OnCollisionEnter2D(Collision2D collision)

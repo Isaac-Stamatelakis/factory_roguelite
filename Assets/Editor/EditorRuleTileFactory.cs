@@ -222,15 +222,53 @@ public class EditorFactory
             for (int right = 0; right <= 1; right++) {
                 for (int down = 0; down <= 1; down++) {
                     for (int left = 0; left <= 1; left++) {
-                        int xStart; int yStart; int xSize; int ySize;
-                        xStart = (right == 1) ? 0 : 4;
-                        yStart = (up == 1) ? 0 : 4;
-                        xSize = (left == 1) ? 24-xStart : 20-xStart;
-                        ySize = (down == 1) ? 24-yStart : 20-yStart; 
-                        Color[] pixels = texture.GetPixels(xStart,yStart,xSize,ySize);
-                        Texture2D spliteTexture = new Texture2D(xSize,ySize);
-                        spliteTexture.SetPixels(0,0,xSize,ySize,pixels);
                         
+                        int copyXStart; int copyYStart; int copyXEnd; int copyYEnd;
+                        
+                        copyXStart = (right == 1) ? 0 : 4;
+                        copyYStart = (up == 1) ? 0 : 4;
+                        copyXEnd = (left == 1) ? 24-copyXStart : 20-copyXStart;
+                        copyYEnd = (down == 1) ? 24-copyYStart : 20-copyYStart; 
+                        
+                        Color[] pixels = texture.GetPixels(copyXStart,copyYStart,copyXEnd,copyYEnd);
+
+
+                        int newXSize = 16; int newYSize = 16;
+                        if (left == 1 || right == 1) {
+                            newXSize = 24;
+                        }
+                        if (up == 1 || down == 1) {
+                            newYSize = 24;
+                        }
+                        //Debug.Log("U:" + up + "D:" + down + "R:" + right + "L" + left);
+                        Texture2D splitTexture = new Texture2D(newXSize,newYSize);
+                        // set all values to empty
+                        for (int i = 0; i < splitTexture.width; i++)
+                        {
+                            for (int j = 0; j < splitTexture.height; j++)
+                            {
+                                splitTexture.SetPixel(i, j, Color.clear);
+                                //splitTexture.SetPixel(i, j, Color.white);
+                            }
+                        }
+                        int placeXStart=0; int placeYStart=0; int placeXWidth=16; int placeYHeight=16;
+                        if (left == 1 && right == 1) {
+                            placeXStart = 0; placeXWidth = 24;
+                        } else if (left == 1 && right == 0) {
+                            placeXStart = 0; placeXWidth = 20;
+                        } else if (left == 0 && right == 1) {
+                            placeXStart = 4; placeXWidth = 20;
+                        }
+                        if (up == 1 && down == 1) {
+                            placeYStart = 0; placeYHeight = 24;
+                        } else if (up == 1 && down == 0) {
+                            placeYStart = 4; placeYHeight = 20;
+                        } else if (up == 0 && down == 1) {
+                            placeYStart = 0; placeYHeight = 20;
+                        }
+                        //Debug.Log(placeYStart + "," + placeYHeight);
+                        splitTexture.SetPixels(placeXStart,placeYStart,placeXWidth,placeYHeight,pixels);
+
                         string spriteName = name + "[";
                         if (up == 1) {
                             spriteName += "U";
@@ -246,7 +284,7 @@ public class EditorFactory
                         }
                         spriteName += "]";
                         string spriteSavePath = spritePath + "S~" + spriteName;
-                        byte[] pngBytes = spliteTexture.EncodeToPNG();
+                        byte[] pngBytes = splitTexture.EncodeToPNG();
                         File.WriteAllBytes(spriteSavePath+".png", pngBytes);
                         AssetDatabase.Refresh();
 
@@ -263,22 +301,22 @@ public class EditorFactory
                         rule.m_Sprites = new Sprite[1];
                         rule.m_Sprites[0] = sprite1;
                         List<int> neighborRules = new List<int> {
-                            0,1,0,1,1,0,1,0
+                            0,2,0,2,2,0,2,0
                         };
-                        if (up == 1) {
-                            neighborRules[1] = 2;
+                        if (up == 0) {
+                            neighborRules[1] = 1;
                         }
-                        if (right == 1) {
-                            neighborRules[3] = 2;
+                        if (left == 0) {
+                            neighborRules[3] = 1;
                         }
-                        if (left == 1) {
-                            neighborRules[4] = 2;
+                        if (right == 0) {
+                            neighborRules[4] = 1;
                         }
-                        if (down == 1) {
-                            neighborRules[6] = 2;
+                        if (down == 0) {
+                            neighborRules[6] = 1;
                         }
-                        // Default sprite is 16 x 16
-                        if (up == 0 && right == 0 && left == 0 && down == 0) {
+                        // Default sprite is 24 x 24
+                        if (up == 1 && right == 1 && left == 1 && down == 1) {
                             ruleTile.m_DefaultSprite = sprite1;
                         }
                         

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName ="New Recipe",menuName="Crafting/Recipe")]
+[CreateAssetMenu(fileName ="R~New Recipe",menuName="Crafting/Recipe")]
 public class Recipe : ScriptableObject
 {
     public List<ScriptableItemSlot> inputs;
@@ -20,4 +20,5 @@ public class Recipe : ScriptableObject
 public class ScriptableItemSlot {
     public ItemObject item;
     public int amount;
+    public Dictionary<ItemSlotOption, object> nbt;
 }

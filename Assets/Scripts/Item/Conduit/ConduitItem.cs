@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+
 public enum ConduitType {
     Item,
     Fluid,
@@ -14,7 +16,7 @@ public enum ResourceConduitType {
     Energy = ConduitType.Energy
 }
 
-public abstract class ConduitItem : ItemObject
+public abstract class ConduitItem : ItemObject, IPlacableTile
 {
     public RuleTile ruleTile;
     public int hardness;
@@ -22,6 +24,12 @@ public abstract class ConduitItem : ItemObject
     {
         return ruleTile.m_DefaultSprite;
     }
+
+    public TileBase getTile()
+    {
+        return ruleTile;
+    }
+
     public abstract ConduitType getType();
 }
 

@@ -127,6 +127,18 @@ public class TileMapTypeFactory {
         }
         return layers;
     }
+
+    public static int getLayersInTileMapLayer(TileMapLayer layer) {
+        if (layerToTileMapTypes == null) {
+            initLayerToTIleMapType();
+        }
+        List<TileMapType> tileMapTypes = layerToTileMapTypes[layer];
+        int layerMask = 0;
+        foreach (TileMapType tileMapType in tileMapTypes) {
+            layerMask |= (1 << LayerMask.NameToLayer(tileMapType.ToString()));
+        }
+        return layerMask;
+    }
     public static float getTileMapZValue(TileMapType tileMapType) {
         switch (tileMapType) {
             case TileMapType.Block:

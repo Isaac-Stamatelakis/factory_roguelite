@@ -402,6 +402,9 @@ namespace ChunkModule {
 
         protected void place(string id, string tileOptions, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
             TileItem tileItem = itemRegistry.getTileItem(id);
+            if (tileItem == null) {
+                return;
+            }
             if (tileItem.tileEntity != null) {
                 TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
                 tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);

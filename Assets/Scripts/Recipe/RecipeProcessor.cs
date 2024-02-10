@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Adds two numbers together.
 /// </summary>
-[CreateAssetMenu(fileName ="New Recipe Processor",menuName="Crafting/Processor")]
+[CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Processor")]
 public class RecipeProcessor : ScriptableObject
 {
     public string id;
@@ -14,5 +14,7 @@ public class RecipeProcessor : ScriptableObject
     [Header("Max number of items this can output")]
     public int maxOutputs;
     [Header("Recipes this completes")]
-    public List<Recipe> recipes;
+    private List<Recipe> recipes;
+
+    public List<Recipe> Recipes { get => recipes; set => recipes = value; }
 }

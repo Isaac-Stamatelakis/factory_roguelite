@@ -52,6 +52,9 @@ public class ItemRegistry {
     }
 
     public RobotItem GetRobotItem(string id) {
+        if (id == null) {
+            return null;
+        }
         if (!items.ContainsKey(id)) {
             return null;
         }

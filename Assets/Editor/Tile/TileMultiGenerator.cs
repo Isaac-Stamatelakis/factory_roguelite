@@ -71,7 +71,8 @@ public class TileMultiGeneratorWindow : EditorWindow {
             AssetDatabase.CreateFolder(collectionPath, tileItem.name);
             tileItem.id = tileItem.name;
             tileItem.id.ToLower().Replace(" ","_");
-        
+
+            tile.id = tileItem.id;
             AssetDatabase.CreateAsset(tile, tilePath + tile.name + ".asset");
             AssetDatabase.CreateAsset(tileItem, tilePath + tileItem.name + ".asset");
             Debug.Log("TileItem and Tile Created for " + tileItem.name + " at " + tilePath);

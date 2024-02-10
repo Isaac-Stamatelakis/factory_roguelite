@@ -99,6 +99,9 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         yield return StartCoroutine(initalLoadChunks());
         playerPartitionUpdate();
         Debug.Log("Partitions Near Player Loaded");
+        yield return new WaitForSeconds(1f);
+        Debug.Log("Player Activated");
+        GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
     }
 
     protected void initTileMapContainer(TileMapType tileType) {

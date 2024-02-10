@@ -77,8 +77,8 @@ public class TileOptionFactory {
         }
     }
 }
-[CreateAssetMenu(fileName ="New Tile Item",menuName="Item Register/Tile")]
-public class TileItem : ItemObject
+[CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item Register/Tile")]
+public class TileItem : ItemObject, IPlacableTile
 {
     public TileType tileType;
     public TileBase tile;
@@ -107,6 +107,11 @@ public class TileItem : ItemObject
             return ((RuleTile) tile).m_DefaultSprite;
         }
         return null;
+    }
+
+    public TileBase getTile()
+    {
+        return tile;
     }
 }
 
