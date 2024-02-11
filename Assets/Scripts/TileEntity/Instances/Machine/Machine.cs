@@ -17,6 +17,7 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> inputs;
         private List<ItemSlot> outputs;
         private List<ItemSlot> others;
+        private Recipe currentRecipe;
 
         public override void initalize(Vector2Int tilePosition, IChunk chunk)
         {

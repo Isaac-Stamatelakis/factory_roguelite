@@ -12,4 +12,13 @@ public class TransmutableRecipeProcessor : RecipeProcessor
     public List<TransmutableItemState> inputStates;
     [Header("Output State")]
     public TransmutableItemState outputState;
+
+    protected override Recipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs,int firstAvaiableOutputIndex)
+    {
+        
+        // Check recipes
+        return base.getValidRecipe(inputs, outputs,firstAvaiableOutputIndex);
+
+    }
+
 }

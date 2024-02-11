@@ -27,20 +27,20 @@ public class RecipeRegistry
         Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
     }
 
-    private void loadItemList(List<ScriptableItemSlot> items, List<string> paths) {
+    private void loadItemList(List<ItemSlot> items, List<string> paths) {
         for (int i = 0; i < items.Count; i ++) {
-            ScriptableItemSlot itemSlot = items[i];
-            if (itemSlot.item == null) {
+            ItemSlot itemSlot = items[i];
+            if (itemSlot.itemObject == null) {
                 if (i < paths.Count) {
-                    itemSlot.item = AssetDatabase.LoadAssetAtPath<ItemObject>(paths[i]);
+                    itemSlot.itemObject = AssetDatabase.LoadAssetAtPath<ItemObject>(paths[i]);
                 } else {
                     Debug.LogError("Recipe Registry tried to load itemobject as it was null from path which did not exist");
                 }
             } else {
                 if (paths.Count <= i) {
-                    paths.Add(AssetDatabase.GetAssetPath(itemSlot.item));
+                    paths.Add(AssetDatabase.GetAssetPath(itemSlot.itemObject));
                 } else {
-                    paths[i] = AssetDatabase.GetAssetPath(itemSlot.item);
+                    paths[i] = AssetDatabase.GetAssetPath(itemSlot.itemObject);
                 } 
             }
         }
