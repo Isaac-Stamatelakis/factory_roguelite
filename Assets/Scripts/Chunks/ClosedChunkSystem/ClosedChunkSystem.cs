@@ -76,16 +76,21 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
         
         chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
+        chunkLoader.init(this);
+
         chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
+        chunkUnloader.init(this);
 
         partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
+        partitionLoader.init(this);
+
         partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
-        partitionUnloader.Loader = partitionLoader;
+        partitionUnloader.init(this,partitionLoader);
+
         playerTransform = GameObject.Find("Player").GetComponent<Transform>();
         cachedChunks = new Dictionary<Vector2Int, IChunk>();
         this.dim = dim;
         this.coveredArea = coveredArea;
-        Debug.Log(Application.persistentDataPath);
         Debug.Log("Closed Chunk System " + name + "For Dim" + dim + " Initalized");
         StartCoroutine(initalLoad());
     }
@@ -94,6 +99,9 @@ public abstract class ClosedChunkSystem : MonoBehaviour
         yield return StartCoroutine(initalLoadChunks());
         playerPartitionUpdate();
         Debug.Log("Partitions Near Player Loaded");
+        yield return new WaitForSeconds(1f);
+        Debug.Log("Player Activated");
+        GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
     }
 
     protected void initTileMapContainer(TileMapType tileType) {

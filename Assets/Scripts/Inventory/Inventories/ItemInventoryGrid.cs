@@ -15,18 +15,7 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         if (itemSlot.itemObject == null) {
             return null;
         }
-        GameObject number = base.loadItemAmountNumber(slot, itemSlot);
-        TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-        textMeshPro.text = itemSlot.amount.ToString();
-        
-        
-        textMeshPro.fontSize = 30;
-        RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
-        
-        rectTransform.localPosition = new Vector3(5f,5f,1);
-        rectTransform.sizeDelta = new Vector2(96,96);
-        textMeshPro.alignment = TextAlignmentOptions.BottomLeft;
-        return number;
+        return base.loadItemAmountNumber(slot,itemSlot);
     }
 
     protected override GameObject loadItemImage(GameObject slot, ItemSlot itemSlot)
@@ -37,12 +26,15 @@ public class ItemInventoryGrid : DynamicInventoryGrid
         if (itemSlot.itemObject == null) {
             return null;
         }
+        
         GameObject imageObject = base.loadItemImage(slot, itemSlot);
+        /*
         imageObject.AddComponent<CanvasRenderer>();
         RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
         Image image = imageObject.AddComponent<Image>();
         image.sprite = itemSlot.itemObject.getSprite();
         rectTransform.sizeDelta = getItemSize(image.sprite);
+        */
         return imageObject;
     }
 }

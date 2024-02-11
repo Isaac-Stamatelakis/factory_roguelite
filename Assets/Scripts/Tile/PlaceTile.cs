@@ -3,8 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
 using ChunkModule;
+using System;
+
+
 
 public class PlaceTile {
+    private enum GridLocation {
+        UpLeft,
+        UpRight,
+        DownRight,
+        DownLeft,
+        Center
+    }
     /**
     Conditions:
     i) no tileBlock within sprite size.
@@ -15,24 +25,11 @@ public class PlaceTile {
     public static bool Place(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
         if (itemObject is TileItem) {
             TileItem tileItem = (TileItem) itemObject;
-            TileMapType tileMapType = TileMapTypeFactory.tileToMapType(tileItem.tileType);
-            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
-            switch (layer) {
-                case TileMapLayer.Base:
-                    if (!baseTilePlacable(tileItem,worldPlaceLocation)) {
-                        return false;
-                    }
-                    break; 
-                case TileMapLayer.Background:
-                    if (!tileBackgroundPlacable(tileItem,worldPlaceLocation)) {
-                        return false;
-                    }
-                    break;
-                default:
-                    return false;
+            if (tilePlacable(tileItem,worldPlaceLocation)) {
+                TileMapType tileMapType = TileMapTypeFactory.tileToMapType(tileItem.tileType);
+                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem);
+                return true;
             }
-            placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem);
-            return true;
         } else if (itemObject is ConduitItem) {
             ConduitItem conduitItem = ((ConduitItem) itemObject);
             TileMapType tileMapType = TileMapTypeFactory.tileToMapType(conduitItem.getType());
@@ -50,7 +47,50 @@ public class PlaceTile {
         }
         return false;
     }
-    public static bool baseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation) { 
+    private static bool tilePlacable(TileItem tileItem,Vector2 worldPlaceLocation) {
+        TileMapType tileMapType = TileMapTypeFactory.tileToMapType(tileItem.tileType);
+        TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+        switch (layer) {
+            case TileMapLayer.Base:
+                return baseTilePlacable(tileItem,worldPlaceLocation);
+            case TileMapLayer.Background:
+                    return backgroundTilePlacable(tileItem,worldPlaceLocation);
+            default:
+                return false;
+        }
+    }
+
+    public static bool itemPlacable(ItemObject itemObject, Vector2 worldPlaceLocation) {
+        if (itemObject is TileItem) {
+            TileItem tileItem = (TileItem) itemObject;
+            return tilePlacable(tileItem,worldPlaceLocation);
+        } else if (itemObject is ConduitItem) {
+            ConduitItem conduitItem = ((ConduitItem) itemObject);
+            TileMapType tileMapType = TileMapTypeFactory.tileToMapType(conduitItem.getType());
+            TileMapLayer layer = TileMapTypeFactory.MapToSerializeLayer(tileMapType);
+            switch (layer) {
+                case TileMapLayer.Item:
+                    break;
+                case TileMapLayer.Fluid:
+                    break;
+                case TileMapLayer.Energy:
+                    break;
+                case TileMapLayer.Signal:
+                    break;
+            }
+        }
+        return false;
+    }
+    public static Vector3Int getItemPlacePosition(ItemObject itemObject, Vector2 position) {
+        if (itemObject is TileItem) {
+            TileItem tileItem = (TileItem) itemObject;
+            return (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
+        } else if (itemObject is ConduitItem) {
+
+        }
+        return Vector3Int.zero;
+    }
+    private static bool baseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation) { 
         FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.getSpriteSize(tileItem.getSprite()));
         if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
             return false;
@@ -72,15 +112,14 @@ public class PlaceTile {
     i) no tileBackground within sprite size.
     ii) tileBackground below, above, left, or right, or a tileblock at the location.
     **/
-    public static bool tileBackgroundPlacable(TileItem tileItem,Vector2 worldPosition) { 
-        Debug.Log(Global.getSpriteSize(tileItem.getSprite()));
+    private static bool backgroundTilePlacable(TileItem tileItem,Vector2 worldPosition) { 
         FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.getSpriteSize(tileItem.getSprite()));
-        if (tileWithinRange(
+        if (backgroundTileWithinRange(
             intervalVector.X.LowerBound,
             intervalVector.X.UpperBound,
             intervalVector.Y.LowerBound,
             intervalVector.Y.UpperBound,
-            TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Background)
+            TileMapTypeFactory.getLayersInTileMapLayer(TileMapLayer.Background)
         )) {
             return false;
         }
@@ -92,21 +131,21 @@ public class PlaceTile {
                 intervalVector.X.UpperBound,
                 intervalVector.Y.LowerBound,
                 intervalVector.Y.UpperBound, 
-                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Base)
+                TileMapTypeFactory.getLayersInTileMapLayer(TileMapLayer.Base)
             ) && 
             !tileWithinParameter(
                 intervalVector.X.LowerBound,
                 intervalVector.X.UpperBound,
                 intervalVector.Y.LowerBound,
                 intervalVector.Y.UpperBound,
-                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Background)
+                TileMapTypeFactory.getLayersInTileMapLayer(TileMapLayer.Background)
             ) &&
             !tileWithinRange(
                 intervalVector.X.LowerBound,
                 intervalVector.X.UpperBound,
                 intervalVector.Y.LowerBound,
                 intervalVector.Y.UpperBound, 
-                TileMapTypeFactory.getLayerMasksInLayer(TileMapLayer.Base)
+                TileMapTypeFactory.getLayersInTileMapLayer(TileMapLayer.Base)
             )) {
             return false;
         }
@@ -181,28 +220,17 @@ public class PlaceTile {
     public static float modInt(float x, int m) {
     return (x%m + m)%m;
     }
-    /**
-    returns true if there is a tile at the location
-    **/
-    public static bool raycastTileAtLocation(Vector2 position, int layer) {
-        return Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer).collider != null;
-    }
     /// <summary>
     /// raycasts a given position in a 0.5f, 0.5f box.
     /// </summary>
-    public static bool raycastTileInBox(Vector2 position, List<LayerMask> layers) {
-        foreach (LayerMask layerMask in layers) {
-            if (Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layerMask).collider != null) {
-                return true;
-            }
-        }
-        return false;
+    private static bool raycastTileInBox(Vector2 position, int layers) {
+        return Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
     }
 
     /**
     returns true if there is a tile within the range, inclusive
     **/
-    public static bool tileWithinRange(float minX, float maxX, float minY, float maxY, List<LayerMask> layers) {
+    private static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layers) {
         for (float x = minX; x <= maxX; x += 1/2f) {
             for (float y = minY; y <= maxY; y += 1/2f) {
                 if (raycastTileInBox(new Vector2(x,y), layers)) {
@@ -212,8 +240,57 @@ public class PlaceTile {
         }
         return false;
     }
+    /// Summary:
+    ///     Since tilebackgrounds can "overflow" into other grids, must check each quadrant of the grid.
+    ///     Returns true iff every raycast background hits 
+    private static bool backgroundTileWithinRange(float minX, float maxX, float minY, float maxY, int layers) {
+        for (float x = minX; x <= maxX; x += 1/2f) {
+            for (float y = minY; y <= maxY; y += 1/2f) {
+                foreach (GridLocation location in Enum.GetValues(typeof(GridLocation))) {
+                    if (!raycastBackground(new Vector2(x,y), location,  layers)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
-    public static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, List<LayerMask> layers) {
+    private static bool raycastBackground(Vector2 position, GridLocation gridLocation, int layers) {
+        Vector2 offset;
+        switch (gridLocation) {
+            case GridLocation.UpLeft:
+                offset = new Vector2(-0.25f, 0.25f);
+                break;
+            case GridLocation.UpRight:
+                offset = new Vector2(0.25f, 0.25f);
+                break;
+            case GridLocation.DownRight:
+                offset = new Vector2(0.25f, -0.25f);
+                break;
+            case GridLocation.DownLeft:
+                offset = new Vector2(-0.25f, -0.25f);
+                break;
+            case GridLocation.Center:
+                offset = Vector2.zero;
+                break;
+            default: // never called
+                offset = Vector2.zero;
+                break;
+        }
+        if (Physics2D.Raycast(position+offset,Vector2.zero,Mathf.Infinity,layers).collider != null) {
+            return true;
+        }
+        /*
+        if (Physics2D.BoxCast(position+offset,new Vector2(0.01f,0.01f),0f,Vector2.zero,Mathf.Infinity,layers).collider != null) {
+            return true;
+        }
+        */
+        return false;
+    }
+ 
+
+    private static bool tileWithinParameter(float minX, float maxX, float minY, float maxY, int layers) {
         return (
             tileWithinRange(minX-0.5f,minX-0.5f,minY,maxY,layers) ||
             tileWithinRange(maxX+0.5f,maxX+0.5f,minY,maxY,layers) ||
@@ -221,8 +298,8 @@ public class PlaceTile {
             tileWithinRange(minX,maxX,maxY+0.5f,maxY+0.5f,layers));
     }
 
-    public static bool tileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
-        List<LayerMask> layers = TileMapTypeFactory.getLayerMasksInLayer(layer);
+    private static bool tileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
+        int layers = TileMapTypeFactory.getLayersInTileMapLayer(layer);
         return tileWithinRange(
             floatIntervalVector.X.LowerBound,
             floatIntervalVector.X.UpperBound,
@@ -232,8 +309,8 @@ public class PlaceTile {
         );
     }
 
-    public static bool tileWithinIntervalParameter(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
-        List<LayerMask> layers = TileMapTypeFactory.getLayerMasksInLayer(layer);
+    private static bool tileWithinIntervalParameter(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
+        int layers = TileMapTypeFactory.getLayersInTileMapLayer(layer);
         return tileWithinParameter(
             floatIntervalVector.X.LowerBound,
             floatIntervalVector.X.UpperBound,
@@ -243,7 +320,7 @@ public class PlaceTile {
         );
     }
 
-    public static bool placeConduit(ConduitItem conduitItem, Vector2 placePosition) {
+    private static bool placeConduit(ConduitItem conduitItem, Vector2 placePosition) {
         if (conduitPlacable(conduitItem,placePosition)) {
             ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.getType());
             Vector3Int tileMapPosition = conduitTileMap.mTileMap.WorldToCell(placePosition);
@@ -257,7 +334,7 @@ public class PlaceTile {
         return false;
     }
 
-    public static bool conduitPlacable(ConduitItem conduitItem, Vector2 placePosition) {
+    private static bool conduitPlacable(ConduitItem conduitItem, Vector2 placePosition) {
         ConduitTileMap conduitTileMap = GetConduitTileMap(placePosition, conduitItem.getType());
         
         if (conduitTileMap == null) {

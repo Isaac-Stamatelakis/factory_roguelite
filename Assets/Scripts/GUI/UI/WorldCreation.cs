@@ -36,9 +36,9 @@ namespace WorldDataModule {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                robotID: null,
+                robotID: "happy_mk1",
                 name: "Izakio",
-                inventoryJson: ItemSlotFactory.createEmptyInventory(40)
+                inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             string path = getPlayerDataPath(name);
@@ -96,19 +96,6 @@ namespace WorldDataModule {
             BoundsInt baseBounds = baseTileMap.cellBounds;
             int width = (Mathf.Abs(caveArea.xInterval.y-caveArea.xInterval.x)+1) * Global.ChunkSize;
             int height = (Mathf.Abs(caveArea.yInterval.y-caveArea.yInterval.x)+1) * Global.ChunkSize;
-            /*
-            int width = Mathf.Abs(baseBounds.xMax-baseBounds.xMin);
-            int height = Mathf.Abs(baseBounds.yMax-baseBounds.yMin);
-            if (width % Global.ChunkSize != 0 && height % Global.ChunkSize != 0) {
-                Debug.Log("Abandoning generation for " + prefab.name + " as base width[" + width + "] and height[" + height + "] do not divide chunkSize");
-            }
-            if (width % Global.ChunkSize != 0) {
-                Debug.Log("Abandoning generation for " + prefab.name + " as base width[" + width + "] does not divide chunkSize");
-            }
-            if (height % Global.ChunkSize != 0) {
-                Debug.Log("Abandoning generation for " + prefab.name + " as base height[" + height + "] does not divide chunkSize");
-            }
-            */
             Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             SeralizedChunkTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,TileMapLayer.Base,width,height);
             SeralizedChunkTileData backgroundData = tileMapToSerializedChunkTileData(baseTileMap,TileMapLayer.Background,width,height);

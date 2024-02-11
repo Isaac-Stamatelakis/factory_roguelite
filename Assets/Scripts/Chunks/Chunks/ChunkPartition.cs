@@ -159,7 +159,12 @@ namespace ChunkModule {
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
+            entityLoaded=false;
             tileEntities = null;
+        }
+
+        public void loadEntities() {
+
         }
 
         public bool getEntityLoaded()
@@ -229,6 +234,7 @@ namespace ChunkModule {
             if (!tileEntities.ContainsKey(TileMapLayer.Background)) {
                 tileEntities[TileMapLayer.Background] = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
+            entityLoaded = true;
             yield return base.load(tileGridMaps,angle);
             
         }
@@ -312,8 +318,6 @@ namespace ChunkModule {
                     }
                 }
             }
-            
-            
         }
 
         public override IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
@@ -402,6 +406,9 @@ namespace ChunkModule {
 
         protected void place(string id, string tileOptions, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
             TileItem tileItem = itemRegistry.getTileItem(id);
+            if (tileItem == null) {
+                return;
+            }
             if (tileItem.tileEntity != null) {
                 TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
                 tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);

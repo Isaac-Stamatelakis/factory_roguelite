@@ -19,20 +19,17 @@ public class PartitionLoader : MonoBehaviour
     public bool Activated {get{return activeCoroutines != 0;}}
     public Queue<IChunkPartition> loadQueue;
 
-    void Start()
-    {
-
-        ClosedChunkSystem[] closedChunkSystems = transform.parent.GetComponents<ClosedChunkSystem>();
-        if (closedChunkSystems.Length > 1) {
-            Debug.LogError("ChunkUnloader belongs to multiple dimensions");
-        }
+    public void init(ClosedChunkSystem closedChunkSystem) {
+        this.closedChunkSystem = closedChunkSystem;
         loadQueue = new Queue<IChunkPartition>();
-        closedChunkSystem = closedChunkSystems[0];
         StartCoroutine(load());
     }
 
     public void addToQueue(List<IChunkPartition> partitionsToLoad) {
         activeCoroutines += partitionsToLoad.Count;
+        if (closedChunkSystem == null) {
+
+        }
         Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
         partitionsToLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
         for (int j =0 ;j < partitionsToLoad.Count; j++) {

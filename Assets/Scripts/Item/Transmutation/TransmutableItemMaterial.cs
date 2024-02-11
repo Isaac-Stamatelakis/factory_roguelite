@@ -6,6 +6,7 @@ public enum TransmutableItemState {
     Dust,
     Plate,
     Wire,
+    Block,
     Fine_Wire,
     Double_Plate,
     Small_Dust,

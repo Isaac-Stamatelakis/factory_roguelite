@@ -17,16 +17,10 @@ public class ChunkUnloader : MonoBehaviour
     public int activeCoroutines = 0;
     public bool Activated {get{return activeCoroutines != 0;}}
     public Queue<Chunk> unloadQueue;
-
-    void Awake()
-    {
-        ClosedChunkSystem[] closedChunkSystems = transform.parent.GetComponents<ClosedChunkSystem>();
-        if (closedChunkSystems.Length > 1) {
-            Debug.LogError("ChunkUnloader belongs to multiple dimensions");
-        }
+    public void init(ClosedChunkSystem closedChunkSystem) {
+        this.closedChunkSystem = closedChunkSystem;
         unloadQueue = new Queue<Chunk>();
-        closedChunkSystem = closedChunkSystems[0];
-        StartCoroutine(load());
+        StartCoroutine(unload());
     }
 
     public void addToQueue(List<Chunk> chunksToUnLoad) {
@@ -41,7 +35,7 @@ public class ChunkUnloader : MonoBehaviour
         chunksToUnLoad.Clear();
         
     }
-    public IEnumerator load() {
+    public IEnumerator unload() {
         while (true) {
             if (unloadQueue.Count == 0) {
                 yield return new WaitForSeconds(this.delay);

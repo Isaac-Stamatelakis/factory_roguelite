@@ -4,43 +4,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class InventoryGrid : MonoBehaviour
-{
-    private static string TAG = "InventoryGrid: ";
+public class AInventoryUI : MonoBehaviour {
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
-    [SerializeField] protected UnityEngine.Vector2Int size;
-    public UnityEngine.Vector2Int Size {get{return size;}}
-    public int SizeInt{get{return size.x*size.y;}}
-
-    public void initalize(List<ItemSlot> inventory, UnityEngine.Vector2Int size) {
-        this.inventory = inventory;
-        this.size = size;
-        initalizeSlots();
-        
-    }
-
-    public void initalize(List<ItemSlot> inventory) {
-        this.inventory = inventory;
-        initalizeSlots();
-    }
-
     protected void initalizeSlots() {
-        for (int n = 0; n < SizeInt; n ++) {
+        for (int n = 0; n < inventory.Count; n ++) {
             initSlot(n);
             loadItem(n);
         }
     }
     protected virtual void initSlot(int n) {
-        GameObject slot = Global.findChild(transform,"slot"+n);
-        slots.Add(slot);
+        Transform slotTransform = transform.Find("slot" + n);
+        if (slotTransform == null) {
+            Debug.LogError("Slot" + n + " doesn't exist but tried to load it into  inventory " + name);
+            slots.Add(null);
+            return;
+        }
+        slots.Add(slotTransform.gameObject);
     }
     public virtual void loadItem(int n) {
         GameObject slot = slots[n];
         ItemSlot itemSlot = inventory[n];
         loadItemImage(slot,itemSlot);
         loadItemAmountNumber(slot,itemSlot);   
-        
     }
 
     public virtual void setItem(int n, ItemSlot data) {
@@ -54,7 +40,7 @@ public class InventoryGrid : MonoBehaviour
     public virtual void unloadItem(int n) {
         GameObject slot = slots[n];
         if (slot == null) {
-            Debug.LogError(TAG + "attempted to " + "unload item" + " at slot " + n + " when slot doesn't exist");
+            Debug.LogError("Inventory " + name + "attempted to " + "unload item" + " at slot " + n + " when slot doesn't exist");
             return;
         }
         GameObject number = Global.findChild(slot.transform,"amount");
@@ -79,7 +65,7 @@ public class InventoryGrid : MonoBehaviour
 
     protected bool itemGuard(GameObject slot, int n, string operation) {
         if (slot == null) {
-            Debug.LogError(TAG + "attempted to " + operation + " at slot " + n + " when slot doesn't exist");
+            Debug.LogError("Inventory " + name + "attempted to " + operation + " at slot " + n + " when slot doesn't exist");
             return true;
         }
 
@@ -90,26 +76,46 @@ public class InventoryGrid : MonoBehaviour
         return false;
     }
     protected virtual GameObject loadItemImage(GameObject slot, ItemSlot data) {
+        if (data == null || data.itemObject == null) {
+            return null;    
+        }
         GameObject imageObject = new GameObject();
         imageObject.name = "item";
         imageObject.transform.SetParent(slot.transform);
         RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
         rectTransform.localPosition = Vector3.zero;
+        imageObject.AddComponent<CanvasRenderer>();
+        Image image = imageObject.AddComponent<Image>();
+        image.sprite = data.itemObject.getSprite();
+        rectTransform.sizeDelta = getItemSize(image.sprite);
         return imageObject;
     }
 
     protected virtual GameObject loadItemAmountNumber(GameObject slot, ItemSlot data) {
+        if (data == null || data.itemObject == null) {
+            return null;    
+        }
         GameObject number = new GameObject();
         number.name = "amount";
         number.transform.SetParent(slot.transform);
         number.AddComponent<RectTransform>();
+        TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
+        textMeshPro.text = data.amount.ToString();
+        
+        
+        textMeshPro.fontSize = 30;
+        RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
+        
+        rectTransform.localPosition = new Vector3(5f,5f,1);
+        rectTransform.sizeDelta = new Vector2(96,96);
+        textMeshPro.alignment = TextAlignmentOptions.BottomLeft;
         return number;
     }
     
     public virtual void swapWithGrabbedItem(int n) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
-            Debug.LogError(TAG + "GrabbedItem is null");
+            Debug.LogError("Inventory " + name + " GrabbedItem is null");
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         ItemSlot temp = inventory[n];
@@ -117,13 +123,6 @@ public class InventoryGrid : MonoBehaviour
         grabbedItemProperties.itemSlot = temp;
         unloadItem(n);
         loadItem(n);
-        /*
-        if (inventory[n] == null || inventory[n].itemObject == null) {
-           
-        } else {
-            
-        }
-        */
         grabbedItemProperties.updateSprite();
     }
 
@@ -145,5 +144,24 @@ public class InventoryGrid : MonoBehaviour
             return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
         }
         return Vector2.zero;
+    }
+}
+
+public class InventoryGrid : AInventoryUI
+{
+    [SerializeField] protected UnityEngine.Vector2Int size;
+    public UnityEngine.Vector2Int Size {get{return size;}}
+    public int SizeInt{get{return size.x*size.y;}}
+
+    public void initalize(List<ItemSlot> inventory, UnityEngine.Vector2Int size) {
+        this.inventory = inventory;
+        this.size = size;
+        initalizeSlots();
+        
+    }
+
+    public void initalize(List<ItemSlot> inventory) {
+        this.inventory = inventory;
+        initalizeSlots();
     }
 }

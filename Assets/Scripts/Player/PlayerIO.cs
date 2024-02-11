@@ -5,6 +5,8 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using WorldDataModule;
+using RobotModule;
+using ItemModule;
 
 public class PlayerIO : MonoBehaviour
 {
@@ -24,7 +26,11 @@ public class PlayerIO : MonoBehaviour
         string json = File.ReadAllText(playerJsonPath);
         playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
         transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
+        GetComponent<PlayerRobot>().setRobot(ItemRegistry.getInstance().GetRobotItem(playerData.robotID));
+        tilePlacePreviewController.toggle();
     }
+
+   
     // Update is called once per frame
     void Update()
     {
@@ -41,6 +47,12 @@ public class PlayerIO : MonoBehaviour
         playerData.y = transform.position.y;
         playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
         string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
+        RobotItem robotItem = GetComponent<PlayerRobot>().robotItem;
+        if (robotItem == null) {
+            playerData.robotID = null;
+        } else {
+            playerData.robotID = robotItem.id;
+        }
         File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));
     }
     

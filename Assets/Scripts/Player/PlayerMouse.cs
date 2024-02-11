@@ -116,13 +116,8 @@ public class PlayerMouse : MonoBehaviour
     
     public void handleBreak(Vector2 mousePosition) {
         TileMapLayer tileMapLayer = devMode.breakType;
-        List<TileMapType> layerTypes = TileMapTypeFactory.getTileTypesInLayer(tileMapLayer);
-        foreach (TileMapType tileMapType in layerTypes) {
-            if (raycastHitBlock(mousePosition,1 << LayerMask.NameToLayer(tileMapType.ToString()))) {
-                break;
-            }
-            
-        }
+        int layer = TileMapTypeFactory.getLayersInTileMapLayer(tileMapLayer);
+        raycastHitBlock(mousePosition,layer);
     }
 
 
@@ -154,26 +149,25 @@ public class PlayerMouse : MonoBehaviour
             TileMapLayer.Base,
             TileMapLayer.Background
         };
+        
         TileMapLayer hitLayer = TileMapLayer.Null;
         foreach (TileMapLayer tileMapLayer in tileMapLayers) {
-            List<TileMapType> layerTypes = TileMapTypeFactory.getTileTypesInLayer(tileMapLayer);
-            foreach (TileMapType tileMapType in layerTypes) {
-                if (raycastTileMap(mousePosition,1 << LayerMask.NameToLayer(tileMapType.ToString()))) {
-                    hitLayer = tileMapLayer;
-                    break;
+            int layers = TileMapTypeFactory.getLayersInTileMapLayer(tileMapLayer);
+            if (raycastTileMap(mousePosition,layers)) {
+                hitLayer = tileMapLayer;
+                IChunk chunk = getChunk(mousePosition);
+                Vector2Int partitionPosition = Global.getPartition(mousePosition);
+                Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+                Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
+                Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
+                IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+                if (chunkPartition.clickTileEntity(hitLayer, tilePositionInPartition)) {
+                    return true;
                 }
             }
         }
-        if (hitLayer == TileMapLayer.Null) {
-            return false;
-        }
-        IChunk chunk = getChunk(mousePosition);
-        Vector2Int partitionPosition = Global.getPartition(mousePosition);
-        Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
-        Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-        Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
-        IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
-        return chunkPartition.clickTileEntity(hitLayer, tilePositionInPartition);
+        return false;
+        
     }
 
     private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {

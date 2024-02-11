@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using RobotModule;
+using ItemModule;
 
 /// Singleton
 public class ItemRegistry {
@@ -47,6 +49,20 @@ public class ItemRegistry {
         } else {
             return null;
         }
+    }
+
+    public RobotItem GetRobotItem(string id) {
+        if (id == null) {
+            return null;
+        }
+        if (!items.ContainsKey(id)) {
+            return null;
+        }
+        ItemObject itemObject = items[id];
+        if (itemObject is RobotItem) {
+            return (RobotItem) itemObject;
+        }
+        return null;
     }
 
     public ItemObject getItemObject(string id) {

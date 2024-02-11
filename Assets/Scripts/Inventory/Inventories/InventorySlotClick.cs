@@ -5,7 +5,7 @@ public class InventorySlotClick : MonoBehaviour
     
     
     public void onClick() {
-        InventoryGrid inventoryGrid = transform.parent.GetComponent<InventoryGrid>();
+        AInventoryUI inventoryGrid = transform.parent.GetComponent<AInventoryUI>();
         if (inventoryGrid != null) {
             inventoryGrid.swapWithGrabbedItem(int.Parse(gameObject.name.Replace("slot","")));
         }
