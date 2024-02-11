@@ -141,11 +141,38 @@ public class TransmutableItemMaterial : ScriptableObject
     [Header("Color of default sprite")]
     public Color color;
     public List<TransmutableStateOptions> states;
+    public bool test = false;
     public virtual List<TransmutableStateOptions> getStates() {
         return this.states;
     }
+    [Header("Auto Generated")]
+    public List<KVP<TransmutableItemState,string>> statesToID;
+    private Dictionary<TransmutableItemState, string> stateToIDDict;
+    public TransmutableItemObject transmute(TransmutableItemState output) {
+        if (stateToIDDict == null) {
+            initDict();
+        }
+        string outputID = stateToIDDict[output];
+        return ItemRegistry.getInstance().getTransmutableItemObject(outputID);
+    }
+
+    private void initDict() {
+        stateToIDDict = new Dictionary<TransmutableItemState, string>();
+        foreach (KVP<TransmutableItemState,string> kvp in statesToID) {
+            stateToIDDict[kvp.key] = kvp.value;
+        }
+    }
 }
 
+[System.Serializable]
+public class KVP<K,V> {
+    public K key;
+    public V value;
+    public KVP(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+}
 public class TransmutableMaterialDict {
     public TransmutableItemMaterial material;
     public Dictionary<TransmutableItemState, TransmutableStateOptions> dict = new Dictionary<TransmutableItemState, TransmutableStateOptions>();

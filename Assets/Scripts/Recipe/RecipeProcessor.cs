@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Adds two numbers together.
+/// Processes recipes
 /// </summary>
 [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Processor")]
 public class RecipeProcessor : ScriptableObject
@@ -14,11 +14,8 @@ public class RecipeProcessor : ScriptableObject
     [Header("Max number of items this can output")]
     public int maxOutputs;
     [Header("Recipes this completes")]
-    private List<Recipe> recipes;
-
-    public List<Recipe> Recipes { get => recipes; set => recipes = value; }
-
-    public virtual Recipe getMatchingRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs) {
+    private Dictionary<int, List<Recipe>> recipesOfMode = new Dictionary<int, List<Recipe>>();
+    public virtual IRecipe getMatchingRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs, int mode) {
         // Validations
         if (itemListAllNull(inputs)) {
             // No inputs
@@ -26,7 +23,7 @@ public class RecipeProcessor : ScriptableObject
         }
         int firstAvaiableOutputIndex = 0; string firstAvaiableOutputID = null;
         foreach (ItemSlot itemSlot in outputs) {
-            if (itemSlot.itemObject == null) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
                 break;
             } else {
                 if (itemSlot.amount < Global.MaxSize) {
@@ -39,23 +36,25 @@ public class RecipeProcessor : ScriptableObject
             // No output slots free
             return null;
         }
-        return getValidRecipe(inputs,outputs,firstAvaiableOutputIndex);
+        return getValidRecipe(inputs,outputs,firstAvaiableOutputIndex,mode);
     }
-    protected virtual Recipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs, int firstAvaiableOutputIndex) {
-        foreach (Recipe recipe in recipes) {
+    protected virtual IRecipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs, int firstAvaiableOutputIndex, int mode) {
+        if (!recipesOfMode.ContainsKey(mode)) {
+            return null;
+        }
+        foreach (Recipe recipe in recipesOfMode[mode]) {
             if (recipe.match(inputs,outputs,firstAvaiableOutputIndex)) {
-                return recipe;
+                return (IRecipe) recipe;
             }
         }
         return null;
     }
     private bool itemListAllNull(List<ItemSlot> items) {
         foreach (ItemSlot itemSlot in items) {
-            if (itemSlot.itemObject == null) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
                 return false;
             }
         }
         return true;
     }
-
 }

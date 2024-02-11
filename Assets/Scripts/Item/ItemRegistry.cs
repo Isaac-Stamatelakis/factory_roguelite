@@ -65,6 +65,19 @@ public class ItemRegistry {
         return null;
     }
 
+    public TransmutableItemObject getTransmutableItemObject(string id) {
+        if (id == null) {
+            return null;
+        }
+        if (!items.ContainsKey(id)) {
+            return null;
+        }
+        ItemObject itemObject = items[id];
+        if (itemObject is TransmutableItemObject) {
+            return (TransmutableItemObject) itemObject;
+        }
+        return null;
+    }
     public ItemObject getItemObject(string id) {
         if (!items.ContainsKey(id)) {
             return null;

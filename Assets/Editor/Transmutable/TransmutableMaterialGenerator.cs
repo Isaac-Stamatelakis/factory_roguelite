@@ -57,6 +57,7 @@ public class TransmutableItemGenerator : EditorWindow {
                 Debug.Log("Generating Material " + transmutableItemMaterial.name);
                 AssetDatabase.CreateFolder(FolderPath,transmutableItemMaterial.name);
                 string materialPath = FolderPath + "/" +transmutableItemMaterial.name + "/";
+                transmutableItemMaterial.statesToID = new List<KVP<TransmutableItemState, string>>();
                 foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.getStates()) {
                     string prefix = TransmutableItemStateFactory.getPrefix(itemConstructionData.state);
                     string suffix = TransmutableItemStateFactory.getSuffix(itemConstructionData.state);
@@ -76,6 +77,8 @@ public class TransmutableItemGenerator : EditorWindow {
                     TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
                     itemObject.name = name;
                     itemObject.materialDict = dict;
+                    itemObject.materialDict.material = transmutableItemMaterial;
+                    itemObject.material = transmutableItemMaterial;
                     itemObject.state = itemConstructionData.state;
                     if (itemConstructionData.sprite == null) {
                         Sprite sprite = sprites.getSprite(itemConstructionData.state);
@@ -113,9 +116,14 @@ public class TransmutableItemGenerator : EditorWindow {
                         itemObject.sprite = itemConstructionData.sprite;
                     }
                     itemObject.id = (prefix + "_"+ transmutableItemMaterial.id + "_" + suffix).ToLower();
+                    transmutableItemMaterial.statesToID.Add(new KVP<TransmutableItemState, string>(itemObject.state,itemObject.id));
                     AssetDatabase.CreateAsset(itemObject,materialPath + name.Replace(" ","") + ".asset");
                 }
                 Debug.Log(transmutableItemMaterial.getStates().Count + " Item's created for " + transmutableItemMaterial.name);
+                transmutableItemMaterial.test = true;
+                EditorUtility.SetDirty(transmutableItemMaterial);
+                AssetDatabase.SaveAssets();
+                //AssetDatabase.CreateAsset(transmutableItemMaterial,GeneratePath+ "/" + transmutableItemMaterial.name + ".asset");
             }
             
         }

@@ -13,6 +13,20 @@ public class AInventoryUI : MonoBehaviour {
             loadItem(n);
         }
     }
+
+    protected void refreshSlots() {
+        if (slots == null || inventory == null) {
+            return;
+        }
+        for (int n = 0; n < inventory.Count; n ++) {
+            GameObject slot = slots[n];
+            if (inventory[n] == null || inventory[n].itemObject == null) {
+                unloadItem(n);
+            }
+            reloadItemImage(slot,inventory[n]);
+            reloadItemAmount(slot,inventory[n]);
+        }
+    }
     protected virtual void initSlot(int n) {
         Transform slotTransform = transform.Find("slot" + n);
         if (slotTransform == null) {
@@ -91,6 +105,39 @@ public class AInventoryUI : MonoBehaviour {
         return imageObject;
     }
 
+    protected virtual void reloadItemImage(GameObject slot, ItemSlot data) {
+        if (slot == null) {
+            return;
+        }
+        if (data == null || data.itemObject == null) {
+            return;   
+        }
+        Transform imageTransform = slot.transform.Find("item");
+        if (imageTransform == null) {
+            loadItemImage(slot,data);
+            return;
+        }
+        GameObject imageObject = imageTransform.gameObject;
+        Image image = imageObject.GetComponent<Image>();
+        image.sprite = data.itemObject.getSprite();
+    }
+
+    protected virtual void reloadItemAmount(GameObject slot, ItemSlot data) {
+        if (slot == null) {
+            return;
+        }
+        if (data == null || data.itemObject == null) {
+            return;   
+        }
+        Transform numberTransform = slot.transform.Find("amount");
+        if (numberTransform == null) {
+            loadItemAmountNumber(slot,data);
+            return;
+        }
+        GameObject number = numberTransform.gameObject;
+        TextMeshProUGUI textMeshPro = number.GetComponent<TextMeshProUGUI>();
+        textMeshPro.text = data.amount.ToString();
+    }
     protected virtual GameObject loadItemAmountNumber(GameObject slot, ItemSlot data) {
         if (data == null || data.itemObject == null) {
             return null;    

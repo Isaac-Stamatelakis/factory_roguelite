@@ -10,5 +10,8 @@ public class NonGridInventory : AInventoryUI
         this.inventory = items;
         initalizeSlots();
     }
+    public void FixedUpdate() {
+        refreshSlots();
+    }
 }
 
