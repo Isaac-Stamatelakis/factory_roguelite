@@ -35,12 +35,26 @@ public class ItemSlotFactory
         return itemSlots;
     }
 
-    public static string createEmptyInventory(int size) {
+    public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
         for (int n = 0; n < size; n ++) {
             itemSlots.Add(initEmptyItemSlot());
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(itemSlots);
+    }
+    public static ItemSlot createEmptyItemSlot() {
+        return new ItemSlot(
+            itemObject: null,
+            amount: 0,
+            nbt: null
+        );
+    }
+    public static List<ItemSlot> createEmptyInventory(int size) {
+        List<ItemSlot> inventory = new List<ItemSlot>();
+        for (int n = 0; n < size; n++) {
+            inventory.Add(createEmptyItemSlot());
+        }
+        return inventory;
     }
     private static SerializedItemSlot initEmptyItemSlot() {
         return new SerializedItemSlot(

@@ -8,7 +8,7 @@ namespace TileEntityModule {
     {
         protected Vector2Int tilePosition;
         protected IChunk chunk;
-        public void initalize(Vector2Int tilePosition, IChunk chunk) {
+        public virtual void initalize(Vector2Int tilePosition, IChunk chunk) {
             this.chunk = chunk;
             this.tilePosition = tilePosition;
         }

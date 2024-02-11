@@ -38,7 +38,7 @@ namespace WorldDataModule {
                 y: 0,
                 robotID: "happy_mk1",
                 name: "Izakio",
-                inventoryJson: ItemSlotFactory.createEmptyInventory(40)
+                inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             string path = getPlayerDataPath(name);
