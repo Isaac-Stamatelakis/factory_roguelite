@@ -84,7 +84,7 @@ namespace TileEntityModule.Instances.Machine
                 if (itemSlot == null || itemSlot.itemObject == null) {
                     break;
                 }
-                if (itemSlot.itemObject.id == outputItem.itemObject.id) {
+                if (itemSlot.itemObject.id == outputItem.itemObject.id && itemSlot.amount+outputItem.amount <= Global.MaxSize) {
                     break;
                 }
                 index ++;

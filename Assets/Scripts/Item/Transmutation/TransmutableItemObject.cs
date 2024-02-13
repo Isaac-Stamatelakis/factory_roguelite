@@ -5,7 +5,6 @@ using UnityEngine;
 public class TransmutableItemObject : ItemObject
 {
     public TransmutableItemState state;
-    public TransmutableMaterialDict materialDict;
     public TransmutableItemMaterial material;
     public Sprite sprite;
 

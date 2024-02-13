@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using ChunkModule.IO;
+using ChunkModule.ClosedChunkSystemModule;
+using ChunkModule.PartitionModule;
 
 namespace ChunkModule {
     public interface IChunk {
         public List<List<IChunkPartition>> getChunkPartitions();
-        public List<ChunkPartitionData> getChunkPartitionData();
+        public List<IChunkPartitionData> getChunkPartitionData();
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
         public IChunkPartition getPartition(Vector2Int position);
@@ -61,7 +63,7 @@ namespace ChunkModule {
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
         }
-        public virtual void initalize(int dim, List<ChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedSystemTransform) {
+        public virtual void initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedSystemTransform) {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = new List<List<IChunkPartition>>();
@@ -81,7 +83,7 @@ namespace ChunkModule {
             entityContainer.transform.SetParent(transform,false);
         }
 
-        protected void generatePartitions(List<ChunkPartitionData> chunkPartitionDataList) {
+        protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
             for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
                 List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
                 for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
@@ -95,17 +97,18 @@ namespace ChunkModule {
         /// <summary>
         /// Generates a partition
         /// </summary>
-        protected virtual IChunkPartition generatePartition(ChunkPartitionData data, Vector2Int position) {
+        protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
             if (data is SerializedTileData) {
+                if (data is SerializedTileConduitData) {
+                    return new ConduitChunkPartition<SerializedTileConduitData>((SerializedTileConduitData) data,position,this);
+                }
                 return new TileChunkPartition<SerializedTileData>((SerializedTileData) data,position,this);
-            } else if (data is SerializedTileConduitData) {
-                return new ConduitChunkPartition<SerializedTileConduitData>((SerializedTileConduitData) data,position,this);
-            }
+            } else 
             return null;
         }
-        public List<ChunkPartitionData> getChunkPartitionData()
+        public List<IChunkPartitionData> getChunkPartitionData()
         {
-            List<ChunkPartitionData> dataList = new List<ChunkPartitionData>();
+            List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
             foreach (List<IChunkPartition> chunkPartitionList in partitions) {
                 foreach (IChunkPartition chunkPartition in chunkPartitionList) {
                     dataList.Add(chunkPartition.getData());

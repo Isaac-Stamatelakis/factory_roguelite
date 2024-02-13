@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface IMachineRecipe : IEnergyRecipe, IRecipe {
-    
+
 }
-public interface IMatchableRecipe {
-    public bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs, int firstAvaiableOutputIndex);
+public interface IMatchableRecipe { 
+    public bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs);
 }
 
 public interface IEnergyRecipe {
@@ -35,9 +35,9 @@ public class Recipe : ScriptableObject, IMatchableRecipe, IRecipe
         return outputs;
     }
 
-    public virtual bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs, int firstAvaiableOutputIndex) {
+    public virtual bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs) {
         int requiredOutputSpace = outputs.Count;
-        if (requiredOutputSpace >= givenOutputs.Count-firstAvaiableOutputIndex) {
+        if (requiredOutputSpace >= givenOutputs.Count) {
             // No space for recipe
             return false;
         }

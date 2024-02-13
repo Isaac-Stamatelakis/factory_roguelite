@@ -4,55 +4,41 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 
-public class ConduitTileMap : AbstractTileMap<ConduitItem, ConduitData>
-{
-    protected override void setTile(int x, int y, ConduitData conduitData)
+namespace TileMapModule.Conduit {
+    public class ConduitTileMap : AbstractTileMap<ConduitItem, ConduitData>
     {
-        if (conduitData == null || conduitData.getItemObject() == null) {
-            return;
-        }
-        RuleTile ruleTile = ((ConduitItem) conduitData.getItemObject()).ruleTile;
-        tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
-    }
-
-    protected override bool hitHardness(ConduitData conduitData)
-    {
-        /*
-        conduitData.hardness--;
-        return conduitData.hardness == 0;
-        */
-        return true;
-    }
-    public List<List<ConduitOptions>> getConduitOptions(UnityEngine.Vector2Int chunkPosition) {
-        /*
-        ChunkData<ConduitData> chunkData = partitions[chunkPosition];
-        List<List<ConduitOptions>> nestedConduitOptions = new List<List<ConduitOptions>>();
-        for (int xIter = 0; xIter < 16; xIter ++) {
-            List<ConduitOptions> conduitOptionsList = new List<ConduitOptions>();
-            for (int yIter = 0; yIter < 16; yIter ++) {
-                ConduitData conduitData = chunkData.data[xIter][yIter];
-                if (conduitData == null) {
-                    conduitOptionsList.Add(null);
-                    continue;
-                }
-                conduitOptionsList.Add(conduitData.conduitOptions);
+        protected override void setTile(int x, int y, ConduitData conduitData)
+        {
+            if (conduitData == null || conduitData.getItemObject() == null) {
+                return;
             }
-            nestedConduitOptions.Add(conduitOptionsList);
+            RuleTile ruleTile = ((ConduitItem) conduitData.getItemObject()).ruleTile;
+            tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
         }
-        
-        return nestedConduitOptions;
-        */
-        return null;
-    }
 
-    protected override Vector2Int getHitTilePosition(Vector2 position)
-    {
-        throw new NotImplementedException();
-    }
+        public override void hitTile(Vector2 position)
+        {
+            Vector3Int cellPosition = mTileMap.WorldToCell(position);
+            cellPosition.z = 0;
+            Vector2Int vect = new Vector2Int(cellPosition.x,cellPosition.y);
+            ConduitData placedData = getIdDataInChunk(vect);
+            if (mTileMap.GetTile(cellPosition) != null) {
+                spawnItemEntity((ConduitItem)placedData.getItemObject(),vect);
+                breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
+                
+            }
+        }
+        protected override Vector2Int getHitTilePosition(Vector2 position)
+        {
+            Vector3Int cellPosition = mTileMap.WorldToCell(position);
+            return new Vector2Int(cellPosition.x,cellPosition.y);
+        }
 
-    public override void initPartition(Vector2Int partitionPosition)
-    {
-        partitions[partitionPosition] = new ConduitData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+        public override void initPartition(Vector2Int partitionPosition)
+        {
+            partitions[partitionPosition] = new ConduitData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+        }
     }
 }
+
 

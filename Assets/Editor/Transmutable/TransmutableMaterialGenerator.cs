@@ -50,7 +50,6 @@ public class TransmutableItemGenerator : EditorWindow {
             AssetDatabase.CreateFolder(GeneratePath, GenerateFolder);
         }
         foreach (TransmutableItemMaterial transmutableItemMaterial in transmutableItemMaterials) {
-            TransmutableMaterialDict dict = new TransmutableMaterialDict(transmutableItemMaterial);
             if (AssetDatabase.IsValidFolder(FolderPath + "/" +transmutableItemMaterial.name)){
                 Debug.Log("Material " + transmutableItemMaterial.name + " Already Generated");
             } else {
@@ -59,8 +58,8 @@ public class TransmutableItemGenerator : EditorWindow {
                 string materialPath = FolderPath + "/" +transmutableItemMaterial.name + "/";
                 transmutableItemMaterial.statesToID = new List<KVP<TransmutableItemState, string>>();
                 foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.getStates()) {
-                    string prefix = TransmutableItemStateFactory.getPrefix(itemConstructionData.state);
-                    string suffix = TransmutableItemStateFactory.getSuffix(itemConstructionData.state);
+                    string prefix = TransmutableItemStateExtension.getPrefix(itemConstructionData.state);
+                    string suffix = TransmutableItemStateExtension.getSuffix(itemConstructionData.state);
                     string name = "";
                     if (itemConstructionData.prefix.Length == 0) {
                         name += prefix;
@@ -76,8 +75,6 @@ public class TransmutableItemGenerator : EditorWindow {
                     transmutableItemMaterial.color.a = 1;
                     TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
                     itemObject.name = name;
-                    itemObject.materialDict = dict;
-                    itemObject.materialDict.material = transmutableItemMaterial;
                     itemObject.material = transmutableItemMaterial;
                     itemObject.state = itemConstructionData.state;
                     if (itemConstructionData.sprite == null) {

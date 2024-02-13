@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class ConduitData : PlacedItemObject<ConduitItem>
 {
-    public ConduitOptions conduitOptions;
+    public IConduitOptions conduitOptions;
 
     public ConduitData(ConduitItem itemObject) : base(itemObject)
     {
+        
     }
 }

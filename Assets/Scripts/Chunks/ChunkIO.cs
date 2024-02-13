@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ChunkModule;
 using UI.Title;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace ChunkModule.IO {
     public class ChunkIO {
@@ -24,22 +25,21 @@ namespace ChunkModule.IO {
             {
                 json = File.ReadAllText(filePath);
             } else {
-                /*
-                if (closedChunkSystem is ConduitTileClosedChunkSystem) {
-                    json = File.ReadAllText(Application.dataPath+"/Resources/Json/conduit_chunk_empty.json");
-                } else if (closedChunkSystem is TileClosedChunkSystem) {
-                    json = File.ReadAllText(Application.dataPath+"/Resources/Json/dynamic_chunk_empty.json");
-                } 
-                Debug.Log("Created new chunk " + chunkName + " dim " + closedChunkSystem.Dim);
-                */
+                return null;
             }
             if (json == null) { 
                 return null;
             }
-            List<SerializedTileData> chunkPartitionDataList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json);
-
-            List<ChunkPartitionData> chunkPartitionData = new List<ChunkPartitionData>();
-            foreach (SerializedTileData serializedTileData in chunkPartitionDataList) {
+            List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
+            if (closedChunkSystem is TileClosedChunkSystem) {
+                if (closedChunkSystem is ConduitTileClosedChunkSystem) {
+                    chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(json));
+                } else {
+                    chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json));
+                } 
+            }  
+            List<IChunkPartitionData> chunkPartitionData = new List<IChunkPartitionData>();
+            foreach (IChunkPartitionData serializedTileData in chunkPartitionDataList) {
                 chunkPartitionData.Add(serializedTileData);
             }
             GameObject chunkGameObject = new GameObject();
@@ -67,7 +67,7 @@ namespace ChunkModule.IO {
             return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
         }
 
-        public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<ChunkPartitionData> data) {
+        public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<IChunkPartitionData> data) {
             File.WriteAllText(getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
         }
 
@@ -99,7 +99,7 @@ namespace ChunkModule.IO {
     [System.Serializable]
     public class SeralizedChunkConduitData {
         public List<List<string>> ids;
-        public List<List<ConduitOptions>> conduitOptions;
+        public List<List<string>> conduitOptions;
     }
 }
 

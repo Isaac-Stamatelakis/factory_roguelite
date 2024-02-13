@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileEntityModule;
+using TileMapModule.Type;
 
 public enum IntTileItemOption {
     Hardness = TileItemOption.Hardness,
@@ -29,7 +30,27 @@ public enum TileType {
     ClimableObject,
     Platform
 }
-
+public static class TileTypeExtension {
+    public static TileMapType toTileMapType(this TileType tileType) {
+        switch (tileType) {
+            case TileType.Block:
+                return TileMapType.Block;
+            case TileType.Background:
+                return TileMapType.Background;
+            case TileType.ClimableObject:
+                return TileMapType.SlipperyBlock;
+            case TileType.ColladableObject:
+                return TileMapType.ClimableObject;
+            case TileType.Object:
+                return TileMapType.Object;
+            case TileType.SlipperyBlock:
+                return TileMapType.SlipperyBlock;
+            default:
+                Debug.LogError("TileTypeExtension method toTileMapType did not include switch case " + tileType.ToString());
+                return TileMapType.Block;
+        }
+    }
+}
 public class TileOptionFactory {
 
     private static readonly Dictionary<string,TileItemOption> stringOptionDict = new Dictionary<string, TileItemOption>{

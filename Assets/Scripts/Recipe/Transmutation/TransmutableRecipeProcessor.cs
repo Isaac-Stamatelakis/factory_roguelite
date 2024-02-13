@@ -11,18 +11,16 @@ namespace RecipeModule.Transmutation {
         public int maximumTier = 9999;
         [Header("Valid Input States")]
         public List<KeyDoubleValue<int,TransmutableItemState,TransmutableItemState>> transmutableStates;
-        private Dictionary<int,TransmutablePair> transmutableDict;
-        [Header("Output State")]
-        public TransmutableItemState outputState;
+        private Dictionary<int,List<TransmutablePair>> transmutableDict;
 
-        protected override IRecipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs,int firstAvaiableOutputIndex, int mode)
+        protected override IRecipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs,int mode)
         {
             if (transmutableDict == null) {
                 initDict();
             }
             if (transmutableDict.ContainsKey(mode)) {
-                TransmutablePair transmutablePair = transmutableDict[mode];
-                int successIndex = -1;
+                foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
+                    int successIndex = -1;
                 foreach (ItemSlot itemSlot in inputs) {
                     successIndex ++;
                     if (itemSlot == null || itemSlot.itemObject == null) {
@@ -35,53 +33,66 @@ namespace RecipeModule.Transmutation {
                     if (transmutableItem.state != transmutablePair.Input) {
                         continue;
                     }
-                    // Match
-                    if (firstAvaiableOutputIndex >= outputs.Count) {
-                        // No space
+                    // Recipe is valid, now have to check there is space
+                    TransmutableItemObject outputItemObject = transmutableItem.material.transmute(transmutablePair.Output);
+                    int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
+                    ItemSlot outputItem = new ItemSlot(
+                        itemObject: outputItemObject,
+                        amount: ratio,
+                        nbt: null
+                    );
+
+                    if (!spaceInOutput(outputs,outputItem)) {
                         continue;
                     }
-                    // Only one slot left
-                    if (firstAvaiableOutputIndex == outputs.Count-1) {
-                        ItemSlot lastItemSlot = outputs[firstAvaiableOutputIndex];
-                        if (lastItemSlot == null || lastItemSlot.itemObject == null || lastItemSlot.itemObject.id == transmutableItem.id) {
-                            return success(inputs,successIndex,transmutableItem,transmutablePair.Output);
-                        }
-                    }
+                    
                     // More than one slot left
-                    return success(inputs,successIndex,transmutableItem,transmutablePair.Output);
+                     ItemSlot input = inputs[successIndex];
+                    input.amount-=1;
+                    if (input.amount <= 0) {    
+                        inputs[successIndex] = null;
+                    }
+                    
+                    return new TransmutableRecipe(
+                        outputItem,
+                        0, // TODO energy
+                        0
+                    );
+                    }
                 }
             }
             // Check recipes
-            return base.getValidRecipe(inputs, outputs, firstAvaiableOutputIndex, mode);
+            return base.getValidRecipe(inputs, outputs, mode);
         }
 
-        private IRecipe success(List<ItemSlot> inputs, int successIndex, TransmutableItemObject transmutableItem, TransmutableItemState outputState) {
-            ItemSlot input = inputs[successIndex];
-            input.amount-=1; // TODO change ratio
-            if (input.amount <= 0) {    
-                inputs[successIndex] = null;
+        private bool spaceInOutput(List<ItemSlot> outputs, ItemSlot outputItemSlot) {
+            foreach (ItemSlot itemInOutputSlot in outputs) {
+                if (itemInOutputSlot == null || itemInOutputSlot.itemObject == null) {
+                    return true;
+                }
+                if (itemInOutputSlot.itemObject.id != outputItemSlot.itemObject.id) {
+                    continue;
+                }
+                if (itemInOutputSlot.amount + outputItemSlot.amount <= Global.MaxSize) {
+                    return true;
+                }
             }
-            TransmutableItemObject outputItemObject = transmutableItem.material.transmute(outputState);
-            ItemSlot outputItem = new ItemSlot(
-                itemObject: outputItemObject,
-                amount: 1, // TODO change ratio
-                nbt: null
-            );
-            return new TransmutableRecipe(
-                outputItem,
-                0, // TODO energy
-                0
-            );
+            return false;
         }
         /// Summary:
         ///     Unity doesn't support serialized field dictionarys so we need to transform input field to dict
         private void initDict() {
-            transmutableDict = new Dictionary<int, TransmutablePair>();
+            transmutableDict = new Dictionary<int, List<TransmutablePair>>();
             foreach (KeyDoubleValue<int,TransmutableItemState,TransmutableItemState> keyDoubleValue in transmutableStates) {
-                transmutableDict[keyDoubleValue.key] = new TransmutablePair(
+                TransmutablePair transmutablePair = new TransmutablePair(
                     keyDoubleValue.input,
                     keyDoubleValue.output
                 );
+                if (transmutableDict.ContainsKey(keyDoubleValue.key)) {
+                    transmutableDict[keyDoubleValue.key].Add(transmutablePair);
+                } else {
+                    transmutableDict[keyDoubleValue.key] = new List<TransmutablePair>{transmutablePair};
+                }
             }
         }
         private class TransmutablePair {
