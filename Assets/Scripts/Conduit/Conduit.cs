@@ -29,6 +29,7 @@ namespace ConduitModule {
             this.y = y;
             this.partitionX = partitionX;
             this.partitionY = partitionY;
+            this.conduitItem = conduitItem;
             this.conduitOptions = conduitOptions;
         }
 
@@ -95,7 +96,7 @@ namespace ConduitModule {
         }
     }
     public static class ConduitFactory {
-        public static IConduit deseralize(int x, int y, int partitionX, int partitionY, string id, string conduitOptionData, ItemRegistry itemRegistry) {
+        public static IConduit deseralize(int x, int y, Vector2Int partitionPosition, string id, string conduitOptionData, ItemRegistry itemRegistry) {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (conduitItem == null) {
                 return null;
@@ -106,8 +107,8 @@ namespace ConduitModule {
                     return new ItemConduit(
                         x: x,
                         y: y,
-                        partitionX: partitionX,
-                        partitionY: partitionY,
+                        partitionX: partitionPosition.x,
+                        partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
                         conduitOptions: (ItemConduitOptions) conduitOptions
                     );
@@ -115,8 +116,8 @@ namespace ConduitModule {
                     return new FluidConduit(
                         x: x,
                         y: y,
-                        partitionX: partitionX,
-                        partitionY: partitionY,
+                        partitionX: partitionPosition.x,
+                        partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
                         conduitOptions: (FluidItemConduitOptions) conduitOptions
                     );
@@ -124,8 +125,8 @@ namespace ConduitModule {
                     return new EnergyConduit(
                         x: x,
                         y: y,
-                        partitionX: partitionX,
-                        partitionY: partitionY,
+                        partitionX: partitionPosition.x,
+                        partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
                         conduitOptions: (EnergyConduitOptions) conduitOptions
                     );
@@ -133,8 +134,8 @@ namespace ConduitModule {
                     return new SignalConduit(
                         x: x,
                         y: y,
-                        partitionX: partitionX,
-                        partitionY: partitionY,
+                        partitionX: partitionPosition.x,
+                        partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
                         conduitOptions: (SignalConduitOptions) conduitOptions
                     );    
@@ -172,7 +173,8 @@ namespace ConduitModule {
                         continue;
                     }
                     string conduitOptionData = conduitOptionDataList[x][y];
-                    conduits[x,y] = deseralize(x + partitionOffset.x,y + partitionOffset.y, x, y, id, conduitOptionData, itemRegistry);
+                    IConduit conduit = deseralize(x + partitionOffset.x,y + partitionOffset.y, partitionOffset, id, conduitOptionData, itemRegistry);
+                    conduits[x,y] = conduit;
                 }
             }
             return conduits;

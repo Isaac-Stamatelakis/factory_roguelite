@@ -10,10 +10,8 @@ namespace ChunkModule.PartitionModule {
     public interface IChunkPartition {
         public IChunkPartitionData getData();
         public UnityEngine.Vector2Int getRealPosition();
-        public bool getTileLoaded();
+        public bool getLoaded();
         public void setTileLoaded(bool val);
-        public bool getEntityLoaded();
-        public void setEntityLoaded(bool val);
         public float distanceFrom(UnityEngine.Vector2Int target);
         public bool getScheduledForUnloading();
         public void setScheduleForUnloading(bool val);

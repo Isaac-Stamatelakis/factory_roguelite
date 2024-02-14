@@ -9,24 +9,7 @@ using RecipeModule.Transmutation;
 
 namespace TileEntityModule.Instances.Machine
 {
-    public interface IConduitInteractable {
-        public void set(ConduitType conduitType, List<ConduitPort> vects);
-    }
     
-    public enum ConduitPortType {
-        All,
-        Input,
-        Output
-    }
-    [System.Serializable]
-    public class ConduitPort {
-        public ConduitPortType portType;
-        public Vector2Int position;
-        public ConduitPort(ConduitPortType type, Vector2Int position) {
-            this.portType = type;
-            this.position = position;
-        }
-    }
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
     public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable
     {
@@ -39,25 +22,24 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> outputs;
         private List<ItemSlot> others;
         private IMachineRecipe currentRecipe;
+        [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
+        public ConduitPortDataCollection conduitPortData;
         private int mode;
-        public List<ConduitPort> itemPorts;
-        public List<ConduitPort> fluidPorts;
-        public List<ConduitPort> signalPorts;
-        public List<ConduitPort> energyPorts;
+        
 
-        public void set(ConduitType conduitType, List<ConduitPort> vects) {
+        public void set(ConduitType conduitType, List<ConduitPortData> vects) {
             switch (conduitType) {
                 case ConduitType.Item:
-                    itemPorts = vects;
+                    conduitPortData.itemPorts = vects;
                     break;
                 case ConduitType.Fluid:
-                    fluidPorts = vects;
+                    conduitPortData.fluidPorts = vects;
                     break;
                 case ConduitType.Energy:
-                    signalPorts = vects;
+                    conduitPortData.signalPorts = vects;
                     break;
                 case ConduitType.Signal:
-                    energyPorts = vects;
+                    conduitPortData.energyPorts = vects;
                     break;
             }
         }
@@ -174,6 +156,11 @@ namespace TileEntityModule.Instances.Machine
             
             
 
+        }
+
+        public ConduitPortDataCollection GetConduitPortData()
+        {
+            return conduitPortData;
         }
 
         [System.Serializable]

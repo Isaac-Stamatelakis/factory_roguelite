@@ -132,6 +132,22 @@ namespace TileMapModule.Type {
                     return false;
             }
         }
+
+        public static ConduitType toConduitType(this TileMapType tileMapType) {
+            switch (tileMapType) {
+                case TileMapType.ItemConduit:
+                    return ConduitType.Item;
+                case TileMapType.FluidConduit:
+                    return ConduitType.Fluid;
+                case TileMapType.EnergyConduit:
+                    return ConduitType.Energy;
+                case TileMapType.SignalConduit:
+                    return ConduitType.Signal;
+                default:
+                    Debug.LogError("Invalid tilemap type provided for converting to conduitytpe");
+                    return ConduitType.Item;
+            }
+        }
         public static float getZValue(this TileMapType tileMapType) {
             switch (tileMapType) {
                 case TileMapType.Block:

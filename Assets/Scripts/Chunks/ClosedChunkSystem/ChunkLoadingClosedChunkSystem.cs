@@ -1,0 +1,44 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using ChunkModule.LoadController;
+using ChunkModule.IO;
+
+namespace ChunkModule.ClosedChunkSystemModule {
+    /// <summary>
+    /// Chunks in this closed chunk system load and unload depending on player position
+    /// </summary>
+    
+    public class ChunkLoadingClosedChunkSystem : ClosedChunkSystem
+    {
+        protected ChunkLoader chunkLoader;
+        protected ChunkUnloader chunkUnloader;
+
+        public override IEnumerator initalLoadChunks()
+        {
+            List<Vector2Int> chunks = getUnCachedChunkPositionsNearPlayer();
+            foreach (Vector2Int vector in chunks) {
+                addChunk(ChunkIO.getChunkFromJson(vector, this));
+            }
+            yield return null;
+            Debug.Log("Chunks Near Player Loaded");
+        }
+
+        public override void initLoaders()
+        {
+            chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
+            chunkLoader.init(this);
+
+            chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
+            chunkUnloader.init(this);
+        }
+
+        public override void playerChunkUpdate()
+        {
+            chunkLoader.addToQueue(getUnCachedChunkPositionsNearPlayer());
+            chunkUnloader.addToQueue(getLoadedChunksOutsideRange());
+        
+        }
+    }
+}
+

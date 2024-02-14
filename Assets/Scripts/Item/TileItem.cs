@@ -45,6 +45,8 @@ public static class TileTypeExtension {
                 return TileMapType.Object;
             case TileType.SlipperyBlock:
                 return TileMapType.SlipperyBlock;
+            case TileType.Platform:
+                return TileMapType.Platform;
             default:
                 Debug.LogError("TileTypeExtension method toTileMapType did not include switch case " + tileType.ToString());
                 return TileMapType.Block;
@@ -126,6 +128,8 @@ public class TileItem : ItemObject, IPlacableTile
             return ((AnimatedTile) tile).m_AnimatedSprites[0];
         } else if (tile is RuleTile) {
             return ((RuleTile) tile).m_DefaultSprite;
+        } else if (tile is RandomTile) {
+            return ((RandomTile) tile).sprite;
         }
         return null;
     }
