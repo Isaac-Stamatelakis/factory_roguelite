@@ -165,17 +165,18 @@ public class EditorFactory
         return ruleTile;
     }
 
-    public static Sprite[] spritesFrom64x64Texture(Texture2D texture, string spritePath, string name) {
+    public static Sprite[] spritesFromTexture(Texture2D texture, string spritePath, string name) {
         if (texture.width % 16 != 0 || texture.height % 16 != 0) {
             Debug.Log("Invalid dimensions for texture");
             return null;
         }
         
         AssetDatabase.CreateFolder(spritePath, "Sprites");
-        Sprite[] sprites = new Sprite[16];
+        
         spritePath += "/Sprites/";
         int rows = texture.height/16;
         int columns = texture.width/16;
+        Sprite[] sprites = new Sprite[rows*columns];
         for (int y = 0; y < rows ; y++) {
             for (int x = 0; x < columns; x ++) {
                 int index = y*columns+x;

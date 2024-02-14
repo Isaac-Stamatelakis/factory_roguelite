@@ -50,16 +50,16 @@ public class TransmutableItemGenerator : EditorWindow {
             AssetDatabase.CreateFolder(GeneratePath, GenerateFolder);
         }
         foreach (TransmutableItemMaterial transmutableItemMaterial in transmutableItemMaterials) {
-            TransmutableMaterialDict dict = new TransmutableMaterialDict(transmutableItemMaterial);
             if (AssetDatabase.IsValidFolder(FolderPath + "/" +transmutableItemMaterial.name)){
                 Debug.Log("Material " + transmutableItemMaterial.name + " Already Generated");
             } else {
                 Debug.Log("Generating Material " + transmutableItemMaterial.name);
                 AssetDatabase.CreateFolder(FolderPath,transmutableItemMaterial.name);
                 string materialPath = FolderPath + "/" +transmutableItemMaterial.name + "/";
+                transmutableItemMaterial.statesToID = new List<KVP<TransmutableItemState, string>>();
                 foreach (TransmutableStateOptions itemConstructionData in transmutableItemMaterial.getStates()) {
-                    string prefix = TransmutableItemStateFactory.getPrefix(itemConstructionData.state);
-                    string suffix = TransmutableItemStateFactory.getSuffix(itemConstructionData.state);
+                    string prefix = TransmutableItemStateExtension.getPrefix(itemConstructionData.state);
+                    string suffix = TransmutableItemStateExtension.getSuffix(itemConstructionData.state);
                     string name = "";
                     if (itemConstructionData.prefix.Length == 0) {
                         name += prefix;
@@ -75,7 +75,7 @@ public class TransmutableItemGenerator : EditorWindow {
                     transmutableItemMaterial.color.a = 1;
                     TransmutableItemObject itemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
                     itemObject.name = name;
-                    itemObject.materialDict = dict;
+                    itemObject.material = transmutableItemMaterial;
                     itemObject.state = itemConstructionData.state;
                     if (itemConstructionData.sprite == null) {
                         Sprite sprite = sprites.getSprite(itemConstructionData.state);
@@ -113,9 +113,13 @@ public class TransmutableItemGenerator : EditorWindow {
                         itemObject.sprite = itemConstructionData.sprite;
                     }
                     itemObject.id = (prefix + "_"+ transmutableItemMaterial.id + "_" + suffix).ToLower();
+                    transmutableItemMaterial.statesToID.Add(new KVP<TransmutableItemState, string>(itemObject.state,itemObject.id));
                     AssetDatabase.CreateAsset(itemObject,materialPath + name.Replace(" ","") + ".asset");
                 }
                 Debug.Log(transmutableItemMaterial.getStates().Count + " Item's created for " + transmutableItemMaterial.name);
+                transmutableItemMaterial.test = true;
+                EditorUtility.SetDirty(transmutableItemMaterial);
+                AssetDatabase.SaveAssets();
             }
             
         }

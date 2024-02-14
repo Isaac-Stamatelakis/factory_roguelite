@@ -3,11 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using GUIModule;
 using ChunkModule;
+using Newtonsoft.Json;
+using RecipeModule.Transmutation;
+
 
 namespace TileEntityModule.Instances.Machine
 {
+    public interface IConduitInteractable {
+        public void set(ConduitType conduitType, List<ConduitPort> vects);
+    }
+    
+    public enum ConduitPortType {
+        All,
+        Input,
+        Output
+    }
+    [System.Serializable]
+    public class ConduitPort {
+        public ConduitPortType portType;
+        public Vector2Int position;
+        public ConduitPort(ConduitPortType type, Vector2Int position) {
+            this.portType = type;
+            this.position = position;
+        }
+    }
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity
+    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
         public int tier;
@@ -17,7 +38,29 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> inputs;
         private List<ItemSlot> outputs;
         private List<ItemSlot> others;
-        private Recipe currentRecipe;
+        private IMachineRecipe currentRecipe;
+        private int mode;
+        public List<ConduitPort> itemPorts;
+        public List<ConduitPort> fluidPorts;
+        public List<ConduitPort> signalPorts;
+        public List<ConduitPort> energyPorts;
+
+        public void set(ConduitType conduitType, List<ConduitPort> vects) {
+            switch (conduitType) {
+                case ConduitType.Item:
+                    itemPorts = vects;
+                    break;
+                case ConduitType.Fluid:
+                    fluidPorts = vects;
+                    break;
+                case ConduitType.Energy:
+                    signalPorts = vects;
+                    break;
+                case ConduitType.Signal:
+                    energyPorts = vects;
+                    break;
+            }
+        }
 
         public override void initalize(Vector2Int tilePosition, IChunk chunk)
         {
@@ -57,40 +100,95 @@ namespace TileEntityModule.Instances.Machine
                 inputs: ItemSlotFactory.serializeList(inputs),
                 outputs: ItemSlotFactory.serializeList(outputs),
                 other: ItemSlotFactory.serializeList(others),
-                energy: energy
+                energy: energy,
+                mode: mode
             );
-            return Newtonsoft.Json.JsonConvert.SerializeObject(serializedMachineData);
+            return JsonConvert.SerializeObject(serializedMachineData);
         }
 
         public void tickUpdate()
         {
-            
+            inventoryUpdate(); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
+            if (currentRecipe == null) {
+                return;
+            }
+            processRecipe();
+
         }
 
+        private void processRecipe() {
+            List<ItemSlot> recipeOut = currentRecipe.getOutputs();
+            for (int n = 0; n < recipeOut.Count; n++) {
+                ItemSlot outputItem = recipeOut[n];
+                for (int j = 0; j < outputs.Count; j++) {
+                    ItemSlot outputSlot = outputs[j];
+                    if (outputSlot == null || outputSlot.itemObject == null) {
+                        outputs[j] = outputItem;
+                        break;
+                    }
+                    if (outputSlot.itemObject.id == outputItem.itemObject.id) {
+                        int sum = outputItem.amount + outputSlot.amount;
+                        if (sum > Global.MaxSize) {
+                            outputSlot.amount = Global.MaxSize;
+                            outputItem.amount = sum - Global.MaxSize;
+                        } else {
+                            outputSlot.amount = sum;
+                            break;
+                        }
+                    }
+                }
+            }
+            currentRecipe = null;
+        }
+
+        public void inventoryUpdate() {
+            if (currentRecipe != null) {
+                return;
+            }
+            IRecipe recipe = recipeProcessor.getMatchingRecipe(inputs,outputs,mode);
+            if (recipe == null) {
+                return;
+            }
+            if (recipe is not IMachineRecipe) {
+                Debug.LogError("Machine recieved recipe which was not machine recipe " + name);
+                return;
+            }
+            currentRecipe = (IMachineRecipe) recipe;
+            
+        }
         public void unserialize(string data)
         {
             if (data == null) {
                 return;
             }
-            SerializedMachineData serializedMachineData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMachineData>(data);
-            inputs = ItemSlotFactory.deserialize(serializedMachineData.inputs);
-            outputs = ItemSlotFactory.deserialize(serializedMachineData.outputs);
-            others = ItemSlotFactory.deserialize(serializedMachineData.other);
-            energy = serializedMachineData.energy;
+            try {
+                SerializedMachineData serializedMachineData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMachineData>(data);
+                inputs = ItemSlotFactory.deserialize(serializedMachineData.inputs);
+                outputs = ItemSlotFactory.deserialize(serializedMachineData.outputs);
+                others = ItemSlotFactory.deserialize(serializedMachineData.other);
+                energy = serializedMachineData.energy;
+                mode = serializedMachineData.mode;
+            } catch (JsonSerializationException ex) {
+                Debug.LogError(ex);
+            }
+            
+            
 
         }
 
         [System.Serializable]
         private class SerializedMachineData {
             public int energy;
+            public int mode;
             public string inputs;
             public string outputs;
             public string other;
-            public SerializedMachineData(string inputs, string outputs,string other,int energy) {
+            public SerializedMachineData(string inputs, string outputs,string other,int energy,int mode) {
                 this.energy = energy;
                 this.inputs = inputs;
                 this.outputs = outputs;
                 this.other = other;
+                this.mode = mode;
             }
         }
     }

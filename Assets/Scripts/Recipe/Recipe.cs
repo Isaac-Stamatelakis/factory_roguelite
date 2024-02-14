@@ -2,8 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface IMachineRecipe : IEnergyRecipe, IRecipe {
+
+}
+public interface IMatchableRecipe { 
+    public bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs);
+}
+
+public interface IEnergyRecipe {
+    public int getRequiredEnergy();
+    public int getEnergyPerTick();
+}
+
+public interface IRecipe {
+    public List<ItemSlot> getOutputs();
+}
 [CreateAssetMenu(fileName ="R~New Recipe",menuName="Crafting/Recipe/Standard")]
-public class Recipe : ScriptableObject
+public class Recipe : ScriptableObject, IMatchableRecipe, IRecipe
 {
     public List<ItemSlot> inputs;
     public List<ItemSlot> outputs;
@@ -15,9 +30,14 @@ public class Recipe : ScriptableObject
     public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
     public List<string> OutputPaths {get{return outputGUIDs;} set{outputGUIDs = value;}}
 
-    public virtual bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs, int firstAvaiableOutputIndex) {
+    public List<ItemSlot> getOutputs()
+    {
+        return outputs;
+    }
+
+    public virtual bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs) {
         int requiredOutputSpace = outputs.Count;
-        if (requiredOutputSpace >= givenOutputs.Count-firstAvaiableOutputIndex) {
+        if (requiredOutputSpace >= givenOutputs.Count) {
             // No space for recipe
             return false;
         }

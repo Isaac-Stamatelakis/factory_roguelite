@@ -1,6 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:GroupBox style="left: 50%; top: 50%; height: 86px; align-items: center; justify-content: center;">
-        <ui:VisualElement name="in_1" style="width: 60px; height: 60px; position: absolute; left: 20px; background-color: rgb(118, 118, 118);" />
-        <ui:VisualElement name="in_0" style="width: 60px; height: 60px; position: absolute; left: 100px; background-color: rgb(118, 118, 118); top: auto;" />
-    </ui:GroupBox>
-</ui:UXML>
