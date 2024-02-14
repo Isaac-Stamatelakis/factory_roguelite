@@ -120,7 +120,6 @@ public class TransmutableItemGenerator : EditorWindow {
                 transmutableItemMaterial.test = true;
                 EditorUtility.SetDirty(transmutableItemMaterial);
                 AssetDatabase.SaveAssets();
-                //AssetDatabase.CreateAsset(transmutableItemMaterial,GeneratePath+ "/" + transmutableItemMaterial.name + ".asset");
             }
             
         }

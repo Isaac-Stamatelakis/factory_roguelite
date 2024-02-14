@@ -4,19 +4,28 @@ using UnityEngine;
 using System.Linq;
 
 namespace ConduitModule.ConduitSystemModule {
-    public class ConduitSystemManager {
-        private List<ConduitSystem> conduitSystems;
-        public ConduitSystemManager() {
-            conduitSystems = new List<ConduitSystem>();
+
+    public interface IConduitSystemManager {
+
+    }
+    public class ConduitSystemManager : IConduitSystemManager {
+        private List<IConduitSystem> conduitSystems;
+        private ConduitType type;
+
+        public ConduitType Type { get => type;}
+
+        public ConduitSystemManager(ConduitType conduitType) {
+            conduitSystems = new List<IConduitSystem>();
+            this.type = conduitType;
         }
 
-        public void addConduitPartition(Conduit[,] conduits) {
+        public void addConduitPartition(IConduit[,] conduits) {
             // Step 1, Generate conduit systems from given conduits
-            List<ConduitSystem> newSystems = generateSystemsFromArray(conduits,Global.ChunkPartitionSize,Global.ChunkPartitionSize);
+            List<IConduitSystem> newSystems = generateSystemsFromArray(conduits,Global.ChunkPartitionSize,Global.ChunkPartitionSize);
             // Step 2, Merge conduit systems with existing conduit systems
             for (int n = newSystems.Count-1; n >= 0; n--) {
-                foreach (ConduitSystem conduitSystem in conduitSystems) {
-                    ConduitSystem newSystem = newSystems[n];
+                foreach (IConduitSystem conduitSystem in conduitSystems) {
+                    IConduitSystem newSystem = newSystems[n];
                     if (!newSystem.connectsTo(conduitSystem)) {
                         continue;
                     }
@@ -30,12 +39,12 @@ namespace ConduitModule.ConduitSystemModule {
             conduitSystems.AddRange(newSystems);
         }
 
-        private List<ConduitSystem> generateSystemsFromArray(Conduit[,] conduits, int width, int height) {
-            HashSet<Conduit> conduitsNotSeen = new HashSet<Conduit>();
-            List<ConduitSystem> conduitSystems = new List<ConduitSystem>();
+        private List<IConduitSystem> generateSystemsFromArray(IConduit[,] conduits, int width, int height) {
+            HashSet<IConduit> conduitsNotSeen = new HashSet<IConduit>();
+            List<IConduitSystem> conduitSystems = new List<IConduitSystem>();
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    Conduit conduit = conduits[x,y];
+                    IConduit conduit = conduits[x,y];
                     if (conduit == null) {
                         continue;
                     }
@@ -43,9 +52,9 @@ namespace ConduitModule.ConduitSystemModule {
                 }
             }
             while (conduitsNotSeen.Count > 0) {
-                Conduit conduit = conduitsNotSeen.First();
+                IConduit conduit = conduitsNotSeen.First();
                 conduitsNotSeen.Remove(conduit);
-                ConduitSystem conduitSystem = new ConduitSystem();
+                IConduitSystem conduitSystem = ConduitSystemFactory.create(type);
                 conduitSystems.Add(conduitSystem);
                 conduitSystem.addConduit(conduit);
                 DFSConduit(conduitSystem,conduit,conduits,conduitsNotSeen,width,height); // Search Array for all connecting conduits
@@ -53,45 +62,48 @@ namespace ConduitModule.ConduitSystemModule {
             return conduitSystems;
         }
 
-        private void DFSConduit(ConduitSystem conduitSystem, Conduit seenConduit, Conduit[,] conduits,HashSet<Conduit> conduitsNotSeen, int width, int height) {
-            int left = seenConduit.PartitionX-1;
+        private void DFSConduit(IConduitSystem conduitSystem, IConduit seenConduit, IConduit[,] conduits,HashSet<IConduit> conduitsNotSeen, int width, int height) {
+            int left = seenConduit.getPartitionX()-1;
             if (left >= 0) {
-                Conduit leftConduit = conduits[left,seenConduit.PartitionY];
+                IConduit leftConduit = conduits[left,seenConduit.getPartitionY()];
                 DFSEdge(conduitSystem,leftConduit,conduits,conduitsNotSeen,width,height);
             }
-            int right = seenConduit.PartitionX+1;
+            int right = seenConduit.getPartitionX()+1;
             if (right < width) {
-                Conduit rightConduit = conduits[right,seenConduit.PartitionY];
+                IConduit rightConduit = conduits[right,seenConduit.getPartitionY()];
                 DFSEdge(conduitSystem,rightConduit,conduits,conduitsNotSeen,width,height);
             }
-            int down = seenConduit.PartitionY-1;
+            int down = seenConduit.getPartitionY()-1;
             if (down >= 0) {
-                Conduit downConduit = conduits[seenConduit.PartitionX,down];
+                IConduit downConduit = conduits[seenConduit.getPartitionX(),down];
                 DFSEdge(conduitSystem,downConduit,conduits,conduitsNotSeen,width,height);
             }
-            int up = seenConduit.PartitionY+1;
+            int up = seenConduit.getPartitionY()+1;
             if (up < height) {
-                Conduit upConduit = conduits[seenConduit.PartitionX,up];
+                IConduit upConduit = conduits[seenConduit.getPartitionX(),up];
                 DFSEdge(conduitSystem,upConduit,conduits,conduitsNotSeen,width,height);
             }
         }
 
-        private void DFSEdge(ConduitSystem conduitSystem, Conduit newConduit, Conduit[,] conduits, HashSet<Conduit> conduitsNotSeen, int width, int height) {
+        private void DFSEdge(IConduitSystem conduitSystem, IConduit newConduit, IConduit[,] conduits, HashSet<IConduit> conduitsNotSeen, int width, int height) {
             if (newConduit == null) { // If null will not be in dict
                 return;
             }
             if (!conduitsNotSeen.Contains(newConduit)) { // Already Seen
                 return;
             }
+            if (conduitSystem.getId() != newConduit.getId()) {
+                return;
+            }
             conduitSystem.addConduit(newConduit);
             conduitsNotSeen.Remove(newConduit);
             DFSConduit(conduitSystem,newConduit,conduits,conduitsNotSeen,width,height);
         }
-        public Conduit[,] removePartition() {
+        public IConduit[,] removePartition() {
             return null;
         }
 
-        public void mergeConduitSystems(ConduitSystem conduitSystemA, ConduitSystem conduitSystemB) {
+        public void mergeConduitSystems(IConduitSystem conduitSystemA, IConduitSystem conduitSystemB) {
 
         }
 

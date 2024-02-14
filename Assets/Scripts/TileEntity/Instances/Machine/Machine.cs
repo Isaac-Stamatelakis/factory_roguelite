@@ -6,10 +6,29 @@ using ChunkModule;
 using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 
+
 namespace TileEntityModule.Instances.Machine
 {
+    public interface IConduitInteractable {
+        public void set(ConduitType conduitType, List<ConduitPort> vects);
+    }
+    
+    public enum ConduitPortType {
+        All,
+        Input,
+        Output
+    }
+    [System.Serializable]
+    public class ConduitPort {
+        public ConduitPortType portType;
+        public Vector2Int position;
+        public ConduitPort(ConduitPortType type, Vector2Int position) {
+            this.portType = type;
+            this.position = position;
+        }
+    }
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity
+    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
         public int tier;
@@ -21,6 +40,27 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> others;
         private IMachineRecipe currentRecipe;
         private int mode;
+        public List<ConduitPort> itemPorts;
+        public List<ConduitPort> fluidPorts;
+        public List<ConduitPort> signalPorts;
+        public List<ConduitPort> energyPorts;
+
+        public void set(ConduitType conduitType, List<ConduitPort> vects) {
+            switch (conduitType) {
+                case ConduitType.Item:
+                    itemPorts = vects;
+                    break;
+                case ConduitType.Fluid:
+                    fluidPorts = vects;
+                    break;
+                case ConduitType.Energy:
+                    signalPorts = vects;
+                    break;
+                case ConduitType.Signal:
+                    energyPorts = vects;
+                    break;
+            }
+        }
 
         public override void initalize(Vector2Int tilePosition, IChunk chunk)
         {
@@ -78,21 +118,25 @@ namespace TileEntityModule.Instances.Machine
 
         private void processRecipe() {
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            ItemSlot outputItem = recipeOut[0];
-            int index = 0;
-            foreach (ItemSlot itemSlot in outputs) {
-                if (itemSlot == null || itemSlot.itemObject == null) {
-                    break;
+            for (int n = 0; n < recipeOut.Count; n++) {
+                ItemSlot outputItem = recipeOut[n];
+                for (int j = 0; j < outputs.Count; j++) {
+                    ItemSlot outputSlot = outputs[j];
+                    if (outputSlot == null || outputSlot.itemObject == null) {
+                        outputs[j] = outputItem;
+                        break;
+                    }
+                    if (outputSlot.itemObject.id == outputItem.itemObject.id) {
+                        int sum = outputItem.amount + outputSlot.amount;
+                        if (sum > Global.MaxSize) {
+                            outputSlot.amount = Global.MaxSize;
+                            outputItem.amount = sum - Global.MaxSize;
+                        } else {
+                            outputSlot.amount = sum;
+                            break;
+                        }
+                    }
                 }
-                if (itemSlot.itemObject.id == outputItem.itemObject.id && itemSlot.amount+outputItem.amount <= Global.MaxSize) {
-                    break;
-                }
-                index ++;
-            }
-            if (outputs[index] == null || outputs[index].itemObject == null) {
-                outputs[index] = outputItem;
-            } else if (outputs[index].itemObject.id == outputItem.itemObject.id) {
-                outputs[index].amount += outputItem.amount;
             }
             currentRecipe = null;
         }

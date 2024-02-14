@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace ConduitModule {
-    public class ConduitItemFilter
+    public class ItemFilter
     {
         
     }

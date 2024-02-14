@@ -17,8 +17,7 @@ public class RecipeProcessor : ScriptableObject
     private Dictionary<int, List<Recipe>> recipesOfMode = new Dictionary<int, List<Recipe>>();
     public virtual IRecipe getMatchingRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs, int mode) {
         // Validations
-        if (itemListAllNull(inputs)) {
-            // No inputs
+        if (!itemsNotAllNull(inputs)) {
             return null;
         }
         return getValidRecipe(inputs,outputs,mode);
@@ -34,12 +33,12 @@ public class RecipeProcessor : ScriptableObject
         }
         return null;
     }
-    private bool itemListAllNull(List<ItemSlot> items) {
+    private bool itemsNotAllNull(List<ItemSlot> items) {
         foreach (ItemSlot itemSlot in items) {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return false;
+            if (itemSlot != null && itemSlot.itemObject != null) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

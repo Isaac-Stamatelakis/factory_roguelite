@@ -17,47 +17,45 @@ namespace RecipeModule.Transmutation {
         {
             if (transmutableDict == null) {
                 initDict();
-            }
+            }   
             if (transmutableDict.ContainsKey(mode)) {
                 foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
-                    int successIndex = -1;
-                foreach (ItemSlot itemSlot in inputs) {
-                    successIndex ++;
-                    if (itemSlot == null || itemSlot.itemObject == null) {
-                        continue;
-                    }
-                    if (itemSlot.itemObject is not TransmutableItemObject) {
-                        continue;
-                    }
-                    TransmutableItemObject transmutableItem = (TransmutableItemObject) itemSlot.itemObject;
-                    if (transmutableItem.state != transmutablePair.Input) {
-                        continue;
-                    }
-                    // Recipe is valid, now have to check there is space
-                    TransmutableItemObject outputItemObject = transmutableItem.material.transmute(transmutablePair.Output);
-                    int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
-                    ItemSlot outputItem = new ItemSlot(
-                        itemObject: outputItemObject,
-                        amount: ratio,
-                        nbt: null
-                    );
+                    for (int n = 0; n < inputs.Count; n++) {
+                        //Debug.Log(n);
+                        ItemSlot inputSlot = inputs[n];
+                        if (inputSlot == null || inputSlot.itemObject == null) {
+                            continue;
+                        }
+                        if (inputSlot.itemObject is not TransmutableItemObject) {
+                            continue;
+                        }
+                        TransmutableItemObject transmutableItem = (TransmutableItemObject) inputSlot.itemObject;
+                        if (transmutableItem.state != transmutablePair.Input) {
+                            continue;
+                        }
+                        // Recipe is valid, now have to check there is space
+                        TransmutableItemObject outputItemObject = transmutableItem.material.transmute(transmutablePair.Output);
+                        int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
+                        ItemSlot outputItem = new ItemSlot(
+                            itemObject: outputItemObject,
+                            amount: ratio,
+                            nbt: null
+                        );
 
-                    if (!spaceInOutput(outputs,outputItem)) {
-                        continue;
-                    }
-                    
-                    // More than one slot left
-                     ItemSlot input = inputs[successIndex];
-                    input.amount-=1;
-                    if (input.amount <= 0) {    
-                        inputs[successIndex] = null;
-                    }
-                    
-                    return new TransmutableRecipe(
-                        outputItem,
-                        0, // TODO energy
-                        0
-                    );
+                        if (!spaceInOutput(outputs,outputItem)) {
+                           continue;
+                        }
+                        // More than one slot left
+                        inputSlot.amount--;
+                        if (inputSlot.amount <= 0) {
+                            inputs[n] = null;
+                        }
+
+                        return new TransmutableRecipe(
+                            outputItem,
+                            0, // TODO energy
+                            0
+                        );
                     }
                 }
             }

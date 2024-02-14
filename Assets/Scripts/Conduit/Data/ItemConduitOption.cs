@@ -8,10 +8,10 @@ namespace ConduitModule {
     public class ItemConduitOptions : IConduitOptions
     {
         public int inputPriority;
-        public ConduitItemFilter inputFilter;
+        public ItemFilter inputFilter;
         public int inputColor;
         public int outputPriority;
-        public ConduitItemFilter outputFilter;
+        public ItemFilter outputFilter;
         public int outputColor;
         public int extractionSpeed;
         public bool roundRobin;

@@ -45,7 +45,7 @@ public class TileMultiGeneratorWindow : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", collectionName);
         string collectionPath = "Assets/EditorCreations/" + collectionName;
-        Sprite[] sprites = EditorFactory.spritesFrom64x64Texture(texture,"Assets/EditorCreations/" + collectionName, collectionName);
+        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName);
         int index = 0;
         foreach (Sprite sprite in sprites) {
             TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();

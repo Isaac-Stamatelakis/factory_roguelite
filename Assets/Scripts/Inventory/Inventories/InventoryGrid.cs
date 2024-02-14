@@ -165,9 +165,23 @@ public class AInventoryUI : MonoBehaviour {
             Debug.LogError("Inventory " + name + " GrabbedItem is null");
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        ItemSlot temp = inventory[n];
-        inventory[n] = grabbedItemProperties.itemSlot;
-        grabbedItemProperties.itemSlot = temp;
+        ItemSlot inventorySlot = inventory[n];
+        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+        if (inventorySlot != null && inventorySlot.itemObject != null && grabbedSlot != null && grabbedSlot.itemObject != null 
+            && grabbedSlot.itemObject.id == inventorySlot.itemObject.id 
+            && grabbedSlot.amount < Global.MaxSize && inventorySlot.amount < Global.MaxSize) { // Merge
+            int sum = inventorySlot.amount + grabbedSlot.amount;
+            if (sum > Global.MaxSize) {
+                grabbedSlot.amount = sum-Global.MaxSize;
+                inventorySlot.amount = Global.MaxSize;
+            } else { // Overflow
+                inventorySlot.amount = sum;
+                grabbedItemProperties.itemSlot = null;
+            }
+        } else { // Swap
+            inventory[n] = grabbedItemProperties.itemSlot;
+            grabbedItemProperties.itemSlot = inventorySlot;
+        }
         unloadItem(n);
         loadItem(n);
         grabbedItemProperties.updateSprite();

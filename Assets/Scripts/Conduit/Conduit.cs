@@ -6,49 +6,144 @@ using TileMapModule.Layer;
 
 namespace ConduitModule {
     public interface IConduit {
-    
+        
+        public int getX();
+        public int getY();
+        public int getPartitionX();
+        public int getPartitionY();
+        public ConduitItem getConduitItem();
+        public IConduitOptions GetConduitOptions();
+        public string getId();
+
     }
-    public class Conduit : IConduit
+    public abstract class Conduit<Options> : IConduit where Options : IConduitOptions
     {
         private int x;
         private int y;
         private int partitionX;
         private int partitionY;
         private ConduitItem conduitItem;
-        private IConduitOptions conduitOptions;
-        public Conduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitOptions conduitOptions) {
-            this.X = x;
-            this.Y = y;
+        private Options conduitOptions;
+        public Conduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, Options conduitOptions) {
+            this.x = x;
+            this.y = y;
             this.partitionX = partitionX;
             this.partitionY = partitionY;
-            this.ConduitOptions = conduitOptions;
+            this.conduitOptions = conduitOptions;
         }
 
-        public int X { get => x; set => x = value; }
-        public int Y { get => y; set => y = value; }
-        public ConduitItem ConduitItem { get => conduitItem; set => conduitItem = value; }
-        public IConduitOptions ConduitOptions { get => conduitOptions; set => conduitOptions = value; }
-        public int PartitionX { get => partitionX; set => partitionX = value; }
-        public int PartitionY { get => partitionY; set => partitionY = value; }
+        public ConduitItem getConduitItem()
+        {
+            return conduitItem;
+        }
+
+        public IConduitOptions GetConduitOptions()
+        {
+            return conduitOptions;
+        }
+
+        public string getId()
+        {
+            return conduitItem.id;
+        }
+
+        public int getPartitionX()
+        {
+            return partitionX;
+        }
+
+        public int getPartitionY()
+        {
+            return partitionY;
+        }
+
+        public int getX()
+        {
+            return x;
+        }
+
+        public int getY()
+        {
+            return y;
+        }
+    }
+
+    public class ItemConduit : Conduit<ItemConduitOptions>
+    {
+        public ItemConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, ItemConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        {
+        }
+    }
+
+    public class FluidConduit : Conduit<FluidItemConduitOptions>
+    {
+        public FluidConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, FluidItemConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        {
+        }
+    }
+
+    public class SignalConduit : Conduit<SignalConduitOptions>
+    {
+        public SignalConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, SignalConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        {
+        }
+    }
+    public class EnergyConduit : Conduit<EnergyConduitOptions>
+    {
+        public EnergyConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, EnergyConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        {
+        }
     }
     public static class ConduitFactory {
-        public static Conduit deseralize(int x, int y, int partitionX, int partitionY, string id, string conduitOptionData, ItemRegistry itemRegistry) {
+        public static IConduit deseralize(int x, int y, int partitionX, int partitionY, string id, string conduitOptionData, ItemRegistry itemRegistry) {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (conduitItem == null) {
                 return null;
             }
             IConduitOptions conduitOptions = ConduitOptionsFactory.deseralizeOption(conduitItem,conduitOptionData);
-            return new Conduit(
-                x: x,
-                y: y,
-                partitionX: partitionX,
-                partitionY: partitionY,
-                conduitItem: conduitItem,
-                conduitOptions: conduitOptions
-            );
+            switch (conduitItem.getType()) {
+                case ConduitType.Item:
+                    return new ItemConduit(
+                        x: x,
+                        y: y,
+                        partitionX: partitionX,
+                        partitionY: partitionY,
+                        conduitItem: conduitItem,
+                        conduitOptions: (ItemConduitOptions) conduitOptions
+                    );
+                case ConduitType.Fluid:
+                    return new FluidConduit(
+                        x: x,
+                        y: y,
+                        partitionX: partitionX,
+                        partitionY: partitionY,
+                        conduitItem: conduitItem,
+                        conduitOptions: (FluidItemConduitOptions) conduitOptions
+                    );
+                case ConduitType.Energy:
+                    return new EnergyConduit(
+                        x: x,
+                        y: y,
+                        partitionX: partitionX,
+                        partitionY: partitionY,
+                        conduitItem: conduitItem,
+                        conduitOptions: (EnergyConduitOptions) conduitOptions
+                    );
+                case ConduitType.Signal:
+                    return new SignalConduit(
+                        x: x,
+                        y: y,
+                        partitionX: partitionX,
+                        partitionY: partitionY,
+                        conduitItem: conduitItem,
+                        conduitOptions: (SignalConduitOptions) conduitOptions
+                    );    
+            }
+            return null;
+            
         }
 
-        public static Conduit[,] deseralizePartition(IChunkPartition partition, TileMapLayer layer) {
+        public static IConduit[,] deseralizePartition(IChunkPartition partition, TileMapLayer layer) {
             if (partition is not ConduitChunkPartition<SerializedTileConduitData>) {
                 Debug.LogError("Partition which was not conduit partition passed into Conduit Factory deseralizePartition " + partition.getRealPosition());
                 return null;
@@ -67,9 +162,9 @@ namespace ConduitModule {
             }
             return null;
         }
-        private static Conduit[,] deseralizePartitionData(List<List<string>> ids, List<List<string>> conduitOptionDataList, Vector2Int partitionOffset) {
+        private static IConduit[,] deseralizePartitionData(List<List<string>> ids, List<List<string>> conduitOptionDataList, Vector2Int partitionOffset) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            Conduit[,] conduits = new Conduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                     string id = ids[x][y];

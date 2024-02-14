@@ -23,10 +23,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
         private void initConduitSystemManagers() {
             conduitSystemsDict = new Dictionary<TileMapType, ConduitSystemManager>();
-            conduitSystemsDict[TileMapType.ItemConduit] = new ConduitSystemManager();
-            conduitSystemsDict[TileMapType.FluidConduit] = new ConduitSystemManager();
-            conduitSystemsDict[TileMapType.EnergyConduit] = new ConduitSystemManager();
-            conduitSystemsDict[TileMapType.SignalConduit] = new ConduitSystemManager();
+            conduitSystemsDict[TileMapType.ItemConduit] = new ConduitSystemManager(ConduitType.Item);
+            conduitSystemsDict[TileMapType.FluidConduit] = new ConduitSystemManager(ConduitType.Fluid);
+            conduitSystemsDict[TileMapType.EnergyConduit] = new ConduitSystemManager(ConduitType.Energy);
+            conduitSystemsDict[TileMapType.SignalConduit] = new ConduitSystemManager(ConduitType.Signal);
         }
         public void addToConduitSystem(ConduitItem conduitItem, IConduitOptions conduitOptions, Vector2Int position) {
 
@@ -50,15 +50,31 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         private void loadPartitionIntoConduitSystem(IChunkPartition chunkPartition) {
-            Conduit[,] itemConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Item);
+            if (chunkPartition is not IConduitTileChunkPartition) {
+                Debug.LogError("Tried to load conduits for non-conduit partition " + chunkPartition.getRealPosition());
+                return;
+            }
+            IConduitTileChunkPartition conduitTileChunkPartition = (IConduitTileChunkPartition) chunkPartition;
+            
+            IConduit[,] itemConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Item);
             ConduitSystemManager itemConduitSystemManager = conduitSystemsDict[TileMapType.ItemConduit];
+            conduitTileChunkPartition.setConduits(TileMapLayer.Item,itemConduits);
             itemConduitSystemManager.addConduitPartition(itemConduits);
 
-            Conduit[,] fluidConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Fluid);
+            IConduit[,] fluidConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Fluid);
+            ConduitSystemManager fluidConduitSystemManager = conduitSystemsDict[TileMapType.ItemConduit];
+            conduitTileChunkPartition.setConduits(TileMapLayer.Fluid,itemConduits);
+            fluidConduitSystemManager.addConduitPartition(itemConduits);
 
-            Conduit[,] energyConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Energy);
+            IConduit[,] energyConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Energy);
+            ConduitSystemManager energyConduitSystemManager = conduitSystemsDict[TileMapType.ItemConduit];
+            conduitTileChunkPartition.setConduits(TileMapLayer.Energy,itemConduits);
+            energyConduitSystemManager.addConduitPartition(itemConduits);
 
-            Conduit[,] signalConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Signal);
+            IConduit[,] signalConduits = ConduitFactory.deseralizePartition(chunkPartition,TileMapLayer.Signal);
+            ConduitSystemManager signalConduitSystemManager = conduitSystemsDict[TileMapType.ItemConduit];
+            conduitTileChunkPartition.setConduits(TileMapLayer.Signal,itemConduits);
+            signalConduitSystemManager.addConduitPartition(itemConduits);
         }
     }
 

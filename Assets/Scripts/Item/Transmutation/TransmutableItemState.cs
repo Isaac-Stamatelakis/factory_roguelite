@@ -26,49 +26,6 @@ public enum TransmutableItemState {
 }
 
 public static class TransmutableItemStateExtension {
-    private static Dictionary<TransmutableItemState, string> suffixs = new Dictionary<TransmutableItemState, string>{
-        {TransmutableItemState.Ingot, "Ingot"},
-        {TransmutableItemState.Dust, "Dust"},
-        {TransmutableItemState.Plate, "Plate"},
-        {TransmutableItemState.Wire, "Wire"},
-        {TransmutableItemState.Fine_Wire, "Wire"},
-        {TransmutableItemState.Double_Plate, "Plate"},
-        {TransmutableItemState.Tiny_Dust, "Dust"},
-        {TransmutableItemState.Rod, "Rod"},
-        {TransmutableItemState.Bolt, "Bolt"},
-        {TransmutableItemState.Screw, "Screw"},
-        {TransmutableItemState.Liquid, "Liquid"},
-        {TransmutableItemState.Gas, "Gas"},
-        {TransmutableItemState.Plasma, "Plasma"},
-        {TransmutableItemState.Magnificent_Gem, "Magnificent"},
-        {TransmutableItemState.Exceptional_Gem, "Exceptional"},
-        {TransmutableItemState.Gem, ""},
-        {TransmutableItemState.Mediocre_Gem, "Mediocre"},
-        {TransmutableItemState.Poor_Gem, "Poor"},
-
-
-    };
-    private static Dictionary<TransmutableItemState, string> prefixs = new Dictionary<TransmutableItemState, string>{
-        {TransmutableItemState.Ingot, ""},
-        {TransmutableItemState.Dust, ""},
-        {TransmutableItemState.Plate, ""},
-        {TransmutableItemState.Wire, ""},
-        {TransmutableItemState.Fine_Wire, "Fine"},
-        {TransmutableItemState.Double_Plate, "Double"},
-        {TransmutableItemState.Tiny_Dust, "Tiny"},
-        {TransmutableItemState.Rod, ""},
-        {TransmutableItemState.Bolt, ""},
-        {TransmutableItemState.Screw, ""},
-        {TransmutableItemState.Liquid, ""},
-        {TransmutableItemState.Gas, ""},
-        {TransmutableItemState.Plasma, ""},
-        {TransmutableItemState.Magnificent_Gem, ""},
-        {TransmutableItemState.Exceptional_Gem, ""},
-        {TransmutableItemState.Gem, ""},
-        {TransmutableItemState.Mediocre_Gem, ""},
-        {TransmutableItemState.Poor_Gem, ""},
-    };
-
     public static string getPrefix(this TransmutableItemState state) {
         switch (state) {
             case TransmutableItemState.Ingot:
@@ -209,6 +166,18 @@ public static class TransmutableItemStateExtension {
                 return 16f;
             default:
                 return 0;
+        }
+    }
+    public static MatterState getMatterState(this TransmutableItemState state) {
+        switch (state) {
+            case TransmutableItemState.Liquid:
+                return MatterState.NonSolid;
+            case TransmutableItemState.Gas:
+                return MatterState.NonSolid;
+            case TransmutableItemState.Plasma:
+                return MatterState.NonSolid;
+            default:
+                return MatterState.Solid;
         }
     }
 
