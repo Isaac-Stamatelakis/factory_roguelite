@@ -51,7 +51,7 @@ namespace ChunkModule.LoadController {
                 while (loadAmount > 0 && loadQueue.Count != 0) {
                     Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
                     IChunkPartition closestPartition = loadQueue.Dequeue();
-                    if (closestPartition.getTileLoaded()) {
+                    if (closestPartition.getLoaded()) {
                         activeCoroutines--;
                         continue;
                     }

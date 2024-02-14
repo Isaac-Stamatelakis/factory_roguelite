@@ -65,7 +65,7 @@ namespace ChunkModule.LoadController {
                     activeCoroutines--;
                     IChunkPartition farthestPartition = unloadQueue.Dequeue();
                     // If partition is close to not loaded or partition is to close to the player, do not unload
-                    if (!farthestPartition.getTileLoaded() || farthestPartition.inRange(closedChunkSystem.getPlayerChunkPartition(),Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
+                    if (!farthestPartition.getLoaded() || farthestPartition.inRange(closedChunkSystem.getPlayerChunkPartition(),Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2)) {
                         continue;
                     }
                     farthestPartition.setTileLoaded(false);

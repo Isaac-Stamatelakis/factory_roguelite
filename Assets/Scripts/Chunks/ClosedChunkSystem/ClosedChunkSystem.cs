@@ -22,8 +22,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected Transform playerTransform;
         //public ChunkList chunkList;
         protected Dictionary<Vector2Int, IChunk> cachedChunks;
-        protected ChunkLoader chunkLoader;
-        protected ChunkUnloader chunkUnloader;
+        
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
         protected PartitionUnloader partitionUnloader;    
@@ -76,26 +75,24 @@ namespace ChunkModule.ClosedChunkSystemModule {
             GameObject chunkContainer = new GameObject();
             chunkContainer.name = "Chunks";
             chunkContainer.transform.SetParent(transform);
-            chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
             
-            chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
-            chunkLoader.init(this);
+            chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
 
-            chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
-            chunkUnloader.init(this);
+            initLoaders();
+            playerTransform = GameObject.Find("Player").GetComponent<Transform>();
+            cachedChunks = new Dictionary<Vector2Int, IChunk>();
+            this.dim = dim;
+            this.coveredArea = coveredArea;
+            Debug.Log("Closed Chunk System '" + name + "' For Dim '" + dim + "' Initalized");
+            StartCoroutine(initalLoad());
+        }
 
+        public virtual void initLoaders() {
             partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
             partitionLoader.init(this);
 
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.init(this,partitionLoader);
-
-            playerTransform = GameObject.Find("Player").GetComponent<Transform>();
-            cachedChunks = new Dictionary<Vector2Int, IChunk>();
-            this.dim = dim;
-            this.coveredArea = coveredArea;
-            Debug.Log("Closed Chunk System " + name + "For Dim" + dim + " Initalized");
-            StartCoroutine(initalLoad());
         }
 
         protected IEnumerator initalLoad() {
@@ -125,20 +122,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 tileGridMaps[tileType] = tileGridMap;
             }
         }
-        public IEnumerator initalLoadChunks() {
-            List<Vector2Int> chunks = getUnCachedChunkPositionsNearPlayer();
-            foreach (Vector2Int vector in chunks) {
-                ChunkIO.getChunkFromJson(vector, this);
-            }
-            yield return null;
-            Debug.Log("Chunks Near Player Loaded");
-        }
+        public abstract IEnumerator initalLoadChunks();
 
         
-        public virtual void playerChunkUpdate() {
-            chunkLoader.addToQueue(getUnCachedChunkPositionsNearPlayer());
-            chunkUnloader.addToQueue(getLoadedChunksOutsideRange());
-        }
+        public abstract void playerChunkUpdate(); 
 
         public virtual void playerPartitionUpdate() {
             List<IChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
@@ -230,7 +217,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             foreach (IChunk chunk in cachedChunks.Values) {
                 foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
                     foreach (IChunkPartition partition in chunkPartitionList) {
-                        if (partition.getTileLoaded()) {
+                        if (partition.getLoaded()) {
                             partition.save(tileGridMaps);
                         }
                     }
@@ -239,6 +226,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
         }
 
+        protected Vector2Int getSize() {
+            int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
+            int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
+            return new Vector2Int(xSizeChunks*Global.ChunkSize,ySizeChunks*Global.ChunkSize);
+        }
 
         
     }

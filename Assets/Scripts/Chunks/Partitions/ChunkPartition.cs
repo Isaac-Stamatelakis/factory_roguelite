@@ -10,8 +10,7 @@ namespace ChunkModule.PartitionModule {
     
     public abstract class ChunkPartition<T> : IChunkPartition where T : IChunkPartitionData
     {
-        protected bool tileLoaded = false;
-        protected bool entityLoaded = false;
+        protected bool loaded;
         protected bool scheduledForUnloading = false;
         protected Vector2Int position;
         protected T data;
@@ -35,12 +34,11 @@ namespace ChunkModule.PartitionModule {
             return data;
         }
 
-        public bool getTileLoaded()
-        {
-            return tileLoaded;
-        }
 
         public void tick() {
+            if (tileEntities == null) {
+                return;
+            }
             foreach (TileEntity[,] tileEntitieList in tileEntities.Values) {
                 foreach (TileEntity tileEntity in tileEntitieList) {
                     if (tileEntity is ITickableTileEntity) {
@@ -114,10 +112,7 @@ namespace ChunkModule.PartitionModule {
 
         public abstract void save(Dictionary<TileMapType, ITileMap> tileGridMaps);
 
-        public void setTileLoaded(bool val)
-        {
-            tileLoaded = val;
-        }
+
 
         public void setScheduleForUnloading(bool val)
         {
@@ -144,24 +139,15 @@ namespace ChunkModule.PartitionModule {
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
-            entityLoaded=false;
-            tileEntities = null;
+            unloadTileEntities();
         }
 
+        protected virtual void unloadTileEntities() {
+            tileEntities = null;
+        }
         public void loadEntities() {
 
         }
-
-        public bool getEntityLoaded()
-        {
-            return entityLoaded;
-        }
-
-        public void setEntityLoaded(bool val)
-        {
-            this.entityLoaded = val;
-        }
-
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition)
         {
             if (layer == TileMapLayer.Base || layer == TileMapLayer.Background) {
@@ -199,6 +185,16 @@ namespace ChunkModule.PartitionModule {
                 }
             }
             return false;
+        }
+
+        public bool getLoaded()
+        {
+            return loaded;
+        }
+
+        public void setTileLoaded(bool val)
+        {
+            loaded = val;
         }
     }
 }

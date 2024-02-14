@@ -52,9 +52,13 @@ namespace ChunkModule {
         public void FixedUpdate() {
             foreach (List<IChunkPartition> partitionList in partitions) {
                 foreach (IChunkPartition partition in partitionList) {
-                    if (partition.getEntityLoaded()) {
+                    partition.tick();
+                    /*
+                    if (partition.getLoaded()) {
+                        
                         partition.tick();
                     }
+                    */
                 }
             }
         }
@@ -134,7 +138,7 @@ namespace ChunkModule {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (List<IChunkPartition> partitionList in partitions) {
                 foreach (IChunkPartition partition in partitionList) {
-                    if (!partition.getTileLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                    if (!partition.getLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
                         close.Add(partition);
                     } 
                 }
@@ -157,7 +161,7 @@ namespace ChunkModule {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (List<IChunkPartition> partitionList in partitions) {
                 foreach (IChunkPartition partition in partitionList) {
-                    if (partition.getTileLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                    if (partition.getLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
                         far.Add(partition);
                     } 
                 }
@@ -189,7 +193,7 @@ namespace ChunkModule {
         {
             foreach (List<IChunkPartition> partitionList in partitions) {
                 foreach (IChunkPartition partition in partitionList) {
-                    if (partition.getTileLoaded() || partition.getScheduledForUnloading()) {
+                    if (partition.getLoaded() || partition.getScheduledForUnloading()) {
                         return false;
                     }
                 }

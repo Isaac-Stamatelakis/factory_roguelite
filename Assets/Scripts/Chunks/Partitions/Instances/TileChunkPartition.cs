@@ -24,7 +24,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             if (!tileEntities.ContainsKey(TileMapLayer.Background)) {
                 tileEntities[TileMapLayer.Background] = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
-            entityLoaded = true;
             yield return base.load(tileGridMaps,angle);
             
         }
@@ -87,7 +86,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                                 continue;
                             }
                             if (tileEntity is ISerializableTileEntity) {
-                                data.baseData.sTileEntityOptions[x][y] = ((ISerializableTileEntity) tileEntity).serialize();
+                                data.baseData.sTileEntityOptions[x][y] = saveTileEntity(tileEntity);
                             }
                         }
                     }
@@ -100,13 +99,18 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                             if (tileEntity == null) {
                                 continue;
                             }
-                            if (tileEntity is ISerializableTileEntity) {
-                                data.backgroundData.sTileEntityOptions[x][y] = ((ISerializableTileEntity) tileEntity).serialize();
-                            }
+                            data.backgroundData.sTileEntityOptions[x][y] = saveTileEntity(tileEntity);
                         }
                     }
                 }
             }
+        }
+
+        protected virtual string saveTileEntity(TileEntity tileEntity) {
+            if (tileEntity is ISerializableTileEntity) {
+                return ((ISerializableTileEntity) tileEntity).serialize();
+            }
+            return null;
         }
 
         public override IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
@@ -122,11 +126,12 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     TileEntity[,] baseTileEntities = tileEntities[TileMapLayer.Base];
                     for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            TileEntity baseTileEntity = baseTileEntities[x,y];
-                            if (baseTileEntity is ILoadableTileEntity) {
-                                ((ILoadableTileEntity) baseTileEntity).unload();
-                                baseTileEntities[x,y] = null;
-                                removals++;
+                            TileEntity tileEntity = baseTileEntities[x,y];
+                            if (tileEntity == null) {
+                                continue;
+                            }
+                            if(unloadTileEntity(baseTileEntities,x,y)) {
+                                removals ++;
                             }
                             if (removals >= removalsPerNumeration) {
                                 removals = 0;
@@ -139,11 +144,12 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     TileEntity[,] backgroundTileEntities = tileEntities[TileMapLayer.Background];
                     for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            TileEntity backgroundTileEntity = backgroundTileEntities[x,y];
-                            if (backgroundTileEntity is ILoadableTileEntity) {
-                                ((ILoadableTileEntity) backgroundTileEntity).unload();
-                                backgroundTileEntities[x,y] = null;
-                                removals++;
+                            TileEntity tileEntity = backgroundTileEntities[x,y];
+                            if (tileEntity == null) {
+                                continue;
+                            }
+                            if(unloadTileEntity(backgroundTileEntities,x,y)) {
+                                removals ++;
                             }
                             if (removals >= removalsPerNumeration) {
                                 removals = 0;
@@ -152,12 +158,18 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                         }
                     }
                 }
-                
             }
-            
-            
-            
         }
+
+        protected virtual bool unloadTileEntity(TileEntity[,] array, int x, int y) {
+            TileEntity tileEntity = array[x,y];
+            if (tileEntity is ILoadableTileEntity) {
+                ((ILoadableTileEntity) tileEntity).unload();
+            }
+            array[x,y] = null;
+            return true;
+        }
+
 
         protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);
@@ -199,16 +211,15 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 return;
             }
             if (tileItem.tileEntity != null) {
-                TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-                tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);
-                if (tileEntity is ISerializableTileEntity) {
-                    ((ISerializableTileEntity) tileEntity).unserialize(tileEntityOptions);
-                }
-                if (tileEntity is ILoadableTileEntity) {
-                    ((ILoadableTileEntity) tileEntity).load();
-                }
                 if (layer == TileMapLayer.Base || layer == TileMapLayer.Background) {
-                    tileEntities[layer][positionInPartition.x,positionInPartition.y] = tileEntity;
+                    placeTileEntityFromLoad(
+                        tileItem,
+                        tileEntityOptions,
+                        positionInPartition,
+                        tileEntities[layer],
+                        positionInPartition.x,
+                        positionInPartition.y
+                    );
                 }
             }
             
@@ -224,6 +235,22 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 tileData
             );
             
+        }
+
+        protected virtual void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y) {
+            tileEntityArray[x,y] = placeTileEntity(tileItem,options,positionInPartition);
+        }
+
+        protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
+            TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
+            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);
+            if (tileEntity is ISerializableTileEntity) {
+                ((ISerializableTileEntity) tileEntity).unserialize(options);
+            }
+            if (tileEntity is ILoadableTileEntity) {
+                ((ILoadableTileEntity) tileEntity).load();
+            }
+            return tileEntity;
         }
     }
 }

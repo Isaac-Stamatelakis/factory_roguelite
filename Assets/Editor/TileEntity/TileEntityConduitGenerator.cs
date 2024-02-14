@@ -68,7 +68,7 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tilemap tilemap = childTransform.GetComponent<Tilemap>();
         
-        List<ConduitPort> conduitPorts = new List<ConduitPort>();
+        List<ConduitPortData> conduitPorts = new List<ConduitPortData>();
         for (int x = xArea.x; x <= xArea.y; x++) {
             for (int y = yArea.x; y <= yArea.y; y++) {
                 TileBase tileBase = tilemap.GetTile(new Vector3Int(x,y,0)+center);
@@ -76,13 +76,13 @@ public class TileEntityConduitGenerator : EditorWindow {
                     StandardTile standardTile = (StandardTile) tileBase;
                     switch (standardTile.id) {
                         case "All":
-                            conduitPorts.Add(new ConduitPort(ConduitPortType.All,new Vector2Int(x,y)));
+                            conduitPorts.Add(new ConduitPortData(ConduitPortType.All,new Vector2Int(x,y)));
                             break;
                         case "Input":
-                            conduitPorts.Add(new ConduitPort(ConduitPortType.Input,new Vector2Int(x,y)));
+                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Input,new Vector2Int(x,y)));
                             break;
                         case "Output":
-                            conduitPorts.Add(new ConduitPort(ConduitPortType.Output,new Vector2Int(x,y)));
+                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Output,new Vector2Int(x,y)));
                             break;
                     }
                 }

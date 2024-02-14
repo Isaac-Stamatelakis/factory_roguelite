@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace ConduitModule.ConduitSystemModule {
     public static class ConduitSystemFactory {
-        public static IConduitSystem create(ConduitType type) {
+        public static IConduitSystem create(ConduitType type, string id) {
             switch (type) {
                 case ConduitType.Item:
-                    break;
+                    return new ItemConduitSystem(id);
                 case ConduitType.Fluid:
                     break;
                 case ConduitType.Energy:

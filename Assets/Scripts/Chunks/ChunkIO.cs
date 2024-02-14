@@ -17,7 +17,7 @@ namespace ChunkModule.IO {
             string filePath = getPath(chunkPosition,dim);
             return (Directory.Exists(filePath));
         }
-        public static GameObject getChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
+        public static IChunk getChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             string chunkName = getName(chunkPosition);
             string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
             string json = null;
@@ -32,12 +32,10 @@ namespace ChunkModule.IO {
             }
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             if (closedChunkSystem is TileClosedChunkSystem) {
-                if (closedChunkSystem is ConduitTileClosedChunkSystem) {
-                    chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(json));
-                } else {
-                    chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json));
-                } 
-            }  
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json));
+            } else if (closedChunkSystem is ConduitTileClosedChunkSystem) {
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(json));
+            }
             List<IChunkPartitionData> chunkPartitionData = new List<IChunkPartitionData>();
             foreach (IChunkPartitionData serializedTileData in chunkPartitionDataList) {
                 chunkPartitionData.Add(serializedTileData);
@@ -46,8 +44,7 @@ namespace ChunkModule.IO {
             chunkGameObject.name = chunkName;
             Chunk chunk = chunkGameObject.AddComponent<Chunk>();
             chunk.initalize(closedChunkSystem.Dim,chunkPartitionData,chunkPosition,closedChunkSystem);
-            closedChunkSystem.addChunk(chunk);
-            return chunkGameObject;
+            return chunk;
 
             
         }
