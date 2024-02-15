@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using ConduitModule.Ports;
 
 namespace ConduitModule.ConduitSystemModule {
 
@@ -12,17 +13,18 @@ namespace ConduitModule.ConduitSystemModule {
         private List<IConduitSystem> conduitSystems;
         private ConduitType type;
         private IConduit[,] conduits;
+        private Dictionary<Vector2Int, List<ConduitPortData>> chunkConduitPorts;
         private Vector2Int size;
 
         public ConduitType Type { get => type;}
+        public Dictionary<Vector2Int, List<ConduitPortData>> ChunkConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
 
-        public ConduitSystemManager(ConduitType conduitType, IConduit[,] conduits, Vector2Int size) {
+        public ConduitSystemManager(ConduitType conduitType, IConduit[,] conduits, Vector2Int size,Dictionary<Vector2Int, List<ConduitPortData>> chunkConduitPorts) {
             this.type = conduitType;
             this.conduits = conduits;
             this.size = size;
+            this.ChunkConduitPorts = chunkConduitPorts;
             generate();
-            //Debug.Log(conduits.Length);
-            //Debug.Log(conduitSystems.Count);
         }
 
         private void generate() {

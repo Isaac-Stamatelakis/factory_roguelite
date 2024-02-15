@@ -3,42 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using ConduitModule;
+using ConduitModule.Ports;
 
 namespace ConduitModule.ConduitSystemModule {
     
-    public class ItemConduitSystem : AConduitSystem
+    public class ItemConduitSystem : ConduitSystem<ItemConduitPort>
     {
         
         public ItemConduitSystem(string id) : base(id)
         {
             
         }
-        private Dictionary<int, List<ConnectedConduit>> extractions;
-        private Dictionary<int, Dictionary<int, List<ConnectedConduit>>> insertions;
+        private List<ItemConduitInputPort> portsOrderByPriority;
+        private Dictionary<int, List<ItemConduitOutputPort>> coloredOutputPorts;
+        private Dictionary<int, List<ItemConduitInputPort>> coloredPriorityInputs;
         public override void tickUpdate()
         {
-            foreach (KeyValuePair<int,List<ConnectedConduit>> kvp in extractions) {
-                if (!insertions.ContainsKey(kvp.Key)) {
-                    continue;
-                }
-                Dictionary<int,List<ConnectedConduit>> priorityInsertions = insertions[kvp.Key];
-                List<int> priorities = priorityInsertions.Keys.OrderByDescending(k => k).ToList();
-                foreach (ConnectedConduit extractionConduit in kvp.Value) {
-                    ItemFilter outputFilter = ((ItemConduitOptions) extractionConduit.conduit.GetConduitOptions()).outputFilter;
-                    ItemSlot extracted = extractionConduit.conduitPort.extract(outputFilter);
-                    if (extracted == null) {
-                        continue;
-                    }
-                    foreach (int priorityValue in priorities) {
-                        foreach (ConnectedConduit insertionConduit in priorityInsertions[priorityValue]) {
-                            ItemFilter inputFilter = ((ItemConduitOptions) insertionConduit.conduit.GetConduitOptions()).inputFilter;
-                            insertionConduit.conduitPort.insert(extracted,inputFilter);
-                            if (extracted == null || extracted.amount == 0) {
+            foreach (KeyValuePair<int,List<ItemConduitOutputPort>> colorOutputPortList in coloredOutputPorts) {
+                if (coloredPriorityInputs.ContainsKey(colorOutputPortList.Key)) {
+                    List<ItemConduitInputPort> priorityOrderInputs = coloredPriorityInputs[colorOutputPortList.Key];
+                    foreach (ItemConduitOutputPort itemConduitOutputPort in colorOutputPortList.Value) {
+                        ItemSlot toInsert = itemConduitOutputPort.extract();
+                        foreach (ItemConduitInputPort itemConduitInputPort in priorityOrderInputs) {
+                            itemConduitInputPort.insert(toInsert);
+                            if (toInsert.amount == 0) {
+                                break;
+                            } else if (toInsert.amount < 0) {
+                                Debug.LogError("Something went wrong when inserting items. Got negative amount '" + toInsert.amount + "'");
                                 break;
                             }
-                        }
-                        if (extracted == null || extracted.amount == 0) {
-                            break;
                         }
                     }
                 }
@@ -47,19 +40,33 @@ namespace ConduitModule.ConduitSystemModule {
 
         protected override void generateSystem()
         {
-            extractions = new Dictionary<int, List<ConnectedConduit>>();
-            insertions = new Dictionary<int, Dictionary<int, List<ConnectedConduit>>>();
-            foreach (IConduit conduit in conduits) {
-                
+            coloredOutputPorts = new Dictionary<int, List<ItemConduitOutputPort>>();
+            coloredPriorityInputs = new Dictionary<int, List<ItemConduitInputPort>>();
+            foreach (ItemConduitPort port in ports) {
+                addOutputPort(port.outputPort);
+                addInputPort(port.inputPort);
             }
         }
 
-        private class ConnectedConduit {
-            public IConduit conduit;
-            public IItemConduitPort conduitPort;
-            public int distanceFrom(ConnectedConduit connectedConduit) {
-                return Mathf.Abs(conduit.getX()-connectedConduit.conduit.getX()) + Mathf.Abs(conduit.getY()-connectedConduit.conduit.getY());
+        private void addOutputPort(ItemConduitOutputPort outputPort) {
+            if (outputPort == null) {
+                return;
             }
+            if (!coloredOutputPorts.ContainsKey(outputPort.color)) {
+                coloredOutputPorts[outputPort.color] = new List<ItemConduitOutputPort>();
+            }
+            coloredOutputPorts[outputPort.color].Add(outputPort);
+        }
+        private void addInputPort(ItemConduitInputPort inputPort) {
+            if (inputPort != null) {
+                return;
+            }
+            if (!coloredPriorityInputs.ContainsKey(inputPort.color)) {
+                coloredPriorityInputs[inputPort.color] = new List<ItemConduitInputPort>();
+            }
+            List<ItemConduitInputPort> prioritySortedPorts = new List<ItemConduitInputPort>();
+            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<ItemConduitInputPort>.Create((p1, p2) => p2.priority.CompareTo(p1.priority)));
+            prioritySortedPorts.Insert(index,inputPort); 
         }
     }
 }

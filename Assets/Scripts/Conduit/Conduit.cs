@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.PartitionModule;
 using TileMapModule.Layer;
+using ConduitModule.Ports;
 
 namespace ConduitModule {
     public interface IConduit {
@@ -12,7 +13,7 @@ namespace ConduitModule {
         public int getPartitionX();
         public int getPartitionY();
         public ConduitItem getConduitItem();
-        public IConduitOptions GetConduitOptions();
+        public IConduitPort getPort();
         public string getId();
 
     }
@@ -23,14 +24,14 @@ namespace ConduitModule {
         private int partitionX;
         private int partitionY;
         private ConduitItem conduitItem;
-        private Options conduitOptions;
-        public Conduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, Options conduitOptions) {
+        private IConduitPort port;
+        public Conduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitPort port) {
             this.x = x;
             this.y = y;
             this.partitionX = partitionX;
             this.partitionY = partitionY;
             this.conduitItem = conduitItem;
-            this.conduitOptions = conduitOptions;
+            this.port = port;
         }
 
         public ConduitItem getConduitItem()
@@ -38,9 +39,9 @@ namespace ConduitModule {
             return conduitItem;
         }
 
-        public IConduitOptions GetConduitOptions()
+        public IConduitPort getPort()
         {
-            return conduitOptions;
+            return port;
         }
 
         public string getId()
@@ -71,27 +72,27 @@ namespace ConduitModule {
 
     public class ItemConduit : Conduit<ItemConduitOptions>
     {
-        public ItemConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, ItemConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        public ItemConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitPort port) : base(x, y, partitionX, partitionY, conduitItem, port)
         {
         }
     }
 
     public class FluidConduit : Conduit<FluidItemConduitOptions>
     {
-        public FluidConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, FluidItemConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        public FluidConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitPort port) : base(x, y, partitionX, partitionY, conduitItem, port)
         {
         }
     }
 
     public class SignalConduit : Conduit<SignalConduitOptions>
     {
-        public SignalConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, SignalConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        public SignalConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitPort port) : base(x, y, partitionX, partitionY, conduitItem, port)
         {
         }
     }
     public class EnergyConduit : Conduit<EnergyConduitOptions>
     {
-        public EnergyConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, EnergyConduitOptions conduitOptions) : base(x, y, partitionX, partitionY, conduitItem, conduitOptions)
+        public EnergyConduit(int x, int y, int partitionX, int partitionY, ConduitItem conduitItem, IConduitPort port) : base(x, y, partitionX, partitionY, conduitItem, port)
         {
         }
     }
@@ -101,8 +102,9 @@ namespace ConduitModule {
             if (conduitItem == null) {
                 return null;
             }
-            IConduitOptions conduitOptions = ConduitOptionsFactory.deseralizeOption(conduitItem,conduitOptionData);
-            switch (conduitItem.getType()) {
+            ConduitType conduitType = conduitItem.getType();
+            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType);
+            switch (conduitType) {
                 case ConduitType.Item:
                     return new ItemConduit(
                         x: x,
@@ -110,7 +112,7 @@ namespace ConduitModule {
                         partitionX: partitionPosition.x,
                         partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
-                        conduitOptions: (ItemConduitOptions) conduitOptions
+                        port: port
                     );
                 case ConduitType.Fluid:
                     return new FluidConduit(
@@ -119,7 +121,7 @@ namespace ConduitModule {
                         partitionX: partitionPosition.x,
                         partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
-                        conduitOptions: (FluidItemConduitOptions) conduitOptions
+                        port: port
                     );
                 case ConduitType.Energy:
                     return new EnergyConduit(
@@ -128,7 +130,7 @@ namespace ConduitModule {
                         partitionX: partitionPosition.x,
                         partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
-                        conduitOptions: (EnergyConduitOptions) conduitOptions
+                        port: port
                     );
                 case ConduitType.Signal:
                     return new SignalConduit(
@@ -137,7 +139,7 @@ namespace ConduitModule {
                         partitionX: partitionPosition.x,
                         partitionY: partitionPosition.y,
                         conduitItem: conduitItem,
-                        conduitOptions: (SignalConduitOptions) conduitOptions
+                        port: port
                     );    
             }
             return null;

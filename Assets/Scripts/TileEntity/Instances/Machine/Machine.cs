@@ -5,7 +5,7 @@ using GUIModule;
 using ChunkModule;
 using Newtonsoft.Json;
 using RecipeModule.Transmutation;
-
+using ConduitModule.Ports;
 
 namespace TileEntityModule.Instances.Machine
 {
@@ -23,11 +23,12 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> others;
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
-        public ConduitPortDataCollection conduitPortData;
+        public ConduitPortLayout conduitLayout;
         private int mode;
         
 
         public void set(ConduitType conduitType, List<ConduitPortData> vects) {
+            /*
             switch (conduitType) {
                 case ConduitType.Item:
                     conduitPortData.itemPorts = vects;
@@ -42,6 +43,7 @@ namespace TileEntityModule.Instances.Machine
                     conduitPortData.energyPorts = vects;
                     break;
             }
+            */
         }
 
         public override void initalize(Vector2Int tilePosition, IChunk chunk)
@@ -158,9 +160,29 @@ namespace TileEntityModule.Instances.Machine
 
         }
 
-        public ConduitPortDataCollection GetConduitPortData()
+        public ConduitPortLayout getConduitPortLayout()
         {
-            return conduitPortData;
+            return conduitLayout;
+        }
+
+        public int extractEnergy()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void sendEnergy()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ItemSlot extractItem()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void insertItem(ItemSlot itemSlot)
+        {
+            throw new System.NotImplementedException();
         }
 
         [System.Serializable]

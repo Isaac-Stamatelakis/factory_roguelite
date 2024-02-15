@@ -5,6 +5,8 @@ using UnityEditor;
 using System.IO;
 using RobotModule;
 using ItemModule;
+using TileEntityModule;
+using ConduitModule.Ports;
 
 /// Singleton
 public class ItemRegistry {

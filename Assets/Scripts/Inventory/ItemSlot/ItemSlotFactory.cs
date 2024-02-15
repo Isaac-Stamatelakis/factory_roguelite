@@ -86,15 +86,18 @@ public class ItemSlotFactory
         );
     }
 
-    private class SerializedItemSlot {
-        public SerializedItemSlot(string id, int amount, Dictionary<string,object> nbt) {
-            this.id = id;
-            this.amount = amount;
-            this.nbt = nbt;
-        }
-        public string id;
-        public int amount;
-        public Dictionary<string,object> nbt;
-    }
+    
 
+}
+
+[System.Serializable]
+public class SerializedItemSlot {
+    public SerializedItemSlot(string id, int amount, Dictionary<string,object> nbt) {
+        this.id = id;
+        this.amount = amount;
+        this.nbt = nbt;
+    }
+    public string id;
+    public int amount;
+    public Dictionary<string,object> nbt;
 }

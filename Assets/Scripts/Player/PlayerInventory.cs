@@ -129,7 +129,7 @@ namespace PlayerModule {
             
         }
 
-        public string getSelectedTileId() {
+        public string getSelectedId() {
             if (inventory[selectedSlot] == null || inventory[selectedSlot].itemObject == null) {
                 return null;
             }

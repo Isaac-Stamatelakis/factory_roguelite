@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
 using TileEntityModule.Instances.Machine;
+using ConduitModule.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {
     private TileEntity tileEntity;
@@ -74,15 +75,16 @@ public class TileEntityConduitGenerator : EditorWindow {
                 TileBase tileBase = tilemap.GetTile(new Vector3Int(x,y,0)+center);
                 if (tileBase != null) {
                     StandardTile standardTile = (StandardTile) tileBase;
+                    ConduitPortData conduitPortData;
                     switch (standardTile.id) {
                         case "All":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.All,new Vector2Int(x,y)));
+                            conduitPortData = new ConduitPortData(ConduitPortType.All,new Vector2Int(x,y));
                             break;
                         case "Input":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Input,new Vector2Int(x,y)));
+                            conduitPortData = new ConduitPortData(ConduitPortType.Input,new Vector2Int(x,y));
                             break;
                         case "Output":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Output,new Vector2Int(x,y)));
+                            conduitPortData = new ConduitPortData(ConduitPortType.Output,new Vector2Int(x,y));
                             break;
                     }
                 }

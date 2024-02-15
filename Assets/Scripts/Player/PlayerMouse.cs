@@ -199,7 +199,7 @@ namespace PlayerModule.Mouse {
             if (devMode.placeSelectedID) {
                 id = devMode.placeID;
             } else {
-                id = playerInventory.getSelectedTileId();
+                id = playerInventory.getSelectedId();
             }
             if (id == null) {
                 return false;

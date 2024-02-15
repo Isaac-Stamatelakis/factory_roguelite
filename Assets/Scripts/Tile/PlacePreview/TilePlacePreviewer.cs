@@ -30,7 +30,7 @@ namespace TileMapModule.Previewer {
             if (devMode.placeSelectedID) {
                 previewTile(devMode.placeID,mousePosition);
             } else {
-                previewTile(playerInventory.getSelectedTileId(), mousePosition);
+                previewTile(playerInventory.getSelectedId(), mousePosition);
             }
             
         }   

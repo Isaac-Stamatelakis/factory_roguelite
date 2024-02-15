@@ -21,6 +21,4 @@ namespace TileEntityModule {
             return (tilePosition + chunk.getPosition() * Global.ChunkSize)/2;
         }
     }
-
-
 } // end
