@@ -31,10 +31,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             foreach (TileMapType tileMapType in conduitMaps) {
                 initTileMapContainer(tileMapType);
             }
-            GameObject portViewerController = new GameObject();
-            portViewerController.name = "Conduit Port View Controller";
-            portViewerController.transform.SetParent(transform);
-            viewerController = portViewerController.AddComponent<PortViewerController>();
+            
             base.Awake();
         }
 
@@ -44,6 +41,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
             initConduitSystemManager(TileMapType.FluidConduit);
             initConduitSystemManager(TileMapType.EnergyConduit);
             initConduitSystemManager(TileMapType.SignalConduit);
+
+            GameObject portViewerController = new GameObject();
+            portViewerController.name = "Conduit Port View Controller";
+            portViewerController.transform.SetParent(transform);
+            viewerController = portViewerController.AddComponent<PortViewerController>();
         }
         public void addToConduitSystem(ConduitItem conduitItem, IConduitOptions conduitOptions, Vector2Int position) {
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using DimensionModule;
 
-namespace WorldDataModule {
+namespace WorldModule {
     public static class OpenWorld 
     {
         public static void loadWorld(string worldName) {

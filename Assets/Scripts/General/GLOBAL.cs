@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class Global
+public static class Global
 {
     private static int rotation = 2;
     public static int Rotation {get{return rotation;} set{rotation = value;}}

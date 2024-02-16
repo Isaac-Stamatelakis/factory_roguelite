@@ -7,7 +7,7 @@ using ChunkModule.IO;
 using TileMapModule.Layer;
 using PlayerModule.IO;
 
-namespace WorldDataModule {
+namespace WorldModule {
     public static class WorldCreation
     {
         public static bool worldExists(string name) {

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using WorldDataModule;
+using WorldModule;
 using ChunkModule.ClosedChunkSystemModule;
 
 namespace DimensionModule {

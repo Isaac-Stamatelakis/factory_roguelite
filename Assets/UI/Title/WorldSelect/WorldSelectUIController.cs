@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using WorldDataModule;
+using WorldModule;
 
 namespace UI.Title {
     public class WorldSelectUIController : MonoBehaviour

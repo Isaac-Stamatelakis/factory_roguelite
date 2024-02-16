@@ -75,6 +75,9 @@ namespace ChunkModule.PartitionModule {
                             continue;
                         }
                         ConduitPortLayout layout = ((IConduitInteractable) tileEntity).getConduitPortLayout();
+                        if (layout == null) {
+                            continue;
+                        }
                         List<ConduitPortData> entityPorts = null;
                         switch (type) {
                             case ConduitType.Item:
