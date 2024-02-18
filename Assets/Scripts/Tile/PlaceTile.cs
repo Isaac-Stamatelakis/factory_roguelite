@@ -9,6 +9,9 @@ using TileMapModule.Type;
 using TileMapModule.Conduit;
 using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
+using ConduitModule;
+using ConduitModule.Ports;
+using ConduitModule.ConduitSystemModule;
 
 namespace TileMapModule.Place {
     public static class PlaceTile {
@@ -35,6 +38,9 @@ namespace TileMapModule.Place {
                     return true;
                 }
             } else if (itemObject is ConduitItem) {
+                if (closedChunkSystem is not ConduitTileClosedChunkSystem) {
+                    return false;
+                }
                 ConduitItem conduitItem = ((ConduitItem) itemObject);
                 TileMapType tileMapType = conduitItem.getType().toTileMapType();
                 ITileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
@@ -42,7 +48,7 @@ namespace TileMapModule.Place {
                     return false;
                 }
                 if (conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
-                    placeConduit(conduitItem,worldPlaceLocation,conduitMap,closedChunkSystem);
+                    placeConduit(conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
                     return true;
                 }
             }
@@ -186,6 +192,11 @@ namespace TileMapModule.Place {
                 }
                 TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
                 tileEntity.initalize(positionInChunk, chunk);
+                if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+                    if (tileEntity is IConduitInteractable) {
+                        conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
+                    }
+                }
                 TileMapLayer layer = tileMap.getType().toLayer();
                 partition.addTileEntity(layer,tileEntity,positionInPartition);
             }
@@ -196,9 +207,18 @@ namespace TileMapModule.Place {
             tileMap.placeTileAtLocation(placePosition.x,placePosition.y,tileData);
         }
 
-        private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem) {
+        private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             ConduitData conduitData = new ConduitData(conduitItem);
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
+            ConduitType conduitType = conduitItem.getType();
+
+            ConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
+            EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
+            TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
+
+            IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
+            conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
+
             tileMap.placeTileAtLocation(placePosition.x,placePosition.y,conduitData);
             return true;
         }

@@ -11,15 +11,23 @@ using ConduitModule.Ports;
 using Newtonsoft.Json;
 using ConduitModule.PortViewer;
 using PlayerModule;
+using TileMapModule;
+using TileMapModule.Conduit;
+using TileEntityModule;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
     {
-        private Dictionary<TileMapType, ConduitSystemManager> conduitSystemsDict;
+        private Dictionary<TileMapType, ConduitSystemManager> conduitSystemManagersDict;
         private PortViewerController viewerController;
         
-        public void Update() {
-
+        public void FixedUpdate() {
+            if (conduitSystemManagersDict == null) {
+                return;
+            }
+            foreach (ConduitSystemManager manager in conduitSystemManagersDict.Values) {
+                manager.tickUpdate();
+            }
         }
         public override void Awake()
         {
@@ -35,8 +43,43 @@ namespace ChunkModule.ClosedChunkSystemModule {
             base.Awake();
         }
 
+        public override void OnDisable()
+        {
+            partitionUnloader.clearAll();
+            foreach (IChunk chunk in cachedChunks.Values) {
+                foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
+                    foreach (IChunkPartition partition in chunkPartitionList) {
+                        if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                            continue;
+                        }
+                        
+                        if (partition.getLoaded() && conduitTileChunkPartition.getConduitLoaded()) {
+                            Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
+                            foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
+                                partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
+                            }
+                            conduitTileChunkPartition.setConduits(partitionConduits);
+                            partition.save(tileGridMaps);
+                        }
+                    }
+                }
+                ChunkIO.writeChunk(chunk);
+            }
+        }
+
+        public void tileEntityPlaceUpdate(TileEntity tileEntity) {
+            foreach (ConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
+                conduitSystemManager.addTileEntity(tileEntity);
+            }
+        }
+
+        public void tileEntityDeleteUpdate(Vector2Int position) {
+            foreach (ConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
+                conduitSystemManager.deleteTileEntity(position);
+            }
+        }
         private void initConduitSystemManagers() {
-            conduitSystemsDict = new Dictionary<TileMapType, ConduitSystemManager>();
+            conduitSystemManagersDict = new Dictionary<TileMapType, ConduitSystemManager>();
             initConduitSystemManager(TileMapType.ItemConduit);
             initConduitSystemManager(TileMapType.FluidConduit);
             initConduitSystemManager(TileMapType.EnergyConduit);
@@ -47,26 +90,31 @@ namespace ChunkModule.ClosedChunkSystemModule {
             portViewerController.transform.SetParent(transform);
             viewerController = portViewerController.AddComponent<PortViewerController>();
         }
-        public void addToConduitSystem(ConduitItem conduitItem, IConduitOptions conduitOptions, Vector2Int position) {
-
-        }
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
-            conduitSystemsDict[conduitMapType] = new ConduitSystemManager(
+            ConduitSystemManager manager = new ConduitSystemManager(
                 conduitType: conduitType,
                 conduits: getConduits(conduitType),
                 size: getSize(),
-                chunkConduitPorts: getTileEntityPorts(conduitType)
+                chunkConduitPorts: getTileEntityPorts(conduitType),
+                referencePosition: getBottomLeftCorner()
             );
+            conduitSystemManagersDict[conduitMapType] = manager;
+            ITileMap tileMap = tileGridMaps[conduitMapType];
+            if (tileMap is not ConduitTileMap) {
+                Debug.LogError("Attempted to assign conduit manager to a non conduit tile map");
+            }
+            ConduitTileMap conduitTileMap = (ConduitTileMap) tileMap;
+            conduitTileMap.ConduitSystemManager = manager;
         }
         /// <summary>
         /// Returns a list of spots conduits can connect to tile entities of each chunk
         /// </summary>
-        private Dictionary<Vector2Int, List<ConduitPortData>> getTileEntityPorts(ConduitType conduitType) {
+        private Dictionary<TileEntity, List<TileEntityPort>> getTileEntityPorts(ConduitType conduitType) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
-            Dictionary<Vector2Int, List<ConduitPortData>> chunkConduitPortData = new Dictionary<Vector2Int, List<ConduitPortData>>();
+            Dictionary<TileEntity, List<TileEntityPort>> tileEntityPortData = new Dictionary<TileEntity, List<TileEntityPort>>();
             for (int x = coveredArea.X.LowerBound; x <= coveredArea.X.UpperBound; x++) {
                 for (int y = coveredArea.Y.LowerBound; y <= coveredArea.Y.UpperBound; y++) {
                     Vector2Int chunkPosition = new Vector2Int(x,y);
@@ -75,20 +123,21 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         continue;
                     }
                     IChunk chunk = cachedChunks[chunkPosition];
-                    List<ConduitPortData> ports = new List<ConduitPortData>();
                     foreach (List<IChunkPartition> partionList in chunk.getChunkPartitions()) {
                         foreach (IChunkPartition partition in partionList) {
                             if (partition is not IConduitTileChunkPartition) {
                                 Debug.LogError("Attempted to load non-conduit partition into conduit system");
                                 continue;
                             }
-                            ports.AddRange(((IConduitTileChunkPartition) partition).getEntityPorts(conduitType,chunkFrameOfReference));
+                            Dictionary<TileEntity, List<TileEntityPort>> partitionPorts = ((IConduitTileChunkPartition) partition).getEntityPorts(conduitType,chunkFrameOfReference);
+                            foreach (KeyValuePair<TileEntity, List<TileEntityPort>> kvp in partitionPorts) {
+                                tileEntityPortData[kvp.Key] = kvp.Value;
+                            }
                         }
                     }
-                    chunkConduitPortData[new Vector2Int(x,y)] = ports;
                 }
             }
-            return chunkConduitPortData;
+            return tileEntityPortData;
         }
         private IConduit[,] getConduits(ConduitType conduitType) {
             Vector2Int size = getSize();
@@ -165,11 +214,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
         public ConduitSystemManager getManager(ConduitType conduitType) {
             TileMapType tileMapType = conduitType.toTileMapType();
-            if (!conduitSystemsDict.ContainsKey(tileMapType)) {
+            if (!conduitSystemManagersDict.ContainsKey(tileMapType)) {
                 Debug.LogError("ConduitTileClosedChunkSystem did not have " + conduitType.ToString() + " inside managed conduit systems");
                 return null;
             }
-            return conduitSystemsDict[tileMapType];
+            return conduitSystemManagersDict[tileMapType];
         }
 
         public Vector2Int getBottomLeftCorner() {

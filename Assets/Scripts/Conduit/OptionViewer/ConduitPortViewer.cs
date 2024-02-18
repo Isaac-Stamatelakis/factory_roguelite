@@ -6,6 +6,7 @@ using ConduitModule;
 using ConduitModule.ConduitSystemModule;
 using UnityEngine.Tilemaps;
 using ChunkModule.ClosedChunkSystemModule;
+using TileEntityModule;
 
 namespace ConduitModule.PortViewer {
     public class ConduitPortViewer : MonoBehaviour
@@ -13,7 +14,7 @@ namespace ConduitModule.PortViewer {
         private ConduitSystemManager systemManager;
         private Tilemap mTilemap;
         private TilemapRenderer mTilemapRender;
-        private Dictionary<ConduitPortType,TileBase> portTypeToTile;
+        private Dictionary<EntityPortType,TileBase> portTypeToTile;
         private Grid mGrid;
         public ConduitType Type {get => systemManager.Type;}
         public void initalize(ConduitSystemManager systemManager, Vector3Int referenceFrame) {
@@ -24,16 +25,16 @@ namespace ConduitModule.PortViewer {
             mGrid = gameObject.AddComponent<Grid>();
             mGrid.cellSize = new Vector3(0.5f,0.5f,1f);
             initTiles();
-            foreach (KeyValuePair<Vector2Int,List<ConduitPortData>> kvp in systemManager.ChunkConduitPorts) {
-                foreach (ConduitPortData portData in kvp.Value) {
-                    Vector3Int position = new Vector3Int(portData.position.x,portData.position.y,0)+referenceFrame;
+            foreach (KeyValuePair<TileEntity,List<TileEntityPort>> kvp in systemManager.tileEntityConduitPorts) {
+                foreach (TileEntityPort portData in kvp.Value) {
+                    Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
                     mTilemap.SetTile(position,portTypeToTile[portData.portType]);
                 }
             }
         }
 
         private void initTiles() {
-            portTypeToTile = new Dictionary<ConduitPortType, TileBase>();
+            portTypeToTile = new Dictionary<EntityPortType, TileBase>();
             string path = "PortTiles/" + Type.ToString();
             TileBase[] tiles = Resources.LoadAll<TileBase>(path);
             foreach (TileBase tileBase in tiles) {
@@ -41,13 +42,13 @@ namespace ConduitModule.PortViewer {
                     string id = ((IIDTile) tileBase).getId();
                     switch (id) {
                         case "All":
-                            portTypeToTile[ConduitPortType.All] = tileBase;
+                            portTypeToTile[EntityPortType.All] = tileBase;
                             break;
                         case "Input":
-                            portTypeToTile[ConduitPortType.Input] = tileBase;
+                            portTypeToTile[EntityPortType.Input] = tileBase;
                             break;
                         case "Output":
-                            portTypeToTile[ConduitPortType.Output] = tileBase;
+                            portTypeToTile[EntityPortType.Output] = tileBase;
                             break;
                     }
                 }

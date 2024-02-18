@@ -62,7 +62,7 @@ public class TileGeneratorWindow : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         
         tileItem.id = tileName;
-        tileItem.id.ToLower().Replace(" ","_");
+        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
         tile.id = tileItem.id;
         
         AssetDatabase.CreateAsset(tile, path + tile.name + ".asset");

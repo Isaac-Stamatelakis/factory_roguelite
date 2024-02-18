@@ -11,7 +11,7 @@ namespace TileEntityModule.Instances.Machine
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable
+    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
         public int tier;
@@ -27,7 +27,7 @@ namespace TileEntityModule.Instances.Machine
         private int mode;
         
 
-        public void set(ConduitType conduitType, List<ConduitPortData> vects) {
+        public void set(ConduitType conduitType, List<TileEntityPort> vects) {
             /*
             switch (conduitType) {
                 case ConduitType.Item:
@@ -170,17 +170,61 @@ namespace TileEntityModule.Instances.Machine
             throw new System.NotImplementedException();
         }
 
-        public void sendEnergy()
+        public bool sendEnergy()
         {
             throw new System.NotImplementedException();
         }
 
         public ItemSlot extractItem()
         {
+            foreach (ItemSlot itemSlot in outputs) {
+                if (itemSlot != null && itemSlot.itemObject != null) {
+                    return itemSlot;
+                }
+            }
+            return null;
+        }
+
+        public ItemSlot insertItem(ItemSlot itemSlot)
+        {
+            for (int i = 0; i < inputs.Count; i++) {
+                ItemSlot inputSlot = inputs[i];
+                if (inputSlot == null || inputSlot.itemObject == null) {
+                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+                    itemSlot.amount=0;
+                    return inputs[i];
+                }
+                if (inputSlot.itemObject.id == itemSlot.itemObject.id && inputSlot.amount < Global.MaxSize) {
+                    int sum = inputSlot.amount + itemSlot.amount;
+                    if (sum > Global.MaxSize) {
+                        itemSlot.amount = sum - Global.MaxSize;
+                        inputSlot.amount = sum;
+                    } else {
+                        inputSlot.amount = sum;
+                        itemSlot.amount = 0;
+                    }
+                    return inputSlot;
+                }
+            }
+            return null;
+        }
+
+        public ItemSlot extractFluid()
+        {
             throw new System.NotImplementedException();
         }
 
-        public void insertItem(ItemSlot itemSlot)
+        public bool insertFluid(ItemSlot itemSlot)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int extractSignal()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool sendSignal()
         {
             throw new System.NotImplementedException();
         }

@@ -56,7 +56,7 @@ public class RandomTileGenerator : EditorWindow {
         
         randomTile.name = "T~" + tileName;
         tileItem.id = tileName;
-        tileItem.id.ToLower().Replace(" ","_");
+        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
 
         tileItem.name = tileName;
         tileItem.tile = randomTile;

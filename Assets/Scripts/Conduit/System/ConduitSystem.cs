@@ -4,6 +4,7 @@ using UnityEngine;
 using TileEntityModule;
 using ChunkModule.PartitionModule;
 using ConduitModule.Ports;
+using System.Linq;
 
 namespace ConduitModule.ConduitSystemModule {
     public interface IConduitSystem {
@@ -14,58 +15,70 @@ namespace ConduitModule.ConduitSystemModule {
         public void merge(IConduitSystem conduitSystem);
         public void addConduit(IConduit conduit);
         public string getId();
+        public HashSet<IConduit> getConduits();
+        public void rebuild();
     }
-    public abstract class ConduitSystem<Port> : IConduitSystem {
+    public abstract class ConduitSystem<Port> : IConduitSystem where Port : IConduitPort{
         public ConduitSystem(string id) {
             this.id = id;
-            conduits = new HashSet<IConduit>();
+            Conduits = new HashSet<IConduit>();
+            init();
         }
         protected HashSet<IConduit> conduits;
-        protected List<Port> ports;
         private string id;
+
+        protected abstract void init();
+        protected HashSet<IConduit> Conduits { get => conduits; set => conduits = value; }
 
         public abstract void tickUpdate();
         public void addConduit(IConduit conduit) {
-            conduits.Add(conduit);
+            Conduits.Add(conduit);
+            conduit.setConduitSystem(this);
+            addConduitToStructures(conduit);
         }
 
-        public void generate() {
-            generateSystem();
-        }
+        public abstract void addConduitToStructures(IConduit conduit);
 
-        
-
-        protected abstract void generateSystem();
         public bool connectsTo(IConduitSystem otherConduitSystem) {
             // If otherConduitSystem is smaller, check it instead
-            if (otherConduitSystem.getSize() < conduits.Count) {
+            if (otherConduitSystem.getSize() < Conduits.Count) {
                 return otherConduitSystem.connectsTo(this);
             }
             // Check otherConduitSystem contains any conduit in this one. O(n)
-            foreach (IConduit conduit in conduits) {
+            foreach (IConduit conduit in Conduits) {
                 if (otherConduitSystem.contains(conduit)) {
                     return true;
                 }
             }
             return false;
         }
-        public void merge(IConduitSystem otherConduitSystem) {
-
+        public virtual void merge(IConduitSystem otherConduitSystem) {
+            foreach (IConduit conduit in otherConduitSystem.getConduits()) {
+                addConduit(conduit);
+                conduit.setConduitSystem(this);
+            }
         }
 
         public int getSize()
         {
-            return conduits.Count;
+            return Conduits.Count;
         }
 
         public bool contains(IConduit conduit)
         {
-            return conduits.Contains(conduit);
+            return Conduits.Contains(conduit);
         }
 
         public string getId()
         {
             return id;
         }
+
+        public HashSet<IConduit> getConduits()
+        {
+            return conduits;
+        }
+
+        public abstract void rebuild();
     }
 }

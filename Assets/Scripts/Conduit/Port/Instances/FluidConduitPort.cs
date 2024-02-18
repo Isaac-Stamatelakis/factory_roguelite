@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
+
 namespace ConduitModule.Ports {
     public class FluidConduitInputPort : IConduitInputPort<ItemSlot>
     {
@@ -8,9 +10,10 @@ namespace ConduitModule.Ports {
         public int color;
         public int priority;
         private int inventory;
-        private IConduitInteractable tileEntity;
-
-        public IConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
+        
+        private IFluidConduitInteractable tileEntity;
+        [JsonIgnore]
+        public IFluidConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
         public void insert(ItemSlot itemSlot) {
             if (itemFilter != null) {
@@ -18,7 +21,11 @@ namespace ConduitModule.Ports {
                     return;
                 }
             }
-            TileEntity.insertItem(itemSlot);
+            TileEntity.insertFluid(itemSlot);
+        }
+        public void removeTileEntity()
+        {
+            tileEntity = null;
         }
 
     }
@@ -30,12 +37,12 @@ namespace ConduitModule.Ports {
         public bool roundRobin;
         private int roundRobinIndex;
         public ItemFilter itemFilter;
-        private IConduitInteractable tileEntity;
-
-        public IConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
+        private IFluidConduitInteractable tileEntity;
+        [JsonIgnore]
+        public IFluidConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
         public ItemSlot extract() {
-            ItemSlot output = TileEntity.extractItem();
+            ItemSlot output = TileEntity.extractFluid();
             if (itemFilter != null) {
                 if (!itemFilter.filter(output)) {
                     return null;
@@ -43,9 +50,16 @@ namespace ConduitModule.Ports {
             }
             return output;
         }
+        public void removeTileEntity()
+        {
+            tileEntity = null;
+        }
     }
 
-    public class FluidConduitPort : ConduitPort<FluidConduitInputPort,FluidConduitOutputPort> {
-        
+    public class FluidConduitPort : ConduitPort<FluidConduitInputPort, FluidConduitOutputPort>
+    {
+        public FluidConduitPort(FluidConduitInputPort inPort, FluidConduitOutputPort outPort) : base(inPort, outPort)
+        {
+        }
     }
 }

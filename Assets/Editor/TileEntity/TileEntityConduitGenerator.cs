@@ -69,22 +69,22 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tilemap tilemap = childTransform.GetComponent<Tilemap>();
         
-        List<ConduitPortData> conduitPorts = new List<ConduitPortData>();
+        List<TileEntityPort> conduitPorts = new List<TileEntityPort>();
         for (int x = xArea.x; x <= xArea.y; x++) {
             for (int y = yArea.x; y <= yArea.y; y++) {
                 TileBase tileBase = tilemap.GetTile(new Vector3Int(x,y,0)+center);
                 if (tileBase != null) {
                     StandardTile standardTile = (StandardTile) tileBase;
-                    ConduitPortData conduitPortData;
+                    TileEntityPort conduitPortData;
                     switch (standardTile.id) {
                         case "All":
-                            conduitPortData = new ConduitPortData(ConduitPortType.All,new Vector2Int(x,y));
+                            conduitPortData = new TileEntityPort(EntityPortType.All,new Vector2Int(x,y));
                             break;
                         case "Input":
-                            conduitPortData = new ConduitPortData(ConduitPortType.Input,new Vector2Int(x,y));
+                            conduitPortData = new TileEntityPort(EntityPortType.Input,new Vector2Int(x,y));
                             break;
                         case "Output":
-                            conduitPortData = new ConduitPortData(ConduitPortType.Output,new Vector2Int(x,y));
+                            conduitPortData = new TileEntityPort(EntityPortType.Output,new Vector2Int(x,y));
                             break;
                     }
                 }
