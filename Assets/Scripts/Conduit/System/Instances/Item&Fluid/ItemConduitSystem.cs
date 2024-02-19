@@ -48,6 +48,9 @@ namespace ConduitModule.ConduitSystemModule {
                         
                         if (toInsert.amount <= 0) {
                             toInsert.itemObject = null;
+                            if (toInsert.amount < 0) {
+                                Debug.LogError("Negative amount something went wrong inserting item conduit system");
+                            }
                         }
                         
                     }
@@ -82,31 +85,6 @@ namespace ConduitModule.ConduitSystemModule {
 
         public override void merge(IConduitSystem otherConduitSystem)
         {
-            /*
-            if (otherConduitSystem is not ItemConduitSystem) {
-                Debug.LogError("Attempted to merge a non itemconduit system with an itemconduit system");
-                return;
-            }
-            ItemConduitSystem otherItemSystem = (ItemConduitSystem) otherConduitSystem;
-            foreach (KeyValuePair<int, List<ItemConduitOutputPort>> kvp in otherItemSystem.ColoredOutputPorts) {
-                if (!coloredOutputPorts.ContainsKey(kvp.Key)) {
-                    coloredOutputPorts[kvp.Key] = new List<ItemConduitOutputPort>(); 
-                }
-                coloredOutputPorts[kvp.Key].AddRange(kvp.Value);
-            }
-
-            foreach (KeyValuePair<int, List<ItemConduitInputPort>> kvp in otherItemSystem.coloredPriorityInputs) {
-                if (!coloredOutputPorts.ContainsKey(kvp.Key)) {
-                    coloredPriorityInputs[kvp.Key] = new List<ItemConduitInputPort>(); 
-                }
-                coloredPriorityInputs[kvp.Key].AddRange(kvp.Value);
-                coloredPriorityInputs[kvp.Key].Sort();
-            }
-
-            foreach (IConduit conduit in otherConduitSystem.getConduits()) {
-                
-            }
-            */
             base.merge(otherConduitSystem);
         }
 
@@ -137,9 +115,6 @@ namespace ConduitModule.ConduitSystemModule {
                 ItemConduitPort itemConduitPort = (ItemConduitPort) port;
                 addOutputPort(itemConduitPort.outputPort);
                 addInputPort(itemConduitPort.inputPort);
-            }
-            foreach (List<ItemConduitInputPort> inputPorts in coloredPriorityInputs.Values) {
-                Debug.Log(inputPorts.Count);
             }
         }
 

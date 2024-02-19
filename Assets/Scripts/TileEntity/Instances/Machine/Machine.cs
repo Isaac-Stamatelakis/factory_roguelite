@@ -14,7 +14,7 @@ namespace TileEntityModule.Instances.Machine
     public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
-        public int tier;
+        public Tier tier;
         public GameObject machineUIPrefab;
         public MachineLayout layout;
         private int energy;
@@ -74,7 +74,7 @@ namespace TileEntityModule.Instances.Machine
                 return;
             }
             machineUI.displayMachine(layout, inputs, outputs, others, name);
-            tileEntityGUIController.setGUI(this,instantiatedUI);
+            tileEntityGUIController.setGUI(instantiatedUI);
         }
         
 
@@ -194,17 +194,22 @@ namespace TileEntityModule.Instances.Machine
                     itemSlot.amount=0;
                     return inputs[i];
                 }
-                if (inputSlot.itemObject.id == itemSlot.itemObject.id && inputSlot.amount < Global.MaxSize) {
-                    int sum = inputSlot.amount + itemSlot.amount;
-                    if (sum > Global.MaxSize) {
-                        itemSlot.amount = sum - Global.MaxSize;
-                        inputSlot.amount = sum;
-                    } else {
-                        inputSlot.amount = sum;
-                        itemSlot.amount = 0;
-                    }
-                    return inputSlot;
+                if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
+                    continue;
                 }
+                if (inputSlot.amount >= Global.MaxSize) {
+                    continue;
+                }
+                // Success
+                int sum = inputSlot.amount + itemSlot.amount;
+                if (sum > Global.MaxSize) {
+                    itemSlot.amount = sum - Global.MaxSize;
+                    inputSlot.amount = Global.MaxSize;
+                } else {
+                    inputSlot.amount = sum;
+                    itemSlot.amount = 0;
+                }
+                return inputSlot;
             }
             return null;
         }

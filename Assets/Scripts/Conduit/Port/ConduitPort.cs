@@ -12,6 +12,12 @@ namespace ConduitModule.Ports {
     public interface IConduitInputPort<T> {
         public void insert(T val);
         public void removeTileEntity();
+
+    }
+
+    public interface IColorPort {
+        public int getColor();
+        public void setColor(int color);
     }
     public interface IConduitOutputPort<T> {
         public T extract();

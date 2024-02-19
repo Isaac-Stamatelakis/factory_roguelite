@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
+using ConduitModule.Ports;
 
 namespace GUIModule {
     public class TileEntityGUIController : MonoBehaviour
@@ -32,8 +33,7 @@ namespace GUIModule {
             GUIGameObject = null;
             
         }
-
-        public void setGUI(TileEntity tileEntity, GameObject gui) {
+        public void setGUI(GameObject gui) {
             removeGUI();
             if (gui == GUIGameObject) {
                 GUIGameObject = null;

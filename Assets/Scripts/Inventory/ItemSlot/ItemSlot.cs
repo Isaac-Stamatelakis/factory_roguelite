@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum MatterState {
+public enum ItemState {
     Solid,
     NonSolid
 }
@@ -23,18 +23,18 @@ public class ItemSlot
     public ItemObject itemObject;
     public int amount;
     public Dictionary<string,object> nbt;
-    public MatterState getState() {
+    public ItemState getState() {
         if (itemObject is SolidItem) {
-            return MatterState.Solid;
+            return ItemState.Solid;
         }
         if (itemObject is TransmutableItemObject) {
             TransmutableItemState state = ((TransmutableItemObject) itemObject).state;
             return state.getMatterState();
         }
         if (itemObject is NonSolidItem) {
-            return MatterState.NonSolid;
+            return ItemState.NonSolid;
         }
-        return MatterState.Solid;
+        return ItemState.Solid;
     }
 }
 

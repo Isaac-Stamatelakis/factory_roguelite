@@ -13,6 +13,7 @@ namespace ConduitModule.ConduitSystemModule {
                     system = new ItemConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Fluid:
+                    system = new ItemConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Energy:
                     break;

@@ -86,6 +86,9 @@ public static class Global
     public static Vector2Int getPartition(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.chunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.chunkPartitionSize/2)));
     }
+    public static Vector2Int getCellPosition(Vector2 position) {
+        return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
+    }
 
 
 }

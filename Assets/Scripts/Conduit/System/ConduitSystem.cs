@@ -18,7 +18,7 @@ namespace ConduitModule.ConduitSystemModule {
         public HashSet<IConduit> getConduits();
         public void rebuild();
     }
-    public abstract class ConduitSystem<Port> : IConduitSystem where Port : IConduitPort{
+    public abstract class ConduitSystem<Port> : IConduitSystem where Port : IConduitPort {
         public ConduitSystem(string id) {
             this.id = id;
             Conduits = new HashSet<IConduit>();

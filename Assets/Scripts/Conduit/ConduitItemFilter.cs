@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ConduitModule {
+namespace ConduitModule.Ports {
     [System.Serializable]
-    public class ItemFilter
+    public class ItemFilter : IFilter
     {
         public List<SerializedItemSlot> items;
         public bool whitelist;

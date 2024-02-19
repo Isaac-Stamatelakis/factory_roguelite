@@ -45,9 +45,22 @@ public class TileDimCreatorWindow : EditorWindow {
         baseTileMap.AddComponent<TilemapRenderer>();
         Grid grid = baseTileMap.AddComponent<Grid>();
         grid.cellSize = new Vector3(0.5f,0.5f,1);
-        for (int x = xVec.x*Global.ChunkSize; x < xVec.y*Global.ChunkSize; x++) {
-            for (int y = yVec.x * Global.ChunkSize; y < yVec.y*Global.ChunkSize; y++) {
-                tilemap.SetTile(new Vector3Int(x,y,0),tileToPlace);
+        for (int cx = xVec.x; cx <= xVec.y; cx++) {
+            for (int cy = yVec.y; cy <= yVec.y; cy++) {
+                for (int px = 0; px < Global.PartitionsPerChunk; px++) {
+                    for (int py = 0; py < Global.PartitionsPerChunk; py++) {
+                        for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                            for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                                if (cx == 0 && cy == 0) { // Leave empty space
+                                    if ((px == 2 || px == 3) && (py == 2 || py == 3)) {
+                                        continue;
+                                    }
+                                }
+                                tilemap.SetTile(new Vector3Int(cx*Global.ChunkSize + px * Global.PartitionsPerChunk + x,cy * Global.ChunkSize + py * Global.PartitionsPerChunk+ y,0),tileToPlace);
+                            }
+                        }
+                    }
+                }
             }
         }
         GameObject backgroundTileMap = new GameObject();
@@ -58,6 +71,7 @@ public class TileDimCreatorWindow : EditorWindow {
         Grid grid1 = backgroundTileMap.AddComponent<Grid>();
         grid1.cellSize = new Vector3(0.5f,0.5f,1);
         PrefabUtility.SaveAsPrefabAsset(tileMapContainer, GeneratePath + "/" + tileMapContainer.name + ".prefab");
+        GameObject.Destroy(tileMapContainer);
     }
 
 }

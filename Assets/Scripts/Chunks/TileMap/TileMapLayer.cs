@@ -78,5 +78,43 @@ namespace TileMapModule.Layer {
             }
             return layerMask;
         }
+        public static bool isTile(this TileMapLayer layer) {
+            switch (layer) {
+                case TileMapLayer.Base:
+                    return true;
+                case TileMapLayer.Background:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        public static bool isConduit(this TileMapLayer layer) {
+            switch (layer) {
+                case TileMapLayer.Item:
+                    return true;
+                case TileMapLayer.Fluid:
+                    return true;
+                case TileMapLayer.Energy:
+                    return true;
+                case TileMapLayer.Signal:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        public static ConduitType toConduit(this TileMapLayer layer) {
+            switch (layer) {
+                case TileMapLayer.Item:
+                    return ConduitType.Item;
+                case TileMapLayer.Fluid:
+                    return ConduitType.Fluid;
+                case TileMapLayer.Energy:
+                    return ConduitType.Energy;
+                case TileMapLayer.Signal:
+                    return ConduitType.Signal;
+                default:
+                    return ConduitType.Item;
+            }
+        }
     }
 }

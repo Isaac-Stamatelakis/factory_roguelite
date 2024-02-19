@@ -41,11 +41,39 @@ namespace ConduitModule.ConduitSystemModule {
             generateSystemsFromArray();
         }
 
+        public IConduitPort getPort(Vector2Int position) {
+            IConduit conduit = getConduitCellPosition(position);
+            if (conduit == null) {
+                return null;
+            }
+            return conduit.getPort();
+        }
+        public IConduit getConduitWithPort(Vector2Int position) {
+            IConduit conduit = getConduitCellPosition(position);
+            if (conduit == null) {
+                return null;
+            }
+            if (conduit.getPort() == null) {
+                return null;
+            }
+            return conduit;
+        }
+
+        public IConduit getConduitCellPosition(Vector2Int position) {
+            Vector2Int relativePosition = position-referencePosition;
+            if (!inBounds(relativePosition)) {
+                return null;
+            }
+            return conduits[relativePosition.x,relativePosition.y];
+        }
         public void addTileEntity(TileEntity tileEntity) {
             if (tileEntity is not IConduitInteractable interactable) {
                 return;
             }
             ConduitPortLayout layout = interactable.getConduitPortLayout();
+            if (layout == null) {
+                return;
+            }
             switch (type) {
                 case ConduitType.Item:
                     chunkConduitPorts[tileEntity] = layout.itemPorts;

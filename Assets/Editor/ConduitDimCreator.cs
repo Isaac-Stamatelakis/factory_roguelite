@@ -9,7 +9,7 @@ public class ConduitDimCreatorWindow : EditorWindow {
     private static string GeneratePath = "Assets/EditorCreations";
     private Vector2Int xVec;
     private Vector2Int yVec;
-    private StandardTile tileToPlace;
+    private TileBase tileToPlace;
 
     [MenuItem("Tools/Tilemap/Conduit")]
     public static void ShowWindow()
@@ -26,7 +26,7 @@ public class ConduitDimCreatorWindow : EditorWindow {
         xVec.y = EditorGUILayout.IntField("X Max", xVec.y);
         yVec.x = EditorGUILayout.IntField("Y Min", yVec.x);
         yVec.y = EditorGUILayout.IntField("Y Max", yVec.y);
-        tileToPlace = EditorGUILayout.ObjectField("Tile", tileToPlace, typeof(StandardTile), true) as StandardTile;
+        tileToPlace = EditorGUILayout.ObjectField("Tile", tileToPlace, typeof(TileBase), true) as TileBase;
         if (GUILayout.Button("Generate"))
         {
             generateTileMap();
@@ -45,9 +45,22 @@ public class ConduitDimCreatorWindow : EditorWindow {
         baseTileMap.AddComponent<TilemapRenderer>();
         Grid grid = baseTileMap.AddComponent<Grid>();
         grid.cellSize = new Vector3(0.5f,0.5f,1);
-        for (int x = xVec.x*Global.ChunkSize; x < xVec.y*Global.ChunkSize; x++) {
-            for (int y = yVec.x * Global.ChunkSize; y < yVec.y*Global.ChunkSize; y++) {
-                tilemap.SetTile(new Vector3Int(x,y,0),tileToPlace);
+        for (int cx = xVec.x; cx <= xVec.y; cx++) {
+            for (int cy = yVec.x; cy <= yVec.y; cy++) {
+                for (int px = 0; px < Global.PartitionsPerChunk; px++) {
+                    for (int py = 0; py < Global.PartitionsPerChunk; py++) {
+                        for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                            for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                                if (cx == 0 && cy == 0) { // Leave empty space
+                                    if ((px == 2 || px == 3) && (py == 2 || py == 3)) {
+                                        continue;
+                                    }
+                                }
+                                tilemap.SetTile(new Vector3Int(cx*Global.ChunkSize + px * Global.ChunkPartitionSize + x,cy * Global.ChunkSize + py * Global.ChunkPartitionSize+ y,0),tileToPlace);
+                            }
+                        }
+                    }
+                }
             }
         }
         initTileMap("Background",tileMapContainer.transform);
