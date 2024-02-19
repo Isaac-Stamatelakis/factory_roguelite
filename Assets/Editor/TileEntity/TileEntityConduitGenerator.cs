@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
 using TileEntityModule.Instances.Machine;
+using ConduitModule.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {
     private TileEntity tileEntity;
@@ -68,21 +69,22 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tilemap tilemap = childTransform.GetComponent<Tilemap>();
         
-        List<ConduitPortData> conduitPorts = new List<ConduitPortData>();
+        List<TileEntityPort> conduitPorts = new List<TileEntityPort>();
         for (int x = xArea.x; x <= xArea.y; x++) {
             for (int y = yArea.x; y <= yArea.y; y++) {
                 TileBase tileBase = tilemap.GetTile(new Vector3Int(x,y,0)+center);
                 if (tileBase != null) {
                     StandardTile standardTile = (StandardTile) tileBase;
+                    TileEntityPort conduitPortData;
                     switch (standardTile.id) {
                         case "All":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.All,new Vector2Int(x,y)));
+                            conduitPortData = new TileEntityPort(EntityPortType.All,new Vector2Int(x,y));
                             break;
                         case "Input":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Input,new Vector2Int(x,y)));
+                            conduitPortData = new TileEntityPort(EntityPortType.Input,new Vector2Int(x,y));
                             break;
                         case "Output":
-                            conduitPorts.Add(new ConduitPortData(ConduitPortType.Output,new Vector2Int(x,y)));
+                            conduitPortData = new TileEntityPort(EntityPortType.Output,new Vector2Int(x,y));
                             break;
                     }
                 }

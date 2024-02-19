@@ -5,16 +5,16 @@ using GUIModule;
 using ChunkModule;
 using Newtonsoft.Json;
 using RecipeModule.Transmutation;
-
+using ConduitModule.Ports;
 
 namespace TileEntityModule.Instances.Machine
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable
+    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
-        public int tier;
+        public Tier tier;
         public GameObject machineUIPrefab;
         public MachineLayout layout;
         private int energy;
@@ -23,11 +23,12 @@ namespace TileEntityModule.Instances.Machine
         private List<ItemSlot> others;
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
-        public ConduitPortDataCollection conduitPortData;
+        public ConduitPortLayout conduitLayout;
         private int mode;
         
 
-        public void set(ConduitType conduitType, List<ConduitPortData> vects) {
+        public void set(ConduitType conduitType, List<TileEntityPort> vects) {
+            /*
             switch (conduitType) {
                 case ConduitType.Item:
                     conduitPortData.itemPorts = vects;
@@ -42,6 +43,7 @@ namespace TileEntityModule.Instances.Machine
                     conduitPortData.energyPorts = vects;
                     break;
             }
+            */
         }
 
         public override void initalize(Vector2Int tilePosition, IChunk chunk)
@@ -72,7 +74,7 @@ namespace TileEntityModule.Instances.Machine
                 return;
             }
             machineUI.displayMachine(layout, inputs, outputs, others, name);
-            tileEntityGUIController.setGUI(this,instantiatedUI);
+            tileEntityGUIController.setGUI(instantiatedUI);
         }
         
 
@@ -158,9 +160,78 @@ namespace TileEntityModule.Instances.Machine
 
         }
 
-        public ConduitPortDataCollection GetConduitPortData()
+        public ConduitPortLayout getConduitPortLayout()
         {
-            return conduitPortData;
+            return conduitLayout;
+        }
+
+        public int extractEnergy()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool sendEnergy()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ItemSlot extractItem()
+        {
+            foreach (ItemSlot itemSlot in outputs) {
+                if (itemSlot != null && itemSlot.itemObject != null) {
+                    return itemSlot;
+                }
+            }
+            return null;
+        }
+
+        public ItemSlot insertItem(ItemSlot itemSlot)
+        {
+            for (int i = 0; i < inputs.Count; i++) {
+                ItemSlot inputSlot = inputs[i];
+                if (inputSlot == null || inputSlot.itemObject == null) {
+                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+                    itemSlot.amount=0;
+                    return inputs[i];
+                }
+                if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
+                    continue;
+                }
+                if (inputSlot.amount >= Global.MaxSize) {
+                    continue;
+                }
+                // Success
+                int sum = inputSlot.amount + itemSlot.amount;
+                if (sum > Global.MaxSize) {
+                    itemSlot.amount = sum - Global.MaxSize;
+                    inputSlot.amount = Global.MaxSize;
+                } else {
+                    inputSlot.amount = sum;
+                    itemSlot.amount = 0;
+                }
+                return inputSlot;
+            }
+            return null;
+        }
+
+        public ItemSlot extractFluid()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool insertFluid(ItemSlot itemSlot)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int extractSignal()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool sendSignal()
+        {
+            throw new System.NotImplementedException();
         }
 
         [System.Serializable]

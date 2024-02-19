@@ -9,6 +9,7 @@ using TileMapModule.Layer;
 using TileMapModule.Type;
 using TileMapModule.Place;
 using ChunkModule.PartitionModule;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace TileMapModule {
     public class TileGridMap : AbstractTileMap<TileItem,TileData>
@@ -92,12 +93,19 @@ namespace TileMapModule {
                 IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
                 TileMapLayer layer = type.toLayer();
                 chunkPartition.breakTileEntity(layer,tilePartitionPosition);
+                deleteTileEntityFromConduit(position);
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             if (partitions.ContainsKey(partitionPosition)) {
                 partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
             }
             
+        }
+
+        protected void deleteTileEntityFromConduit(Vector2Int position) {
+            if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+                    conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
+            }
         }
 
         protected override bool hitHardness(TileData tileData) {
@@ -124,6 +132,11 @@ namespace TileMapModule {
         public override void initPartition(Vector2Int partitionPosition)
         {
             partitions[partitionPosition] = new TileData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+        }
+
+        public override void deleteTile(Vector2 position)
+        {
+            base.deleteTile(position);
         }
     }
 }

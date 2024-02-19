@@ -49,17 +49,18 @@ public class RandomTileGenerator : EditorWindow {
         string collectionPath = "Assets/EditorCreations/" + tileName;
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName);
 
-        RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
+        RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
         randomTile.name = tileName;
         randomTile.m_Sprites = sprites;
         randomTile.sprite = sprites[0];
         
         randomTile.name = "T~" + tileName;
         tileItem.id = tileName;
-        tileItem.id.ToLower().Replace(" ","_");
+        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
 
         tileItem.name = tileName;
         tileItem.tile = randomTile;
+        ((IIDTile) randomTile).setID(tileItem.id);
         AssetDatabase.CreateAsset(randomTile, path + randomTile.name + ".asset");
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
     }

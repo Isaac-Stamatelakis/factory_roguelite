@@ -48,7 +48,7 @@ namespace TileEntityModule.Instances
             GameObject shownGui = GameObject.Instantiate(gui);
             DynamicInventoryGrid inventoryGrid = shownGui.GetComponent<DynamicInventoryGrid>();
             inventoryGrid.initalize(items, new Vector2Int((int) rows, (int) columns));
-            tileEntityGUIController.setGUI(this,shownGui);
+            tileEntityGUIController.setGUI(shownGui);
         }
 
         public string serialize()

@@ -165,13 +165,13 @@ namespace TileMapModule.Type {
                 case TileMapType.ClimableObject:
                     return 1;
                 case TileMapType.ItemConduit:
-                    return 4;
+                    return 1.1f;
                 case TileMapType.FluidConduit:
-                    return 3;
+                    return 1.25f;
                 case TileMapType.EnergyConduit:
-                    return 2;
+                    return 1.5f;
                 case TileMapType.SignalConduit:
-                    return 1;
+                    return 1.75f;
                 default:
                     return 9999;
             }

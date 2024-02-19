@@ -22,6 +22,6 @@ namespace ChunkModule.PartitionModule {
         public void tick();
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);
         public void breakTileEntity(TileMapLayer layer, Vector2Int position);
-        public bool clickTileEntity(TileMapLayer layer, Vector2Int position);
+        public bool clickTileEntity(Vector2Int position);
     }
 }

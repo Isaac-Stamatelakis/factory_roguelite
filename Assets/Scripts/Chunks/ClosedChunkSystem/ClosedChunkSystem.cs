@@ -211,7 +211,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         /// <summary> 
         /// This is called when game ends. Saves all partitions
         /// </summary>
-        public void OnDisable()
+        public virtual void OnDisable()
         {
             partitionUnloader.clearAll();
             foreach (IChunk chunk in cachedChunks.Values) {

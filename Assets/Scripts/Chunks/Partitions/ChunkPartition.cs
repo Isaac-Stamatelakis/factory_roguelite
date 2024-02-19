@@ -14,7 +14,7 @@ namespace ChunkModule.PartitionModule {
         protected bool scheduledForUnloading = false;
         protected Vector2Int position;
         protected T data;
-        public Dictionary<TileMapLayer, TileEntity[,]> tileEntities;
+        public TileEntity[,] tileEntities;
         protected Chunk parent;
 
         public ChunkPartition(T data, Vector2Int position, Chunk parent) {
@@ -39,13 +39,10 @@ namespace ChunkModule.PartitionModule {
             if (tileEntities == null) {
                 return;
             }
-            foreach (TileEntity[,] tileEntitieList in tileEntities.Values) {
-                foreach (TileEntity tileEntity in tileEntitieList) {
-                    if (tileEntity is ITickableTileEntity) {
-                        ((ITickableTileEntity) tileEntity).tickUpdate();
-                    }
+            foreach (TileEntity tileEntity in tileEntities) {
+                if (tileEntity is ITickableTileEntity) {
+                    ((ITickableTileEntity) tileEntity).tickUpdate();
                 }
-                
             }
         }
 
@@ -150,39 +147,39 @@ namespace ChunkModule.PartitionModule {
         }
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition)
         {
-            if (layer == TileMapLayer.Base || layer == TileMapLayer.Background) {
+            if (layer == TileMapLayer.Base) {
                 if (tileEntity is ILoadableTileEntity) {
                     ((ILoadableTileEntity) tileEntity).load();
                 }
-                tileEntities[layer][positionInPartition.x,positionInPartition.y] = tileEntity;
+                tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
             }
         }
 
         public void breakTileEntity(TileMapLayer layer, Vector2Int position)
         {
-            if (tileEntities.ContainsKey(layer)) {
-                TileEntity tileEntity = tileEntities[layer][position.x,position.y];
-                if (tileEntity is IBreakActionTileEntity) {
-                    ((IBreakActionTileEntity) tileEntity).onBreak();
-                }
-                if (tileEntity is ILoadableTileEntity) {
-                    ((ILoadableTileEntity) tileEntity).unload();
-                }
-                tileEntities[layer][position.x,position.y] = null;
+            if (layer != TileMapLayer.Base) {
+                return;
             }
+            TileEntity tileEntity = tileEntities[position.x,position.y];
+            if (tileEntity is IBreakActionTileEntity) {
+                ((IBreakActionTileEntity) tileEntity).onBreak();
+            }
+            if (tileEntity is ILoadableTileEntity) {
+                ((ILoadableTileEntity) tileEntity).unload();
+            }
+            tileEntities[position.x,position.y] = null;
+            
         }
 
-        public bool clickTileEntity(TileMapLayer layer, Vector2Int position)
+        public bool clickTileEntity(Vector2Int position)
         {
-            if (tileEntities.ContainsKey(layer)) {
-                TileEntity tileEntity = tileEntities[layer][position.x,position.y];
-                if (tileEntity == null) {
-                    return false;
-                }
-                if (tileEntity is IClickableTileEntity) {
-                    ((IClickableTileEntity) tileEntity).onClick();
-                    return true;
-                }
+            TileEntity tileEntity = tileEntities[position.x,position.y];
+            if (tileEntity == null) {
+                return false;
+            }
+            if (tileEntity is IClickableTileEntity) {
+                ((IClickableTileEntity) tileEntity).onClick();
+                return true;
             }
             return false;
         }

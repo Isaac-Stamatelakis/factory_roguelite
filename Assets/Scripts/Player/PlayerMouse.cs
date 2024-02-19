@@ -9,8 +9,15 @@ using TileMapModule;
 using TileMapModule.Place;
 using ChunkModule.PartitionModule;
 using TileMapModule.Type;
+using ConduitModule.ConduitSystemModule;
+using ConduitModule.Ports;
+using GUIModule;
+using ConduitModule;
 
 namespace PlayerModule.Mouse {
+    /// <summary>
+    /// Handles all player mouse interactions
+    /// </summary>
     public class PlayerMouse : MonoBehaviour
     {
         private int interactionableLayer;
@@ -24,6 +31,7 @@ namespace PlayerModule.Mouse {
         private GameObject grabbedItem;
         private LayerMask UILayer;
         private EventSystem eventSystem;
+        private TileEntityGUIController tileEntityGUIController;
 
         // Start is called before the first frame update
         void Start()
@@ -33,6 +41,7 @@ namespace PlayerModule.Mouse {
             grabbedItem = GameObject.Find("GrabbedItem");
             UILayer = 1 << LayerMask.NameToLayer("UI");
             eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
+            tileEntityGUIController = GameObject.Find("TileEntityGUIController").GetComponent<TileEntityGUIController>();
         }
 
         // Update is called once per frame
@@ -89,16 +98,41 @@ namespace PlayerModule.Mouse {
             breakMouseHover(mousePosition);
         }
         private void handleLeftClick(Vector2 mousePosition) {
-            bool tileEntityClicked = false;
+            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(playerInventory.getSelectedId());
+
+            bool somethingClicked = false;
             if (Input.GetMouseButtonDown(1)) {
-                tileEntityClicked = handleTileEntityClick(mousePosition);
+                if (itemObject is ConduitItem) {
+                    somethingClicked = handlePortClick(mousePosition);
+                } else {
+                    somethingClicked = handleTileEntityClick(mousePosition);
+                }
             }
-            if (!tileEntityClicked) {
+
+            if (!somethingClicked) {
                 handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
             }
-            
         }
 
+        private bool handlePortClick(Vector2 mousePosition) {
+            ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+            if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+                return false;
+            }
+            ConduitType conduitType = devMode.breakType.toConduit();
+            ConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
+            if (conduitSystemManager == null) {
+                Debug.LogError("Attempted to click port of null conduit system manager");
+                return false;
+            }
+            IConduit conduit = conduitSystemManager.getConduitWithPort(Global.getCellPosition(mousePosition));
+            if (conduit == null) {
+                return false;
+            }
+            GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType);
+            tileEntityGUIController.setGUI(ui);
+            return true;
+        }
         private void breakMouseHover(Vector2 mousePosition) {
             if (Input.GetMouseButtonDown(0)) {
                 isHoldingMouse = true;
@@ -168,25 +202,19 @@ namespace PlayerModule.Mouse {
         }
 
         private bool handleTileEntityClick(Vector2 mousePosition) {
-            List<TileMapLayer> tileMapLayers = new List<TileMapLayer> {
-                TileMapLayer.Base,
-                TileMapLayer.Background
-            };
-            
-            foreach (TileMapLayer tileMapLayer in tileMapLayers) {
-                int layers = tileMapLayer.toRaycastLayers();
-                if (raycastTileMap(mousePosition,layers)) {
-                    IChunk chunk = getChunk(mousePosition);
-                    Vector2Int partitionPosition = Global.getPartition(mousePosition);
-                    Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
-                    Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-                    Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
-                    IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
-                    if (chunkPartition.clickTileEntity(tileMapLayer, tilePositionInPartition)) {
-                        return true;
-                    }
+            int layers = TileMapLayer.Base.toRaycastLayers();
+            if (raycastTileMap(mousePosition,layers)) {
+                IChunk chunk = getChunk(mousePosition);
+                Vector2Int partitionPosition = Global.getPartition(mousePosition);
+                Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+                Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
+                Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
+                IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+                if (chunkPartition.clickTileEntity(tilePositionInPartition)) {
+                    return true;
                 }
             }
+            
             return false;
             
         }
@@ -199,7 +227,7 @@ namespace PlayerModule.Mouse {
             if (devMode.placeSelectedID) {
                 id = devMode.placeID;
             } else {
-                id = playerInventory.getSelectedTileId();
+                id = playerInventory.getSelectedId();
             }
             if (id == null) {
                 return false;

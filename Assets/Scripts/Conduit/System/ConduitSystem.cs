@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
 using ChunkModule.PartitionModule;
+using ConduitModule.Ports;
+using System.Linq;
 
 namespace ConduitModule.ConduitSystemModule {
     public interface IConduitSystem {
@@ -13,81 +15,70 @@ namespace ConduitModule.ConduitSystemModule {
         public void merge(IConduitSystem conduitSystem);
         public void addConduit(IConduit conduit);
         public string getId();
+        public HashSet<IConduit> getConduits();
+        public void rebuild();
     }
-
-    public interface IConduitPortExtractions<Port> where Port : IConduitPort {
-
-    }
-
-    public interface IConduitPortInsertions<Port> where Port : IConduitPort {
-
-    }
-
-    public abstract class AConduitSystem : IConduitSystem  {
-        public AConduitSystem(string id) {
+    public abstract class ConduitSystem<Port> : IConduitSystem where Port : IConduitPort {
+        public ConduitSystem(string id) {
             this.id = id;
-            conduits = new HashSet<IConduit>();
-            //colorListExtractionsDict = new Dictionary<int, Port>();
-            //priorityDictColorListInsertitionsDict = new Dictionary<int, Dictionary<int, List<Port>>>();
+            Conduits = new HashSet<IConduit>();
+            init();
         }
         protected HashSet<IConduit> conduits;
         private string id;
-        protected HashSet<Vector2Int> conduitPositions;
+
+        protected abstract void init();
+        protected HashSet<IConduit> Conduits { get => conduits; set => conduits = value; }
 
         public abstract void tickUpdate();
         public void addConduit(IConduit conduit) {
-            conduits.Add(conduit);
-        }
-        public bool containsPosition(Vector2Int vector2Int) {
-            if (conduitPositions == null) {
-                return false;
-            }
-            return this.conduitPositions.Contains(vector2Int);
+            Conduits.Add(conduit);
+            conduit.setConduitSystem(this);
+            addConduitToStructures(conduit);
         }
 
-        public void generate() {
-            generatePositions();
-            generateSystem();
-        }
+        public abstract void addConduitToStructures(IConduit conduit);
 
-        private void generatePositions() {
-            conduitPositions = new HashSet<Vector2Int>();
-            foreach (IConduit conduit in conduits) {
-                conduitPositions.Add(new Vector2Int(conduit.getX(),conduit.getY()));
-            }
-        }
-
-        protected abstract void generateSystem();
         public bool connectsTo(IConduitSystem otherConduitSystem) {
             // If otherConduitSystem is smaller, check it instead
-            if (otherConduitSystem.getSize() < conduits.Count) {
+            if (otherConduitSystem.getSize() < Conduits.Count) {
                 return otherConduitSystem.connectsTo(this);
             }
             // Check otherConduitSystem contains any conduit in this one. O(n)
-            foreach (IConduit conduit in conduits) {
+            foreach (IConduit conduit in Conduits) {
                 if (otherConduitSystem.contains(conduit)) {
                     return true;
                 }
             }
             return false;
         }
-        public void merge(IConduitSystem otherConduitSystem) {
-
+        public virtual void merge(IConduitSystem otherConduitSystem) {
+            foreach (IConduit conduit in otherConduitSystem.getConduits()) {
+                addConduit(conduit);
+                conduit.setConduitSystem(this);
+            }
         }
 
         public int getSize()
         {
-            return conduits.Count;
+            return Conduits.Count;
         }
 
         public bool contains(IConduit conduit)
         {
-            return conduits.Contains(conduit);
+            return Conduits.Contains(conduit);
         }
 
         public string getId()
         {
             return id;
         }
+
+        public HashSet<IConduit> getConduits()
+        {
+            return conduits;
+        }
+
+        public abstract void rebuild();
     }
 }

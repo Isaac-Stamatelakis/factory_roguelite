@@ -4,19 +4,27 @@ using UnityEngine;
 
 namespace ConduitModule.ConduitSystemModule {
     public static class ConduitSystemFactory {
-        public static IConduitSystem create(ConduitType type, string id) {
+        public static IConduitSystem create(IConduit conduit) {
+            ConduitItem conduitItem = conduit.getConduitItem();
+            ConduitType type = conduitItem.getType();
+            IConduitSystem system = null;
             switch (type) {
                 case ConduitType.Item:
-                    return new ItemConduitSystem(id);
+                    system = new ItemConduitSystem(conduitItem.id);
+                    break;
                 case ConduitType.Fluid:
+                    system = new ItemConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Energy:
                     break;
                 case ConduitType.Signal:
                     break;
             }
-            Debug.LogError("ConduitSystemFactory method 'constructSystem' did not handle switch case for '" + type.ToString() + "'");
-            return null;
+
+            if (system == null) {
+                Debug.LogError("ConduitSystemFactory method 'constructSystem' did not handle switch case for '" + type.ToString() + "'");
+            }
+            return system;
         }
 
     }

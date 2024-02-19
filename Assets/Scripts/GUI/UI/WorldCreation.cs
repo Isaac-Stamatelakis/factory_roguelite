@@ -7,7 +7,7 @@ using ChunkModule.IO;
 using TileMapModule.Layer;
 using PlayerModule.IO;
 
-namespace WorldDataModule {
+namespace WorldModule {
     public static class WorldCreation
     {
         public static bool worldExists(string name) {
@@ -80,12 +80,7 @@ namespace WorldDataModule {
                 new Vector2Int(dim0Bounds.X.LowerBound,dim0Bounds.X.UpperBound),
                 new Vector2Int(dim0Bounds.Y.LowerBound,dim0Bounds.Y.UpperBound)
             );
-            /*
-            WorldTileData dim0Data = prefabToWorldTileData(dim0Prefab,caveArea);
-            cave.areas = new List<CaveArea> {
-                caveArea
-            };
-            */
+            
             WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,caveArea);
             cave.areas = new List<CaveArea> {
                 caveArea
@@ -195,8 +190,8 @@ namespace WorldDataModule {
                         if (tilemap.HasTile(tilePosition))
                         {
                             TileBase tile = tilemap.GetTile(tilePosition);
-                            if (tile is StandardTile) {
-                                string id = ((StandardTile) tile).id;
+                            if (tile is IIDTile) {
+                                string id = ((IIDTile) tile).getId();
                                 if (id == null || id == "") {
                                     continue;
                                 }

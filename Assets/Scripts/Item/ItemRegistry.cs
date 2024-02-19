@@ -5,6 +5,8 @@ using UnityEditor;
 using System.IO;
 using RobotModule;
 using ItemModule;
+using TileEntityModule;
+using ConduitModule.Ports;
 
 /// Singleton
 public class ItemRegistry {
@@ -79,6 +81,9 @@ public class ItemRegistry {
         return null;
     }
     public ItemObject getItemObject(string id) {
+        if (id == null) {
+            return null;
+        }
         if (!items.ContainsKey(id)) {
             return null;
         }

@@ -107,10 +107,9 @@ namespace TileMapModule {
             }
         }
 
-        public void deleteTile(Vector2 position) {
+        public virtual void deleteTile(Vector2 position) {
             Vector2Int hitTilePosition = getHitTilePosition(position);
             breakTile(hitTilePosition);
-            
         }
         protected void addTile(IPlacedItemObject placedItem, Vector2Int partitionPosition, Vector2Int tilePosition) {
             if (partitions.ContainsKey(partitionPosition)) {
@@ -154,6 +153,7 @@ namespace TileMapModule {
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             Vector2Int tilePositon = getTilePositionInPartition(position);
             partitions[chunkPartition][tilePositon.x,tilePositon.y] = null;
+            
             
         }
         protected virtual void spawnItemEntity(G itemObject, Vector2Int hitTilePosition) {
