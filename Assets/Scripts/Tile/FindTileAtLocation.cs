@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class FindTileAtLocation
+public static class FindTileAtLocation
 {
     private static int maxSearchWidth = 16;
     /// <summary>

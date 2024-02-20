@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
 using ItemModule;
+using GUIModule;
 
 public class PlayerRobot : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class PlayerRobot : MonoBehaviour
     private PolygonCollider2D polygonCollider;
     private Rigidbody2D rb;
     private int noCollisionWithPlatformCounter;
+    private GlobalUIContainer globalUIContainer;
     private bool onGround;
     public bool OnGround { get => onGround; set => onGround = value; }
     public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
@@ -22,6 +24,7 @@ public class PlayerRobot : MonoBehaviour
     void Start() {
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        globalUIContainer = GlobalUIContainer.getInstance();
     }
     
     
@@ -53,12 +56,14 @@ public class PlayerRobot : MonoBehaviour
                 Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), false);
             }
         }
-        
-        if (currentRobot == null) {
-            handleEngineerMovement();
-        } else {
-            currentRobot.handleMovement(transform);
+        if (!globalUIContainer.isActive()) {
+            if (currentRobot == null) {
+                handleEngineerMovement();
+            } else {
+                currentRobot.handleMovement(transform);
+            }
         }
+        
     }
 
     private void handleEngineerMovement() {

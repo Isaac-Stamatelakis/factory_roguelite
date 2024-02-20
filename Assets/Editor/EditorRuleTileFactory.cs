@@ -28,14 +28,14 @@ public class EditorFactory
         f(14) → [u,r,l]
         f(15) → [u,r,d,l]
     */
-    public static RuleTile ruleTilefrom64x64Texture(Texture2D texture, string spritePath, string name) {
+    public static IdRuleTile ruleTilefrom64x64Texture(Texture2D texture, string spritePath, string name) {
         Vector2 textureSize = new Vector2(texture.width,texture.height);
         Vector2Int adjustedTextureSize = new Vector2Int(Mathf.FloorToInt(textureSize.x/16f),Mathf.FloorToInt(textureSize.y/16f));
         if (adjustedTextureSize.x != 4 || adjustedTextureSize.y != 4) {
             Debug.Log("Invalid dimensions for creating ruletile " + adjustedTextureSize + ". Must be 4 x 4");
         }
         
-        RuleTile ruleTile = ScriptableObject.CreateInstance<RuleTile>();
+        IdRuleTile ruleTile = ScriptableObject.CreateInstance<IdRuleTile>();
         ruleTile.m_TilingRules = new List<RuleTile.TilingRule>();
         
         AssetDatabase.CreateFolder(spritePath, "Sprites");
@@ -205,14 +205,14 @@ public class EditorFactory
         return sprites;
     }
 
-    public static RuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {
+    public static IdRuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {
     
         if (texture.width != 24 || texture.height != 24) {
             Debug.Log("Invalid dimensions for creating background ruletile. Must be 24 x 24");
             return null;
         }
         
-        RuleTile ruleTile = ScriptableObject.CreateInstance<RuleTile>();
+        IdRuleTile ruleTile = ScriptableObject.CreateInstance<IdRuleTile>();
         ruleTile.m_TilingRules = new List<RuleTile.TilingRule>();
         
         AssetDatabase.CreateFolder(spritePath, "Sprites");

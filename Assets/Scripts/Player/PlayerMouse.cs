@@ -12,6 +12,7 @@ using TileMapModule.Type;
 using ConduitModule.ConduitSystemModule;
 using ConduitModule.Ports;
 using GUIModule;
+using UnityEngine.Tilemaps;
 using ConduitModule;
 
 namespace PlayerModule.Mouse {
@@ -31,7 +32,6 @@ namespace PlayerModule.Mouse {
         private GameObject grabbedItem;
         private LayerMask UILayer;
         private EventSystem eventSystem;
-        private TileEntityGUIController tileEntityGUIController;
 
         // Start is called before the first frame update
         void Start()
@@ -41,7 +41,6 @@ namespace PlayerModule.Mouse {
             grabbedItem = GameObject.Find("GrabbedItem");
             UILayer = 1 << LayerMask.NameToLayer("UI");
             eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
-            tileEntityGUIController = GameObject.Find("TileEntityGUIController").GetComponent<TileEntityGUIController>();
         }
 
         // Update is called once per frame
@@ -130,7 +129,7 @@ namespace PlayerModule.Mouse {
                 return false;
             }
             GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType);
-            tileEntityGUIController.setGUI(ui);
+            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
             return true;
         }
         private void breakMouseHover(Vector2 mousePosition) {
@@ -203,10 +202,15 @@ namespace PlayerModule.Mouse {
 
         private bool handleTileEntityClick(Vector2 mousePosition) {
             int layers = TileMapLayer.Base.toRaycastLayers();
-            if (raycastTileMap(mousePosition,layers)) {
-                IChunk chunk = getChunk(mousePosition);
-                Vector2Int partitionPosition = Global.getPartition(mousePosition);
-                Vector2Int tilePosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+            GameObject tilemapObject = raycastTileMap(mousePosition,layers);
+            if (tilemapObject != null) {
+                Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
+                
+                Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+                Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
+                Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
+                IChunk chunk = getChunk(worldPositionTile);
+                Vector2Int partitionPosition = Global.getPartition(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
                 Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
                 IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
