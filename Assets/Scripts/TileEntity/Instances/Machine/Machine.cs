@@ -66,7 +66,6 @@ namespace TileEntityModule.Instances.Machine
                 Debug.LogError("GUI GameObject for Machine:" + name + " null");
                 return;
             }
-            TileEntityGUIController tileEntityGUIController = GameObject.Find("TileEntityGUIController").GetComponent<TileEntityGUIController>();
             GameObject instantiatedUI = GameObject.Instantiate(machineUIPrefab);
             MachineUI machineUI = instantiatedUI.GetComponent<MachineUI>();
             if (machineUI == null) {
@@ -74,7 +73,7 @@ namespace TileEntityModule.Instances.Machine
                 return;
             }
             machineUI.displayMachine(layout, inputs, outputs, others, name);
-            tileEntityGUIController.setGUI(instantiatedUI);
+            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
         }
         
 

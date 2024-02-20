@@ -83,6 +83,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
             cachedChunks = new Dictionary<Vector2Int, IChunk>();
             this.dim = dim;
             this.coveredArea = coveredArea;
+            CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
+            cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' For Dim '" + dim + "' Initalized");
             StartCoroutine(initalLoad());
         }
@@ -175,6 +177,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 position.y >= coveredArea.Y.LowerBound && 
                 position.y <= coveredArea.Y.UpperBound;
         }
+        public bool worldPositionInBounds(Vector2 worldPosition) {
+            return  worldPosition.x >= coveredArea.X.LowerBound * Global.ChunkSize/2 &&
+                    worldPosition.x <= coveredArea.X.UpperBound * Global.ChunkSize/2 && 
+                    worldPosition.y >= coveredArea.Y.LowerBound * Global.ChunkSize/2 && 
+                    worldPosition.y <= coveredArea.Y.UpperBound * Global.ChunkSize/2;
+        }   
         public bool chunkIsCached(Vector2Int position) {
             return this.cachedChunks.ContainsKey(position);
         }
