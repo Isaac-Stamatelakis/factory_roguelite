@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using WorldModule.Generation;
 
 public static class Global
 {
@@ -52,6 +53,9 @@ public static class Global
 
     private static float itemEntityLifeSpan = 300f;
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
+
+    public static GeneratedArea CurrentCave { get => currentCave; set => currentCave = value; }
+    private static GeneratedArea currentCave;
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
             if (transform.GetChild(n).name == childName) {
@@ -80,14 +84,20 @@ public static class Global
         return new Vector2Int(vector3Int.x, vector3Int.y);
     }
 
-    public static Vector2Int getChunk(Vector2 position) {
-        return new  Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+    public static Vector2Int getChunkFromWorld(Vector2 position) {
+        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+    }
+    public static Vector2Int getChunkFromCell(Vector2Int cellPosition) {
+        return new Vector2Int(Mathf.FloorToInt(cellPosition.x/(Global.ChunkSize)), Mathf.FloorToInt(cellPosition.y/(Global.ChunkSize)));
+    }
+    public static Vector2Int getPartitionFromCell(Vector2Int cellPosition) {
+        return new Vector2Int(Mathf.FloorToInt(cellPosition.x/(Global.ChunkPartitionSize)), Mathf.FloorToInt(cellPosition.y/(Global.ChunkPartitionSize)));
     }
 
-    public static Vector2Int getPartition(Vector2 position) {
+    public static Vector2Int getPartitionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.chunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.chunkPartitionSize/2)));
     }
-    public static Vector2Int getCellPosition(Vector2 position) {
+    public static Vector2Int getCellPositionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
     }
 

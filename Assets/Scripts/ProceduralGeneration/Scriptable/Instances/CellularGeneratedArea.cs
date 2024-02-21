@@ -9,21 +9,12 @@ namespace WorldModule.Generation {
     {
         [Header("Base Tile")]
         public TileItem tileItem;
-        [Header("X Interval in Chunks")]
-        public Vector2Int xInterval;
-        [Header("Y Interval in Chunks")]
-        public  Vector2Int yInterval;
         public int cellRadius;
         public int cellNeighboorCount;
         public float fillPercent;
         public int smoothIterations;
 
-        protected Vector2Int getSize() {
-            return new UnityEngine.Vector2Int(Mathf.Abs(xInterval.y - xInterval.x+1), Mathf.Abs(yInterval.y - yInterval.x+1));
-        }
-        protected IntervalVector getCoveredChunkArea() {
-            return new IntervalVector(new Interval<int>(xInterval.x,xInterval.y), new Interval<int>(yInterval.x,yInterval.y));
-        }
+        
         public override WorldTileData generateBase(int seed) {
             UnityEngine.Random.InitState(seed);
             int[,] noiseField = generateNoiseField();
@@ -34,7 +25,7 @@ namespace WorldModule.Generation {
         
 
         private int[,] generateNoiseField() {
-            UnityEngine.Vector2Int caveSize = getSize();
+            UnityEngine.Vector2Int caveSize = getChunkSize();
             IntervalVector caveCoveredArea = getCoveredChunkArea();
             //Debug.Log(caveSize);
             int[,] noiseField = new int[Global.ChunkSize * caveSize.x,Global.ChunkSize*caveSize.y];
@@ -59,7 +50,7 @@ namespace WorldModule.Generation {
             return noiseField;
         }
         private int[,] cellular_automaton(int[,] grid) {
-            UnityEngine.Vector2Int caveSize = getSize();
+            UnityEngine.Vector2Int caveSize = getChunkSize();
             int maxX = Global.ChunkSize*caveSize.x;
             int maxY = Global.ChunkSize*caveSize.y;
             IntervalVector caveCoveredArea = getCoveredChunkArea();
@@ -119,7 +110,7 @@ namespace WorldModule.Generation {
         }
 
         private WorldTileData generateWorld(int[,] grid) {
-            UnityEngine.Vector2Int caveSize = getSize();
+            UnityEngine.Vector2Int caveSize = getChunkSize();
             int tileMaxX = Global.ChunkSize * caveSize.x;
             int tileMaxY = Global.ChunkSize*caveSize.y;
 

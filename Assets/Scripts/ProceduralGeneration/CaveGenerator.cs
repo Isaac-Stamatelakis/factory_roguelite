@@ -5,7 +5,7 @@ using System;
 using ChunkModule.IO;
 using WaveFunctionCollaps;
 using UnityEngine.Tilemaps;
-
+/*
 public class CaveGenerator
 {
     public CaveGenerator(Cave cave) {
@@ -24,7 +24,7 @@ public class CaveGenerator
         UnityEngine.Random.InitState(seed);
         int[,] noiseField = generateNoiseField();
         int[,] grid = cellular_automaton(noiseField);
-        ProcGenHelper.saveToJson(generateWorld(grid),cave,-1);
+        WorldGenerationFactory.saveToJson(generateWorld(grid),cave,-1);
     }
 
     
@@ -213,6 +213,8 @@ public class CaveGenerator
         return grid;
     }
      */
+
+/*
 }
 
 
@@ -234,7 +236,7 @@ public class WFCGenerator {
         string[,] strings = generateWFC();
         Debug.Log(strings.Length);
         WorldTileData worldTileData = generateWorld(strings);
-        ProcGenHelper.saveToJson(worldTileData,cave,-1);
+        WorldGenerationFactory.saveToJson(worldTileData,cave,-1);
         GameObject.Destroy(temp);
     }
 
@@ -329,3 +331,4 @@ public class WFCGenerator {
         return worldTileData;
     }
 }
+*/

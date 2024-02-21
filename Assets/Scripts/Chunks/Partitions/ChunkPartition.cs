@@ -5,6 +5,7 @@ using TileEntityModule;
 using TileMapModule;
 using TileMapModule.Layer;
 using TileMapModule.Type;
+using Tiles;
 
 namespace ChunkModule.PartitionModule {
     
@@ -15,6 +16,7 @@ namespace ChunkModule.PartitionModule {
         protected Vector2Int position;
         protected T data;
         public TileEntity[,] tileEntities;
+        public TileOptions[,] tileOptions;
         protected Chunk parent;
 
         public ChunkPartition(T data, Vector2Int position, Chunk parent) {
@@ -65,10 +67,11 @@ namespace ChunkModule.PartitionModule {
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
         public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
+            tileOptions = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
-                    tileGridMap.initPartition(realPartitionPosition);
+                    tileGridMap.addPartition(this);
                 }
             }
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
@@ -193,5 +196,20 @@ namespace ChunkModule.PartitionModule {
         {
             loaded = val;
         }
+
+        public TileOptions getTileOptions(Vector2Int position)
+        {
+            return tileOptions[position.x,position.y];
+        }
+
+
+        public TileEntity GetTileEntity(Vector2Int position)
+        {
+            return tileEntities[position.x,position.y];
+        }
+
+        public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
+
+        public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
     }
 }

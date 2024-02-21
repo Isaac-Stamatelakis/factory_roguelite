@@ -22,8 +22,8 @@ namespace DimensionModule {
             closedChunkSystems.Add(area);
             if (generate) {
                 Debug.Log("New Area Saved At: " + Application.persistentDataPath);
-                WFCGenerator caveGenerator = new WFCGenerator(cave,tileMapPrefab,patternSize);
-                caveGenerator.generate();
+                //WFCGenerator caveGenerator = new WFCGenerator(cave,tileMapPrefab,patternSize);
+                //caveGenerator.generate();
             }
             IntervalVector coveredArea = cave.getCoveredArea();
             area.initalize(transform,coveredArea,-1);

@@ -4,22 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileEntityModule;
 using TileMapModule.Type;
+using Tiles;
 
-public enum IntTileItemOption {
-    Hardness = TileItemOption.Hardness,
-    Rotation = TileItemOption.Rotation,
-    Chisel = TileItemOption.Chisel
-}
-public enum TileItemOption {
-    Rotation,
-    Hardness,
-    Chisel
-}
-public enum TileEntityOption {
-    Main,
-    Visual,
-    Conduit
-}
+
 
 public enum TileType {
     Block,
@@ -53,83 +40,59 @@ public static class TileTypeExtension {
         }
     }
 }
-public class TileOptionFactory {
 
-    private static readonly Dictionary<string,TileItemOption> stringOptionDict = new Dictionary<string, TileItemOption>{
-        {"Rotation",TileItemOption.Rotation},
-    };
-    private static readonly HashSet<TileItemOption> dynamic = new HashSet<TileItemOption>{
-        TileItemOption.Hardness,
-        TileItemOption.Rotation
-    };
-
-    private static readonly HashSet<TileItemOption> serizable = new HashSet<TileItemOption>{
-        TileItemOption.Rotation
-    };
-
-    public static bool isDynamic(TileItemOption option) {
-        return dynamic.Contains(option);
-    }
-    public static bool isSerizable(TileItemOption option) {
-        return serizable.Contains(option);
-    }
-    public static void serializeOption(TileItemOption option, object value, Dictionary<string,object> dict) {
-        if (!isSerizable(option)) {
-            return;
-        }
-        dict[option.ToString()] = value;
-    } 
-
-    public static string serializeOptions(Dictionary<TileItemOption,object> options) {
-        Dictionary<TileItemOption,object> returnDict = new Dictionary<TileItemOption, object>();
-        foreach (TileItemOption option in options.Keys) {
-            if (!isSerizable(option)) {
-                continue;
-            }
-            returnDict[option] = options[option];
-        }
-        return Newtonsoft.Json.JsonConvert.SerializeObject(returnDict);
-    }
-
-    public static void deseralizeOptions(string data, Dictionary<TileItemOption, object> dynamicValues) {
-        Dictionary<TileItemOption, object> serializedOptions = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<TileItemOption,object>>(data);
-        foreach (TileItemOption key in dynamicValues.Keys) {
-            if (serializedOptions.ContainsKey(key)) {
-                dynamicValues[key] = serializedOptions[key];
-            }
-        }
-    }
-}
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item Register/Tile")]
 public class TileItem : ItemObject, IPlacableTile
 {
     public TileType tileType;
     public TileBase tile;
     public TileEntity tileEntity;
-    [Tooltip("Specify the integer value for given tile options")]
-    public List<TileItemOptionValue<IntTileItemOption,int>> integerOptions = new List<TileItemOptionValue<IntTileItemOption, int>>{
-      new TileItemOptionValue<IntTileItemOption, int>(value: 8, option: IntTileItemOption.Hardness) 
+    [Header("Specify the integer value for given tile options")]
+    public List<TileItemOptionValue<IntItemOption,int>> integerOptions = new List<TileItemOptionValue<IntItemOption, int>>{
+      new TileItemOptionValue<IntItemOption, int>(value: 8, option: IntItemOption.Hardness) 
     };
+    [Header("Specify if have bool options")]
+    public List<BoolItemOption> boolOptions = new List<BoolItemOption>();
+    [Header("Give drop values on break\nLeave empty to drop itself\n")]
+    public List<TileItemOptionValue<string, int>> dropOptions;
     
-    public Dictionary<TileItemOption,object> getOptions() {
-        Dictionary<TileItemOption, object> dict = new Dictionary<TileItemOption, object>();
-        foreach (TileItemOptionValue<IntTileItemOption,int> tileItemOptionValue in integerOptions) {
-            TileItemOption option = (TileItemOption)tileItemOptionValue.option;
-            dict[option] = tileItemOptionValue.value;
+    public TileOptions initOptions() {
+        Dictionary<TileOption, object> options = getNonSOptions();
+        Dictionary<TileOption, object> sOptions = new Dictionary<TileOption, object>();
+       
+        foreach (BoolItemOption boolItemOption in boolOptions) {
+            sOptions[(TileOption) boolItemOption] = 0;
         }
-        return dict;
+        return new TileOptions(options,sOptions);
+    }
+    public Dictionary<TileOption, object> getNonSOptions() {
+        Dictionary<TileOption, object> options = new Dictionary<TileOption, object>();
+        foreach (TileItemOptionValue<IntItemOption,int> tileItemOptionValue in integerOptions) {
+            TileOption option = (TileOption)tileItemOptionValue.option;
+            options[option] = tileItemOptionValue.value;
+        }
+        if (dropOptions.Count != 0) {
+            options[TileOption.Drop] = dropOptions;
+        }
+        return options;
+    }
+
+    public bool containsBoolOption(BoolItemOption tileItemOption) {
+        return boolOptions.Contains(tileItemOption);
     }
 
     public override Sprite getSprite()
     {
-        if (tile is StandardTile) {
-            return ((StandardTile) tile).sprite;
-        } else if (tile is AnimatedTile) {
-            return ((AnimatedTile) tile).m_AnimatedSprites[0];
-        } else if (tile is RuleTile) {
-            return ((RuleTile) tile).m_DefaultSprite;
-        } else if (tile is RandomTile) {
-            return ((RandomTile) tile).sprite;
+        if (tile is StandardTile standardTile) {
+            return standardTile.sprite;
+        } else if (tile is AnimatedTile animatedTile) {
+            return animatedTile.m_AnimatedSprites[0];
+        } else if (tile is RuleTile ruleTile) {
+            return ruleTile.m_DefaultSprite;
+        } else if (tile is RandomTile randomTile) {
+            return randomTile.sprite;
+        } else if (tile is IRestrictedTile restrictedTile) {
+            return restrictedTile.getSprite();
         }
         return null;
     }

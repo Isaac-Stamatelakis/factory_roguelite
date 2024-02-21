@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.ClosedChunkSystemModule;
+using WorldModule.Generation;
 
 namespace DimensionModule {
     public class CaveController : DimController
     {
         [SerializeField] 
-        public bool generate;
-        [SerializeField] 
-        public Cave cave;
+        public GeneratedArea cave;
+        
         public override void Start() {
             base.Start();
             GameObject closedChunkSystemObject = new GameObject();
@@ -46,12 +46,14 @@ namespace DimensionModule {
             ));
             */
             
+            /*
             if (generate) {
                 Debug.Log("New Area Saved At: " + Application.persistentDataPath);
-                CaveGenerator caveGenerator = new CaveGenerator(cave);
-                caveGenerator.generate();
+                WorldTileData worldTileData = cave.generate(Random.Range(0,1000000));
+                WorldGenerationFactory.saveToJson(worldTileData,cave,-1);
             }
-            IntervalVector coveredArea = cave.getCoveredArea();
+            */
+            IntervalVector coveredArea = cave.getChunkCoveredArea();
             area.initalize(transform,coveredArea,-1);
 
         }

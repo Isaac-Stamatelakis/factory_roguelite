@@ -46,6 +46,14 @@ namespace DimensionModule {
                 }
             }
         }
+        public ClosedChunkSystem getPlayerSystem() {
+            foreach (ClosedChunkSystem closedChunkSystem in closedChunkSystems) {
+                if (closedChunkSystem.worldPositionInBounds(playerTransform.position)) {
+                    return closedChunkSystem;
+                }
+            }
+            return null;
+        }
     }
 }
 

@@ -22,7 +22,6 @@ namespace WorldModule.Generation {
             int height = baseData.ids[0].Count;
             
             Dictionary<int,List<TileDistribution>> sortedByPriority = getPriorityDict();
-            adjustFrequencies(sortedByPriority);
             List<int> prioritiesSorted = sortedByPriority.Keys.ToList();
             prioritiesSorted.Sort();
             string baseID = null;
@@ -37,57 +36,60 @@ namespace WorldModule.Generation {
                     }
                 }
             }
+            Debug.Log("Base ID loaded as " + baseID);
             List<List<string>> ids = baseData.ids;
             foreach (int priority in prioritiesSorted) {
                 List<TileDistribution> distributions = sortedByPriority[priority];
-                foreach (TileDistribution distribution in distributions) {
-                    for (int x = 0; x < width; x++) {
-                        for (int y = 0; y < height; y++) {
-                            string id = ids[x][y];
-                            if (id == null) { // don't fill into empty space
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        string id = ids[x][y];
+                        if (id == null) { // don't fill into empty space
+                            continue;
+                        }
+                        float ran = UnityEngine.Random.Range(0f,1f);
+                        float cumulativeFrequency = 0f;
+                        foreach (TileDistribution tileDistribution in distributions) {
+                            cumulativeFrequency += tileDistribution.frequency;
+                            if (cumulativeFrequency < ran) {
                                 continue;
                             }
-                            float ran = UnityEngine.Random.Range(0f,1f);
-                            foreach (TileDistribution tileDistribution in distributions) {
-                                if (tileDistribution.relativeFrequency < ran) {
-                                    continue;
-                                }
-                                // tile is not base block at position
-                                if (!tileDistribution.writeAll && id != baseID) {
-                                    continue;
-                                }
-                                // dimension checks, -1 is ignore
-                                if (tileDistribution.minHeight != -1 && y < tileDistribution.minHeight) {
-                                    continue;
-                                }
-                                if (tileDistribution.maxHeight != -1 && y > tileDistribution.maxHeight) {
-                                    continue;
-                                }
-                                if (tileDistribution.minWidth != -1 && x < tileDistribution.minWidth) {
-                                    continue;
-                                }
-                                if (tileDistribution.minHeight != -1 && x > tileDistribution.maxHeight) {
-                                    continue;
-                                }
-                                // Passed all checks
-                                int tilesToPlace = UnityEngine.Random.Range(distribution.minimumSize,distribution.maximumSize+1);
-                                switch (distribution.searchMode) {
-                                    case TileSearchMode.BFS:
-                                        BFSTile(distribution, tilesToPlace, x, y, width, height, ids, baseID);
-                                        break;
-                                    case TileSearchMode.DFS:
-                                        DFSTile(distribution, tilesToPlace, x, y, width, height, ids, baseID);
-                                        break;
-                                }
+                            // tile is not base block at position
+                            if (!tileDistribution.writeAll && id != baseID) {
+                                continue;
+                            }
+                            // dimension checks, -1 is ignore
+                            if (tileDistribution.useMinHeight && y < tileDistribution.minHeight) {
+                                continue;
+                            }
+                            if (tileDistribution.useMaxHeight && y > tileDistribution.maxHeight) {
+                                continue;
+                            }
+                            if (tileDistribution.useMinWidth && x < tileDistribution.minWidth) {
+                                continue;
+                            }
+                            if (tileDistribution.useMaxWidth && x > tileDistribution.maxWidth) {
+                                continue;
+                            }
+                            // Passed all checks
+                            int tilesToPlace = UnityEngine.Random.Range(tileDistribution.minimumSize,tileDistribution.maximumSize+1);
+                            switch (tileDistribution.searchMode) {
+                                case TileSearchMode.BFS:
+                                    BFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                                    break;
+                                case TileSearchMode.DFS:
+                                    DFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                                    break;
                             }
                         }
                     }
                 }
+                
             }
         }
 
-        protected void DFSTile(TileDistribution tileDistribution, int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
+        protected void DFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
             List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
+            
             while (directionsToCheck.Count > 0) {
                 int index = UnityEngine.Random.Range(0,directionsToCheck.Count);
                 Direction direction = directionsToCheck[index];
@@ -126,53 +128,61 @@ namespace WorldModule.Generation {
                 if (!tileDistribution.writeAll && id != baseID) {
                     continue;
                 }
-                tilesToPlace--;
+    
                 
-                if (tilesToPlace < 0) {
-                    return;
-                }
                 string searchId = getSearchID(tileDistribution);
                 if (searchId == null) {
                     Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
+                    continue;
+                }
+                if (id == searchId) { // Prevent placing in same id
+                    continue;
+                }
+                tilesToPlace--;
+                if (tilesToPlace <= 0) {
                     return;
                 }
                 ids[searchX][searchY] = searchId;
-                switch (tileDistribution.searchMode) {
-                    case TileSearchMode.BFS:
-                        break;
-                    case TileSearchMode.DFS:
-                        DFSTile(tileDistribution,tilesToPlace,searchX,searchY,width,height,ids,baseID);
-                        break;
-                }
                 
+                DFSTile(tileDistribution, ref tilesToPlace,searchX,searchY,width,height,ids,baseID);
             }
         }
 
         protected string getSearchID(TileDistribution tileDistribution) {
             float ran = UnityEngine.Random.Range(0f,1f);
             string searchId = null;
+            float cumulativeFrequency = 0f;
+
             foreach (TileDistributionFrequency tileDistributionFrequency in tileDistribution.tiles) {
+                cumulativeFrequency += tileDistributionFrequency.relativeFrequency;
                 if (ran < tileDistributionFrequency.relativeFrequency) {
-                    continue;
+                    searchId = tileDistributionFrequency.tileItem.id;
+                    break;
                 }
-                searchId = tileDistributionFrequency.tileItem.id;
 
             }
             return searchId;
         }
-        protected void BFSTile(TileDistribution tileDistribution, int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
+        protected void BFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
             Queue<(int x, int y)> queue = new Queue<(int x, int y)>();
+            HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
             queue.Enqueue((x, y));
             while (queue.Count > 0 && tilesToPlace > 0) {
                 (int currentX, int currentY) = queue.Dequeue();
                 List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
-
-                while (directionsToCheck.Count > 0) {
-                    int index = UnityEngine.Random.Range(0, directionsToCheck.Count);
-                    Direction direction = directionsToCheck[index];
-                    directionsToCheck.RemoveAt(index);
-
-                    int searchX = x, searchY = y;
+                
+                // Shuffle the directions
+                int n = directionsToCheck.Count;
+                for (int i = 0; i < n; i++) {
+                    int r = i + UnityEngine.Random.Range(0, n - i);
+                    Direction temp = directionsToCheck[i];
+                    directionsToCheck[i] = directionsToCheck[r];
+                    directionsToCheck[r] = temp;
+                }
+                int directionsToExplore = UnityEngine.Random.Range(0,4);
+                foreach (Direction direction in directionsToCheck) {
+                    directionsToExplore--;
+                    int searchX = currentX, searchY = currentY;
                     switch (direction) {
                         case Direction.Up:
                             if (currentY + 1 < height) {
@@ -195,25 +205,107 @@ namespace WorldModule.Generation {
                             }
                             break;
                     }
-
-                    if (searchX != x && searchY != y) {
-                        string id = ids[searchX][searchY];
-                        if (id == baseID || tileDistribution.writeAll) {
-                            queue.Enqueue((searchX, searchY));
-                            tilesToPlace--;
-                            if (tilesToPlace < 0) {
-                                return;
-                            }
-                            string searchId = getSearchID(tileDistribution);
-                            if (searchId == null) {
-                                Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
-                                return;
-                            }
-                            ids[searchX][searchY] = searchId;
+                    if (visited.Contains((searchX,searchY))) {
+                        continue;
+                    }
+                    string id = ids[searchX][searchY];
+                    if (id == baseID || tileDistribution.writeAll) {
+                        queue.Enqueue((searchX, searchY));
+                        visited.Add((searchX,searchY));
+                        tilesToPlace--;
+                        if (tilesToPlace < 0) {
+                            break;
                         }
+                        string searchId = getSearchID(tileDistribution);
+                        if (searchId == null) {
+                            Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
+                            return;
+                        }
+                        ids[searchX][searchY] = searchId;
+                    }
+                    if (directionsToExplore <= 0) {
+                        break;
                     }
                 }
             }
+            // Fills holes
+            /*
+            HashSet<(int x, int y)> remaining = new HashSet<(int x, int y)>();
+            foreach ((int visX,int visY) in visited) {
+                List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
+                foreach (Direction direction in directionsToCheck) {
+                    int searchX = visX, searchY = visY;
+                    switch (direction) {
+                        case Direction.Up:
+                            if (visY + 1 < height) {
+                                searchY++;
+                            }
+                            break;
+                        case Direction.Left:
+                            if (visX - 1 >= 0) {
+                                searchX--;
+                            }
+                            break;
+                        case Direction.Down:
+                            if (visY - 1 >= 0) {
+                                searchY--;
+                            }
+                            break;
+                        case Direction.Right:
+                            if (visX + 1 < width) {
+                                searchX++;
+                            }
+                            break;
+                    }
+                    if (remaining.Contains((searchX,searchY))) {
+                        continue;
+                    }
+                    remaining.Add((searchX,searchY));
+                    List<Direction> directionsOfRemaining = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
+                    int count = 0;
+                    foreach (Direction direction1 in directionsOfRemaining) {
+                        switch (direction1) {
+                            case Direction.Up:
+                                if (searchY + 1 < height) {
+                                    string id = ids[searchX][searchY+1];
+                                    if (id == baseID) {
+                                        count++;
+                                    } 
+                                }
+                                break;
+                            case Direction.Left:
+                                if (searchX - 1 >= 0) {
+                                    string id = ids[searchX-1][searchY];
+                                    if (id == baseID) {
+                                        count++;
+                                    } 
+                                }
+                                break;
+                            case Direction.Down:
+                                if (searchY - 1 >= 0) {
+                                    string id = ids[searchX][searchY-1];
+                                    if (id == baseID) {
+                                        count++;
+                                    } 
+                                }
+                                break;
+                            case Direction.Right:
+                                if (searchX + 1 < width) {
+                                    string id = ids[searchX+1][searchY];
+                                    if (id == baseID) {
+                                        count++;
+                                    } 
+                                }
+                                break;
+                        }
+                    }
+                    if (count >= 3) {
+                        ids[searchX][searchY] = getSearchID(tileDistribution);
+                    }
+                }
+            }
+            */
+
         }
 
         private enum Direction {
@@ -234,37 +326,6 @@ namespace WorldModule.Generation {
 
             return dict;
         }
-
-        /// <summary>
-        /// Adjusts frequencies 
-        /// </summary>
-        protected void adjustFrequencies(Dictionary<int,List<TileDistribution>> sortedByPriority) {
-            float total = 0f;
-            foreach (int priority in sortedByPriority.Keys) {
-                float current = 0f;
-                int index = 0;
-                foreach (TileDistribution distribution in tileDistributions) {
-                    float temp = distribution.frequency;
-                    distribution.relativeFrequency = current + distribution.frequency;
-                    current += distribution.frequency;
-                    float tileDistributionFrequencyTotal = 0f;
-                    foreach (TileDistributionFrequency tileDistributionFrequency in distribution.tiles) {
-                        float temp2 = tileDistributionFrequency.relativeFrequency;
-                        tileDistributionFrequency.relativeFrequency += tileDistributionFrequencyTotal;
-                        tileDistributionFrequencyTotal += temp2;
-                    }
-                    if (tileDistributionFrequencyTotal != 1f) {
-                        Debug.LogWarning("Tile Distribution frequency " + index + " Doesn't sum to 1f, sums to " + tileDistributionFrequencyTotal);
-                    }
-                    index++;
-                }
-                total += current;
-            }
-            if (total >= 1f) {
-                Debug.LogWarning(name + " Distributions cover all base");
-            }
-            Debug.Log(name + " Distributions Cover " + total*100 + " Percent of Base");
-        }
     }
 
     [System.Serializable]
@@ -279,22 +340,30 @@ namespace WorldModule.Generation {
         public int priority;
         [Header("BFS Produces Broad Distributions\nDFS Produces Skinny Long Distributions")]
         public TileSearchMode searchMode;
-        [Range(1,1028)]
+        [Range(0,1028)]
         public int minimumSize;
-        [Range(1,1028)]
+        [Range(0,1028)]
         public int maximumSize;
-        [Range(-1,1028)]
+        [Header("Minimum Height Settings:")]
+        public bool useMinHeight;
+        [Range(0,32767)]
         public int minHeight = -1;
-        [Range(-1,1028)]
+        [Header("Maximum Height Settings:")]
+        public bool useMaxHeight;
+        [Range(0,32767)]
         public int maxHeight = -1;
-        [Range(-1,1028)]
+        [Header("Minimum Width Settings:")]
+        public bool useMinWidth;
+        [Range(0,32767)]
         public int minWidth = -1;
-        [Range(-1,1028)]
+        [Header("Maximum Width Settings:")]
+        public bool useMaxWidth;
+        [Range(0,32767)]
         public int maxWidth = -1;
         
         
-        public float frequency {get => (minimumSize+maximumSize)/2*cover;}
-        public float relativeFrequency;
+        public float frequency {get =>cover/((minimumSize+maximumSize)/2f);}
+        [Header("Tiles to Distribute")]
         public List<TileDistributionFrequency> tiles;
     }
 

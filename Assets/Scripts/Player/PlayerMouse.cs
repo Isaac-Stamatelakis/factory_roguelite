@@ -14,6 +14,7 @@ using ConduitModule.Ports;
 using GUIModule;
 using UnityEngine.Tilemaps;
 using ConduitModule;
+using DimensionModule;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -27,7 +28,6 @@ namespace PlayerModule.Mouse {
         private float timeSinceLastUpdate = 0f;
         private GameObject testObject;
         private PlayerInventory playerInventory;
-        private ClosedChunkSystem[] closedChunkSystem;
         private DevMode devMode;
         private GameObject grabbedItem;
         private LayerMask UILayer;
@@ -64,21 +64,13 @@ namespace PlayerModule.Mouse {
             if (closedChunkSystem == null) {
                 return null;
             }
-            Vector2Int chunkPosition = Global.getChunk(mousePosition);
+            Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
             return closedChunkSystem.getChunk(chunkPosition);
         }
 
         private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
-            if (closedChunkSystem == null) {
-                closedChunkSystem = GameObject.Find("DimController").GetComponentsInChildren<ClosedChunkSystem>();
-            }
-            Vector2Int chunkPosition = Global.getChunk(mousePosition);
-            foreach (ClosedChunkSystem closedChunkSystem in closedChunkSystem) {
-                if (closedChunkSystem.containsChunk(chunkPosition)) {
-                    return closedChunkSystem;
-                }
-            }
-            return null;
+            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            return dimensionManager.CurrentDimension.getPlayerSystem();
         }
 
         private void handleRightClick(Vector2 mousePosition) {
@@ -124,7 +116,7 @@ namespace PlayerModule.Mouse {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;
             }
-            IConduit conduit = conduitSystemManager.getConduitWithPort(Global.getCellPosition(mousePosition));
+            IConduit conduit = conduitSystemManager.getConduitWithPort(Global.getCellPositionFromWorld(mousePosition));
             if (conduit == null) {
                 return false;
             }
@@ -210,7 +202,7 @@ namespace PlayerModule.Mouse {
                 Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
                 Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
                 IChunk chunk = getChunk(worldPositionTile);
-                Vector2Int partitionPosition = Global.getPartition(worldPositionTile);
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
                 Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
                 IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);

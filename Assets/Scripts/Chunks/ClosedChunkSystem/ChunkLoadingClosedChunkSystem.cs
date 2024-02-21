@@ -31,6 +31,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
             chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
             chunkUnloader.init(this);
+            base.initLoaders();
         }
 
         public override void playerChunkUpdate()

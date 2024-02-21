@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using ChunkModule.IO;
 using TileMapModule.Layer;
 using PlayerModule.IO;
+using WorldModule.Generation;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -67,25 +68,18 @@ namespace WorldModule {
             return getDimensionFolderPath(worldName) + "/dim" + dim;
         }
 
-            public static void initDim0(string name) {
+        public static void initDim0(string name) {
             if (dimExists(name,0)) {
                 Debug.LogError("Attempted to init dim 0 when already exists");
             }
             createDimFolder(name,0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
-            Cave cave = new Cave();
             IntervalVector dim0Bounds = getDim0Bounds();
 
-            CaveArea caveArea = new CaveArea(
-                new Vector2Int(dim0Bounds.X.LowerBound,dim0Bounds.X.UpperBound),
-                new Vector2Int(dim0Bounds.Y.LowerBound,dim0Bounds.Y.UpperBound)
-            );
+            Vector2Int caveSize = new Vector2Int(Mathf.Abs(dim0Bounds.X.LowerBound-dim0Bounds.X.UpperBound+1),Mathf.Abs(dim0Bounds.Y.LowerBound-dim0Bounds.Y.UpperBound+1));
             
-            WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,caveArea);
-            cave.areas = new List<CaveArea> {
-                caveArea
-            };
-            ProcGenHelper.saveToJson(dim0Data,cave,0);
+            WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
+            WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0);
         }
 
         public static IntervalVector getDim0Bounds() {
@@ -109,12 +103,12 @@ namespace WorldModule {
             );
         }
 
-        public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, CaveArea caveArea) {
+        public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
             
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
-            int width = (Mathf.Abs(caveArea.xInterval.y-caveArea.xInterval.x)+1) * Global.ChunkSize;
-            int height = (Mathf.Abs(caveArea.yInterval.y-caveArea.yInterval.x)+1) * Global.ChunkSize;
+            int width = (Mathf.Abs(bounds.X.LowerBound-bounds.X.UpperBound)+1) * Global.ChunkSize;
+            int height = (Mathf.Abs(bounds.Y.LowerBound-bounds.Y.UpperBound)+1) * Global.ChunkSize;
 
 
             Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();
@@ -160,7 +154,6 @@ namespace WorldModule {
             );
         }
         private static SeralizedChunkTileData tileMapToSerializedChunkTileData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
-            
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Debug.Log("Generating SerializedChunkTileData for " + layer.ToString());
             SeralizedChunkTileData data = new SeralizedChunkTileData();
@@ -207,7 +200,6 @@ namespace WorldModule {
         return data;
     }
     private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
-            
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
