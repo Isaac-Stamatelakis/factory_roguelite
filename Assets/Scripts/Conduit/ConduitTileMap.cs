@@ -1,16 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using System;
 using ConduitModule.ConduitSystemModule;
-using ChunkModule.ClosedChunkSystemModule;
+using ChunkModule.PartitionModule;
 using TileMapModule.Type;
-using ConduitModule;
-using ConduitModule.Ports;
 
 namespace TileMapModule.Conduit {
-    public class ConduitTileMap : AbstractTileMap<ConduitItem, ConduitData>
+    public class ConduitTileMap : AbstractTileMap<ConduitItem>
     {
         private ConduitSystemManager conduitSystemManager;
 
@@ -26,12 +23,9 @@ namespace TileMapModule.Conduit {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
         }
-        protected override void setTile(int x, int y, ConduitData conduitData)
+        protected override void setTile(int x, int y, ConduitItem conduitItem)
         {
-            if (conduitData == null || conduitData.getItemObject() == null) {
-                return;
-            }
-            RuleTile ruleTile = ((ConduitItem) conduitData.getItemObject()).ruleTile;
+            RuleTile ruleTile = conduitItem.ruleTile;
             tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
         }
 
@@ -43,9 +37,15 @@ namespace TileMapModule.Conduit {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             cellPosition.z = 0;
             Vector2Int vect = new Vector2Int(cellPosition.x,cellPosition.y);
-            ConduitData placedData = getIdDataInChunk(vect);
             if (mTileMap.GetTile(cellPosition) != null) {
-                spawnItemEntity((ConduitItem)placedData.getItemObject(),vect);
+                IChunkPartition partition = getPartitionAtPosition(vect);
+                if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                    Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
+                    return;
+                }
+                Vector2Int tilePositionInPartition = base.getTilePositionInPartition(vect);
+                ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
+                spawnItemEntity(conduitItem,vect);
                 breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
                 conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
             }
@@ -56,9 +56,16 @@ namespace TileMapModule.Conduit {
             return new Vector2Int(cellPosition.x,cellPosition.y);
         }
 
-        public override void initPartition(Vector2Int partitionPosition)
+        protected override void writeTile(IChunkPartition partition, Vector2Int position, ConduitItem item)
         {
-            partitions[partitionPosition] = new ConduitData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            if (partition == null) {
+                return;
+            }
+            if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                Debug.LogError("Conduit Tile Map belonged to non conduit tile chunk partition");
+                return;
+            }
+            conduitTileChunkPartition.setConduitItem(position,getType().toConduitType(),item);
         }
     }
 }

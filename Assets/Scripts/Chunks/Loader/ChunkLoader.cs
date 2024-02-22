@@ -32,10 +32,6 @@ namespace ChunkModule.LoadController {
             foreach (Vector2Int vect in chunkPositionToLoad) {
                 loadQueue.Enqueue(vect);
             }
-            //chunkPositionToLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
-            //for (int j =0 ;j < chunkPositionToLoad.Count; j++) {
-            //   loadQueue.Enqueue(chunkPositionToLoad[j]);
-            //}
             chunkPositionToLoad.Clear();
             
         }
@@ -58,7 +54,8 @@ namespace ChunkModule.LoadController {
         }
 
         private void cacheChunk(Vector2Int closestPosition) {
-            ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
+            IChunk chunk = ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
+            closedChunkSystem.addChunk(chunk);
             activeCoroutines--;
         }
     }

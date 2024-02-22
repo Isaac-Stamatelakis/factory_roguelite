@@ -8,9 +8,9 @@ public class CameraBounds : MonoBehaviour
     private ClosedChunkSystem closedChunkSystem;
 
     public ClosedChunkSystem ClosedChunkSystem { get => closedChunkSystem; set => closedChunkSystem = value; }
-    private Camera camera;
+    //private Camera camera;
     public void Start() {
-        this.camera = GetComponent<Camera>();
+        //this.camera = GetComponent<Camera>();
     }
 
     // Update is called once per frame
@@ -23,6 +23,7 @@ public class CameraBounds : MonoBehaviour
     }
 
     private Vector2 getViewArea() {
-        return new Vector2(camera.orthographicSize * Screen.width / Screen.height, camera.orthographicSize);
+        return Vector2.zero;
+        //return new Vector2(camera.orthographicSize * Screen.width / Screen.height, camera.orthographicSize);
     }
 }

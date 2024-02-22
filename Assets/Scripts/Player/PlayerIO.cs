@@ -8,6 +8,7 @@ using WorldModule;
 using RobotModule;
 using ItemModule;
 using TileMapModule.Previewer;
+using TileEntityModule.Instances;
 
 namespace PlayerModule.IO {
 
@@ -76,8 +77,10 @@ namespace PlayerModule.IO {
         }
         public float x;
         public float y;
+        public int dim;
         public string robotID;
         public string name;
         public string inventoryJson;
+        public int stage;
     }
 }

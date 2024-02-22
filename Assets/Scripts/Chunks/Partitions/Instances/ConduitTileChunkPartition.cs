@@ -17,6 +17,8 @@ namespace ChunkModule.PartitionModule {
         public void loadTickableTileEntities();
         public Dictionary<TileEntity, List<TileEntityPort>> getEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
         public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits);
+        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
+        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduitData>, IConduitTileChunkPartition where T : SerializedTileConduitData
     {
@@ -100,11 +102,11 @@ namespace ChunkModule.PartitionModule {
             }
             return ports;
         }  
-        private void loadTickableTileEntityLayer(SeralizedChunkTileData data) {
+        private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                    string id = data.ids[x][y];
+                    string id = data.ids[x,y];
                     if (id == null) {
                         continue;
                     }
@@ -114,7 +116,7 @@ namespace ChunkModule.PartitionModule {
                     }
                     TileEntity tileEntity = tileItem.tileEntity;
                     if (tileEntity != null) {
-                        tileEntities[x,y] = placeTickableTileEntity(tileItem,data.sTileEntityOptions[x][y],new Vector2Int(x,y));
+                        tileEntities[x,y] = placeTickableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
                     }
                 }
             }
@@ -147,11 +149,11 @@ namespace ChunkModule.PartitionModule {
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                    string id = data.ids[x][y];
+                    string id = data.ids[x,y];
                     if (id == null) {
                         continue;
                     }
-                    string options = data.conduitOptions[x][y];
+                    string options = data.conduitOptions[x,y];
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
                     IConduit conduit = ConduitFactory.deseralize(systemX,systemY,id,options,itemRegistry,tileEntities[x,y]);
@@ -171,55 +173,6 @@ namespace ChunkModule.PartitionModule {
             Vector2Int position = getRealPosition();
             SerializedTileConduitData data = (SerializedTileConduitData) getData();
             
-            // Clear data
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    data.itemConduitData.ids[x][y] = null;
-                    data.fluidConduitData.ids[x][y] = null;
-                    data.energyConduitData.ids[x][y] = null;
-                    data.signalConduitData.ids[x][y] = null;
-                }
-            }
-            // Iterate through tilemaps
-            foreach (ITileMap tileMap in tileGridMaps.Values) {
-                TileMapType tileMapType = tileMap.getType();
-                if (!tileMapType.isConduit()) { // type is valid tile type
-                    continue;
-                }
-                // get layer to serialze in (base or background)
-                TileMapLayer layer = tileMapType.toLayer();
-                IPlacedItemObject[,] tileItemdata = tileMap.getPartitionData(position);
-                if (tileItemdata == null) {
-                    continue;
-                }
-                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                        if (tileItemdata[x,y] != null) {
-                            ConduitData conduitData = (ConduitData) tileItemdata[x,y];
-                            ConduitItem conduitItem = (ConduitItem) conduitData.getItemObject();
-                            switch (layer) {
-                                case TileMapLayer.Item:
-                                    data.itemConduitData.ids[x][y] = conduitItem.id;
-                                    data.itemConduitData.conduitOptions[x][y] = null;
-                                    break;
-                                case TileMapLayer.Fluid:
-                                    data.fluidConduitData.ids[x][y] = conduitItem.id;
-                                    data.fluidConduitData.conduitOptions[x][y] = null;
-                                    break;
-                                case TileMapLayer.Energy:
-                                    data.energyConduitData.ids[x][y] = conduitItem.id;
-                                    data.energyConduitData.conduitOptions[x][y] = null;
-                                    break;
-                                case TileMapLayer.Signal:
-                                    data.signalConduitData.ids[x][y] = conduitItem.id;
-                                    data.signalConduitData.conduitOptions[x][y] = null;
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-            
             if (conduits != null) {
                 foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x++) {
@@ -227,16 +180,16 @@ namespace ChunkModule.PartitionModule {
                             IConduit conduit = kvp.Value[x,y];
                             switch (kvp.Key) {
                                 case ConduitType.Item:
-                                    data.itemConduitData.conduitOptions[x][y] = ConduitPortFactory.serialize(conduit);
+                                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
                                     break;
                                 case ConduitType.Fluid:
-                                    data.fluidConduitData.conduitOptions[x][y] = ConduitPortFactory.serialize(conduit);
+                                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
                                     break;
                                 case ConduitType.Energy:
-                                    data.energyConduitData.conduitOptions[x][y] = ConduitPortFactory.serialize(conduit);
+                                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
                                     break;
                                 case ConduitType.Signal:
-                                    data.signalConduitData.conduitOptions[x][y] = ConduitPortFactory.serialize(conduit);
+                                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
                                     break;
                             }
                         }
@@ -264,11 +217,11 @@ namespace ChunkModule.PartitionModule {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
             Vector2Int partitionPosition = new Vector2Int(x,y);
             SerializedTileConduitData data = (SerializedTileConduitData) getData();
-            string itemID = data.itemConduitData.ids[x][y];
+            string itemID = data.itemConduitData.ids[x,y];
             if (itemID != null) {
                 place(
                     id: itemID, 
-                    sConduitOptions: data.itemConduitData.conduitOptions[x][y],
+                    sConduitOptions: data.itemConduitData.conduitOptions[x,y],
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
@@ -277,11 +230,11 @@ namespace ChunkModule.PartitionModule {
                 );
             }
 
-            string fluidID = data.fluidConduitData.ids[x][y];
+            string fluidID = data.fluidConduitData.ids[x,y];
             if (fluidID != null) {
                 place(
                     id: fluidID, 
-                    sConduitOptions: data.fluidConduitData.conduitOptions[x][y],
+                    sConduitOptions: data.fluidConduitData.conduitOptions[x,y],
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
@@ -290,11 +243,11 @@ namespace ChunkModule.PartitionModule {
                 );
             }
 
-            string energyID = data.energyConduitData.ids[x][y];
+            string energyID = data.energyConduitData.ids[x,y];
             if (energyID != null) {
                 place(
                     id: energyID, 
-                    sConduitOptions: data.energyConduitData.conduitOptions[x][y],
+                    sConduitOptions: data.energyConduitData.conduitOptions[x,y],
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
@@ -303,11 +256,11 @@ namespace ChunkModule.PartitionModule {
                 );
             }
 
-            string signalID = data.signalConduitData.ids[x][y];
+            string signalID = data.signalConduitData.ids[x,y];
             if (signalID != null) {
                 place(
                     id: signalID, 
-                    sConduitOptions: data.signalConduitData.conduitOptions[x][y],
+                    sConduitOptions: data.signalConduitData.conduitOptions[x,y],
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
@@ -323,11 +276,10 @@ namespace ChunkModule.PartitionModule {
                 return;
             }
             ITileMap tileGridMap = tileGridMaps[conduitItem.getType().toTileMapType()];
-            ConduitData conduitData = new ConduitData(conduitItem);
             tileGridMap.placeTileAtLocation(
                 realPosition,
                 positionInPartition,
-                conduitData
+                conduitItem
             );
         }
 
@@ -346,6 +298,36 @@ namespace ChunkModule.PartitionModule {
         public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits)
         {
             this.conduits = conduits;
+        }
+
+        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
+        {
+            IConduit[,] conduitArray = conduits[type];
+            return conduitArray[positionInPartition.x,positionInPartition.y].getConduitItem();
+        }
+
+        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
+        {
+            string id = null;
+            if (item != null) {
+                id = item.id;
+            }
+            SerializedTileConduitData serializedTileConduitData = (SerializedTileConduitData)getData();
+            switch (type) {
+                case ConduitType.Item:
+                    serializedTileConduitData.itemConduitData.ids[position.x,position.y] = id;
+                    break;
+                case ConduitType.Fluid:
+                    serializedTileConduitData.fluidConduitData.ids[position.x,position.y] = id;
+                    break;
+                case ConduitType.Energy:
+                    serializedTileConduitData.energyConduitData.ids[position.x,position.y] = id;
+                    break;
+                case ConduitType.Signal:
+                    serializedTileConduitData.signalConduitData.ids[position.x,position.y] = id;
+                    break;
+
+            }
         }
     }
 }

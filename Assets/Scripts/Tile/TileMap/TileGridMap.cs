@@ -10,9 +10,10 @@ using TileMapModule.Type;
 using TileMapModule.Place;
 using ChunkModule.PartitionModule;
 using ChunkModule.ClosedChunkSystemModule;
+using Tiles;
 
 namespace TileMapModule {
-    public class TileGridMap : AbstractTileMap<TileItem,TileData>
+    public class TileGridMap : AbstractTileMap<TileItem>
     {   
         protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition) {
             IChunk chunk = getChunk(hitTilePosition);  
@@ -29,6 +30,15 @@ namespace TileMapModule {
             }
             ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<string, object>());
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
+        }
+
+        public TileOptions getOptionsAtPosition(Vector2Int realTilePosition) {
+            if (realTilePosition == new Vector2Int(-2147483647,-2147483647)) {
+                return null;
+            }
+            IChunkPartition partition = getPartitionAtPosition(realTilePosition);
+            Vector2Int tilePositionInPartition = base.getTilePositionInPartition(realTilePosition);
+            return partition.getTileOptions(tilePositionInPartition);
         }
         protected override Vector2Int getHitTilePosition(Vector2 position)
         {
@@ -79,64 +89,65 @@ namespace TileMapModule {
             return spriteY >= searchWidth;
         } 
         protected override void breakTile(Vector2Int position) {
-            IChunk chunk = getChunk(position);
-            Vector2Int partitionPosition = getPartitionPosition(position);
-            Vector2Int tilePartitionPosition = position-partitionPosition*Global.ChunkPartitionSize;
-            TileData tileData = getIdDataInChunk(position);
-            if (tileData == null) {
+            IChunkPartition partition = getPartitionAtPosition(position);
+            if (partition == null) {
                 return;
             }
-            TileItem tileItem = ((TileItem) tileData.getItemObject());
-            TileEntity tileEntity = tileItem.tileEntity;
+            Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
+            TileEntity tileEntity = partition.GetTileEntity(tilePositionInPartition);
+
             if (tileEntity != null) {
-                Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-                IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
                 TileMapLayer layer = type.toLayer();
-                chunkPartition.breakTileEntity(layer,tilePartitionPosition);
+                partition.breakTileEntity(layer,tilePositionInPartition);
                 deleteTileEntityFromConduit(position);
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-            if (partitions.ContainsKey(partitionPosition)) {
-                partitions[partitionPosition][tilePartitionPosition.x,tilePartitionPosition.y] = null;
-            }
-            
+            writeTile(partition,tilePositionInPartition,null);
         }
 
         protected void deleteTileEntityFromConduit(Vector2Int position) {
-            if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+            if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
             }
         }
 
-        protected override bool hitHardness(TileData tileData) {
-            if (tileData == null) {
+        protected override bool hitHardness(TileOptions tileOptions) {
+            if (tileOptions == null) {
                 return false;
             }
-            if (!tileData.options.ContainsKey(TileItemOption.Hardness)) { // uninteractable
+            if (!tileOptions.DynamicTileOptions.hitable) { // uninteractable
                 return false;
             }
-            int hardness = Convert.ToInt32(tileData.options[TileItemOption.Hardness]) -1;
-            tileData.options[TileItemOption.Hardness] = hardness;
-            return hardness == 0;
+            
+            DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
+            dynamicTileOptions.hardness--;
+            tileOptions.DynamicTileOptions = dynamicTileOptions;
+            return dynamicTileOptions.hardness == 0;
         }
 
-        protected override void setTile(int x, int y,TileData tileData) {
-            TileBase tileBase = ((TileItem) tileData.getItemObject()).tile;
-            if (tileData != null) {
-                tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
-            } else {
-                tilemap.SetTile(new Vector3Int(x,y,0),null);
+        protected override void setTile(int x, int y,TileItem tileItem) {
+            TileBase tileBase = tileItem.tile;
+            tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
+        }
+
+        public override void hitTile(Vector2 position) {
+            Vector2Int hitTilePosition = getHitTilePosition(position);
+            TileOptions tileOptions = getOptionsAtPosition(hitTilePosition);
+            if (hitHardness(tileOptions)) {
+                IChunkPartition partition = getPartitionAtPosition(hitTilePosition);
+                Vector2Int positionInPartition = getTilePositionInPartition(hitTilePosition);
+                TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+                spawnItemEntity(tileItem,hitTilePosition);
+                breakTile(hitTilePosition);
             }
         }
 
-        public override void initPartition(Vector2Int partitionPosition)
+        protected override void writeTile(IChunkPartition partition, Vector2Int position, TileItem item)
         {
-            partitions[partitionPosition] = new TileData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-        }
-
-        public override void deleteTile(Vector2 position)
-        {
-            base.deleteTile(position);
+            if (partition == null) {
+                return;
+            }
+            partition.setTile(position,getType().toLayer(),item);
         }
     }
 }

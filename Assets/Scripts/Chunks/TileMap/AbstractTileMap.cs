@@ -7,6 +7,8 @@ using ChunkModule;
 using TileMapModule.Type;
 using ChunkModule.ClosedChunkSystemModule;
 using TileMapModule.Place;
+using Tiles;
+using ChunkModule.PartitionModule;
 
 namespace TileMapModule {
     public interface IHitableTileMap {
@@ -15,12 +17,11 @@ namespace TileMapModule {
     }
 
     public interface ITileMap {
-        public void initPartition(Vector2Int partitionPosition);
+        public void addPartition(IChunkPartition partition);
         public IEnumerator removePartition(Vector2Int partitionPosition);
         public bool containsPartition(Vector2Int partitionPosition);
-        public void placeTileAtLocation(int x, int y, IPlacedItemObject itemObject);
-        public void placeTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, IPlacedItemObject itemObject);
-        public IPlacedItemObject[,] getPartitionData(Vector2Int partition);
+        public void placeNewTileAtLocation(int x, int y, ItemObject itemObject);
+        public void placeTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, ItemObject itemObject);
         public TileMapType getType();
         public Vector2Int worldToTileMapPosition(Vector2 worldPosition);
         public bool hasTile(Vector2Int position);
@@ -29,21 +30,21 @@ namespace TileMapModule {
     Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
     **/
 
-    public abstract class AbstractTileMap<G,T> : MonoBehaviour, IHitableTileMap, ITileMap where G : ItemObject where T : IPlacedItemObject
+    public abstract class AbstractTileMap<Item> : MonoBehaviour, IHitableTileMap, ITileMap where Item : ItemObject
     {
         public TileMapType type;
         protected Tilemap tilemap;
         public Tilemap mTileMap {get{return tilemap;}}
         protected TilemapRenderer tilemapRenderer;
         protected TilemapCollider2D tilemapCollider;
-        protected Dictionary<Vector2Int, T[,]> partitions;
+        protected Dictionary<Vector2Int, IChunkPartition> partitions;
         protected DevMode devMode;
         protected ClosedChunkSystem closedChunkSystem;
 
 
         public virtual void Start() {
             tilemap = gameObject.AddComponent<Tilemap>();
-            partitions = new Dictionary<Vector2Int, T[,]>();
+            partitions = new Dictionary<Vector2Int, IChunkPartition>();
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
@@ -55,7 +56,9 @@ namespace TileMapModule {
             
         }
         
-        public abstract void initPartition(UnityEngine.Vector2Int partitionPosition);
+        public void addPartition(IChunkPartition partition) {
+            partitions[partition.getRealPosition()] = partition;
+        }
         public IEnumerator removePartition(Vector2Int partitionPosition) {
             if (!containsPartition(partitionPosition)) {
                 yield return null;
@@ -64,7 +67,7 @@ namespace TileMapModule {
             int partitionX = partitionPosition.x*Global.ChunkPartitionSize;
             int partitionY = partitionPosition.y*Global.ChunkPartitionSize;
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                for (int y =0; y < Global.ChunkPartitionSize; y ++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                     removeTile(partitionX+x,partitionY+y);
                 }
                 yield return new WaitForEndOfFrame();
@@ -74,57 +77,45 @@ namespace TileMapModule {
         protected void removeTile(int x, int y) {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
-        public bool containsPartition(UnityEngine.Vector2Int partitionPosition) {
+        public bool containsPartition(Vector2Int partitionPosition) {
             return this.partitions.ContainsKey(partitionPosition);
         }
 
-        public void placeTileAtLocation(int x, int y, IPlacedItemObject placedItem) {
+        /// <summary>
+        /// Writes to partition on place
+        /// </summary>
+        public void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
             Vector2Int vect = new Vector2Int(x,y);
             Vector2Int tilePosition = getTilePositionInPartition(vect);
-            Vector2Int partitionPosition = getPartitionPosition(vect);
-            addTile(placedItem, partitionPosition, tilePosition);
-            setTile(x, y, (T) placedItem);
+            IChunkPartition partition = getPartitionAtPosition(vect);
+            Item item = (Item) itemObject;
+            setTile(x, y, (Item) item);
+            writeTile(partition, tilePosition, item);
         }
 
-        public void placeTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, IPlacedItemObject placedItem)
+        protected abstract void writeTile(IChunkPartition partition, Vector2Int position, Item item);
+        /// <summary>
+        /// Doesn't write to partition on place as is called from partition
+        /// </summary>
+        public void placeTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
-            addTile(placedItem, partitionPosition,tilePartitionPosition);
             setTile(
                 partitionPosition.x *Global.ChunkPartitionSize + tilePartitionPosition.x, 
                 partitionPosition.y *Global.ChunkPartitionSize + tilePartitionPosition.y, 
-                (T) placedItem
+                (Item) item
             );
         }
-        public virtual void hitTile(Vector2 position) {
-            Vector2Int hitTilePosition = getHitTilePosition(position);
-            T placedData = getIdDataInChunk(hitTilePosition);
-            if (placedData == null) {
-                return;
-            }
-            if (hitHardness(placedData)) {
-                spawnItemEntity((G) placedData.getItemObject(),hitTilePosition);
-                breakTile(hitTilePosition);
-            }
-        }
+        public abstract void hitTile(Vector2 position);
 
         public virtual void deleteTile(Vector2 position) {
             Vector2Int hitTilePosition = getHitTilePosition(position);
             breakTile(hitTilePosition);
+            IChunkPartition partition = getPartitionAtPosition(hitTilePosition);
+            Vector2Int tilePositionInPartition = getTilePositionInPartition(hitTilePosition);
+            writeTile(partition,tilePositionInPartition,null);
         }
-        protected void addTile(IPlacedItemObject placedItem, Vector2Int partitionPosition, Vector2Int tilePosition) {
-            if (partitions.ContainsKey(partitionPosition)) {
-                partitions[partitionPosition][tilePosition.x,tilePosition.y] = (T) placedItem;
-            }
-            
-        }
-        public T getIdDataInChunk(Vector2Int realTilePosition) {
-            if (realTilePosition == new Vector2Int(-2147483647,-2147483647)) {
-                return null;
-            }
-            Vector2Int tilePosition = getTilePositionInPartition(realTilePosition);
-            return partitions[getPartitionPosition(realTilePosition)][tilePosition.x,tilePosition.y];
-        }
-        protected abstract void setTile(int x, int y,T placedItem);
+
+        protected abstract void setTile(int x, int y,Item item);
         protected Vector2Int getChunkPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
@@ -139,31 +130,40 @@ namespace TileMapModule {
             return new Vector2Int(Global.modInt(position.x,Global.ChunkPartitionSize),Global.modInt(position.y,Global.ChunkPartitionSize));
         }
 
+        protected IChunkPartition getPartitionAtPosition(Vector2Int cellPosition) {
+            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            if (chunk == null) {
+                return null;
+            }
+            Vector2Int partitionPosition = getPartitionPosition(cellPosition);
+            Vector2Int partitionPositionInChunk = partitionPosition - chunkPosition * Global.PartitionsPerChunk;
+            IChunkPartition partition = chunk.getPartition(partitionPositionInChunk);
+            return partition;
+        }
+
         protected abstract Vector2Int getHitTilePosition(Vector2 position);
 
         public Vector2Int worldToTileMapPosition(Vector2 position) {
             Vector3Int vect = tilemap.WorldToCell(position);
             return new Vector2Int(vect.x,vect.y);
         }
-        protected virtual bool hitHardness(T placedItem) {
+        protected virtual bool hitHardness(TileOptions tileOptions) {
             return false;
         }
         protected virtual void breakTile(Vector2Int position) {
             Vector2Int chunkPartition = getPartitionPosition(position);
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             Vector2Int tilePositon = getTilePositionInPartition(position);
-            partitions[chunkPartition][tilePositon.x,tilePositon.y] = null;
-            
-            
         }
-        protected virtual void spawnItemEntity(G itemObject, Vector2Int hitTilePosition) {
+        protected virtual void spawnItemEntity(Item item, Vector2Int hitTilePosition) {
             IChunk chunk = getChunk(hitTilePosition);
             if (chunk == null) {
                 return;
             }
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-            ItemSlot itemSlot = new ItemSlot(itemObject: itemObject, amount: 1, nbt : new Dictionary<string, object>());
+            ItemSlot itemSlot = new ItemSlot(itemObject: item, amount: 1, nbt : new Dictionary<string, object>());
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
@@ -172,14 +172,7 @@ namespace TileMapModule {
             
             return closedChunkSystem.getChunk(chunkPosition);
         }
-        public IPlacedItemObject[,] getPartitionData(Vector2Int partition)
-        {
-            if (partitions.ContainsKey(partition)) {
-                return partitions[partition];
-            }
-            return null;
-        }
-
+    
         public TileMapType getType()
         {
             return type;

@@ -7,14 +7,14 @@ public interface IChunkPartitionData {
 }
 
 public class WorldTileData {
-    public WorldTileData(List<EntityData> entityData, SeralizedChunkTileData baseData, SeralizedChunkTileData backgroundData) {
+    public WorldTileData(List<EntityData> entityData, SerializedBaseTileData baseData, SerializedBackgroundTileData backgroundData) {
         this.entityData = entityData;
         this.baseData = baseData;
         this.backgroundData = backgroundData;
     }
     public List<EntityData> entityData;
-    public SeralizedChunkTileData baseData;
-    public SeralizedChunkTileData backgroundData;
+    public SerializedBaseTileData baseData;
+    public SerializedBackgroundTileData backgroundData;
 }
 
 public class WorldTileConduitData : WorldTileData
@@ -25,8 +25,8 @@ public class WorldTileConduitData : WorldTileData
     public SeralizedChunkConduitData signalConduitData;
     public WorldTileConduitData(
         List<EntityData> entityData, 
-        SeralizedChunkTileData baseData, 
-        SeralizedChunkTileData backgroundData,
+        SerializedBaseTileData baseData, 
+        SerializedBackgroundTileData backgroundData,
         SeralizedChunkConduitData itemConduitData,
         SeralizedChunkConduitData fluidConduitData,
         SeralizedChunkConduitData energyConduitData,
@@ -43,8 +43,8 @@ public class WorldTileConduitData : WorldTileData
 public class SerializedTileData : IChunkPartitionData
 {
     public List<EntityData> entityData;
-    public SeralizedChunkTileData baseData;
-    public SeralizedChunkTileData backgroundData;
+    public SerializedBaseTileData baseData;
+    public SerializedBackgroundTileData backgroundData;
 }
 
 [System.Serializable]

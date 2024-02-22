@@ -175,9 +175,9 @@ namespace TileMapModule.Place {
             }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
             if (tileItem.tileEntity != null) {
-                Vector2Int chunkPosition = Global.getChunk(worldPosition);
+                Vector2Int chunkPosition = Global.getChunkFromWorld(worldPosition);
                 Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
-                Vector2Int partitionPosition = Global.getPartition(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
                 Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
                 Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
                 IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
@@ -200,15 +200,10 @@ namespace TileMapModule.Place {
                 TileMapLayer layer = tileMap.getType().toLayer();
                 partition.addTileEntity(layer,tileEntity,positionInPartition);
             }
-            TileData tileData = new TileData(
-                tileItem,
-                tileItem.getOptions()
-            );
-            tileMap.placeTileAtLocation(placePosition.x,placePosition.y,tileData);
+            tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
         }
 
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
-            ConduitData conduitData = new ConduitData(conduitItem);
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.getType();
 
@@ -219,7 +214,7 @@ namespace TileMapModule.Place {
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
             conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
 
-            tileMap.placeTileAtLocation(placePosition.x,placePosition.y,conduitData);
+            tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             return true;
         }
 

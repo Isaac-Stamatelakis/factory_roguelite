@@ -68,16 +68,16 @@ namespace ConduitModule {
             }
             return null;
         }
-        private static IConduit[,] deseralizePartitionData(List<List<string>> ids, List<List<string>> conduitOptionDataList, Vector2Int partitionOffset, TileEntity[,] tileEntities) {
+        private static IConduit[,] deseralizePartitionData(string[,] ids, string[,] conduitOptionDataList, Vector2Int partitionOffset, TileEntity[,] tileEntities) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                    string id = ids[x][y];
+                    string id = ids[x,y];
                     if (id == null) {
                         continue;
                     }
-                    string conduitOptionData = conduitOptionDataList[x][y];
+                    string conduitOptionData = conduitOptionDataList[x,y];
                     IConduit conduit = deseralize(x + partitionOffset.x,y + partitionOffset.y, id, conduitOptionData, itemRegistry, tileEntities[x,y]);
                     conduits[x,y] = conduit;
                 }
