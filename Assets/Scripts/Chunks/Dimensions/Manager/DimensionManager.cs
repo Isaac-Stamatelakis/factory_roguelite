@@ -18,7 +18,8 @@ namespace DimensionModule {
         public void Start() {
             Debug.Log("Loading world: " + WorldCreation.getWorldPath(Global.WorldName));
             DimensionManagerContainer.getInstance();
-            setDim(playerIO.playerData.dim);
+           // setDim(playerIO.playerData.dim);
+            setDim(0);
         }
 
         public void setDim(int dim) {

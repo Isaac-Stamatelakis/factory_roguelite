@@ -4,28 +4,52 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace Tiles {
+    /// <summary>
+    /// Options which can be modified in the game
+    /// </summary>
     [System.Serializable]
     public struct DynamicTileOptions {
-        public bool hitable;
         public int hardness;
-        public bool rotatable;
-        public bool hasStates;
+        
+    }
+    /// <summary>
+    /// Options which can only be modified in editor
+    /// </summary>
+    [System.Serializable]
+    public class StaticTileOptions {
+        public bool hitable = true;
+        public bool rotatable = false;
+        public bool hasStates = false;
         public List<DropOption> dropOptions;
     }
+    /// </summary>
+    /// Options which require serializaiton
+    /// <summary>
     [System.Serializable]
     public struct SerializedTileOptions {
         public int rotation;
         public int state;
+        [JsonConstructor]
+        public SerializedTileOptions(int rotation, int state) {
+            this.rotation = rotation;
+            this.state = state;
+        }
     }
     [System.Serializable]
     public class TileOptions {
-        [SerializeField] [JsonProperty] private SerializedTileOptions serializedTileOptions;
-        [SerializeField] private DynamicTileOptions tileOptions;
-        [JsonIgnore] public SerializedTileOptions SerializedTileOptions { get => serializedTileOptions; set => serializedTileOptions = value; }
-        [JsonIgnore] public DynamicTileOptions DynamicTileOptions { get => tileOptions; set => tileOptions = value; }
-        public TileOptions(SerializedTileOptions serializedTileOptions, DynamicTileOptions dynamicTileOptions) {
-            this.tileOptions = dynamicTileOptions;
-            this.serializedTileOptions = serializedTileOptions;
+        [SerializeField] private StaticTileOptions staticOptions;
+        [SerializeField] private DynamicTileOptions dynamicOptions;
+        [JsonProperty] private SerializedTileOptions serializedOptions;
+        
+        
+        [JsonIgnore] public SerializedTileOptions SerializedTileOptions { get => serializedOptions; set => serializedOptions = value; }
+        [JsonIgnore] public DynamicTileOptions DynamicTileOptions { get => dynamicOptions; set => dynamicOptions = value; }
+        [JsonIgnore] public StaticTileOptions StaticOptions { get => staticOptions; set => staticOptions = value; }
+
+        public TileOptions(StaticTileOptions staticTileOptions, DynamicTileOptions dynamicTileOptions, SerializedTileOptions serializedTileOptions) {
+            this.staticOptions = staticTileOptions;
+            this.dynamicOptions = dynamicTileOptions;
+            this.serializedOptions = serializedTileOptions;
         }
     } 
     [System.Serializable]
@@ -33,22 +57,30 @@ namespace Tiles {
         public string id;
         public int weight;
     }
-    
+
     public static class TileOptionFactory {
         public static string serialize(TileOptions tileOptions) {
-            return JsonConvert.SerializeObject(tileOptions);
+            if (tileOptions == null) {
+                return null;
+            }
+            if (!tileOptions.StaticOptions.hasStates && !tileOptions.StaticOptions.rotatable) {
+                return null;
+            }
+            return JsonConvert.SerializeObject(tileOptions.SerializedTileOptions);
         }
         public static TileOptions deserialize(string data, TileItem tileItem) {
             if (data == null) {
                 return new TileOptions(
-                    tileItem.tileOptions.SerializedTileOptions,
-                    tileItem.tileOptions.DynamicTileOptions
+                    tileItem.tileOptions.StaticOptions,
+                    tileItem.tileOptions.DynamicTileOptions,
+                    tileItem.tileOptions.SerializedTileOptions
                 );
             }
             try {
                 return new TileOptions(
-                    JsonConvert.DeserializeObject<SerializedTileOptions>(data),
-                    tileItem.tileOptions.DynamicTileOptions
+                    tileItem.tileOptions.StaticOptions,
+                    tileItem.tileOptions.DynamicTileOptions,
+                    JsonConvert.DeserializeObject<SerializedTileOptions>(data)
                 );
             } catch (JsonSerializationException ex) {
                 Debug.LogError("TileOptionFactory method 'deserialize' error: " + ex);
@@ -58,8 +90,9 @@ namespace Tiles {
         }
         public static TileOptions getDefault(TileItem tileItem) {
             return new TileOptions(
-                tileItem.tileOptions.SerializedTileOptions,
-                tileItem.tileOptions.DynamicTileOptions
+                tileItem.tileOptions.StaticOptions,
+                tileItem.tileOptions.DynamicTileOptions,
+                tileItem.tileOptions.SerializedTileOptions
             );
         }
     }

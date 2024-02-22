@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMapModule.Place;
 using PlayerModule;
+using Tiles;
 
 namespace TileMapModule.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -50,7 +51,15 @@ namespace TileMapModule.Previewer {
             if (previouslyPreviewed == placePosition && previousId == id) {
                 return;
             }
-            tilemap.SetTile(placePosition,((IPlacableTile) itemObject).getTile());
+            TileBase tileBase = null;
+            TileBase itemTileBase = ((IPlacableTile) itemObject).getTile();
+            if (itemTileBase is IRestrictedTile restrictedTile) {
+                int state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
+                tileBase = restrictedTile.getTileAtState(state);
+            } else {
+                tileBase = itemTileBase;
+            }
+            tilemap.SetTile(placePosition,tileBase);
             if (PlaceTile.itemPlacable(itemObject,position)) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);
             } else {

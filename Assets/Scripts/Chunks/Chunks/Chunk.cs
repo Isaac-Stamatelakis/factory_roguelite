@@ -5,6 +5,8 @@ using System.IO;
 using ChunkModule.IO;
 using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
+using TileMapModule;
+using TileMapModule.Type;
 
 namespace ChunkModule {
     public interface IChunk {
@@ -25,6 +27,7 @@ namespace ChunkModule {
         public int getDim();
         public Transform getEntityContainer();
         public Transform getTileEntityContainer();
+        public ITileMap getTileMap(TileMapType type);
         
     }
 
@@ -45,6 +48,7 @@ namespace ChunkModule {
         /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
         /// </summary>
         protected bool chunkLoaded = false;
+        protected ClosedChunkSystem closedChunkSystem;
         protected Vector2Int position; 
         protected int dim;
         protected Transform entityContainer;
@@ -53,12 +57,6 @@ namespace ChunkModule {
             foreach (List<IChunkPartition> partitionList in partitions) {
                 foreach (IChunkPartition partition in partitionList) {
                     partition.tick();
-                    /*
-                    if (partition.getLoaded()) {
-                        
-                        partition.tick();
-                    }
-                    */
                 }
             }
         }
@@ -67,12 +65,13 @@ namespace ChunkModule {
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
         }
-        public virtual void initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedSystemTransform) {
+        public virtual void initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = new List<List<IChunkPartition>>();
+            this.closedChunkSystem = closedChunkSystem;
 
-            transform.SetParent(closedSystemTransform.ChunkContainerTransform);
+            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
 
@@ -204,6 +203,11 @@ namespace ChunkModule {
         public IChunkPartition getPartition(Vector2Int position)
         {
             return this.partitions[position.x][position.y];
+        }
+
+        public ITileMap getTileMap(TileMapType type)
+        {
+            return closedChunkSystem.getTileMap(type);
         }
     }
 }

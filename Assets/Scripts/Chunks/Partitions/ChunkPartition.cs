@@ -76,6 +76,15 @@ namespace ChunkModule.PartitionModule {
             }
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int realPosition = getRealPosition();
+
+            
+            for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                    iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
+                }
+                yield return new WaitForEndOfFrame();
+            }
+            /*
             if (angle > 45 && angle <= 135) { // up
                 for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
@@ -105,6 +114,7 @@ namespace ChunkModule.PartitionModule {
                     yield return new WaitForEndOfFrame();
                 }
             }
+            */
             yield return null;
         }
 
