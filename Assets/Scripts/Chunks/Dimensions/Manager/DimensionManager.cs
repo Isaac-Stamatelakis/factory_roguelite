@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DimensionModule;
 using PlayerModule.IO;
+using WorldModule;
 
 namespace DimensionModule {
     public class DimensionManager : MonoBehaviour
@@ -15,6 +16,7 @@ namespace DimensionModule {
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
 
         public void Start() {
+            Debug.Log("Loading world: " + WorldCreation.getWorldPath(Global.WorldName));
             DimensionManagerContainer.getInstance();
             setDim(playerIO.playerData.dim);
         }

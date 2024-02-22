@@ -90,6 +90,9 @@ namespace TileMapModule {
         } 
         protected override void breakTile(Vector2Int position) {
             IChunkPartition partition = getPartitionAtPosition(position);
+            if (partition == null) {
+                return;
+            }
             Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
             TileEntity tileEntity = partition.GetTileEntity(tilePositionInPartition);
 
@@ -112,12 +115,14 @@ namespace TileMapModule {
             if (tileOptions == null) {
                 return false;
             }
-            if (!tileOptions.Options.ContainsKey(TileOption.Hardness)) { // uninteractable
+            if (!tileOptions.DynamicTileOptions.hitable) { // uninteractable
                 return false;
             }
-            int hardness = Convert.ToInt32(tileOptions.Options[TileOption.Hardness]) -1;
-            tileOptions.Options[TileOption.Hardness] = hardness;
-            return hardness == 0;
+            
+            DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
+            dynamicTileOptions.hardness--;
+            tileOptions.DynamicTileOptions = dynamicTileOptions;
+            return dynamicTileOptions.hardness == 0;
         }
 
         protected override void setTile(int x, int y,TileItem tileItem) {
@@ -139,6 +144,9 @@ namespace TileMapModule {
 
         protected override void writeTile(IChunkPartition partition, Vector2Int position, TileItem item)
         {
+            if (partition == null) {
+                return;
+            }
             partition.setTile(position,getType().toLayer(),item);
         }
     }

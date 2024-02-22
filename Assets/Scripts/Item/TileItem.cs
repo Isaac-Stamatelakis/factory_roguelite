@@ -47,39 +47,7 @@ public class TileItem : ItemObject, IPlacableTile
     public TileType tileType;
     public TileBase tile;
     public TileEntity tileEntity;
-    [Header("Specify the integer value for given tile options")]
-    public List<TileItemOptionValue<IntItemOption,int>> integerOptions = new List<TileItemOptionValue<IntItemOption, int>>{
-      new TileItemOptionValue<IntItemOption, int>(value: 8, option: IntItemOption.Hardness) 
-    };
-    [Header("Specify if have bool options")]
-    public List<BoolItemOption> boolOptions = new List<BoolItemOption>();
-    [Header("Give drop values on break\nLeave empty to drop itself\n")]
-    public List<TileItemOptionValue<string, int>> dropOptions;
-    
-    public TileOptions initOptions() {
-        Dictionary<TileOption, object> options = getNonSOptions();
-        Dictionary<TileOption, object> sOptions = new Dictionary<TileOption, object>();
-       
-        foreach (BoolItemOption boolItemOption in boolOptions) {
-            sOptions[(TileOption) boolItemOption] = 0;
-        }
-        return new TileOptions(options,sOptions);
-    }
-    public Dictionary<TileOption, object> getNonSOptions() {
-        Dictionary<TileOption, object> options = new Dictionary<TileOption, object>();
-        foreach (TileItemOptionValue<IntItemOption,int> tileItemOptionValue in integerOptions) {
-            TileOption option = (TileOption)tileItemOptionValue.option;
-            options[option] = tileItemOptionValue.value;
-        }
-        if (dropOptions.Count != 0) {
-            options[TileOption.Drop] = dropOptions;
-        }
-        return options;
-    }
-
-    public bool containsBoolOption(BoolItemOption tileItemOption) {
-        return boolOptions.Contains(tileItemOption);
-    }
+    public TileOptions tileOptions;
 
     public override Sprite getSprite()
     {

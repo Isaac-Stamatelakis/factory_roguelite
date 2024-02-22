@@ -7,15 +7,6 @@ Collection of static methods for tiles
 **/
 public class TileHelper 
 {
-    private static Dictionary<int, string> tileTypeMap = new Dictionary<int, string> {
-        [0] = "TileBlock",
-        [1] = "TileBackground",
-        [2] = "TileObject"
-    };
-    public static string intTypeToString(int type) {
-        return tileTypeMap[type];
-    }
-
     /// <summary>
     /// Returns the real world covered area of the tile
     /// </summary>

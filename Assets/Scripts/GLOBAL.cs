@@ -88,10 +88,10 @@ public static class Global
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
     }
     public static Vector2Int getChunkFromCell(Vector2Int cellPosition) {
-        return new Vector2Int(Mathf.FloorToInt(cellPosition.x/(Global.ChunkSize)), Mathf.FloorToInt(cellPosition.y/(Global.ChunkSize)));
+        return new Vector2Int(Mathf.FloorToInt(((float)cellPosition.x)/(Global.ChunkSize)), Mathf.FloorToInt(((float) cellPosition.y)/(Global.ChunkSize)));
     }
     public static Vector2Int getPartitionFromCell(Vector2Int cellPosition) {
-        return new Vector2Int(Mathf.FloorToInt(cellPosition.x/(Global.ChunkPartitionSize)), Mathf.FloorToInt(cellPosition.y/(Global.ChunkPartitionSize)));
+        return new Vector2Int(Mathf.FloorToInt(((float) cellPosition.x)/(Global.ChunkPartitionSize)), Mathf.FloorToInt(((float)cellPosition.y)/(Global.ChunkPartitionSize)));
     }
 
     public static Vector2Int getPartitionFromWorld(Vector2 position) {

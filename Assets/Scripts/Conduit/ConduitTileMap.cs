@@ -58,6 +58,9 @@ namespace TileMapModule.Conduit {
 
         protected override void writeTile(IChunkPartition partition, Vector2Int position, ConduitItem item)
         {
+            if (partition == null) {
+                return;
+            }
             if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                 Debug.LogError("Conduit Tile Map belonged to non conduit tile chunk partition");
                 return;

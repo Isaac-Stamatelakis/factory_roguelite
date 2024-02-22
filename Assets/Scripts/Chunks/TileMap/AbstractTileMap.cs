@@ -133,8 +133,11 @@ namespace TileMapModule {
         protected IChunkPartition getPartitionAtPosition(Vector2Int cellPosition) {
             Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
             IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            if (chunk == null) {
+                return null;
+            }
             Vector2Int partitionPosition = getPartitionPosition(cellPosition);
-            Vector2Int partitionPositionInChunk = partitionPosition - chunk.getPosition() * Global.PartitionsPerChunk;
+            Vector2Int partitionPositionInChunk = partitionPosition - chunkPosition * Global.PartitionsPerChunk;
             IChunkPartition partition = chunk.getPartition(partitionPositionInChunk);
             return partition;
         }

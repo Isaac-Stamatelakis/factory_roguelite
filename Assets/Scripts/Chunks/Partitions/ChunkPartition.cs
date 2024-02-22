@@ -16,7 +16,7 @@ namespace ChunkModule.PartitionModule {
         protected Vector2Int position;
         protected T data;
         public TileEntity[,] tileEntities;
-        public TileOptions[,] tileOptions;
+        public TileOptions[,] tileOptionsArray;
         protected Chunk parent;
 
         public ChunkPartition(T data, Vector2Int position, Chunk parent) {
@@ -67,7 +67,7 @@ namespace ChunkModule.PartitionModule {
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
         public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
-            tileOptions = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
@@ -199,7 +199,7 @@ namespace ChunkModule.PartitionModule {
 
         public TileOptions getTileOptions(Vector2Int position)
         {
-            return tileOptions[position.x,position.y];
+            return tileOptionsArray[position.x,position.y];
         }
 
 

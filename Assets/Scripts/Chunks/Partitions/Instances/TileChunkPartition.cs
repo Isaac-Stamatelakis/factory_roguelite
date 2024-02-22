@@ -27,6 +27,17 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         {
             Vector2Int position = getRealPosition();
             SerializedTileData data = (SerializedTileData) getData();
+            if (tileOptionsArray != null) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                        TileOptions options = tileOptionsArray[x,y];
+                        if (options == null) {
+                            continue;
+                        }
+                        data.baseData.sTileOptions[x][y] = TileOptionFactory.serialize(options);
+                    }
+                }
+            }
             if (tileEntities != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -138,8 +149,8 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     );
                 }
             }
-            TileOptions options = TileOptionFactoryExtension.deseralizeOptions(tileOptionData,tileItem);
-            tileOptions[positionInPartition.x,positionInPartition.y] = options;
+            TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
+            tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
             ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
             tileGridMap.placeTileAtLocation(
                 realPosition,
