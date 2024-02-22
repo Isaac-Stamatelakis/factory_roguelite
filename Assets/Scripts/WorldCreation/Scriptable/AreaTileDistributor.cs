@@ -8,41 +8,37 @@ using System;
 namespace WorldModule.Generation {
 
     public interface IDistributor {
-        public void distribute(WorldTileData worldTileData, int seed);
+        public void distribute(WorldTileData worldTileData, int seed, int width, int height);
     }
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
     public class AreaTileDistributor : ScriptableObject, IDistributor
     {
         public List<TileDistribution> tileDistributions;
 
-        public void distribute(WorldTileData worldTileData, int seed) {
+        public void distribute(WorldTileData worldTileData, int seed, int width, int height) {
             UnityEngine.Random.InitState(seed);
-            SeralizedChunkTileData baseData = worldTileData.baseData;
-            int width = baseData.ids.Count;
-            int height = baseData.ids[0].Count;
-            
+            SerializedBaseTileData baseData = worldTileData.baseData;
+
             Dictionary<int,List<TileDistribution>> sortedByPriority = getPriorityDict();
             List<int> prioritiesSorted = sortedByPriority.Keys.ToList();
             prioritiesSorted.Sort();
             string baseID = null;
-            foreach (List<string> idList in baseData.ids) {
+            foreach (string id in baseData.ids) {
                 if (baseID != null) {
                     break;
                 }
-                foreach (string id in idList) {
-                    if (id != null) {
-                        baseID = id;
-                        break;
-                    }
+                if (id != null) {
+                    baseID = id;
+                    break;
                 }
             }
             Debug.Log("Base ID loaded as " + baseID);
-            List<List<string>> ids = baseData.ids;
+            string[,] ids = baseData.ids;
             foreach (int priority in prioritiesSorted) {
                 List<TileDistribution> distributions = sortedByPriority[priority];
                 for (int x = 0; x < width; x++) {
                     for (int y = 0; y < height; y++) {
-                        string id = ids[x][y];
+                        string id = ids[x,y];
                         if (id == null) { // don't fill into empty space
                             continue;
                         }
@@ -87,7 +83,7 @@ namespace WorldModule.Generation {
             }
         }
 
-        protected void DFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
+        protected void DFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids, string baseID) {
             List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
             
             while (directionsToCheck.Count > 0) {
@@ -99,25 +95,25 @@ namespace WorldModule.Generation {
                 switch (direction) {
                     case Direction.Up:
                         if (y + 1 < height) {
-                            id = ids[x][y+1];
+                            id = ids[x,y+1];
                             searchY++;
                         }
                         break;
                     case Direction.Left:
                         if (x - 1 >= 0) {
-                            id = ids[x-1][y];
+                            id = ids[x-1,y];
                             searchX--;
                         }
                         break;
                     case Direction.Down:
                         if (y - 1 >= 0) {
-                            id = ids[x][y-1];
+                            id = ids[x,y-1];
                             searchY--;
                         }
                         break;
                     case Direction.Right:
                         if (x + 1 < width) {
-                            id = ids[x+1][y];
+                            id = ids[x+1,y];
                             searchX++;
                         }
                         break;
@@ -142,7 +138,7 @@ namespace WorldModule.Generation {
                 if (tilesToPlace <= 0) {
                     return;
                 }
-                ids[searchX][searchY] = searchId;
+                ids[searchX,searchY] = searchId;
                 
                 DFSTile(tileDistribution, ref tilesToPlace,searchX,searchY,width,height,ids,baseID);
             }
@@ -163,7 +159,7 @@ namespace WorldModule.Generation {
             }
             return searchId;
         }
-        protected void BFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, List<List<string>> ids, string baseID) {
+        protected void BFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids, string baseID) {
             Queue<(int x, int y)> queue = new Queue<(int x, int y)>();
             HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
             queue.Enqueue((x, y));
@@ -208,7 +204,7 @@ namespace WorldModule.Generation {
                     if (visited.Contains((searchX,searchY))) {
                         continue;
                     }
-                    string id = ids[searchX][searchY];
+                    string id = ids[searchX,searchY];
                     if (id == baseID || tileDistribution.writeAll) {
                         queue.Enqueue((searchX, searchY));
                         visited.Add((searchX,searchY));
@@ -221,7 +217,7 @@ namespace WorldModule.Generation {
                             Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
                             return;
                         }
-                        ids[searchX][searchY] = searchId;
+                        ids[searchX,searchY] = searchId;
                     }
                     if (directionsToExplore <= 0) {
                         break;

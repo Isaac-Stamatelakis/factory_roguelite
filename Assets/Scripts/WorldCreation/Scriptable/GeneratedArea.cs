@@ -17,7 +17,8 @@ namespace WorldModule.Generation {
         public AreaStructureDistributor structureDistributor;
         public WorldTileData generate(int seed) {
             WorldTileData worldTileData = generationModel.generateBase(seed);
-            tileDistributor.distribute(worldTileData,seed);
+            Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
+            tileDistributor.distribute(worldTileData,seed,size.x,size.y);
             //structureDistributor.distribute(worldTileData,seed);
             return worldTileData;
         }

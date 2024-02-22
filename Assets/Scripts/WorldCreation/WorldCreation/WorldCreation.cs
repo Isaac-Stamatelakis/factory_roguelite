@@ -94,8 +94,8 @@ namespace WorldModule {
             int width = (Mathf.Abs(caveArea.xInterval.y-caveArea.xInterval.x)+1) * Global.ChunkSize;
             int height = (Mathf.Abs(caveArea.yInterval.y-caveArea.yInterval.x)+1) * Global.ChunkSize;
             Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();
-            SeralizedChunkTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,TileMapLayer.Base,width,height);
-            SeralizedChunkTileData backgroundData = tileMapToSerializedChunkTileData(backgroundTileMap,TileMapLayer.Background,width,height);
+            SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
+            SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
             return new WorldTileData(
                 new List<EntityData>(),
                 baseData,
@@ -137,8 +137,8 @@ namespace WorldModule {
                 signalConduitTileMap = signalConduitTransform.GetComponent<Tilemap>();
             }
 
-            SeralizedChunkTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,TileMapLayer.Base,width,height);
-            SeralizedChunkTileData backgroundData = tileMapToSerializedChunkTileData(backgroundTileMap,TileMapLayer.Background,width,height);
+            SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
+            SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
             SeralizedChunkConduitData itemData = tileMapToSerializedChunkConduitData(itemConduitTileMap,TileMapLayer.Item,width,height);
             SeralizedChunkConduitData fluidData = tileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
             SeralizedChunkConduitData energyData = tileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
@@ -153,26 +153,13 @@ namespace WorldModule {
                 signalData
             );
         }
-        private static SeralizedChunkTileData tileMapToSerializedChunkTileData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
+        private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            Debug.Log("Generating SerializedChunkTileData for " + layer.ToString());
-            SeralizedChunkTileData data = new SeralizedChunkTileData();
-            List<List<string>> ids = new List<List<string>>();
-            List<List<string>> sTileEntityOptions = new List<List<string>>();
-            List<List<string>> sTileOptions = new List<List<string>>();
-            for (int x = 0; x < width; x ++) {
-                List<string> tempIds = new List<string>();
-                List<string> tempSTileEntityOptions = new List<string>();
-                List<string> tempSTileOptions = new List<string>();
-                for (int y = 0; y < height; y++) {
-                    tempIds.Add(null);
-                    tempSTileEntityOptions.Add(null);
-                    tempSTileOptions.Add(null);
-                }
-                ids.Add(tempIds);
-                sTileEntityOptions.Add(tempSTileEntityOptions);
-                sTileOptions.Add(tempSTileOptions);
-            }
+            Debug.Log("Generating SerializedChunkTileData for Base");
+            SerializedBaseTileData data = new SerializedBaseTileData();
+            string[,] ids = new string[width,height];
+            string[,] sTileEntityOptions = new string[width,height];
+            string[,] sTileOptions = new string[width,height];
             if (tilemap != null) {
                 BoundsInt bounds = tilemap.cellBounds;
                 for (int x = 0; x < width; x++)
@@ -188,7 +175,7 @@ namespace WorldModule {
                                 if (id == null || id == "") {
                                     continue;
                                 }
-                                ids[x][y]= id;
+                                ids[x,y]= id;
                             }
                         }
                     }
@@ -199,22 +186,42 @@ namespace WorldModule {
         data.sTileOptions = sTileOptions;
         return data;
     }
+
+    private static SerializedBackgroundTileData tileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
+        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            Debug.Log("Generating SerializedBackgroundTileData for Background");
+            SerializedBackgroundTileData data = new SerializedBackgroundTileData();
+            string[,] ids = new string[width,height];
+            if (tilemap != null) {
+                BoundsInt bounds = tilemap.cellBounds;
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                        if (tilemap.HasTile(tilePosition))
+                        {
+                            TileBase tile = tilemap.GetTile(tilePosition);
+                            if (tile is IIDTile) {
+                                string id = ((IIDTile) tile).getId();
+                                if (id == null || id == "") {
+                                    continue;
+                                }
+                                ids[x,y]= id;
+                            }
+                        }
+                    }
+                }
+            }
+        data.ids = ids;
+        return data;
+    }
     private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
-            List<List<string>> ids = new List<List<string>>();
-            List<List<string>> conduitOptions = new List<List<string>>();
-            for (int x = 0; x < width; x ++) {
-                List<string> tempIds = new List<string>();
-                List<string> tempSConduitOptions = new List<string>();
-                for (int y = 0; y < height; y++) {
-                    tempIds.Add(null);
-                    tempSConduitOptions.Add(null);
-                }
-                ids.Add(tempIds);
-                conduitOptions.Add(tempSConduitOptions);
-            }
+            string[,] ids = new string[width,height];
+            string[,] conduitOptions = new string[width,height];
             if (tilemap != null) {
                 BoundsInt bounds = tilemap.cellBounds;
                 for (int x = 0; x < width; x++)
@@ -230,7 +237,7 @@ namespace WorldModule {
                                 if (id == null || id == "") {
                                     continue;
                                 }
-                                ids[x][y]= id;
+                                ids[x,y]= id;
                             }
                         }
                     }

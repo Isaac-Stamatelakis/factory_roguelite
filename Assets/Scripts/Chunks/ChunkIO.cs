@@ -87,16 +87,21 @@ namespace ChunkModule.IO {
     }
 
     [System.Serializable]
-    public class SeralizedChunkTileData {
-        public List<List<string>> ids;
-        public List<List<string>> sTileOptions;
-        public List<List<string>> sTileEntityOptions;
+    public class SerializedBaseTileData {
+        public string[,] ids;
+        public string[,] sTileOptions;
+        public string[,] sTileEntityOptions;
+    }
+
+    [System.Serializable]
+    public class SerializedBackgroundTileData {
+        public string[,] ids;
     }
 
     [System.Serializable]
     public class SeralizedChunkConduitData {
-        public List<List<string>> ids;
-        public List<List<string>> conduitOptions;
+        public string[,] ids;
+        public string[,] conduitOptions;
     }
 }
 

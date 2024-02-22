@@ -54,104 +54,53 @@ namespace WorldModule.Generation {
             // TODO ENTITIES
             partitionData.entityData = new List<EntityData>(); 
             
-            partitionData.baseData = new SeralizedChunkTileData();
-            partitionData.baseData.ids = new List<List<string>>();
-            partitionData.baseData.sTileOptions = new List<List<string>>();
-            partitionData.baseData.sTileEntityOptions = new List<List<string>>();
+            partitionData.baseData = new SerializedBaseTileData();
+            partitionData.baseData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            partitionData.baseData.sTileOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            partitionData.baseData.sTileEntityOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
 
-            partitionData.backgroundData = new SeralizedChunkTileData();
-            partitionData.backgroundData.ids = new List<List<string>>();
-            partitionData.backgroundData.sTileOptions = new List<List<string>>();
-            partitionData.backgroundData.sTileEntityOptions = new List<List<string>>();
+            partitionData.backgroundData = new SerializedBackgroundTileData();
+            partitionData.backgroundData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
 
             for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
-                List<string> idsBase = new List<string>();
-                List<string> sTileOptionsBase = new List<string>();
-                List<string> sTileEntityOptionsBase = new List<string>();
-
-                List<string> idsBackground = new List<string>();
-                List<string> sTileOptionsBackground = new List<string>();
-                List<string> sTileEntityOptionsBackground = new List<string>();
                 for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
                     int xIndex = xStart+tileX;
                     int yIndex = yStart+tileY;
-                    idsBase.Add(worldTileData.baseData.ids[xIndex][yIndex]);
-                    sTileOptionsBase.Add(worldTileData.baseData.sTileOptions[xIndex][yIndex]);
-                    sTileEntityOptionsBase.Add(worldTileData.baseData.sTileEntityOptions[xIndex][yIndex]);
+                    partitionData.baseData.ids[tileX,tileY] = worldTileData.baseData.ids[xIndex,yIndex];
+                    partitionData.baseData.sTileEntityOptions[tileX,tileY] = worldTileData.baseData.sTileEntityOptions[xIndex,yIndex];
+                    partitionData.baseData.sTileOptions[tileX,tileY] = worldTileData.baseData.sTileOptions[xIndex,yIndex];
 
-                    idsBackground.Add(worldTileData.backgroundData.ids[xIndex][yIndex]);
-                    sTileOptionsBackground.Add(worldTileData.backgroundData.sTileOptions[xIndex][yIndex]);
-                    sTileEntityOptionsBackground.Add(worldTileData.backgroundData.sTileEntityOptions[xIndex][yIndex]);
-
+                    partitionData.backgroundData.ids[tileX,tileY] = worldTileData.baseData.ids[xIndex,yIndex];
                 }
-                partitionData.baseData.ids.Add(idsBase);
-                partitionData.baseData.sTileOptions.Add(sTileOptionsBase);
-                partitionData.baseData.sTileEntityOptions.Add(sTileEntityOptionsBase);
-
-                partitionData.backgroundData.ids.Add(idsBackground);
-                partitionData.backgroundData.sTileOptions.Add(sTileOptionsBackground);
-                partitionData.backgroundData.sTileEntityOptions.Add(sTileEntityOptionsBackground);
             }
             if (worldTileData is WorldTileConduitData) {
                 SerializedTileConduitData partionConduitData = (SerializedTileConduitData) partitionData;
                 WorldTileConduitData tileConduitData = (WorldTileConduitData) worldTileData;
 
                 partionConduitData.itemConduitData = new SeralizedChunkConduitData();
-                partionConduitData.itemConduitData.ids = new List<List<string>>();
-                partionConduitData.itemConduitData.conduitOptions = new List<List<string>>();
+                partionConduitData.itemConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                partionConduitData.itemConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
 
                 partionConduitData.fluidConduitData = new SeralizedChunkConduitData();
-                partionConduitData.fluidConduitData.ids = new List<List<string>>();
-                partionConduitData.fluidConduitData.conduitOptions = new List<List<string>>();
+                partionConduitData.fluidConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                partionConduitData.fluidConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
 
                 partionConduitData.energyConduitData = new SeralizedChunkConduitData();
-                partionConduitData.energyConduitData.ids = new List<List<string>>();
-                partionConduitData.energyConduitData.conduitOptions = new List<List<string>>();
+                partionConduitData.energyConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                partionConduitData.energyConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
 
                 partionConduitData.signalConduitData = new SeralizedChunkConduitData();
-                partionConduitData.signalConduitData.ids = new List<List<string>>();
-                partionConduitData.signalConduitData.conduitOptions = new List<List<string>>();
+                partionConduitData.signalConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                partionConduitData.signalConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                /*
+                TODO add support for conduits
                 for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
-                    List<string> itemConduitIDs = new List<string>();
-                    List<string> itemConduitOptions = new List<string>();
-
-                    List<string> fluidConduitIDs = new List<string>();
-                    List<string> fluidConduitOptions = new List<string>();
-
-                    List<string> energyConduitIDs = new List<string>();
-                    List<string> energyConduitOptions = new List<string>();
-
-                    List<string> signalConduitIDs = new List<string>();
-                    List<string> signalConduitOptions = new List<string>();
                     for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
                         int xIndex = xStart+tileX;
                         int yIndex = yStart+tileY;
-
-                        itemConduitIDs.Add(tileConduitData.itemConduitData.ids[xIndex][yIndex]);
-                        itemConduitOptions.Add(tileConduitData.itemConduitData.conduitOptions[xIndex][yIndex]);
-
-                        fluidConduitIDs.Add(tileConduitData.signalConduitData.ids[xIndex][yIndex]);
-                        fluidConduitOptions.Add(tileConduitData.signalConduitData.conduitOptions[xIndex][yIndex]);
-
-                        energyConduitIDs.Add(tileConduitData.energyConduitData.ids[xIndex][yIndex]);
-                        energyConduitOptions.Add(tileConduitData.energyConduitData.conduitOptions[xIndex][yIndex]);
-
-                        signalConduitIDs.Add(tileConduitData.signalConduitData.ids[xIndex][yIndex]);
-                        signalConduitOptions.Add(tileConduitData.signalConduitData.conduitOptions[xIndex][yIndex]);
-                        
                     }
-                    partionConduitData.itemConduitData.ids.Add(itemConduitIDs);
-                    partionConduitData.itemConduitData.conduitOptions.Add(itemConduitOptions);
-
-                    partionConduitData.fluidConduitData.ids.Add(fluidConduitIDs);
-                    partionConduitData.fluidConduitData.conduitOptions.Add(fluidConduitOptions);
-
-                    partionConduitData.energyConduitData.ids.Add(fluidConduitIDs);
-                    partionConduitData.energyConduitData.conduitOptions.Add(fluidConduitOptions);
-
-                    partionConduitData.signalConduitData.ids.Add(signalConduitIDs);
-                    partionConduitData.signalConduitData.conduitOptions.Add(signalConduitOptions);
                 }
+                */
             }
             return partitionData;
         }

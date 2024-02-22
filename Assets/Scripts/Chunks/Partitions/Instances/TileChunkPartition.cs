@@ -34,7 +34,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                         if (options == null) {
                             continue;
                         }
-                        data.baseData.sTileOptions[x][y] = TileOptionFactory.serialize(options);
+                        data.baseData.sTileOptions[x,y] = TileOptionFactory.serialize(options);
                     }
                 }
             }
@@ -46,7 +46,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                             continue;
                         }
                         if (tileEntity is ISerializableTileEntity) {
-                            data.baseData.sTileEntityOptions[x][y] = saveTileEntity(tileEntity);
+                            data.baseData.sTileEntityOptions[x,y] = saveTileEntity(tileEntity);
                         }
                     }
                 }
@@ -100,54 +100,58 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);
-            string baseId = data.baseData.ids[x][y];
+            string baseId = data.baseData.ids[x,y];
             if (baseId != null) {
-                string baseOptions = data.baseData.sTileOptions[x][y];
-                string baseTileEntityOptions = data.baseData.sTileEntityOptions[x][y];
-                place(
+                string baseOptions = data.baseData.sTileOptions[x,y];
+                string baseTileEntityOptions = data.baseData.sTileEntityOptions[x,y];
+                placeBase(
                     id: baseId,
                     tileOptionData: baseOptions,
                     tileEntityOptions: baseTileEntityOptions,
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
-                    positionInPartition: partitionPosition,
-                    TileMapLayer.Base
+                    positionInPartition: partitionPosition
                 );
             }
-            string backgroundID = data.backgroundData.ids[x][y];
+            string backgroundID = data.backgroundData.ids[x,y];
             if (backgroundID != null) {
-                string backgroundOptions = data.baseData.sTileOptions[x][y];
-                string backgroundTileEntityOptions = data.backgroundData.sTileEntityOptions[x][y];
-                place(
+                placeBackground(
                     id: backgroundID,
-                    tileOptionData: backgroundOptions,
-                    tileEntityOptions: backgroundTileEntityOptions,
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
                     realPosition: realPosition,
-                    positionInPartition: partitionPosition,
-                    TileMapLayer.Background
+                    positionInPartition: partitionPosition
                 );
             }
         }
 
-        private void place(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
+        private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+            TileItem tileItem = itemRegistry.getTileItem(id);
+            if (tileItem == null) {
+                return;
+            }
+            ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
+            tileGridMap.placeTileAtLocation(
+                realPosition,
+                positionInPartition,
+                tileItem
+            );
+        }
+        private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.getTileItem(id);
             if (tileItem == null) {
                 return;
             }
             if (tileItem.tileEntity != null) {
-                if (layer == TileMapLayer.Base) {
-                    placeTileEntityFromLoad(
-                        tileItem,
-                        tileEntityOptions,
-                        positionInPartition,
-                        tileEntities,
-                        positionInPartition.x,
-                        positionInPartition.y
-                    );
-                }
+                placeTileEntityFromLoad(
+                    tileItem,
+                    tileEntityOptions,
+                    positionInPartition,
+                    tileEntities,
+                    positionInPartition.x,
+                    positionInPartition.y
+                );
             }
             TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
             tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
@@ -182,9 +186,9 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             {
                 switch (layer) {
                     case TileMapLayer.Base:
-                        return itemRegistry.getTileItem(data.baseData.ids[position.x][position.y]);
+                        return itemRegistry.getTileItem(data.baseData.ids[position.x,position.y]);
                     case TileMapLayer.Background:
-                        return itemRegistry.getTileItem(data.backgroundData.ids[position.x][position.y]);
+                        return itemRegistry.getTileItem(data.backgroundData.ids[position.x,position.y]);
                     default:
                         Debug.LogError("TileChunkPartition attempted to return tileitem from invalid layer " + layer.ToString());
                         return null;
@@ -201,10 +205,10 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             }
             switch (layer) {
                 case TileMapLayer.Base:
-                    tileData.baseData.ids[position.x][position.y] = id;
+                    tileData.baseData.ids[position.x,position.y] = id;
                     break;
                 case TileMapLayer.Background:
-                    tileData.backgroundData.ids[position.x][position.y] = id;
+                    tileData.backgroundData.ids[position.x,position.y] = id;
                     break;  
 
             }

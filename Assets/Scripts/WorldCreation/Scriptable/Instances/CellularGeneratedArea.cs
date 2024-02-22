@@ -111,48 +111,23 @@ namespace WorldModule.Generation {
 
         private WorldTileData generateWorld(int[,] grid) {
             UnityEngine.Vector2Int caveSize = getChunkSize();
-            int tileMaxX = Global.ChunkSize * caveSize.x;
-            int tileMaxY = Global.ChunkSize*caveSize.y;
+            int width = Global.ChunkSize * caveSize.x;
+            int height = Global.ChunkSize*caveSize.y;
 
-            SeralizedChunkTileData baseTileData = new SeralizedChunkTileData();
-            baseTileData.ids = new List<List<string>>();
-            baseTileData.sTileEntityOptions = new List<List<string>>();
-            baseTileData.sTileOptions = new List<List<string>>();
+            SerializedBaseTileData baseTileData = new SerializedBaseTileData();
+            baseTileData.ids = new string[width,height];
+            baseTileData.sTileEntityOptions = new string[width,height];
+            baseTileData.sTileOptions = new string[width,height];
 
-            SeralizedChunkTileData backgroundTileData = new SeralizedChunkTileData();
-            backgroundTileData.ids = new List<List<string>>();
-            backgroundTileData.sTileEntityOptions = new List<List<string>>();
-            backgroundTileData.sTileOptions = new List<List<string>>();
+            SerializedBackgroundTileData backgroundTileData = new SerializedBackgroundTileData();
+            backgroundTileData.ids = new string[width,height];
 
-            for (int x = 0; x < tileMaxX; x ++) {
-                List<string> idListBase = new List<string>();
-                List<string> sTileBase = new List<string>();
-                List<string> sEntityBase = new List<string>();
-
-                List<string> idListBackground = new List<string>();
-                List<string> sEntityBackground = new List<string>();
-                List<string> sTileBackground = new List<string>();
-
-                for (int y = 0; y < tileMaxY; y ++) {
+            for (int x = 0; x < width; x ++) {
+                for (int y = 0; y < height; y ++) {
                     if (grid[x,y] == 1) {
-                        idListBase.Add(tileItem.id);
-                    } else {
-                        idListBase.Add(null);
-                    }
-                    sTileBase.Add(null);
-                    sEntityBase.Add(null);
-
-                    idListBackground.Add(null);
-                    sEntityBackground.Add(null);
-                    sTileBackground.Add(null);
+                        baseTileData.ids[x,y] = tileItem.id;
+                    } 
                 }
-                baseTileData.ids.Add(idListBase);
-                baseTileData.sTileEntityOptions.Add(sEntityBase);
-                baseTileData.sTileOptions.Add(sTileBase);
-
-                backgroundTileData.ids.Add(idListBackground);
-                backgroundTileData.sTileEntityOptions.Add(sEntityBackground);
-                backgroundTileData.sTileOptions.Add(sTileBackground);
             }
             WorldTileData worldTileData = new WorldTileData(
                 entityData:new List<EntityData>(),

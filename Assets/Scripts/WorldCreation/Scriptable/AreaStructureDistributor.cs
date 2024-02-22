@@ -8,7 +8,7 @@ namespace WorldModule.Generation {
     public class AreaStructureDistributor : ScriptableObject, IDistributor
     {
         public List<StructureFrequency> structures;
-        public void distribute(WorldTileData worldTileData, int seed) {
+        public void distribute(WorldTileData worldTileData, int seed, int width, int height) {
 
         }
     }
