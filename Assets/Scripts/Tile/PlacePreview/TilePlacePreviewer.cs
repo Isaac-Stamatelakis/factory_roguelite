@@ -53,15 +53,16 @@ namespace TileMapModule.Previewer {
             }
             TileBase tileBase = null;
             TileBase itemTileBase = ((IPlacableTile) itemObject).getTile();
+            int state = 0;
             if (itemTileBase is IRestrictedTile restrictedTile) {
-                int state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
-                if (itemTileBase is IStateTile stateTile) {
-                    tileBase = stateTile.getTileAtState(state);
-                }
-                
+                state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
+            }
+            if (itemTileBase is IStateTile stateTile) {
+                tileBase = stateTile.getTileAtState(state);
             } else {
                 tileBase = itemTileBase;
-            }
+            } 
+            
             tilemap.SetTile(placePosition,tileBase);
             if (PlaceTile.itemPlacable(itemObject,position)) {
                 tilemap.color = new Color(111f/255f,180f/255f,248f/255f);

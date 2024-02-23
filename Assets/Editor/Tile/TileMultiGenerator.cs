@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using System.IO;
 
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
@@ -40,7 +41,8 @@ public class TileMultiGeneratorWindow : EditorWindow {
     {
         string path = "Assets/EditorCreations/" + collectionName + "/";
         if (AssetDatabase.IsValidFolder(path)) {
-            Debug.LogError("Tile Generation for "+  collectionName + "Abanadoned as Folder already exists at EditorCreations");
+            Debug.LogWarning("Replaced existing content at " + path);
+            Directory.Delete(path);
             return;
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", collectionName);
@@ -48,34 +50,14 @@ public class TileMultiGeneratorWindow : EditorWindow {
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName);
         int index = 0;
         foreach (Sprite sprite in sprites) {
-            TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
-            StandardTile tile = ScriptableObject.CreateInstance<StandardTile>();
-            tile.sprite = sprite;
-            tile.colliderType = Tile.ColliderType.Grid;
-            Vector2Int spriteSize = Global.getSpriteSize(sprite);
-            Matrix4x4 tileTransform = tile.transform;
-            if (spriteSize.x % 2 == 0) {
-                tileTransform.m03 = 0.25f;
-            }
-            if (spriteSize.y % 2 == 0) {
-                tileTransform.m13 = 0.25f;
-            }
-            tile.transform = tileTransform;
-            
-            tile.name = "T~" + collectionName + index.ToString();
-            tileItem.name = collectionName + index.ToString();
-            tileItem.tile = tile;
-
-            string tilePath = collectionPath + "/" + tileItem.name + "/";
-            
-            AssetDatabase.CreateFolder(collectionPath, tileItem.name);
-            tileItem.id = tileItem.name;
-            tileItem.id.ToLower().Replace(" ","_");
-
-            tile.id = tileItem.id;
-            AssetDatabase.CreateAsset(tile, tilePath + tile.name + ".asset");
-            AssetDatabase.CreateAsset(tileItem, tilePath + tileItem.name + ".asset");
-            Debug.Log("TileItem and Tile Created for " + tileItem.name + " at " + tilePath);
+            StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite);
+            string tileName = collectionName + index.ToString();
+            string tilePath = collectionPath + "/" + tileName + "/";
+            TileItemEditorFactory.generateTileItem(
+                tileName: tileName,
+                tile: tile,
+                savePath: tilePath
+            );
             index += 1;
         }
         

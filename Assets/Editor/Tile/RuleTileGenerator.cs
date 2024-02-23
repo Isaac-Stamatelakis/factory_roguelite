@@ -47,14 +47,10 @@ public class RuleTileGenerator : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         IdRuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        AssetDatabase.CreateAsset(ruleTile, path + "T~" +tileName + ".asset");
-
-        TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
-        tileItem.name = tileName;
-        tileItem.tile = ruleTile;
-        tileItem.id = tileName;
-        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
-        ruleTile.id = tileItem.id;
-        AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
+        TileItemEditorFactory.generateTileItem(
+            tileName: tileName,
+            tile: ruleTile,
+            createFolder: false
+        );
     }
 }
