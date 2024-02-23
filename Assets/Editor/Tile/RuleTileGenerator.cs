@@ -8,7 +8,7 @@ using System.IO;
 public class RuleTileGenerator : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/RuleTile")]
+    [MenuItem("Tools/Item Constructors/Tile/Standard/RuleTile")]
     public static void ShowWindow()
     {
         RuleTileGenerator window = (RuleTileGenerator)EditorWindow.GetWindow(typeof(RuleTileGenerator));
@@ -31,6 +31,7 @@ public class RuleTileGenerator : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
+        GUILayout.Label("ENSURE PROPER FORMAT:\n[]\n[UP]\n[LEFT]\n[DOWN]\n[RIGHT]\n[UP,RIGHT]\n[UP,LEFT]\n[DOWN,LEFT]\n[DOWN,RIGHT]\n[LEFT,RIGHT]\n[UP,DOWN]\n[UP,LEFT,DOWN]\n[LEFT,DOWN,RIGHT]\n[UP,RIGHT,DOWN]\n[LEFT,UP,RIGHT]\n[UP,LEFT,DOWN,RIGHT]", EditorStyles.boldLabel);
         if (GUILayout.Button("Generate Tile Item"))
         {
             createRuleTile();
@@ -47,14 +48,11 @@ public class RuleTileGenerator : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         IdRuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        AssetDatabase.CreateAsset(ruleTile, path + "T~" +tileName + ".asset");
-
-        TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
-        tileItem.name = tileName;
-        tileItem.tile = ruleTile;
-        tileItem.id = tileName;
-        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
-        ruleTile.id = tileItem.id;
-        AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
+        TileItemEditorFactory.generateTileItem(
+            tileName: tileName,
+            tile: ruleTile,
+            tileType: TileType.Block,
+            createFolder: false
+        );
     }
 }

@@ -301,7 +301,7 @@ public class EditorFactory
                             neighborRules[6] = 1;
                         }
                         // Default sprite is 24 x 24
-                        if (up == 1 && right == 1 && left == 1 && down == 1) {
+                        if (up == 0 && right == 0 && left == 0 && down == 0) {
                             ruleTile.m_DefaultSprite = sprite1;
                         }
                         

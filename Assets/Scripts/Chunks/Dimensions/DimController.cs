@@ -47,8 +47,11 @@ namespace DimensionModule {
             }
         }
         public ClosedChunkSystem getPlayerSystem() {
+            return GetClosedChunkSystem(playerTransform.position);
+        }
+        public ClosedChunkSystem GetClosedChunkSystem(Vector2 position) {
             foreach (ClosedChunkSystem closedChunkSystem in closedChunkSystems) {
-                if (closedChunkSystem.worldPositionInBounds(playerTransform.position)) {
+                if (closedChunkSystem.worldPositionInBounds(position)) {
                     return closedChunkSystem;
                 }
             }

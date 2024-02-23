@@ -70,7 +70,7 @@ namespace PlayerModule.Mouse {
 
         private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
             DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
-            return dimensionManager.CurrentDimension.getPlayerSystem();
+            return dimensionManager.CurrentDimension.GetClosedChunkSystem(mousePosition);
         }
 
         private void handleRightClick(Vector2 mousePosition) {

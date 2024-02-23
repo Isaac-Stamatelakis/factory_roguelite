@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using System.IO;
 
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
@@ -41,21 +42,18 @@ public class BackgroundGeneratorWindow : EditorWindow {
         string path = "Assets/EditorCreations/" + tileName + "/";
         
         if (AssetDatabase.IsValidFolder(path)) {
-            Debug.LogError("Tile Generation for "+  tileName + "Abanadoned as Folder already exists at EditorCreations");
-            return;
+            Debug.LogWarning("Replaced existing content at " + path);
+            Directory.Delete(path,true);
         }
+        
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        BackgroundRuleTile ruleTile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        AssetDatabase.CreateAsset(ruleTile, path + "T~" +tileName + ".asset");
-
-        TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
-        tileItem.name = tileName;
-        tileItem.tile = ruleTile;
-        tileItem.id = tileName;
-        tileItem.tileType = TileType.Background;
-        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
-        ruleTile.id = tileItem.id;
-        AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
-        Debug.Log("Background Tile Created at Path: " + path);
+        BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
+        TileItemEditorFactory.saveTile(tile,tileName);
+        TileItemEditorFactory.generateTileItem(
+            tileName: tileName,
+            tile: tile,
+            tileType: TileType.Background,
+            createFolder: false
+        );
     }
 }

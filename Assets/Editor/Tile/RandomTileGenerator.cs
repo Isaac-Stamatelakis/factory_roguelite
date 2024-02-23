@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using System.IO;
 
 public class RandomTileGenerator : EditorWindow {
     private string tileName;
     private Texture2D texture;
-    [MenuItem("Tools/Item Constructors/Tile/Random")]
+    [MenuItem("Tools/Item Constructors/Tile/Standard/Random")]
     public static void ShowWindow()
     {
         RandomTileGenerator window = (RandomTileGenerator)EditorWindow.GetWindow(typeof(RandomTileGenerator));
@@ -42,26 +43,23 @@ public class RandomTileGenerator : EditorWindow {
         
         string path = "Assets/EditorCreations/" + tileName + "/";
         if (AssetDatabase.IsValidFolder(path)) {
-            Debug.LogError("Tile Generation for "+  tileName + "Abanadoned as Folder already exists at EditorCreations");
-            return;
+            Debug.LogWarning("Replaced existing content at " + path);
+            Directory.Delete(path,true);
         }
+        
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         string collectionPath = "Assets/EditorCreations/" + tileName;
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName);
 
         RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
-        randomTile.name = tileName;
         randomTile.m_Sprites = sprites;
         randomTile.sprite = sprites[0];
         
-        randomTile.name = "T~" + tileName;
-        tileItem.id = tileName;
-        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
-
-        tileItem.name = tileName;
-        tileItem.tile = randomTile;
-        ((IIDTile) randomTile).setID(tileItem.id);
-        AssetDatabase.CreateAsset(randomTile, path + randomTile.name + ".asset");
-        AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
+        TileItemEditorFactory.generateTileItem(
+            tileName: tileName,
+            tile: randomTile,
+            tileType: TileType.Block,
+            createFolder: false
+        );
     }
 }
