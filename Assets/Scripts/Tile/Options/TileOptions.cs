@@ -63,6 +63,9 @@ namespace Tiles {
             if (tileOptions == null) {
                 return null;
             }
+            if (tileOptions.StaticOptions == null) {
+                return null;
+            }
             if (!tileOptions.StaticOptions.hasStates && !tileOptions.StaticOptions.rotatable) {
                 return null;
             }

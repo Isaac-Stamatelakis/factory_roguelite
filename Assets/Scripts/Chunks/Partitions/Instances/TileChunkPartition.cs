@@ -130,8 +130,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             if (tileItem == null) {
                 return;
             }
-            Debug.Log(tileItem.name);
-            
             ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
             tileGridMap.placeItemTileAtLocation(
                 realPosition,
