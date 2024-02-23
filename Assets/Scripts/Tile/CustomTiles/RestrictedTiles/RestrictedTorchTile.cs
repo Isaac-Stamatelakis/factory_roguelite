@@ -8,14 +8,14 @@ using TileMapModule.Layer;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/Torch")]
-    public class RestrictedTorchTile : TileBase, IRestrictedTile, IIDTile
+    public class RestrictedTorchTile : TileBase, IRestrictedTile, IIDTile, IStateTile
     {
         public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;
         public Tile onBackground;
-        public Sprite getSprite()
+        public Sprite getDefaultSprite()
         {
             return onBlock.sprite;
         }

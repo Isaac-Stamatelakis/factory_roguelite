@@ -55,7 +55,10 @@ namespace TileMapModule.Previewer {
             TileBase itemTileBase = ((IPlacableTile) itemObject).getTile();
             if (itemTileBase is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
-                tileBase = restrictedTile.getTileAtState(state);
+                if (itemTileBase is IStateTile stateTile) {
+                    tileBase = stateTile.getTileAtState(state);
+                }
+                
             } else {
                 tileBase = itemTileBase;
             }

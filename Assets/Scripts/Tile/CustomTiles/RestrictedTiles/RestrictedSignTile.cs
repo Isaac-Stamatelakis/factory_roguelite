@@ -8,14 +8,14 @@ using TileMapModule.Layer;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/Sign")]
-    public class RestrictedSignTile : TileBase, IRestrictedTile, IIDTile
+    public class RestrictedSignTile : TileBase, IRestrictedTile, IIDTile, IStateTile
     {
         public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;
         public Tile hanging;
-        public Sprite getSprite()
+        public Sprite getDefaultSprite()
         {
             return onBlock.sprite;
         }

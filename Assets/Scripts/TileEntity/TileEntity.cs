@@ -6,35 +6,56 @@ using UnityEngine.Tilemaps;
 using ChunkModule.PartitionModule;
 
 namespace TileEntityModule {
-    public abstract class TileEntity : ScriptableObject
+    public interface ITileEntity {
+        public Vector2Int getPositionInChunk();
+
+        public Vector2 getWorldPosition();
+        public Vector2Int getCellPosition();
+        public IChunkPartition getPartition();
+        public Vector2Int getPartitionPositionInChunk();
+        public Vector2Int getPositionInPartition();
+        public TileBase getTile();
+        public IChunk getChunk();
+    }
+    public abstract class TileEntity : ScriptableObject, ITileEntity
     {
-        protected Vector2Int tilePosition;
+        protected Vector2Int positionInChunk;
         protected IChunk chunk;
         protected TileBase tile;
         public virtual void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk) {
             this.chunk = chunk;
-            this.tilePosition = tilePosition;
+            this.positionInChunk = tilePosition;
             this.tile = tileBase;
         }
 
         public Vector2Int getPositionInChunk() {
-            return tilePosition;
+            return positionInChunk;
         }
 
         public Vector2 getWorldPosition() {
-            return (tilePosition + chunk.getPosition() * Global.ChunkSize)/2;
+            return (positionInChunk + chunk.getPosition() * Global.ChunkSize)/2;
         }
         public Vector2Int getCellPosition() {
-            return (tilePosition + chunk.getPosition() * Global.ChunkSize);
+            return (positionInChunk + chunk.getPosition() * Global.ChunkSize);
         }
         public IChunkPartition getPartition() {
             return chunk.getPartition(getPartitionPositionInChunk());
         }
         public Vector2Int getPartitionPositionInChunk() {
-            return Global.getPartitionFromCell(tilePosition);
+            return Global.getPartitionFromCell(positionInChunk);
         }
         public Vector2Int getPositionInPartition() {
-            return tilePosition-getPartitionPositionInChunk()*Global.ChunkPartitionSize;
+            return positionInChunk-getPartitionPositionInChunk()*Global.ChunkPartitionSize;
+        }
+
+        public TileBase getTile()
+        {
+            return tile;
+        }
+
+        public IChunk getChunk()
+        {
+            return chunk;
         }
     }
 } // end

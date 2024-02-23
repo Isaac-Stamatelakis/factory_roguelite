@@ -130,10 +130,10 @@ namespace TileMapModule {
             if (tileBase == null) {
                 return;
             }
-            if (tileBase is IRestrictedTile restrictedTile) {
+            if (tileBase is IStateTile stateTile) {
                 TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
                 Vector2 pos = new Vector2(x/2f+0.25f,y/2f+0.25f);
-                tileBase = restrictedTile.getTileAtState(tileOptions.SerializedTileOptions.state);
+                tileBase = stateTile.getTileAtState(tileOptions.SerializedTileOptions.state);
             } 
             tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
         }

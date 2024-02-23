@@ -9,14 +9,20 @@ namespace Tiles {
     /// Used for tiles with different sprites depending on state
     /// </summary>
     public interface IRestrictedTile {
-        public Sprite getSprite();
+        
         public int getStateAtPosition(Vector2 position, VerticalMousePosition verticalMousePosition,HorizontalMousePosition horizontalMousePosition);
-        public TileBase getTileAtState(int state);
-        public int getStateAmount();
+        
     }
 
     public interface ITypeSwitchType {
         public TileMapType getStateType(int state);
+    }
+
+    public interface IStateTile {
+        public TileBase getTileAtState(int state);
+        public Sprite getDefaultSprite();
+        public int getStateAmount();
+        
     }
 }
 

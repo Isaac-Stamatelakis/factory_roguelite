@@ -18,7 +18,7 @@ namespace TileEntityModule.Instances {
             color.a = 1;
             if (lightObject == null) {
                 lightObject = new GameObject();
-                lightObject.name = "Torch[" + tilePosition.x + "," + tilePosition.y + "]"; 
+                lightObject.name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"; 
                 Light2D light = lightObject.AddComponent<Light2D>();
                 light.lightType = Light2D.LightType.Point;
                 light.intensity = intensity;
@@ -26,7 +26,7 @@ namespace TileEntityModule.Instances {
                 light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
                 light.pointLightOuterRadius=radius;
                 light.falloffIntensity=falloff;
-                lightObject.transform.position = (Vector2) tilePosition/2 + positionInTile;
+                lightObject.transform.position = (Vector2) positionInChunk/2 + positionInTile;
                 lightObject.transform.SetParent(chunk.getTileEntityContainer(),false);
             }
         }

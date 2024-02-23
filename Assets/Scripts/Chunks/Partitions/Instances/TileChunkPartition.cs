@@ -157,8 +157,8 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             
             tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
             TileBase tileBase = tileItem.tile;
-            if (tileItem.tile is IRestrictedTile restrictedTile) {
-                tileBase = restrictedTile.getTileAtState(options.SerializedTileOptions.state);
+            if (tileItem.tile is IStateTile stateTile) {
+                tileBase = stateTile.getTileAtState(options.SerializedTileOptions.state);
             }
             ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
             tileGridMap.placeItemTileAtLocation(

@@ -9,14 +9,14 @@ using TileMapModule.Type;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/Door")]
-    public class RestrictedDoorTile : TileBase, IRestrictedTile, IIDTile, ITypeSwitchType
+    public class RestrictedDoorTile : TileBase, IRestrictedTile, IIDTile, ITypeSwitchType, IStateTile
     {
         public string id;
         public Tile left;
         public Tile leftOpen;
         public Tile right;
         public Tile rightOpen;
-        public Sprite getSprite()
+        public Sprite getDefaultSprite()
         {
             return left.sprite;
         }
