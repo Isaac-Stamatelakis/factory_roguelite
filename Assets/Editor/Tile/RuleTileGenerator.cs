@@ -8,7 +8,7 @@ using System.IO;
 public class RuleTileGenerator : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/RuleTile")]
+    [MenuItem("Tools/Item Constructors/Tile/Standard/RuleTile")]
     public static void ShowWindow()
     {
         RuleTileGenerator window = (RuleTileGenerator)EditorWindow.GetWindow(typeof(RuleTileGenerator));
@@ -31,6 +31,7 @@ public class RuleTileGenerator : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
+        GUILayout.Label("ENSURE PROPER FORMAT:\n[]\n[UP]\n[LEFT]\n[DOWN]\n[RIGHT]\n[UP,RIGHT]\n[UP,LEFT]\n[DOWN,LEFT]\n[DOWN,RIGHT]\n[LEFT,RIGHT]\n[UP,DOWN]\n[UP,LEFT,DOWN]\n[LEFT,DOWN,RIGHT]\n[UP,RIGHT,DOWN]\n[LEFT,UP,RIGHT]\n[UP,LEFT,DOWN,RIGHT]", EditorStyles.boldLabel);
         if (GUILayout.Button("Generate Tile Item"))
         {
             createRuleTile();
@@ -50,6 +51,7 @@ public class RuleTileGenerator : EditorWindow {
         TileItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: ruleTile,
+            tileType: TileType.Block,
             createFolder: false
         );
     }

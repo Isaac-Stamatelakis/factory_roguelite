@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
+using System.IO;
 
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
@@ -38,7 +39,20 @@ public class BackgroundGeneratorWindow : EditorWindow {
 
     void createTileItem()
     {
+        string path = "Assets/EditorCreations/" + tileName + "/";
+        
+        if (AssetDatabase.IsValidFolder(path)) {
+            Debug.LogWarning("Replaced existing content at " + path);
+            Directory.Delete(path,true);
+        }
+        
+        AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        TileItemEditorFactory.generateTileItem(tileName,tile);
+        TileItemEditorFactory.generateTileItem(
+            tileName: tileName,
+            tile: tile,
+            tileType: TileType.Background,
+            createFolder: false
+        );
     }
 }

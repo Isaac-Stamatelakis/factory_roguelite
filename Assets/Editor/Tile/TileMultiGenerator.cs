@@ -8,7 +8,7 @@ using System.IO;
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
     private Texture2D texture;
-    [MenuItem("Tools/Item Constructors/Tile/Multi-Tile")]
+    [MenuItem("Tools/Item Constructors/Tile/Standard/Multi-Tile")]
     public static void ShowWindow()
     {
         TileMultiGeneratorWindow window = (TileMultiGeneratorWindow)EditorWindow.GetWindow(typeof(TileMultiGeneratorWindow));
@@ -42,7 +42,7 @@ public class TileMultiGeneratorWindow : EditorWindow {
         string path = "Assets/EditorCreations/" + collectionName + "/";
         if (AssetDatabase.IsValidFolder(path)) {
             Debug.LogWarning("Replaced existing content at " + path);
-            Directory.Delete(path);
+            Directory.Delete(path,true);
             return;
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", collectionName);
@@ -56,6 +56,7 @@ public class TileMultiGeneratorWindow : EditorWindow {
             TileItemEditorFactory.generateTileItem(
                 tileName: tileName,
                 tile: tile,
+                tileType: TileType.Block,
                 savePath: tilePath
             );
             index += 1;
