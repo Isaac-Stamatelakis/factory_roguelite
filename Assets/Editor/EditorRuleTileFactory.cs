@@ -205,71 +205,55 @@ public class EditorFactory
         return sprites;
     }
 
-    public static IdRuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {
+    public static BackgroundRuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {
     
         if (texture.width != 24 || texture.height != 24) {
             Debug.Log("Invalid dimensions for creating background ruletile. Must be 24 x 24");
             return null;
         }
         
-        IdRuleTile ruleTile = ScriptableObject.CreateInstance<IdRuleTile>();
+        BackgroundRuleTile ruleTile = ScriptableObject.CreateInstance<BackgroundRuleTile>();
         ruleTile.m_TilingRules = new List<RuleTile.TilingRule>();
         
         AssetDatabase.CreateFolder(spritePath, "Sprites");
         Sprite[] sprites = new Sprite[16];
         spritePath += "/Sprites/";
-        // 1 include, 0 exclude
+        // 1 connected to tile, 0 not connected
         for (int up = 0; up <=1 ; up++) {
             for (int right = 0; right <= 1; right++) {
                 for (int down = 0; down <= 1; down++) {
                     for (int left = 0; left <= 1; left++) {
-                        
-                        int copyXStart; int copyYStart; int copyXEnd; int copyYEnd;
-                        
-                        copyXStart = (right == 1) ? 0 : 4;
-                        copyYStart = (up == 1) ? 0 : 4;
-                        copyXEnd = (left == 1) ? 24-copyXStart : 20-copyXStart;
-                        copyYEnd = (down == 1) ? 24-copyYStart : 20-copyYStart; 
-                        
-                        Color[] pixels = texture.GetPixels(copyXStart,copyYStart,copyXEnd,copyYEnd);
-
-
-                        int newXSize = 16; int newYSize = 16;
-                        if (left == 1 || right == 1) {
-                            newXSize = 24;
-                        }
-                        if (up == 1 || down == 1) {
-                            newYSize = 24;
-                        }
-                        //Debug.Log("U:" + up + "D:" + down + "R:" + right + "L" + left);
-                        Texture2D splitTexture = new Texture2D(newXSize,newYSize);
-                        // set all values to empty
-                        for (int i = 0; i < splitTexture.width; i++)
-                        {
-                            for (int j = 0; j < splitTexture.height; j++)
-                            {
-                                splitTexture.SetPixel(i, j, Color.clear);
-                                //splitTexture.SetPixel(i, j, Color.white);
+                        Color[] pixels = texture.GetPixels(0,0,24,24);
+                        if (down == 1) {
+                            for (int x = 0; x < 24; x++) {
+                                for (int y = 0; y < 4; y++) {
+                                    pixels[y*24+x] = new Color(0,0,0,0);
+                                }
                             }
                         }
-                        int placeXStart=0; int placeYStart=0; int placeXWidth=16; int placeYHeight=16;
-                        if (left == 1 && right == 1) {
-                            placeXStart = 0; placeXWidth = 24;
-                        } else if (left == 1 && right == 0) {
-                            placeXStart = 0; placeXWidth = 20;
-                        } else if (left == 0 && right == 1) {
-                            placeXStart = 4; placeXWidth = 20;
+                        if (up == 1) {
+                            for (int x = 0; x < 24; x++) {
+                                for (int y = 20; y < 24; y++) {
+                                    pixels[y*24+x] = new Color(0,0,0,0);
+                                }
+                            }
                         }
-                        if (up == 1 && down == 1) {
-                            placeYStart = 0; placeYHeight = 24;
-                        } else if (up == 1 && down == 0) {
-                            placeYStart = 4; placeYHeight = 20;
-                        } else if (up == 0 && down == 1) {
-                            placeYStart = 0; placeYHeight = 20;
+                        if (left == 1) {
+                            for (int x = 0; x < 4; x++) {
+                                for (int y = 0; y < 24; y++) {
+                                    pixels[y*24+x] = new Color(0,0,0,0);
+                                }
+                            }
                         }
-                        //Debug.Log(placeYStart + "," + placeYHeight);
-                        splitTexture.SetPixels(placeXStart,placeYStart,placeXWidth,placeYHeight,pixels);
-
+                        if (right == 1) {
+                            for (int x = 20; x < 24; x++) {
+                                for (int y = 0; y < 24; y++) {
+                                    pixels[y*24+x] = new Color(0,0,0,0);
+                                }
+                            }
+                        }
+                        Texture2D splitTexture = new Texture2D(24,24);
+                        splitTexture.SetPixels(0,0,24,24,pixels);
                         string spriteName = name + "[";
                         if (up == 1) {
                             spriteName += "U";
@@ -304,16 +288,16 @@ public class EditorFactory
                         List<int> neighborRules = new List<int> {
                             0,2,0,2,2,0,2,0
                         };
-                        if (up == 0) {
+                        if (up == 1) {
                             neighborRules[1] = 1;
                         }
-                        if (left == 0) {
+                        if (left == 1) {
                             neighborRules[3] = 1;
                         }
-                        if (right == 0) {
+                        if (right == 1) {
                             neighborRules[4] = 1;
                         }
-                        if (down == 0) {
+                        if (down == 1) {
                             neighborRules[6] = 1;
                         }
                         // Default sprite is 24 x 24

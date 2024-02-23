@@ -59,8 +59,8 @@ public class TileItem : ItemObject, IPlacableTile
             return ruleTile.m_DefaultSprite;
         } else if (tile is RandomTile randomTile) {
             return randomTile.sprite;
-        } else if (tile is IRestrictedTile restrictedTile) {
-            return restrictedTile.getSprite();
+        } else if (tile is IStateTile stateTile) {
+            return stateTile.getDefaultSprite();
         }
         return null;
     }

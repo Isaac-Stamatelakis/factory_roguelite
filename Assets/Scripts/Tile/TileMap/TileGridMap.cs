@@ -115,7 +115,7 @@ namespace TileMapModule {
             if (tileOptions == null) {
                 return false;
             }
-            if (!tileOptions.DynamicTileOptions.hitable) { // uninteractable
+            if (!tileOptions.StaticOptions.hitable) { // uninteractable
                 return false;
             }
             
@@ -127,6 +127,14 @@ namespace TileMapModule {
 
         protected override void setTile(int x, int y,TileItem tileItem) {
             TileBase tileBase = tileItem.tile;
+            if (tileBase == null) {
+                return;
+            }
+            if (tileBase is IStateTile stateTile) {
+                TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
+                Vector2 pos = new Vector2(x/2f+0.25f,y/2f+0.25f);
+                tileBase = stateTile.getTileAtState(tileOptions.SerializedTileOptions.state);
+            } 
             tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
         }
 

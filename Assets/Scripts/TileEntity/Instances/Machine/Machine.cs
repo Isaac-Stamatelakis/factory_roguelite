@@ -6,6 +6,7 @@ using ChunkModule;
 using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 using ConduitModule.Ports;
+using UnityEngine.Tilemaps;
 
 namespace TileEntityModule.Instances.Machine
 {
@@ -46,9 +47,9 @@ namespace TileEntityModule.Instances.Machine
             */
         }
 
-        public override void initalize(Vector2Int tilePosition, IChunk chunk)
+        public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
-            base.initalize(tilePosition,chunk);
+            base.initalize(tilePosition,tileBase, chunk);
             if (inputs == null) {
                 inputs = ItemSlotFactory.createEmptyInventory(layout.inputs.Count);
             }

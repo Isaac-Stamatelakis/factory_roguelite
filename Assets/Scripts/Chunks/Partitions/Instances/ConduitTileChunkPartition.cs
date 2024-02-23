@@ -276,7 +276,7 @@ namespace ChunkModule.PartitionModule {
                 return;
             }
             ITileMap tileGridMap = tileGridMaps[conduitItem.getType().toTileMapType()];
-            tileGridMap.placeTileAtLocation(
+            tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 conduitItem

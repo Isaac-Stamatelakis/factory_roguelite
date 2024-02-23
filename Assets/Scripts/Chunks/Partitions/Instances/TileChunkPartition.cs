@@ -6,6 +6,7 @@ using TileMapModule;
 using TileMapModule.Layer;
 using TileEntityModule;
 using Tiles;
+using UnityEngine.Tilemaps;
 
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -20,20 +21,18 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 tileEntities = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
             yield return base.load(tileGridMaps,angle);
-            
         }
 
         public override void save(Dictionary<TileMapType, ITileMap> tileGridMaps)
         {
+            
             Vector2Int position = getRealPosition();
             SerializedTileData data = (SerializedTileData) getData();
+
             if (tileOptionsArray != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                         TileOptions options = tileOptionsArray[x,y];
-                        if (options == null) {
-                            continue;
-                        }
                         data.baseData.sTileOptions[x,y] = TileOptionFactory.serialize(options);
                     }
                 }
@@ -132,11 +131,12 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 return;
             }
             ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
-            tileGridMap.placeTileAtLocation(
+            tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem
             );
+            
         }
         private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.getTileItem(id);
@@ -154,14 +154,18 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 );
             }
             TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
+            
             tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
+            TileBase tileBase = tileItem.tile;
+            if (tileItem.tile is IStateTile stateTile) {
+                tileBase = stateTile.getTileAtState(options.SerializedTileOptions.state);
+            }
             ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
-            tileGridMap.placeTileAtLocation(
+            tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem
             );
-            
         }
 
         protected virtual void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y) {
@@ -170,7 +174,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,this.parent);
+            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile,this.parent);
             if (tileEntity is ISerializableTileEntity) {
                 ((ISerializableTileEntity) tileEntity).unserialize(options);
             }
@@ -210,8 +214,19 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 case TileMapLayer.Background:
                     tileData.backgroundData.ids[position.x,position.y] = id;
                     break;  
-
             }
+            if (id == null) {
+                tileOptionsArray[position.x,position.y] = null;
+                return;
+            }
+            TileOptions tileOptions = TileOptionFactory.getDefault(tileItem);
+            if (tileItem.tile is IRestrictedTile restrictedTile) {
+                Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
+                serializedTileOptions.state = restrictedTile.getStateAtPosition(mousePosition,MousePositionFactory.getVerticalMousePosition(mousePosition),MousePositionFactory.getHorizontalMousePosition(mousePosition));
+                tileOptions.SerializedTileOptions = serializedTileOptions;
+            }
+            tileOptionsArray[position.x,position.y] = tileOptions;
         }
     }
 }

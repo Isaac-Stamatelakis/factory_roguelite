@@ -45,7 +45,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
             return;
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        IdRuleTile ruleTile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
+        BackgroundRuleTile ruleTile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
         AssetDatabase.CreateAsset(ruleTile, path + "T~" +tileName + ".asset");
 
         TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();

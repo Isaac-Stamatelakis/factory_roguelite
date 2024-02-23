@@ -21,10 +21,12 @@ namespace TileMapModule {
         public IEnumerator removePartition(Vector2Int partitionPosition);
         public bool containsPartition(Vector2Int partitionPosition);
         public void placeNewTileAtLocation(int x, int y, ItemObject itemObject);
-        public void placeTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, ItemObject itemObject);
+        public void placeItemTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, ItemObject itemObject);
         public TileMapType getType();
         public Vector2Int worldToTileMapPosition(Vector2 worldPosition);
         public bool hasTile(Vector2Int position);
+        public void removeForSwitch(Vector2Int position);
+        public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
     }
     /**
     Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
@@ -37,14 +39,14 @@ namespace TileMapModule {
         public Tilemap mTileMap {get{return tilemap;}}
         protected TilemapRenderer tilemapRenderer;
         protected TilemapCollider2D tilemapCollider;
-        protected Dictionary<Vector2Int, IChunkPartition> partitions;
+        protected HashSet<Vector2Int> partitions;
         protected DevMode devMode;
         protected ClosedChunkSystem closedChunkSystem;
 
 
         public virtual void Start() {
             tilemap = gameObject.AddComponent<Tilemap>();
-            partitions = new Dictionary<Vector2Int, IChunkPartition>();
+            partitions = new HashSet<Vector2Int>();
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
@@ -57,7 +59,7 @@ namespace TileMapModule {
         }
         
         public void addPartition(IChunkPartition partition) {
-            partitions[partition.getRealPosition()] = partition;
+            partitions.Add(partition.getRealPosition());
         }
         public IEnumerator removePartition(Vector2Int partitionPosition) {
             if (!containsPartition(partitionPosition)) {
@@ -78,32 +80,35 @@ namespace TileMapModule {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
         public bool containsPartition(Vector2Int partitionPosition) {
-            return this.partitions.ContainsKey(partitionPosition);
+            return this.partitions.Contains(partitionPosition);
         }
 
         /// <summary>
         /// Writes to partition on place
         /// </summary>
-        public void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
+        public virtual void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
             Vector2Int vect = new Vector2Int(x,y);
             Vector2Int tilePosition = getTilePositionInPartition(vect);
             IChunkPartition partition = getPartitionAtPosition(vect);
             Item item = (Item) itemObject;
-            setTile(x, y, (Item) item);
             writeTile(partition, tilePosition, item);
+            setTile(x, y, (Item) item);
         }
 
         protected abstract void writeTile(IChunkPartition partition, Vector2Int position, Item item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
-        public void placeTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
+        public void placeItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
             setTile(
                 partitionPosition.x *Global.ChunkPartitionSize + tilePartitionPosition.x, 
                 partitionPosition.y *Global.ChunkPartitionSize + tilePartitionPosition.y, 
                 (Item) item
             );
+        }
+        public void placeTileAtLocation(Vector2Int position, TileBase tileBase) {
+            tilemap.SetTile((Vector3Int) position,tileBase);
         }
         public abstract void hitTile(Vector2 position);
 
@@ -181,6 +186,12 @@ namespace TileMapModule {
         public bool hasTile(Vector2Int position)
         {
             return mTileMap.GetTile(new Vector3Int(position.x,position.y,0)) != null;
+        }
+        /// <summary>
+        /// Removes the tile from the tilemap without modifying any data
+        /// </summary>
+        public void removeForSwitch(Vector2Int position) {
+            tilemap.SetTile((Vector3Int)position,null);
         }
     }
 }

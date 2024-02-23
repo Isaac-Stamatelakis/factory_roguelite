@@ -12,6 +12,7 @@ using ChunkModule.PartitionModule;
 using ConduitModule;
 using ConduitModule.Ports;
 using ConduitModule.ConduitSystemModule;
+using Tiles;
 
 namespace TileMapModule.Place {
     public static class PlaceTile {
@@ -173,6 +174,11 @@ namespace TileMapModule.Place {
             if (tileMap == null) {
                 return;
             }
+            if (tileItem.tile is IRestrictedTile restrictedTile) {
+                int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
+                //Debug.Log(state);
+                //Debug.Log(MousePositionFactory.getHorizontalMousePosition(worldPosition));
+            }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
             if (tileItem.tileEntity != null) {
                 Vector2Int chunkPosition = Global.getChunkFromWorld(worldPosition);
@@ -191,7 +197,7 @@ namespace TileMapModule.Place {
                     return;
                 }
                 TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-                tileEntity.initalize(positionInChunk, chunk);
+                tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
                 if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     if (tileEntity is IConduitInteractable) {
                         conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
@@ -227,6 +233,25 @@ namespace TileMapModule.Place {
             Vector2 spriteSize = Global.getSpriteSize(item.getSprite());
             return new UnityEngine.Vector2Int(snap(x), snap(y));
         }
+
+        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer) {
+            float centeredX = (float)Math.Floor(position.x / 0.5f) * 0.5f + 0.25f;
+            float centeredY = (float)Math.Floor(position.y / 0.5f) * 0.5f + 0.25f;
+            Vector2 centered = new Vector2(centeredX,centeredY);
+            switch (direction) {
+                case Direction.Down:
+                    return raycastTileInBox(centered+Vector2.down*0.5f,layer.toRaycastLayers());
+                case Direction.Up:
+                    return raycastTileInBox(centered+Vector2.up*0.5f,layer.toRaycastLayers());
+                case Direction.Left:
+                    return raycastTileInBox(centered+Vector2.left*0.5f,layer.toRaycastLayers());
+                case Direction.Right:
+                    return raycastTileInBox(centered+Vector2.right*0.5f,layer.toRaycastLayers());
+                case Direction.Center:
+                    return raycastTileInBox(centered,layer.toRaycastLayers());  
+            }
+            return false;
+        }
         /**
         Snaps the given x,y onto the grid. 
         **/
@@ -257,6 +282,8 @@ namespace TileMapModule.Place {
         private static bool raycastTileInBox(Vector2 position, int layers) {
             return Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
         }
+
+
 
         /**
         returns true if there is a tile within the range, inclusive
@@ -346,3 +373,10 @@ namespace TileMapModule.Place {
     }
 }
 
+public enum Direction {
+    Left,
+    Right,
+    Down,
+    Up,
+    Center
+}

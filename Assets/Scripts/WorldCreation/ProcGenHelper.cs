@@ -70,7 +70,7 @@ namespace WorldModule.Generation {
                     partitionData.baseData.sTileEntityOptions[tileX,tileY] = worldTileData.baseData.sTileEntityOptions[xIndex,yIndex];
                     partitionData.baseData.sTileOptions[tileX,tileY] = worldTileData.baseData.sTileOptions[xIndex,yIndex];
 
-                    partitionData.backgroundData.ids[tileX,tileY] = worldTileData.baseData.ids[xIndex,yIndex];
+                    partitionData.backgroundData.ids[tileX,tileY] = worldTileData.backgroundData.ids[xIndex,yIndex];
                 }
             }
             if (worldTileData is WorldTileConduitData) {
