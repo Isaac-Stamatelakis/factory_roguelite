@@ -12,7 +12,7 @@ namespace TileEntityModule.Instances.Machine
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
+    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
         public RecipeProcessor recipeProcessor;
         public Tier tier;
@@ -170,7 +170,7 @@ namespace TileEntityModule.Instances.Machine
             throw new System.NotImplementedException();
         }
 
-        public bool sendEnergy()
+        public bool insertEnergy()
         {
             throw new System.NotImplementedException();
         }
@@ -223,13 +223,22 @@ namespace TileEntityModule.Instances.Machine
         {
             throw new System.NotImplementedException();
         }
-
-        public int extractSignal()
+        public int extractEnergy(int extractionRate)
         {
             throw new System.NotImplementedException();
         }
 
-        public bool sendSignal()
+        public bool insertEnergy(int energy)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool insertSignal(int signal)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int extractSignal()
         {
             throw new System.NotImplementedException();
         }

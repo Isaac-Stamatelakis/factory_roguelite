@@ -97,7 +97,7 @@ namespace TileMapModule.Place {
                 TileItem tileItem = (TileItem) itemObject;
                 return (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
             } else if (itemObject is ConduitItem) {
-
+                return (Vector3Int) Global.getCellPositionFromWorld(position);
             }
             return Vector3Int.zero;
         }

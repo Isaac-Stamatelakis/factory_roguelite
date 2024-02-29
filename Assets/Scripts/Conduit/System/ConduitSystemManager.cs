@@ -132,6 +132,7 @@ namespace ConduitModule.ConduitSystemModule {
             return position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y;
         }
         public void setConduit(int x, int y, IConduit conduit) {
+            Debug.Log(conduitSystems.Count);
             x -= referencePosition.x;
             y -= referencePosition.y;
             if (x < 0 || x >= size.x || y < 0 || y >= size.y) {

@@ -85,9 +85,9 @@ namespace ConduitModule {
         }
     }
 
-    public class ItemConduit : Conduit<ItemConduitPort>
+    public class ItemConduit : Conduit<AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>>
     {
-        public ItemConduit(int x, int y,ConduitItem conduitItem, ItemConduitPort port) : base(x, y, conduitItem, port)
+        public ItemConduit(int x, int y,ConduitItem conduitItem, AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> port) : base(x, y, conduitItem, port)
         {
         }
     }

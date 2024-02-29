@@ -4,7 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace ConduitModule.Ports {
-    public class EnergyConduitInputPort : IConduitInputPort<int>
+    public class EnergyConduitInputPort : IConduitInputPort<int>, IColorPort
     {
         public int color;
         public int priority;
@@ -14,34 +14,49 @@ namespace ConduitModule.Ports {
         [JsonIgnore]
         public IEnergyConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
-        public void insert(int itemSlot) {
-            
-        }
-        public void removeTileEntity()
-        {
-            tileEntity = null;
+        public EnergyConduitInputPort(IEnergyConduitInteractable tileEntity) {
+            this.tileEntity = tileEntity;
         }
 
+        public void insert(int energy) {
+            tileEntity.insertEnergy(energy);
+        }
+
+        public int getColor()
+        {
+            return color;
+        }
+
+        public void setColor(int color)
+        {
+            this.color = color;
+        }
     }
 
     [System.Serializable]
-    public class EnergyConduitOutputPort : IConduitOutputPort<int>
+    public class EnergyConduitOutputPort : IConduitOutputPort<int>, IColorPort
     { 
         public int color;
-        public bool roundRobin;
-        private int roundRobinIndex;
+        public int extractionRate;
         private IEnergyConduitInteractable tileEntity;
         [JsonIgnore]
         public IEnergyConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
+        public EnergyConduitOutputPort(IEnergyConduitInteractable tileEntity) {
+            this.tileEntity = tileEntity;
+        }
         public int extract() {
-            
-            return 0;
+            return tileEntity.extractEnergy(extractionRate);
         }
 
-        public void removeTileEntity()
+        public int getColor()
         {
-            tileEntity = null;
+            return color;
+        }
+        
+        public void setColor(int color)
+        {
+            this.color = color;
         }
     }
 

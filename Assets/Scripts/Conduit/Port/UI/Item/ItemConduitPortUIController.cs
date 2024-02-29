@@ -14,12 +14,12 @@ namespace ConduitModule.Ports.UI {
         [SerializeField] public Button roundRobinButton;
         [SerializeField] public TextMeshProUGUI priorityText;
         protected ItemConduit conduit;
-        protected ItemConduitPort port;
+        protected AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> port;
 
         public override void initalize(ItemConduit conduit)
         {
             this.conduit = conduit;
-            this.port = (ItemConduitPort) conduit.getPort();
+            this.port = (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>) conduit.getPort();
 
             toggleInsertButton.onClick.AddListener(insertToggle);
             toggleExtractButton.onClick.AddListener(extractToggle);

@@ -10,14 +10,16 @@ namespace ConduitModule.ConduitSystemModule {
             IConduitSystem system = null;
             switch (type) {
                 case ConduitType.Item:
-                    system = new ItemConduitSystem(conduitItem.id);
+                    system = new SolidItemConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Fluid:
-                    system = new ItemConduitSystem(conduitItem.id);
+                    system = new FluidConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Energy:
+                    system = new EnergyConduitSystem(conduitItem.id);
                     break;
                 case ConduitType.Signal:
+                    system = new SignalConduitSystem(conduitItem.id);
                     break;
             }
 

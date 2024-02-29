@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public interface IPlacableTile : SolidItem
+public interface IPlacableItem : SolidItem
 {
     public TileBase getTile();
 }

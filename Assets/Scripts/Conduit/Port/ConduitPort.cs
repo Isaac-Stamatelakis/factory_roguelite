@@ -6,13 +6,12 @@ using Newtonsoft.Json;
 
 namespace ConduitModule.Ports {
     public interface IConduitPort {
-        public void removeTileEntity();
+        public object getInputPort();
+        public object GetOutputPort();
     }
 
     public interface IConduitInputPort<T> {
         public void insert(T val);
-        public void removeTileEntity();
-
     }
 
     public interface IColorPort {
@@ -21,7 +20,7 @@ namespace ConduitModule.Ports {
     }
     public interface IConduitOutputPort<T> {
         public T extract();
-        public void removeTileEntity();
+        public int getColor();
     }
     public abstract class ConduitPort<InPort,OutPort> : IConduitPort {
         public ConduitPort(InPort inPort, OutPort outPort) {
@@ -30,14 +29,15 @@ namespace ConduitModule.Ports {
         }
         public InPort inputPort;
         public OutPort outputPort;
-        public void removeTileEntity() {
-            if (inputPort != null) {
-                ((IConduitInputPort<object>) inputPort).removeTileEntity();
-            }
-            if (outputPort != null) {
-                ((IConduitOutputPort<object>) outputPort).removeTileEntity();
-            }
-            
+
+        public object getInputPort()
+        {
+            return inputPort;
+        }
+
+        public object GetOutputPort()
+        {
+            return outputPort;
         }
     }
   
@@ -53,18 +53,20 @@ namespace ConduitModule.Ports {
         public ItemSlot extractItem();
         public ItemSlot insertItem(ItemSlot itemSlot);
     }
+    public interface ISolidItemConduitInteractable : IItemConduitInteractable {
+        
+    }
 
     public interface IEnergyConduitInteractable : IConduitInteractable {
-        public int extractEnergy();
-        public bool sendEnergy();
+        public int extractEnergy(int extractionRate);
+        public bool insertEnergy(int energy);
     }
     public interface ISignalConduitInteractable : IConduitInteractable {
         public int extractSignal();
-        public bool sendSignal();
+        public bool insertSignal(int signal);
     }
-    public interface IFluidConduitInteractable : IConduitInteractable {
-        public ItemSlot extractFluid();
-        public bool insertFluid(ItemSlot itemSlot);
+    public interface IFluidConduitInteractable : IItemConduitInteractable {
+        
     }
 
     /// <summary>

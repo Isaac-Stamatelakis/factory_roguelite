@@ -232,7 +232,6 @@ namespace PlayerModule.Mouse {
             bool placed = false;
             ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
             placed = PlaceTile.Place(itemObject,mousePosition,closedChunkSystem);
-            
             if (placed && !devMode.noPlaceCost) {
                 playerInventory.deiterateInventoryAmount();
             }

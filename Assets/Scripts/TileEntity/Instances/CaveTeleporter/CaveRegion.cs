@@ -37,7 +37,7 @@ namespace TileEntityModule.Instances {
                 case CaveRegion.Cave0:
                     return Resources.Load<GeneratedArea>("Areas/Area1/Area1");
                 case CaveRegion.Cave1:
-                    return null;
+                    return Resources.Load<GeneratedArea>("Areas/Area2/Area2");
                 case CaveRegion.Cave2:
                     return null;
                 case CaveRegion.Cave3:

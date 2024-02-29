@@ -15,6 +15,7 @@ namespace ConduitModule.Ports {
                 case ConduitType.Fluid:
                     break;
                 case ConduitType.Energy:
+                    prefab = Resources.Load<GameObject>("Prefabs/Ports/EnergyPort");
                     break;
                 case ConduitType.Signal:
                     break;
