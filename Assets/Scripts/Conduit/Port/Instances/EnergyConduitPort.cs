@@ -4,8 +4,9 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace ConduitModule.Ports {
-    public class EnergyConduitInputPort : IConduitInputPort<int>, IColorPort
+    public class EnergyConduitInputPort : IConduitInputPort<int>, IColorPort, IPriorityPort
     {
+        public bool enabled;
         public int color;
         public int priority;
         private int inventory;
@@ -31,11 +32,32 @@ namespace ConduitModule.Ports {
         {
             this.color = color;
         }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
+        }
+
+        public int getPriority()
+        {
+            return priority;
+        }
+
+        public void setPriority(int val)
+        {
+            priority = val;
+        }
     }
 
     [System.Serializable]
     public class EnergyConduitOutputPort : IConduitOutputPort<int>, IColorPort
     { 
+        public bool enabled;
         public int color;
         public int extractionRate;
         private IEnergyConduitInteractable tileEntity;
@@ -57,6 +79,16 @@ namespace ConduitModule.Ports {
         public void setColor(int color)
         {
             this.color = color;
+        }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
         }
     }
 

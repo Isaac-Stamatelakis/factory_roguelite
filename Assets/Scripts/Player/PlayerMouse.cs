@@ -110,17 +110,26 @@ namespace PlayerModule.Mouse {
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
-            ConduitType conduitType = devMode.breakType.toConduit();
+            
+            string id = playerInventory.getSelectedId();
+            ConduitItem conduitItem = ItemRegistry.getInstance().GetConduitItem(id);
+            if (conduitItem == null) {
+                return false;
+            }
+            ConduitType conduitType = conduitItem.getType();
+            //ConduitType conduitType = devMode.breakType.toConduit();
             ConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;
             }
-            IConduit conduit = conduitSystemManager.getConduitWithPort(Global.getCellPositionFromWorld(mousePosition));
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            IConduit conduit = conduitSystemManager.getConduitWithPort(cellPosition);
             if (conduit == null) {
                 return false;
             }
-            GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType);
+            EntityPortType portType = conduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
+            GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType,portType);
             GlobalUIContainer.getInstance().getUiController().setGUI(ui);
             return true;
         }

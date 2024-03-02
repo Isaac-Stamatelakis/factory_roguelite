@@ -171,11 +171,11 @@ public static class TransmutableItemStateExtension {
     public static ItemState getMatterState(this TransmutableItemState state) {
         switch (state) {
             case TransmutableItemState.Liquid:
-                return ItemState.NonSolid;
+                return ItemState.Fluid;
             case TransmutableItemState.Gas:
-                return ItemState.NonSolid;
+                return ItemState.Fluid;
             case TransmutableItemState.Plasma:
-                return ItemState.NonSolid;
+                return ItemState.Fluid;
             default:
                 return ItemState.Solid;
         }

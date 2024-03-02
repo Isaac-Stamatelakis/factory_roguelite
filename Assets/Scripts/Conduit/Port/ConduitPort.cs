@@ -10,7 +10,7 @@ namespace ConduitModule.Ports {
         public object GetOutputPort();
     }
 
-    public interface IConduitInputPort<T> {
+    public interface IConduitInputPort<T> : ITogglablePort {
         public void insert(T val);
     }
 
@@ -18,7 +18,15 @@ namespace ConduitModule.Ports {
         public int getColor();
         public void setColor(int color);
     }
-    public interface IConduitOutputPort<T> {
+    public interface ITogglablePort {
+        public bool isEnabled();
+        public void setEnabled(bool val);
+    }
+    public interface IPriorityPort {
+        public int getPriority();
+        public void setPriority(int val);
+    }
+    public interface IConduitOutputPort<T> : ITogglablePort {
         public T extract();
         public int getColor();
     }
@@ -59,11 +67,11 @@ namespace ConduitModule.Ports {
 
     public interface IEnergyConduitInteractable : IConduitInteractable {
         public int extractEnergy(int extractionRate);
-        public bool insertEnergy(int energy);
+        public void insertEnergy(int energy);
     }
     public interface ISignalConduitInteractable : IConduitInteractable {
         public int extractSignal();
-        public bool insertSignal(int signal);
+        public void insertSignal(int signal);
     }
     public interface IFluidConduitInteractable : IItemConduitInteractable {
         

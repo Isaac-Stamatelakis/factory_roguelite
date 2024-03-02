@@ -42,7 +42,7 @@ namespace WorldModule.Generation {
             int endX =  Global.ChunkSize*(xInterval.y-caveMinX);
             int startY = Global.ChunkSize*(yInterval.x-caveMinY);
             int endY = Global.ChunkSize*(yInterval.y-caveMinY);
-            float scale = 0.1f;
+            float scale = 0.5f;
             for (int x = startX; x < endX; x ++) {
                 for (int y = startY; y < endY; y++) {
                     float r = 0f;

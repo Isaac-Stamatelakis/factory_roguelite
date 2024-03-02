@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace ConduitModule.Ports {
     
 
-    public class ItemConduitInputPort<Interactable,Filter> : IConduitInputPort<ItemSlot>, IColorPort where Interactable : IItemConduitInteractable where Filter : IFilter
+    public class ItemConduitInputPort<Interactable,Filter> : IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort where Interactable : IItemConduitInteractable where Filter : IFilter
     {
         private bool enabled;
         public Filter filter;
@@ -39,6 +39,26 @@ namespace ConduitModule.Ports {
         public void setColor(int color)
         {
             this.color = color;
+        }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
+        }
+
+        public int getPriority()
+        {
+            return priority;
+        }
+
+        public void setPriority(int val)
+        {
+            priority = val;
         }
     }
 
@@ -77,6 +97,16 @@ namespace ConduitModule.Ports {
         public void setColor(int color)
         {
             this.color = color;
+        }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
         }
     }
 

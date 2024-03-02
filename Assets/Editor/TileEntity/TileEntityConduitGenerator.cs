@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
-using TileEntityModule.Instances.Machine;
+using TileEntityModule.Instances.Machines;
 using ConduitModule.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {

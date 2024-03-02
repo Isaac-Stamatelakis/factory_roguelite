@@ -83,8 +83,8 @@ namespace ConduitModule.ConduitSystemModule {
         {
             ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
             ColoredInputPorts = new Dictionary<int, List<InPort>>();
-            foreach (ItemConduit itemConduit in conduits) {
-                addPort(itemConduit);
+            foreach (IConduit conduit in conduits) {
+                addPort(conduit);
             }
         }
 

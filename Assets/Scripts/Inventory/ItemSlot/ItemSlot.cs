@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ItemState {
     Solid,
-    NonSolid
+    Fluid
 }
 public interface SolidItem {
 
@@ -32,7 +32,7 @@ public class ItemSlot
             return state.getMatterState();
         }
         if (itemObject is NonSolidItem) {
-            return ItemState.NonSolid;
+            return ItemState.Fluid;
         }
         return ItemState.Solid;
     }

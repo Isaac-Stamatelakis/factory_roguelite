@@ -7,6 +7,7 @@ using RobotModule;
 using ItemModule;
 using TileEntityModule;
 using ConduitModule.Ports;
+using RecipeModule;
 
 /// Singleton
 public class ItemRegistry {
