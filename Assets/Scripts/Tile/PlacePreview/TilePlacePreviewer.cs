@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using TileMapModule.Place;
 using PlayerModule;
 using Tiles;
+using ItemModule;
 
 namespace TileMapModule.Previewer {
     public class TilePlacePreviewer : MonoBehaviour

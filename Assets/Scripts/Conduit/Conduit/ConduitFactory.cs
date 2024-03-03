@@ -5,6 +5,7 @@ using ConduitModule.Ports;
 using TileMapModule.Layer;
 using ChunkModule.PartitionModule;
 using TileEntityModule;
+using ItemModule;
 
 namespace ConduitModule {
     public static class ConduitFactory {

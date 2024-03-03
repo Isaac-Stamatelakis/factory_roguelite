@@ -7,11 +7,15 @@ namespace RecipeModule {
         
     }
 
-    public interface IEnergyRecipe {
-        public int getRequiredEnergy();
+    public interface IEnergyProduceRecipe {
+        public bool match(List<ItemSlot> inputs);
         public int getEnergyPerTick();
+        public int getLifespan();
     }
 
+    public interface IEnergyConsumeRecipe {
+
+    }
     public interface IItemRecipe {
         public List<ItemSlot> getOutputs();
         public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs);

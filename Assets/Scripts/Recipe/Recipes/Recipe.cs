@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace RecipeModule {
-    public interface IMachineRecipe : IEnergyRecipe, IItemRecipe {
+    public interface IMachineRecipe : IEnergyConsumeRecipe, IItemRecipe {
 
     }
 
@@ -13,33 +13,18 @@ namespace RecipeModule {
     public abstract class Recipe : ScriptableObject, IRecipe
     {
         public List<ItemSlot> inputs;
-        public List<ItemSlot> outputs;
+        
         // Enable loading of items which have been deleted and recreated (such as transmutables)
-        [Header("DO NOT EDIT\nPaths for inputs/outputs\nSet automatically")]
-        public List<string> inputGUIDs;
-        public List<string> outputGUIDs;
+        [HideInInspector] public List<string> inputGUIDs;
         
         public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
-        public List<string> OutputPaths {get{return outputGUIDs;} set{outputGUIDs = value;}}
+    }   
 
-        public List<ItemSlot> getOutputs()
-        {
-            return outputs;
-        }
-
-        public virtual bool match(List<ItemSlot> givenInputs, List<ItemSlot> givenOutputs) {
-            int requiredOutputSpace = outputs.Count;
-            if (requiredOutputSpace >= givenOutputs.Count) {
-                // No space for recipe
-                return false;
-            }
-            // Quick check O(n)
-            if (givenInputs.Count < inputs.Count) {
-                return false;
-            }
+    public static class RecipeHelper {
+        public static bool matchInputs(List<ItemSlot> inputs, List<ItemSlot> recipeItems) {
             // Check recipes O(n+m)
             var inputItemAmounts = new Dictionary<string, int>();
-            foreach (ItemSlot itemSlot in givenInputs) {
+            foreach (ItemSlot itemSlot in inputs) {
                 if (itemSlot.itemObject != null) {
                     if (inputItemAmounts.ContainsKey(itemSlot.itemObject.id)) {
                         inputItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
@@ -49,7 +34,7 @@ namespace RecipeModule {
                 }
             }
             var recipeItemAmounts = new Dictionary<string, int>();
-            foreach (ItemSlot itemSlot in inputs) {
+            foreach (ItemSlot itemSlot in recipeItems) {
                 if (itemSlot.itemObject != null) {
                     if (recipeItemAmounts.ContainsKey(itemSlot.itemObject.id)) {
                         recipeItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
@@ -72,5 +57,5 @@ namespace RecipeModule {
             }
             return success;
         }
-    }   
+    }
 }

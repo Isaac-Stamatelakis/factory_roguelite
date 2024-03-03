@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Transmutable;
 
 public enum TransmutableItemState {
     Ingot,
@@ -184,6 +185,8 @@ public static class TransmutableItemStateExtension {
     public static float getComparedRatio(this TransmutableItemState state, TransmutableItemState compare) {
         return state.getRatio()/compare.getRatio();
     }
+
+    
 }
 
 public class TransmutableItemSprites {

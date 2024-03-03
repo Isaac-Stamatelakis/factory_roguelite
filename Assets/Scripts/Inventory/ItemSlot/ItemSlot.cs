@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Transmutable;
 
 public enum ItemState {
     Solid,
@@ -28,7 +29,7 @@ public class ItemSlot
             return ItemState.Solid;
         }
         if (itemObject is TransmutableItemObject) {
-            TransmutableItemState state = ((TransmutableItemObject) itemObject).state;
+            TransmutableItemState state = ((TransmutableItemObject) itemObject).getState();
             return state.getMatterState();
         }
         if (itemObject is NonSolidItem) {

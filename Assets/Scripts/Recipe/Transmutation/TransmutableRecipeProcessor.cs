@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Transmutable;
+
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
     public class TransmutableRecipeProcessor : RecipeProcessor, ITransmutableRecipeProcessor
@@ -44,11 +46,10 @@ namespace RecipeModule.Transmutation {
         {
             if (transmutableDict == null) {
                 initDict();
-            }   
+            }
             if (transmutableDict.ContainsKey(mode)) {
                 foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
                     for (int n = 0; n < solidInputs.Count; n++) {
-                        //Debug.Log(n);
                         ItemSlot inputSlot = solidInputs[n];
                         if (inputSlot == null || inputSlot.itemObject == null) {
                             continue;
@@ -57,11 +58,11 @@ namespace RecipeModule.Transmutation {
                             continue;
                         }
                         TransmutableItemObject transmutableItem = (TransmutableItemObject) inputSlot.itemObject;
-                        if (transmutableItem.state != transmutablePair.Input) {
+                        if (transmutableItem.getState() != transmutablePair.Input) {
                             continue;
                         }
                         // Recipe is valid, now have to check there is space
-                        TransmutableItemObject outputItemObject = transmutableItem.material.transmute(transmutablePair.Output);
+                        TransmutableItemObject outputItemObject = transmutableItem.getMaterial().transmute(transmutablePair.Output);
                         int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
                         ItemSlot outputItem = new ItemSlot(
                             itemObject: outputItemObject,

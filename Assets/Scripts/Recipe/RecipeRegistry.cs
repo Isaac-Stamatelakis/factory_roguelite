@@ -17,7 +17,9 @@ namespace RecipeModule {
                     List<Recipe> recipes = new List<Recipe>();
                     foreach (Recipe recipe in Resources.LoadAll<Recipe>("Recipes/" + recipeProcessor.name)) {
                         loadItemList(recipe.inputs,recipe.InputPaths);
-                        loadItemList(recipe.outputs,recipe.OutputPaths);
+                        if (recipe is ItemOutputRecipe outputRecipe) {
+                            loadItemList(outputRecipe.outputs,outputRecipe.OutputPaths);
+                        }
                         EditorUtility.SetDirty(recipe);
                         recipes.Add(recipe);
                         recipeCount ++;

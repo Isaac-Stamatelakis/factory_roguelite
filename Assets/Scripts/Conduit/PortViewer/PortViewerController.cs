@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule;
 using ChunkModule.ClosedChunkSystemModule;
+using ItemModule;
 
 namespace ConduitModule.PortViewer {
     public class PortViewerController : MonoBehaviour

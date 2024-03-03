@@ -6,6 +6,7 @@ using TileMapModule;
 using TileMapModule.Layer;
 using TileMapModule.Type;
 using Tiles;
+using ItemModule;
 
 namespace ChunkModule.PartitionModule {
     

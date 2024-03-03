@@ -15,6 +15,7 @@ using GUIModule;
 using UnityEngine.Tilemaps;
 using ConduitModule;
 using DimensionModule;
+using ItemModule;
 
 namespace PlayerModule.Mouse {
     /// <summary>

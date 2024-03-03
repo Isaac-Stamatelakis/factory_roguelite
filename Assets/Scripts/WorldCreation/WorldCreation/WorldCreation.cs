@@ -7,6 +7,7 @@ using ChunkModule.IO;
 using TileMapModule.Layer;
 using PlayerModule.IO;
 using WorldModule.Generation;
+using ItemModule;
 
 namespace WorldModule {
     public static class WorldCreation

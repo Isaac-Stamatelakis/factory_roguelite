@@ -8,6 +8,7 @@ using TileMapModule.Type;
 using ConduitModule;
 using ChunkModule.IO;
 using ConduitModule.Ports;
+using ItemModule;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {

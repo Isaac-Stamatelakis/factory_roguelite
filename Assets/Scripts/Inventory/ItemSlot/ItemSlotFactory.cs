@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule;
+
 public enum ItemSlotOption {
 
 }

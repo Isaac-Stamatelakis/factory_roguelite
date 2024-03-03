@@ -7,6 +7,7 @@ using TileMapModule.Layer;
 using TileEntityModule;
 using Tiles;
 using UnityEngine.Tilemaps;
+using ItemModule;
 
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
