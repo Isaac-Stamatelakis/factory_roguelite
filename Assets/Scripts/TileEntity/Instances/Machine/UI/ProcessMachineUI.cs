@@ -11,12 +11,12 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public Slider energyBar;
         private GameObject slotPrefab;
         private Tier tier;
-        private ProcessingMachineInventory machineInventory;
+        private StandardMachineInventory machineInventory;
         // Start is called before the first frame update
         public void Update() {
             setEnergyBar();
         }
-        public void displayMachine(MachineInventoryLayout layout, ProcessingMachineInventory machineInventory, string machineName, Tier tier) {
+        public void displayMachine(MachineInventoryLayout layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
             machineInventory.display(layout,transform);
             this.machineInventory = machineInventory;
             this.tier = tier;

@@ -91,7 +91,6 @@ public class TileEntityConduitGenerator : EditorWindow {
             }
         }
         Debug.Log(conduitPorts.Count + " " + conduitType.ToString() + " Conduit Ports set for " + tileEntity.name);
-        machinePortInterface.set(conduitType,conduitPorts);
     }
 
 

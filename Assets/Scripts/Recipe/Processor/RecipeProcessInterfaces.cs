@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RecipeModule {
     public interface IEnergyRecipeProcessor {
-        public IEnergyProduceRecipe getEnergyRecipe(int mode, List<ItemSlot> items, List<ItemSlot> fluids);
+        public IEnergyProduceRecipe getEnergyRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs);
     }
 
     public interface IItemRecipeProcessor {

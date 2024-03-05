@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName = "R~New Energy Recipe", menuName = "Crafting/Recipe/Energy")]
-    public class EnergyRecipe : Recipe, IEnergyProduceRecipe
+    public class EnergyRecipe : Recipe, IGeneratorRecipe
     {
         public int energyPerTick;
         public int lifespan;
@@ -17,10 +17,9 @@ namespace RecipeModule {
         {
             return lifespan;
         }
-
-        public bool match(List<ItemSlot> givenInputs)
+        public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs)
         {
-            return RecipeHelper.matchInputs(givenInputs,inputs);
+            throw new System.NotImplementedException();
         }
     }
 }

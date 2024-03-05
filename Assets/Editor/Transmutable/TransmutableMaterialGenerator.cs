@@ -7,7 +7,7 @@ using ItemModule.Transmutable;
 using ItemModule;
 
 public class TransmutableItemGenerator : EditorWindow {
-    private static string GeneratePath = "Assets/Resources/Items/Main/TransmutableItems";
+    private static string GeneratePath = "Assets/Resources/Items/TransmutableItems";
     private static string GenerateFolder = "Items";
     private string FolderPath {get{return GeneratePath +"/" + GenerateFolder;}}
     private Texture2D texture;
@@ -77,6 +77,9 @@ public class TransmutableItemGenerator : EditorWindow {
                     transmutableItemMaterial.color.a = 1;
                     Sprite itemSprite = itemConstructionData.sprite;
                     if (itemSprite == null) {
+                        itemSprite = sprites.getSprite(itemConstructionData.state);
+                    }
+                    if (itemSprite == null) {
                         itemSprite = Resources.Load<Sprite>("Sprites/tileobject16by16");
                         Debug.LogError("Attempted to load transmutable item sprite for " + itemConstructionData.state.ToString() + " which does not exist");
                     } else {
@@ -103,8 +106,7 @@ public class TransmutableItemGenerator : EditorWindow {
                         AssetDatabase.ImportAsset(spritePath + ".png", ImportAssetOptions.ForceUpdate);
                         AssetDatabase.Refresh();
 
-                        itemSprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath + ".png");
-                        
+                        itemSprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath + ".png");    
                     }
                     string id = (prefix + "_"+ transmutableItemMaterial.id + "_" + suffix).ToLower();
                     TransmutableItemFactory.generateItem(

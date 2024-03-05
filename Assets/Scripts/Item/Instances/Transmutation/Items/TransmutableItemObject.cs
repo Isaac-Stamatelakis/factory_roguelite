@@ -5,8 +5,8 @@ using UnityEngine;
 namespace ItemModule.Transmutable {
     public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem
     {
-        protected TransmutableItemState state;
-        protected TransmutableItemMaterial material;
+        [SerializeField] private TransmutableItemState state;
+        [SerializeField] private TransmutableItemMaterial material;
         public Sprite sprite;
 
         public TransmutableItemMaterial getMaterial()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace RecipeModule {
     [CreateAssetMenu(fileName ="R~New Machine Recipe",menuName="Crafting/Recipe/Machine")]
-    public class MachineRecipe : ItemOutputRecipe, IMachineRecipe
+    public class MachineRecipe : Recipe, IMachineRecipe
     {
         [Header("Energy required to complete recipe")]
         public int energy;

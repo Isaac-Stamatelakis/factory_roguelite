@@ -12,46 +12,26 @@ using RecipeModule;
 namespace TileEntityModule.Instances.Machines
 {
     
-    [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Machine")]
-    public class Machine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
+    [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
+        
         [SerializeField] public ItemRecipeProcessor itemRecipeProcessor;
         [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
+        
         [SerializeField] public Tier tier;
         [SerializeField] public GameObject machineUIPrefab;
         public StandardMachineInventoryLayout layout;
-        private int energy;
-        private ProcessingMachineInventory inventory;
+        private StandardMachineInventory inventory;
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
         [SerializeField] public ConduitPortLayout conduitLayout;
-        private int mode;
-        
-
-        public void set(ConduitType conduitType, List<TileEntityPort> vects) {
-            /*
-            switch (conduitType) {
-                case ConduitType.Item:
-                    conduitPortData.itemPorts = vects;
-                    break;
-                case ConduitType.Fluid:
-                    conduitPortData.fluidPorts = vects;
-                    break;
-                case ConduitType.Energy:
-                    conduitPortData.signalPorts = vects;
-                    break;
-                case ConduitType.Signal:
-                    conduitPortData.energyPorts = vects;
-                    break;
-            }
-            */
-        }
 
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition,tileBase, chunk);
             if (inventory == null) {
-                inventory = ProcessingMachineInventoryFactory.initalize(layout);
+                inventory = StandardMachineInventoryFactory.initalize(layout);
             }
         }
 
@@ -74,7 +54,7 @@ namespace TileEntityModule.Instances.Machines
 
         public string serialize()
         {
-            return ProcessingMachineInventoryFactory.serialize(inventory);
+            return StandardMachineInventoryFactory.serialize(inventory);
         }
 
         public void tickUpdate()
@@ -128,7 +108,7 @@ namespace TileEntityModule.Instances.Machines
                 return null;
             }
             IItemRecipe recipe = itemRecipeProcessor.getItemRecipe(
-                mode: mode,
+                mode: inventory.Mode,
                 solidInputs: inventory.ItemInputs.Slots,
                 solidOutputs: inventory.ItemOutputs.Slots,
                 fluidInputs: inventory.FluidInputs.Slots,
@@ -147,7 +127,7 @@ namespace TileEntityModule.Instances.Machines
                 return null;
             }
             TransmutableRecipe recipe = transmutableRecipeProcessor.getValidRecipe(
-                mode: mode,
+                mode: inventory.Mode,
                 solidInputs: inventory.ItemInputs.Slots,
                 solidOutputs: inventory.ItemOutputs.Slots,
                 fluidInputs: inventory.FluidInputs.Slots,
@@ -158,7 +138,7 @@ namespace TileEntityModule.Instances.Machines
         }
         public void unserialize(string data)
         {
-            inventory = ProcessingMachineInventoryFactory.deserialize(data);
+            inventory = StandardMachineInventoryFactory.deserialize(data);
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -223,7 +203,7 @@ namespace TileEntityModule.Instances.Machines
 
         public void insertEnergy(int insertEnergy)
         {
-            energy += insertEnergy;
+            inventory.Energy += insertEnergy;
         }
 
         public void insertSignal(int signal)

@@ -15,23 +15,20 @@ namespace TileEntityModule.Instances.Machines
     [CreateAssetMenu(fileName = "E~New Generator", menuName = "Tile Entity/Machine/Generator")]
     public class Generator : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
     {
-        public List<IRecipeProcessor> recipeProcessors;
-        public Tier tier;
-        public GameObject machineUIPrefab;
-        public MachineInventoryLayout layout;
-        private int energy;
-        private List<ItemSlot> inputs;
-        private List<ItemSlot> others;
-        private IMachineRecipe currentRecipe;
+        [SerializeField] public EnergyRecipeProcessor energyRecipeProcessor;
+        [SerializeField] public Tier tier;
+        [SerializeField] public GameObject machineUIPrefab;
+        public StandardMachineInventoryLayout layout;
+        private StandardMachineInventory inventory;
+        private IEnergyProduceRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
-        public ConduitPortLayout conduitLayout;
-        private int mode;
-        
-
+        [SerializeField] public ConduitPortLayout conduitLayout;
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition,tileBase, chunk);
-            
+            if (inventory == null) {
+                inventory = StandardMachineInventoryFactory.initalize(layout);
+            }
         }
 
         public void onClick()   
@@ -46,20 +43,14 @@ namespace TileEntityModule.Instances.Machines
                 Debug.LogError("Machine Gameobject doesn't have UI component");
                 return;
             }
-            //machineUI.displayMachine(layout, inputs, null, others, name);
-            //GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
+            machineUI.displayMachine(layout, inventory, name, tier);
+            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
         }
         
 
         public string serialize()
         {
-            SerializedMachineData serializedMachineData = new SerializedMachineData(
-                inputs: ItemSlotFactory.serializeList(inputs),
-                other: ItemSlotFactory.serializeList(others),
-                energy: energy,
-                mode: mode
-            );
-            return JsonConvert.SerializeObject(serializedMachineData);
+            return StandardMachineInventoryFactory.serialize(inventory);
         }
 
         public void tickUpdate()
@@ -73,43 +64,64 @@ namespace TileEntityModule.Instances.Machines
         }
 
         private void processRecipe() {
-            
+            /*
+            List<ItemSlot> recipeOut = currentRecipe.getOutputs();
+            for (int n = 0; n < recipeOut.Count; n++) {
+                ItemSlot outputItem = recipeOut[n];
+                for (int j = 0; j < inventory.ItemOutputs.Slots.Count; j++) {
+                    ItemSlot outputSlot = inventory.ItemOutputs.Slots[j];
+                    if (outputSlot == null || outputSlot.itemObject == null) {
+                        inventory.ItemOutputs.Slots[j] = outputItem;
+                        break;
+                    }
+                    if (outputSlot.itemObject.id == outputItem.itemObject.id) {
+                        int sum = outputItem.amount + outputSlot.amount;
+                        if (sum > Global.MaxSize) {
+                            outputSlot.amount = Global.MaxSize;
+                            outputItem.amount = sum - Global.MaxSize;
+                        } else {
+                            outputSlot.amount = sum;
+                            break;
+                        }
+                    }
+                }
+            }
+            currentRecipe = null;
+            */
         }
 
         public void inventoryUpdate() {
-            /*
             if (currentRecipe != null) {
                 return;
             }
-            //IRecipe recipe = recipeProcessor.getMatchingRecipe(inputs,outputs,mode);
+            currentRecipe = processEnergyRecipes();
+        }
+
+        private IEnergyProduceRecipe processEnergyRecipes() {
+            if (energyRecipeProcessor == null) {
+                return null;
+            }
+            IEnergyProduceRecipe recipe = energyRecipeProcessor.getEnergyRecipe(
+                mode: inventory.Mode,
+                solidInputs: inventory.ItemInputs.Slots,
+                solidOutputs: inventory.ItemOutputs.Slots,
+                fluidInputs: inventory.FluidInputs.Slots,
+                fluidOutputs: inventory.FluidOutputs.Slots
+            );
             if (recipe == null) {
-                return;
+                return null;
             }
-            if (recipe is not IMachineRecipe) {
-                Debug.LogError("Machine recieved recipe which was not machine recipe " + name);
-                return;
+            if (recipe is not IEnergyProduceRecipe energyProduceRecipe) {
+                Debug.LogError("Machine '" + name + "' Reciped assigned to machine");
+                return null;
             }
-            currentRecipe = (IMachineRecipe) recipe;
-            */
+            return recipe;
             
         }
+
         public void unserialize(string data)
         {
-            if (data == null) {
-                return;
-            }
-            try {
-                SerializedMachineData serializedMachineData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMachineData>(data);
-                inputs = ItemSlotFactory.deserialize(serializedMachineData.inputs);
-                others = ItemSlotFactory.deserialize(serializedMachineData.other);
-                energy = serializedMachineData.energy;
-                mode = serializedMachineData.mode;
-            } catch (JsonSerializationException ex) {
-                Debug.LogError(ex);
-            }
-            
-            
-
+            inventory = StandardMachineInventoryFactory.deserialize(data);
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -117,8 +129,19 @@ namespace TileEntityModule.Instances.Machines
             return conduitLayout;
         }
 
+        public ItemSlot extractItem()
+        {
+            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
+                if (itemSlot != null && itemSlot.itemObject != null) {
+                    return itemSlot;
+                }
+            }
+            return null;
+        }
+
         public ItemSlot insertItem(ItemSlot itemSlot)
         {
+            List<ItemSlot> inputs = inventory.ItemInputs.Slots;
             for (int i = 0; i < inputs.Count; i++) {
                 ItemSlot inputSlot = inputs[i];
                 if (inputSlot == null || inputSlot.itemObject == null) {
@@ -157,13 +180,21 @@ namespace TileEntityModule.Instances.Machines
         }
         public int extractEnergy(int extractionRate)
         {
-            Debug.LogError("Tried to extract energy from processing machine");
-            throw new System.NotImplementedException();
+            int amount = inventory.Energy - extractionRate;
+            if (amount <= 0) { // no amount to return
+                return 0;
+            }
+            if (amount < extractionRate) { // 0 < amount < extractionRate
+                inventory.Energy = 0;
+                return amount;
+            }
+            inventory.Energy -= extractionRate;
+            return extractionRate;
         }
 
         public void insertEnergy(int insertEnergy)
         {
-            energy += insertEnergy;
+            Debug.LogError("Tried to insert energy from processing machine");
         }
 
         public void insertSignal(int signal)
@@ -176,30 +207,7 @@ namespace TileEntityModule.Instances.Machines
             throw new System.NotImplementedException();
         }
 
-        public void set(ConduitType conduitType, List<TileEntityPort> vects)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ItemSlot extractItem()
-        {
-            Debug.LogError("Attempted to extract item from generator");
-            throw new System.NotImplementedException();
-        }
-
-        [System.Serializable]
-        private class SerializedMachineData {
-            public int energy;
-            public int mode;
-            public string inputs;
-            public string other;
-            public SerializedMachineData(string inputs,string other,int energy,int mode) {
-                this.energy = energy;
-                this.inputs = inputs;
-                this.other = other;
-                this.mode = mode;
-            }
-        }
+        
     }
 }
 

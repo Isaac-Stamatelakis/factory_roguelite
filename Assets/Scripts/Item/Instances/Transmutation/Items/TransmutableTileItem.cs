@@ -5,8 +5,8 @@ using UnityEngine;
 namespace ItemModule.Transmutable {
     public class TransmutableTileItem : TileItem, ITransmutableItem
     {
-        protected TransmutableItemState state;
-        protected TransmutableItemMaterial material;
+        [SerializeField] private TransmutableItemState state;
+        [SerializeField] private TransmutableItemMaterial material;
         public TransmutableItemMaterial getMaterial()
         {
             return material;

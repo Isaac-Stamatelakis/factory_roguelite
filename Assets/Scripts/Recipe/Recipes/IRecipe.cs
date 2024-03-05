@@ -8,7 +8,6 @@ namespace RecipeModule {
     }
 
     public interface IEnergyProduceRecipe {
-        public bool match(List<ItemSlot> inputs);
         public int getEnergyPerTick();
         public int getLifespan();
     }

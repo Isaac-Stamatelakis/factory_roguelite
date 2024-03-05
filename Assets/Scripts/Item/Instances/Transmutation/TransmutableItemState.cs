@@ -193,7 +193,7 @@ public class TransmutableItemSprites {
     private static Dictionary<TransmutableItemState, Sprite> dict = new Dictionary<TransmutableItemState, Sprite>();
     private static TransmutableItemSprites instance;
     private TransmutableItemSprites() {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Items/Main/TransmutableItems/TransmutableSprites");
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Items/TransmutableItems/TransmutableSprites");
         Debug.Log("Loaded " + sprites.Length + " Base Transmutation Sprites");
         foreach (TransmutableItemState state in (TransmutableItemState.GetValues(typeof(TransmutableItemState)))) {
             foreach (Sprite sprite in sprites) {

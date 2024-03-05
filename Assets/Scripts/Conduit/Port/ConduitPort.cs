@@ -51,10 +51,7 @@ namespace ConduitModule.Ports {
   
     
     public interface IConduitInteractable {
-        public void set(ConduitType conduitType, List<TileEntityPort> vects);
         public ConduitPortLayout getConduitPortLayout();
-        
-        
     }
 
     public interface IItemConduitInteractable : IConduitInteractable {

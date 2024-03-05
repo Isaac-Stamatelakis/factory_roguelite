@@ -7,17 +7,29 @@ namespace RecipeModule {
 
     }
 
+    public interface IGeneratorRecipe : IEnergyProduceRecipe, IItemRecipe {
+        
+    }
+
     public interface IRecipe {
 
     }
     public abstract class Recipe : ScriptableObject, IRecipe
     {
         public List<ItemSlot> inputs;
+        public List<ItemSlot> outputs;
+        [HideInInspector] public List<string> outputGUIDs;
         
         // Enable loading of items which have been deleted and recreated (such as transmutables)
         [HideInInspector] public List<string> inputGUIDs;
         
+        public List<ItemSlot> getOutputs()
+        {
+            return outputs;
+        }
+        
         public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
+        public List<string> OutputPaths {get{return outputGUIDs;} set{outputGUIDs = value;}}
     }   
 
     public static class RecipeHelper {

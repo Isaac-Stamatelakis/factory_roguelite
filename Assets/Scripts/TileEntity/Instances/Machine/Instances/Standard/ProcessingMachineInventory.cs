@@ -4,7 +4,10 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace TileEntityModule.Instances.Machines {
-    public class ProcessingMachineInventory : MachineInventory<StandardMachineInventoryLayout>, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
+    /// <summary>
+    /// The standard machine inventory with one item input, one item output, one fluid input, one fluid output, one energy inventory, and a mode
+    /// </summary>
+    public class StandardMachineInventory : MachineInventory<StandardMachineInventoryLayout>, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
     {
         private Inventory itemInputs;
         private Inventory itemOutputs;
@@ -33,7 +36,7 @@ namespace TileEntityModule.Instances.Machines {
             MachineUIFactory.initInventory(fluidInputs.Slots,standardLayout.fluidInputs,ItemState.Fluid,"FluidInputs",parent);
             MachineUIFactory.initInventory(fluidOutputs.Slots,standardLayout.fluidOutputs,ItemState.Fluid,"FluidOutputs",parent);
         }
-        public ProcessingMachineInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) {
+        public StandardMachineInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) {
             this.itemInputs = new Inventory(itemInputs);
             this.itemOutputs = new Inventory(itemOutputs);
             this.fluidInputs = new Inventory(fluidInputs);
@@ -41,14 +44,14 @@ namespace TileEntityModule.Instances.Machines {
         }
     }
 
-    public static class ProcessingMachineInventoryFactory {
-        public static ProcessingMachineInventory deserialize(string data) {
+    public static class StandardMachineInventoryFactory {
+        public static StandardMachineInventory deserialize(string data) {
             if (data == null) {
                 return null;
             }
             try {
                 SerializedMachineData serializedMachineData = JsonConvert.DeserializeObject<SerializedMachineData>(data);
-                ProcessingMachineInventory processingMachineInventory = new ProcessingMachineInventory(
+                StandardMachineInventory processingMachineInventory = new StandardMachineInventory(
                     ItemSlotFactory.deserialize(serializedMachineData.itemInputs),
                     ItemSlotFactory.deserialize(serializedMachineData.itemOutputs),
                     ItemSlotFactory.deserialize(serializedMachineData.fluidInputs),
@@ -64,7 +67,7 @@ namespace TileEntityModule.Instances.Machines {
             
         }
 
-        public static ProcessingMachineInventory initalize(StandardMachineInventoryLayout machineInventoryLayout) {
+        public static StandardMachineInventory initalize(StandardMachineInventoryLayout machineInventoryLayout) {
             List<ItemSlot> itemInputs = null;
             if (machineInventoryLayout == null) {
                 return null;
@@ -101,7 +104,7 @@ namespace TileEntityModule.Instances.Machines {
                 }
             }
             
-            return new ProcessingMachineInventory(
+            return new StandardMachineInventory(
                 itemInputs,
                 itemOutputs,
                 fluidInputs,
@@ -109,7 +112,7 @@ namespace TileEntityModule.Instances.Machines {
             );
         }
 
-        public static string serialize(ProcessingMachineInventory processingMachineInventory) {
+        public static string serialize(StandardMachineInventory processingMachineInventory) {
             SerializedMachineData serializedMachineData = new SerializedMachineData(
                 itemInputs: InventoryFactory.serialize(processingMachineInventory.ItemInputs),
                 itemOutputs: InventoryFactory.serialize(processingMachineInventory.ItemOutputs),

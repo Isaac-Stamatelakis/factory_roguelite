@@ -1,31 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using UnityEditor;
 
 namespace RecipeModule {
     public class RecipeRegistry 
     {
-        private static Dictionary<string,List<Recipe>> processors;
+        private static Dictionary<string,RecipeProcessor> processors;
         private static RecipeRegistry instance;
         private RecipeRegistry() {
             int recipeCount = 0;
-            processors = new Dictionary<string, List<Recipe>>();
+            processors = new Dictionary<string, RecipeProcessor>();
             RecipeProcessor[] recipeProcessors = Resources.LoadAll<RecipeProcessor>("");
             foreach (RecipeProcessor recipeProcessor in recipeProcessors) {
-                if (!processors.ContainsKey(recipeProcessor.id)) {
-                    List<Recipe> recipes = new List<Recipe>();
-                    foreach (Recipe recipe in Resources.LoadAll<Recipe>("Recipes/" + recipeProcessor.name)) {
-                        loadItemList(recipe.inputs,recipe.InputPaths);
-                        if (recipe is ItemOutputRecipe outputRecipe) {
-                            loadItemList(outputRecipe.outputs,outputRecipe.OutputPaths);
-                        }
-                        EditorUtility.SetDirty(recipe);
-                        recipes.Add(recipe);
-                        recipeCount ++;
-                    }
-                    processors[recipeProcessor.id] = recipes;
+                if (processors.ContainsKey(recipeProcessor.id)) {
+                    Debug.LogError("Duplicate id for recipe processors " + recipeProcessor.name + " and " + processors[recipeProcessor.id].name);
+                    continue;
                 }
+                string path = AssetDatabase.GetAssetPath(recipeProcessor).Replace(recipeProcessor.name + ".asset", "");
+                string[] directories = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
+                Dictionary<int, Recipe[]> recipesOfMode = new Dictionary<int, Recipe[]>();
+                foreach (string directorPath in directories) {
+                    string[] split = directorPath.Split("/");
+                    string directoryName = split[split.Length-1];
+                    int index = -1;
+                    try {
+                        index = System.Convert.ToInt32(directoryName);
+                    } catch (FormatException ex){
+                        Debug.Log(ex);
+                    }
+                    if (index < 0) {
+                        continue;
+                    }
+                    if (recipesOfMode.ContainsKey(index)) {
+                        Debug.LogError("Duplicate mode folders for " + recipeProcessor.name);
+                        continue;
+                    } 
+                    Recipe[] recipes = Resources.LoadAll<Recipe>(directorPath.Replace("Assets/Resources/",""));
+                    foreach (Recipe recipe in recipes) {
+                        loadItemList(recipe.inputs,recipe.InputPaths);
+                        loadItemList(recipe.outputs,recipe.OutputPaths);
+                        EditorUtility.SetDirty(recipe);
+                    }
+                    recipesOfMode[index] = recipes;
+                    recipeCount+=recipes.Length;
+                } 
+                processors[recipeProcessor.id] = recipeProcessor;
+                
             }
             Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
         }
