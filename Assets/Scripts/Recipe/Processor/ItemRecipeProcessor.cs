@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName ="RP~New Item Recipe Processor",menuName="Crafting/Processor/Item")]
-    public class ItemRecipeProcessor : TypedRecipeProcessor<IItemRecipe>, IItemRecipeProcessor
+    public class ItemRecipeProcessor : TypedRecipeProcessor<EnergyRecipeCollection>, IItemRecipeProcessor
     {
         public IItemRecipe getItemRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
         {
@@ -15,10 +15,10 @@ namespace RecipeModule {
             if (!itemsNotAllNull(solidInputs) && !itemsNotAllNull(fluidInputs)) {
                 return null;
             }
-            foreach (IItemRecipe recipe in recipesOfMode[mode]) {
-                if (recipe.match(solidInputs,solidOutputs,fluidInputs,fluidOutputs)) {
-                    return (IItemRecipe) recipe;
-                }
+            foreach (Recipe recipe in recipesOfMode[mode].recipes) {
+                //if (recipe.match(solidInputs,solidOutputs,fluidInputs,fluidOutputs)) {
+                //    return (IItemRecipe) recipe;
+                //}
             }
             return null;
         }

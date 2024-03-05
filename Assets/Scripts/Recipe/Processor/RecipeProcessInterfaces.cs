@@ -13,5 +13,6 @@ namespace RecipeModule {
 
     public interface ITransmutableRecipeProcessor {
         public TransmutableRecipe getValidRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOuputs);
+        public int getRecipeCount();
     }
 }

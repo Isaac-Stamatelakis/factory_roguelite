@@ -7,47 +7,20 @@ using UnityEditor;
 namespace RecipeModule {
     public class RecipeRegistry 
     {
-        private static Dictionary<string,RecipeProcessor> processors;
+        private static HashSet<RecipeProcessor> processors;
         private static RecipeRegistry instance;
         private RecipeRegistry() {
             int recipeCount = 0;
-            processors = new Dictionary<string, RecipeProcessor>();
+            processors = new HashSet<RecipeProcessor>();
             RecipeProcessor[] recipeProcessors = Resources.LoadAll<RecipeProcessor>("");
             foreach (RecipeProcessor recipeProcessor in recipeProcessors) {
-                if (processors.ContainsKey(recipeProcessor.id)) {
-                    Debug.LogError("Duplicate id for recipe processors " + recipeProcessor.name + " and " + processors[recipeProcessor.id].name);
-                    continue;
+                processors.Add(recipeProcessor);
+                if (recipeProcessor is IInitableRecipeProcessor initableRecipeProcessor) {
+                    initableRecipeProcessor.init();
                 }
-                string path = AssetDatabase.GetAssetPath(recipeProcessor).Replace(recipeProcessor.name + ".asset", "");
-                string[] directories = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
-                Dictionary<int, Recipe[]> recipesOfMode = new Dictionary<int, Recipe[]>();
-                foreach (string directorPath in directories) {
-                    string[] split = directorPath.Split("/");
-                    string directoryName = split[split.Length-1];
-                    int index = -1;
-                    try {
-                        index = System.Convert.ToInt32(directoryName);
-                    } catch (FormatException ex){
-                        Debug.Log(ex);
-                    }
-                    if (index < 0) {
-                        continue;
-                    }
-                    if (recipesOfMode.ContainsKey(index)) {
-                        Debug.LogError("Duplicate mode folders for " + recipeProcessor.name);
-                        continue;
-                    } 
-                    Recipe[] recipes = Resources.LoadAll<Recipe>(directorPath.Replace("Assets/Resources/",""));
-                    foreach (Recipe recipe in recipes) {
-                        loadItemList(recipe.inputs,recipe.InputPaths);
-                        loadItemList(recipe.outputs,recipe.OutputPaths);
-                        EditorUtility.SetDirty(recipe);
-                    }
-                    recipesOfMode[index] = recipes;
-                    recipeCount+=recipes.Length;
-                } 
-                processors[recipeProcessor.id] = recipeProcessor;
-                
+                if (recipeProcessor is IRecipeProcessor countable) {
+                    recipeCount += countable.getRecipeCount();
+                }
             }
             Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
         }

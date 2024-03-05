@@ -5,7 +5,7 @@ using ItemModule.Transmutable;
 
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
-    public class TransmutableRecipeProcessor : RecipeProcessor, ITransmutableRecipeProcessor
+    public class TransmutableRecipeProcessor : RecipeProcessor, ITransmutableRecipeProcessor, IInitableRecipeProcessor
     {
         [Header("Valid Input States")]
         public List<KeyDoubleValue<int,TransmutableItemState,TransmutableItemState>> transmutableStates;
@@ -27,7 +27,7 @@ namespace RecipeModule.Transmutation {
         }
         /// Summary:
         ///     Unity doesn't support serialized field dictionarys so we need to transform input field to dict
-        private void initDict() {
+        public void init() {
             transmutableDict = new Dictionary<int, List<TransmutablePair>>();
             foreach (KeyDoubleValue<int,TransmutableItemState,TransmutableItemState> keyDoubleValue in transmutableStates) {
                 TransmutablePair transmutablePair = new TransmutablePair(
@@ -44,9 +44,6 @@ namespace RecipeModule.Transmutation {
 
         public TransmutableRecipe getValidRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
         {
-            if (transmutableDict == null) {
-                initDict();
-            }
             if (transmutableDict.ContainsKey(mode)) {
                 foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
                     for (int n = 0; n < solidInputs.Count; n++) {
@@ -88,6 +85,11 @@ namespace RecipeModule.Transmutation {
                 }
             }
             return null;
+        }
+
+        public override int getRecipeCount()
+        {
+            return transmutableStates.Count;
         }
 
         private class TransmutablePair {

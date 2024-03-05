@@ -25,14 +25,16 @@ public class RecipeReloadWindow : EditorWindow {
 
     void reload()
     {
-        Dictionary<string, RecipeProcessor> processors = new Dictionary<string, RecipeProcessor>();
+        HashSet<RecipeProcessor> processors = new HashSet<RecipeProcessor>();
         int recipeCount = 0;
         RecipeProcessor[] recipeProcessors = Resources.LoadAll<RecipeProcessor>("");
         foreach (RecipeProcessor recipeProcessor in recipeProcessors) {
-            if (processors.ContainsKey(recipeProcessor.id)) {
-                Debug.LogError("Duplicate id for recipe processors " + recipeProcessor.name + " and " + processors[recipeProcessor.id].name);
+            if (recipeProcessor is not ITypedRecipeProcessor typedRecipeProcessor) {
+                processors.Add(recipeProcessor);
                 continue;
             }
+            Type collectionType = typedRecipeProcessor.getCollectionType();
+            typedRecipeProcessor.resetRecipeCollection();
             string path = AssetDatabase.GetAssetPath(recipeProcessor).Replace(recipeProcessor.name + ".asset", "");
             string[] directoryPaths = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
             Dictionary<string, string> nameToPath = new Dictionary<string, string>();
@@ -43,16 +45,17 @@ public class RecipeReloadWindow : EditorWindow {
             }
             // Reset collection folder
             if (nameToPath.ContainsKey("Collections")) {
-                Directory.Delete(nameToPath["Collections"]);
-                AssetDatabase.CreateFolder(path,"Collections");
+                Directory.Delete(nameToPath["Collections"],true);
+                nameToPath.Remove("Collections");
             }
+            string reducedPath = path.Remove(path.Length-1);
+            AssetDatabase.CreateFolder(reducedPath,"Collections");
+            AssetDatabase.Refresh();
             Dictionary<int, Recipe[]> recipesOfMode = new Dictionary<int, Recipe[]>();
-            foreach (string directorPath in directoryPaths) {
-                string[] split = directorPath.Split("/");
-                string directoryName = split[split.Length-1];
+            foreach (KeyValuePair<string,string> kvp in nameToPath) {
                 int index = -1;
                 try {
-                    index = System.Convert.ToInt32(directoryName);
+                    index = System.Convert.ToInt32(kvp.Key);
                 } catch (FormatException ex){
                     Debug.Log(ex);
                 }
@@ -60,22 +63,29 @@ public class RecipeReloadWindow : EditorWindow {
                     continue;
                 }
                 
-                Recipe[] recipes = Resources.LoadAll<Recipe>(directorPath.Replace("Assets/Resources/",""));
+                Recipe[] recipes = Resources.LoadAll<Recipe>(kvp.Value.Replace("Assets/Resources/",""));
                 foreach (Recipe recipe in recipes) {
                     loadItemList(recipe.inputs,recipe.InputPaths);
                     loadItemList(recipe.outputs,recipe.OutputPaths);
                     EditorUtility.SetDirty(recipe);
                 }
-                RecipeCollection recipeCollection = ScriptableObject.CreateInstance<RecipeCollection>();
+                
+                var recipeCollection = ScriptableObject.CreateInstance(collectionType);
+                if (recipeCollection is IRecipeCollection setable) {
+                    setable.setRecipes(recipes);
+                    setable.setMode(index);
+                }
                 recipeCollection.name = recipeProcessor.name + "_M" + index.ToString();
-                recipeCollection.recipes = recipes;
-                AssetDatabase.CreateAsset(recipeCollection,path+"/Collections/"+recipeCollection.name+".asset");
+                typedRecipeProcessor.addRecipeCollection(recipeCollection,index);
+                AssetDatabase.CreateAsset(recipeCollection,path+"Collections/"+recipeCollection.name+".asset");
                 recipeCount+=recipes.Length;
             } 
-            processors[recipeProcessor.id] = recipeProcessor;
+            Debug.Log(recipeProcessor.name + " Loaded with "  + typedRecipeProcessor.getModeCount() + " modes and " + typedRecipeProcessor.getRecipeCount() + " recipes");
+            processors.Add(recipeProcessor);
             
         }
-        Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
+        Debug.Log("******************************************************************");
+        Debug.Log("Recipes reloaded\n" + processors.Count + " recipe processors and " + recipeCount + " recipes");
     }
             
 
