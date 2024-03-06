@@ -23,6 +23,7 @@ namespace TileEntityModule.Instances.Machines
         private IEnergyProduceRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
         [SerializeField] public ConduitPortLayout conduitLayout;
+        private int remainingTicks;
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition,tileBase, chunk);
@@ -64,30 +65,16 @@ namespace TileEntityModule.Instances.Machines
         }
 
         private void processRecipe() {
-            /*
-            List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            for (int n = 0; n < recipeOut.Count; n++) {
-                ItemSlot outputItem = recipeOut[n];
-                for (int j = 0; j < inventory.ItemOutputs.Slots.Count; j++) {
-                    ItemSlot outputSlot = inventory.ItemOutputs.Slots[j];
-                    if (outputSlot == null || outputSlot.itemObject == null) {
-                        inventory.ItemOutputs.Slots[j] = outputItem;
-                        break;
-                    }
-                    if (outputSlot.itemObject.id == outputItem.itemObject.id) {
-                        int sum = outputItem.amount + outputSlot.amount;
-                        if (sum > Global.MaxSize) {
-                            outputSlot.amount = Global.MaxSize;
-                            outputItem.amount = sum - Global.MaxSize;
-                        } else {
-                            outputSlot.amount = sum;
-                            break;
-                        }
-                    }
+            if (remainingTicks > 0) {
+                if (inventory.Energy < tier.getEnergyStorage()) {
+                    remainingTicks--;
+                    inventory.Energy += currentRecipe.getEnergyPerTick();
                 }
+                
             }
-            currentRecipe = null;
-            */
+            if (remainingTicks <= 0) {
+                currentRecipe = null;
+            }
         }
 
         public void inventoryUpdate() {
@@ -95,6 +82,11 @@ namespace TileEntityModule.Instances.Machines
                 return;
             }
             currentRecipe = processEnergyRecipes();
+            if (currentRecipe == null) {
+                return;
+            }
+            remainingTicks = currentRecipe.getLifespan();
+            
         }
 
         private IEnergyProduceRecipe processEnergyRecipes() {
@@ -178,23 +170,11 @@ namespace TileEntityModule.Instances.Machines
         {
             throw new System.NotImplementedException();
         }
-        public int extractEnergy(int extractionRate)
-        {
-            int amount = inventory.Energy - extractionRate;
-            if (amount <= 0) { // no amount to return
-                return 0;
-            }
-            if (amount < extractionRate) { // 0 < amount < extractionRate
-                inventory.Energy = 0;
-                return amount;
-            }
-            inventory.Energy -= extractionRate;
-            return extractionRate;
-        }
 
-        public void insertEnergy(int insertEnergy)
+        public int insertEnergy(int insertEnergy)
         {
-            Debug.LogError("Tried to insert energy from processing machine");
+            inventory.Energy += insertEnergy;
+            return 0;
         }
 
         public void insertSignal(int signal)
@@ -207,7 +187,12 @@ namespace TileEntityModule.Instances.Machines
             throw new System.NotImplementedException();
         }
 
-        
+    
+
+        public ref int getEnergy()
+        {
+            return ref inventory.energy;
+        }
     }
 }
 

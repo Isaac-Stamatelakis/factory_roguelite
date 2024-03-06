@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TileEntityModule.Instances.Machines;
 
 
 namespace ItemModule.Transmutable {
@@ -18,6 +19,7 @@ namespace ItemModule.Transmutable {
         public virtual List<TransmutableStateOptions> getStates() {
             return this.states;
         }
+        public Tier tier;
         [Header("Auto Generated")]
         public List<KVP<TransmutableItemState,string>> statesToID;
         private Dictionary<TransmutableItemState, string> stateToIDDict;

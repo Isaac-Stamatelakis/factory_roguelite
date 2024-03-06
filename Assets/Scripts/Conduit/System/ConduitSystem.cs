@@ -101,46 +101,13 @@ namespace ConduitModule.ConduitSystemModule {
                 if (ColoredInputPorts.ContainsKey(colorOutputPortList.Key)) {
                     List<InPort> priorityOrderInputs = ColoredInputPorts[colorOutputPortList.Key];
                     foreach (OutPort itemConduitOutputPort in colorOutputPortList.Value) {
-                        bool complete = iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs);
-                        if (complete) {
-                            break;
-                        }
+                        iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs);
                     }
                 }
             }
         }
 
-        public abstract bool iterateTickUpdate(OutPort outputPort, List<InPort> inputPort);
-
-        /*
-            ItemSlot toInsert = itemConduitOutputPort.extract();
-            if (toInsert == null) {
-                return false;
-            }
-            int amount = Mathf.Min(toInsert.amount,itemConduitOutputPort.extractAmount);
-            ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,nbt: toInsert.nbt);
-            foreach (IConduitInputPort<T> itemConduitInputPort in priorityOrderInputs) {
-                if (itemConduitInputPort.TileEntity.Equals(itemConduitOutputPort.TileEntity)) {
-                    return false;
-                }
-                itemConduitInputPort.insert(tempItemSlot);
-                if (tempItemSlot.amount == 0) {
-                    return true;
-                } else if (toInsert.amount < 0) {
-                    Debug.LogError("Something went wrong when inserting items. Got negative amount '" + tempItemSlot.amount + "'");
-                    return true;
-                }
-            }
-            toInsert.amount -= amount-tempItemSlot.amount;
-            
-            if (toInsert.amount <= 0) {
-                toInsert.itemObject = null;
-                if (toInsert.amount < 0) {
-                    Debug.LogError("Negative amount something went wrong inserting item conduit system");
-                }
-            }
-        }
-        */
+        public abstract void iterateTickUpdate(OutPort outputPort, List<InPort> inputPort);
 
         protected void addOutputPort(OutPort outputPort) {
             if (outputPort == null) {
@@ -158,6 +125,7 @@ namespace ConduitModule.ConduitSystemModule {
             if (!ColoredInputPorts.ContainsKey(inputPort.getColor())) {
                 ColoredInputPorts[inputPort.getColor()] = new List<InPort>();
             }
+            ColoredInputPorts[inputPort.getColor()].Add(inputPort);
             addInputPortPostProcessing(inputPort);
             /*
             List<ItemConduitInputPort<Interactable,Filter>> prioritySortedPorts = ColoredPriorityInputs[inputPort.color];

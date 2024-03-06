@@ -30,36 +30,26 @@ namespace ConduitModule.ConduitSystemModule {
             }
         }
 
-        public override bool iterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPort)
+        public override void iterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts)
         {
-            /*
-            int toInsert = outputPort.extract();
-            if (toInsert == 0) {
-                return true;
+
+            ref int totalEnergy = ref outputPort.extract();
+            int toInsert;
+            if (totalEnergy >= outputPort.extractionRate) {
+                toInsert = outputPort.extractionRate;
+                totalEnergy -= outputPort.extractionRate;
+            } else {
+                toInsert = totalEnergy;
             }
-            int amount = Mathf.Min(toInsert,outputPort);
-            ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,nbt: toInsert.nbt);
-            foreach (ItemConduitInputPort<Interactable,Filter> itemConduitInputPort in inputPorts) {
-                if (itemConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
-                    continue;
+            
+            foreach (EnergyConduitInputPort inputPort in inputPorts) {
+                if (toInsert == 0) {
+                    return;
                 }
-                itemConduitInputPort.insert(tempItemSlot);
-                if (tempItemSlot.amount == 0) {
-                    break;
-                } else if (toInsert.amount < 0) {
-                    Debug.LogError("Something went wrong when inserting items. Got negative amount '" + tempItemSlot.amount + "'");
-                    break;
-                }
+                int taken = inputPort.insert(toInsert);
+                toInsert -= taken;
             }
-            toInsert.amount -= amount-tempItemSlot.amount;
-            if (toInsert.amount <= 0) {
-                toInsert.itemObject = null;
-                if (toInsert.amount < 0) {
-                    Debug.LogError("Negative amount something went wrong inserting item conduit system");
-                }
-            }
-            */
-            return true;
+            totalEnergy += toInsert;
         }
 
         protected override void addInputPortPostProcessing(EnergyConduitInputPort inputPort)

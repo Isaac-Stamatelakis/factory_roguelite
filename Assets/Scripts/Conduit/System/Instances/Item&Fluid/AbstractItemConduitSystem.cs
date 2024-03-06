@@ -37,11 +37,11 @@ namespace ConduitModule.ConduitSystemModule {
             }
         }
 
-        public override bool iterateTickUpdate(ItemConduitOutputPort<Interactable, Filter> outputPort, List<ItemConduitInputPort<Interactable, Filter>> inputPorts)
+        public override void iterateTickUpdate(ItemConduitOutputPort<Interactable, Filter> outputPort, List<ItemConduitInputPort<Interactable, Filter>> inputPorts)
         {
             ItemSlot toInsert = outputPort.extract();
             if (toInsert == null) {
-                return false;
+                return;
             }
             int amount = Mathf.Min(toInsert.amount,outputPort.extractAmount);
             ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,nbt: toInsert.nbt);
@@ -64,7 +64,6 @@ namespace ConduitModule.ConduitSystemModule {
                     Debug.LogError("Negative amount something went wrong inserting item conduit system");
                 }
             }
-            return true;
         }
 
         protected override void addInputPortPostProcessing(ItemConduitInputPort<Interactable,Filter> inputPort)

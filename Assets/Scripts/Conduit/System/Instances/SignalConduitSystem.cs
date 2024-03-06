@@ -30,7 +30,7 @@ namespace ConduitModule.ConduitSystemModule {
             }
         }
 
-        public override bool iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPort)
+        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPort)
         {
             /*
             int toInsert = outputPort.extract();
@@ -59,7 +59,7 @@ namespace ConduitModule.ConduitSystemModule {
                 }
             }
             */
-            return true;
+    
         }
 
         protected override void addInputPortPostProcessing(SignalConduitInputPort inputPort)

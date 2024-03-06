@@ -15,7 +15,7 @@ namespace ConduitModule {
                 return null;
             }
             ConduitType conduitType = conduitItem.getType();
-            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity);
+            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
             switch (conduitType) {
                 case ConduitType.Item:
                     return new ItemConduit(
@@ -90,11 +90,10 @@ namespace ConduitModule {
         /// Sets the port of given conduit to default port
         /// </summary
         public static IConduit create(ConduitItem conduitItem, EntityPortType portType, int x, int y, TileEntity tileEntity) {
-
             ConduitType conduitType = conduitItem.getType();
             switch (conduitType) {
                 case ConduitType.Item:
-                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity);
+                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new ItemConduit(
                         x: x,
                         y: y,
@@ -102,7 +101,7 @@ namespace ConduitModule {
                         port: itemConduitPort
                     );
                 case ConduitType.Fluid:
-                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = (AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity);
+                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = (AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new FluidConduit(
                         x: x,
                         y: y,
@@ -110,7 +109,7 @@ namespace ConduitModule {
                         port: fluidConduitPort
                     );
                 case ConduitType.Energy:
-                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity);
+                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new EnergyConduit(
                         x: x,
                         y: y,
@@ -118,7 +117,7 @@ namespace ConduitModule {
                         port: energyConduitPort
                     );
                 case ConduitType.Signal:
-                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity);
+                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new SignalConduit(
                         x: x,
                         y: y,

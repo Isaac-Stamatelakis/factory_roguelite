@@ -20,19 +20,20 @@ namespace RecipeModule {
             };
         }
 
-        public int getRequiredEnergy()
-        {
-            return requiredEnergy;
-        }
-
-        public int getEnergyPerTick()
-        {
-            return energyPerTick;
-        }
 
         public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs)
         {
             throw new System.NotImplementedException();
+        }
+
+        public int getEnergyCostPerTick()
+        {
+            return requiredEnergy;
+        }
+
+        public int getTotalEnergyCost()
+        {
+            return energyPerTick;
         }
     }
 }

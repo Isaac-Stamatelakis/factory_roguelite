@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Transmutable;
+using TileEntityModule.Instances.Machines;
 
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
@@ -75,11 +76,14 @@ namespace RecipeModule.Transmutation {
                         if (inputSlot.amount <= 0) {
                             solidInputs[n] = null;
                         }
-
+                        Tier tier = outputItemObject.getMaterial().tier;
+                        TransmutableItemState state = outputItemObject.getState();
+                        float fRatio = state.getComparedRatio(transmutableItem.getState());
+                        int energyCost = (int) fRatio*tier.getMaxEnergyUsage()*32;
                         return new TransmutableRecipe(
                             outputItem,
-                            0, // TODO energy
-                            0
+                            energyCost, // TODO energy
+                            tier.getMaxEnergyUsage()
                         );
                     }
                 }

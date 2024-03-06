@@ -19,8 +19,8 @@ namespace ConduitModule.Ports {
             this.tileEntity = tileEntity;
         }
 
-        public void insert(int energy) {
-            tileEntity.insertEnergy(energy);
+        public int insert(int energy) {
+            return tileEntity.insertEnergy(energy);
         }
 
         public int getColor()
@@ -59,16 +59,16 @@ namespace ConduitModule.Ports {
     { 
         public bool enabled;
         public int color;
-        public int extractionRate;
-        private IEnergyConduitInteractable tileEntity;
-        [JsonIgnore]
-        public IEnergyConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
+        [JsonIgnore] public int extractionRate;
+        [JsonIgnore] private IEnergyConduitInteractable tileEntity;
+        
+        [JsonIgnore] public IEnergyConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
         public EnergyConduitOutputPort(IEnergyConduitInteractable tileEntity) {
             this.tileEntity = tileEntity;
         }
-        public int extract() {
-            return tileEntity.extractEnergy(extractionRate);
+        public ref int extract() {
+            return ref tileEntity.getEnergy();
         }
 
         public int getColor()

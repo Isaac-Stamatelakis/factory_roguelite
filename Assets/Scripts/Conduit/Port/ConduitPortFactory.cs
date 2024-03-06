@@ -7,7 +7,7 @@ using TileEntityModule;
 namespace ConduitModule.Ports {
     public static class ConduitPortFactory
     {
-        public static IConduitPort deseralize(string data, ConduitType conduitType, TileEntity tileEntity) {
+        public static IConduitPort deseralize(string data, ConduitType conduitType, TileEntity tileEntity, ConduitItem conduitItem) {
             if (data == null) {
                 return null;
             }
@@ -47,6 +47,9 @@ namespace ConduitModule.Ports {
                     if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
                         return null;
                     }
+                    if (conduitItem is not ResourceConduitItem energyConduit) {
+                        return null;
+                    }
                     if (energyConduitPort == null) {
                         return null;
                     }
@@ -55,6 +58,7 @@ namespace ConduitModule.Ports {
                     }
                     if (energyConduitPort.outputPort != null) {
                         energyConduitPort.outputPort.TileEntity = energyConduitInteractable;
+                        energyConduitPort.outputPort.extractionRate = energyConduit.maxSpeed;
                     }
                     return energyConduitPort;
                 case ConduitType.Signal:
@@ -84,7 +88,7 @@ namespace ConduitModule.Ports {
             return JsonConvert.SerializeObject(conduit.getPort());
         }
 
-        public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, TileEntity tileEntity) {
+        public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, TileEntity tileEntity, ConduitItem conduitItem) {
             switch (conduitType) {
                 case ConduitType.Item:
                     if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
@@ -120,11 +124,17 @@ namespace ConduitModule.Ports {
                     }
                     EnergyConduitInputPort energyInputPort = null;
                     EnergyConduitOutputPort energyOutputPort = null;
+                    if (conduitItem is not ResourceConduitItem energyConduit) {
+                        Debug.LogError("Invalid conduit item type for energy conduit");
+                        return null;
+                    }
+                    
                     if (portType == EntityPortType.All || portType == EntityPortType.Input) {
                         energyInputPort = new EnergyConduitInputPort(energyConduitInteractable);
                     }
                     if (portType == EntityPortType.All || portType == EntityPortType.Output) {
                         energyOutputPort = new EnergyConduitOutputPort(energyConduitInteractable);
+                        energyOutputPort.extractionRate = energyConduit.maxSpeed;
                     }   
                     EnergyConduitPort energyConduitPort = new EnergyConduitPort(energyInputPort,energyOutputPort);
                     return energyConduitPort;

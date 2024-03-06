@@ -13,7 +13,8 @@ namespace RecipeModule {
     }
 
     public interface IEnergyConsumeRecipe {
-
+        public int getEnergyCostPerTick();
+        public int getTotalEnergyCost();
     }
     public interface IItemRecipe {
         public List<ItemSlot> getOutputs();

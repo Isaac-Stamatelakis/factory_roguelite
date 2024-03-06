@@ -71,6 +71,7 @@ public class RecipeReloadWindow : EditorWindow {
                 }
                 
                 var recipeCollection = ScriptableObject.CreateInstance(collectionType);
+                Array.Sort(recipes, (recipe1, recipe2) => recipe2.inputs.Count.CompareTo(recipe1.inputs.Count));
                 if (recipeCollection is IRecipeCollection setable) {
                     setable.setRecipes(recipes);
                     setable.setMode(index);

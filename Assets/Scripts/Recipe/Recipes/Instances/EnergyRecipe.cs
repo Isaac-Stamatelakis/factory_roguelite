@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName = "R~New Energy Recipe", menuName = "Crafting/Recipe/Energy")]
@@ -17,9 +18,9 @@ namespace RecipeModule {
         {
             return lifespan;
         }
-        public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs)
+        public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
-            throw new System.NotImplementedException();
+            return RecipeHelper.matchSolidsAndFluids(solidInputs,solidOutputs,fluidInputs,fluidOutputs,inputs,outputs);
         }
     }
 }

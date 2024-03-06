@@ -6,22 +6,23 @@ namespace RecipeModule {
     public class MachineRecipe : Recipe, IMachineRecipe
     {
         [Header("Energy required to complete recipe")]
-        public int energy;
+        public int totalEnergy;
+        [Header("Energy cost per tick")]
         public int energyPerTick;
 
-        public int getEnergyPerTick()
+        public int getEnergyCostPerTick()
         {
-            throw new System.NotImplementedException();
+            return energyPerTick;
         }
 
-        public int getRequiredEnergy()
+        public int getTotalEnergyCost()
         {
-            return energy;
+            return totalEnergy;
         }
 
-        public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs)
+        public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
-            throw new System.NotImplementedException();
+            return RecipeHelper.matchSolidsAndFluids(solidInputs,solidOutputs,fluidInputs,fluidOutputs,inputs,outputs);
         }
     }
 }

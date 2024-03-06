@@ -26,6 +26,8 @@ namespace TileEntityModule.Instances.Machines
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
         [SerializeField] public ConduitPortLayout conduitLayout;
+        private int currentRecipeEnergy;
+        private int currentRecipeCost;
 
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
@@ -67,7 +69,31 @@ namespace TileEntityModule.Instances.Machines
 
         }
 
+        private void initRecipe() {
+            if (currentRecipe is not IEnergyConsumeRecipe energyConsumeRecipe) {
+                Debug.LogError(name +  ": Processing Machine recieved recipe which doesn't consume energy");
+                currentRecipe = null;
+                return;
+            }
+            currentRecipeEnergy = energyConsumeRecipe.getTotalEnergyCost();
+            currentRecipeCost = energyConsumeRecipe.getEnergyCostPerTick();
+
+        }
+
         private void processRecipe() {
+            if (inventory.Energy <= 0) {
+                return;
+            }
+            int energyToUse = Mathf.Min(inventory.Energy, currentRecipeCost);
+            inventory.Energy -= energyToUse;
+            currentRecipeCost -= energyToUse;
+            
+            if (currentRecipeCost > 0) {
+                return;
+            }
+            if (currentRecipeCost < 0) {
+                inventory.Energy-=currentRecipeCost;
+            }
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
             for (int n = 0; n < recipeOut.Count; n++) {
                 ItemSlot outputItem = recipeOut[n];
@@ -98,9 +124,13 @@ namespace TileEntityModule.Instances.Machines
             }
             currentRecipe = processItemRecipes();
             if (currentRecipe != null) {
+                initRecipe();
                 return;
             }
             currentRecipe = processTransmutableItemRecipe();
+            if (currentRecipe != null) {
+                initRecipe();
+            }
         }
 
         private IMachineRecipe processItemRecipes() {
@@ -195,15 +225,20 @@ namespace TileEntityModule.Instances.Machines
         {
             throw new System.NotImplementedException();
         }
-        public int extractEnergy(int extractionRate)
-        {
-            Debug.LogError("Tried to extract energy from processing machine");
-            throw new System.NotImplementedException();
-        }
 
-        public void insertEnergy(int insertEnergy)
+        public int insertEnergy(int insertEnergy)
         {
-            inventory.Energy += insertEnergy;
+            if (inventory.Energy >= tier.getEnergyStorage()) {
+                return 0;
+            }
+            int sum = inventory.Energy+=insertEnergy;
+            if (sum > tier.getEnergyStorage()) {
+                inventory.Energy=tier.getEnergyStorage();
+                Debug.Log(sum-tier.getEnergyStorage());
+                return sum - tier.getEnergyStorage();
+            }
+            inventory.Energy = sum;
+            return insertEnergy;
         }
 
         public void insertSignal(int signal)
@@ -216,7 +251,10 @@ namespace TileEntityModule.Instances.Machines
             throw new System.NotImplementedException();
         }
 
-        
+        public ref int getEnergy()
+        {
+            return ref inventory.energy;
+        }
     }
 }
 
