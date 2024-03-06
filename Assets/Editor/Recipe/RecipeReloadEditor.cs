@@ -66,7 +66,12 @@ public class RecipeReloadWindow : EditorWindow {
                 Recipe[] recipes = Resources.LoadAll<Recipe>(kvp.Value.Replace("Assets/Resources/",""));
                 foreach (Recipe recipe in recipes) {
                     loadItemList(recipe.inputs,recipe.InputPaths);
-                    loadItemList(recipe.outputs,recipe.OutputPaths);
+                    if (recipe is MultiOutputRecipe multiOutputRecipe) {
+                        loadItemList(multiOutputRecipe.outputs,multiOutputRecipe.OutputPaths);
+                    } else if (recipe is SingleOutputRecipe singleOutputRecipe) {
+                        loadItemList(new List<ItemSlot>{singleOutputRecipe.output},new List<string>{singleOutputRecipe.outputGUID});
+                    }
+                    
                     EditorUtility.SetDirty(recipe);
                 }
                 

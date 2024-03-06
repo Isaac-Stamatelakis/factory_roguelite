@@ -17,22 +17,31 @@ namespace RecipeModule {
     }
     public abstract class Recipe : ScriptableObject, IRecipe
     {
-        public List<ItemSlot> inputs;
-        public List<ItemSlot> outputs;
-        [HideInInspector] public List<string> outputGUIDs;
         
-        // Enable loading of items which have been deleted and recreated (such as transmutables)
+        public List<ItemSlot> inputs;
         [HideInInspector] public List<string> inputGUIDs;
         
+        
+        public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
+        
+    }   
+    public abstract class MultiOutputRecipe : Recipe {
+        
+        public List<ItemSlot> outputs;
+        [HideInInspector] public List<string> outputGUIDs;
         public List<ItemSlot> getOutputs()
         {
             return outputs;
         }
-        
-        public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
         public List<string> OutputPaths {get{return outputGUIDs;} set{outputGUIDs = value;}}
-    }   
-
+        
+        // Enable loading of items which have been deleted and recreated (such as transmutables)
+        
+    }
+    public abstract class SingleOutputRecipe : Recipe {
+        public ItemSlot output;
+        public string outputGUID;
+    }
     public static class RecipeHelper {
         public static bool matchInputs(List<ItemSlot> inputs, List<ItemSlot> recipeItems) {
             // Check recipes O(n+m)

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName = "R~New Energy Recipe", menuName = "Crafting/Recipe/Energy")]
-    public class EnergyRecipe : Recipe, IGeneratorRecipe
+    public class EnergyRecipe : MultiOutputRecipe, IGeneratorRecipe
     {
         public int energyPerTick;
         public int lifespan;
