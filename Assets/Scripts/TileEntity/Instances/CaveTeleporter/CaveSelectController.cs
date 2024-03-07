@@ -17,6 +17,7 @@ namespace TileEntityModule.Instances {
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(teleportButtonPress);
             teleportButton.gameObject.SetActive(true);
+            currentCave = caveRegion;
             nameText.text = caveRegion.ToString();
             descriptionText.text = caveRegion.getDescription();
         }
@@ -28,6 +29,7 @@ namespace TileEntityModule.Instances {
         }
 
         private void teleportButtonPress() {
+            Debug.Log("Teleporting to " + currentCave);
             GeneratedArea generatedArea = currentCave.getGeneratedArea();
             if (generatedArea == null) {
                 Debug.LogError("CaveRegion did not have generated area");

@@ -4,7 +4,12 @@ using UnityEngine;
 using ChunkModule.IO;
 
 namespace WorldModule.Generation {
+    public enum RandomType {
+        Standard,
+        Perlin
+    }
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Model/Cellular")]
+    
     public class CellularGeneratedArea : GenerationModel
     {
         [Header("Base Tile")]
@@ -13,6 +18,7 @@ namespace WorldModule.Generation {
         public int cellNeighboorCount;
         public float fillPercent;
         public int smoothIterations;
+        public RandomType randomType;
 
         
         public override WorldTileData generateBase(int seed) {
@@ -36,17 +42,27 @@ namespace WorldModule.Generation {
             int endX =  Global.ChunkSize*(xInterval.y-caveMinX);
             int startY = Global.ChunkSize*(yInterval.x-caveMinY);
             int endY = Global.ChunkSize*(yInterval.y-caveMinY);
+            float scale = 0.5f;
             for (int x = startX; x < endX; x ++) {
                 for (int y = startY; y < endY; y++) {
-                    float r = UnityEngine.Random.Range(0f, 1f);
+                    float r = 0f;
+                    switch (randomType) {
+                        case RandomType.Standard:
+                            r = UnityEngine.Random.Range(0f,1f);
+                            break;
+                        case RandomType.Perlin:
+                            r = Mathf.PerlinNoise(x*scale,y*scale);
+                            break;
+
+                    }
                     if (r < fillPercent) {
-                        noiseField[x, y] = 1;
-                    } else {
                         noiseField[x, y] = 0;
+                    } else {
+                        noiseField[x, y] = 1;
                     }
                 }
             }
-               
+            
             return noiseField;
         }
         private int[,] cellular_automaton(int[,] grid) {

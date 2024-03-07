@@ -9,12 +9,11 @@ using TileMapModule;
 using TileMapModule.Type;
 
 namespace ChunkModule {
-    public interface IChunk {
-        public List<List<IChunkPartition>> getChunkPartitions();
+    public interface ILoadedChunk : IChunk {
+        
         public List<IChunkPartitionData> getChunkPartitionData();
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
-        public IChunkPartition getPartition(Vector2Int position);
         public bool partionsAreAllUnloaded();
         /// <summary>
         /// Deletes all chunk partitions
@@ -23,7 +22,7 @@ namespace ChunkModule {
         public float distanceFrom(Vector2Int target);
         public bool inRange(Vector2Int target, int xRange, int yRange);
         public bool isChunkLoaded();
-        public Vector2Int getPosition();
+        
         public int getDim();
         public Transform getEntityContainer();
         public Transform getTileEntityContainer();
@@ -31,23 +30,29 @@ namespace ChunkModule {
         
     }
 
+    public interface IChunk {
+        public Vector2Int getPosition();
+        public List<List<IChunkPartition>> getChunkPartitions();
+        public IChunkPartition getPartition(Vector2Int position);
+    }
+
     public interface ISerizable {
         public void serialze();
     }
-    public class Chunk : MonoBehaviour, IChunk
+    public class Chunk : MonoBehaviour, ILoadedChunk
     {
         protected List<List<IChunkPartition>> partitions;
 
-        [SerializeField]
+        
         /// <summary>
         /// a chunk is soft loaded if all tile entity machines inside of it are loaded
         /// </summary>
-        protected bool softLoaded = false;
-        [SerializeField]
+        [SerializeField] protected bool softLoaded = false;
+        
         /// <summary>
         /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
         /// </summary>
-        protected bool chunkLoaded = false;
+        [SerializeField] protected bool chunkLoaded = false;
         protected ClosedChunkSystem closedChunkSystem;
         protected Vector2Int position; 
         protected int dim;
@@ -74,7 +79,21 @@ namespace ChunkModule {
             transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
+            initalizeContainers();
+            
+        }
 
+        public virtual void initalizeFromUnloaded(int dim, List<List<IChunkPartition>> partitions, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
+            this.dim = dim;
+            this.position = chunkPosition;
+            this.partitions = partitions;
+            this.closedChunkSystem = closedChunkSystem;
+            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
+            transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
+            initalizeContainers();
+        }
+
+        protected void initalizeContainers() {
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;

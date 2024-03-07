@@ -14,7 +14,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected ChunkLoader chunkLoader;
         protected ChunkUnloader chunkUnloader;
 
-        public override IEnumerator initalLoadChunks()
+        protected IEnumerator initalLoadChunks()
         {
             List<Vector2Int> chunks = getUnCachedChunkPositionsNearPlayer();
             foreach (Vector2Int vector in chunks) {
@@ -22,6 +22,14 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             yield return null;
             Debug.Log("Chunks Near Player Loaded");
+        }
+
+        protected IEnumerator initalLoad() {
+            yield return StartCoroutine(initalLoadChunks());
+            playerPartitionUpdate();
+            Debug.Log("Partitions Near Player Loaded");
+            yield return new WaitForSeconds(1f);
+            Debug.Log("Player Activated");
         }
 
         public override void initLoaders()

@@ -97,7 +97,7 @@ namespace ConduitModule.ConduitSystemModule {
                 if (conduit == null) {
                     continue;
                 }
-                conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity));
+                conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
                 conduit.getConduitSystem().rebuild();
             }
         }

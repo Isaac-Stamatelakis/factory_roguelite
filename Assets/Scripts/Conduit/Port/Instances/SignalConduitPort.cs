@@ -4,41 +4,74 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace ConduitModule.Ports {
-    public class SignalConduitInputPort : IConduitInputPort<int>
+    public class SignalConduitInputPort : IConduitInputPort<int>, IColorPort
     {
+        public bool enabled;
         public int color;
         public int priority;
-        private int inventory;
         
         private ISignalConduitInteractable tileEntity;
         [JsonIgnore]
         public ISignalConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
-        public void insert(int itemSlot) {
-            
+        public SignalConduitInputPort(ISignalConduitInteractable tileEntity) {
+            this.tileEntity = tileEntity;
         }
-        public void removeTileEntity()
+        public void insert(int signal) {
+            tileEntity.insertSignal(signal);
+        }
+        public int getColor()
         {
-            tileEntity = null;
+            return color;
+        }
+        
+        public void setColor(int color)
+        {
+            this.color = color;
         }
 
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
+        }
     }
-    public class SignalConduitOutputPort : IConduitOutputPort<int>
+    public class SignalConduitOutputPort : IConduitOutputPort<int>, IColorPort
     { 
+        public bool enabled;
         public int color;
-        public bool roundRobin;
-        private int roundRobinIndex;
         private ISignalConduitInteractable tileEntity;
         [JsonIgnore]
         public ISignalConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
-
+        public SignalConduitOutputPort(ISignalConduitInteractable tileEntity) {
+            this.tileEntity = tileEntity;
+        }
         public int extract() {
             
-            return 0;
+            return tileEntity.extractSignal();
         }
-        public void removeTileEntity()
+        public int getColor()
         {
-            tileEntity = null;
+            return color;
+        }
+        
+        public void setColor(int color)
+        {
+            this.color = color;
+        }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+
+        public void setEnabled(bool val)
+        {
+            this.enabled = val;
         }
     }
 

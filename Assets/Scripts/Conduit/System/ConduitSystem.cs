@@ -18,7 +18,12 @@ namespace ConduitModule.ConduitSystemModule {
         public HashSet<IConduit> getConduits();
         public void rebuild();
     }
-    public abstract class ConduitSystem<Port> : IConduitSystem where Port : IConduitPort {
+    public abstract class ConduitSystem<InPort, OutPort> : IConduitSystem 
+    
+        where InPort : IColorPort 
+        where OutPort : IColorPort
+        
+        {
         public ConduitSystem(string id) {
             this.id = id;
             Conduits = new HashSet<IConduit>();
@@ -26,18 +31,13 @@ namespace ConduitModule.ConduitSystemModule {
         }
         protected HashSet<IConduit> conduits;
         private string id;
-
-        protected abstract void init();
         protected HashSet<IConduit> Conduits { get => conduits; set => conduits = value; }
 
-        public abstract void tickUpdate();
         public void addConduit(IConduit conduit) {
             Conduits.Add(conduit);
             conduit.setConduitSystem(this);
-            addConduitToStructures(conduit);
+            addPort(conduit);
         }
-
-        public abstract void addConduitToStructures(IConduit conduit);
 
         public bool connectsTo(IConduitSystem otherConduitSystem) {
             // If otherConduitSystem is smaller, check it instead
@@ -79,6 +79,71 @@ namespace ConduitModule.ConduitSystemModule {
             return conduits;
         }
 
-        public abstract void rebuild();
+        public void rebuild()
+        {
+            ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
+            ColoredInputPorts = new Dictionary<int, List<InPort>>();
+            foreach (IConduit conduit in conduits) {
+                addPort(conduit);
+            }
+        }
+
+        public abstract void addPort(IConduit conduit);
+        private Dictionary<int, List<OutPort>> coloredOutputPorts;
+        private Dictionary<int, List<InPort>> coloredPriorityInputs;
+
+        public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
+        public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
+
+        public void tickUpdate()
+        {
+            foreach (KeyValuePair<int,List<OutPort>> colorOutputPortList in ColoredOutputPorts) {
+                if (ColoredInputPorts.ContainsKey(colorOutputPortList.Key)) {
+                    List<InPort> priorityOrderInputs = ColoredInputPorts[colorOutputPortList.Key];
+                    foreach (OutPort itemConduitOutputPort in colorOutputPortList.Value) {
+                        iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs);
+                    }
+                }
+            }
+        }
+
+        public abstract void iterateTickUpdate(OutPort outputPort, List<InPort> inputPort);
+
+        protected void addOutputPort(OutPort outputPort) {
+            if (outputPort == null) {
+                return;
+            }
+            if (!ColoredOutputPorts.ContainsKey(outputPort.getColor())) {
+                ColoredOutputPorts[outputPort.getColor()] = new List<OutPort>();
+            }
+            ColoredOutputPorts[outputPort.getColor()].Add(outputPort);
+        }
+        protected void addInputPort(InPort inputPort) {
+            if (inputPort == null) {
+                return;
+            }
+            if (!ColoredInputPorts.ContainsKey(inputPort.getColor())) {
+                ColoredInputPorts[inputPort.getColor()] = new List<InPort>();
+            }
+            ColoredInputPorts[inputPort.getColor()].Add(inputPort);
+            addInputPortPostProcessing(inputPort);
+            /*
+            List<ItemConduitInputPort<Interactable,Filter>> prioritySortedPorts = ColoredPriorityInputs[inputPort.color];
+            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<ItemConduitInputPort<Interactable,Filter>>.Create((p1, p2) => p2.priority.CompareTo(p1.priority)));
+            if (index < 0) {
+                // If negative, binary search couldn't find place, use bitwise complement
+                index = ~index;
+            }
+            prioritySortedPorts.Insert(index, inputPort);
+            */
+        }
+
+        protected abstract void addInputPortPostProcessing(InPort inputPort);
+
+        protected void init()
+        {
+            ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
+            ColoredInputPorts = new Dictionary<int, List<InPort>>();
+        }
     }
 }

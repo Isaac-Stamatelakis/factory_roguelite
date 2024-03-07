@@ -97,7 +97,7 @@ namespace TileMapModule.Place {
                 TileItem tileItem = (TileItem) itemObject;
                 return (Vector3Int)PlaceTile.getPlacePosition(tileItem,position.x,position.y);
             } else if (itemObject is ConduitItem) {
-
+                return (Vector3Int) Global.getCellPositionFromWorld(position);
             }
             return Vector3Int.zero;
         }
@@ -186,7 +186,7 @@ namespace TileMapModule.Place {
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
                 Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
                 Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
-                IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+                ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
                 if (chunk == null) {
                     Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
                     return;

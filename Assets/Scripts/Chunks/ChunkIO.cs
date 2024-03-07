@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 using ChunkModule;
 using UI.Title;
 using ChunkModule.ClosedChunkSystemModule;
+using WorldModule;
+using System;
+using ChunkModule.PartitionModule;
 
 namespace ChunkModule.IO {
     public class ChunkIO {
@@ -17,7 +20,36 @@ namespace ChunkModule.IO {
             string filePath = getPath(chunkPosition,dim);
             return (Directory.Exists(filePath));
         }
-        public static IChunk getChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
+        public static List<SoftLoadedConduitTileChunk> getUnloadedChunks(int dim) {
+            string path = WorldCreation.getDimPath(Global.WorldName,dim);
+            string[] files = Directory.GetFiles(path);
+            List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
+            foreach (string file in files) {
+                string[] seperated = file.Split("\\");
+                string name = seperated[seperated.Length-1];
+                string[] split = name.Split("[");
+                string uncleanXY = split[1].Replace("]","").Replace(".json","");
+                string[] xy = uncleanXY.Split(",");
+                int x = Convert.ToInt32(xy[0]);
+                int y = Convert.ToInt32(xy[1]);
+                string data = File.ReadAllText(file);
+                List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
+                SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y));
+                unloadedChunks.Add(unloadedConduitTileChunk);
+            }
+            return unloadedChunks;
+        }
+
+        public static ILoadedChunk getChunkFromUnloadedChunk(SoftLoadedConduitTileChunk unloadedConduitTileChunk, ClosedChunkSystem closedChunkSystem) {
+            string chunkName = getName(unloadedConduitTileChunk.Position);
+            GameObject chunkGameObject = new GameObject();
+            chunkGameObject.name = chunkName;
+            Chunk chunk = chunkGameObject.AddComponent<Chunk>();
+            chunk.initalizeFromUnloaded(closedChunkSystem.Dim,unloadedConduitTileChunk.Partitions,unloadedConduitTileChunk.Position,closedChunkSystem);
+            return chunk;
+        }
+        public static ILoadedChunk getChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             string chunkName = getName(chunkPosition);
             string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
             string json = null;
@@ -49,7 +81,7 @@ namespace ChunkModule.IO {
             
         }
 
-        public static void writeChunk(IChunk chunk) {
+        public static void writeChunk(ILoadedChunk chunk) {
 
             File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
         }
@@ -57,7 +89,7 @@ namespace ChunkModule.IO {
             return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Dimensions/dim" + dim + "/" + getName(chunkPosition);
         }
 
-        public static string getPath(IChunk chunk) {
+        public static string getPath(ILoadedChunk chunk) {
             return getPath(chunk.getPosition(),chunk.getDim());
         }
         public static string getName(Vector2Int chunkPosition) {

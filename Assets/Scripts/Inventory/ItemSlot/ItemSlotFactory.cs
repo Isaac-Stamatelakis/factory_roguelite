@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule;
+
 public enum ItemSlotOption {
 
 }
@@ -64,6 +66,9 @@ public class ItemSlotFactory
         );
     }
     public static string serializeList(List<ItemSlot> items) {
+        if (items == null) {
+            return null;
+        }
         List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>();
         foreach (ItemSlot itemSlot in items) {
             serializedItemSlots.Add(serialize(itemSlot));

@@ -16,7 +16,7 @@ namespace TileMapModule {
     public class TileGridMap : AbstractTileMap<TileItem>
     {   
         protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition) {
-            IChunk chunk = getChunk(hitTilePosition);  
+            ILoadedChunk chunk = getChunk(hitTilePosition);  
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
@@ -140,7 +140,28 @@ namespace TileMapModule {
 
         public override void hitTile(Vector2 position) {
             Vector2Int hitTilePosition = getHitTilePosition(position);
+            Vector3Int vec3Hit = (Vector3Int) hitTilePosition;
             TileOptions tileOptions = getOptionsAtPosition(hitTilePosition);
+            /*
+            Matrix4x4 originalMatrix = tilemap.GetTransformMatrix(vec3Hit);
+            float xOffset = originalMatrix.m03;
+            float yOffset = originalMatrix.m13;
+            if (xOffset > 0.1f) {
+                xOffset = 0.25f;
+            } else {
+                xOffset = 0;
+            }
+            if (yOffset > 0.1f) {
+                yOffset = 0.25f;
+            } else {
+                xOffset = 0;
+            }
+            xOffset += UnityEngine.Random.Range(-0.001f,0.001f);
+            yOffset += UnityEngine.Random.Range(-0.001f,0.001f);
+            originalMatrix.m03 = xOffset;
+            originalMatrix.m13 = yOffset;
+            tilemap.SetTransformMatrix(vec3Hit,originalMatrix);
+            */
             if (hitHardness(tileOptions)) {
                 IChunkPartition partition = getPartitionAtPosition(hitTilePosition);
                 Vector2Int positionInPartition = getTilePositionInPartition(hitTilePosition);

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
-using TileEntityModule.Instances.Machine;
+using TileEntityModule.Instances.Machines;
 using ConduitModule.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {
@@ -91,7 +91,6 @@ public class TileEntityConduitGenerator : EditorWindow {
             }
         }
         Debug.Log(conduitPorts.Count + " " + conduitType.ToString() + " Conduit Ports set for " + tileEntity.name);
-        machinePortInterface.set(conduitType,conduitPorts);
     }
 
 

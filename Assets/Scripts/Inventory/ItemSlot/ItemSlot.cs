@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Transmutable;
 
 public enum ItemState {
     Solid,
-    NonSolid
+    Fluid
 }
 public interface SolidItem {
 
@@ -28,11 +29,11 @@ public class ItemSlot
             return ItemState.Solid;
         }
         if (itemObject is TransmutableItemObject) {
-            TransmutableItemState state = ((TransmutableItemObject) itemObject).state;
+            TransmutableItemState state = ((TransmutableItemObject) itemObject).getState();
             return state.getMatterState();
         }
         if (itemObject is NonSolidItem) {
-            return ItemState.NonSolid;
+            return ItemState.Fluid;
         }
         return ItemState.Solid;
     }

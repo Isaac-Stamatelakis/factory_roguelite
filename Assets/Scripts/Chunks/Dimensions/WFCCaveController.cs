@@ -19,7 +19,7 @@ namespace DimensionModule {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             TileClosedChunkSystem area = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
-            closedChunkSystems.Add(area);
+            activeSystem = area;
             if (generate) {
                 Debug.Log("New Area Saved At: " + Application.persistentDataPath);
                 //WFCGenerator caveGenerator = new WFCGenerator(cave,tileMapPrefab,patternSize);
@@ -27,7 +27,6 @@ namespace DimensionModule {
             }
             IntervalVector coveredArea = cave.getCoveredArea();
             area.initalize(transform,coveredArea,-1);
-
         }
     }
 

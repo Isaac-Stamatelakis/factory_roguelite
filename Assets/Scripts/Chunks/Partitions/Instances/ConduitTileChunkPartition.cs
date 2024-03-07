@@ -8,6 +8,7 @@ using TileMapModule.Type;
 using ConduitModule;
 using ChunkModule.IO;
 using ConduitModule.Ports;
+using ItemModule;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {
@@ -19,13 +20,14 @@ namespace ChunkModule.PartitionModule {
         public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits);
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
+        public void activate(ILoadedChunk loadedChunk);
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduitData>, IConduitTileChunkPartition where T : SerializedTileConduitData
     {
         protected bool tickLoaded;
         protected Dictionary<ConduitType, IConduit[,]> conduits;
         private Dictionary<TileMapLayer, IConduit[,]> conduitArrayDict = new Dictionary<TileMapLayer, IConduit[,]>();
-        public ConduitChunkPartition(SerializedTileConduitData data, Vector2Int position, Chunk parent) : base(data, position, parent)
+        public ConduitChunkPartition(SerializedTileConduitData data, Vector2Int position, IChunk parent) : base(data, position, parent)
         {
         }
 
@@ -327,6 +329,17 @@ namespace ChunkModule.PartitionModule {
                     serializedTileConduitData.signalConduitData.ids[position.x,position.y] = id;
                     break;
 
+            }
+        }
+
+        public void activate(ILoadedChunk loadedChunk)
+        {
+            this.parent = loadedChunk;
+            foreach (TileEntity tileEntity in tileEntities) {
+                if (tileEntity == null) {
+                    continue;
+                }
+                tileEntity.setChunk(loadedChunk);
             }
         }
     }

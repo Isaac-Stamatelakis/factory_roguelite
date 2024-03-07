@@ -1,67 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Transmutable;
+using TileEntityModule.Instances.Machines;
+
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
-    public class TransmutableRecipeProcessor : RecipeProcessor
+    public class TransmutableRecipeProcessor : RecipeProcessor, ITransmutableRecipeProcessor, IInitableRecipeProcessor
     {
-        [Header("Minimum Accepted Tier (Inclusive)")]
-        public int minimumTier = -9999;
-        [Header("Maximum Accepted Tier (Inclusive)")]
-        public int maximumTier = 9999;
         [Header("Valid Input States")]
         public List<KeyDoubleValue<int,TransmutableItemState,TransmutableItemState>> transmutableStates;
         private Dictionary<int,List<TransmutablePair>> transmutableDict;
-
-        protected override IRecipe getValidRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs,int mode)
-        {
-            if (transmutableDict == null) {
-                initDict();
-            }   
-            if (transmutableDict.ContainsKey(mode)) {
-                foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
-                    for (int n = 0; n < inputs.Count; n++) {
-                        //Debug.Log(n);
-                        ItemSlot inputSlot = inputs[n];
-                        if (inputSlot == null || inputSlot.itemObject == null) {
-                            continue;
-                        }
-                        if (inputSlot.itemObject is not TransmutableItemObject) {
-                            continue;
-                        }
-                        TransmutableItemObject transmutableItem = (TransmutableItemObject) inputSlot.itemObject;
-                        if (transmutableItem.state != transmutablePair.Input) {
-                            continue;
-                        }
-                        // Recipe is valid, now have to check there is space
-                        TransmutableItemObject outputItemObject = transmutableItem.material.transmute(transmutablePair.Output);
-                        int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
-                        ItemSlot outputItem = new ItemSlot(
-                            itemObject: outputItemObject,
-                            amount: ratio,
-                            nbt: null
-                        );
-
-                        if (!spaceInOutput(outputs,outputItem)) {
-                           continue;
-                        }
-                        // More than one slot left
-                        inputSlot.amount--;
-                        if (inputSlot.amount <= 0) {
-                            inputs[n] = null;
-                        }
-
-                        return new TransmutableRecipe(
-                            outputItem,
-                            0, // TODO energy
-                            0
-                        );
-                    }
-                }
-            }
-            // Check recipes
-            return base.getValidRecipe(inputs, outputs, mode);
-        }
 
         private bool spaceInOutput(List<ItemSlot> outputs, ItemSlot outputItemSlot) {
             foreach (ItemSlot itemInOutputSlot in outputs) {
@@ -79,7 +28,7 @@ namespace RecipeModule.Transmutation {
         }
         /// Summary:
         ///     Unity doesn't support serialized field dictionarys so we need to transform input field to dict
-        private void initDict() {
+        public void init() {
             transmutableDict = new Dictionary<int, List<TransmutablePair>>();
             foreach (KeyDoubleValue<int,TransmutableItemState,TransmutableItemState> keyDoubleValue in transmutableStates) {
                 TransmutablePair transmutablePair = new TransmutablePair(
@@ -93,6 +42,60 @@ namespace RecipeModule.Transmutation {
                 }
             }
         }
+
+        public TransmutableRecipe getValidRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
+        {
+            if (transmutableDict.ContainsKey(mode)) {
+                foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {
+                    for (int n = 0; n < solidInputs.Count; n++) {
+                        ItemSlot inputSlot = solidInputs[n];
+                        if (inputSlot == null || inputSlot.itemObject == null) {
+                            continue;
+                        }
+                        if (inputSlot.itemObject is not TransmutableItemObject) {
+                            continue;
+                        }
+                        TransmutableItemObject transmutableItem = (TransmutableItemObject) inputSlot.itemObject;
+                        if (transmutableItem.getState() != transmutablePair.Input) {
+                            continue;
+                        }
+                        // Recipe is valid, now have to check there is space
+                        TransmutableItemObject outputItemObject = transmutableItem.getMaterial().transmute(transmutablePair.Output);
+                        int ratio = Mathf.FloorToInt(transmutablePair.Output.getComparedRatio(transmutablePair.Input));
+                        ItemSlot outputItem = new ItemSlot(
+                            itemObject: outputItemObject,
+                            amount: ratio,
+                            nbt: null
+                        );
+
+                        if (!spaceInOutput(solidOutputs,outputItem)) {
+                           continue;
+                        }
+                        // More than one slot left
+                        inputSlot.amount--;
+                        if (inputSlot.amount <= 0) {
+                            solidInputs[n] = null;
+                        }
+                        Tier tier = outputItemObject.getMaterial().tier;
+                        TransmutableItemState state = outputItemObject.getState();
+                        float fRatio = state.getComparedRatio(transmutableItem.getState());
+                        int energyCost = (int) fRatio*tier.getMaxEnergyUsage()*32;
+                        return new TransmutableRecipe(
+                            outputItem,
+                            energyCost, // TODO energy
+                            tier.getMaxEnergyUsage()
+                        );
+                    }
+                }
+            }
+            return null;
+        }
+
+        public override int getRecipeCount()
+        {
+            return transmutableStates.Count;
+        }
+
         private class TransmutablePair {
             private TransmutableItemState input;
             private TransmutableItemState output;
