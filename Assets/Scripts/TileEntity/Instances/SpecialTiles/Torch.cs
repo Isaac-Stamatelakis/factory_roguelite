@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using ChunkModule;
 
 namespace TileEntityModule.Instances {
     [CreateAssetMenu(fileName = "New Torch", menuName = "Tile Entity/Torch")]
@@ -15,6 +16,10 @@ namespace TileEntityModule.Instances {
         protected GameObject lightObject;
         public void load()
         {
+            if (chunk is not ILoadedChunk loadedChunk) {
+                Debug.LogError("Attempted to load torch in unloaded chunk");
+                return;
+            }
             color.a = 1;
             if (lightObject == null) {
                 lightObject = new GameObject();
@@ -27,7 +32,7 @@ namespace TileEntityModule.Instances {
                 light.pointLightOuterRadius=radius;
                 light.falloffIntensity=falloff;
                 lightObject.transform.position = (Vector2) positionInChunk/2 + positionInTile;
-                lightObject.transform.SetParent(chunk.getTileEntityContainer(),false);
+                lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
             }
         }
 

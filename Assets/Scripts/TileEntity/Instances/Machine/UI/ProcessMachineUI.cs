@@ -9,6 +9,7 @@ namespace TileEntityModule.Instances.Machines {
     {
         [SerializeField] public TextMeshProUGUI title;
         [SerializeField] public Slider energyBar;
+        [SerializeField] public ArrowProgressController arrowProgressController;
         private GameObject slotPrefab;
         private Tier tier;
         private StandardMachineInventory machineInventory;
@@ -28,6 +29,10 @@ namespace TileEntityModule.Instances.Machines {
         
         private void setEnergyBar() {
             energyBar.value = ((float) machineInventory.Energy)/tier.getEnergyStorage();
+        }
+
+        private void setArrow() {
+            //arrowProgressController.setArrow()
         }
     }
 

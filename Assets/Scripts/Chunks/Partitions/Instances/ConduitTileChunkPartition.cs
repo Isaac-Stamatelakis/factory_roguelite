@@ -26,7 +26,7 @@ namespace ChunkModule.PartitionModule {
         protected bool tickLoaded;
         protected Dictionary<ConduitType, IConduit[,]> conduits;
         private Dictionary<TileMapLayer, IConduit[,]> conduitArrayDict = new Dictionary<TileMapLayer, IConduit[,]>();
-        public ConduitChunkPartition(SerializedTileConduitData data, Vector2Int position, Chunk parent) : base(data, position, parent)
+        public ConduitChunkPartition(SerializedTileConduitData data, Vector2Int position, IChunk parent) : base(data, position, parent)
         {
         }
 

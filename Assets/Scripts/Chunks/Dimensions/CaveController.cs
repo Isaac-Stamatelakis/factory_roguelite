@@ -7,15 +7,14 @@ using WorldModule.Generation;
 namespace DimensionModule {
     public class CaveController : DimController
     {
-        [SerializeField] 
-        public GeneratedArea cave;
+        [SerializeField] public GeneratedArea cave;
         
         public override void Start() {
             base.Start();
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             TileClosedChunkSystem area = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
-            closedChunkSystems.Add(area);
+            activeSystem = area;
             // r = 2, n = 13, d = 0.58, i = 5, floating islands
             // r = 2, n = 14, d = 0.58, i = 5, very good
             // r = 2, n = 15, d = 0.65, i = 5, more disconnected than first area
@@ -55,7 +54,6 @@ namespace DimensionModule {
             */
             IntervalVector coveredArea = cave.getChunkCoveredArea();
             area.initalize(transform,coveredArea,-1);
-
         }
     }
 }

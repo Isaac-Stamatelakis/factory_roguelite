@@ -20,6 +20,10 @@ namespace TileEntityModule {
                 Debug.LogError("Door Tile Entity belongs to non state tile");
                 return;
             }
+            if (chunk is not ILoadedChunk loadedChunk) {
+                Debug.LogError("Attempted to layer switch in unloaded chunk");
+                return;
+            }
             IChunkPartition chunkPartition = tileEntity.getPartition();
             Vector2Int positionInPartition = tileEntity.getPositionInPartition();
             TileOptions tileOptions = chunkPartition.getTileOptions(positionInPartition);
@@ -27,7 +31,7 @@ namespace TileEntityModule {
 
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
-            TileMapModule.ITileMap tilemap = chunk.getTileMap(tileMapType);
+            TileMapModule.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
 
             // Switch to open/closed
@@ -39,7 +43,7 @@ namespace TileEntityModule {
 
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMapModule.ITileMap newMap = chunk.getTileMap(newType);
+            TileMapModule.ITileMap newMap = loadedChunk.getTileMap(newType);
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
     }

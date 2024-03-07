@@ -18,6 +18,7 @@ using TileEntityModule;
 namespace ChunkModule.ClosedChunkSystemModule {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
     {
+        private List<UnloadedConduitTileChunk> unloadedChunks;
         private Dictionary<TileMapType, ConduitSystemManager> conduitSystemManagersDict;
         private PortViewerController viewerController;
         
@@ -46,7 +47,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public override void OnDisable()
         {
             partitionUnloader.clearAll();
-            foreach (IChunk chunk in cachedChunks.Values) {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
                     foreach (IChunkPartition partition in chunkPartitionList) {
                         if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
@@ -122,7 +123,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to load uncached chunk into conduit system");
                         continue;
                     }
-                    IChunk chunk = cachedChunks[chunkPosition];
+                    ILoadedChunk chunk = cachedChunks[chunkPosition];
                     foreach (List<IChunkPartition> partionList in chunk.getChunkPartitions()) {
                         foreach (IChunkPartition partition in partionList) {
                             if (partition is not IConduitTileChunkPartition) {
@@ -150,7 +151,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to load uncached chunk into conduit system");
                         continue;
                     }
-                    IChunk chunk = cachedChunks[chunkPosition];
+                    ILoadedChunk chunk = cachedChunks[chunkPosition];
                     foreach (List<IChunkPartition> partionList in chunk.getChunkPartitions()) {
                         foreach (IChunkPartition partition in partionList) {
                             if (partition is not IConduitTileChunkPartition) {
@@ -164,9 +165,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             return conduits;
         }
-        public override void initalize(Transform dimTransform, IntervalVector coveredArea, int dim)
-        {
-            base.initalize(dimTransform, coveredArea, dim);
+        
+
+        public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, InactiveClosedChunkSystem inactiveClosedChunkSystem) {
+            initalizeObject(dimTransform,coveredArea,dim);
+            initalLoadChunks(inactiveClosedChunkSystem.UnloadedChunks);
         }
 
 
@@ -185,21 +188,25 @@ namespace ChunkModule.ClosedChunkSystemModule {
         {
             
         }
-        public override IEnumerator initalLoadChunks()
+        protected void initalLoadChunks(List<UnloadedConduitTileChunk> unloadedChunks)
         {
+            foreach (UnloadedConduitTileChunk unloadedConduitTileChunk in unloadedChunks) {
+                addChunk(ChunkIO.getChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
+            }
+            /*
             for (int x = coveredArea.X.LowerBound; x <= coveredArea.X.UpperBound; x++) {
                 for (int y = coveredArea.Y.LowerBound; y <= coveredArea.Y.UpperBound; y++) {
                     addChunk(ChunkIO.getChunkFromJson(new Vector2Int(x,y), this));
                 }
             }
-            yield return null;
+            */
             Debug.Log("Conduit Closed Chunk System '" + name + "' Chunk Loaded");
             loadTickableTileEntities();
             initConduitSystemManagers();
         }
 
         private void loadTickableTileEntities() {
-            foreach (IChunk chunk in cachedChunks.Values) {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (List<IChunkPartition>  partitionList in chunk.getChunkPartitions()) {
                     foreach (IChunkPartition partition in partitionList) {
                         if (partition is not IConduitTileChunkPartition) {

@@ -11,7 +11,12 @@ namespace TileEntityModule.Instances.WorkBenchs {
         [SerializeField] public GameObject uiPrefab;
         public void onClick()
         {
-            throw new System.NotImplementedException();
+            if (uiPrefab == null) {
+                Debug.LogError(name + " uiPrefab is null");
+                return;
+            }
+            GameObject instantiated = GameObject.Instantiate(uiPrefab);
+            
         }
     }
 }

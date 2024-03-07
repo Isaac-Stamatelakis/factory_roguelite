@@ -16,7 +16,7 @@ namespace TileMapModule {
     public class TileGridMap : AbstractTileMap<TileItem>
     {   
         protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition) {
-            IChunk chunk = getChunk(hitTilePosition);  
+            ILoadedChunk chunk = getChunk(hitTilePosition);  
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;

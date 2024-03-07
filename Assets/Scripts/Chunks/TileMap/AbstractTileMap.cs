@@ -137,7 +137,7 @@ namespace TileMapModule {
 
         protected IChunkPartition getPartitionAtPosition(Vector2Int cellPosition) {
             Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
-            IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
             if (chunk == null) {
                 return null;
             }
@@ -162,7 +162,7 @@ namespace TileMapModule {
             Vector2Int tilePositon = getTilePositionInPartition(position);
         }
         protected virtual void spawnItemEntity(Item item, Vector2Int hitTilePosition) {
-            IChunk chunk = getChunk(hitTilePosition);
+            ILoadedChunk chunk = getChunk(hitTilePosition);
             if (chunk == null) {
                 return;
             }
@@ -172,7 +172,7 @@ namespace TileMapModule {
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
-        protected IChunk getChunk(Vector2Int hitTilePosition) {
+        protected ILoadedChunk getChunk(Vector2Int hitTilePosition) {
             Vector2Int chunkPosition = getChunkPosition(hitTilePosition);
             
             return closedChunkSystem.getChunk(chunkPosition);

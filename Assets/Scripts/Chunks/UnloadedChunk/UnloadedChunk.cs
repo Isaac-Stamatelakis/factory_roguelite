@@ -1,0 +1,62 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using ChunkModule.PartitionModule;
+
+namespace ChunkModule {
+    /// <summary>
+    /// A lightweight version of a conduit tile chunk
+    /// </summary>
+    public class UnloadedConduitTileChunk : IChunk
+    {
+        private List<List<IChunkPartition>> partitions;
+        private Vector2Int position;
+        public Vector2Int Position { get => position; set => position = value; }
+        public List<List<IChunkPartition>> Partitions { get => partitions; set => partitions = value; }
+
+        public UnloadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition) {
+            this.position = chunkPosition;
+            generatePartitions(chunkPartitionDataList);
+        }
+        protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
+            partitions = new List<List<IChunkPartition>>();
+            for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
+                List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
+                for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
+                    chunkPartitions.Add(generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y)));
+                }
+                partitions.Add(chunkPartitions);
+            }
+        }
+
+        
+        /// <summary>
+        /// Generates a partition
+        /// </summary>
+        protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
+            if (data is SerializedTileData) {
+                if (data is SerializedTileConduitData) {
+                    return new ConduitChunkPartition<SerializedTileConduitData>((SerializedTileConduitData) data,position,this);
+                }
+                return new TileChunkPartition<SerializedTileData>((SerializedTileData) data,position,this);
+            } else 
+            return null;
+        }
+
+        public Vector2Int getPosition()
+        {
+            return position;
+        }
+
+        public List<List<IChunkPartition>> getChunkPartitions()
+        {
+            return partitions;
+        }
+
+        public IChunkPartition getPartition(Vector2Int position)
+        {
+            return partitions[position.x][position.y];
+        }
+    }
+}
+

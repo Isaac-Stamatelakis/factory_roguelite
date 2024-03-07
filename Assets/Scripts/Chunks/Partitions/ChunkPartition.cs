@@ -18,9 +18,9 @@ namespace ChunkModule.PartitionModule {
         protected T data;
         public TileEntity[,] tileEntities;
         public TileOptions[,] tileOptionsArray;
-        protected Chunk parent;
+        protected IChunk parent;
 
-        public ChunkPartition(T data, Vector2Int position, Chunk parent) {
+        public ChunkPartition(T data, Vector2Int position, IChunk parent) {
             this.data = data;
             this.position = position;
             this.parent = parent;

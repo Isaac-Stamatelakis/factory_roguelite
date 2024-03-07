@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GUIModule;
+using ChunkModule;
 
 
 namespace TileEntityModule.Instances
@@ -22,12 +23,15 @@ namespace TileEntityModule.Instances
             if (items == null) {
                 return;
             }
-            
+            if (chunk is not ILoadedChunk loadedChunk) {
+                Debug.LogError("Attempted to spawn items in unloaded chunk");
+                return;
+            }
             foreach (ItemSlot itemSlot in items) {
                 ItemEntityHelper.spawnItemEntityFromBreak(
                     getWorldPosition(),
                     itemSlot,
-                    chunk.getEntityContainer()
+                    loadedChunk.getEntityContainer()
                 );
             }
         }

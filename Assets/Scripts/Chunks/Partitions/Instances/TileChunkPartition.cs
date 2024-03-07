@@ -12,7 +12,7 @@ using ItemModule;
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
     {
-        public TileChunkPartition(SerializedTileData data, UnityEngine.Vector2Int position, Chunk parent) : base(data, position, parent)
+        public TileChunkPartition(SerializedTileData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)
         {
 
         }
@@ -175,7 +175,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile,this.parent);
+            tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile, this.parent);
             if (tileEntity is ISerializableTileEntity) {
                 ((ISerializableTileEntity) tileEntity).unserialize(options);
             }

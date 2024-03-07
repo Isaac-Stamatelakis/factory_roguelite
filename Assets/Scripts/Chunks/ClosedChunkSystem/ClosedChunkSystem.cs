@@ -21,7 +21,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
         //public ChunkList chunkList;
-        protected Dictionary<Vector2Int, IChunk> cachedChunks;
+        protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
@@ -36,18 +36,18 @@ namespace ChunkModule.ClosedChunkSystemModule {
             
         }
 
-        public void addChunk(IChunk chunk) {
+        public void addChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.getPosition();
             cachedChunks[chunkPosition] = chunk;
         }
-        public void removeChunk(IChunk chunk) {
+        public void removeChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.getPosition();
             if (chunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
         }
 
-        public IChunk getChunk(Vector2Int position) {
+        public ILoadedChunk getChunk(Vector2Int position) {
             if (cachedChunks.ContainsKey(position)) {
                 return cachedChunks[position];
             }
@@ -69,41 +69,28 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return null;
         }
         
-        public virtual void initalize(Transform dimTransform, IntervalVector coveredArea, int dim)
-        {
+        public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim) {
             transform.SetParent(dimTransform);
             GameObject chunkContainer = new GameObject();
             chunkContainer.name = "Chunks";
             chunkContainer.transform.SetParent(transform);
-            
-            chunkContainerTransform = Global.findChild(gameObject.transform,"Chunks").transform;
-
-            initLoaders();
+            chunkContainerTransform = chunkContainer.transform;
             playerTransform = GameObject.Find("Player").GetComponent<Transform>();
-            cachedChunks = new Dictionary<Vector2Int, IChunk>();
+            cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
             this.dim = dim;
             this.coveredArea = coveredArea;
+            initLoaders();
             CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' For Dim '" + dim + "' Initalized");
-            StartCoroutine(initalLoad());
+            GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
 
         public virtual void initLoaders() {
             partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
             partitionLoader.init(this);
-
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.init(this,partitionLoader);
-        }
-
-        protected IEnumerator initalLoad() {
-            yield return StartCoroutine(initalLoadChunks());
-            playerPartitionUpdate();
-            Debug.Log("Partitions Near Player Loaded");
-            yield return new WaitForSeconds(1f);
-            Debug.Log("Player Activated");
-            GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
 
         protected void initTileMapContainer(TileMapType tileType) {
@@ -124,22 +111,20 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 tileGridMaps[tileType] = tileGridMap;
             }
         }
-        public abstract IEnumerator initalLoadChunks();
-
         
         public abstract void playerChunkUpdate(); 
 
         public virtual void playerPartitionUpdate() {
-            List<IChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
+            List<ILoadedChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
             List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             Vector2Int playerPartition = getPlayerChunkPartition();
-            foreach (IChunk chunk in chunksNearPlayer) {
+            foreach (ILoadedChunk chunk in chunksNearPlayer) {
                 partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition));
             }
             partitionLoader.addToQueue(partitionsToLoad);
 
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
-            foreach (IChunk chunk in cachedChunks.Values) {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition));
             }
             partitionUnloader.addToQueue(partitionsToUnload);
@@ -159,10 +144,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return positions;
         }
 
-        public List<IChunk> getLoadedChunksNearPlayer() {
+        public List<ILoadedChunk> getLoadedChunksNearPlayer() {
             Vector2Int playerPosition = getPlayerChunk();
-            List<IChunk> chunks = new List<IChunk>();
-            foreach (IChunk chunk in cachedChunks.Values) {
+            List<ILoadedChunk> chunks = new List<ILoadedChunk>();
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 if (chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY)) {
                     chunks.Add(chunk);
                 }
@@ -219,7 +204,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public virtual void OnDisable()
         {
             partitionUnloader.clearAll();
-            foreach (IChunk chunk in cachedChunks.Values) {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
                     foreach (IChunkPartition partition in chunkPartitionList) {
                         if (partition.getLoaded()) {

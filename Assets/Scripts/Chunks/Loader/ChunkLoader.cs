@@ -54,7 +54,7 @@ namespace ChunkModule.LoadController {
         }
 
         private void cacheChunk(Vector2Int closestPosition) {
-            IChunk chunk = ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
+            ILoadedChunk chunk = ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
             closedChunkSystem.addChunk(chunk);
             activeCoroutines--;
         }

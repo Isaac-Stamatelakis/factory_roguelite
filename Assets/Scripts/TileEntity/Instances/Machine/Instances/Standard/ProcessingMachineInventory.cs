@@ -16,6 +16,8 @@ namespace TileEntityModule.Instances.Machines {
         private Inventory other;
         public int energy;
         public int mode;
+        public int currentOperationEnergy;
+        public int currentOperationCost;
 
         public Inventory ItemInputs { get => itemInputs; set => itemInputs = value; }
         public Inventory ItemOutputs { get => itemOutputs; set => itemOutputs = value; }

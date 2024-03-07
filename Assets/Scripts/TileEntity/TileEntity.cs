@@ -8,7 +8,6 @@ using ChunkModule.PartitionModule;
 namespace TileEntityModule {
     public interface ITileEntity {
         public Vector2Int getPositionInChunk();
-
         public Vector2 getWorldPosition();
         public Vector2Int getCellPosition();
         public IChunkPartition getPartition();

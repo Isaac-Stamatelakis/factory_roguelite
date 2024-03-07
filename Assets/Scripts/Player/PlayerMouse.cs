@@ -60,7 +60,7 @@ namespace PlayerModule.Mouse {
             
         }
 
-        private IChunk getChunk(Vector2 mousePosition) {
+        private ILoadedChunk getChunk(Vector2 mousePosition) {
             ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
             if (closedChunkSystem == null) {
                 return null;
@@ -71,13 +71,13 @@ namespace PlayerModule.Mouse {
 
         private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
             DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
-            return dimensionManager.CurrentDimension.GetClosedChunkSystem(mousePosition);
+            return dimensionManager.CurrentDimension.GetClosedChunkSystem();
         }
 
         private void handleRightClick(Vector2 mousePosition) {
             handleDrop(mousePosition);
             if (devMode.spawnItem) {
-                IChunk chunk = getChunk(mousePosition);
+                ILoadedChunk chunk = getChunk(mousePosition);
                 if (chunk != null) {
                         ItemEntityHelper.spawnItemEntity(
                         mousePosition,
@@ -211,7 +211,7 @@ namespace PlayerModule.Mouse {
                 Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
                 Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
                 Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
-                IChunk chunk = getChunk(worldPositionTile);
+                ILoadedChunk chunk = getChunk(worldPositionTile);
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
                 Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
@@ -257,7 +257,7 @@ namespace PlayerModule.Mouse {
             if (grabbedItemProperties.itemSlot == null) {
                 return false;
             }
-            IChunk chunk = getChunk(mousePosition);
+            ILoadedChunk chunk = getChunk(mousePosition);
             if (chunk == null) {
                 return false;
             }
