@@ -8,25 +8,25 @@ using ChunkModule.ClosedChunkSystemModule;
 namespace DimensionModule {
     public class CompactMachineDimController : DimController
     {
-        List<InactiveClosedChunkSystem> inactiveClosedChunkSystems;
+        List<SoftLoadedClosedChunkSystem> inactiveClosedChunkSystems;
         public override void Start()
         {
             base.Start();
-            inactiveClosedChunkSystems =  new List<InactiveClosedChunkSystem>();
-            List<UnloadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(1);
+            inactiveClosedChunkSystems =  new List<SoftLoadedClosedChunkSystem>();
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(1);
             Debug.Log(name +  " Loaded " +  unloadedChunks.Count + " Chunks");
             formSystems(unloadedChunks);
             Debug.Log(name + " Loaded " + inactiveClosedChunkSystems.Count + " Closed Chunk Systems");
         }
 
-        private void formSystems(List<UnloadedConduitTileChunk> unloadedChunks) {
-            foreach (UnloadedConduitTileChunk unloadedChunk in unloadedChunks) {
+        private void formSystems(List<SoftLoadedConduitTileChunk> unloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk unloadedChunk in unloadedChunks) {
                 bool found = false;
                 for (int i = inactiveClosedChunkSystems.Count-1; i >= 0; i--) {
-                    InactiveClosedChunkSystem inactiveClosedChunkSystem = inactiveClosedChunkSystems[i];
+                    SoftLoadedClosedChunkSystem inactiveClosedChunkSystem = inactiveClosedChunkSystems[i];
                     found = inactiveClosedChunkSystem.chunkIsNeighbor(unloadedChunk);
                     if (found) {
-                        inactiveClosedChunkSystem.UnloadedChunks.Add(unloadedChunk);
+                        inactiveClosedChunkSystem.addChunk(unloadedChunk);
                         for (int j = inactiveClosedChunkSystems.Count-1; j >= 0; j--) {
                             if (i == j) {
                                 continue;
@@ -42,7 +42,7 @@ namespace DimensionModule {
                     }
                 }
                 if (!found) {
-                    inactiveClosedChunkSystems.Add(new InactiveClosedChunkSystem(new List<UnloadedConduitTileChunk>{unloadedChunk}));
+                    inactiveClosedChunkSystems.Add(new SoftLoadedClosedChunkSystem(new List<SoftLoadedConduitTileChunk>{unloadedChunk}));
                 }
             }
 

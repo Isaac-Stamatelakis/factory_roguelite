@@ -15,6 +15,7 @@ namespace TileEntityModule {
         public Vector2Int getPositionInPartition();
         public TileBase getTile();
         public IChunk getChunk();
+        public void setChunk(IChunk chunk);
     }
     public abstract class TileEntity : ScriptableObject, ITileEntity
     {
@@ -55,6 +56,11 @@ namespace TileEntityModule {
         public IChunk getChunk()
         {
             return chunk;
+        }
+
+        public void setChunk(IChunk chunk)
+        {
+            this.chunk = chunk;
         }
     }
 } // end

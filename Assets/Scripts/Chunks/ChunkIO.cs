@@ -20,10 +20,10 @@ namespace ChunkModule.IO {
             string filePath = getPath(chunkPosition,dim);
             return (Directory.Exists(filePath));
         }
-        public static List<UnloadedConduitTileChunk> getUnloadedChunks(int dim) {
+        public static List<SoftLoadedConduitTileChunk> getUnloadedChunks(int dim) {
             string path = WorldCreation.getDimPath(Global.WorldName,dim);
             string[] files = Directory.GetFiles(path);
-            List<UnloadedConduitTileChunk> unloadedChunks = new List<UnloadedConduitTileChunk>();
+            List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
             foreach (string file in files) {
                 string[] seperated = file.Split("\\");
                 string name = seperated[seperated.Length-1];
@@ -35,13 +35,13 @@ namespace ChunkModule.IO {
                 string data = File.ReadAllText(file);
                 List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
-                UnloadedConduitTileChunk unloadedConduitTileChunk = new UnloadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y));
+                SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y));
                 unloadedChunks.Add(unloadedConduitTileChunk);
             }
             return unloadedChunks;
         }
 
-        public static ILoadedChunk getChunkFromUnloadedChunk(UnloadedConduitTileChunk unloadedConduitTileChunk, ClosedChunkSystem closedChunkSystem) {
+        public static ILoadedChunk getChunkFromUnloadedChunk(SoftLoadedConduitTileChunk unloadedConduitTileChunk, ClosedChunkSystem closedChunkSystem) {
             string chunkName = getName(unloadedConduitTileChunk.Position);
             GameObject chunkGameObject = new GameObject();
             chunkGameObject.name = chunkName;

@@ -16,8 +16,9 @@ namespace DimensionModule {
             ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             activeSystem = mainArea;
             IntervalVector bounds = WorldCreation.getDim0Bounds();
-            List<UnloadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
-            InactiveClosedChunkSystem inactiveClosedChunkSystem = new InactiveClosedChunkSystem(unloadedChunks);
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
+            SoftLoadedClosedChunkSystem inactiveClosedChunkSystem = new SoftLoadedClosedChunkSystem(unloadedChunks);
+            inactiveClosedChunkSystem.softLoad();
             mainArea.initalize(
                 transform,
                 coveredArea: bounds,

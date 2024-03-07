@@ -7,14 +7,14 @@ namespace ChunkModule {
     /// <summary>
     /// A lightweight version of a conduit tile chunk
     /// </summary>
-    public class UnloadedConduitTileChunk : IChunk
+    public class SoftLoadedConduitTileChunk : IChunk
     {
         private List<List<IChunkPartition>> partitions;
         private Vector2Int position;
         public Vector2Int Position { get => position; set => position = value; }
         public List<List<IChunkPartition>> Partitions { get => partitions; set => partitions = value; }
 
-        public UnloadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition) {
+        public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition) {
             this.position = chunkPosition;
             generatePartitions(chunkPartitionDataList);
         }
