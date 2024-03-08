@@ -7,6 +7,11 @@ using WorldModule;
 using ChunkModule.ClosedChunkSystemModule;
 
 namespace DimensionModule {
+    public enum Dimension {
+        OverWorld,
+        Cave,
+        CompactMachine
+    }
     public class DimensionManager : MonoBehaviour
     {
         protected ClosedChunkSystem activeSystem;
@@ -34,7 +39,7 @@ namespace DimensionModule {
             playerTransform = playerIO.transform;
             DimensionManagerContainer.getInstance();
            // setDim(playerIO.playerData.dim);
-            setDim(0);
+            activateSystem(0,Vector2.zero);
         }
         public virtual void Update()
         {
@@ -62,17 +67,21 @@ namespace DimensionModule {
             return ActiveSystem;
         }
 
-        public void setDim(int dim) {
+        public void activateSystem(int dim,Vector2 position) {
             this.dim = dim;
-            if (CurrentDimension != null) {
-                CurrentDimension.gameObject.SetActive(false);
-            }
+            
             CurrentDimension = getCurrentController();
-            activeSystem = currentDimension.getSystem(Vector2.zero);
-            if (activeSystem != null) {
-                Debug.Log("DimensionManager loaded system " + activeSystem.name);
+            ClosedChunkSystem newSystem = currentDimension.getSystem(position);
+            if (newSystem == null) {
+                return;
             }
+            if (activeSystem != null) {
+                GameObject.Destroy(activeSystem.gameObject);
+            }
+            activeSystem = newSystem;
+            Debug.Log("DimensionManager loaded system " + activeSystem.name);
         }
+
 
         public DimController getCurrentController() {
             switch (dim) {

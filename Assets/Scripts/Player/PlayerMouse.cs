@@ -212,6 +212,9 @@ namespace PlayerModule.Mouse {
                 Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
                 Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
                 ILoadedChunk chunk = getChunk(worldPositionTile);
+                if (chunk == null) {
+                    return false;
+                }
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
                 Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;

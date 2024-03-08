@@ -85,7 +85,6 @@ namespace ConduitModule.Ports {
             if (conduit == null) {
                 return null;
             }
-            Debug.Log("Hi");
             return JsonConvert.SerializeObject(conduit.getPort());
         }
 

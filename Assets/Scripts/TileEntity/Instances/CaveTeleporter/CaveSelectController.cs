@@ -40,7 +40,7 @@ namespace TileEntityModule.Instances {
             GameObject player = GameObject.Find("Player");
             player.transform.position = new Vector3(0,0,player.transform.position.z);
             DimensionManagerContainer dimensionManagerContainer = DimensionManagerContainer.getInstance();
-            dimensionManagerContainer.getManager().setDim(-1);
+            dimensionManagerContainer.getManager().activateSystem(-1,Vector2.zero);
         }
     }
 }
