@@ -12,4 +12,8 @@ public class IntervalVector
         this.x = x;
         this.y = y;
     }
+
+    public bool inBounds(Vector2Int position) {
+        return position.x >= X.LowerBound && position.x <= X.UpperBound && position.y >= Y.LowerBound && position.y <= Y.UpperBound;
+    }
 }

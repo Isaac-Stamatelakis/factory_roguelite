@@ -9,7 +9,7 @@ namespace TileEntityModule.Instances.CompactMachines {
     public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
-        [SerializeField] public Tilemap tilemap;
+        [SerializeField] public GameObject tilemapContainer;
         public ItemSlot extractItem()
         {
             throw new System.NotImplementedException();

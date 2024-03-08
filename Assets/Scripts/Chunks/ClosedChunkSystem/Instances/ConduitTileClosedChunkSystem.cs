@@ -48,20 +48,18 @@ namespace ChunkModule.ClosedChunkSystemModule {
         {
             partitionUnloader.clearAll();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
-                    foreach (IChunkPartition partition in chunkPartitionList) {
-                        if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
-                            continue;
+                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                        continue;
+                    }
+                    
+                    if (partition.getLoaded() && conduitTileChunkPartition.getConduitLoaded()) {
+                        Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
+                        foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
+                            partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
                         }
-                        
-                        if (partition.getLoaded() && conduitTileChunkPartition.getConduitLoaded()) {
-                            Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
-                            foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
-                                partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
-                            }
-                            conduitTileChunkPartition.setConduits(partitionConduits);
-                            partition.save(tileGridMaps);
-                        }
+                        conduitTileChunkPartition.setConduits(partitionConduits);
+                        partition.save(tileGridMaps);
                     }
                 }
                 ChunkIO.writeChunk(chunk);
@@ -86,10 +84,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.UnloadedChunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
-                foreach (List<IChunkPartition> conduitTileChunkPartitionList in unloadedConduitTileChunk.Partitions) {
-                    foreach (IConduitTileChunkPartition partition in conduitTileChunkPartitionList) {
-                        partition.activate(loadedChunk);
-                    }
+                foreach (IConduitTileChunkPartition partition in loadedChunk.getChunkPartitions()) {
+                    partition.activate(loadedChunk);
                 }
             }
             GameObject portViewerController = new GameObject();

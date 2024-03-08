@@ -5,26 +5,38 @@ using WorldModule;
 using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule;
 using ChunkModule.IO;
+using ChunkModule.PartitionModule;
 
 namespace DimensionModule {
     public class Dim0Controller : DimController
     {
-        public override void Start() {
-            base.Start();
+        private SoftLoadedClosedChunkSystem dim0System;
+        public void FixedUpdate() {
+            foreach (SoftLoadedConduitTileChunk chunk in dim0System.UnloadedChunks) {
+                foreach (IChunkPartition partition in chunk.Partitions) {
+                    partition.tick();
+                }
+            }
+        }
+
+        public void Start() {
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
+            dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
+            dim0System.softLoad();
+        }
+        public override ClosedChunkSystem getSystem(Vector2 position)
+        {
             GameObject closedChunkSystemObject = new GameObject();
+            IntervalVector bounds = WorldCreation.getDim0Bounds();
             closedChunkSystemObject.name="Dim0System";
             ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
-            activeSystem = mainArea;
-            IntervalVector bounds = WorldCreation.getDim0Bounds();
-            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
-            SoftLoadedClosedChunkSystem inactiveClosedChunkSystem = new SoftLoadedClosedChunkSystem(unloadedChunks);
-            inactiveClosedChunkSystem.softLoad();
             mainArea.initalize(
                 transform,
                 coveredArea: bounds,
                 dim: 0,
-                inactiveClosedChunkSystem
+                dim0System
             );
+            return mainArea;
         }
     }
 }

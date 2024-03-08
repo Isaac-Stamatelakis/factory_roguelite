@@ -88,29 +88,29 @@ namespace ChunkModule.PartitionModule {
             */
 
             if (angle > 45 && angle <= 135) { // up
-                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                         iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                     }
                     yield return new WaitForEndOfFrame();
                 }
             } else if (angle <= 225) { // left
-                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    for (int x = Global.ChunkPartitionSize-1; x >=0 ; x --) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    for (int y = Global.ChunkPartitionSize-1; y >=0 ; y --) {
                         iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                     }
                     yield return new WaitForEndOfFrame();
                 }
             } else if (angle <= 315) { // down
-                for (int y = Global.ChunkPartitionSize-1; y >= 0; y --) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                for (int x = Global.ChunkPartitionSize-1; x >= 0; x --) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                         iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                     }
                     yield return new WaitForEndOfFrame();
                 }
             } else { // right
-                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                         iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                     }
                     yield return new WaitForEndOfFrame();

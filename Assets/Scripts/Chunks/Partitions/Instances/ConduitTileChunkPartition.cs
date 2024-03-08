@@ -15,7 +15,7 @@ namespace ChunkModule.PartitionModule {
         public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk);
         public bool getConduitLoaded();
         public void setConduitLoaded(bool val);
-        public void loadTickableTileEntities();
+        public void softLoadTileEntities();
         public Dictionary<TileEntity, List<TileEntityPort>> getEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
         public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits);
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
@@ -53,7 +53,7 @@ namespace ChunkModule.PartitionModule {
         /// <summary>
         /// Loads Tile Entities which are tickable. Note these are always active even if the partition is not in sight of the player
         /// </summary>
-        public void loadTickableTileEntities() {
+        public void softLoadTileEntities() {
             if (tickLoaded) {
                 Debug.LogError("Attempted to tick load partition which is already ticked loaded");
                 return;
@@ -124,7 +124,8 @@ namespace ChunkModule.PartitionModule {
             }
         }
         protected TileEntity placeTickableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
-            if (tileItem.tileEntity is not ITickableTileEntity) {
+            
+            if (tileItem.tileEntity is not ITickableTileEntity && tileItem.tileEntity is not IConduitInteractable) {
                 return null;
             }
             return placeTileEntity(tileItem,options,positionInPartition);

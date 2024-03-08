@@ -8,12 +8,20 @@ namespace DimensionModule {
     public class CaveController : DimController
     {
         [SerializeField] public GeneratedArea cave;
-        
-        public override void Start() {
-            base.Start();
+
+        public override ClosedChunkSystem getSystem(Vector2 position)
+        {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             TileClosedChunkSystem area = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
+            IntervalVector coveredArea = cave.getChunkCoveredArea();
+            area.initalize(transform,coveredArea,-1);
+            return area;
+        }
+
+        /*
+        public override void Start() {
+            
             activeSystem = area;
             // r = 2, n = 13, d = 0.58, i = 5, floating islands
             // r = 2, n = 14, d = 0.58, i = 5, very good
@@ -23,7 +31,7 @@ namespace DimensionModule {
             // r = 3, n = 29, d = 0.58, i = 5, similar to first area more disonneted, skinnier
             // r = 4, n = 48, d = 0.60, i = 5 similar to first area more connected, wider
             // r = 4, n = 48, d = 0.60, i = 20, very wide areas
-            /*
+
             cave.areas.Add(new CaveArea(
                 new UnityEngine.Vector2Int(-40,40),
                 new UnityEngine.Vector2Int(-40,40),
@@ -33,8 +41,7 @@ namespace DimensionModule {
                 0.58F,
                 5
             ));
-            */
-            /*
+           
             cave.areas.Add(new CaveArea(
                 new Vector2Int(-20,20),
                 new Vector2Int(-20,20),
@@ -43,18 +50,19 @@ namespace DimensionModule {
                 0.6F,
                 10
             ));
-            */
+
             
-            /*
+  
             if (generate) {
                 Debug.Log("New Area Saved At: " + Application.persistentDataPath);
                 WorldTileData worldTileData = cave.generate(Random.Range(0,1000000));
                 WorldGenerationFactory.saveToJson(worldTileData,cave,-1);
             }
-            */
-            IntervalVector coveredArea = cave.getChunkCoveredArea();
-            area.initalize(transform,coveredArea,-1);
+
+            
         }
+        */
+        
     }
 }
 

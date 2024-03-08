@@ -16,6 +16,7 @@ namespace TileEntityModule {
         public TileBase getTile();
         public IChunk getChunk();
         public void setChunk(IChunk chunk);
+        public string getName();
     }
     public abstract class TileEntity : ScriptableObject, ITileEntity
     {
@@ -61,6 +62,11 @@ namespace TileEntityModule {
         public void setChunk(IChunk chunk)
         {
             this.chunk = chunk;
+        }
+
+        public string getName()
+        {
+            return name;
         }
     }
 } // end

@@ -9,23 +9,21 @@ namespace ChunkModule {
     /// </summary>
     public class SoftLoadedConduitTileChunk : IChunk
     {
-        private List<List<IChunkPartition>> partitions;
+        private IChunkPartition[,] partitions;
         private Vector2Int position;
         public Vector2Int Position { get => position; set => position = value; }
-        public List<List<IChunkPartition>> Partitions { get => partitions; set => partitions = value; }
+        public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
 
         public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition) {
             this.position = chunkPosition;
             generatePartitions(chunkPartitionDataList);
         }
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
-            partitions = new List<List<IChunkPartition>>();
+            partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
             for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
-                List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
                 for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
-                    chunkPartitions.Add(generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y)));
+                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y));
                 }
-                partitions.Add(chunkPartitions);
             }
         }
 
@@ -48,14 +46,14 @@ namespace ChunkModule {
             return position;
         }
 
-        public List<List<IChunkPartition>> getChunkPartitions()
+        public IChunkPartition[,] getChunkPartitions()
         {
             return partitions;
         }
 
         public IChunkPartition getPartition(Vector2Int position)
         {
-            return partitions[position.x][position.y];
+            return partitions[position.x,position.y];
         }
     }
 }
