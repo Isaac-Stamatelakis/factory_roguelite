@@ -9,7 +9,7 @@ public enum ItemSlotOption {
 }
 
 
-public class ItemSlotFactory 
+public static class ItemSlotFactory 
 {
     public static List<ItemSlot> deserialize(string json) {
         ItemRegistry itemRegister = ItemRegistry.getInstance();
@@ -19,19 +19,7 @@ public class ItemSlotFactory
         }
         List<SerializedItemSlot> serializedItems = JsonConvert.DeserializeObject<List<SerializedItemSlot>>(json);
         foreach (SerializedItemSlot serializedItemSlot in serializedItems) {
-            if (serializedItemSlot.id == null) {
-                itemSlots.Add(new ItemSlot(
-                    itemObject: null,
-                    amount: 0,
-                    nbt: null
-                ));
-            } else {
-                itemSlots.Add(new ItemSlot(
-                    itemObject: itemRegister.getItemObject(serializedItemSlot.id),
-                    amount: serializedItemSlot.amount,
-                    nbt: serializedItemSlot.nbt
-                ));
-            }
+            itemSlots.Add(deseralizeItemSlot(serializedItemSlot));
                
         }
         return itemSlots;
@@ -89,6 +77,30 @@ public class ItemSlotFactory
             amount: itemSlot.amount,
             nbt: itemSlot.nbt
         );
+    }
+
+    public static string seralizeItemSlot(ItemSlot itemSlot) {
+        return JsonConvert.SerializeObject(serialize(itemSlot));
+    }
+    public static ItemSlot deseralizeItemSlotFromString(string data) {
+        SerializedItemSlot serializedItemSlot = JsonConvert.DeserializeObject<SerializedItemSlot>(data);
+        return deseralizeItemSlot(serializedItemSlot);
+    }
+    public static ItemSlot deseralizeItemSlot(SerializedItemSlot serializedItemSlot) {
+        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+        if (serializedItemSlot.id == null) {
+            return new ItemSlot(
+                itemObject: null,
+                amount: 0,
+                nbt: null
+            );
+        } else {
+            return new ItemSlot(
+                itemObject: itemRegistry.getItemObject(serializedItemSlot.id),
+                amount: serializedItemSlot.amount,
+                nbt: serializedItemSlot.nbt
+            );
+        }
     }
 
     

@@ -6,13 +6,23 @@ using ChunkModule.IO;
 using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
 using TileEntityModule.Instances.CompactMachines;
+using WorldModule;
 
 namespace DimensionModule {
-    public class CompactMachineDimController : DimController
+    public class CompactMachineDimController : DimController, IMultipleSystemController
     {
         private List<SoftLoadedClosedChunkSystem>[] systemsInRingDepth;
         public void Start()
         {
+            if (systemsInRingDepth == null) {
+                initalizeSystems();
+            }
+        }
+
+        public void initalizeSystems() {
+            if (!WorldCreation.dimExists(Global.WorldName,1)) {
+                WorldCreation.createDimFolder(Global.WorldName,1);
+            }
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(1);
             Debug.Log(name +  " Loaded " +  unloadedChunks.Count + " Chunks");
             List<SoftLoadedClosedChunkSystem> unsortedSystems = formSystems(unloadedChunks);
@@ -25,7 +35,7 @@ namespace DimensionModule {
 
             foreach (SoftLoadedClosedChunkSystem unsortedSystem in unsortedSystems) {
                 Vector2Int center = unsortedSystem.getCenter();
-                int depth = CompactMachineHelper.getDepth(center*Global.ChunkSize);
+                int depth = CompactMachineHelper.getDepth(center);
                 if (depth < 0 || depth > CompactMachineHelper.MaxDepth) {
                     Debug.LogError("SoftLoadedClosedChunkSystem with center " + center + " and depth " + depth + " is out of bounds");
                     continue;
@@ -39,7 +49,6 @@ namespace DimensionModule {
             }
             Debug.Log(name + " Rings from depth in range [0," + CompactMachineHelper.MaxDepth + "] Loaded\n" + debugText); 
         }
-
         private List<SoftLoadedClosedChunkSystem> formSystems(List<SoftLoadedConduitTileChunk> unloadedChunks) {
             List<SoftLoadedClosedChunkSystem> unsortedSystems =  new List<SoftLoadedClosedChunkSystem>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in unloadedChunks) {
@@ -82,9 +91,33 @@ namespace DimensionModule {
             }
         }
 
-        public override ClosedChunkSystem getSystem(Vector2 worldPosition)
+        public ClosedChunkSystem getSystemFromWorldPosition(Vector2 worldPosition)
         {
             Vector2Int cellPosition = Global.getCellPositionFromWorld(worldPosition);
+            return getSystemFromCellPositon(cellPosition);
+        }
+
+        public bool hasSystemOfCompactMachine(CompactMachine compactMachine) {
+            Vector2Int systemPosition = CompactMachineHelper.getPositionInNextRing(compactMachine.getCellPosition());
+            int depth = CompactMachineHelper.getDepth(systemPosition);
+            if (depth < 0 || depth > CompactMachineHelper.MaxDepth) {
+                Debug.LogWarning("Attempted to check existence of compact machine + '" + compactMachine.name + "' with out of bounds depth:" + depth);
+                return false;
+            }
+            if (systemsInRingDepth == null) {
+                initalizeSystems();
+            }
+            List<SoftLoadedClosedChunkSystem> systems = systemsInRingDepth[depth];
+            foreach (SoftLoadedClosedChunkSystem system in systems) {
+                if (system.CoveredArea.contains(systemPosition)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public ClosedChunkSystem getSystemFromCellPositon(Vector2Int cellPosition)
+        {
             int depth = CompactMachineHelper.getDepth(cellPosition);
             if (depth < 0 || depth > CompactMachineHelper.MaxDepth) {
                 Debug.LogError("Attempted to activate compact machine closed chunk system with depth " + depth + " which is out of bounds");
@@ -93,7 +126,7 @@ namespace DimensionModule {
             List<SoftLoadedClosedChunkSystem> depthSystems = systemsInRingDepth[depth];
             foreach (SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem in depthSystems) {
                 IntervalVector coveredArea = softLoadedClosedChunkSystem.CoveredArea;
-                if (!coveredArea.inBounds(cellPosition)) {
+                if (!coveredArea.contains(cellPosition)) {
                     continue;
                 }
                 GameObject closedChunkSystemObject = new GameObject();

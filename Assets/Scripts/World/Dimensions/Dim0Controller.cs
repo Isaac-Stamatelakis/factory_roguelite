@@ -8,7 +8,7 @@ using ChunkModule.IO;
 using ChunkModule.PartitionModule;
 
 namespace DimensionModule {
-    public class Dim0Controller : DimController
+    public class Dim0Controller : DimController, ISingleSystemController
     {
         private SoftLoadedClosedChunkSystem dim0System;
         public void FixedUpdate() {
@@ -24,7 +24,8 @@ namespace DimensionModule {
             dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
             dim0System.softLoad();
         }
-        public override ClosedChunkSystem getSystem(Vector2 position)
+
+        public ClosedChunkSystem getSystem()
         {
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.getDim0Bounds();

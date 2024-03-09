@@ -39,8 +39,10 @@ namespace DimensionModule {
             playerTransform = playerIO.transform;
             DimensionManagerContainer.getInstance();
            // setDim(playerIO.playerData.dim);
-            activateSystem(0,Vector2.zero);
+            setActiveSystemFromWorldPosition(0,playerIO.getPlayerPosition());
         }
+
+        
         public virtual void Update()
         {
             if (ActiveSystem == null) {
@@ -67,14 +69,41 @@ namespace DimensionModule {
             return ActiveSystem;
         }
 
-        public void activateSystem(int dim,Vector2 position) {
+        public void setActiveSystemFromCellPosition(int dim, Vector2Int cellPosition) {
             this.dim = dim;
-            
-            CurrentDimension = getCurrentController();
-            ClosedChunkSystem newSystem = currentDimension.getSystem(position);
+            currentDimension = getCurrentController();
+            ClosedChunkSystem newSystem = null;
+            if (currentDimension is ISingleSystemController singleSystemController) {
+                newSystem = singleSystemController.getSystem();
+            } else if (currentDimension is IMultipleSystemController multipleSystemController) {
+                newSystem = multipleSystemController.getSystemFromCellPositon(cellPosition);
+            }
             if (newSystem == null) {
                 return;
             }
+            playerIO.transform.position = new Vector2(cellPosition.x/2f,cellPosition.y/2f);
+            activateSystem(newSystem);
+
+        }
+        public void setActiveSystemFromWorldPosition(int dim,Vector2 position) {
+            
+            this.dim = dim;
+            currentDimension = getCurrentController();
+            ClosedChunkSystem newSystem = null;
+            if (currentDimension is ISingleSystemController singleSystemController) {
+                newSystem = singleSystemController.getSystem();
+            } else if (currentDimension is IMultipleSystemController multipleSystemController) {
+                newSystem = multipleSystemController.getSystemFromWorldPosition(position);
+            }
+            if (newSystem == null) {
+                return;
+            }
+            playerIO.transform.position = position;
+            activateSystem(newSystem);
+            
+        }
+
+        private void activateSystem(ClosedChunkSystem newSystem) {
             if (activeSystem != null) {
                 GameObject.Destroy(activeSystem.gameObject);
             }
@@ -93,6 +122,18 @@ namespace DimensionModule {
                     return compactMachineDimController;
             }
             return null;
+        }
+
+        public Dim0Controller getDim0Controller() {
+            return overworldDimController;
+        }
+
+        public CaveController getCaveController() {
+            return caveDimController;
+        }
+
+        public CompactMachineDimController GetCompactMachineDimController() {
+            return compactMachineDimController;
         }
     }
 }

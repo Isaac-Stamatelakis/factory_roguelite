@@ -29,21 +29,14 @@ namespace PlayerModule.IO {
             string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
             string json = File.ReadAllText(playerJsonPath);
             playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
-            transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
+            //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
             GetComponent<PlayerRobot>().setRobot(ItemRegistry.getInstance().GetRobotItem(playerData.robotID));
             tilePlacePreviewController.toggle();
         }
 
     
-        // Update is called once per frame
-        void Update()
-        {
-            /*
-            playerData["enablePlacePreview"] = devMode.placePreview;
-            if (devMode.placePreview != tilePlacePreviewController.On) {
-                tilePlacePreviewController.toggle();
-            }
-            */
+        public Vector2 getPlayerPosition() {
+            return new Vector2(playerData.x,playerData.y);
         }
 
         void OnDestroy() {

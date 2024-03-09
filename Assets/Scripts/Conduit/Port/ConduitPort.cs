@@ -56,7 +56,7 @@ namespace ConduitModule.Ports {
 
     public interface IItemConduitInteractable : IConduitInteractable {
         public ItemSlot extractItem();
-        public ItemSlot insertItem(ItemSlot itemSlot);
+        public void insertItem(ItemSlot itemSlot);
     }
     public interface ISolidItemConduitInteractable : IItemConduitInteractable {
         
@@ -101,7 +101,6 @@ namespace ConduitModule.Ports {
         
         public EntityPortType portType;
         public Vector2Int position;
-        
         public TileEntityPort(EntityPortType type, Vector2Int position) {
             this.portType = type;
             this.position = position;

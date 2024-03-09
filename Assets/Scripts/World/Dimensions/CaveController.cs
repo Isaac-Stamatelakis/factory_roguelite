@@ -5,11 +5,11 @@ using ChunkModule.ClosedChunkSystemModule;
 using WorldModule.Generation;
 
 namespace DimensionModule {
-    public class CaveController : DimController
+    public class CaveController : DimController, ISingleSystemController
     {
         [SerializeField] public GeneratedArea cave;
 
-        public override ClosedChunkSystem getSystem(Vector2 position)
+        public ClosedChunkSystem getSystem()
         {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
