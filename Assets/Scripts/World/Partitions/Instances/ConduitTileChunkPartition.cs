@@ -9,6 +9,7 @@ using ConduitModule;
 using ChunkModule.IO;
 using ConduitModule.Ports;
 using ItemModule;
+using TileEntityModule.Instances.CompactMachines;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {
@@ -21,6 +22,7 @@ namespace ChunkModule.PartitionModule {
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void activate(ILoadedChunk loadedChunk);
+        public void syncToCompactMachine(CompactMachine compactMachine);
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduitData>, IConduitTileChunkPartition where T : SerializedTileConduitData
     {
@@ -118,14 +120,14 @@ namespace ChunkModule.PartitionModule {
                     }
                     TileEntity tileEntity = tileItem.tileEntity;
                     if (tileEntity != null) {
-                        tileEntities[x,y] = placeTickableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
+                        tileEntities[x,y] = placeSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
                     }
                 }
             }
         }
-        protected TileEntity placeTickableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
+        protected TileEntity placeSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
             
-            if (tileItem.tileEntity is not ITickableTileEntity && tileItem.tileEntity is not IConduitInteractable) {
+            if (tileItem.tileEntity is not ISoftLoadable) {
                 return null;
             }
             return placeTileEntity(tileItem,options,positionInPartition);
@@ -138,14 +140,6 @@ namespace ChunkModule.PartitionModule {
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 
-        protected override bool unloadTileEntity(TileEntity[,] array, int x, int y)
-        {
-            TileEntity tileEntity = array[x,y];
-            if (tileEntity is ITickableTileEntity) {
-                return false;
-            }
-            return base.unloadTileEntity(array,x,y);
-        }
         private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk) {
             IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
@@ -206,10 +200,7 @@ namespace ChunkModule.PartitionModule {
         {
             conduitArrayDict[layer] = conduits;
         }
-        protected override void unloadTileEntities()
-        {
-            
-        }
+        
         public override IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps)
         {
             return base.unloadTiles(tileGridMaps);
@@ -341,6 +332,20 @@ namespace ChunkModule.PartitionModule {
                     continue;
                 }
                 tileEntity.setChunk(loadedChunk);
+            }
+        }
+
+        public void syncToCompactMachine(CompactMachine compactMachine)
+        {
+            Debug.Log("2");
+            foreach (TileEntity tileEntity in tileEntities) {
+                if (tileEntity == null) {
+                    continue;
+                }
+                if (tileEntity is not ICompactMachineInteractable compactMachineInteractable) {
+                    continue;
+                }
+                compactMachineInteractable.syncToCompactMachine(compactMachine);
             }
         }
     }

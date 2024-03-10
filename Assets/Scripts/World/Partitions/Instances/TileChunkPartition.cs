@@ -8,6 +8,7 @@ using TileEntityModule;
 using Tiles;
 using UnityEngine.Tilemaps;
 using ItemModule;
+using ConduitModule.Ports;
 
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -90,6 +91,9 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         protected virtual bool unloadTileEntity(TileEntity[,] array, int x, int y) {
             TileEntity tileEntity = array[x,y];
+            if (tileEntity is ISoftLoadable) {
+                return false;
+            }
             if (tileEntity is ILoadableTileEntity) {
                 ((ILoadableTileEntity) tileEntity).unload();
             }
@@ -144,7 +148,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             if (tileItem == null) {
                 return;
             }
-            if (tileItem.tileEntity != null) {
+            if (tileItem.tileEntity != null ) {
                 placeTileEntityFromLoad(
                     tileItem,
                     tileEntityOptions,
@@ -170,6 +174,9 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         }
 
         protected virtual void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y) {
+            if (tileItem.tileEntity is ISoftLoadable) {
+                return;
+            }
             tileEntityArray[x,y] = placeTileEntity(tileItem,options,positionInPartition);
         }
 

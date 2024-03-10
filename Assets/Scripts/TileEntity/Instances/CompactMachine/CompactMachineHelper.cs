@@ -79,7 +79,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             int x = signX == 1 ? (size.x + 1) / 2 : size.x/2;
             int y = signY == 1 ? (size.y + 1) / 2 : size.y/2;
             Vector2Int dir = new Vector2Int(signX, signY);
-            Vector2Int boundary = new Vector2Int(x,y) * Global.ChunkSize * seperationPerTile();
+            Vector2Int boundary = new Vector2Int(x,y) * seperationPerTile();
             return boundary;
         }
         public static int seperationPerTile() {
@@ -105,8 +105,25 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public static IntervalVector getCompactMachineBounds(CompactMachine compactMachine) {
             IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.tilemapContainer);
-            bounds.add(getPositionInNextRing(compactMachine.getCellPosition()));
+            bounds.add(compactMachine.getCellPosition());
             return bounds;
+        }
+
+        public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
+            int depth = getDepth(compactMachine.getCellPosition());
+            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            if (depth == 0) {
+                dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
+            } else {
+                dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
+            }
+            dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
+            
+        }
+        public static void teleportIntoCompactMachine(CompactMachine compactMachine) {
+            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
+            dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
         }
     }
 }

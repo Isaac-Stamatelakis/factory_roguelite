@@ -8,6 +8,7 @@ using ConduitModule;
 using TileEntityModule;
 using ConduitModule.Ports;
 using ChunkModule.PartitionModule;
+using TileEntityModule.Instances.CompactMachines;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
@@ -90,9 +91,19 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public void softLoad() {
-            //Debug.Log(coveredArea.X.LowerBound + "," + coveredArea.X.UpperBound + "|" + coveredArea.Y.LowerBound + "," + coveredArea.Y.UpperBound); 
-            loadTickableTileEntities();
+            softLoadTileEntities();
             initConduitSystemManagers();
+        }
+
+        public void syncToCompactMachine(CompactMachine compactMachine) {
+            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunk) {
+                foreach (IChunkPartition partition in chunk.Partitions) {
+                    if (partition is not IConduitTileChunkPartition) {
+                        Debug.LogError("Attempted to tick load non conduit tile chunk partition");
+                    }
+                    ((IConduitTileChunkPartition) partition).syncToCompactMachine(compactMachine);
+                }
+            }
         }
         private void initConduitSystemManagers() {
             conduitSystemManagersDict = new Dictionary<TileMapType, ConduitSystemManager>();
@@ -162,7 +173,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public Vector2Int getCenter() {
             return new Vector2Int((coveredArea.X.UpperBound+coveredArea.X.LowerBound)/2,(coveredArea.Y.UpperBound+coveredArea.Y.LowerBound)/2);
         }
-        private void loadTickableTileEntities() {
+        private void softLoadTileEntities() {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunk) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {

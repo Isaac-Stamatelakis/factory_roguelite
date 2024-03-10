@@ -30,8 +30,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         }
 
         private void teleport() {
-            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
-            dimensionManager.setActiveSystemFromCellPosition(1,CompactMachineHelper.getPositionInNextRing(compactMachine.getCellPosition()));
+            CompactMachineHelper.teleportIntoCompactMachine(compactMachine);
         }
         private void toggle() {
             

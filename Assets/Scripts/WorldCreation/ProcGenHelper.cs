@@ -27,7 +27,6 @@ namespace WorldModule.Generation {
             int minY = caveCoveredArea.Y.LowerBound; int maxY = caveCoveredArea.Y.UpperBound;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
-                    Debug.Log("Hi");
                     saveChunk(chunkX, chunkY,minX,minY,dim,worldTileData);
                 }
             }

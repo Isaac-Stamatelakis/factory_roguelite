@@ -110,9 +110,9 @@ namespace WorldModule {
             BoundsInt baseBounds = baseTileMap.cellBounds;
             int xSize = (baseBounds.xMax-baseBounds.xMin)/Global.ChunkSize;
             int ySize = (baseBounds.yMax-baseBounds.yMin)/Global.ChunkSize;
-            int xLower = (xSize + 1) / 2;
+            int xLower = (xSize - 1) / 2;
             int xUpper = xSize / 2;
-            int yLower = (ySize + 1) / 2;
+            int yLower = (ySize - 1) / 2;
             int yUpper = ySize / 2;
             return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
         }

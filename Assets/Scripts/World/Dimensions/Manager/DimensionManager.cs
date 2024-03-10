@@ -39,7 +39,9 @@ namespace DimensionModule {
             playerTransform = playerIO.transform;
             DimensionManagerContainer.getInstance();
            // setDim(playerIO.playerData.dim);
-            setActiveSystemFromWorldPosition(0,playerIO.getPlayerPosition());
+            Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
+            setActiveSystemFromCellPosition(0,playerCellPosition);
+            setPlayerPosition(playerIO.getPlayerPosition());
         }
 
         
@@ -81,30 +83,11 @@ namespace DimensionModule {
             if (newSystem == null) {
                 return;
             }
-            playerIO.transform.position = new Vector2(cellPosition.x/2f,cellPosition.y/2f);
             activateSystem(newSystem);
-
         }
-        public void setActiveSystemFromWorldPosition(int dim,Vector2 position) {
-            
-            this.dim = dim;
-            currentDimension = getCurrentController();
-            ClosedChunkSystem newSystem = null;
-            if (currentDimension is ISingleSystemController singleSystemController) {
-                newSystem = singleSystemController.getSystem();
-            } else if (currentDimension is IMultipleSystemController multipleSystemController) {
-                newSystem = multipleSystemController.getSystemFromWorldPosition(position);
-            }
-            if (newSystem == null) {
-                return;
-            }
-            playerIO.transform.position = position;
-            activateSystem(newSystem);
-            
-        }
-
         private void activateSystem(ClosedChunkSystem newSystem) {
             if (activeSystem != null) {
+                activeSystem.deactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);
             }
             activeSystem = newSystem;
@@ -122,6 +105,15 @@ namespace DimensionModule {
                     return compactMachineDimController;
             }
             return null;
+        }
+
+        public void setPlayerPosition(Vector2 position) {
+            playerIO.transform.position = position;
+            activeSystem.playerPartitionUpdate();
+        }
+        public void setPlayerPositionFromCell(Vector2Int cellPosition) {
+            playerIO.transform.position = new Vector2(cellPosition.x/2f,cellPosition.y/2f);
+            activeSystem.playerPartitionUpdate();
         }
 
         public Dim0Controller getDim0Controller() {

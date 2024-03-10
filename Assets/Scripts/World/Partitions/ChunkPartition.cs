@@ -7,6 +7,7 @@ using TileMapModule.Layer;
 using TileMapModule.Type;
 using Tiles;
 using ItemModule;
+using ConduitModule.Ports;
 
 namespace ChunkModule.PartitionModule {
     
@@ -151,12 +152,23 @@ namespace ChunkModule.PartitionModule {
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
-            unloadTileEntities();
         }
-
+        /*
         protected virtual void unloadTileEntities() {
-            tileEntities = null;
+            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    TileEntity tileEntity = tileEntities[x,y];
+                    if (tileEntity == null) {
+                    continue;
+                    }
+                    if (tileEntity is IConduitInteractable || tileEntity is ITickableTileEntity) {
+                        continue;
+                    }
+                    tileEntities[x,y] = null;
+                }
+            }
         }
+        */
         public void loadEntities() {
 
         }

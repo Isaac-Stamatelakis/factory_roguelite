@@ -8,4 +8,8 @@ namespace TileEntityModule.Instances.CompactMachines {
         public void syncToCompactMachine(CompactMachine compactMachine);
     }
 
+    public interface ICompactMachine {
+        
+    }
+
 }

@@ -1,15 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ConduitModule.Ports;
+
 namespace TileEntityModule {
-    public interface ITickableTileEntity 
+    public interface ITickableTileEntity : ISoftLoadable
     {
         public void tickUpdate();
     }
 
-    public interface IClickableTileEntity 
+    public interface IConduitInteractable : ISoftLoadable {
+        public ConduitPortLayout getConduitPortLayout();
+    }
+
+    public interface IClickableTileEntity
     {
         public void onClick();
+    }
+
+    public interface ISoftLoadable {
+
     }
 
     public interface ISerializableTileEntity {

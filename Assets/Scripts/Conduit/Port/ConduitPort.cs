@@ -50,9 +50,7 @@ namespace ConduitModule.Ports {
     }
   
     
-    public interface IConduitInteractable {
-        public ConduitPortLayout getConduitPortLayout();
-    }
+    
 
     public interface IItemConduitInteractable : IConduitInteractable {
         public ItemSlot extractItem();

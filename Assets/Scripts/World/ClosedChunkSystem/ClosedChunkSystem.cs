@@ -54,6 +54,14 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return null;
         }
 
+        public void deactivateAllPartitions() {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
+                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                    partition.setTileLoaded(false);
+                }
+            }
+        }
+
         public bool containsChunk(Vector2Int position) {
             return cachedChunks.ContainsKey(position);
         }
@@ -70,7 +78,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
         
         public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim) {
-            transform.SetParent(dimTransform);
+            transform.SetParent(dimTransform,false);
             GameObject chunkContainer = new GameObject();
             chunkContainer.name = "Chunks";
             chunkContainer.transform.SetParent(transform);

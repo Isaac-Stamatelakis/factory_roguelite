@@ -5,17 +5,21 @@ using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using ChunkModule;
 using GUIModule;
+using DimensionModule;
 
 namespace TileEntityModule.Instances.CompactMachines {
-    [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine")]
-    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable
+    [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
+    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, ICompactMachine
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
         [SerializeField] public GameObject uiPrefab;
         private CompactMachineInventory inventory;
+        private CompactMachineTeleporter teleporter;
 
         public CompactMachineInventory Inventory { get => inventory; set => inventory = value; }
+        public CompactMachineTeleporter Teleporter { get => teleporter; set => teleporter = value; }
+
         public ItemSlot extractItem()
         {
             throw new System.NotImplementedException();
@@ -38,6 +42,8 @@ namespace TileEntityModule.Instances.CompactMachines {
             if (!CompactMachineHelper.isCreated(this)) {
                 CompactMachineHelper.initalizeCompactMachineSystem(this);
             }
+            CompactMachineDimController dimController = DimensionManagerContainer.getInstance().getManager().GetCompactMachineDimController();
+            dimController.activateSystem(this);
         }
 
         public int insertEnergy(int energy)
@@ -67,6 +73,14 @@ namespace TileEntityModule.Instances.CompactMachines {
             }
             uIController.display(this);
             GlobalUIContainer.getInstance().getUiController().setGUI(instantiated);
+        }
+
+        public Vector2Int getTeleporterPosition() {
+            if (teleporter == null) {
+                Debug.LogError(name +  " Attempted to get teleporter position which was null");
+                return Vector2Int.zero;
+            }
+            return teleporter.getCellPosition();
         }
     }
 

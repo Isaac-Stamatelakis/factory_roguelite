@@ -6,6 +6,7 @@ using ConduitModule.Ports;
 using Newtonsoft.Json;
 
 namespace TileEntityModule.Instances.CompactMachines {
+    [CreateAssetMenu(fileName = "E~New Item Port", menuName = "Tile Entity/Compact Machine/Port/Item")]
     public class CompactMachineItemPort : TileEntity, ISerializableTileEntity ,IConduitInteractable, IItemConduitInteractable, ICompactMachineInteractable
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
@@ -38,6 +39,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public void syncToCompactMachine(CompactMachine compactMachine)
         {
+            Debug.Log("3");
             this.compactMachine = compactMachine;
             compactMachine.Inventory.addPort(this,ConduitType.Energy);
         }
