@@ -188,6 +188,15 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public void save() {
             foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                        Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
+                        continue;
+                    }
+                    Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
+                    foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
+                        partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
+                    }
+                    conduitTileChunkPartition.setConduits(partitionConduits);
                     partition.save();
                 }
                 ChunkIO.writeChunk(chunk);

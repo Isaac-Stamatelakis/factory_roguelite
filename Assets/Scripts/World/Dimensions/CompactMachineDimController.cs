@@ -79,6 +79,7 @@ namespace DimensionModule {
             }
             foreach (List<SoftLoadedClosedChunkSystem> systems in systemsInRingDepth) {
                 foreach (SoftLoadedClosedChunkSystem system in systems) {
+                    Debug.Log("True");
                     system.tickUpdate();
                 }
             }
