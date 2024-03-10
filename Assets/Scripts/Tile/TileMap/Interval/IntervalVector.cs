@@ -12,4 +12,22 @@ public class IntervalVector
         this.x = x;
         this.y = y;
     }
+
+    public bool contains(Vector2Int position) {
+        return position.x >= X.LowerBound && position.x <= X.UpperBound && position.y >= Y.LowerBound && position.y <= Y.UpperBound;
+    }
+    public void add(Vector2Int position) {
+        X.LowerBound += position.x;
+        X.UpperBound += position.x;
+        Y.LowerBound += position.y;
+        Y.UpperBound += position.y;
+    }
+    public Vector2Int getSize() {
+        return new Vector2Int(Mathf.Abs(X.LowerBound-X.UpperBound)+1,Mathf.Abs(Y.LowerBound-Y.UpperBound)+1);
+    }
+
+    public override string ToString()
+    {
+        return "X:[" + X.LowerBound + "," + X.UpperBound + "], Y:[" + Y.LowerBound + "," + Y.UpperBound + "]";
+    }
 }

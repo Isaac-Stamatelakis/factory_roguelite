@@ -15,6 +15,35 @@ namespace ConduitModule {
                 return null;
             }
             ConduitType conduitType = conduitItem.getType();
+            /*
+            if (tileEntity is not IConduitInteractable conduitInteractable) {
+                Debug.LogError("Tile entity is not IConduitInteractable");
+                return null;
+            }
+            ConduitPortLayout portLayout = conduitInteractable.getConduitPortLayout();
+            List<TileEntityPort> ports = null;
+            switch (conduitType) {
+                case ConduitType.Item:
+                    ports = portLayout.itemPorts;
+                    break;
+                case ConduitType.Fluid:
+                    ports = portLayout.fluidPorts;
+                    break;
+                case ConduitType.Energy:
+                    ports = portLayout.energyPorts;
+                    break;
+                case ConduitType.Signal:
+                    ports = portLayout.signalPorts;
+                    break;   
+            }
+            if (ports == null) {
+                Debug.LogError("Tile entity ports were null");
+                return null;
+            }
+            foreach (TileEntityPort tileEntityPort in ports) {
+
+            }
+            */
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
             switch (conduitType) {
                 case ConduitType.Item:

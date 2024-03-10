@@ -95,6 +95,7 @@ namespace TileEntityModule.Instances.Machines
                 inventory.Energy-=currentRecipeCost;
             }
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
+            //Debug.Log(recipeOut.Count);
             for (int n = 0; n < recipeOut.Count; n++) {
                 ItemSlot outputItem = recipeOut[n];
                 for (int j = 0; j < inventory.ItemOutputs.Slots.Count; j++) {
@@ -186,7 +187,7 @@ namespace TileEntityModule.Instances.Machines
             return null;
         }
 
-        public ItemSlot insertItem(ItemSlot itemSlot)
+        public void insertItem(ItemSlot itemSlot)
         {
             List<ItemSlot> inputs = inventory.ItemInputs.Slots;
             for (int i = 0; i < inputs.Count; i++) {
@@ -194,7 +195,7 @@ namespace TileEntityModule.Instances.Machines
                 if (inputSlot == null || inputSlot.itemObject == null) {
                     inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
                     itemSlot.amount=0;
-                    return inputs[i];
+                    return;
                 }
                 if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
                     continue;
@@ -211,9 +212,9 @@ namespace TileEntityModule.Instances.Machines
                     inputSlot.amount = sum;
                     itemSlot.amount = 0;
                 }
-                return inputSlot;
+                return;
             }
-            return null;
+
         }
 
         public ItemSlot extractFluid()
