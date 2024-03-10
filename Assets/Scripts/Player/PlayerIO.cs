@@ -9,6 +9,7 @@ using RobotModule;
 using ItemModule;
 using TileMapModule.Previewer;
 using TileEntityModule.Instances;
+using DimensionModule;
 
 namespace PlayerModule.IO {
 
@@ -42,6 +43,7 @@ namespace PlayerModule.IO {
         void OnDestroy() {
             playerData.x = transform.position.x;
             playerData.y = transform.position.y;
+            playerData.dim = DimensionManagerContainer.getInstance().getManager().Dim;
             playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
             string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
             RobotItem robotItem = GetComponent<PlayerRobot>().robotItem;

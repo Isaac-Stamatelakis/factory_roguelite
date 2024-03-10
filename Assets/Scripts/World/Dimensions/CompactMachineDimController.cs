@@ -13,6 +13,7 @@ namespace DimensionModule {
     {
         private List<SoftLoadedClosedChunkSystem>[] systemsInRingDepth;
         
+        /*
         public void initalizeSystems() {
             if (!WorldCreation.dimExists(Global.WorldName,1)) {
                 WorldCreation.createDimFolder(Global.WorldName,1);
@@ -34,7 +35,6 @@ namespace DimensionModule {
                     Debug.LogError("SoftLoadedClosedChunkSystem with center " + center + " and depth " + depth + " is out of bounds");
                     continue;
                 }
-                //unsortedSystem.softLoad();
                 systemsInRingDepth[depth].Add(unsortedSystem);
             }
             string debugText = "";
@@ -72,6 +72,7 @@ namespace DimensionModule {
             }
             return unsortedSystems;
         }
+        */
 
         public void FixedUpdate() {
             if (systemsInRingDepth == null) {
@@ -79,7 +80,6 @@ namespace DimensionModule {
             }
             foreach (List<SoftLoadedClosedChunkSystem> systems in systemsInRingDepth) {
                 foreach (SoftLoadedClosedChunkSystem system in systems) {
-                    Debug.Log("True");
                     system.tickUpdate();
                 }
             }
@@ -92,6 +92,9 @@ namespace DimensionModule {
         }
 
         public bool hasSystemOfCompactMachine(CompactMachine compactMachine) {
+            if (systemsInRingDepth == null) {
+                return false;
+            }
             return getSystem(compactMachine) != null;
         }
 
@@ -101,9 +104,6 @@ namespace DimensionModule {
             if (depth < 0 || depth > CompactMachineHelper.MaxDepth) {
                 Debug.LogWarning("Attempted to check existence of compact machine + '" + compactMachine.name + "' with out of bounds depth:" + depth);
                 return null;
-            }
-            if (systemsInRingDepth == null) {
-                initalizeSystems();
             }
             List<SoftLoadedClosedChunkSystem> systems = systemsInRingDepth[depth];
             foreach (SoftLoadedClosedChunkSystem system in systems) {
@@ -143,12 +143,21 @@ namespace DimensionModule {
             return null;
         }
 
+
         public void activateSystem(CompactMachine compactMachine) {
-            SoftLoadedClosedChunkSystem system = getSystem(compactMachine);
+            SoftLoadedClosedChunkSystem system = InactiveClosedChunkFactory.importFromFolder(compactMachine.getCellPosition(),1);
             if (system == null) {
                 Debug.LogError("Attempted to soft load null closed chunk system for '" + compactMachine.name + "'");
                 return;
             }
+            int depth = CompactMachineHelper.getDepth(compactMachine.getCellPosition());
+            if (systemsInRingDepth == null) {
+                systemsInRingDepth = new List<SoftLoadedClosedChunkSystem>[CompactMachineHelper.MaxDepth+1];
+                for (int i = 0; i < systemsInRingDepth.Length; i++) {
+                    systemsInRingDepth[i] = new List<SoftLoadedClosedChunkSystem>();
+                }
+            }
+            systemsInRingDepth[depth].Add(system);
             system.softLoad();
             system.syncToCompactMachine(compactMachine);
         }

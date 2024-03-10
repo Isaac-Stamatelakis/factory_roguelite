@@ -41,6 +41,13 @@ namespace ChunkModule.IO {
             return unloadedChunks;
         }
 
+        public static SoftLoadedConduitTileChunk fromData(string data, Vector2Int position, int dim) {
+            List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
+            chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
+            SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,position,dim);
+            return unloadedConduitTileChunk;
+        }
+
         public static ILoadedChunk getChunkFromUnloadedChunk(SoftLoadedConduitTileChunk unloadedConduitTileChunk, ClosedChunkSystem closedChunkSystem) {
             string chunkName = getName(unloadedConduitTileChunk.Position);
             GameObject chunkGameObject = new GameObject();

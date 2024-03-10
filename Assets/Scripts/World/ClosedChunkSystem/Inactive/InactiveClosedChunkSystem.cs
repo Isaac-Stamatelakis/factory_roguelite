@@ -20,18 +20,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks) {
             this.softLoadedChunk = unloadedChunks;
             if (unloadedChunks.Count == 0) {
-                Debug.LogError("Empty list provided to soft loaded chunk system constructor");
                 return;
             }
-            
-            SoftLoadedConduitTileChunk initalChunk = unloadedChunks[0];
-            int x = initalChunk.getPosition().x;
-            int y = initalChunk.getPosition().y;
-            this.coveredArea = new IntervalVector(new Interval<int>(x,x), new Interval<int>(y,y));
-            for (int i = 1; i < unloadedChunks.Count; i++) {
+            for (int i = 0; i < unloadedChunks.Count; i++) {
                 updateCoveredArea(unloadedChunks[i]);
-            }
-            
+            } 
         }
 
         public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunk; set => softLoadedChunk = value; }
@@ -77,6 +70,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         private void updateCoveredArea(SoftLoadedConduitTileChunk chunk) {
+            if (coveredArea == null) {
+                int x = chunk.getPosition().x;
+                int y = chunk.getPosition().y;
+                this.coveredArea = new IntervalVector(new Interval<int>(x,x), new Interval<int>(y,y));
+                return;
+            }
             Vector2Int newChunkPosition = chunk.getPosition();
             if (newChunkPosition.x > coveredArea.X.UpperBound) {
                 coveredArea.X.UpperBound = newChunkPosition.x;

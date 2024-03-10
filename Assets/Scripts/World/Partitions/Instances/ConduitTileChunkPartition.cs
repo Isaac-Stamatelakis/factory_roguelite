@@ -337,7 +337,6 @@ namespace ChunkModule.PartitionModule {
 
         public void syncToCompactMachine(CompactMachine compactMachine)
         {
-            Debug.Log("2");
             foreach (TileEntity tileEntity in tileEntities) {
                 if (tileEntity == null) {
                     continue;

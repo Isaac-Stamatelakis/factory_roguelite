@@ -31,6 +31,7 @@ namespace DimensionModule {
         [SerializeField] public CompactMachineDimController compactMachineDimController;
         private DimController currentDimension;
         private int dim;
+        public int Dim {get => dim;}
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
         public ClosedChunkSystem ActiveSystem { get => activeSystem; set => activeSystem = value; }
 
@@ -38,10 +39,11 @@ namespace DimensionModule {
             Debug.Log("Loading world: " + WorldCreation.getWorldPath(Global.WorldName));
             playerTransform = playerIO.transform;
             DimensionManagerContainer.getInstance();
-           // setDim(playerIO.playerData.dim);
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
-            setActiveSystemFromCellPosition(0,playerCellPosition);
-            setPlayerPosition(playerIO.getPlayerPosition());
+            //setActiveSystemFromCellPosition(playerIO.playerData.dim,playerCellPosition);
+            //setPlayerPosition(playerIO.getPlayerPosition());
+            setActiveSystemFromCellPosition(0,Vector2Int.zero);
+            setPlayerPosition(Vector2.zero);
         }
 
         
