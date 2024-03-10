@@ -11,11 +11,13 @@ namespace ChunkModule {
     {
         private IChunkPartition[,] partitions;
         private Vector2Int position;
+        private int dim;
         public Vector2Int Position { get => position; set => position = value; }
         public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
 
-        public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition) {
+        public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, int dim) {
             this.position = chunkPosition;
+            this.dim = dim;
             generatePartitions(chunkPartitionDataList);
         }
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
@@ -54,6 +56,20 @@ namespace ChunkModule {
         public IChunkPartition getPartition(Vector2Int position)
         {
             return partitions[position.x,position.y];
+        }
+
+        public int getDim()
+        {
+            return dim;
+        }
+
+        public List<IChunkPartitionData> getChunkPartitionData()
+        {
+            List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
+            foreach (IChunkPartition chunkPartition in partitions) {
+                dataList.Add(chunkPartition.getData());
+            }
+            return dataList;
         }
     }
 }

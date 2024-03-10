@@ -18,7 +18,7 @@ namespace ChunkModule.PartitionModule {
         public void setScheduleForUnloading(bool val);
         public IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle);
         public IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps);
-        public void save(Dictionary<TileMapType, ITileMap> tileGridMaps);
+        public void save();
         public bool inRange(Vector2Int target, int xRange, int yRange);
         public void tick();
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);

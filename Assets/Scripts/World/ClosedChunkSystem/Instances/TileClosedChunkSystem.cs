@@ -17,8 +17,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 initTileMapContainer(tileMapType);
             }
         }
+        public override void saveOnDestroy()
+        {
+            base.saveOnDestroy();
+        }
 
-        
+
     }
 
 }

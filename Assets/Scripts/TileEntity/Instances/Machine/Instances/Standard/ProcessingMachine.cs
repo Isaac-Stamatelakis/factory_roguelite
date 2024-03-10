@@ -95,6 +95,7 @@ namespace TileEntityModule.Instances.Machines
                 inventory.Energy-=currentRecipeCost;
             }
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
+            //Debug.Log(recipeOut.Count);
             for (int n = 0; n < recipeOut.Count; n++) {
                 ItemSlot outputItem = recipeOut[n];
                 for (int j = 0; j < inventory.ItemOutputs.Slots.Count; j++) {

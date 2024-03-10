@@ -12,11 +12,7 @@ namespace DimensionModule {
     {
         private SoftLoadedClosedChunkSystem dim0System;
         public void FixedUpdate() {
-            foreach (SoftLoadedConduitTileChunk chunk in dim0System.UnloadedChunks) {
-                foreach (IChunkPartition partition in chunk.Partitions) {
-                    partition.tick();
-                }
-            }
+            dim0System.tickUpdate();
         }
 
         public void Start() {
@@ -38,6 +34,10 @@ namespace DimensionModule {
                 dim0System
             );
             return mainArea;
+        }
+
+        public void OnDestroy() {
+            dim0System.save();
         }
     }
 }

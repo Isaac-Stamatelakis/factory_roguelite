@@ -9,6 +9,7 @@ using TileEntityModule;
 using ConduitModule.Ports;
 using ChunkModule.PartitionModule;
 using TileEntityModule.Instances.CompactMachines;
+using ChunkModule.IO;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
@@ -180,6 +181,26 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                     }
                     ((IConduitTileChunkPartition) partition).softLoadTileEntities();
+                }
+            }
+        }
+
+        public void save() {
+            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
+                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                    partition.save();
+                }
+                ChunkIO.writeChunk(chunk);
+            }
+        }
+
+        public void tickUpdate() {
+            foreach (ConduitSystemManager manager in conduitSystemManagersDict.Values) {
+                manager.tickUpdate();
+            }
+            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
+                foreach (IChunkPartition partition in chunk.Partitions) {
+                    partition.tick();
                 }
             }
         }

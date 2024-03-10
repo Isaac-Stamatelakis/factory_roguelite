@@ -11,7 +11,7 @@ using TileMapModule.Type;
 namespace ChunkModule {
     public interface ILoadedChunk : IChunk {
         
-        public List<IChunkPartitionData> getChunkPartitionData();
+        
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
         public bool partionsAreAllUnloaded();
@@ -22,8 +22,6 @@ namespace ChunkModule {
         public float distanceFrom(Vector2Int target);
         public bool inRange(Vector2Int target, int xRange, int yRange);
         public bool isChunkLoaded();
-        
-        public int getDim();
         public Transform getEntityContainer();
         public Transform getTileEntityContainer();
         public ITileMap getTileMap(TileMapType type);
@@ -34,6 +32,8 @@ namespace ChunkModule {
         public Vector2Int getPosition();
         public IChunkPartition[,] getChunkPartitions();
         public IChunkPartition getPartition(Vector2Int position);
+        public int getDim();
+        public List<IChunkPartitionData> getChunkPartitionData();
     }
 
     public interface ISerizable {

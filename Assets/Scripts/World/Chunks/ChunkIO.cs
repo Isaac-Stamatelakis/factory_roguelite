@@ -35,7 +35,7 @@ namespace ChunkModule.IO {
                 string data = File.ReadAllText(file);
                 List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
-                SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y));
+                SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y),dim);
                 unloadedChunks.Add(unloadedConduitTileChunk);
             }
             return unloadedChunks;
@@ -81,7 +81,7 @@ namespace ChunkModule.IO {
             
         }
 
-        public static void writeChunk(ILoadedChunk chunk) {
+        public static void writeChunk(IChunk chunk) {
 
             File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
         }
@@ -89,7 +89,7 @@ namespace ChunkModule.IO {
             return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Dimensions/dim" + dim + "/" + getName(chunkPosition);
         }
 
-        public static string getPath(ILoadedChunk chunk) {
+        public static string getPath(IChunk chunk) {
             return getPath(chunk.getPosition(),chunk.getDim());
         }
         public static string getName(Vector2Int chunkPosition) {

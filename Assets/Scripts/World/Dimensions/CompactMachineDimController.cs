@@ -79,11 +79,7 @@ namespace DimensionModule {
             }
             foreach (List<SoftLoadedClosedChunkSystem> systems in systemsInRingDepth) {
                 foreach (SoftLoadedClosedChunkSystem system in systems) {
-                    foreach (SoftLoadedConduitTileChunk chunk in system.UnloadedChunks) {
-                        foreach (IChunkPartition partition in chunk.Partitions) {
-                            partition.tick();
-                        }
-                    }
+                    system.tickUpdate();
                 }
             }
         }
@@ -152,9 +148,19 @@ namespace DimensionModule {
                 Debug.LogError("Attempted to soft load null closed chunk system for '" + compactMachine.name + "'");
                 return;
             }
-            Debug.Log(system.getCenter());
             system.softLoad();
             system.syncToCompactMachine(compactMachine);
+        }
+
+        public void OnDestroy() {
+            if (systemsInRingDepth == null) {
+                return;
+            }
+            foreach (List<SoftLoadedClosedChunkSystem> systems in systemsInRingDepth) {
+                foreach (SoftLoadedClosedChunkSystem system in systems) {
+                    system.save();
+                }
+            }
         }
     }
 }

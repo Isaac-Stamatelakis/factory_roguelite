@@ -22,14 +22,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
         private Dictionary<TileMapType, ConduitSystemManager> conduitSystemManagersDict;
         private PortViewerController viewerController;
         
-        public void FixedUpdate() {
-            if (conduitSystemManagersDict == null) {
-                return;
-            }
-            foreach (ConduitSystemManager manager in conduitSystemManagersDict.Values) {
-                manager.tickUpdate();
-            }
-        }
         public override void Awake()
         {
             List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();
@@ -44,6 +36,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             base.Awake();
         }
 
+        /*
         public override void OnDisable()
         {
             partitionUnloader.clearAll();
@@ -65,6 +58,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 ChunkIO.writeChunk(chunk);
             }
         }
+        */
 
         public void tileEntityPlaceUpdate(TileEntity tileEntity) {
             foreach (ConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
@@ -143,6 +137,11 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
         public Vector2Int getBottomLeftCorner() {
             return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+        }
+
+        public override void saveOnDestroy()
+        {
+            // Do nothing
         }
     }
 }

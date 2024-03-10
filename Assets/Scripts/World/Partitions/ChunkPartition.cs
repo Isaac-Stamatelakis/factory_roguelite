@@ -123,7 +123,7 @@ namespace ChunkModule.PartitionModule {
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition);
 
-        public abstract void save(Dictionary<TileMapType, ITileMap> tileGridMaps);
+        public abstract void save();
 
 
 
@@ -133,7 +133,7 @@ namespace ChunkModule.PartitionModule {
         }
 
         public virtual IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps) {
-            save(tileGridMaps);
+            save();
             unloadEntities();
             Vector2Int realPosition = getRealPosition();
             foreach (ITileMap tileMap in tileGridMaps.Values) {
@@ -153,22 +153,6 @@ namespace ChunkModule.PartitionModule {
         public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
         }
-        /*
-        protected virtual void unloadTileEntities() {
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                    TileEntity tileEntity = tileEntities[x,y];
-                    if (tileEntity == null) {
-                    continue;
-                    }
-                    if (tileEntity is IConduitInteractable || tileEntity is ITickableTileEntity) {
-                        continue;
-                    }
-                    tileEntities[x,y] = null;
-                }
-            }
-        }
-        */
         public void loadEntities() {
 
         }

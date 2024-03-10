@@ -25,7 +25,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             yield return base.load(tileGridMaps,angle);
         }
 
-        public override void save(Dictionary<TileMapType, ITileMap> tileGridMaps)
+        public override void save()
         {
             
             Vector2Int position = getRealPosition();
@@ -183,9 +183,9 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
             tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile, this.parent);
-            if (tileEntity is ISerializableTileEntity) {
-                ((ISerializableTileEntity) tileEntity).unserialize(options);
-            }
+                if (tileEntity is ISerializableTileEntity) {
+                    ((ISerializableTileEntity) tileEntity).unserialize(options);
+                }
             if (tileEntity is ILoadableTileEntity) {
                 ((ILoadableTileEntity) tileEntity).load();
             }

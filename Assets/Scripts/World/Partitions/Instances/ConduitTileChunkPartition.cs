@@ -164,9 +164,9 @@ namespace ChunkModule.PartitionModule {
             yield return base.load(tileGridMaps,angle);
         }
 
-        public override void save(Dictionary<TileMapType, ITileMap> tileGridMaps)
+        public override void save()
         {
-            base.save(tileGridMaps);
+            base.save();
             Vector2Int position = getRealPosition();
             SerializedTileConduitData data = (SerializedTileConduitData) getData();
             
