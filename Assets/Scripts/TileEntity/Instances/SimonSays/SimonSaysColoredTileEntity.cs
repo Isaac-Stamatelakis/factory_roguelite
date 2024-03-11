@@ -7,11 +7,13 @@ namespace TileEntityModule.Instances.SimonSays {
     public class SimonSaysColoredTileEntity : TileEntity, IClickableTileEntity
     {
         private SimonSaysController controller;
+        public SimonSaysController Controller {set => controller = value;}
         public void onClick()
         {
             if (controller == null) {
                 return;
             }
+            controller.CoroutineController.showTileClick(this);
         }
 
         public void setColor(int color) {

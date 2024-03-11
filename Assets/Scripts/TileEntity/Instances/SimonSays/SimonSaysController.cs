@@ -11,15 +11,24 @@ namespace TileEntityModule.Instances.SimonSays {
     public class SimonSaysController : TileEntity, IClickableTileEntity, ILoadableTileEntity
     {
         [Header("The number of simon says sequences which are played")]
-        [SerializeField] public int length;
+        [SerializeField] public int maxLength;
+        [SerializeField] public int chances;
         [SerializeField] public LootTable lootTable;
         [Header("Extra rewards for successfully finishing the puzzle")]
         [SerializeField] public LootTable completionLootTable;
         private List<SimonSaysColoredTileEntity> coloredTiles;
+        public List<SimonSaysColoredTileEntity> ColoredTiles {get => coloredTiles;}
         private SimonSaysCoroutineController coroutineController;
         private bool displayingSequence;
-        private ColorPosition[] currentSequence;
-        public bool AllowPlayerPlace {get => !displayingSequence;}
+        private int highestMatchingSequence;
+        private int currentChances;
+        private List<int> currentSequence;
+        private List<int> playerSequence;
+        public bool AllowPlayerPlace {get => !DisplayingSequence;}
+        public SimonSaysCoroutineController CoroutineController { get => coroutineController; set => coroutineController = value; }
+        public bool DisplayingSequence { get => displayingSequence; set => displayingSequence = value; }
+        public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
+
         public void onClick()
         {
             bool started = coroutineController != null;
@@ -28,15 +37,56 @@ namespace TileEntityModule.Instances.SimonSays {
                     return;
                 }
                 initTiles();
+                currentChances = chances;
                 GameObject controllerObject = new GameObject();
                 controllerObject.name = "SimonSaysController";
                 coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
-                coroutineController.init(coloredTiles);
+                coroutineController.init(this);
                 TileEntityHelper.setParentOfSpawnedObject(controllerObject, loadedChunk);
-                currentSequence = generateSequence(32);
-                coroutineController.display(currentSequence);
-                
+                initGame();
             }
+        }
+
+        public void evaluateSequence() {
+            for (int i = 0; i < playerSequence.Count; i++) {
+                if (playerSequence[i] != currentSequence[i]) {
+                    lose();
+                    return;
+                }
+            }
+            if (playerSequence.Count >= currentSequence.Count) {
+                sequenceMatch();
+            }
+            
+        }
+
+        private void initGame() {
+            playerSequence = new List<int>();
+            currentSequence = new List<int>();
+            increaseCurrentSequenceLength(2);
+            coroutineController.display(currentSequence);
+        }
+
+        private void sequenceMatch() {
+            if (highestMatchingSequence == maxLength) {
+                win();
+                return;
+            }
+            playerSequence = new List<int>();
+            increaseCurrentSequenceLength(1);
+            coroutineController.display(currentSequence);
+        }
+        private void win() {
+            
+        }
+        private void lose() {
+            highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
+            chances--;
+            if (chances > 0) {
+                initGame();
+                return;
+            }
+
         }
 
         private void initTiles() {
@@ -54,22 +104,16 @@ namespace TileEntityModule.Instances.SimonSays {
                         continue;
                     }
                     coloredTiles.Add(simonSaysColoredTile);
+                    simonSaysColoredTile.Controller=this;
                 }
             }
             Debug.Log(coloredTiles.Count);
         }
-        private ColorPosition[] generateSequence(int depth) {
-            if (depth <= 0) {
-                Debug.LogError(name +  " Tried to generate sequence with <= 0 depth");
-                return null;
+
+        private void increaseCurrentSequenceLength(int amount) {
+            for (int i = 0; i < amount; i++) {
+                currentSequence.Add(Random.Range(0,coloredTiles.Count));
             }
-            ColorPosition[] sequence = new ColorPosition[depth];
-            for (int i = 0; i < depth; i++) {
-                int color = Random.Range(1,5);
-                int position = Random.Range(0,coloredTiles.Count);
-                sequence[i] = new ColorPosition(color,position);
-            }
-            return sequence;
         }
 
         
@@ -87,20 +131,5 @@ namespace TileEntityModule.Instances.SimonSays {
         }
     }
 
-    public class ColorPosition {
-        public ColorPosition(int color, int position) {
-            this.color = color;
-            this.position = position;
-        }
-        public int color;
-        public int position;
-    }
-    public enum SimonSaysColor {
-        White,
-        Red,
-        Green,
-        Blue,
-        Yellow
-    }
 }
 

@@ -13,12 +13,12 @@ namespace Tiles {
     public class SimonSaysTile : TileBase, IIDTile, ITypeSwitchType, IStateTile
     {
         [SerializeField] public string id;
-        [Header("This tile will be colored red/blue/green/yellow")]
-        [SerializeField] public Tile tile;
-        private Tile[] coloredTiles;
+        [SerializeField] public Tile activeTile;
+        [SerializeField] public Tile inactiveTile;
+        
         public Sprite getDefaultSprite()
         {
-            return tile.sprite;
+            return activeTile.sprite;
         }
 
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
@@ -39,39 +39,10 @@ namespace Tiles {
         public TileBase getTileAtState(int state)
         {
             if (state == 0) {
-                return tile;
-            }
-            if (coloredTiles == null) {
-                initColoredTiles();
-            }
-            if (state <= coloredTiles.Length) {
-                return coloredTiles[state-1];
-            }
-            return null;
-        }
-
-        private void initColoredTiles() {
-            coloredTiles = new Tile[4];
-            for (int i = 0; i < 4; i++) {
-                Tile newTile = ScriptableObject.Instantiate(tile);
-                SimonSaysColor color = (SimonSaysColor)(i+1);
-                switch (color) {
-                    case SimonSaysColor.Red:
-                        newTile.color = Color.red;
-                        break;
-                    case SimonSaysColor.Green:
-                        newTile.color = Color.green;
-                        break;
-                    case SimonSaysColor.Blue:
-                        newTile.color = Color.blue;
-                        break;
-                    case SimonSaysColor.Yellow:
-                        newTile.color = Color.yellow;
-                        break;
-
-                }
-                coloredTiles[i] = newTile;
-            }
+                return inactiveTile;
+            } 
+            return activeTile;
+    
         }
         public TileMapType getStateType(int state)
         {
@@ -80,7 +51,7 @@ namespace Tiles {
 
         public int getStateAmount()
         {
-            return 1+coloredTiles.Length;
+            return 2;
         }
     }
 }

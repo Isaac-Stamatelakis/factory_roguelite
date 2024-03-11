@@ -5,27 +5,47 @@ using UnityEngine;
 namespace TileEntityModule.Instances.SimonSays {
     public class SimonSaysCoroutineController : MonoBehaviour
     {
-        private List<SimonSaysColoredTileEntity> coloredTiles;
-        public void init(List<SimonSaysColoredTileEntity> coloredTiles) {
-            this.coloredTiles = coloredTiles;
+        private SimonSaysController controller;
+        public void init(SimonSaysController controller) {
+            this.controller = controller;
         }
 
-        public void display(ColorPosition[] sequence) {
-            StartCoroutine(show(sequence));
-            
+        public void display(List<int> sequence) {
+            controller.DisplayingSequence = true;
+            StartCoroutine(showSequence(sequence));
         }
 
-        private IEnumerator show(ColorPosition[] sequence) {
-            foreach (ColorPosition colorPosition in sequence) {
-                coloredTiles[colorPosition.position].setColor(colorPosition.color);
-                yield return new WaitForSeconds(0.8f);
-                coloredTiles[colorPosition.position].setColor(0);
-                yield return new WaitForSeconds(0.2f);
+        private IEnumerator showSequence(List<int> sequence) {
+            foreach (int position in sequence) {
+                yield return showTile(controller.ColoredTiles[position]);
             }
+            controller.DisplayingSequence = false;
         }
 
-        public IEnumerator showTileClick(SimonSaysColoredTileEntity coloredTile) {
-            yield return null;
+       
+
+        public void showTileClick(SimonSaysColoredTileEntity coloredTile) {
+            if (!controller.AllowPlayerPlace) {
+                return;
+            }
+            
+            StartCoroutine(showTileOnPlayerPress(coloredTile));
+        }
+        private IEnumerator showTile(SimonSaysColoredTileEntity coloredTileEntity) {
+            coloredTileEntity.setColor(1);
+            yield return new WaitForSeconds(0.8f);
+            coloredTileEntity.setColor(0);
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        private IEnumerator showTileOnPlayerPress(SimonSaysColoredTileEntity coloredTileEntity) {
+            coloredTileEntity.setColor(1);
+            yield return new WaitForSeconds(0.8f);
+            coloredTileEntity.setColor(0);
+            yield return new WaitForSeconds(0.4f);
+            int index = controller.ColoredTiles.IndexOf(coloredTileEntity);
+            controller.PlayerSequence.Add(index);
+            controller.evaluateSequence();
         }
     }
 }
