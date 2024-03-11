@@ -9,9 +9,7 @@ namespace TileEntityModule {
         public void tickUpdate();
     }
 
-    public interface IConduitInteractable : ISoftLoadable {
-        public ConduitPortLayout getConduitPortLayout();
-    }
+    
 
     public interface IClickableTileEntity
     {

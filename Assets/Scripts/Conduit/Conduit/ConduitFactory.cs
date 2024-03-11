@@ -9,42 +9,21 @@ using ItemModule;
 
 namespace ConduitModule {
     public static class ConduitFactory {
-        public static IConduit deseralize(int x, int y, string id, string conduitOptionData, ItemRegistry itemRegistry, TileEntity tileEntity) {
+        public static IConduit deseralize(int x, int y, string id, Vector2Int offset, string conduitOptionData, ItemRegistry itemRegistry, TileEntity tileEntity) {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (conduitItem == null) {
                 return null;
             }
+            
             ConduitType conduitType = conduitItem.getType();
-            /*
-            if (tileEntity is not IConduitInteractable conduitInteractable) {
-                Debug.LogError("Tile entity is not IConduitInteractable");
-                return null;
-            }
-            ConduitPortLayout portLayout = conduitInteractable.getConduitPortLayout();
-            List<TileEntityPort> ports = null;
-            switch (conduitType) {
-                case ConduitType.Item:
-                    ports = portLayout.itemPorts;
-                    break;
-                case ConduitType.Fluid:
-                    ports = portLayout.fluidPorts;
-                    break;
-                case ConduitType.Energy:
-                    ports = portLayout.energyPorts;
-                    break;
-                case ConduitType.Signal:
-                    ports = portLayout.signalPorts;
-                    break;   
-            }
-            if (ports == null) {
-                Debug.LogError("Tile entity ports were null");
-                return null;
-            }
-            foreach (TileEntityPort tileEntityPort in ports) {
-
-            }
-            */
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
+            if (tileEntity != null) {
+                
+                Vector2Int relativePosition = new Vector2Int(x,y) - tileEntity.getCellPosition();
+                port.setPosition(relativePosition);
+            }
+            x += offset.x;
+            y += offset.y;
             switch (conduitType) {
                 case ConduitType.Item:
                     return new ItemConduit(
@@ -108,7 +87,7 @@ namespace ConduitModule {
                         continue;
                     }
                     string conduitOptionData = conduitOptionDataList[x,y];
-                    IConduit conduit = deseralize(x + partitionOffset.x,y + partitionOffset.y, id, conduitOptionData, itemRegistry, tileEntities[x,y]);
+                    IConduit conduit = deseralize(x,y, id, partitionOffset, conduitOptionData, itemRegistry, tileEntities[x,y]);
                     conduits[x,y] = conduit;
                 }
             }

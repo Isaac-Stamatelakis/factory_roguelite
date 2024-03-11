@@ -93,7 +93,7 @@ namespace DimensionModule {
                 GameObject.Destroy(activeSystem.gameObject);
             }
             activeSystem = newSystem;
-            Debug.Log("DimensionManager loaded system " + activeSystem.name);
+            //Debug.Log("DimensionManager loaded system " + activeSystem.name);
         }
 
 

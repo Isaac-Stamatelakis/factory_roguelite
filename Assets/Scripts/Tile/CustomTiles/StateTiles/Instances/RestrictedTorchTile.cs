@@ -7,14 +7,14 @@ using TileMapModule.Layer;
 
 namespace Tiles {
     
-    [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/Sign")]
-    public class RestrictedSignTile : TileBase, IRestrictedTile, IIDTile, IStateTile
+    [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
+    public class RestrictedTorchTile : TileBase, IRestrictedTile, IIDTile, IStateTile
     {
         public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;
-        public Tile hanging;
+        public Tile onBackground;
         public Sprite getDefaultSprite()
         {
             return onBlock.sprite;
@@ -43,7 +43,7 @@ namespace Tiles {
             bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
             bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
             bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
-            bool up = PlaceTile.tileInDirection(position,Direction.Up,TileMapLayer.Base);
+            bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
             //Debug.Log("Left" + left + "," + "Right" + right + "," + "Down" + down + "," + "Background" + background);
             // Priotize placing down
             if (verticalMousePosition == VerticalMousePosition.Bottom && !left && !right && down) {
@@ -56,7 +56,7 @@ namespace Tiles {
             if (horizontalMousePosition == HorizontalMousePosition.Right && right) {
                 return 2;
             }
-            if (!left && !right && !down && up) {
+            if (!left && !right && !down && background) {
                 return 3;
             }
             if (down) {
@@ -68,7 +68,7 @@ namespace Tiles {
             if (right) {
                 return 2;
             }
-            if (up) {
+            if (background) {
                 return 3;
             }
             return -1;
@@ -84,7 +84,7 @@ namespace Tiles {
                 case 2:
                     return onRight;
                 case 3:
-                    return hanging;
+                    return onBackground;
                 default:
                     return null;
             }

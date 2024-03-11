@@ -153,7 +153,7 @@ namespace ChunkModule.PartitionModule {
                     string options = data.conduitOptions[x,y];
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
-                    IConduit conduit = ConduitFactory.deseralize(systemX,systemY,id,options,itemRegistry,tileEntities[x,y]);
+                    IConduit conduit = ConduitFactory.deseralize(x,y,id,partitionOffset-referenceChunk,options,itemRegistry,tileEntities[x,y]);
                     systemConduits[systemX,systemY] = conduit;
                 }
             }

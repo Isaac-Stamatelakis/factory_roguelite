@@ -25,6 +25,7 @@ namespace ChunkModule {
         public Transform getEntityContainer();
         public Transform getTileEntityContainer();
         public ITileMap getTileMap(TileMapType type);
+        public ClosedChunkSystem getSystem();
         
     }
 
@@ -211,6 +212,11 @@ namespace ChunkModule {
         public ITileMap getTileMap(TileMapType type)
         {
             return closedChunkSystem.getTileMap(type);
+        }
+
+        public ClosedChunkSystem getSystem()
+        {
+            return closedChunkSystem;
         }
     }
 }

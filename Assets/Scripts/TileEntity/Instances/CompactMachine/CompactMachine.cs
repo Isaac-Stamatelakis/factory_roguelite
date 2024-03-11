@@ -14,10 +14,10 @@ namespace TileEntityModule.Instances.CompactMachines {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
         [SerializeField] public GameObject uiPrefab;
-        private CompactMachineInventory inventory;
+        private CompactMachinePortInventory inventory;
         private CompactMachineTeleporter teleporter;
 
-        public CompactMachineInventory Inventory { get => inventory; set => inventory = value; }
+        public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporter Teleporter { get => teleporter; set => teleporter = value; }
 
         public ItemSlot extractItem()
@@ -39,9 +39,6 @@ namespace TileEntityModule.Instances.CompactMachines {
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition, tileBase, chunk);
-            if (!CompactMachineHelper.isCreated(this)) {
-                CompactMachineHelper.initalizeCompactMachineSystem(this);
-            }
             CompactMachineDimController dimController = DimensionManagerContainer.getInstance().getManager().GetCompactMachineDimController();
             dimController.activateSystem(this);
         }
@@ -59,6 +56,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         public void onClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
+                CompactMachineHelper.teleportIntoCompactMachine(this);
                 return;
             }
             if (uiPrefab == null) {
@@ -84,7 +82,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         }
     }
 
-    public class CompactMachineInventory {
+    public class CompactMachinePortInventory {
         private CompactMachine compactMachine;
         private Dictionary<Vector2Int, IEnergyConduitInteractable> energyPorts;
         private Dictionary<Vector2Int, IItemConduitInteractable> itemPorts;

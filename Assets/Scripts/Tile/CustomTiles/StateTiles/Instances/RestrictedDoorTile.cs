@@ -8,7 +8,7 @@ using TileMapModule.Type;
 
 namespace Tiles {
     
-    [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/Door")]
+    [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
     public class RestrictedDoorTile : TileBase, IRestrictedTile, IIDTile, ITypeSwitchType, IStateTile
     {
         public string id;

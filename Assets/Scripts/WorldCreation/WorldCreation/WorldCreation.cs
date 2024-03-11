@@ -30,6 +30,7 @@ namespace WorldModule {
             Debug.Log("Dimension Folder Created at " + path);
             initPlayerData(name);
             initDim0(name);
+            createDimFolder(Global.WorldName,1);
 
         }
         public static string getWorldPath(string name) {

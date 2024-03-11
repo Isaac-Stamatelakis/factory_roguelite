@@ -8,7 +8,7 @@ namespace TileEntityModule.Instances {
     {
         public void onClick()
         {
-            TileEntityHelper.layerSwitch(this,1);
+            TileEntityHelper.stateIterate(this,1);
         }
     }
 }

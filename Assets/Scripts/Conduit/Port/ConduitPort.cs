@@ -8,6 +8,7 @@ namespace ConduitModule.Ports {
     public interface IConduitPort {
         public object getInputPort();
         public object GetOutputPort();
+        public void setPosition(Vector2Int position);
     }
 
     public interface IConduitInputPort<T> : ITogglablePort {
@@ -47,10 +48,9 @@ namespace ConduitModule.Ports {
         {
             return outputPort;
         }
+
+        public abstract void setPosition(Vector2Int position);
     }
-  
-    
-    
 
     public interface IItemConduitInteractable : IConduitInteractable {
         public ItemSlot extractItem();

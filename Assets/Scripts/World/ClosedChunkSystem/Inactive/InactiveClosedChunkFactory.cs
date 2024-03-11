@@ -11,31 +11,37 @@ namespace ChunkModule.ClosedChunkSystemModule {
     {
         public static SoftLoadedClosedChunkSystem importFromFolder(Vector2Int positionInSystem,int dim) {
             SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = new SoftLoadedClosedChunkSystem(new List<SoftLoadedConduitTileChunk>{});
-            dfsFormSystem(positionInSystem,dim,softLoadedClosedChunkSystem);
+            HashSet<Vector2Int> seen = new HashSet<Vector2Int>();
+            dfsFormSystem(positionInSystem,dim,softLoadedClosedChunkSystem,seen);
             if (softLoadedClosedChunkSystem.UnloadedChunks.Count == 0) {
                 return null;
             }
             return softLoadedClosedChunkSystem;
         }
 
-        private static void dfsFormSystem(Vector2Int position, int dim, SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem) {
+        private static void dfsFormSystem(Vector2Int position, int dim, SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem, HashSet<Vector2Int> seen) {
+            if (seen.Contains(position)) {
+                return;
+            }
+            seen.Add(position);
             string data = getFileData(position,dim);
             if (data == null) {
                 return;
             }
+            
             softLoadedClosedChunkSystem.addChunk(ChunkIO.fromData(data,position,dim));
 
             Vector2Int left = position+Vector2Int.left;
-            dfsFormSystem(left,dim,softLoadedClosedChunkSystem);
+            dfsFormSystem(left,dim,softLoadedClosedChunkSystem,seen);
 
             Vector2Int right = position+Vector2Int.right;
-            dfsFormSystem(right,dim,softLoadedClosedChunkSystem);
+            dfsFormSystem(right,dim,softLoadedClosedChunkSystem,seen);
             
             Vector2Int up = position+Vector2Int.up;
-            dfsFormSystem(up,dim,softLoadedClosedChunkSystem);
+            dfsFormSystem(up,dim,softLoadedClosedChunkSystem,seen);
 
             Vector2Int down = position+Vector2Int.down;
-            dfsFormSystem(down,dim,softLoadedClosedChunkSystem);
+            dfsFormSystem(down,dim,softLoadedClosedChunkSystem,seen);
         
         }
 

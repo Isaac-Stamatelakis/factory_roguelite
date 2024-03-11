@@ -147,7 +147,11 @@ namespace DimensionModule {
         public void activateSystem(CompactMachine compactMachine) {
             SoftLoadedClosedChunkSystem system = InactiveClosedChunkFactory.importFromFolder(compactMachine.getCellPosition(),1);
             if (system == null) {
-                Debug.LogError("Attempted to soft load null closed chunk system for '" + compactMachine.name + "'");
+                CompactMachineHelper.initalizeCompactMachineSystem(compactMachine);
+                system = InactiveClosedChunkFactory.importFromFolder(compactMachine.getCellPosition(),1);
+            }
+            if (system == null) {
+                Debug.LogError("Could not loaded system for compact machine " + compactMachine.getName());
                 return;
             }
             int depth = CompactMachineHelper.getDepth(compactMachine.getCellPosition());
@@ -160,6 +164,7 @@ namespace DimensionModule {
             systemsInRingDepth[depth].Add(system);
             system.softLoad();
             system.syncToCompactMachine(compactMachine);
+            return;
         }
 
         public void OnDestroy() {
