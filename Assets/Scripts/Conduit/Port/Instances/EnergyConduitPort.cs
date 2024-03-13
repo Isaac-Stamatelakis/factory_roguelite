@@ -16,7 +16,7 @@ namespace ConduitModule.Ports {
         }
 
         public int insert(int energy) {
-            return tileEntity.insertEnergy(energy);
+            return tileEntity.insertEnergy(energy,relativePosition);
         }
 
         public int getColor()
@@ -62,7 +62,7 @@ namespace ConduitModule.Ports {
         }
 
         public ref int extract() {
-            return ref tileEntity.getEnergy();
+            return ref tileEntity.getEnergy(relativePosition);
         }
 
         public int getColor()

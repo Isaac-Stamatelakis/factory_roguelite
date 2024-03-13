@@ -34,8 +34,4 @@ namespace TileEntityModule {
         public void onBreak();
     }
 
-    public interface ITileEntityConduitActive {
-        
-    }
-
 }

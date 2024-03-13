@@ -14,15 +14,13 @@ namespace DimensionModule {
         public void FixedUpdate() {
             dim0System.tickUpdate();
         }
-
-        public void Start() {
-            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
-            dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
-            dim0System.softLoad();
-        }
-
         public ClosedChunkSystem getSystem()
         {
+            if (dim0System == null) {
+                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
+                dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
+                dim0System.softLoad();
+            }
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.getDim0Bounds();
             closedChunkSystemObject.name="Dim0System";

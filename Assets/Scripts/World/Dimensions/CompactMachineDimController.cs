@@ -12,67 +12,6 @@ namespace DimensionModule {
     public class CompactMachineDimController : DimController, IMultipleSystemController
     {
         private List<SoftLoadedClosedChunkSystem>[] systemsInRingDepth;
-        
-        /*
-        public void initalizeSystems() {
-            if (!WorldCreation.dimExists(Global.WorldName,1)) {
-                WorldCreation.createDimFolder(Global.WorldName,1);
-            }
-            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(1);
-            Debug.Log(name +  " Loaded " +  unloadedChunks.Count + " Chunks");
-            List<SoftLoadedClosedChunkSystem> unsortedSystems = formSystems(unloadedChunks);
-            Debug.Log(name + " Loaded " + unsortedSystems.Count + " Closed Chunk Systems");
-
-            systemsInRingDepth = new List<SoftLoadedClosedChunkSystem>[CompactMachineHelper.MaxDepth+1];
-            for (int i = 0; i < systemsInRingDepth.Length; i++) {
-                systemsInRingDepth[i] = new List<SoftLoadedClosedChunkSystem>();
-            }
-
-            foreach (SoftLoadedClosedChunkSystem unsortedSystem in unsortedSystems) {
-                Vector2Int center = unsortedSystem.getCenter();
-                int depth = CompactMachineHelper.getDepth(center);
-                if (depth < 0 || depth > CompactMachineHelper.MaxDepth) {
-                    Debug.LogError("SoftLoadedClosedChunkSystem with center " + center + " and depth " + depth + " is out of bounds");
-                    continue;
-                }
-                systemsInRingDepth[depth].Add(unsortedSystem);
-            }
-            string debugText = "";
-            for (int i = 0; i < systemsInRingDepth.Length; i++) {
-                debugText += "Ring" + i + " Loaded with " + systemsInRingDepth[i].Count + " Systems\n";
-            }
-            Debug.Log(name + " Rings from depth in range [0," + CompactMachineHelper.MaxDepth + "] Loaded\n" + debugText); 
-        }
-        private List<SoftLoadedClosedChunkSystem> formSystems(List<SoftLoadedConduitTileChunk> unloadedChunks) {
-            List<SoftLoadedClosedChunkSystem> unsortedSystems =  new List<SoftLoadedClosedChunkSystem>();
-            foreach (SoftLoadedConduitTileChunk unloadedChunk in unloadedChunks) {
-                bool found = false;
-                for (int i = unsortedSystems.Count-1; i >= 0; i--) {
-                    SoftLoadedClosedChunkSystem inactiveClosedChunkSystem = unsortedSystems[i];
-                    found = inactiveClosedChunkSystem.chunkIsNeighbor(unloadedChunk);
-                    if (found) {
-                        inactiveClosedChunkSystem.addChunk(unloadedChunk);
-                        for (int j = unsortedSystems.Count-1; j >= 0; j--) {
-                            if (i == j) {
-                                continue;
-                            }
-                            if (!inactiveClosedChunkSystem.systemIsNeighbor(unsortedSystems[j])) {
-                                continue;
-                            }
-                            inactiveClosedChunkSystem.merge(unsortedSystems[j]);
-                            unsortedSystems.RemoveAt(j);
-                            break;
-                        }
-                        break;
-                    }
-                }
-                if (!found) {
-                    unsortedSystems.Add(new SoftLoadedClosedChunkSystem(new List<SoftLoadedConduitTileChunk>{unloadedChunk}));
-                }
-            }
-            return unsortedSystems;
-        }
-        */
 
         public void FixedUpdate() {
             if (systemsInRingDepth == null) {

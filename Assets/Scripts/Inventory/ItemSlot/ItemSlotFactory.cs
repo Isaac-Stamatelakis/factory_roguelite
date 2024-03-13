@@ -83,6 +83,9 @@ public static class ItemSlotFactory
         return JsonConvert.SerializeObject(serialize(itemSlot));
     }
     public static ItemSlot deseralizeItemSlotFromString(string data) {
+        if (data == null) {
+            return ItemSlotFactory.createEmptyItemSlot();
+        }
         SerializedItemSlot serializedItemSlot = JsonConvert.DeserializeObject<SerializedItemSlot>(data);
         return deseralizeItemSlot(serializedItemSlot);
     }

@@ -4,6 +4,7 @@ using UnityEngine;
 using WorldModule;
 using DimensionModule;
 using WorldModule.Generation;
+using ConduitModule.Ports;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public static class CompactMachineHelper 
@@ -94,6 +95,43 @@ namespace TileEntityModule.Instances.CompactMachines {
         public static bool isCreated(CompactMachine compactMachine) {
             CompactMachineDimController dimController = DimensionManagerContainer.getInstance().getManager().GetCompactMachineDimController();
             return dimController.hasSystemOfCompactMachine(compactMachine);
+        }
+
+        /// </summary>
+        /// Maps a port inside a compact machine to its port on the compact machine tile entity
+        /// <summary>
+        public static Vector2Int getPortPositionInLayout(Vector2Int relativePortPosition, ConduitPortLayout layout, ConduitType type) {
+            List<TileEntityPort> possiblePorts = null;
+            switch (type) {
+                case ConduitType.Item:
+                    possiblePorts = layout.itemPorts;
+                    break;
+                case ConduitType.Energy:
+                    possiblePorts = layout.energyPorts;
+                    break;
+                case ConduitType.Fluid:
+                    possiblePorts = layout.fluidPorts;
+                    break;
+                case ConduitType.Signal:
+                    possiblePorts = layout.signalPorts;
+                    break;
+            }
+            float smallestDistance = float.PositiveInfinity;
+            TileEntityPort closestPort = null;
+            foreach (TileEntityPort port in possiblePorts) {
+                // maps port position to the center of its relative chunk (eg (1,1) -> (36,36))
+                Vector2 positionInSideCompactMachine =  (port.position + Vector2.one/2f) * (Global.ChunkSize); 
+                float dist = Vector2.Distance(positionInSideCompactMachine,relativePortPosition);
+                if (dist < smallestDistance) {
+                    smallestDistance = dist;
+                    closestPort = port;
+                }
+            }
+            if (closestPort == null) {
+                Debug.LogError("Could not find port to map compact machine to");
+                return Vector2Int.zero;
+            }
+            return closestPort.position;
         }
 
         public static void initalizeCompactMachineSystem(CompactMachine compactMachine) {

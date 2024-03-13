@@ -107,7 +107,6 @@ namespace TileEntityModule.Instances.SimonSays {
                     simonSaysColoredTile.Controller=this;
                 }
             }
-            Debug.Log(coloredTiles.Count);
         }
 
         private void increaseCurrentSequenceLength(int amount) {

@@ -38,7 +38,7 @@ namespace ConduitModule.Ports {
                     return;
                 }
             }
-            tileEntity.insertItem(itemSlot);
+            tileEntity.insertItem(itemSlot,relativePosition);
         }
 
         public int getColor()
@@ -86,7 +86,7 @@ namespace ConduitModule.Ports {
             this.tileEntity = tileEntity;
         }
         public ItemSlot extract() {
-            ItemSlot output = TileEntity.extractItem();
+            ItemSlot output = TileEntity.extractItem(relativePosition);
             if (filter != null) {
                 if (!filter.filter(output)) {
                     return null;
@@ -133,5 +133,6 @@ namespace ConduitModule.Ports {
                 outputPort.RelativePosition = position;
             }
         }
+        
     }
 }

@@ -127,15 +127,6 @@ namespace ConduitModule.ConduitSystemModule {
             }
             ColoredInputPorts[inputPort.getColor()].Add(inputPort);
             addInputPortPostProcessing(inputPort);
-            /*
-            List<ItemConduitInputPort<Interactable,Filter>> prioritySortedPorts = ColoredPriorityInputs[inputPort.color];
-            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<ItemConduitInputPort<Interactable,Filter>>.Create((p1, p2) => p2.priority.CompareTo(p1.priority)));
-            if (index < 0) {
-                // If negative, binary search couldn't find place, use bitwise complement
-                index = ~index;
-            }
-            prioritySortedPorts.Insert(index, inputPort);
-            */
         }
 
         protected abstract void addInputPortPostProcessing(InPort inputPort);

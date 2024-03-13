@@ -47,6 +47,7 @@ namespace ConduitModule.ConduitSystemModule {
                     return;
                 }
                 int taken = inputPort.insert(toInsert);
+                Debug.Log(taken);
                 toInsert -= taken;
             }
             totalEnergy += toInsert;

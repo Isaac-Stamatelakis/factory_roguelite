@@ -50,23 +50,24 @@ namespace ConduitModule.Ports {
         }
 
         public abstract void setPosition(Vector2Int position);
+
     }
 
     public interface IItemConduitInteractable : IConduitInteractable {
-        public ItemSlot extractItem();
-        public void insertItem(ItemSlot itemSlot);
+        public ItemSlot extractItem(Vector2Int portPosition);
+        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition);
     }
     public interface ISolidItemConduitInteractable : IItemConduitInteractable {
         
     }
 
     public interface IEnergyConduitInteractable : IConduitInteractable {
-        public int insertEnergy(int energy);
-        public ref int getEnergy();
+        public int insertEnergy(int energy, Vector2Int portPosition);
+        public ref int getEnergy(Vector2Int portPosition);
     }
     public interface ISignalConduitInteractable : IConduitInteractable {
-        public int extractSignal();
-        public void insertSignal(int signal);
+        public int extractSignal(Vector2Int portPosition);
+        public void insertSignal(int signal,Vector2Int portPosition);
     }
     public interface IFluidConduitInteractable : IItemConduitInteractable {
         

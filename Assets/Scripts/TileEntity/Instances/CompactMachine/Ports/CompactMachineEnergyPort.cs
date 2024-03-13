@@ -18,21 +18,22 @@ namespace TileEntityModule.Instances.CompactMachines {
             return conduitPortLayout;
         }
 
-        public ref int getEnergy()
+        public ref int getEnergy(Vector2Int portPosition)
         {
+            Debug.Log(energy);
             return ref energy;
         }
         
         /// <summary>
         /// Allows unbounded throughput but has no storage
         /// </summary>
-        public int insertEnergy(int energy)
+        public int insertEnergy(int insertEnergy,Vector2Int portPosition)
         {
-            if (energy > 0) {
+            if (this.energy > 0) {
                 return 0;
             }   
-            this.energy = energy;
-            return 0;
+            this.energy = insertEnergy;
+            return insertEnergy;
         }
 
         public string serialize()
@@ -48,6 +49,9 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public void unserialize(string data)
         {
+            if (data == null) {
+                return;
+            }
             energy = JsonConvert.DeserializeObject<int>(data);
         }
     }

@@ -15,7 +15,7 @@ namespace ConduitModule.Ports {
         }
 
         public void insert(int signal) {
-            tileEntity.insertSignal(signal);
+            tileEntity.insertSignal(signal,relativePosition);
         }
         public int getColor()
         {
@@ -48,7 +48,7 @@ namespace ConduitModule.Ports {
 
         public int extract() {
             
-            return tileEntity.extractSignal();
+            return tileEntity.extractSignal(relativePosition);
         }
         public int getColor()
         {

@@ -7,11 +7,10 @@ using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
 using TileMapModule;
 using TileMapModule.Type;
+using TileEntityModule;
 
 namespace ChunkModule {
     public interface ILoadedChunk : IChunk {
-        
-        
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
         public bool partionsAreAllUnloaded();
