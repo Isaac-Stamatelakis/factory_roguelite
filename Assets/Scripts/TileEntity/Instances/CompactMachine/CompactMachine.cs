@@ -9,7 +9,7 @@ using DimensionModule;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, IItemConduitInteractable, IFluidConduitInteractable, ICompactMachine
+    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
@@ -22,7 +22,10 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public ItemSlot extractItem(Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                return inventory.ItemPorts[portPosition].extractItem(portPosition);
+            }
+            return null;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -54,7 +57,11 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                Debug.Log(itemSlot==null);
+                inventory.ItemPorts[portPosition].insertItem(itemSlot,portPosition);
+            }
         }
 
         public void onClick()
@@ -83,6 +90,16 @@ namespace TileEntityModule.Instances.CompactMachines {
                 return Vector2Int.zero;
             }
             return teleporter.getCellPosition();
+        }
+
+        public int extractSignal(Vector2Int portPosition)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void insertSignal(int signal, Vector2Int portPosition)
+        {
+            throw new System.NotImplementedException();
         }
     }
 

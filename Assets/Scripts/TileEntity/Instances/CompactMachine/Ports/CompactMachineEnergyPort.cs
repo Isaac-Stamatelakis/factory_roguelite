@@ -20,7 +20,6 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public ref int getEnergy(Vector2Int portPosition)
         {
-            Debug.Log(energy);
             return ref energy;
         }
         

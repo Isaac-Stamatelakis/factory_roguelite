@@ -17,7 +17,6 @@ namespace ConduitModule {
             
             ConduitType conduitType = conduitItem.getType();
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
-            Debug.Log(port==null);
             if (tileEntity != null && port != null) {
                 Vector2Int relativePosition = cellPosition - tileEntity.getCellPosition();
                 port.setPosition(relativePosition);

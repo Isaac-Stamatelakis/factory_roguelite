@@ -189,6 +189,9 @@ namespace TileEntityModule.Instances.Machines
 
         public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return;
+            }
             List<ItemSlot> inputs = inventory.ItemInputs.Slots;
             for (int i = 0; i < inputs.Count; i++) {
                 ItemSlot inputSlot = inputs[i];

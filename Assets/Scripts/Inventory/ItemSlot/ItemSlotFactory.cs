@@ -25,6 +25,9 @@ public static class ItemSlotFactory
         return itemSlots;
     }
 
+    public static ItemSlot copy(ItemSlot itemSlot) {
+        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+    }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
         for (int n = 0; n < size; n ++) {

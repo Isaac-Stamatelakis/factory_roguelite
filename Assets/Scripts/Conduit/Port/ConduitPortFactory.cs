@@ -11,7 +11,6 @@ namespace ConduitModule.Ports {
             if (data == null) {
                 return null;
             }
-            Debug.Log(data);
             switch (conduitType) {
                 case ConduitType.Item:
                     AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = JsonConvert.DeserializeObject<AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>>(data);
