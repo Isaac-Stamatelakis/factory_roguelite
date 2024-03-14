@@ -5,6 +5,9 @@ using UnityEngine.Tilemaps;
 using Newtonsoft.Json;
 using ChunkModule;
 using ItemModule;
+using Tiles;
+using TileMapModule.Place;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace TileEntityModule.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/Controller")]
@@ -68,25 +71,75 @@ namespace TileEntityModule.Instances.SimonSays {
         }
 
         private void sequenceMatch() {
-            if (highestMatchingSequence == maxLength) {
-                win();
+            highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
+            if (highestMatchingSequence >= maxLength) {
+                conclude();
                 return;
             }
             playerSequence = new List<int>();
             increaseCurrentSequenceLength(1);
             coroutineController.display(currentSequence);
         }
-        private void win() {
-            
-        }
         private void lose() {
-            highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
             chances--;
             if (chances > 0) {
                 initGame();
                 return;
             }
+            conclude();
+        }
 
+        /// <summary>
+        /// Removes this simon says controller, replaces it with other blocks, spawns loot
+        /// </summary>
+        private void conclude() {
+            int lootamount = (highestMatchingSequence*4)/maxLength;
+            List<Vector2Int> brickPlacePositions = new List<Vector2Int>{
+                new Vector2Int(-1,-1),
+                new Vector2Int(-1,1),
+                new Vector2Int(1,-1),
+                new Vector2Int(1,1)
+            };
+            TileItem bricks = ItemRegistry.getInstance().getTileItem("sand");
+            if (chunk is not ILoadedChunk loadedChunk) {
+                Debug.LogError("Somehow managed to get to deletion phase of simon says game in a non loaded chunk");
+                return;
+            }
+            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            foreach (Vector2Int position in brickPlacePositions) {
+                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
+                PlaceTile.PlaceFromWorldPosition(bricks,worldPlacePosition,closedChunkSystem,false);
+            }
+            List<Vector2Int> chestPlacePositions = new List<Vector2Int>{
+                new Vector2Int(-1,0),
+                new Vector2Int(1,0),
+                new Vector2Int(0,-1),
+                new Vector2Int(0,1)
+            };
+            TileItem chestTile = ItemRegistry.getInstance().getTileItem("small_chest");
+            int count = 0;
+            foreach (Vector2Int position in chestPlacePositions) {
+                if (count >= lootamount) {
+                    break;
+                }
+                TileEntity chestTileEntity = ScriptableObject.Instantiate(chestTile.tileEntity);
+                if (chestTileEntity is not Chest chest) {
+                    Debug.LogError("SimonSaysController attempted to give items to a non chest tile entity");
+                    break;
+                }
+                List<ItemSlot> loot = LootTableHelper.openWithAmount(lootTable,3);
+                if (count == 3) {
+                    loot.AddRange(LootTableHelper.openWithAmount(completionLootTable,1));
+                }
+                chest.giveItems(loot);
+                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
+                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,false,chestTileEntity);
+                count ++;
+            }
+            TileItem controllerReplacement = ItemRegistry.getInstance().getTileItem("magic");
+            PlaceTile.PlaceFromWorldPosition(controllerReplacement,getWorldPosition(),closedChunkSystem,false);
+            unload();
+            GameObject.Destroy(this);
         }
 
         private void initTiles() {

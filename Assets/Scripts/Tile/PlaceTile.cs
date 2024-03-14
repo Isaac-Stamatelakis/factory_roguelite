@@ -23,38 +23,53 @@ namespace TileMapModule.Place {
             DownLeft,
             Center
         }
+    
+        public static bool PlaceFromCellPosition(ItemObject itemObject, Vector2Int cellPosition, ClosedChunkSystem closedChunkSystem, bool checkConditions = true) {
+            // TODO: refactor this to be the base function rather than place from world. Lots of work though
+            Vector2 worldPosition = new Vector2(cellPosition.x/2f,cellPosition.y/2f)+Vector2.one/4f;
+            return PlaceFromWorldPosition(itemObject,worldPosition,closedChunkSystem,checkConditions);
+        }
         /**
         Conditions:
         i) no tileBlock within sprite size.
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-
-        public static bool Place(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null) {
             if (itemObject is TileItem) {
                 TileItem tileItem = (TileItem) itemObject;
-                if (tilePlacable(tileItem,worldPlaceLocation)) {
+                bool placable = true;
+                if (checkConditions) {
+                    placable = tilePlacable(tileItem,worldPlaceLocation);
+                }
+                if (placable) {
                     TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem);
+                    placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity);
                     return true;
                 }
             } else if (itemObject is ConduitItem) {
                 if (closedChunkSystem is not ConduitTileClosedChunkSystem) {
                     return false;
                 }
+                bool placable = true;
                 ConduitItem conduitItem = ((ConduitItem) itemObject);
                 TileMapType tileMapType = conduitItem.getType().toTileMapType();
                 ITileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
                 if (conduitMap == null || conduitMap is not ConduitTileMap) {
                     return false;
                 }
-                if (conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
+                if (checkConditions) {
+                    placable = conduitPlacable(conduitItem,worldPlaceLocation,conduitMap);
+                }
+                
+                if (placable) {
                     placeConduit(conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
                     return true;
                 }
             }
             return false;
         }
+
         private static bool tilePlacable(TileItem tileItem,Vector2 worldPlaceLocation) {
             TileMapType tileMapType = tileItem.tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
@@ -170,7 +185,7 @@ namespace TileMapModule.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem) {
+        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null) {
             if (tileMap == null) {
                 return;
             }
@@ -196,8 +211,11 @@ namespace TileMapModule.Place {
                     Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
                     return;
                 }
-                TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-                tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
+                TileEntity tileEntity = presetTileEntity;
+                if (tileEntity == null) {
+                    tileEntity = GameObject.Instantiate(tileItem.tileEntity);
+                    tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
+                } 
                 if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     if (tileEntity is IConduitInteractable) {
                         conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
@@ -230,7 +248,6 @@ namespace TileMapModule.Place {
         }
 
         public static UnityEngine.Vector2Int getPlacePosition(ItemObject item, float x, float y) {
-            Vector2 spriteSize = Global.getSpriteSize(item.getSprite());
             return new UnityEngine.Vector2Int(snap(x), snap(y));
         }
 

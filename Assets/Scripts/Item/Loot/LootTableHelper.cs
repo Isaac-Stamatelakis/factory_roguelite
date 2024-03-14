@@ -38,16 +38,17 @@ namespace ItemModule {
             int ran = Random.Range(0,frequencySum);
             frequencySum = 0;
             foreach (LootResult lootResult in lootTable.loot) {
+                
                 if (lootResult.item == null) {
                     continue;
                 }
-                if (!lootTable.repetitions && excludedIDs.Contains(lootResult.item.id)) {
+                if (!lootTable.repetitions && excludedIDs.Contains(lootResult.item.id)) { 
                     continue;
                 }
-                if (frequencySum < ran) {
+                frequencySum += lootResult.frequency;
+                if (frequencySum >= ran) {
                     return lootResult;
                 }
-                frequencySum += lootResult.frequency;
             }   
             Debug.LogWarning("LootTableHelper returned null for " + lootTable.name);
             return null;
