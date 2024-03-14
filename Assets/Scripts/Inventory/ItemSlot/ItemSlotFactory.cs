@@ -25,6 +25,9 @@ public static class ItemSlotFactory
         return itemSlots;
     }
 
+    public static ItemSlot copy(ItemSlot itemSlot) {
+        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+    }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
         for (int n = 0; n < size; n ++) {
@@ -83,6 +86,9 @@ public static class ItemSlotFactory
         return JsonConvert.SerializeObject(serialize(itemSlot));
     }
     public static ItemSlot deseralizeItemSlotFromString(string data) {
+        if (data == null) {
+            return ItemSlotFactory.createEmptyItemSlot();
+        }
         SerializedItemSlot serializedItemSlot = JsonConvert.DeserializeObject<SerializedItemSlot>(data);
         return deseralizeItemSlot(serializedItemSlot);
     }

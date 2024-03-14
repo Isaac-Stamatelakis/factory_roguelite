@@ -123,7 +123,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in unloadedChunks) {
                 addChunk(ChunkIO.getChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
             }
-            Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
+            //Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
         }
 
         public ConduitSystemManager getManager(ConduitType conduitType) {

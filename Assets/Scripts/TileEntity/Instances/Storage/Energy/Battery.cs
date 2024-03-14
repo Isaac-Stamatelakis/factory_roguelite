@@ -23,12 +23,12 @@ namespace TileEntityModule.Instances.Storage {
             return conduitPortLayout;
         }
 
-        public ref int getEnergy()
+        public ref int getEnergy(Vector2Int portPosition)
         {
             return ref energy;
         }
 
-        public int insertEnergy(int input)
+        public int insertEnergy(int input,Vector2Int portPosition)
         {
             if (Energy >= storage) {
                 return 0;

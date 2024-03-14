@@ -41,7 +41,7 @@ public static class TileTypeExtension {
     }
 }
 
-[CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item Register/Tile")]
+[CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
 public class TileItem : ItemObject, IPlacableItem
 {
     public TileType tileType;

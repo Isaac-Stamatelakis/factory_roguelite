@@ -90,7 +90,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             initLoaders();
             CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
             cameraBounds.ClosedChunkSystem = this;
-            Debug.Log("Closed Chunk System '" + name + "' For Dim '" + dim + "' Initalized");
+            Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
 

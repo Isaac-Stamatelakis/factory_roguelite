@@ -2,25 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using TileEntityModule;
 
 namespace ConduitModule.Ports {
-    
 
-    public class ItemConduitInputPort<Interactable,Filter> : IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort where Interactable : IItemConduitInteractable where Filter : IFilter
+    public abstract class ConduitTransferPort<Interactable> where Interactable : IConduitInteractable {
+        protected Interactable tileEntity;
+        protected Vector2Int relativePosition;
+        [JsonIgnore] public Vector2Int RelativePosition {get => relativePosition; set => relativePosition = value;}
+        [JsonIgnore] public Interactable TileEntity { get => tileEntity; set => tileEntity = value; }
+        public ConduitTransferPort(Interactable tileEntity) {
+            this.tileEntity = tileEntity;
+        }
+    }
+
+    public class ItemConduitInputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort where Interactable : IItemConduitInteractable where Filter : IFilter
     {
         private bool enabled;
         public Filter filter;
         public int color;
         public int priority;
         private int inventory;
-        private Interactable tileEntity;
-        [JsonIgnore]
-        public Interactable TileEntity { get => tileEntity; set => tileEntity = value; }
+
+        public ItemConduitInputPort(Interactable tileEntity) : base(tileEntity)
+        {
+        }
+
         public bool Enabled { get => enabled; set => enabled = value; }
 
-        public ItemConduitInputPort(Interactable tileEntity) {
-            this.tileEntity = tileEntity;
-        }
+        
 
         public void insert(ItemSlot itemSlot) {
             if (filter != null) {
@@ -28,7 +38,7 @@ namespace ConduitModule.Ports {
                     return;
                 }
             }
-            TileEntity.insertItem(itemSlot);
+            tileEntity.insertItem(itemSlot,relativePosition);
         }
 
         public int getColor()
@@ -63,7 +73,7 @@ namespace ConduitModule.Ports {
     }
 
     [System.Serializable]
-    public class ItemConduitOutputPort<Interactable,Filter> : IConduitOutputPort<ItemSlot>, IColorPort where Interactable : IItemConduitInteractable where Filter : IFilter
+    public class ItemConduitOutputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort where Interactable : IItemConduitInteractable where Filter : IFilter
     { 
         private bool enabled;
         public int color;
@@ -71,16 +81,12 @@ namespace ConduitModule.Ports {
         public bool roundRobin;
         private int roundRobinIndex;
         public Filter filter;
-        private Interactable tileEntity;
-        [JsonIgnore]
-        public Interactable TileEntity { get => tileEntity; set => tileEntity = value; }
         public bool Enabled { get => enabled; set => enabled = value; }
-
-        public ItemConduitOutputPort (Interactable tileEntity) {
+        public ItemConduitOutputPort (Interactable tileEntity) : base(tileEntity) {
             this.tileEntity = tileEntity;
         }
         public ItemSlot extract() {
-            ItemSlot output = TileEntity.extractItem();
+            ItemSlot output = TileEntity.extractItem(relativePosition);
             if (filter != null) {
                 if (!filter.filter(output)) {
                     return null;
@@ -117,5 +123,16 @@ namespace ConduitModule.Ports {
         public AbstractItemConduitPort(ItemConduitInputPort<Interactable,Filter> inPort, ItemConduitOutputPort<Interactable,Filter> outPort) : base(inPort, outPort)
         {
         }
+
+        public override void setPosition(Vector2Int position)
+        {
+            if (inputPort != null) {
+                inputPort.RelativePosition = position;
+            }
+            if (outputPort != null) {
+                outputPort.RelativePosition = position;
+            }
+        }
+        
     }
 }

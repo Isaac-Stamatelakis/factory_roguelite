@@ -10,10 +10,11 @@ using ChunkModule.IO;
 using ConduitModule.Ports;
 using ItemModule;
 using TileEntityModule.Instances.CompactMachines;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {
-        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk);
+        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,SoftLoadedClosedChunkSystem system);
         public bool getConduitLoaded();
         public void setConduitLoaded(bool val);
         public void softLoadTileEntities();
@@ -33,21 +34,21 @@ namespace ChunkModule.PartitionModule {
         {
         }
 
-        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk)
+        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, SoftLoadedClosedChunkSystem system)
         {
             SerializedTileConduitData serializedTileConduitData = (SerializedTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
-                    getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk);
+                    getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk,system);
                     return;
                 case ConduitType.Fluid:
-                    getConduitsFromData(serializedTileConduitData.fluidConduitData,systemConduits,referenceChunk);
+                    getConduitsFromData(serializedTileConduitData.fluidConduitData,systemConduits,referenceChunk,system);
                     return;
                 case ConduitType.Energy:
-                    getConduitsFromData(serializedTileConduitData.energyConduitData,systemConduits,referenceChunk);
+                    getConduitsFromData(serializedTileConduitData.energyConduitData,systemConduits,referenceChunk,system);
                     return;
                 case ConduitType.Signal:
-                    getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk);
+                    getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk,system);
                     return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
@@ -140,7 +141,7 @@ namespace ChunkModule.PartitionModule {
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 
-        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk) {
+        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, SoftLoadedClosedChunkSystem system) {
             IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
@@ -153,7 +154,9 @@ namespace ChunkModule.PartitionModule {
                     string options = data.conduitOptions[x,y];
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
-                    IConduit conduit = ConduitFactory.deseralize(systemX,systemY,id,options,itemRegistry,tileEntities[x,y]);
+                    Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
+                    TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition);
+                    IConduit conduit = ConduitFactory.deseralize(cellPosition,referenceChunk,id,options,itemRegistry,tileEntity);
                     systemConduits[systemX,systemY] = conduit;
                 }
             }

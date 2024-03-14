@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DimensionModule;
 using PlayerModule.IO;
 using WorldModule;
 using ChunkModule.ClosedChunkSystemModule;
@@ -93,7 +92,7 @@ namespace DimensionModule {
                 GameObject.Destroy(activeSystem.gameObject);
             }
             activeSystem = newSystem;
-            Debug.Log("DimensionManager loaded system " + activeSystem.name);
+            //Debug.Log("DimensionManager loaded system " + activeSystem.name);
         }
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName ="I~New Signal Conduit Item",menuName="Item Register/Conduit/Signal")]
+[CreateAssetMenu(fileName ="I~New Signal Conduit Item",menuName="Item/Instances/Conduit/Signal")]
 public class SignalConduitItem : ConduitItem
 {
     public int maxDistance;

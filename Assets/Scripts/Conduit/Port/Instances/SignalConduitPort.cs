@@ -4,21 +4,18 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 namespace ConduitModule.Ports {
-    public class SignalConduitInputPort : IConduitInputPort<int>, IColorPort
+    public class SignalConduitInputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitInputPort<int>, IColorPort
     {
         public bool enabled;
         public int color;
         public int priority;
-        
-        private ISignalConduitInteractable tileEntity;
-        [JsonIgnore]
-        public ISignalConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
 
-        public SignalConduitInputPort(ISignalConduitInteractable tileEntity) {
-            this.tileEntity = tileEntity;
+        public SignalConduitInputPort(ISignalConduitInteractable tileEntity) : base(tileEntity)
+        {
         }
+
         public void insert(int signal) {
-            tileEntity.insertSignal(signal);
+            tileEntity.insertSignal(signal,relativePosition);
         }
         public int getColor()
         {
@@ -40,19 +37,18 @@ namespace ConduitModule.Ports {
             this.enabled = val;
         }
     }
-    public class SignalConduitOutputPort : IConduitOutputPort<int>, IColorPort
+    public class SignalConduitOutputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitOutputPort<int>, IColorPort
     { 
         public bool enabled;
         public int color;
-        private ISignalConduitInteractable tileEntity;
-        [JsonIgnore]
-        public ISignalConduitInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
-        public SignalConduitOutputPort(ISignalConduitInteractable tileEntity) {
-            this.tileEntity = tileEntity;
+
+        public SignalConduitOutputPort(ISignalConduitInteractable tileEntity) : base(tileEntity)
+        {
         }
+
         public int extract() {
             
-            return tileEntity.extractSignal();
+            return tileEntity.extractSignal(relativePosition);
         }
         public int getColor()
         {
@@ -79,6 +75,16 @@ namespace ConduitModule.Ports {
     {
         public SignalConduitPort(SignalConduitInputPort inPort, SignalConduitOutputPort outPort) : base(inPort, outPort)
         {
+        }
+
+        public override void setPosition(Vector2Int position)
+        {
+            if (inputPort != null) {
+                inputPort.RelativePosition = position;
+            }
+            if (outputPort != null) {
+                outputPort.RelativePosition = position;
+            }
         }
     }
 }

@@ -121,7 +121,7 @@ namespace TileEntityModule.Instances.Machines
             return conduitLayout;
         }
 
-        public ItemSlot extractItem()
+        public ItemSlot extractItem(Vector2Int portPosition)
         {
             foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
                 if (itemSlot != null && itemSlot.itemObject != null) {
@@ -131,7 +131,7 @@ namespace TileEntityModule.Instances.Machines
             return null;
         }
 
-        public void insertItem(ItemSlot itemSlot)
+        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
             List<ItemSlot> inputs = inventory.ItemInputs.Slots;
             for (int i = 0; i < inputs.Count; i++) {
@@ -160,35 +160,35 @@ namespace TileEntityModule.Instances.Machines
             }
         }
 
-        public ItemSlot extractFluid()
+        public ItemSlot extractFluid(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public bool insertFluid(ItemSlot itemSlot)
+        public bool insertFluid(ItemSlot itemSlot,Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public int insertEnergy(int insertEnergy)
+        public int insertEnergy(int insertEnergy,Vector2Int portPosition)
         {
             inventory.Energy += insertEnergy;
             return 0;
         }
 
-        public void insertSignal(int signal)
+        public void insertSignal(int signal,Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public int extractSignal()
+        public int extractSignal(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
     
 
-        public ref int getEnergy()
+        public ref int getEnergy(Vector2Int portPosition)
         {
             return ref inventory.energy;
         }

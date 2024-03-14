@@ -34,7 +34,8 @@ namespace TileEntityModule {
         }
 
         public Vector2 getWorldPosition() {
-            return (positionInChunk + chunk.getPosition() * Global.ChunkSize)/2;
+            Vector2Int cellPosition = getCellPosition();
+            return new Vector2(cellPosition.x/2f+0.25f,cellPosition.y/2f+0.25f);
         }
         public Vector2Int getCellPosition() {
             return (positionInChunk + chunk.getPosition() * Global.ChunkSize);

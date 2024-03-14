@@ -7,13 +7,13 @@ using Newtonsoft.Json;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Item Port", menuName = "Tile Entity/Compact Machine/Port/Item")]
-    public class CompactMachineItemPort : TileEntity, ISerializableTileEntity ,IConduitInteractable, IItemConduitInteractable, ICompactMachineInteractable
+    public class CompactMachineItemPort : TileEntity, ISerializableTileEntity ,IConduitInteractable, ISolidItemConduitInteractable, ICompactMachineInteractable
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         private ItemSlot itemSlot;
         private CompactMachine compactMachine;
 
-        public ItemSlot extractItem()
+        public ItemSlot extractItem(Vector2Int portPosition)
         {
             return itemSlot;
         }
@@ -23,25 +23,24 @@ namespace TileEntityModule.Instances.CompactMachines {
             return conduitPortLayout;
         }
 
-        public void insertItem(ItemSlot toInsert)
+        public void insertItem(ItemSlot toInsert,Vector2Int portPosition)
         {
             if (itemSlot == null || itemSlot.itemObject == null) {
-                itemSlot = toInsert;
+                itemSlot = ItemSlotFactory.copy(toInsert);
+                toInsert.amount=0;
                 return;
             }
-            ItemSlotHelper.handleInsert(itemSlot,toInsert);
         }
 
         public string serialize()
         {
-            return JsonConvert.SerializeObject(ItemSlotFactory.seralizeItemSlot(itemSlot));
+            return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
 
         public void syncToCompactMachine(CompactMachine compactMachine)
         {
-            Debug.Log("3");
             this.compactMachine = compactMachine;
-            compactMachine.Inventory.addPort(this,ConduitType.Energy);
+            compactMachine.Inventory.addPort(this,ConduitType.Item);
         }
 
         public void unserialize(string data)

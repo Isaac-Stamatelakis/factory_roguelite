@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace ItemModule.Transmutable {
-    [CreateAssetMenu(fileName ="New Gem Material",menuName="Item Register/Transmutable/Gem")]
+    [CreateAssetMenu(fileName ="New Gem Material",menuName="Item/Instances/Transmutable/Gem")]
     public class GemTransmutableMaterial : TransmutableItemMaterial
     {
         public List<TransmutableStateOptions> gemStates = new List<TransmutableStateOptions>{

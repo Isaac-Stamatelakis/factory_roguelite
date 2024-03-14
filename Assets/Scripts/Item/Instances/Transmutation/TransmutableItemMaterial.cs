@@ -8,7 +8,7 @@ namespace ItemModule.Transmutable {
     /// <summary>
     /// Creates ItemObjects for each transmutable object state
     /// </summary>
-    [CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item Register/Transmutable/Empty")]
+    [CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item/Instances/Transmutable/Empty")]
     public class TransmutableItemMaterial : ScriptableObject
     {
         public string id;

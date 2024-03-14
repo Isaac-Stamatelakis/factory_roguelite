@@ -146,6 +146,90 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return tileEntityPortData;
             
         }
+
+        /// <summary>
+        /// Returns the tileEntity at a given cellPosition
+        /// </summary>
+        public TileEntity getSoftLoadedTileEntity(Vector2Int cellPosition) {
+            // This method is a little complicated as partitions store tileEntities
+
+            Dictionary<Vector2Int, IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
+            Dictionary<Vector2Int, IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
+            // Check center first
+            TileEntity tileEntity = iterateTileEntitySearch(cellPosition,chunkCache,partitionCache);
+            if (tileEntity != null) {
+                return tileEntity;
+            }
+            // Search order has to search top quadrant first due to mismatch of tile size (2x2) at 0,0 covers x:[0,1] to x:[0,1]
+            for (int searchRange = 1; searchRange < 8; searchRange ++) {
+                // Left top edge
+                for (int x = 0; x <= searchRange; x++) {
+                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
+                    if (tileEntity != null) {
+                        return tileEntity;
+                    }
+                }
+                // Left edge
+                for (int y = searchRange; y >= -searchRange; y--) {
+                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(searchRange,y),chunkCache,partitionCache);
+                    if (tileEntity != null) {
+                        return tileEntity;
+                    }
+                }
+                // Bottom edge
+                for (int x = searchRange; x >= -searchRange; x--) {
+                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,-searchRange),chunkCache,partitionCache);
+                    if (tileEntity != null) {
+                        return tileEntity;
+                    }
+                }
+                // Right edge
+                for (int y = 0; y <= searchRange; y++) {
+                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(-searchRange,y),chunkCache,partitionCache);
+                    if (tileEntity != null) {
+                        return tileEntity;
+                    }
+                }
+                // Right top edge
+                for (int x = -searchRange; x > 0; x++) {
+                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
+                    if (tileEntity != null) {
+                        return tileEntity;
+                    }
+                }
+            }
+            Debug.LogWarning("Could not find tileEntity at " + cellPosition);
+            return null;
+        }
+
+        private TileEntity iterateTileEntitySearch(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache) {
+            Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
+            if (!chunkCache.ContainsKey(chunkPosition)) {
+                chunkCache[chunkPosition] = getChunk(chunkPosition);
+            }
+            IChunk chunk = chunkCache[chunkPosition];
+            if (chunk == null) {
+                return null;
+            }
+            if (!partitionCache.ContainsKey(partitionPosition)) {
+                Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PartitionsPerChunk;
+                partitionCache[partitionPosition] = chunk.getPartition(adjustedPartitionPosition);
+            }
+            IChunkPartition partition = partitionCache[partitionPosition];
+            Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
+            TileEntity tileEntity = partition.GetTileEntity(cellPositionInPartition);
+            return tileEntity;
+        }
+
+        private IChunk getChunk(Vector2Int cellPosition) {
+            foreach (IChunk chunk in UnloadedChunks) {
+                if (chunk.getPosition().Equals(cellPosition)) {
+                    return chunk;
+                }
+            }
+            return null;
+        }
         private IConduit[,] getConduits(ConduitType conduitType) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
@@ -156,7 +240,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference);
+                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference,this);
                 }
             }
             return conduits;

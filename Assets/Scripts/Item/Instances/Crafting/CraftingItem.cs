@@ -7,7 +7,7 @@ namespace ItemModule {
     public interface IStateItem {
         public ItemState getItemState();
     }
-    [CreateAssetMenu(fileName ="New Material Item",menuName="Item Register/Crafting/Standard")]
+    [CreateAssetMenu(fileName ="New Material Item",menuName="Item/Instances/Crafting/Standard")]
     public class CraftingItem : ItemObject, IStateItem
     {
         public Sprite sprite;

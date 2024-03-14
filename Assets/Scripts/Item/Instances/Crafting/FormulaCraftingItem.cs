@@ -6,7 +6,7 @@ namespace ItemModule {
     public interface IFormulaCraftingItem {
         public string getFormula();
     }
-    [CreateAssetMenu(fileName ="New Material Item",menuName="Item Register/Crafting/Formula")]
+    [CreateAssetMenu(fileName ="New Material Item",menuName="Item/Instances/Crafting/Formula")]
     public class FormulaCraftingItem : CraftingItem, IFormulaCraftingItem {
         [Header("Chemical Formula for the Item")]
         [SerializeField] private string formula;
