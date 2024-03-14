@@ -95,27 +95,7 @@ namespace TileEntityModule.Instances.Machines
                 inventory.Energy-=currentRecipeCost;
             }
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            //Debug.Log(recipeOut.Count);
-            for (int n = 0; n < recipeOut.Count; n++) {
-                ItemSlot outputItem = recipeOut[n];
-                for (int j = 0; j < inventory.ItemOutputs.Slots.Count; j++) {
-                    ItemSlot outputSlot = inventory.ItemOutputs.Slots[j];
-                    if (outputSlot == null || outputSlot.itemObject == null) {
-                        inventory.ItemOutputs.Slots[j] = outputItem;
-                        break;
-                    }
-                    if (outputSlot.itemObject.id == outputItem.itemObject.id) {
-                        int sum = outputItem.amount + outputSlot.amount;
-                        if (sum > Global.MaxSize) {
-                            outputSlot.amount = Global.MaxSize;
-                            outputItem.amount = sum - Global.MaxSize;
-                        } else {
-                            outputSlot.amount = sum;
-                            break;
-                        }
-                    }
-                }
-            }
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut);
             currentRecipe = null;
         }
 
@@ -192,32 +172,7 @@ namespace TileEntityModule.Instances.Machines
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
-            List<ItemSlot> inputs = inventory.ItemInputs.Slots;
-            for (int i = 0; i < inputs.Count; i++) {
-                ItemSlot inputSlot = inputs[i];
-                if (inputSlot == null || inputSlot.itemObject == null) {
-                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
-                    itemSlot.amount=0;
-                    return;
-                }
-                if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
-                    continue;
-                }
-                if (inputSlot.amount >= Global.MaxSize) {
-                    continue;
-                }
-                // Success
-                int sum = inputSlot.amount + itemSlot.amount;
-                if (sum > Global.MaxSize) {
-                    itemSlot.amount = sum - Global.MaxSize;
-                    inputSlot.amount = Global.MaxSize;
-                } else {
-                    inputSlot.amount = sum;
-                    itemSlot.amount = 0;
-                }
-                return;
-            }
-
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
         }
 
         public ItemSlot extractFluid(Vector2Int portPosition)

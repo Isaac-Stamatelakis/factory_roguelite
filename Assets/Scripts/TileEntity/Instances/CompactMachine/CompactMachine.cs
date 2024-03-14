@@ -59,7 +59,6 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                Debug.Log(itemSlot==null);
                 inventory.ItemPorts[portPosition].insertItem(itemSlot,portPosition);
             }
         }

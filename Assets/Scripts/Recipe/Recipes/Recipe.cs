@@ -31,12 +31,13 @@ namespace RecipeModule {
         [HideInInspector] public List<string> outputGUIDs;
         public List<ItemSlot> getOutputs()
         {
-            return outputs;
+            List<ItemSlot> copy = new List<ItemSlot>();
+            foreach (ItemSlot itemSlot in outputs) {
+                copy.Add(ItemSlotFactory.copy(itemSlot));
+            }
+            return copy;
         }
         public List<string> OutputPaths {get{return outputGUIDs;} set{outputGUIDs = value;}}
-        
-        // Enable loading of items which have been deleted and recreated (such as transmutables)
-        
     }
     public abstract class SingleOutputRecipe : Recipe {
         public ItemSlot output;

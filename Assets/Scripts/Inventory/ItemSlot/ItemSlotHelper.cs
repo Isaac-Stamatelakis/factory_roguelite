@@ -4,34 +4,49 @@ using UnityEngine;
 
 public static class ItemSlotHelper
 {
-    public static ItemSlot insert(ItemSlot contained, ItemSlot toInsert) {
+    public static void insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert) {
+        for (int i = 0; i < contained.Count; i++) {
+            ItemSlot inputSlot = contained[i];
+            if (inputSlot == null || inputSlot.itemObject == null) {
+                contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.nbt);
+                toInsert.amount=0;
+                return;
+            }
+            if (inputSlot.itemObject.id != toInsert.itemObject.id) {
+                continue;
+            }
+            if (inputSlot.amount >= Global.MaxSize) {
+                continue;
+            }
+            // Success
+            int sum = inputSlot.amount + toInsert.amount;
+            if (sum > Global.MaxSize) {
+                toInsert.amount = sum - Global.MaxSize;
+                inputSlot.amount = Global.MaxSize;
+            } else {
+                inputSlot.amount = sum;
+                toInsert.amount = 0;
+            }
+            return;
+        }
+    }
 
-        /*
-        ItemSlot inputSlot = inputs[i];
-        if (inputSlot == null || inputSlot.itemObject == null) {
-            inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
-            itemSlot.amount=0;
-            return inputs[i];
+    public static List<ItemSlot> initEmptyInventory(int count) {
+        if (count <= 0) {
+            return null;
         }
-        if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
-            continue;
+   
+        List<ItemSlot> inventory = new List<ItemSlot>();
+        for (int i = 0; i < count; i++) {
+            inventory.Add(null);
         }
-        if (inputSlot.amount >= Global.MaxSize) {
-            continue;
+        return inventory; 
+    }
+    public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList) {
+        for (int n = 0; n < insertList.Count; n++) {
+            ItemSlot outputItem = insertList[n];
+            insertIntoInventory(inventory,outputItem);
         }
-        // Success
-        int sum = inputSlot.amount + itemSlot.amount;
-        if (sum > Global.MaxSize) {
-            itemSlot.amount = sum - Global.MaxSize;
-            inputSlot.amount = Global.MaxSize;
-        } else {
-            inputSlot.amount = sum;
-            itemSlot.amount = 0;
-        }
-        return inputSlot;
-        */
-        return null;
-
     }
 
     public static void handleInsert(ItemSlot inputSlot, ItemSlot toInsert) {

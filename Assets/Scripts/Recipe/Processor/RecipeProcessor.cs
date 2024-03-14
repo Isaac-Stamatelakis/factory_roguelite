@@ -44,6 +44,9 @@ namespace RecipeModule {
             }
         }
         protected bool itemsNotAllNull(List<ItemSlot> items) {
+            if (items == null) {
+                return false;
+            }
             foreach (ItemSlot itemSlot in items) {
                 if (itemSlot != null && itemSlot.itemObject != null) {
                     return true;

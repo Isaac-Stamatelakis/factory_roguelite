@@ -70,41 +70,13 @@ namespace TileEntityModule.Instances.Machines {
         }
 
         public static StandardMachineInventory initalize(StandardMachineInventoryLayout machineInventoryLayout) {
-            List<ItemSlot> itemInputs = null;
             if (machineInventoryLayout == null) {
                 return null;
             }
-            int count = machineInventoryLayout.itemInputs.Count;
-            if (count > 0) {
-                itemInputs = new List<ItemSlot>();
-                for (int i = 0; i < count; i++) {
-                    itemInputs.Add(null);
-                }
-            }
-            List<ItemSlot> itemOutputs = null;
-            count = machineInventoryLayout.itemOutputs.Count;
-            if (count > 0) {
-                itemOutputs = new List<ItemSlot>();
-                for (int i = 0; i < count; i++) {
-                    itemOutputs.Add(null);
-                }
-            }
-            List<ItemSlot> fluidInputs = null;
-            count = machineInventoryLayout.fluidInputs.Count;
-            if (count > 0) {
-                fluidInputs = new List<ItemSlot>();
-                for (int i = 0; i < count; i++) {
-                    fluidInputs.Add(null);
-                }
-            }
-            List<ItemSlot> fluidOutputs = null;
-            count = machineInventoryLayout.fluidOutputs.Count;
-            if (count > 0) {
-                fluidOutputs = new List<ItemSlot>();
-                for (int i = 0; i < count; i++) {
-                    fluidOutputs.Add(null);
-                }
-            }
+            List<ItemSlot> itemInputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.itemInputs.Count);
+            List<ItemSlot> itemOutputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.itemOutputs.Count);
+            List<ItemSlot> fluidInputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.fluidInputs.Count);
+            List<ItemSlot> fluidOutputs= ItemSlotHelper.initEmptyInventory(machineInventoryLayout.fluidOutputs.Count);
             
             return new StandardMachineInventory(
                 itemInputs,
