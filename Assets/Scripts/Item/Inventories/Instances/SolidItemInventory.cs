@@ -4,7 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class NonGridInventory : AInventoryUI
+public interface ILoadableInventory {
+    public void initalize(List<ItemSlot> items);
+}
+public class SolidItemInventory : InventoryUI, ILoadableInventory
 {
     public void initalize(List<ItemSlot> items) {
         this.inventory = items;

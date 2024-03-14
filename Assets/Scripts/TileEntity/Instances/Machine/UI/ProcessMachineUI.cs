@@ -38,12 +38,26 @@ namespace TileEntityModule.Instances.Machines {
 
     public static class MachineUIFactory {
         private static GameObject solidSlotPrefab = Resources.Load<GameObject>("Prefabs/GUI/ItemInventorySlot");
+        private static GameObject fluidSlotPrefab = Resources.Load<GameObject>("Prefabs/GUI/FluidInventorySlot");
         public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform) {
             if (items == null) {
                 return;
             }
+    
             GameObject inventoryContainer = new GameObject();
-            NonGridInventory inventoryUI = inventoryContainer.AddComponent<NonGridInventory>();
+            ILoadableInventory inventoryUI = null;
+            switch (itemState) {
+                case ItemState.Solid:
+                    inventoryUI = inventoryContainer.AddComponent<SolidItemInventory>();
+                    break;
+                case ItemState.Fluid:
+                    inventoryUI = inventoryContainer.AddComponent<FluidInventoryGrid>();
+                    break;
+            }
+            if (inventoryUI == null) {
+                Debug.LogError("Could not init inventory for state " + itemState + " as uiinventory is null");
+                return;
+            }
             
             int index = 0;
             foreach (Vector2Int vector in layoutVectors) {
@@ -53,7 +67,7 @@ namespace TileEntityModule.Instances.Machines {
                         slot = GameObject.Instantiate(solidSlotPrefab);
                         break;
                     case ItemState.Fluid:
-                        slot = GameObject.Instantiate(solidSlotPrefab);
+                        slot = GameObject.Instantiate(fluidSlotPrefab);
                         break;
                 }
                 if (slot == null) {
@@ -67,8 +81,8 @@ namespace TileEntityModule.Instances.Machines {
                 rectTransform.transform.position = new Vector3(vector.x,vector.y,0);
                 index ++;
             }
-            inventoryUI.transform.SetParent(transform);
-            inventoryUI.name = containerName;
+            inventoryContainer.transform.SetParent(transform);
+            inventoryContainer.name = containerName;
             inventoryUI.initalize(items);
         }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class AInventoryUI : MonoBehaviour {
+public class InventoryUI : MonoBehaviour {
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
     protected void initalizeSlots() {
@@ -159,7 +159,7 @@ public class AInventoryUI : MonoBehaviour {
         return number;
     }
     
-    public virtual void swapWithGrabbedItem(int n) {
+    public virtual void clickSlot(int n) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
             Debug.LogError("Inventory " + name + " GrabbedItem is null");
@@ -208,7 +208,7 @@ public class AInventoryUI : MonoBehaviour {
     }
 }
 
-public class InventoryGrid : AInventoryUI
+public class InventoryGrid : InventoryUI
 {
     [SerializeField] protected UnityEngine.Vector2Int size;
     public UnityEngine.Vector2Int Size {get{return size;}}
