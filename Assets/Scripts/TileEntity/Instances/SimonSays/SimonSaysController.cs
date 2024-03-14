@@ -98,9 +98,10 @@ namespace TileEntityModule.Instances.SimonSays {
                 new Vector2Int(-1,-1),
                 new Vector2Int(-1,1),
                 new Vector2Int(1,-1),
-                new Vector2Int(1,1)
+                new Vector2Int(1,1),
+                Vector2Int.zero
             };
-            TileItem bricks = ItemRegistry.getInstance().getTileItem("sand");
+            TileItem bricks = ItemRegistry.getInstance().getTileItem("simons_brick");
             if (chunk is not ILoadedChunk loadedChunk) {
                 Debug.LogError("Somehow managed to get to deletion phase of simon says game in a non loaded chunk");
                 return;
@@ -136,8 +137,6 @@ namespace TileEntityModule.Instances.SimonSays {
                 PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,false,chestTileEntity);
                 count ++;
             }
-            TileItem controllerReplacement = ItemRegistry.getInstance().getTileItem("magic");
-            PlaceTile.PlaceFromWorldPosition(controllerReplacement,getWorldPosition(),closedChunkSystem,false);
             unload();
             GameObject.Destroy(this);
         }

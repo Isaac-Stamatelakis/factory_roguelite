@@ -45,6 +45,9 @@ namespace TileEntityModule.Instances
                 Debug.LogError("GUI GameObject for chest:" + name + " null");
                 return;
             }
+            if (items == null) {
+                initInventory();
+            }
             GlobalUIController tileEntityGUIController = GlobalUIContainer.getInstance().getUiController();
             GameObject shownGui = GameObject.Instantiate(gui);
             DynamicInventoryGrid inventoryGrid = shownGui.GetComponent<DynamicInventoryGrid>();

@@ -82,7 +82,7 @@ namespace RecipeModule.Transmutation {
                         int energyCost = (int) fRatio*tier.getMaxEnergyUsage()*32;
                         return new TransmutableRecipe(
                             outputItem,
-                            energyCost, // TODO energy
+                            energyCost,
                             tier.getMaxEnergyUsage()
                         );
                     }
