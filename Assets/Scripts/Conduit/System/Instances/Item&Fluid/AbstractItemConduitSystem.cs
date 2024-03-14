@@ -44,7 +44,7 @@ namespace ConduitModule.ConduitSystemModule {
                 return;
             }
             int amount = Mathf.Min(toInsert.amount,outputPort.extractAmount);
-            ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,nbt: toInsert.nbt);
+            ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,tags: toInsert.tags);
             foreach (ItemConduitInputPort<Interactable,Filter> itemConduitInputPort in inputPorts) {
                 if (itemConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
                     continue;

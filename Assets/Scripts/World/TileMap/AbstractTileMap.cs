@@ -168,7 +168,7 @@ namespace TileMapModule {
             }
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-            ItemSlot itemSlot = new ItemSlot(itemObject: item, amount: 1, nbt : new Dictionary<string, object>());
+            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(item,1);
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 

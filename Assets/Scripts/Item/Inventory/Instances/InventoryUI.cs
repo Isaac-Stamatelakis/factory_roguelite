@@ -62,8 +62,8 @@ public class InventoryUI : MonoBehaviour {
         if (number == null || item == null) {
             return;
         }
-        Destroy(number);
-        Destroy(item);
+        GameObject.Destroy(number);
+        GameObject.Destroy(item);
     }
     public void updateAmount(int n,int amount) {
         GameObject slot = slots[n];
@@ -182,6 +182,7 @@ public class InventoryUI : MonoBehaviour {
             inventory[n] = grabbedItemProperties.itemSlot;
             grabbedItemProperties.itemSlot = inventorySlot;
         }
+        Debug.Log("Here");
         unloadItem(n);
         loadItem(n);
         grabbedItemProperties.updateSprite();

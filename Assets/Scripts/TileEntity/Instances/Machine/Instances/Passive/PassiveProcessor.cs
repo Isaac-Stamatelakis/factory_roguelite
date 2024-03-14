@@ -69,7 +69,11 @@ namespace TileEntityModule.Instances.Machines {
                 return;
             }
             List<ItemSlot> outputs = currentRecipe.getOutputs();
-            ItemSlotHelper.insertListIntoInventory(inventory.SolidOutputs.Slots,outputs);
+            List<ItemSlot> solidOutputs;
+            List<ItemSlot> fluidOutputs;
+            ItemSlotHelper.sortInventoryByState(outputs, out solidOutputs, out fluidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.SolidOutputs.Slots,solidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
             currentRecipe = null;
         }
 

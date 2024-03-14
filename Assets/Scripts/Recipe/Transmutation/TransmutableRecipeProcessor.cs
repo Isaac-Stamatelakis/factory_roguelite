@@ -65,7 +65,7 @@ namespace RecipeModule.Transmutation {
                         ItemSlot outputItem = new ItemSlot(
                             itemObject: outputItemObject,
                             amount: ratio,
-                            nbt: null
+                            tags: null
                         );
 
                         if (!spaceInOutput(solidOutputs,outputItem)) {

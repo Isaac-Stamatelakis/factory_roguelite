@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace ItemModule {
-    public interface IFluidContainer
+    public interface ITaggable
     {
-        public void transferFluid(ItemSlot fluidItem) {
-            
-        }
+
     }
 }
 

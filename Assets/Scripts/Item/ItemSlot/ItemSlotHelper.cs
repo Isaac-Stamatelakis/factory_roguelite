@@ -8,7 +8,7 @@ public static class ItemSlotHelper
         for (int i = 0; i < contained.Count; i++) {
             ItemSlot inputSlot = contained[i];
             if (inputSlot == null || inputSlot.itemObject == null) {
-                contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.nbt);
+                contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
                 toInsert.amount=0;
                 return true;
             }
@@ -44,6 +44,9 @@ public static class ItemSlotHelper
         return inventory; 
     }
     public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList) {
+        if (inventory == null) {
+            return;
+        }
         int n = 0;
         while (n < insertList.Count) {
             ItemSlot outputItem = insertList[n];

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Transmutable;
 using ItemModule;
+using ItemModule.Tags;
 
 public enum ItemState {
     Solid,
@@ -17,14 +18,14 @@ public interface NonSolidItem {
 [System.Serializable]
 public class ItemSlot
 {
-    public ItemSlot(ItemObject itemObject, int amount, Dictionary<string, object> nbt) {
+    public ItemSlot(ItemObject itemObject, int amount, ItemTagCollection tags) {
         this.itemObject = itemObject;
         this.amount = amount;
-        this.nbt = nbt;
+        this.tags = tags;
     }
     public ItemObject itemObject;
     public int amount;
-    public Dictionary<string,object> nbt;
+    public ItemTagCollection tags;
     public ItemState getState() {
         if (itemObject is SolidItem) {
             return ItemState.Solid;

@@ -152,7 +152,7 @@ public class ItemCatalogueController : MonoBehaviour
                 ItemSlot itemSlot = new ItemSlot(
                     itemObject: itemObject,
                     amount : Global.MaxSize,
-                    nbt: new Dictionary<string, object>()
+                    tags: null
                 );
                 if (Input.GetKey(KeyCode.LeftControl)) {
                     GameObject playerInventory = GameObject.Find("PlayerInventory");

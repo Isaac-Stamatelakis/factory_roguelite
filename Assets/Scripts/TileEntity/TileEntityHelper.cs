@@ -108,12 +108,11 @@ namespace TileEntityModule {
                 adjacentChunkPosition.y ++;
             }
             ILoadedChunk adjacentChunk = closedChunkSystem.getChunk(adjacentChunkPosition);
-            Vector2Int adjacentPositionInChunk = adjacentChunkPosition-adjacentChunk.getPosition();
             if (adjacentChunk == null) {
                 Debug.LogError("Attempted to locate adjacent tile entity in null chunk");
                 return null;
             }
-            Vector2Int partitionPosition = Global.getPartitionFromCell(adjacentPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(adjacentPosition) - adjacentChunk.getPosition()*Global.PartitionsPerChunk;
             Vector2Int positionInPartition = Global.getPositionInPartition(adjacentPosition);
             return adjacentChunk.getPartition(partitionPosition).GetTileEntity(positionInPartition);
         }

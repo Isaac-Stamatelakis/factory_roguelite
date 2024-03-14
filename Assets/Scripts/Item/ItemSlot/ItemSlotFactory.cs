@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using ItemModule;
+using ItemModule.Tags;
 
 public enum ItemSlotOption {
 
@@ -25,8 +26,13 @@ public static class ItemSlotFactory
         return itemSlots;
     }
 
+    public static ItemSlot createNewItemSlot(ItemObject itemObject, int amount) {
+        ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
+        return new ItemSlot(itemObject,amount,itemTagData);
+    }
+
     public static ItemSlot copy(ItemSlot itemSlot) {
-        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
     }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
@@ -39,7 +45,7 @@ public static class ItemSlotFactory
         return new ItemSlot(
             itemObject: null,
             amount: 0,
-            nbt: null
+            tags: null
         );
     }
     public static List<ItemSlot> createEmptyInventory(int size) {
@@ -78,7 +84,7 @@ public static class ItemSlotFactory
         return new SerializedItemSlot(
             id: itemSlot.itemObject.id,
             amount: itemSlot.amount,
-            nbt: itemSlot.nbt
+            tags: ItemTagFactory.serialize(itemSlot.tags)
         );
     }
 
@@ -98,13 +104,13 @@ public static class ItemSlotFactory
             return new ItemSlot(
                 itemObject: null,
                 amount: 0,
-                nbt: null
+                tags: null
             );
         } else {
             return new ItemSlot(
                 itemObject: itemRegistry.getItemObject(serializedItemSlot.id),
                 amount: serializedItemSlot.amount,
-                nbt: serializedItemSlot.nbt
+                tags: ItemTagFactory.deseralize(serializedItemSlot.tags)
             );
         }
     }
@@ -115,12 +121,12 @@ public static class ItemSlotFactory
 
 [System.Serializable]
 public class SerializedItemSlot {
-    public SerializedItemSlot(string id, int amount, Dictionary<string,object> nbt) {
+    public SerializedItemSlot(string id, int amount, string tags) {
         this.id = id;
         this.amount = amount;
-        this.nbt = nbt;
+        this.tags = tags;
     }
     public string id;
     public int amount;
-    public Dictionary<string,object> nbt;
+    public string tags;
 }

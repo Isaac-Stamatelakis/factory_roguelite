@@ -137,7 +137,7 @@ namespace TileEntityModule.Instances.Machines
             for (int i = 0; i < inputs.Count; i++) {
                 ItemSlot inputSlot = inputs[i];
                 if (inputSlot == null || inputSlot.itemObject == null) {
-                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.nbt);
+                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
                     itemSlot.amount=0;
                     return;
                 }
