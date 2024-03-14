@@ -45,6 +45,12 @@ namespace RecipeModule {
     }
     public static class RecipeHelper {
         public static bool matchInputs(List<ItemSlot> inputs, List<ItemSlot> recipeItems) {
+            if (inputs == null) {
+                if (recipeItems.Count == 0) {
+                    return true;
+                }
+                return false;
+            }
             // Check recipes O(n+m)
             var inputItemAmounts = new Dictionary<string, int>();
             foreach (ItemSlot itemSlot in inputs) {
@@ -83,6 +89,12 @@ namespace RecipeModule {
             return success;
         }
         public static bool spaceInOutput(List<ItemSlot> inventorySlotOfState, List<ItemSlot> recipeItemsOfState) {
+            if (inventorySlotOfState == null) {
+                if (recipeItemsOfState.Count == 0) {
+                    return true;
+                }
+                return false;
+            }
             Dictionary<string, ItemSlot> outputDict = new Dictionary<string, ItemSlot>();
             foreach (ItemSlot itemSlot in recipeItemsOfState) {
                 outputDict[itemSlot.itemObject.id] = itemSlot;
@@ -106,39 +118,64 @@ namespace RecipeModule {
         }
 
         public static void consumeRecipe(List<ItemSlot> inputs, List<ItemSlot> recipeInputs) {
-            Dictionary<string, ItemSlot> inputDict = new Dictionary<string, ItemSlot>();
-            foreach (ItemSlot itemSlot in inputs) {
-                if (itemSlot == null || itemSlot.itemObject == null) {
+            if (inputs == null) {
+                return;
+            }
+            Dictionary<string, int> requiredAmount = new Dictionary<string, int>();
+            for (int i = 0; i < recipeInputs.Count; i++) {
+                ItemSlot recipeInput = recipeInputs[i];
+                if (!requiredAmount.ContainsKey(recipeInput.itemObject.id)) {
+                    requiredAmount[recipeInput.itemObject.id] = 0;
+                }
+                requiredAmount[recipeInput.itemObject.id] += recipeInput.amount;
+            }
+            for (int i = 0; i < inputs.Count; i++) {
+                ItemSlot inputSlot = inputs[i];
+                if (inputSlot == null || inputSlot.itemObject == null) {
                     continue;
                 }
-                if (inputDict.ContainsKey(itemSlot.itemObject.id)) {
-                    inputDict[itemSlot.itemObject.id].amount += itemSlot.amount;
-                    itemSlot.amount = 0;
-                    itemSlot.itemObject = null;
-                } else {
-                    inputDict[itemSlot.itemObject.id] = itemSlot;
+                string id = inputSlot.itemObject.id;
+                if (!requiredAmount.ContainsKey(id)) {
+                    continue;
                 }
-            }
-            foreach (ItemSlot itemSlot in recipeInputs) {
-                inputDict[itemSlot.itemObject.id].amount -= itemSlot.amount;
+                int removal = Mathf.Min(requiredAmount[id],Global.MaxSize);
+                inputSlot.amount -= removal;
+                requiredAmount[id] -= removal;
+                if (requiredAmount[id] == 0) {
+                    requiredAmount.Remove(id);
+                }
+                if (inputSlot.amount == 0) {
+                    Debug.Log(i);
+                    inputs[i] = null;
+                }   
             }
         }
 
         public static bool matchSolidsAndFluids(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs, List<ItemSlot> inputs, List<ItemSlot> outputs) {
-            List<ItemSlot> invInputs = (solidInputs ?? Enumerable.Empty<ItemSlot>())
-                .Concat(fluidInputs ?? Enumerable.Empty<ItemSlot>())
-                .ToList();
-            if (!RecipeHelper.matchInputs(invInputs, inputs)) {
+            List<ItemSlot> solidRecipeInputs;
+            List<ItemSlot> fluidRecipeInputs;
+            ItemSlotHelper.sortInventoryByState(inputs,out solidRecipeInputs,out fluidRecipeInputs);
+            if (!RecipeHelper.matchInputs(solidInputs, solidRecipeInputs)) {
                 return false;
             }
-            List<ItemSlot> invOutputs = (solidOutputs ?? Enumerable.Empty<ItemSlot>())
-                .Concat(fluidOutputs ?? Enumerable.Empty<ItemSlot>())
-                .ToList();
-            if(!RecipeHelper.spaceInOutput(invOutputs, outputs)) {
+            if (!RecipeHelper.matchInputs(fluidInputs,fluidRecipeInputs)) {
                 return false;
             }
-            RecipeHelper.consumeRecipe(invInputs,inputs);
+
+            List<ItemSlot> solidRecipeOutputs;
+            List<ItemSlot> fluidRecipeOutputs;
+            ItemSlotHelper.sortInventoryByState(outputs,out solidRecipeOutputs,out fluidRecipeOutputs);
+            if(!RecipeHelper.spaceInOutput(solidOutputs, solidRecipeOutputs)) {
+                return false;
+            }
+            if(!RecipeHelper.spaceInOutput(fluidOutputs, fluidRecipeOutputs)) {
+                return false;
+            }
+            RecipeHelper.consumeRecipe(solidInputs,solidRecipeInputs);
+            RecipeHelper.consumeRecipe(fluidInputs,solidRecipeInputs);
             return true;
         }
+
+        
     }
 }

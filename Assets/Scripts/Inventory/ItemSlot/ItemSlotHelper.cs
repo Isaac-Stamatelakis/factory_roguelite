@@ -4,13 +4,13 @@ using UnityEngine;
 
 public static class ItemSlotHelper
 {
-    public static void insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert) {
+    public static bool insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert) {
         for (int i = 0; i < contained.Count; i++) {
             ItemSlot inputSlot = contained[i];
             if (inputSlot == null || inputSlot.itemObject == null) {
                 contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.nbt);
                 toInsert.amount=0;
-                return;
+                return true;
             }
             if (inputSlot.itemObject.id != toInsert.itemObject.id) {
                 continue;
@@ -27,8 +27,9 @@ public static class ItemSlotHelper
                 inputSlot.amount = sum;
                 toInsert.amount = 0;
             }
-            return;
+            return true;
         }
+        return false;
     }
 
     public static List<ItemSlot> initEmptyInventory(int count) {
@@ -43,9 +44,15 @@ public static class ItemSlotHelper
         return inventory; 
     }
     public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList) {
-        for (int n = 0; n < insertList.Count; n++) {
+        int n = 0;
+        while (n < insertList.Count) {
             ItemSlot outputItem = insertList[n];
-            insertIntoInventory(inventory,outputItem);
+
+            bool inserted = insertIntoInventory(inventory,outputItem);
+            
+            if (outputItem.amount == 0 || !inserted) { 
+                n ++;
+            }
         }
     }
 
@@ -66,5 +73,23 @@ public static class ItemSlotHelper
             toInsert.amount = 0;
         }
         return;
+    }
+
+    public static void sortInventoryByState(List<ItemSlot> inputs,out List<ItemSlot> solidRecipeInputs,out List<ItemSlot> fluidRecipeInputs) {
+        solidRecipeInputs = new List<ItemSlot>();
+        fluidRecipeInputs = new List<ItemSlot>();
+        foreach (ItemSlot itemSlot in inputs) {
+            if (itemSlot == null) {
+                continue;
+            }
+            switch (itemSlot.getState()) {
+                case ItemState.Solid:
+                    solidRecipeInputs.Add(itemSlot);
+                    break;
+                case ItemState.Fluid:
+                    fluidRecipeInputs.Add(itemSlot);
+                    break;
+            }
+        }
     }
 }

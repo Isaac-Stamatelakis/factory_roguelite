@@ -93,7 +93,7 @@ namespace TileEntityModule.Instances.Machines
             }
             if (currentRecipeCost < 0) {
                 inventory.Energy-=currentRecipeCost;
-            }
+            }   
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut);
             currentRecipe = null;
