@@ -182,7 +182,6 @@ public class InventoryUI : MonoBehaviour {
             inventory[n] = grabbedItemProperties.itemSlot;
             grabbedItemProperties.itemSlot = inventorySlot;
         }
-        Debug.Log("Here");
         unloadItem(n);
         loadItem(n);
         grabbedItemProperties.updateSprite();
