@@ -96,7 +96,6 @@ namespace TileEntityModule {
             }
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
 
-            
             Vector2Int offsetCellPosition = tileEntity.getCellPosition()+offset;
             Vector2Int chunkPosition = Global.getChunkFromCell(offsetCellPosition);
             ILoadedChunk adjacentChunk = closedChunkSystem.getChunk(chunkPosition);
@@ -106,8 +105,14 @@ namespace TileEntityModule {
             }
 
             Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PartitionsPerChunk; 
+            IChunkPartition partition = adjacentChunk.getPartition(partitionPosition);
+            if (partition == null) {
+                Debug.LogError("Attempted to locate adjcaent tile entity in null partition");
+                return null;
+            }
+
             Vector2Int positionInPartition = Global.getPositionInPartition(offsetCellPosition);
-            return adjacentChunk.getPartition(partitionPosition).GetTileEntity(positionInPartition);
+            return partition.GetTileEntity(positionInPartition);
         }
     }
 }
