@@ -5,6 +5,7 @@ using UnityEngine;
 public static class ItemSlotHelper
 {
     public static bool insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert) {
+        
         for (int i = 0; i < contained.Count; i++) {
             ItemSlot inputSlot = contained[i];
             if (inputSlot == null || inputSlot.itemObject == null) {
@@ -13,6 +14,9 @@ public static class ItemSlotHelper
                 return true;
             }
             if (inputSlot.itemObject.id != toInsert.itemObject.id) {
+                continue;
+            }
+            if (inputSlot.tags != null && toInsert.tags != null && !!inputSlot.tags.Equals(toInsert.tags)) {
                 continue;
             }
             if (inputSlot.amount >= Global.MaxSize) {
@@ -28,6 +32,27 @@ public static class ItemSlotHelper
                 toInsert.amount = 0;
             }
             return true;
+        }
+        return false;
+    }
+
+    public static bool canInsert(List<ItemSlot> inventory, ItemSlot toInsert, int maxAmount) {
+        if (inventory == null) {
+            return false;
+        }
+        foreach (ItemSlot itemSlot in inventory) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return true;
+            }
+            if (itemSlot.itemObject.id != toInsert.itemObject.id) {
+                return true;
+            }
+            if (!itemSlot.tags.Equals(toInsert.tags)) {
+                return true;
+            }
+            if (itemSlot.amount + toInsert.amount <= maxAmount) {
+                return true;
+            }
         }
         return false;
     }

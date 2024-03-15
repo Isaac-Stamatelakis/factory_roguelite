@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Machines {
+namespace TileEntityModule{
     public enum Tier {
         Basic,
         Advanced,
@@ -22,6 +22,9 @@ namespace TileEntityModule.Instances.Machines {
         }
         public static int getMaxEnergyUsage(this Tier tier) {
             return (int) Mathf.Pow(4, (int) tier);
+        }
+        public static int getFluidStorage(this Tier tier) {
+            return (int) Mathf.Pow(2,(int) tier)*8000;
         }
     }
 }

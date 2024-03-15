@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ItemModule;
+using ItemModule.Tags.FluidContainers;
 
 
 public class FluidInventoryGrid : InventoryUI, ILoadableInventory
@@ -25,13 +26,6 @@ public class FluidInventoryGrid : InventoryUI, ILoadableInventory
             Debug.LogError("Inventory " + name + " GrabbedItem is null");
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-        if (grabbedSlot == null || grabbedSlot.itemObject == null) {
-            return;
-        }
-        if (grabbedSlot.itemObject is not IFluidContainer fluidContainer) {
-            return;
-        }
-        fluidContainer.transferFluid(fluidSlot);
+        FluidContainerHelper.handleClick(grabbedItemProperties,inventory,n);
     }
 }

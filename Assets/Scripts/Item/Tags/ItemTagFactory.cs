@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Tags.FluidContainers;
 
 namespace ItemModule.Tags{
     public static class ItemTagFactory
@@ -14,7 +15,7 @@ namespace ItemModule.Tags{
         }
 
         public static string serialize(ItemTagCollection tagData) {
-            if (tagData == null) {
+            if (tagData == null || tagData.Dict == null) {
                 return null;
             }
             Dictionary<int, string> seralized = new Dictionary<int, string>();
@@ -28,17 +29,23 @@ namespace ItemModule.Tags{
             if (data == null) {
                 return null;
             }
-            return JsonConvert.DeserializeObject<ItemTagCollection>(data);
+            Dictionary<int, string> seralized = JsonConvert.DeserializeObject<Dictionary<int, string>>(data);
+            Dictionary<ItemTag, object> dict = new Dictionary<ItemTag, object>();
+            foreach (KeyValuePair<int,string> kvp in seralized) {
+                ItemTag tag = (ItemTag) kvp.Key;
+                dict[tag] = tag.deseralize(seralized[kvp.Key]);
+            }
+            return new ItemTagCollection(dict);
+     
         }
         private static ItemTagCollection initalizeFromTaggable(ITaggable taggable) {
             Dictionary<ItemTag,object> tags = new Dictionary<ItemTag, object>();
             if (taggable is IFluidContainer) {
-                tags[ItemTag.FluidContainer] = ItemSlotFactory.createEmptyItemSlot();
+                tags[ItemTag.FluidContainer] = null;
             }
             if (taggable is TileItem tileItem) {
 
             }
-
             if (tags.Count == 0) {
                 return null;
             }

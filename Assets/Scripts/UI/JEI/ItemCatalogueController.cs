@@ -134,7 +134,7 @@ public class ItemCatalogueController : MonoBehaviour
                 itemObjectImage.name = itemObject.id;
                 Image image = itemObjectImage.AddComponent<Image>();
                 image.sprite = itemObject.getSprite();
-                Vector2 size = InventoryGrid.getItemSize(image.sprite);
+                Vector2 size = ItemSlotUIFactory.getItemSize(image.sprite);
                 if (size.x > size.y) {
                     itemObjectImage.transform.localScale = new Vector3(1,size.y/size.x,1);
                 } else if (size.y > size.x) {
@@ -149,11 +149,7 @@ public class ItemCatalogueController : MonoBehaviour
     private void handleClick(ItemObject itemObject) {
         switch (mode) {
             case Mode.Cheat:
-                ItemSlot itemSlot = new ItemSlot(
-                    itemObject: itemObject,
-                    amount : Global.MaxSize,
-                    tags: null
-                );
+                ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,Global.MaxSize);
                 if (Input.GetKey(KeyCode.LeftControl)) {
                     GameObject playerInventory = GameObject.Find("PlayerInventory");
                    

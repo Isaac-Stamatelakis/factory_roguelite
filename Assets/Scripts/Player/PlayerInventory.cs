@@ -19,6 +19,9 @@ namespace PlayerModule {
         private GameObject uiPlayerInventoryContainer;
         private GameObject hotbarNumbersContainer;
         private bool expanded = false;
+
+        public List<ItemSlot> Inventory { get => inventory; set => inventory = value; }
+
         // Start is called before the first frame update
         void Start()
         {

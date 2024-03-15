@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances.Machines;
+using TileEntityModule;
 
 
 namespace ItemModule.Transmutable {
