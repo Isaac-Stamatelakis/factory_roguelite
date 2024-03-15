@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using ItemModule;
 
 public class InventoryUI : MonoBehaviour {
     protected List<GameObject> slots = new List<GameObject>();
@@ -39,8 +40,10 @@ public class InventoryUI : MonoBehaviour {
     public virtual void loadItem(int n) {
         GameObject slot = slots[n];
         ItemSlot itemSlot = inventory[n];
+        loadTagVisual(slot,itemSlot); 
         loadItemImage(slot,itemSlot);
-        loadItemAmountNumber(slot,itemSlot);   
+        loadItemAmountNumber(slot,itemSlot);  
+        
     }
 
     public virtual void setItem(int n, ItemSlot data) {
@@ -59,11 +62,16 @@ public class InventoryUI : MonoBehaviour {
         }
         GameObject number = Global.findChild(slot.transform,"amount");
         GameObject item = Global.findChild(slot.transform,"item");
-        if (number == null || item == null) {
-            return;
+        GameObject tagObject = Global.findChild(slot.transform,"tags");
+        if (number != null) {
+            GameObject.Destroy(number);
         }
-        Destroy(number);
-        Destroy(item);
+        if (item != null) {
+            GameObject.Destroy(item);
+        }
+        if (tagObject != null) {
+            GameObject.Destroy(tagObject);
+        }
     }
     public void updateAmount(int n,int amount) {
         GameObject slot = slots[n];
@@ -89,20 +97,12 @@ public class InventoryUI : MonoBehaviour {
         }
         return false;
     }
-    protected virtual GameObject loadItemImage(GameObject slot, ItemSlot data) {
-        if (data == null || data.itemObject == null) {
-            return null;    
-        }
-        GameObject imageObject = new GameObject();
-        imageObject.name = "item";
-        imageObject.transform.SetParent(slot.transform);
-        RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
-        rectTransform.localPosition = Vector3.zero;
-        imageObject.AddComponent<CanvasRenderer>();
-        Image image = imageObject.AddComponent<Image>();
-        image.sprite = data.itemObject.getSprite();
-        rectTransform.sizeDelta = getItemSize(image.sprite);
-        return imageObject;
+    protected virtual GameObject loadItemImage(GameObject slot, ItemSlot itemSlot) {
+        return ItemSlotUIFactory.getItemImage(itemSlot,slot.transform);
+    }
+
+    protected virtual GameObject loadTagVisual(GameObject slot, ItemSlot itemSlot) {
+        return ItemSlotUIFactory.getTagObject(itemSlot,slot.transform);
     }
 
     protected virtual void reloadItemImage(GameObject slot, ItemSlot data) {
@@ -139,24 +139,7 @@ public class InventoryUI : MonoBehaviour {
         textMeshPro.text = data.amount.ToString();
     }
     protected virtual GameObject loadItemAmountNumber(GameObject slot, ItemSlot data) {
-        if (data == null || data.itemObject == null) {
-            return null;    
-        }
-        GameObject number = new GameObject();
-        number.name = "amount";
-        number.transform.SetParent(slot.transform);
-        number.AddComponent<RectTransform>();
-        TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-        textMeshPro.text = data.amount.ToString();
-        
-        
-        textMeshPro.fontSize = 30;
-        RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
-        
-        rectTransform.localPosition = new Vector3(5f,5f,1);
-        rectTransform.sizeDelta = new Vector2(96,96);
-        textMeshPro.alignment = TextAlignmentOptions.BottomLeft;
-        return number;
+        return ItemSlotUIFactory.getNumber(data,slot.transform);
     }
     
     public virtual void clickSlot(int n) {
@@ -187,25 +170,7 @@ public class InventoryUI : MonoBehaviour {
         grabbedItemProperties.updateSprite();
     }
 
-    public static Vector2 getItemSize(Sprite sprite) {
-        if (sprite == null) {
-            return Vector2.zero;
-        }
-        Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
-        if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
-            return new Vector2(32,32);
-        }
-        if (adjustedSpriteSize.x == adjustedSpriteSize.y) {
-            return new Vector2(64,64);
-        }
-        if (adjustedSpriteSize.x > adjustedSpriteSize.y) {
-            return new Vector2(64,adjustedSpriteSize.y/adjustedSpriteSize.x*64);
-        }
-        if (adjustedSpriteSize.y > adjustedSpriteSize.x) {
-            return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
-        }
-        return Vector2.zero;
-    }
+    
 }
 
 public class InventoryGrid : InventoryUI

@@ -81,7 +81,10 @@ namespace PlayerModule.Mouse {
                 if (chunk != null) {
                         ItemEntityHelper.spawnItemEntity(
                         mousePosition,
-                        new ItemSlot(itemObject:ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),1,new Dictionary<string, object>()),
+                        ItemSlotFactory.createNewItemSlot(
+                            ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),
+                            1
+                        ),
                         chunk.getEntityContainer()
                     );
                 }

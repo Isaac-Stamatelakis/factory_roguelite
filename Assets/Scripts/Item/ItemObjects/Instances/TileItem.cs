@@ -5,8 +5,7 @@ using UnityEngine.Tilemaps;
 using TileEntityModule;
 using TileMapModule.Type;
 using Tiles;
-
-
+using ItemModule;
 
 public enum TileType {
     Block,
@@ -42,7 +41,7 @@ public static class TileTypeExtension {
 }
 
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
-public class TileItem : ItemObject, IPlacableItem
+public class TileItem : ItemObject, IPlacableItem, ITaggable
 {
     public TileType tileType;
     public TileBase tile;

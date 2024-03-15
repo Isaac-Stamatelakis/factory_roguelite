@@ -161,9 +161,10 @@ namespace RecipeModule {
             if (!RecipeHelper.matchInputs(fluidInputs,fluidRecipeInputs)) {
                 return false;
             }
-
+            
             List<ItemSlot> solidRecipeOutputs;
             List<ItemSlot> fluidRecipeOutputs;
+            
             ItemSlotHelper.sortInventoryByState(outputs,out solidRecipeOutputs,out fluidRecipeOutputs);
             if(!RecipeHelper.spaceInOutput(solidOutputs, solidRecipeOutputs)) {
                 return false;

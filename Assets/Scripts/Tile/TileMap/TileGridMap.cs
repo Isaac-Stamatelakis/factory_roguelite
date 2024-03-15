@@ -28,7 +28,7 @@ namespace TileMapModule {
             if (PlaceTile.mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
-            ItemSlot itemSlot = new ItemSlot(tileItem,1,new Dictionary<string, object>());
+            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(tileItem,1);
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 

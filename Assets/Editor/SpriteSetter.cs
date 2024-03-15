@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 
 public class SpriteRuleSetter : EditorWindow {
     public Sprite sprite;
-    public bool readWrite = true;
+    public bool readWrite = false;
     public bool spriteSheet = false;
 
     [MenuItem("Tools/Sprite")]

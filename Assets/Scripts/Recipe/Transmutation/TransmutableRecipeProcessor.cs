@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Transmutable;
-using TileEntityModule.Instances.Machines;
+using TileEntityModule;
 
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
@@ -65,7 +65,7 @@ namespace RecipeModule.Transmutation {
                         ItemSlot outputItem = new ItemSlot(
                             itemObject: outputItemObject,
                             amount: ratio,
-                            nbt: null
+                            tags: null
                         );
 
                         if (!spaceInOutput(solidOutputs,outputItem)) {

@@ -6,21 +6,21 @@ namespace ConduitModule.Ports {
     [System.Serializable]
     public class ItemFilter : IFilter
     {
-        public List<SerializedItemSlot> items;
+        public List<ItemSlot> items;
         public bool whitelist;
         public bool matchNBT;
         public bool filter(ItemSlot itemSlot) {
-            foreach (SerializedItemSlot inFilter in items) {
-                if (inFilter == null) {
+            foreach (ItemSlot inFilter in items) {
+                if (inFilter == null || inFilter.itemObject == null) {
                     continue;
                 }
-                if (itemSlot.itemObject.id != inFilter.id) {
+                if (itemSlot.itemObject.id != inFilter.itemObject.id) {
                     continue;
                 } 
                 if (!matchNBT && whitelist) {
                     return true;
                 }
-                if (itemSlot.nbt == inFilter.nbt) {
+                if (itemSlot.tags.Equals(inFilter.tags)) {
                     if (whitelist) {
                         return true;
                     }
