@@ -11,16 +11,10 @@ public class FluidInventoryGrid : InventoryUI, ILoadableInventory
         this.inventory = items;
         initalizeSlots();
     }
-    public void FixedUpdate() {
-        refreshSlots();
-    }
 
     public override void clickSlot(int n)
     {
         ItemSlot fluidSlot = inventory[n];
-        if (fluidSlot == null || fluidSlot.itemObject == null) {
-            return;
-        }
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
             Debug.LogError("Inventory " + name + " GrabbedItem is null");

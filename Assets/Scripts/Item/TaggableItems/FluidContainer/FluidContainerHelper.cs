@@ -21,10 +21,8 @@ namespace ItemModule.Tags.FluidContainers {
             if (!container.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
                 Debug.LogError("FluidContainerHelper method 'handleClick' recieved itemslot container which did not have tag " + ItemTag.FluidContainer);
             }
-            Debug.Log(fluidInventory[index]==null);
             // Input fluid into fluidInventory
             if (fluidInventory[index] == null || fluidInventory[index].itemObject == null) {
-                Debug.Log("hi");
                 object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
                 if (itemSlotObject is not ItemSlot itemSlot) {
                     return;
@@ -44,12 +42,15 @@ namespace ItemModule.Tags.FluidContainers {
                 return;
             }
             ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
-            container.amount -= 1;
-            if (container.amount == 0) {
-                container.itemObject = null;
-            }
             newItemSlot.tags.Dict[ItemTag.FluidContainer] = fluidInventory[index];
             fluidInventory[index] = null;
+            container.amount -= 1;
+            if (container.amount == 0) {
+                grabbedItemProperties.itemSlot = newItemSlot;
+                container.itemObject = null;
+                grabbedItemProperties.updateSprite();
+                return;
+            }
             ItemSlotHelper.insertIntoInventory(inventory,newItemSlot);
             grabbedItemProperties.updateSprite();
         }

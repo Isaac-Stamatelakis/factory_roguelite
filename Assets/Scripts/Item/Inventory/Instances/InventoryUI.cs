@@ -15,15 +15,21 @@ public class InventoryUI : MonoBehaviour {
         }
     }
 
+    public void FixedUpdate() {
+        refreshSlots();
+    }
+
     protected void refreshSlots() {
         if (slots == null || inventory == null) {
             return;
         }
-        for (int n = 0; n < inventory.Count; n ++) {
-            GameObject slot = slots[n];
+        for (int n = 0; n < slots.Count; n ++) {
             if (inventory[n] == null || inventory[n].itemObject == null) {
                 unloadItem(n);
+                continue;
             }
+            GameObject slot = slots[n];
+            reloadItemTag(slot,inventory[n]);
             reloadItemImage(slot,inventory[n]);
             reloadItemAmount(slot,inventory[n]);
         }
@@ -137,6 +143,19 @@ public class InventoryUI : MonoBehaviour {
         GameObject number = numberTransform.gameObject;
         TextMeshProUGUI textMeshPro = number.GetComponent<TextMeshProUGUI>();
         textMeshPro.text = data.amount.ToString();
+    }
+    protected virtual void reloadItemTag(GameObject slot, ItemSlot data) {
+        if (slot == null) {
+            return;
+        }
+        if (data == null || data.itemObject == null) {
+            return;   
+        }
+        Transform tagTransform = slot.transform.Find("tags");
+        if (tagTransform == null) {
+            loadTagVisual(slot,data);
+        }
+        
     }
     protected virtual GameObject loadItemAmountNumber(GameObject slot, ItemSlot data) {
         return ItemSlotUIFactory.getNumber(data,slot.transform);

@@ -13,8 +13,5 @@ public class SolidItemInventory : InventoryUI, ILoadableInventory
         this.inventory = items;
         initalizeSlots();
     }
-    public void FixedUpdate() {
-        refreshSlots();
-    }
 }
 
