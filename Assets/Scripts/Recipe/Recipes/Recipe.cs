@@ -20,7 +20,10 @@ namespace RecipeModule {
         
         public List<ItemSlot> inputs;
         [HideInInspector] public List<string> inputGUIDs;
-        
+        public List<ItemSlot> getInputs() {
+            return inputs;
+        }
+        public abstract List<ItemSlot> getOutputs();
         
         public List<string> InputPaths {get{return inputGUIDs;} set{inputGUIDs = value;}}
         
@@ -29,7 +32,7 @@ namespace RecipeModule {
         
         public List<ItemSlot> outputs;
         [HideInInspector] public List<string> outputGUIDs;
-        public List<ItemSlot> getOutputs()
+        public override List<ItemSlot> getOutputs()
         {
             List<ItemSlot> copy = new List<ItemSlot>();
             foreach (ItemSlot itemSlot in outputs) {
@@ -42,6 +45,10 @@ namespace RecipeModule {
     public abstract class SingleOutputRecipe : Recipe {
         public ItemSlot output;
         public string outputGUID;
+        public override List<ItemSlot> getOutputs()
+        {
+            return new List<ItemSlot>{output};
+        }
     }
     public static class RecipeHelper {
         public static bool matchInputs(List<ItemSlot> inputs, List<ItemSlot> recipeItems) {

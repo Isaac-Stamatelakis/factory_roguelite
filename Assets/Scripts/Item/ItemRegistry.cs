@@ -115,6 +115,27 @@ namespace ItemModule {
             }
             return queried;
         }
+
+        public List<TileItem> getTileEntitiesOfProcessor(RecipeProcessor processor) {
+            List<TileItem> tileItems = new List<TileItem>();
+            foreach (ItemObject itemObject in items.Values) {
+                if (itemObject is not TileItem tileItem) {
+                    continue;
+                }
+                if (tileItem.tileEntity == null) {
+                    continue;
+                }
+                if (tileItem.tileEntity is not IProcessor tileEntityProcess) {
+                    continue;
+                }
+                HashSet<RecipeProcessor> processors = tileEntityProcess.getProcessors();
+                if (!processors.Contains(processor)) {
+                    continue;
+                }
+                tileItems.Add(tileItem);
+            }
+            return tileItems;
+        }
     }
 }
 

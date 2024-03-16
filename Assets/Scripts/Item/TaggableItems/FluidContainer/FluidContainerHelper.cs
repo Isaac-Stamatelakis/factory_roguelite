@@ -21,27 +21,45 @@ namespace ItemModule.Tags.FluidContainers {
             if (!container.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
                 Debug.LogError("FluidContainerHelper method 'handleClick' recieved itemslot container which did not have tag " + ItemTag.FluidContainer);
             }
+            // TODO change way player inventory is gotten
+            GameObject player = GameObject.Find("Player");
+            PlayerInventory playerInventory = player.GetComponent<PlayerInventory>();
+            List<ItemSlot> inventory = playerInventory.Inventory;
+
             // Input fluid into fluidInventory
             if (fluidInventory[index] == null || fluidInventory[index].itemObject == null) {
                 object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
                 if (itemSlotObject is not ItemSlot itemSlot) {
                     return;
                 }
+                ItemSlot fluidInventorySlot = fluidInventory[index];
+                if (ItemSlotHelper.areEqual(fluidInventorySlot,itemSlot)) { // Merge
+                    Debug.Log("Hi");
+                }
                 fluidInventory[index] = itemSlot;
-                container.tags.Dict[ItemTag.FluidContainer] = null;
+                container.amount--;
+                ItemSlot empty = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
+                if (container.amount == 0) {
+                    grabbedItemProperties.itemSlot = empty;
+                } else {
+                    if (!ItemSlotHelper.canInsert(inventory,container,fluidContainer.getStorage())) {
+                    // TODO spawn item
+                        return;
+                    } else {
+                        ItemSlotHelper.insertIntoInventory(inventory,empty);
+                    }
+                }
+                
+                
                 grabbedItemProperties.updateSprite();
                 return;
             }
-            // Input fluid into player inventory
-            // TODO change way player inventory is gotten
-            GameObject player = GameObject.Find("Player");
-            PlayerInventory playerInventory = player.GetComponent<PlayerInventory>();
-            List<ItemSlot> inventory = playerInventory.Inventory;
-
-            if (!ItemSlotHelper.canInsert(inventory,container,fluidContainer.getStorage())) {
+            // Input fluid cell into player inventory
+            
+            ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
+            if (!ItemSlotHelper.canInsert(inventory,newItemSlot,fluidContainer.getStorage())) {
                 return;
             }
-            ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
             newItemSlot.tags.Dict[ItemTag.FluidContainer] = fluidInventory[index];
             fluidInventory[index] = null;
             container.amount -= 1;

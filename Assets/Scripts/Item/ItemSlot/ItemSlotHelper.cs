@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Tags;
 
 public static class ItemSlotHelper
 {
@@ -13,12 +14,10 @@ public static class ItemSlotHelper
                 toInsert.amount=0;
                 return true;
             }
-            if (inputSlot.itemObject.id != toInsert.itemObject.id) {
+            if (!ItemSlotHelper.areEqualNoNullCheck(inputSlot,toInsert)) {
                 continue;
             }
-            if (inputSlot.tags != null && toInsert.tags != null && !!inputSlot.tags.Equals(toInsert.tags)) {
-                continue;
-            }
+            
             if (inputSlot.amount >= Global.MaxSize) {
                 continue;
             }
@@ -34,6 +33,42 @@ public static class ItemSlotHelper
             return true;
         }
         return false;
+    }
+
+    public static bool areEqual(ItemSlot first, ItemSlot second) {
+        if (ReferenceEquals(first,second)) {
+            return true;
+        }
+        if (first == null || second == null) {
+            return false;
+        }
+        if (first.itemObject == null || second.itemObject == null) {
+            return false;
+        }
+        if (first.itemObject.id != second.itemObject.id) {
+            return false;
+        }
+        if (!ItemTagFactory.tagsEqual(first.tags,second.tags)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static bool areEqualNoNullCheck(ItemSlot first, ItemSlot second) {
+        if (first.itemObject.id != second.itemObject.id) {
+            return false;
+        }
+        if (!ItemTagFactory.tagsEqual(first.tags,second.tags)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static bool areEqualWithAmount(ItemSlot first, ItemSlot second) {
+        if (!areEqual(first,second)) {
+            return false;
+        }
+        return first.amount == second.amount;
     }
 
     public static bool canInsert(List<ItemSlot> inventory, ItemSlot toInsert, int maxAmount) {
@@ -68,6 +103,7 @@ public static class ItemSlotHelper
         }
         return inventory; 
     }
+ 
     public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList) {
         if (inventory == null) {
             return;

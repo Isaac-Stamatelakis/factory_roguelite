@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ConduitModule.Ports;
+using RecipeModule;
 
 namespace TileEntityModule {
     public interface ITickableTileEntity : ISoftLoadable
@@ -32,6 +33,9 @@ namespace TileEntityModule {
 
     public interface IBreakActionTileEntity {
         public void onBreak();
+    }
+    public interface IProcessor {
+        public HashSet<RecipeProcessor> getProcessors();
     }
 
 }

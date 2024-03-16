@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessor
     {
         
         [SerializeField] public ItemRecipeProcessor itemRecipeProcessor;
@@ -213,6 +213,14 @@ namespace TileEntityModule.Instances.Machines
         public ref int getEnergy(Vector2Int portPosition)
         {
             return ref inventory.energy;
+        }
+
+        public HashSet<RecipeProcessor> getProcessors()
+        {
+            return new HashSet<RecipeProcessor>{
+                itemRecipeProcessor,
+                transmutableRecipeProcessor
+            };
         }
     }
 }

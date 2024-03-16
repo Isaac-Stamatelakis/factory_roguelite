@@ -122,5 +122,43 @@ namespace ItemModule.Tags {
             Debug.LogError("ItemTagExtension method 'deseralize' did not cover case for " + tag);
             return null;
         }
+
+        public static bool isEquivalent(this ItemTag tag, object first, object second) {
+            if (first == null && second == null) {
+                return true;
+            }
+            if (first == null) {
+                return false;
+            }
+            if (second == null) {
+                return false;
+            }
+            return tag switch  {
+                ItemTag.FluidContainer => fluidContainerEqual(first,second),
+                _ => first.Equals(second)
+            };
+        }
+
+        private static bool fluidContainerEqual(object first, object second) {
+            if (first == null && second == null) {
+                return true;
+            }
+            if (first == null) {
+                return false;
+            }
+            if (second == null) {
+                return false;
+            }
+            if (first is not ItemSlot firstSlot) {
+                return false;
+            }
+            if (second is not ItemSlot secondSlot) {
+                return false;
+            }
+            if (!ItemSlotHelper.areEqualNoNullCheck(firstSlot,secondSlot)) {
+                return false;
+            }
+            return firstSlot.amount == secondSlot.amount;
+        }
     }
 }

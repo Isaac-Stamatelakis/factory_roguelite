@@ -44,5 +44,6 @@ public class ItemSlot
         Debug.LogWarning("Get state did not handle state for itemobject " + itemObject.name);
         return ItemState.Solid;
     }
+
 }
 

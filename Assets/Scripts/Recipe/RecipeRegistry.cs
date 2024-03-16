@@ -50,6 +50,68 @@ namespace RecipeModule {
             }
             return instance;
         }
+
+        public Dictionary<RecipeProcessor, List<Recipe>> getRecipesWithItemInOutput(ItemObject itemObject) {
+            Dictionary<RecipeProcessor, List<Recipe>> processorRecipesWithItemInOutput = new Dictionary<RecipeProcessor, List<Recipe>>();
+            foreach (RecipeProcessor recipeProcessor in processors) {
+                List<Recipe> haveInOutput = new List<Recipe>();
+                List<Recipe> recipes = recipeProcessor.getRecipes();
+
+                foreach (Recipe recipe in recipes) {
+                    List<ItemSlot> outputs = recipe.getOutputs();
+                    foreach (ItemSlot outputItemSlot in outputs) {
+                        if (outputItemSlot == null || outputItemSlot.itemObject == null) {
+                            continue;
+                        }
+                        if (outputItemSlot.itemObject.id == itemObject.id) {
+                            haveInOutput.Add(recipe);
+                            break;
+                        }
+                    }
+                }
+                if (haveInOutput.Count == 0) {
+                    continue;
+                }
+                processorRecipesWithItemInOutput[recipeProcessor] = haveInOutput;
+
+            }
+            return processorRecipesWithItemInOutput;
+        }
+
+        public Dictionary<RecipeProcessor, List<Recipe>> getRecipesWithItemInInput(ItemObject itemObject) {
+            Dictionary<RecipeProcessor, List<Recipe>> processorRecipesWithItemInInput = new Dictionary<RecipeProcessor, List<Recipe>>();
+            foreach (RecipeProcessor recipeProcessor in processors) {
+                List<Recipe> haveInInput = new List<Recipe>();
+                List<Recipe> recipes = recipeProcessor.getRecipes();
+
+                foreach (Recipe recipe in recipes) {
+                    List<ItemSlot> inputs = recipe.getInputs();
+                    foreach (ItemSlot inputItemSlot in inputs) {
+                        if (inputItemSlot == null || inputItemSlot.itemObject == null) {
+                            continue;
+                        }
+                        if (inputItemSlot.itemObject.id == itemObject.id) {
+                            haveInInput.Add(recipe);
+                            break;
+                        }
+                    }
+                }
+                if (haveInInput.Count == 0) {
+                    continue;
+                }
+                processorRecipesWithItemInInput[recipeProcessor] = haveInInput;
+
+            }
+            return processorRecipesWithItemInInput;
+        }
+
+        public List<Recipe> getRecipeProcessorRecipes(RecipeProcessor recipeProcessor) {
+            if (!processors.Contains(recipeProcessor)) {
+                return null;
+            }
+            return recipeProcessor.getRecipes();
+        }
+
     }
 
 }

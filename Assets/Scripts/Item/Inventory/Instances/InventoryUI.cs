@@ -169,9 +169,8 @@ public class InventoryUI : MonoBehaviour {
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         ItemSlot inventorySlot = inventory[n];
         ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-        if (inventorySlot != null && inventorySlot.itemObject != null && grabbedSlot != null && grabbedSlot.itemObject != null 
-            && grabbedSlot.itemObject.id == inventorySlot.itemObject.id 
-            && grabbedSlot.amount < Global.MaxSize && inventorySlot.amount < Global.MaxSize) { // Merge
+        if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
+            // Merge
             int sum = inventorySlot.amount + grabbedSlot.amount;
             if (sum > Global.MaxSize) {
                 grabbedSlot.amount = sum-Global.MaxSize;
@@ -180,10 +179,13 @@ public class InventoryUI : MonoBehaviour {
                 inventorySlot.amount = sum;
                 grabbedItemProperties.itemSlot = null;
             }
-        } else { // Swap
+        } else {    
+            // Swap
             inventory[n] = grabbedItemProperties.itemSlot;
             grabbedItemProperties.itemSlot = inventorySlot;
         }
+        
+        
         unloadItem(n);
         loadItem(n);
         grabbedItemProperties.updateSprite();

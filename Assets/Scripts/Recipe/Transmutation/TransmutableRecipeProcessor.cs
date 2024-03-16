@@ -96,6 +96,12 @@ namespace RecipeModule.Transmutation {
             return transmutableStates.Count;
         }
 
+        public override List<Recipe> getRecipes()
+        {
+            // TODO
+            return new List<Recipe>();
+        }
+
         private class TransmutablePair {
             private TransmutableItemState input;
             private TransmutableItemState output;

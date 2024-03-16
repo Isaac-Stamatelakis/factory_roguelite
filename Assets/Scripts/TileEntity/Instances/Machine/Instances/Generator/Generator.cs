@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "E~New Generator", menuName = "Tile Entity/Machine/Generator")]
-    public class Generator : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
+    public class Generator : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessor
     {
         [SerializeField] public EnergyRecipeProcessor energyRecipeProcessor;
         [SerializeField] public Tier tier;
@@ -191,6 +191,11 @@ namespace TileEntityModule.Instances.Machines
         public ref int getEnergy(Vector2Int portPosition)
         {
             return ref inventory.energy;
+        }
+
+        public HashSet<RecipeProcessor> getProcessors()
+        {
+            return new HashSet<RecipeProcessor>{energyRecipeProcessor};
         }
     }
 }

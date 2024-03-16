@@ -16,7 +16,9 @@ namespace RecipeModule {
     }
 
     public abstract class RecipeProcessor : ScriptableObject, IRecipeProcessor {
+        [SerializeField] public GameObject uiPrefab;
         public abstract int getRecipeCount();
+        public abstract List<Recipe> getRecipes();
     }
 
     public interface ITypedRecipeProcessor {
@@ -55,16 +57,19 @@ namespace RecipeModule {
             return false;
         }
 
+        public override List<Recipe> getRecipes()
+        {
+            List<Recipe> recipes = new List<Recipe>();
+            foreach (IRecipeCollection collection in recipeCollectionList) {
+                recipes.AddRange(collection.getRecipes());
+            }
+            return recipes;
+        }
+
         public Type getCollectionType() {
             return typeof(Collection);
         }
         public void addRecipeCollection(object recipeCollection, int mode) {
-            /*
-            if (recipesOfMode.ContainsKey(mode)) {
-                Debug.LogError(name + " already contains mode " + mode);
-                return;
-            }
-            */
             if (recipeCollection is not Collection casted) {
                 Debug.LogError(name + " tried to set invalid recipe collection type");
                 return;

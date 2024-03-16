@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using ItemModule.Tags.FluidContainers;
+using System.Linq;
 
 namespace ItemModule.Tags{
     public static class ItemTagFactory
@@ -52,9 +53,29 @@ namespace ItemModule.Tags{
             return new ItemTagCollection(tags);
         }
 
-        private static void initFluidContainer() {
-
-        }
+        public static bool tagsEqual(ItemTagCollection first, ItemTagCollection second) {
+            if (first == null && second == null) {
+                return true;
+            }
+            if (first == null || first.Dict == null) {
+                return false;
+            }
+            if (second== null || second.Dict == null) {
+                return false;
+            }
+            if (first.Dict.Count != second.Dict.Count) {
+                return false;
+            }
+            foreach (ItemTag tag in first.Dict.Keys) {
+                if (!second.Dict.ContainsKey(tag)) {
+                    return false;
+                }
+                if (!tag.isEquivalent(first.Dict[tag],second.Dict[tag])) {
+                    return false;
+                }
+            }
+            return true;            
+        } 
     }
 }
 

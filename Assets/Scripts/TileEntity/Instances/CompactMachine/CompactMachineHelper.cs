@@ -150,7 +150,6 @@ namespace TileEntityModule.Instances.CompactMachines {
         public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
             int depth = getDepth(compactMachine.getCellPosition());
             DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
-            Debug.Log(depth);
             if (depth == 0) {
                 dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());

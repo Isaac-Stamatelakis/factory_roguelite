@@ -28,6 +28,9 @@ namespace TileEntityModule.Instances.Machines {
 
         
         private void setEnergyBar() {
+            if (machineInventory == null) {
+                return;
+            }
             energyBar.value = ((float) machineInventory.Energy)/tier.getEnergyStorage();
         }
 
