@@ -99,8 +99,16 @@ public static class Global
         int partitionX = Mathf.Abs(cellPosition.x) % (Global.chunkPartitionSize);
         int partitionY = Mathf.Abs(cellPosition.y) % (Global.chunkPartitionSize);
         return new Vector2Int(partitionX, partitionY);
+    }
+
+    public static Vector2Int getPositionInChunk(Vector2Int cellPosition)
+    {
+        int chunkX = Mathf.Abs(cellPosition.x) % (Global.ChunkSize);
+        int chunkY = Mathf.Abs(cellPosition.y) % (Global.ChunkSize);
+        return new Vector2Int(chunkX, chunkY);
 
     }
+
 
     public static Vector2Int getPartitionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.chunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.chunkPartitionSize/2)));

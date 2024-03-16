@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public class ProcessMachineUI : MonoBehaviour
@@ -17,7 +18,7 @@ namespace TileEntityModule.Instances.Machines {
         public void Update() {
             setEnergyBar();
         }
-        public void displayMachine(MachineInventoryLayout layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
+        public void displayMachine(InventoryLayout layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
             machineInventory.display(layout,transform);
             this.machineInventory = machineInventory;
             this.tier = tier;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule;
 using Newtonsoft.Json;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public class PassiveProcessorInventory : MachineInventory<StandardMachineInventoryLayout> {
@@ -22,7 +23,7 @@ namespace TileEntityModule.Instances.Machines {
         public IPassiveRecipe CurrentRecipe { get => currentRecipe; set => currentRecipe = value; }
         public int RemainingTicks { get => remainingTicks; set => remainingTicks = value; }
 
-        public override void display(MachineInventoryLayout layout, Transform parent)
+        public override void display(InventoryLayout layout, Transform parent)
         {
             if (layout is not StandardMachineInventoryLayout standardLayout) {
                 Debug.LogError("Invalid layout provided to display");

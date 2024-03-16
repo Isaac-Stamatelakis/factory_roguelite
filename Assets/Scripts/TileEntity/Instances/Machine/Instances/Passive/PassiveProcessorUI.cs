@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public class PassiveProcessorUI : MonoBehaviour
@@ -12,7 +13,7 @@ namespace TileEntityModule.Instances.Machines {
         private GameObject slotPrefab;
         private Tier tier;
         private PassiveProcessorInventory machineInventory;
-        public void displayMachine(MachineInventoryLayout layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
+        public void displayMachine(InventoryLayout layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
             machineInventory.display(layout,transform);
             this.machineInventory = machineInventory;
             this.tier = tier;

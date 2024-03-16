@@ -7,7 +7,7 @@ namespace RecipeModule {
         public IPassiveRecipe GetPassiveRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs);
     }
     [CreateAssetMenu(fileName ="RP~New Passive Recipe Processor",menuName="Crafting/Processor/Passive")]
-    public class PassiveRecipeProcessor : TypedRecipeProcessor<PassiveRecipeCollection>, IPassiveRecipeProcessor
+    public class PassiveRecipeProcessor : DisplayableTypedRecipeProcessor<PassiveRecipeCollection>, IPassiveRecipeProcessor
     {
         public IPassiveRecipe GetPassiveRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
         {

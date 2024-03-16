@@ -7,7 +7,7 @@ namespace RecipeModule {
         public List<WorkbenchRecipe> getCraftableRecipes(int mode,List<ItemSlot> solidInputs, List<ItemSlot> playerInventory);
     }
     [CreateAssetMenu(fileName ="RP~New WorkBench Recipe Processor",menuName="Crafting/Processor/WorkBench")]
-    public class WorkBenchRecipeProcessor : TypedRecipeProcessor<WorkBenchRecipeCollection>, IWorkBenchRecipeProcess
+    public class WorkBenchRecipeProcessor : DisplayableTypedRecipeProcessor<WorkBenchRecipeCollection>, IWorkBenchRecipeProcess
     {
         /// <summary>
         /// returns all recipes which are currently craftable by the player

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     /// <summary>
@@ -27,7 +28,7 @@ namespace TileEntityModule.Instances.Machines {
         public int Energy { get => energy; set => energy = value; }
         public int Mode { get => mode; set => mode = value; }
 
-        public override void display(MachineInventoryLayout layout,Transform parent)
+        public override void display(InventoryLayout layout,Transform parent)
         {
             if (layout is not StandardMachineInventoryLayout standardLayout) {
                 Debug.LogError("Invalid layout provided to display");

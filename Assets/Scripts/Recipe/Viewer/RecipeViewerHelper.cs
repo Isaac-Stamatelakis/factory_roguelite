@@ -10,33 +10,34 @@ namespace RecipeModule.Viewer {
         private static string path = "UI/RecipeViewer";
         public static void displayUsesOfItem(ItemObject itemObject) {
             
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
-            RecipeViewer viewer = getViewer();
-            if (viewer == null) {
-                return;
-            }
+            
             RecipeRegistry recipeRegistry = RecipeRegistry.getInstance();
             Dictionary<RecipeProcessor, List<Recipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemObject);
             // If is processor, show recipes it makes
-            if (itemObject is TileItem tileItem && tileItem.tileEntity is IProcessor tileEntityProcessor) {
-                foreach (RecipeProcessor processor in tileEntityProcessor.getProcessors()) {
-                    recipesWithItemInInput[processor] = recipeRegistry.getRecipeProcessorRecipes(processor);
-                }
+            if (itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
+                RecipeProcessor processor = tileEntityProcessor.getRecipeProcessor();
+                recipesWithItemInInput[processor] = recipeRegistry.getRecipeProcessorRecipes(processor);
             }
             if (recipesWithItemInInput.Count == 0) {
+                return;
+            }
+            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
+            RecipeViewer viewer = getViewer();
+            if (viewer == null) {
                 return;
             }
             viewer.show(recipesWithItemInInput);
             globalUIController.setGUI(viewer.gameObject);
         }
         public static void displayCraftingOfItem(ItemObject itemObject) {
+            
+            Dictionary<RecipeProcessor, List<Recipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemObject);
+            if (recipesWithItemInOutput.Count == 0) {
+                return;
+            }
             GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
             RecipeViewer viewer = getViewer();
             if (viewer == null) {
-                return;
-            }
-            Dictionary<RecipeProcessor, List<Recipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemObject);
-            if (recipesWithItemInOutput.Count == 0) {
                 return;
             }
             viewer.show(recipesWithItemInOutput);

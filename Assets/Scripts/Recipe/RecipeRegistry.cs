@@ -14,10 +14,14 @@ namespace RecipeModule {
             processors = new HashSet<RecipeProcessor>();
             RecipeProcessor[] recipeProcessors = Resources.LoadAll<RecipeProcessor>("");
             foreach (RecipeProcessor recipeProcessor in recipeProcessors) {
-                processors.Add(recipeProcessor);
                 if (recipeProcessor is IInitableRecipeProcessor initableRecipeProcessor) {
                     initableRecipeProcessor.init();
                 }
+                if (recipeProcessor is not IRegisterableProcessor) {
+                    continue;
+                }
+                processors.Add(recipeProcessor);
+                
                 if (recipeProcessor is IRecipeProcessor countable) {
                     recipeCount += countable.getRecipeCount();
                 }

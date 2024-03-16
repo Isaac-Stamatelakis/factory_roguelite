@@ -7,18 +7,17 @@ using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
+using RecipeModule.Processors;
 using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessor
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity
     {
         
-        [SerializeField] public ItemRecipeProcessor itemRecipeProcessor;
-        [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
-        
+        [SerializeField] public AggregatedPoweredMachineProcessor processor;       
         [SerializeField] public Tier tier;
         [SerializeField] public GameObject machineUIPrefab;
         public StandardMachineInventoryLayout layout;
@@ -103,50 +102,16 @@ namespace TileEntityModule.Instances.Machines
             if (currentRecipe != null) {
                 return;
             }
-            currentRecipe = processItemRecipes();
-            if (currentRecipe != null) {
-                initRecipe();
-                return;
-            }
-            currentRecipe = processTransmutableItemRecipe();
-            if (currentRecipe != null) {
-                initRecipe();
-            }
-        }
-
-        private IMachineRecipe processItemRecipes() {
-            if (itemRecipeProcessor == null) {
-                return null;
-            }
-            IItemRecipe recipe = itemRecipeProcessor.getItemRecipe(
+            currentRecipe = processor.getRecipe(
                 mode: inventory.Mode,
                 solidInputs: inventory.ItemInputs.Slots,
                 solidOutputs: inventory.ItemOutputs.Slots,
                 fluidInputs: inventory.FluidInputs.Slots,
                 fluidOutputs: inventory.FluidOutputs.Slots
             );
-            if (recipe is not IMachineRecipe machineRecipe) {
-                Debug.LogError("Machine '" + name + "' Reciped assigned to machine");
-                return null;
-            }
-            return machineRecipe;
-            
         }
 
-        private IMachineRecipe processTransmutableItemRecipe() {
-            if (transmutableRecipeProcessor == null) {
-                return null;
-            }
-            TransmutableRecipe recipe = transmutableRecipeProcessor.getValidRecipe(
-                mode: inventory.Mode,
-                solidInputs: inventory.ItemInputs.Slots,
-                solidOutputs: inventory.ItemOutputs.Slots,
-                fluidInputs: inventory.FluidInputs.Slots,
-                fluidOutputs: inventory.FluidOutputs.Slots
-            );
-            return recipe;
-            
-        }
+
         public void unserialize(string data)
         {
             inventory = StandardMachineInventoryFactory.deserialize(data);
@@ -215,12 +180,9 @@ namespace TileEntityModule.Instances.Machines
             return ref inventory.energy;
         }
 
-        public HashSet<RecipeProcessor> getProcessors()
+        public RecipeProcessor getRecipeProcessor()
         {
-            return new HashSet<RecipeProcessor>{
-                itemRecipeProcessor,
-                transmutableRecipeProcessor
-            };
+            return processor;
         }
     }
 }

@@ -5,7 +5,7 @@ using ItemModule.Transmutable;
 using TileEntityModule;
 
 namespace RecipeModule.Transmutation {
-    [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Transmutation Processor")]
+    [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Processor/Transmutable")]
     public class TransmutableRecipeProcessor : RecipeProcessor, ITransmutableRecipeProcessor, IInitableRecipeProcessor
     {
         [Header("Valid Input States")]
@@ -43,7 +43,7 @@ namespace RecipeModule.Transmutation {
             }
         }
 
-        public TransmutableRecipe getValidRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
+        public IMachineRecipe getRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
         {
             if (transmutableDict.ContainsKey(mode)) {
                 foreach (TransmutablePair transmutablePair in transmutableDict[mode]) {

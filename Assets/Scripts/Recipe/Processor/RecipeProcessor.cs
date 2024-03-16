@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using TileEntityModule.Instances.Machines;
+using ItemModule.Inventory;
 
 namespace RecipeModule {
     /// <summary>
@@ -15,10 +15,12 @@ namespace RecipeModule {
     public interface IInitableRecipeProcessor {
         public void init();
     }
+    public interface IRegisterableProcessor {
+        public GameObject getUIPrefab();
+        public InventoryLayout getInventoryLayout();
+    }
 
     public abstract class RecipeProcessor : ScriptableObject, IRecipeProcessor {
-        [SerializeField] public GameObject uiPrefab;
-        [SerializeField] public MachineInventoryLayout layout;
         public abstract int getRecipeCount();
         public abstract List<Recipe> getRecipes();
     }
@@ -96,6 +98,21 @@ namespace RecipeModule {
                 count += collection.getRecipeCount();
             }
             return count;
+        }
+    }
+
+    public abstract class DisplayableTypedRecipeProcessor<Collection> : TypedRecipeProcessor<Collection>, IRegisterableProcessor where Collection : IRecipeCollection
+    {
+        [SerializeField] protected GameObject uiPrefab;
+        [SerializeField] protected InventoryLayout layout;
+        public InventoryLayout getInventoryLayout()
+        {
+            return layout;
+        }
+
+        public GameObject getUIPrefab()
+        {
+            return uiPrefab;
         }
     }
 

@@ -34,8 +34,8 @@ namespace TileEntityModule {
     public interface IBreakActionTileEntity {
         public void onBreak();
     }
-    public interface IProcessor {
-        public HashSet<RecipeProcessor> getProcessors();
+    public interface IProcessorTileEntity {
+        public RecipeProcessor getRecipeProcessor();
     }
 
 }

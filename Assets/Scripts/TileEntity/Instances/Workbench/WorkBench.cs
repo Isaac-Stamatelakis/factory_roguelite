@@ -5,14 +5,14 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.WorkBenchs {
     [CreateAssetMenu(fileName ="E~New WorkBench",menuName="Tile Entity/Workbench")]
-    public class WorkBench : TileEntity, IClickableTileEntity, IProcessor
+    public class WorkBench : TileEntity, IClickableTileEntity, IProcessorTileEntity
     {
         [SerializeField] public WorkBenchRecipeProcessor workBenchRecipeProcessor;
         [SerializeField] public GameObject uiPrefab;
 
-        public HashSet<RecipeProcessor> getProcessors()
+        public RecipeProcessor getRecipeProcessor()
         {
-            return new HashSet<RecipeProcessor>{workBenchRecipeProcessor};
+            return workBenchRecipeProcessor;
         }
 
         public void onClick()

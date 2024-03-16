@@ -132,6 +132,9 @@ namespace TileEntityModule.Instances.SimonSays {
                 if (count == 3) {
                     loot.AddRange(LootTableHelper.openWithAmount(completionLootTable,1));
                 }
+                Vector2Int cellPosition = getCellPosition() + position;
+                Vector2Int chestPositionInChunk = Global.getPositionInChunk(cellPosition);
+                chestTileEntity.initalize(chestPositionInChunk, chestTile.tile, chunk);
                 chest.giveItems(loot);
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
                 PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,false,chestTileEntity);

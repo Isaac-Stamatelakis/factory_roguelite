@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 
-namespace TileEntityModule.Instances.Machines {
+namespace ItemModule.Inventory {
     
-    public abstract class MachineInventoryLayout : ScriptableObject {
+    public abstract class InventoryLayout : ScriptableObject {
         
     }
     

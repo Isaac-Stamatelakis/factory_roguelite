@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName ="RP~New Energy Recipe Processor",menuName="Crafting/Processor/Energy")]
-    public class EnergyRecipeProcessor : TypedRecipeProcessor<EnergyRecipeCollection>, IEnergyRecipeProcessor
+    public class EnergyRecipeProcessor : DisplayableTypedRecipeProcessor<EnergyRecipeCollection>, IEnergyRecipeProcessor
     {
         public IEnergyProduceRecipe getEnergyRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {

@@ -125,11 +125,11 @@ namespace ItemModule {
                 if (tileItem.tileEntity == null) {
                     continue;
                 }
-                if (tileItem.tileEntity is not IProcessor tileEntityProcess) {
+                if (tileItem.tileEntity is not IProcessorTileEntity tileEntityProcess) {
                     continue;
                 }
-                HashSet<RecipeProcessor> processors = tileEntityProcess.getProcessors();
-                if (!processors.Contains(processor)) {
+                RecipeProcessor entityProcessor = tileEntityProcess.getRecipeProcessor();
+                if (!processor.Equals(entityProcessor)) {
                     continue;
                 }
                 tileItems.Add(tileItem);
