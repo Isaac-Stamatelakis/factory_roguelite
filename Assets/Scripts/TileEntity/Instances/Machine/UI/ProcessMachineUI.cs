@@ -40,8 +40,6 @@ namespace TileEntityModule.Instances.Machines {
     }
 
     public static class MachineUIFactory {
-        private static GameObject solidSlotPrefab = Resources.Load<GameObject>("Prefabs/GUI/ItemInventorySlot");
-        private static GameObject fluidSlotPrefab = Resources.Load<GameObject>("Prefabs/GUI/FluidInventorySlot");
         public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform) {
             if (items == null) {
                 return;
@@ -67,10 +65,10 @@ namespace TileEntityModule.Instances.Machines {
                 GameObject slot = null;
                 switch (itemState) {
                     case ItemState.Solid:
-                        slot = GameObject.Instantiate(solidSlotPrefab);
+                        slot = GameObject.Instantiate(Resources.Load<GameObject>(InventoryHelper.SolidSlotPrefabPath));
                         break;
                     case ItemState.Fluid:
-                        slot = GameObject.Instantiate(fluidSlotPrefab);
+                        slot = GameObject.Instantiate(Resources.Load<GameObject>(InventoryHelper.FluidSlotPrefabPath));
                         break;
                 }
                 if (slot == null) {

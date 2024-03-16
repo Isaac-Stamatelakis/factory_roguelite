@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerInventoryGrid : ItemInventoryGrid
+public class PlayerInventoryGrid : SolidDynamicInventory
 {
     private int selectedSlot = -1;
     

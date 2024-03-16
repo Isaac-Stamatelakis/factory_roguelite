@@ -2,27 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DynamicInventoryGrid : InventoryGrid
+public class SolidDynamicInventory : AbstractSolidItemInventory
 {
+    private Vector2Int size;
+    public int Count {get => size.x * size.y;}
+    public Vector2Int Size { get => size; set => size = value; }
+
+    public void initalize(List<ItemSlot> inventory, Vector2Int size) {
+        this.inventory = inventory;
+        this.size = size;
+        initalizeSlots();
+    }
     protected override void initSlot(int n)
     {
         GameObject slot = Global.findChild(transform,"slot"+n);
         if (slot == null) {
-            addSlot();
+            slot = addSlot();
         } else {
             slots.Add(slot);
+            initClickHandler(slot.transform,n);
         }
+        
     }
-    public bool addSlot() {
+    public GameObject addSlot() {
         if (slots.Count >= size.x * size.y) {
-            return false;
+            return null;
         }
-        GameObject slot = Instantiate(Resources.Load<GameObject>("Prefabs/GUI/ItemInventorySlot"));
+        GameObject slot = Instantiate(Resources.Load<GameObject>(InventoryHelper.SolidSlotPrefabPath));
         slot.name = "slot" + (slots.Count).ToString();
         slot.transform.SetParent(transform,false);
         slots.Add(slot);
+        initClickHandler(slot.transform,slots.Count-1);
         loadItem(slots.Count-1);
-        return true;
+        return slot;
     }
     public bool popSlot() {
         if (slots.Count <= 0) {
@@ -36,10 +48,10 @@ public class DynamicInventoryGrid : InventoryGrid
 
     public void updateSize(UnityEngine.Vector2Int newSize) {
         this.size = newSize;
-        while (slots.Count < SizeInt) {
+        while (slots.Count < Count) {
             addSlot();
         }
-        while (slots.Count > SizeInt) {
+        while (slots.Count > Count) {
             popSlot();
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using ItemModule;
 
-public class InventoryUI : MonoBehaviour {
+public abstract class InventoryUI : MonoBehaviour {
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
     protected void initalizeSlots() {
@@ -42,8 +42,22 @@ public class InventoryUI : MonoBehaviour {
             return;
         }
         slots.Add(slotTransform.gameObject);
+        initClickHandler(slotTransform,n);
+    }
+
+    protected void initClickHandler(Transform slot, int n) {
+        
+        ItemSlotUIClickHandler clickHandler = slot.GetComponent<ItemSlotUIClickHandler>();
+        if (clickHandler == null) {
+            Debug.LogError("Slot" + n + " doesn't have click handler");
+            return;
+        }
+        clickHandler.init(this,n);
     }
     public virtual void loadItem(int n) {
+        if (n >= slots.Count) {
+            return;
+        }
         GameObject slot = slots[n];
         ItemSlot itemSlot = inventory[n];
         loadTagVisual(slot,itemSlot); 
@@ -160,55 +174,7 @@ public class InventoryUI : MonoBehaviour {
     protected virtual GameObject loadItemAmountNumber(GameObject slot, ItemSlot data) {
         return ItemSlotUIFactory.getNumber(data,slot.transform);
     }
-    
-    public virtual void clickSlot(int n) {
-        GameObject grabbedItem = GameObject.Find("GrabbedItem");
-        if (grabbedItem == null) {
-            Debug.LogError("Inventory " + name + " GrabbedItem is null");
-        }
-        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        ItemSlot inventorySlot = inventory[n];
-        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-        if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
-            // Merge
-            int sum = inventorySlot.amount + grabbedSlot.amount;
-            if (sum > Global.MaxSize) {
-                grabbedSlot.amount = sum-Global.MaxSize;
-                inventorySlot.amount = Global.MaxSize;
-            } else { // Overflow
-                inventorySlot.amount = sum;
-                grabbedItemProperties.itemSlot = null;
-            }
-        } else {    
-            // Swap
-            inventory[n] = grabbedItemProperties.itemSlot;
-            grabbedItemProperties.itemSlot = inventorySlot;
-        }
-        
-        
-        unloadItem(n);
-        loadItem(n);
-        grabbedItemProperties.updateSprite();
-    }
-
-    
-}
-
-public class InventoryGrid : InventoryUI
-{
-    [SerializeField] protected UnityEngine.Vector2Int size;
-    public UnityEngine.Vector2Int Size {get{return size;}}
-    public int SizeInt{get{return size.x*size.y;}}
-
-    public void initalize(List<ItemSlot> inventory, UnityEngine.Vector2Int size) {
-        this.inventory = inventory;
-        this.size = size;
-        initalizeSlots();
-        
-    }
-
-    public void initalize(List<ItemSlot> inventory) {
-        this.inventory = inventory;
-        initalizeSlots();
-    }
+    public abstract void rightClick(int n);
+    public abstract void leftClick(int n);
+    public abstract void middleClick(int n);
 }

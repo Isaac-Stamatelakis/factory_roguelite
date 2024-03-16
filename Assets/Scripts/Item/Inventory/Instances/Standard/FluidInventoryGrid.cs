@@ -12,7 +12,12 @@ public class FluidInventoryGrid : InventoryUI, ILoadableInventory
         initalizeSlots();
     }
 
-    public override void clickSlot(int n)
+    public override void rightClick(int n)
+    {
+        // Do nothing
+    }
+
+    public override void leftClick(int n)
     {
         ItemSlot fluidSlot = inventory[n];
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
@@ -21,5 +26,10 @@ public class FluidInventoryGrid : InventoryUI, ILoadableInventory
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         FluidContainerHelper.handleClick(grabbedItemProperties,inventory,n);
+    }
+
+    public override void middleClick(int n)
+    {
+        // Do nothing
     }
 }
