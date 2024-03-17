@@ -9,7 +9,7 @@ namespace TileEntityModule {
 
     }
 
-    public abstract class StandardSolidAndFluidInventory : TileEntityInventory {
+    public class StandardSolidAndFluidInventory : TileEntityInventory {
         protected Inventory itemInputs;
         protected Inventory itemOutputs;
         protected Inventory fluidInputs;

@@ -44,12 +44,14 @@ namespace RecipeModule.Viewer {
         }
 
         private void moveRecipeProcessorLeft() {
+            currentRecipeIndex = 0;
             indicatorController.moveLeft();
             currentProcessorIndex = Mathf.Abs((currentProcessorIndex-1) % orderedProcessors.Count);
             display();
         }
 
         private void moveRecipeProcessorRight() {
+            currentRecipeIndex = 0;
             indicatorController.moveRight();
             currentProcessorIndex = Mathf.Abs((currentProcessorIndex+1) % orderedProcessors.Count);
             display();
@@ -58,6 +60,7 @@ namespace RecipeModule.Viewer {
         private void moveRecipeLeft() {
             RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
             List<IRecipe> recipes = processorRecipes[processor];
+            // modulus gives negatives
             currentRecipeIndex = currentRecipeIndex-1;
             if (currentRecipeIndex < 0) {
                 currentRecipeIndex = recipes.Count-1;

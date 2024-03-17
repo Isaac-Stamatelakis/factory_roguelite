@@ -25,6 +25,11 @@ namespace RecipeModule {
             }
             return validRecipes;
         }
+
+        public override GameObject getRecipeUI(IRecipe recipe, string processorName)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
 

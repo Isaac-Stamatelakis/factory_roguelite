@@ -32,18 +32,7 @@ namespace TileEntityModule.Instances.Machines {
 
         public void onClick()   
         {
-            if (machineUIPrefab == null) {
-                Debug.LogError("GUI GameObject for Machine:" + name + " null");
-                return;
-            }
-            GameObject instantiatedUI = GameObject.Instantiate(machineUIPrefab);
-            PassiveProcessorUI machineUI = instantiatedUI.GetComponent<PassiveProcessorUI>();
-            if (machineUI == null) {
-                Debug.LogError("Machine Gameobject doesn't have UI component");
-                return;
-            }
-            machineUI.displayMachine(layout, inventory, name, tier);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
+            recipeProcessor.displayTileEntity(inventory,recipeProcessor.name);
             
         }
         

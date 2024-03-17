@@ -106,7 +106,7 @@ namespace RecipeModule {
         }
     }
 
-    public abstract class DisplayableTypedRecipeProcessor<Collection> : TypedRecipeProcessor<Collection>, IRegisterableProcessor where Collection : IRecipeCollection
+    public abstract class DisplayableTypedRecipeProcessor<Collection> : TypedRecipeProcessor<Collection>, IRegisterableProcessor, IDisplayableProcessor where Collection : IRecipeCollection
     {
         [SerializeField] protected GameObject uiPrefab;
         [SerializeField] protected InventoryLayout layout;
@@ -115,6 +115,8 @@ namespace RecipeModule {
         {
             return layout;
         }
+
+        public abstract GameObject getRecipeUI(IRecipe recipe, string processorName);
 
         public GameObject getUIPrefab()
         {

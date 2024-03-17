@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TileEntityModule.Instances.Machines;
+using GUIModule;
 
 namespace RecipeModule {
     public interface IPassiveRecipeProcessor {
@@ -24,6 +26,16 @@ namespace RecipeModule {
                 }
             }
             return null;
+        }
+
+        public void displayTileEntity(PassiveProcessorInventory passiveProcessorInventory, string processorName) {
+            GameObject ui = PassiveProcessorUIFactory.getProcessMachineStandardUI(getUIPrefab(),getInventoryLayout(),passiveProcessorInventory,processorName).gameObject;
+            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+        }
+
+        public override GameObject getRecipeUI(IRecipe recipe, string processorName)
+        {
+            return PassiveProcessorUIFactory.getProcessMachineRecipeUI(getUIPrefab(),getInventoryLayout(),recipe,processorName).gameObject;
         }
     }
 

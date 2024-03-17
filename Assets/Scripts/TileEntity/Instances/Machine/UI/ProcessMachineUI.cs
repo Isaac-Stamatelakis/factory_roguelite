@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using ItemModule.Inventory;
 using RecipeModule;
+using System;
 
 namespace TileEntityModule.Instances.Machines {
     public class ProcessMachineUI : MonoBehaviour
@@ -30,6 +31,7 @@ namespace TileEntityModule.Instances.Machines {
             this.machineInventory = machineInventory;
             layout.display(transform,machineInventory,InventoryUIMode.Recipe);
             title.text = MachineUIFactory.formatMachineName(machineName);
+            energyBar.gameObject.SetActive(false);
         }
 
         private void setEnergyBar() {
@@ -108,6 +110,38 @@ namespace TileEntityModule.Instances.Machines {
 
         public static string formatMachineName(string name) {
             return name.Replace("E~","").Replace("(Clone)","").Replace("_"," ");
+        }
+
+        public static ProcessMachineUI getProcessMachineRecipeUI(GameObject uiPrefab, InventoryLayout layout, IRecipe recipe, string name) {
+            ProcessMachineUI machineUI = getProcessMachineUI(uiPrefab,layout,name);
+            StandardMachineInventory machineInventory = (StandardMachineInventory) RecipeInventoryFactory.toStandard(recipe);
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                throw new InvalidOperationException(name + " layout is not standard layout");
+            }
+            machineUI.displayRecipe(standardLayout, machineInventory, name);
+            return machineUI;
+        }
+
+        public static ProcessMachineUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, StandardMachineInventory inventory, Tier tier, string name) {
+            ProcessMachineUI machineUI = getProcessMachineUI(uiPrefab,layout,name);
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                throw new InvalidOperationException(name + " layout is not standard layout");
+            }
+            machineUI.displayMachine(standardLayout, inventory, name, tier);
+            return machineUI;
+        }
+
+        private static ProcessMachineUI getProcessMachineUI(GameObject uiPrefab, InventoryLayout layout, string name) {
+            if (uiPrefab == null) {
+                Debug.LogError("GUI GameObject for Processor:" + name + " is null");
+                return null;
+            }
+            GameObject instantiatedUI = GameObject.Instantiate(uiPrefab);
+            ProcessMachineUI machineUI = instantiatedUI.GetComponent<ProcessMachineUI>();
+            if (machineUI == null) {
+                throw new InvalidOperationException(name + " machineUI is null");
+            }
+            return machineUI;  
         }
     }
 
