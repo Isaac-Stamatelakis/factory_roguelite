@@ -44,6 +44,19 @@ namespace RecipeModule.Viewer {
             globalUIController.setGUI(viewer.gameObject);
         }
 
+        public static void displayUsesOfProcessor(RecipeProcessor processor) {
+            List<IRecipe> recipes = RecipeRegistry.getInstance().getRecipeProcessorRecipes(processor);
+            Dictionary<RecipeProcessor, List<IRecipe>> recipesOfProcessor = new Dictionary<RecipeProcessor, List<IRecipe>>();
+            recipesOfProcessor[processor] = recipes;
+            RecipeViewer viewer = getViewer();
+            if (viewer == null) {
+                return;
+            }
+            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
+            viewer.show(recipesOfProcessor);
+            globalUIController.setGUI(viewer.gameObject);
+        }
+
         private static RecipeViewer getViewer() {
             GameObject prefab = Resources.Load<GameObject>(path);
             if (prefab == null) {

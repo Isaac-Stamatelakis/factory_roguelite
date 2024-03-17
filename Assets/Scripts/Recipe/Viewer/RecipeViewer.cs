@@ -21,14 +21,17 @@ namespace RecipeModule.Viewer {
         private int currentProcessorIndex;
         private int currentRecipeIndex;
         private Dictionary<RecipeProcessor, List<IRecipe>> processorRecipes;
+
+        public Dictionary<RecipeProcessor, List<IRecipe>> ProcessorRecipes { get => processorRecipes; set => processorRecipes = value; }
+
         public void show(Dictionary<RecipeProcessor, List<IRecipe>> processorRecipes) {
             this.processorRecipes = processorRecipes;
             orderedProcessors = processorRecipes.Keys.ToList();
             RecipeProcessorSorter.sortProcessors(orderedProcessors);
             RecipeProcessor processorToShow = orderedProcessors[0];
-            indicatorController.init(orderedProcessors,processorToShow);
-            recipeProcessorLeftButton.onClick.AddListener(moveRecipeProcessorLeft);   
-            recipeProcessorRightButton.onClick.AddListener(moveRecipeProcessorRight); 
+            indicatorController.init(this, orderedProcessors,processorToShow);
+            recipeProcessorLeftButton.onClick.AddListener(() => moveByAmount(-1));   
+            recipeProcessorRightButton.onClick.AddListener(() => moveByAmount(1)); 
             recipeLeftButton.onClick.AddListener(moveRecipeLeft);
             recipeRightButton.onClick.AddListener(moveRecipeRight);
             // ints are initalized at 0, so displays processor 0 with recipe 0
@@ -42,19 +45,17 @@ namespace RecipeModule.Viewer {
             recipeLeftButton.onClick.RemoveAllListeners();
             recipeRightButton.onClick.RemoveAllListeners();
         }
-
-        private void moveRecipeProcessorLeft() {
+        public void moveByAmount(int amount) {
             currentRecipeIndex = 0;
-            indicatorController.moveLeft();
-            currentProcessorIndex = Mathf.Abs((currentProcessorIndex-1) % orderedProcessors.Count);
+            currentProcessorIndex = Global.modInt(currentProcessorIndex+amount,orderedProcessors.Count);
+            indicatorController.moveByAmount(amount);
             display();
         }
 
-        private void moveRecipeProcessorRight() {
-            currentRecipeIndex = 0;
-            indicatorController.moveRight();
-            currentProcessorIndex = Mathf.Abs((currentProcessorIndex+1) % orderedProcessors.Count);
-            display();
+        public void displayUsesOfProcessor(int offset) {
+            currentProcessorIndex = Global.modInt(currentProcessorIndex+offset,orderedProcessors.Count);
+            RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
+            RecipeViewerHelper.displayUsesOfProcessor(processor);
         }
 
         private void moveRecipeLeft() {
@@ -89,6 +90,9 @@ namespace RecipeModule.Viewer {
             setPageIndicatorText(currentRecipeIndex,recipes.Count);
             IRecipe recipe = recipes[currentRecipeIndex];
             GameObject processorUI = displayableProcessor.getRecipeUI(recipe,processor.name);
+            for (int i = 0; i < processorContainer.childCount; i++) {
+                GameObject.Destroy(processorContainer.GetChild(i).gameObject);
+            }
             processorUI.transform.SetParent(processorContainer,false);
         }
 

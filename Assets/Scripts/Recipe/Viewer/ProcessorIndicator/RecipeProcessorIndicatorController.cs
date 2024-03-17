@@ -12,11 +12,15 @@ namespace RecipeModule.Viewer {
         private int currentIndex;
         private List<RecipeProcessor> processors;
         private Dictionary<RecipeProcessor, Sprite[]> processorSprites;
+        private RecipeViewer recipeViewer;
 
-        public void init(List<RecipeProcessor> processors, RecipeProcessor inital) {
+        public RecipeViewer RecipeViewer { get => recipeViewer; set => recipeViewer = value; }
+
+        public void init(RecipeViewer recipeViewer, List<RecipeProcessor> processors, RecipeProcessor inital) {
             if (processors == null || processors.Count == 0) {
                 return;
             }
+            this.recipeViewer = recipeViewer;
             initIndicators();
             processorSprites = new Dictionary<RecipeProcessor, Sprite[]>();
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
@@ -35,17 +39,6 @@ namespace RecipeModule.Viewer {
                 Debug.LogError("could not find initalIndex");
                 return;
             }
-            /*
-            int size = Mathf.Min(length,processors.Count-1);
-            int removals = length-size;
-            for (int i = removals-1; i >= 0; i--) {
-                GameObject.Destroy(indicators[RecipeProcessorPosition.Left][i].gameObject);
-                indicators[RecipeProcessorPosition.Left].RemoveAt(i);
-                GameObject.Destroy(indicators[RecipeProcessorPosition.Right][i].gameObject);
-                indicators[RecipeProcessorPosition.Right].RemoveAt(i);
-            }
-            length -= removals;
-            */
             display();
         }
 
@@ -63,6 +56,7 @@ namespace RecipeModule.Viewer {
                     continue;
                 }
                 indicators[indicator.position].Add(indicator);
+                indicator.init(this);
             }
             length = indicators[RecipeProcessorPosition.Left].Count;
             indicators[RecipeProcessorPosition.Left] = indicators[RecipeProcessorPosition.Left].OrderBy(i => i.index).ToList();
@@ -99,6 +93,11 @@ namespace RecipeModule.Viewer {
 
         public void moveRight() {
             currentIndex = Global.modInt(currentIndex+1, processors.Count);
+            display();
+        }
+
+        public void moveByAmount(int amount) {
+            currentIndex = Global.modInt(currentIndex+amount, processors.Count);
             display();
         }
     }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace RecipeModule.Viewer {
 
@@ -11,13 +12,36 @@ namespace RecipeModule.Viewer {
         Right
     }
 
-    public class RecipeProcessorIndicator : MonoBehaviour
+    public class RecipeProcessorIndicator : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] public Image image;
         [SerializeField] public RecipeProcessorPosition position;
         [SerializeField] public int index;
+        private RecipeProcessorIndicatorController controller;
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            int offset = 0;
+            if (position == RecipeProcessorPosition.Left) {
+                offset = -(index+1);
+            } else if (position == RecipeProcessorPosition.Right) {
+                offset = index+1;
+            }
+
+            if (eventData.button == PointerEventData.InputButton.Left) {
+                controller.RecipeViewer.moveByAmount(offset);
+                
+            } else if (eventData.button == PointerEventData.InputButton.Right) {
+                controller.RecipeViewer.displayUsesOfProcessor(offset);
+            }
+        }
+
         public void setImage(Image image) {
             this.image = image;
+        }
+
+        public void init(RecipeProcessorIndicatorController controller) {
+            this.controller = controller;
         }
     }
 }
