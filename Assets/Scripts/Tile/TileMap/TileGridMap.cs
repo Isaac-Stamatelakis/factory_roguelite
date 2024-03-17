@@ -111,18 +111,28 @@ namespace TileMapModule {
             }
         }
 
-        protected override bool hitHardness(TileOptions tileOptions) {
+        protected bool hitHardness(Vector2Int cellPosition) {
+            TileOptions tileOptions = getOptionsAtPosition(cellPosition);
             if (tileOptions == null) {
                 return false;
             }
             if (!tileOptions.StaticOptions.hitable) { // uninteractable
                 return false;
             }
-            
+            TileItem tileItem = getTileItem(cellPosition);
             DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
             dynamicTileOptions.hardness--;
             tileOptions.DynamicTileOptions = dynamicTileOptions;
-            return dynamicTileOptions.hardness == 0;
+            bool broken = dynamicTileOptions.hardness == 0;
+            if (tileItem.tile is Tile tile && tile.colliderType == Tile.ColliderType.Grid) {
+                if (!broken) {
+                    float breakRatio = 1f-((float)dynamicTileOptions.hardness)/tileItem.tileOptions.DynamicTileOptions.hardness;
+                    closedChunkSystem.BreakIndicator.setBreak(breakRatio,cellPosition);
+                } else {
+                    closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
+                }
+            }
+            return broken;
         }
 
         protected override void setTile(int x, int y,TileItem tileItem) {
@@ -162,10 +172,8 @@ namespace TileMapModule {
             originalMatrix.m13 = yOffset;
             tilemap.SetTransformMatrix(vec3Hit,originalMatrix);
             */
-            if (hitHardness(tileOptions)) {
-                IChunkPartition partition = getPartitionAtPosition(hitTilePosition);
-                Vector2Int positionInPartition = getTilePositionInPartition(hitTilePosition);
-                TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+            if (hitHardness(hitTilePosition)) {
+                TileItem tileItem = getTileItem(hitTilePosition);
                 spawnItemEntity(tileItem,hitTilePosition);
                 breakTile(hitTilePosition);
             }
@@ -177,6 +185,13 @@ namespace TileMapModule {
                 return;
             }
             partition.setTile(position,getType().toLayer(),item);
+        }
+
+        protected TileItem getTileItem(Vector2Int cellPosition) {
+            IChunkPartition partition = getPartitionAtPosition(cellPosition);
+            Vector2Int positionInPartition = getTilePositionInPartition(cellPosition);
+            TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+            return tileItem;
         }
     }
 }

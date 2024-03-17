@@ -37,15 +37,9 @@ namespace TileMapModule.Previewer {
             
         }   
         public void previewTile(string id, Vector2 position) {
-            if (id == null) {
-                tilemap.SetTile(previouslyPreviewed, null);
-                return;
-            }
             ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
-            if (itemObject == null) {
-                return;
-            }
-            if (itemObject is not IPlacableItem placableTile) {
+            if (itemObject == null || itemObject is not IPlacableItem placableTile) {
+                tilemap.SetTile(previouslyPreviewed, null);
                 return;
             }
             Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
