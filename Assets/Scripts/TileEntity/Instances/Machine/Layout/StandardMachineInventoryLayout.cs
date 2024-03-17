@@ -11,7 +11,7 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public List<Vector2Int> fluidInputs;
         [SerializeField] public List<Vector2Int> fluidOutputs;
 
-        public override void display(Transform parent, StandardSolidAndFluidInventory inventory, InventoryUIType uIType)
+        public override void display(Transform parent, StandardSolidAndFluidInventory inventory, InventoryUIMode uIType)
         {
             MachineUIFactory.initInventory(inventory.ItemInputs.Slots,itemInputs,ItemState.Solid,"SolidInputs",parent,uIType);
             MachineUIFactory.initInventory(inventory.ItemOutputs.Slots,itemOutputs,ItemState.Solid,"SolidOutputs",parent,uIType);

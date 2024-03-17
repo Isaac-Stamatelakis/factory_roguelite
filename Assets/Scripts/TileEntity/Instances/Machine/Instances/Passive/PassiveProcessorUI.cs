@@ -14,7 +14,7 @@ namespace TileEntityModule.Instances.Machines {
         private Tier tier;
         private PassiveProcessorInventory machineInventory;
         public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
-            layout.display(transform,machineInventory,InventoryUIType.Standard);
+            layout.display(transform,machineInventory,InventoryUIMode.Standard);
             this.machineInventory = machineInventory;
             this.tier = tier;
             title.text = MachineUIFactory.formatMachineName(machineName);

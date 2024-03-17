@@ -21,6 +21,10 @@ namespace RecipeModule {
         public InventoryLayout getInventoryLayout();
     }
 
+    public interface IDisplayableProcessor {
+        public GameObject getRecipeUI(IRecipe recipe, string processorName);
+    }
+
     public abstract class RecipeProcessor : ScriptableObject, IRecipeProcessor {
         public abstract int getRecipeCount();
         public abstract List<IRecipe> getRecipes();

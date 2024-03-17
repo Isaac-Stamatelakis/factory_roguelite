@@ -154,7 +154,6 @@ namespace RecipeModule.Transmutation {
                                 pair.Input,
                                 pair.Output
                             );
-                            
                             recipes.Add(new TransmutableRecipe(
                                 input: input,
                                 output: output,

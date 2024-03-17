@@ -12,7 +12,7 @@ namespace RecipeModule.Processors {
     /// Recipe Processor for processor machines with energy
     /// </summary>
     [CreateAssetMenu(fileName ="RP~Powered Machine Processor",menuName="Crafting/Processor/PoweredMachine")]
-    public class AggregatedPoweredMachineProcessor : RecipeProcessorAggregator<StandardMachineInventoryLayout>
+    public class AggregatedPoweredMachineProcessor : RecipeProcessorAggregator<StandardMachineInventoryLayout>, IDisplayableProcessor
     {
         [SerializeField] public MachineRecipeProcessor itemRecipeProcessor;
         [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
@@ -43,20 +43,6 @@ namespace RecipeModule.Processors {
             GameObject instantiatedUI = GameObject.Instantiate(uiPrefab);
             ProcessMachineUI machineUI = instantiatedUI.GetComponent<ProcessMachineUI>();
             return machineUI;
-        }
-
-        public void displayRecipe(StandardMachineInventory tileEntityInventory, Tier tier, string processorName) {
-            ProcessMachineUI machineUI = getUI();
-            if (machineUI == null) {
-                Debug.LogError("Machine Gameobject doesn't have UI component");
-                return;
-            }
-            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
-                Debug.LogError(name + " layout is not standard layout");
-                return;
-            }
-            machineUI.displayRecipe(standardLayout, tileEntityInventory, processorName);
-            GlobalUIContainer.getInstance().getUiController().setGUI(machineUI.gameObject);
         }
 
         public IMachineRecipe getRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs) {
@@ -107,6 +93,33 @@ namespace RecipeModule.Processors {
                 recipes.AddRange(tagRecipeProcessor.getRecipes());
             }
             return recipes;
+        }
+
+        public GameObject getRecipeUI(IRecipe recipe, string processorName)
+        {
+            ProcessMachineUI machineUI = getUI();
+            if (machineUI == null) {
+                Debug.LogError("Machine Gameobject doesn't have UI component");
+                return null;
+            }
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                Debug.LogError(name + " layout is not standard layout");
+                return null;
+            }
+            List<ItemSlot> itemInputs;
+            List<ItemSlot> fluidInputs;
+            ItemSlotHelper.sortInventoryByState(recipe.getInputs(),out itemInputs,out fluidInputs);
+            List<ItemSlot> itemOutputs;
+            List<ItemSlot> fluidOutputs;
+            ItemSlotHelper.sortInventoryByState(recipe.getOutputs(),out itemOutputs,out fluidOutputs);
+            StandardMachineInventory machineInventory = new StandardMachineInventory(
+                itemInputs,
+                itemOutputs,
+                fluidInputs,
+                fluidOutputs
+            );
+            machineUI.displayRecipe(standardLayout,machineInventory, processorName);
+            return machineUI.gameObject;
         }
     }
 }
