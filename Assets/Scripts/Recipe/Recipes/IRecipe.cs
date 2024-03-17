@@ -17,7 +17,6 @@ namespace RecipeModule {
         public int getTotalEnergyCost();
     }
     public interface IItemRecipe {
-        public List<ItemSlot> getOutputs();
         public bool match(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOuputs);
     }
 }

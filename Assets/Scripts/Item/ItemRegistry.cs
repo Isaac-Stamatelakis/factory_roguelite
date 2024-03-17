@@ -9,6 +9,7 @@ using TileEntityModule;
 using ConduitModule.Ports;
 using RecipeModule;
 using ItemModule.Transmutable;
+using System.Linq;
 
 namespace ItemModule {
     public class ItemRegistry {
@@ -39,6 +40,10 @@ namespace ItemModule {
                 instance = new ItemRegistry();
             }
             return instance;
+        }
+
+        public List<ItemObject> getAllItems() {
+            return items.Values.ToList();
         }
         ///
         /// Returns tileItem if id maps to tile item, null otherwise

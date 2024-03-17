@@ -15,7 +15,7 @@ namespace RecipeModule.Processors {
             throw new System.NotImplementedException();
         }
 
-        public override List<Recipe> getRecipes()
+        public override List<IRecipe> getRecipes()
         {
             throw new System.NotImplementedException();
         }

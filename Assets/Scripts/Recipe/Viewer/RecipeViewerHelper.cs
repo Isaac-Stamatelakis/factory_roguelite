@@ -12,7 +12,7 @@ namespace RecipeModule.Viewer {
             
             
             RecipeRegistry recipeRegistry = RecipeRegistry.getInstance();
-            Dictionary<RecipeProcessor, List<Recipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemObject);
+            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemObject);
             // If is processor, show recipes it makes
             if (itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
                 RecipeProcessor processor = tileEntityProcessor.getRecipeProcessor();
@@ -31,7 +31,7 @@ namespace RecipeModule.Viewer {
         }
         public static void displayCraftingOfItem(ItemObject itemObject) {
             
-            Dictionary<RecipeProcessor, List<Recipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemObject);
+            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemObject);
             if (recipesWithItemInOutput.Count == 0) {
                 return;
             }

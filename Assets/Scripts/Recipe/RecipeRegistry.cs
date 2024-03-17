@@ -28,26 +28,6 @@ namespace RecipeModule {
             }
             Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
         }
-
-        private void loadItemList(List<ItemSlot> items, List<string> paths) {
-            for (int i = 0; i < items.Count; i ++) {
-                ItemSlot itemSlot = items[i];
-                if (itemSlot.itemObject == null) {
-                    if (i < paths.Count) {
-                        itemSlot.itemObject = AssetDatabase.LoadAssetAtPath<ItemObject>(paths[i]);
-                    } else {
-                        Debug.LogError("Recipe Registry tried to load itemobject as it was null from path which did not exist");
-                    }
-                } else {
-                    if (paths.Count <= i) {
-                        paths.Add(AssetDatabase.GetAssetPath(itemSlot.itemObject));
-                    } else {
-                        paths[i] = AssetDatabase.GetAssetPath(itemSlot.itemObject);
-                    } 
-                }
-            }
-        }
-
         public static RecipeRegistry getInstance() {
             if (instance == null) {
                 instance = new RecipeRegistry();
@@ -55,13 +35,13 @@ namespace RecipeModule {
             return instance;
         }
 
-        public Dictionary<RecipeProcessor, List<Recipe>> getRecipesWithItemInOutput(ItemObject itemObject) {
-            Dictionary<RecipeProcessor, List<Recipe>> processorRecipesWithItemInOutput = new Dictionary<RecipeProcessor, List<Recipe>>();
+        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInOutput(ItemObject itemObject) {
+            Dictionary<RecipeProcessor, List<IRecipe>> processorRecipesWithItemInOutput = new Dictionary<RecipeProcessor, List<IRecipe>>();
             foreach (RecipeProcessor recipeProcessor in processors) {
-                List<Recipe> haveInOutput = new List<Recipe>();
-                List<Recipe> recipes = recipeProcessor.getRecipes();
+                List<IRecipe> haveInOutput = new List<IRecipe>();
+                List<IRecipe> recipes = recipeProcessor.getRecipes();
 
-                foreach (Recipe recipe in recipes) {
+                foreach (IRecipe recipe in recipes) {
                     List<ItemSlot> outputs = recipe.getOutputs();
                     foreach (ItemSlot outputItemSlot in outputs) {
                         if (outputItemSlot == null || outputItemSlot.itemObject == null) {
@@ -82,13 +62,13 @@ namespace RecipeModule {
             return processorRecipesWithItemInOutput;
         }
 
-        public Dictionary<RecipeProcessor, List<Recipe>> getRecipesWithItemInInput(ItemObject itemObject) {
-            Dictionary<RecipeProcessor, List<Recipe>> processorRecipesWithItemInInput = new Dictionary<RecipeProcessor, List<Recipe>>();
+        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInInput(ItemObject itemObject) {
+            Dictionary<RecipeProcessor, List<IRecipe>> processorRecipesWithItemInInput = new Dictionary<RecipeProcessor, List<IRecipe>>();
             foreach (RecipeProcessor recipeProcessor in processors) {
-                List<Recipe> haveInInput = new List<Recipe>();
-                List<Recipe> recipes = recipeProcessor.getRecipes();
+                List<IRecipe> haveInInput = new List<IRecipe>();
+                List<IRecipe> recipes = recipeProcessor.getRecipes();
 
-                foreach (Recipe recipe in recipes) {
+                foreach (IRecipe recipe in recipes) {
                     List<ItemSlot> inputs = recipe.getInputs();
                     foreach (ItemSlot inputItemSlot in inputs) {
                         if (inputItemSlot == null || inputItemSlot.itemObject == null) {
@@ -109,7 +89,7 @@ namespace RecipeModule {
             return processorRecipesWithItemInInput;
         }
 
-        public List<Recipe> getRecipeProcessorRecipes(RecipeProcessor recipeProcessor) {
+        public List<IRecipe> getRecipeProcessorRecipes(RecipeProcessor recipeProcessor) {
             if (!processors.Contains(recipeProcessor)) {
                 return null;
             }

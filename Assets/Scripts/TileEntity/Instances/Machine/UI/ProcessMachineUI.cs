@@ -14,20 +14,22 @@ namespace TileEntityModule.Instances.Machines {
         private GameObject slotPrefab;
         private Tier tier;
         private StandardMachineInventory machineInventory;
-        // Start is called before the first frame update
         public void Update() {
             setEnergyBar();
         }
-        public void displayMachine(InventoryLayout layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
-            machineInventory.display(layout,transform);
+        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
+            layout.display(transform,machineInventory,InventoryUIType.Standard);
             this.machineInventory = machineInventory;
             this.tier = tier;
             title.text = MachineUIFactory.formatMachineName(machineName);
         }
 
-        
+        public void displayRecipe(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName) {
+            layout.display(transform,machineInventory,InventoryUIType.Recipe);
+            this.machineInventory = machineInventory;
+            title.text = MachineUIFactory.formatMachineName(machineName);
+        }
 
-        
         private void setEnergyBar() {
             if (machineInventory == null) {
                 return;
@@ -41,7 +43,7 @@ namespace TileEntityModule.Instances.Machines {
     }
 
     public static class MachineUIFactory {
-        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform) {
+        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIType type) {
             if (items == null) {
                 return;
             }
@@ -50,10 +52,24 @@ namespace TileEntityModule.Instances.Machines {
             ILoadableInventory inventoryUI = null;
             switch (itemState) {
                 case ItemState.Solid:
-                    inventoryUI = inventoryContainer.AddComponent<SolidItemInventory>();
+                    switch (type) {
+                        case InventoryUIType.Standard:
+                            inventoryUI = inventoryContainer.AddComponent<SolidItemInventory>();
+                            break;
+                        case InventoryUIType.Recipe:
+                            // set ui to recipe type
+                            break;
+                    }
                     break;
                 case ItemState.Fluid:
-                    inventoryUI = inventoryContainer.AddComponent<FluidInventoryGrid>();
+                    switch (type) {
+                        case InventoryUIType.Standard:
+                            inventoryUI = inventoryContainer.AddComponent<FluidInventoryGrid>();
+                            break;
+                        case InventoryUIType.Recipe:
+                            // set ui to recipe type
+                            break;
+                    }
                     break;
             }
             if (inventoryUI == null) {

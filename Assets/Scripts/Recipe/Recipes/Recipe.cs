@@ -4,16 +4,17 @@ using UnityEngine;
 using System.Linq;
 
 namespace RecipeModule {
-    public interface IMachineRecipe : IEnergyConsumeRecipe, IItemRecipe {
+    public interface IMachineRecipe : IEnergyConsumeRecipe, IItemRecipe, IRecipe {
 
     }
 
-    public interface IGeneratorRecipe : IEnergyProduceRecipe, IItemRecipe {
+    public interface IGeneratorRecipe : IEnergyProduceRecipe, IItemRecipe, IRecipe {
         
     }
 
     public interface IRecipe {
-
+        public List<ItemSlot> getOutputs();
+        public List<ItemSlot> getInputs();
     }
     public abstract class Recipe : ScriptableObject, IRecipe
     {

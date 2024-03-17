@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using ItemModule.Inventory;
+using TileEntityModule;
 using UnityEngine;
 
 namespace RecipeModule.Processors {
-    public abstract class RecipeProcessorAggregator : RecipeProcessor, IRegisterableProcessor
+    public abstract class RecipeProcessorAggregator<Layout> : RecipeProcessor, IRegisterableProcessor where Layout : InventoryLayout
     {
         [SerializeField] protected GameObject uiPrefab;
-        [SerializeField] protected InventoryLayout layout;
+        [SerializeField] protected Layout layout;
         public InventoryLayout getInventoryLayout()
         {
             return layout;

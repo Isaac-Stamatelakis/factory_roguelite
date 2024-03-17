@@ -17,7 +17,7 @@ namespace RecipeModule.Viewer {
         [SerializeField] public Button recipeRightButton;
         [SerializeField] public Transform processorContainer;
         [SerializeField] public RecipeProcessorIndicatorController indicatorController;
-        public void show(Dictionary<RecipeProcessor, List<Recipe>> recipes) {
+        public void show(Dictionary<RecipeProcessor, List<IRecipe>> recipes) {
             List<RecipeProcessor> processors = recipes.Keys.ToList();
             RecipeProcessorSorter.sortProcessors(processors);
             indicatorController.init(processors,processors[0]);

@@ -13,8 +13,8 @@ namespace TileEntityModule.Instances.Machines {
         private GameObject slotPrefab;
         private Tier tier;
         private PassiveProcessorInventory machineInventory;
-        public void displayMachine(InventoryLayout layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
-            machineInventory.display(layout,transform);
+        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
+            layout.display(transform,machineInventory,InventoryUIType.Standard);
             this.machineInventory = machineInventory;
             this.tier = tier;
             title.text = MachineUIFactory.formatMachineName(machineName);

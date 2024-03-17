@@ -6,40 +6,19 @@ using Newtonsoft.Json;
 using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
-    public class PassiveProcessorInventory : MachineInventory<StandardMachineInventoryLayout> {
-        private Inventory solidInputs;
-        private Inventory solidOutputs;
-        private Inventory fluidInputs;
-        private Inventory fluidOutputs;
+    public class PassiveProcessorInventory : StandardSolidAndFluidInventory {
         private int mode;
         private IPassiveRecipe currentRecipe;
         private int remainingTicks;
 
-        public Inventory SolidInputs { get => solidInputs; set => solidInputs = value; }
-        public Inventory SolidOutputs { get => solidOutputs; set => solidOutputs = value; }
-        public Inventory FluidInputs { get => fluidInputs; set => fluidInputs = value; }
-        public Inventory FluidOutputs { get => fluidOutputs; set => fluidOutputs = value; }
+        public PassiveProcessorInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) : base(itemInputs, itemOutputs, fluidInputs, fluidOutputs)
+        {
+        }
+
         public int Mode { get => mode; set => mode = value; }
         public IPassiveRecipe CurrentRecipe { get => currentRecipe; set => currentRecipe = value; }
         public int RemainingTicks { get => remainingTicks; set => remainingTicks = value; }
 
-        public override void display(InventoryLayout layout, Transform parent)
-        {
-            if (layout is not StandardMachineInventoryLayout standardLayout) {
-                Debug.LogError("Invalid layout provided to display");
-                return;
-            }
-            MachineUIFactory.initInventory(solidInputs.Slots,standardLayout.itemInputs,ItemState.Solid,"ItemInputs",parent);
-            MachineUIFactory.initInventory(solidOutputs.Slots,standardLayout.itemOutputs,ItemState.Solid,"ItemOutputs",parent);
-            MachineUIFactory.initInventory(fluidInputs.Slots,standardLayout.fluidInputs,ItemState.Fluid,"FluidInputs",parent);
-            MachineUIFactory.initInventory(fluidOutputs.Slots,standardLayout.fluidOutputs,ItemState.Fluid,"FluidOutputs",parent);
-        }
-        public PassiveProcessorInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) {
-            this.solidInputs = new Inventory(itemInputs);
-            this.solidOutputs = new Inventory(itemOutputs);
-            this.fluidInputs = new Inventory(fluidInputs);
-            this.fluidOutputs = new Inventory(fluidOutputs);
-        }
     }
     public static class PassiveMachineInventoryFactory {
         public static PassiveProcessorInventory deserialize(string data) {
@@ -83,8 +62,8 @@ namespace TileEntityModule.Instances.Machines {
 
         public static string serialize(PassiveProcessorInventory processingMachineInventory) {
             SerializedPassiveMachineData serializedMachineData = new SerializedPassiveMachineData(
-                itemInputs: InventoryFactory.serialize(processingMachineInventory.SolidInputs),
-                itemOutputs: InventoryFactory.serialize(processingMachineInventory.SolidOutputs),
+                itemInputs: InventoryFactory.serialize(processingMachineInventory.ItemInputs),
+                itemOutputs: InventoryFactory.serialize(processingMachineInventory.ItemOutputs),
                 fluidInputs: InventoryFactory.serialize(processingMachineInventory.FluidInputs),
                 fluidOutputs: InventoryFactory.serialize(processingMachineInventory.FluidOutputs),
                 mode: processingMachineInventory.Mode,

@@ -4,17 +4,61 @@ using UnityEngine;
 using RecipeModule.Transmutation;
 using TileEntityModule.Instances.Machines;
 using ItemModule.Inventory;
+using TileEntityModule;
+using GUIModule;
 
 namespace RecipeModule.Processors {
     /// <summary>
     /// Recipe Processor for processor machines with energy
     /// </summary>
     [CreateAssetMenu(fileName ="RP~Powered Machine Processor",menuName="Crafting/Processor/PoweredMachine")]
-    public class AggregatedPoweredMachineProcessor : RecipeProcessorAggregator, IRegisterableProcessor
+    public class AggregatedPoweredMachineProcessor : RecipeProcessorAggregator<StandardMachineInventoryLayout>
     {
         [SerializeField] public MachineRecipeProcessor itemRecipeProcessor;
         [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
         [SerializeField] public TagRecipeProcessor tagRecipeProcessor;
+
+        public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName)
+        {
+            ProcessMachineUI machineUI = getUI();
+            if (machineUI == null) {
+                Debug.LogError("Machine Gameobject doesn't have UI component");
+                return;
+            }
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                Debug.LogError(name + " layout is not standard layout");
+                return;
+            }
+            machineUI.displayMachine(standardLayout, tileEntityInventory, processorName, tier);
+            GlobalUIContainer.getInstance().getUiController().setGUI(machineUI.gameObject);
+            
+        }
+
+        private ProcessMachineUI getUI() {
+            GameObject uiPrefab = getUIPrefab();
+            if (uiPrefab == null) {
+                Debug.LogError("GUI GameObject for Processor:" + name + " is null");
+                return null;
+            }
+            GameObject instantiatedUI = GameObject.Instantiate(uiPrefab);
+            ProcessMachineUI machineUI = instantiatedUI.GetComponent<ProcessMachineUI>();
+            return machineUI;
+        }
+
+        public void displayRecipe(StandardMachineInventory tileEntityInventory, Tier tier, string processorName) {
+            ProcessMachineUI machineUI = getUI();
+            if (machineUI == null) {
+                Debug.LogError("Machine Gameobject doesn't have UI component");
+                return;
+            }
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                Debug.LogError(name + " layout is not standard layout");
+                return;
+            }
+            machineUI.displayRecipe(standardLayout, tileEntityInventory, processorName);
+            GlobalUIContainer.getInstance().getUiController().setGUI(machineUI.gameObject);
+        }
+
         public IMachineRecipe getRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs) {
             IMachineRecipe machineRecipe = null;
             if (itemRecipeProcessor != null) {
@@ -50,9 +94,9 @@ namespace RecipeModule.Processors {
             return count;
         }
 
-        public override List<Recipe> getRecipes()
+        public override List<IRecipe> getRecipes()
         {
-            List<Recipe> recipes = new List<Recipe>();
+            List<IRecipe> recipes = new List<IRecipe>();
             if (itemRecipeProcessor != null) {
                 recipes.AddRange(itemRecipeProcessor.getRecipes());
             }

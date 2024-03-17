@@ -72,7 +72,7 @@ namespace TileEntityModule.Instances.Machines {
             List<ItemSlot> solidOutputs;
             List<ItemSlot> fluidOutputs;
             ItemSlotHelper.sortInventoryByState(outputs, out solidOutputs, out fluidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.SolidOutputs.Slots,solidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
             currentRecipe = null;
         }
@@ -83,9 +83,9 @@ namespace TileEntityModule.Instances.Machines {
             }
             currentRecipe = recipeProcessor.GetPassiveRecipe(
                 inventory.Mode,
-                inventory.SolidInputs.Slots,
+                inventory.ItemInputs.Slots,
                 inventory.FluidInputs.Slots,
-                inventory.SolidOutputs.Slots,
+                inventory.ItemOutputs.Slots,
                 inventory.FluidOutputs.Slots
             );
             if (currentRecipe == null) {
@@ -107,7 +107,7 @@ namespace TileEntityModule.Instances.Machines {
 
         public ItemSlot extractItem(Vector2Int portPosition)
         {
-            foreach (ItemSlot itemSlot in inventory.SolidOutputs.Slots) {
+            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
                 if (itemSlot != null && itemSlot.itemObject != null) {
                     return itemSlot;
                 }
@@ -120,8 +120,8 @@ namespace TileEntityModule.Instances.Machines {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory.SolidInputs.Slots,itemSlot);
-            List<ItemSlot> inputs = inventory.SolidOutputs.Slots;
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
+            List<ItemSlot> inputs = inventory.ItemOutputs.Slots;
         }
 
         public ItemSlot extractFluid(Vector2Int portPosition)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using ItemModule.Inventory;
+using TileEntityModule;
 
 namespace RecipeModule {
     /// <summary>
@@ -22,7 +23,7 @@ namespace RecipeModule {
 
     public abstract class RecipeProcessor : ScriptableObject, IRecipeProcessor {
         public abstract int getRecipeCount();
-        public abstract List<Recipe> getRecipes();
+        public abstract List<IRecipe> getRecipes();
     }
 
     public interface ITypedRecipeProcessor {
@@ -61,9 +62,9 @@ namespace RecipeModule {
             return false;
         }
 
-        public override List<Recipe> getRecipes()
+        public override List<IRecipe> getRecipes()
         {
-            List<Recipe> recipes = new List<Recipe>();
+            List<IRecipe> recipes = new List<IRecipe>();
             foreach (IRecipeCollection collection in recipeCollectionList) {
                 recipes.AddRange(collection.getRecipes());
             }
@@ -105,6 +106,7 @@ namespace RecipeModule {
     {
         [SerializeField] protected GameObject uiPrefab;
         [SerializeField] protected InventoryLayout layout;
+
         public InventoryLayout getInventoryLayout()
         {
             return layout;

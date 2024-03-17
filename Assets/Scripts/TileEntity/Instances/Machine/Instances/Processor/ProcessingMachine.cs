@@ -19,8 +19,6 @@ namespace TileEntityModule.Instances.Machines
         
         [SerializeField] public AggregatedPoweredMachineProcessor processor;       
         [SerializeField] public Tier tier;
-        [SerializeField] public GameObject machineUIPrefab;
-        public StandardMachineInventoryLayout layout;
         private StandardMachineInventory inventory;
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
@@ -32,24 +30,13 @@ namespace TileEntityModule.Instances.Machines
         {
             base.initalize(tilePosition,tileBase, chunk);
             if (inventory == null) {
-                inventory = StandardMachineInventoryFactory.initalize(layout);
+                inventory = StandardMachineInventoryFactory.initalize((StandardMachineInventoryLayout) processor.getInventoryLayout());
             }
         }
 
         public void onClick()   
         {
-            if (machineUIPrefab == null) {
-                Debug.LogError("GUI GameObject for Machine:" + name + " null");
-                return;
-            }
-            GameObject instantiatedUI = GameObject.Instantiate(machineUIPrefab);
-            ProcessMachineUI machineUI = instantiatedUI.GetComponent<ProcessMachineUI>();
-            if (machineUI == null) {
-                Debug.LogError("Machine Gameobject doesn't have UI component");
-                return;
-            }
-            machineUI.displayMachine(layout, inventory, name, tier);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
+            processor.displayTileEntity(inventory,tier,name);
         }
         
 

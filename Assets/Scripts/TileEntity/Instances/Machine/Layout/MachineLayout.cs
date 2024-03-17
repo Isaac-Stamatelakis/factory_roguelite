@@ -2,16 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using TileEntityModule;
 
 namespace ItemModule.Inventory {
-    
+
+    public enum InventoryUIType {
+        Recipe,
+        Standard
+    }
+    public interface IDisplayableLayout<Inv> where Inv : TileEntityInventory {
+        public abstract void display(Transform parent, Inv inventory, InventoryUIType uIType);
+    }
     public abstract class InventoryLayout : ScriptableObject {
         
     }
-    
-    
 
-    
+    public abstract class TypedInventoryLayout<Inv> : InventoryLayout, IDisplayableLayout<Inv> where Inv : TileEntityInventory
+    {
+        public abstract void display(Transform parent, Inv inventory, InventoryUIType uIType);
+    }
+
+
+
     /// <summary>
     /// An Inventory layout is a collection of slots which belong to the same list in a tile entity
     /// </summary>
