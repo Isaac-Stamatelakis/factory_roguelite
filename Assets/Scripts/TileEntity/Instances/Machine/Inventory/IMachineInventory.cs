@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public interface IMachineInventory {
-        public void display(MachineInventoryLayout layout,Transform parent);
+        public void display(InventoryLayout layout,Transform parent);
     }
 
     public interface IEnergyMachineInventory {

@@ -24,11 +24,18 @@ namespace ItemModule.Transmutable {
         public List<KVP<TransmutableItemState,string>> statesToID;
         private Dictionary<TransmutableItemState, string> stateToIDDict;
         public TransmutableItemObject transmute(TransmutableItemState output) {
-            if (stateToIDDict == null) {
-                initDict();
+            if (!canTransmute(output)) {
+                return null;
             }
             string outputID = stateToIDDict[output];
             return ItemRegistry.getInstance().getTransmutableItemObject(outputID);
+        }
+
+        public bool canTransmute(TransmutableItemState state) {
+            if (stateToIDDict == null) {
+                initDict();
+            }
+            return stateToIDDict.ContainsKey(state);
         }
 
         private void initDict() {

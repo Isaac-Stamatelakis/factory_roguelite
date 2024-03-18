@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
-    public class MultiProcessingMachineInventory : MachineInventory<AdvancedMachineInventoryLayout>, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
+    public class MultiProcessingMachineInventory : TileEntityInventory, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
     {
         private InventoryCollection inputs;
         private InventoryCollection outputs;
@@ -36,11 +37,6 @@ namespace TileEntityModule.Instances.Machines {
                 Debug.LogError(ex);
             }
             return null;
-        }
-
-        public override void display(MachineInventoryLayout layout,Transform parent)
-        {
-            throw new System.NotImplementedException();
         }
 
         [System.Serializable]

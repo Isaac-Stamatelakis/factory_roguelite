@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using ItemModule.Inventory;
+using System;
+using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines {
     public class PassiveProcessorUI : MonoBehaviour
@@ -10,17 +13,44 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public TextMeshProUGUI title;
         [SerializeField] public ArrowProgressController arrowProgressController;
         private GameObject slotPrefab;
-        private Tier tier;
         private PassiveProcessorInventory machineInventory;
-        public void displayMachine(MachineInventoryLayout layout, PassiveProcessorInventory machineInventory, string machineName, Tier tier) {
-            machineInventory.display(layout,transform);
+        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName) {
+            layout.display(transform,machineInventory,InventoryUIMode.Standard);
             this.machineInventory = machineInventory;
-            this.tier = tier;
+            title.text = MachineUIFactory.formatMachineName(machineName);
+        }
+
+        public void displayRecipe(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName) {
+            layout.display(transform,machineInventory,InventoryUIMode.Recipe);
+            this.machineInventory = machineInventory;
             title.text = MachineUIFactory.formatMachineName(machineName);
         }
 
         private void setArrow() {
             //arrowProgressController.setArrow()
         }
+    }   
+
+    public static class PassiveProcessorUIFactory {
+        public static PassiveProcessorUI getProcessMachineRecipeUI(GameObject uiPrefab, InventoryLayout layout, IRecipe recipe, string name) {
+            PassiveProcessorUI machineUI = ProcessorUIFactory.getMachineUI<PassiveProcessorUI>(uiPrefab,layout,name);
+            PassiveProcessorInventory machineInventory = RecipeInventoryFactory.toPassiveInventory(recipe);
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                throw new InvalidOperationException(name + " layout is not standard layout");
+            }
+            machineUI.displayRecipe(standardLayout, machineInventory, name);
+            return machineUI;
+        }
+
+        public static PassiveProcessorUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, PassiveProcessorInventory inventory, string name) {
+            PassiveProcessorUI machineUI = ProcessorUIFactory.getMachineUI<PassiveProcessorUI>(uiPrefab,layout,name);
+            if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
+                throw new InvalidOperationException(name + " layout is not standard layout");
+            }
+            machineUI.displayMachine(standardLayout, inventory, name);
+            return machineUI;
+        }
+
+        
     }
 }

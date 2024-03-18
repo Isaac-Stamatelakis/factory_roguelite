@@ -7,21 +7,18 @@ using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
+using RecipeModule.Processors;
 using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity
     {
         
-        [SerializeField] public ItemRecipeProcessor itemRecipeProcessor;
-        [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
-        
+        [SerializeField] public AggregatedPoweredMachineProcessor processor;       
         [SerializeField] public Tier tier;
-        [SerializeField] public GameObject machineUIPrefab;
-        public StandardMachineInventoryLayout layout;
         private StandardMachineInventory inventory;
         private IMachineRecipe currentRecipe;
         [Header("Can be set manually or by\nTools/TileEntity/SetPorts")]
@@ -33,24 +30,13 @@ namespace TileEntityModule.Instances.Machines
         {
             base.initalize(tilePosition,tileBase, chunk);
             if (inventory == null) {
-                inventory = StandardMachineInventoryFactory.initalize(layout);
+                inventory = StandardMachineInventoryFactory.initalize((StandardMachineInventoryLayout) processor.getInventoryLayout());
             }
         }
 
         public void onClick()   
         {
-            if (machineUIPrefab == null) {
-                Debug.LogError("GUI GameObject for Machine:" + name + " null");
-                return;
-            }
-            GameObject instantiatedUI = GameObject.Instantiate(machineUIPrefab);
-            ProcessMachineUI machineUI = instantiatedUI.GetComponent<ProcessMachineUI>();
-            if (machineUI == null) {
-                Debug.LogError("Machine Gameobject doesn't have UI component");
-                return;
-            }
-            machineUI.displayMachine(layout, inventory, name, tier);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
+            processor.displayTileEntity(inventory,tier,name);
         }
         
 
@@ -70,13 +56,7 @@ namespace TileEntityModule.Instances.Machines
         }
 
         private void initRecipe() {
-            if (currentRecipe is not IEnergyConsumeRecipe energyConsumeRecipe) {
-                Debug.LogError(name +  ": Processing Machine recieved recipe which doesn't consume energy");
-                currentRecipe = null;
-                return;
-            }
-            currentRecipeEnergy = energyConsumeRecipe.getTotalEnergyCost();
-            currentRecipeCost = energyConsumeRecipe.getEnergyCostPerTick();
+            
 
         }
 
@@ -103,50 +83,21 @@ namespace TileEntityModule.Instances.Machines
             if (currentRecipe != null) {
                 return;
             }
-            currentRecipe = processItemRecipes();
-            if (currentRecipe != null) {
-                initRecipe();
+            currentRecipe = processor.getRecipe(
+                mode: inventory.Mode,
+                solidInputs: inventory.ItemInputs.Slots,
+                solidOutputs: inventory.ItemOutputs.Slots,
+                fluidInputs: inventory.FluidInputs.Slots,
+                fluidOutputs: inventory.FluidOutputs.Slots
+            );
+            if (currentRecipe == null) {
                 return;
             }
-            currentRecipe = processTransmutableItemRecipe();
-            if (currentRecipe != null) {
-                initRecipe();
-            }
+            currentRecipeEnergy = currentRecipe.getTotalEnergyCost();
+            currentRecipeCost = currentRecipe.getEnergyCostPerTick();
         }
 
-        private IMachineRecipe processItemRecipes() {
-            if (itemRecipeProcessor == null) {
-                return null;
-            }
-            IItemRecipe recipe = itemRecipeProcessor.getItemRecipe(
-                mode: inventory.Mode,
-                solidInputs: inventory.ItemInputs.Slots,
-                solidOutputs: inventory.ItemOutputs.Slots,
-                fluidInputs: inventory.FluidInputs.Slots,
-                fluidOutputs: inventory.FluidOutputs.Slots
-            );
-            if (recipe is not IMachineRecipe machineRecipe) {
-                Debug.LogError("Machine '" + name + "' Reciped assigned to machine");
-                return null;
-            }
-            return machineRecipe;
-            
-        }
 
-        private IMachineRecipe processTransmutableItemRecipe() {
-            if (transmutableRecipeProcessor == null) {
-                return null;
-            }
-            TransmutableRecipe recipe = transmutableRecipeProcessor.getValidRecipe(
-                mode: inventory.Mode,
-                solidInputs: inventory.ItemInputs.Slots,
-                solidOutputs: inventory.ItemOutputs.Slots,
-                fluidInputs: inventory.FluidInputs.Slots,
-                fluidOutputs: inventory.FluidOutputs.Slots
-            );
-            return recipe;
-            
-        }
         public void unserialize(string data)
         {
             inventory = StandardMachineInventoryFactory.deserialize(data);
@@ -213,6 +164,11 @@ namespace TileEntityModule.Instances.Machines
         public ref int getEnergy(Vector2Int portPosition)
         {
             return ref inventory.energy;
+        }
+
+        public RecipeProcessor getRecipeProcessor()
+        {
+            return processor;
         }
     }
 }

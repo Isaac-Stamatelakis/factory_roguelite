@@ -50,7 +50,7 @@ namespace TileEntityModule.Instances
             }
             GlobalUIController tileEntityGUIController = GlobalUIContainer.getInstance().getUiController();
             GameObject shownGui = GameObject.Instantiate(gui);
-            DynamicInventoryGrid inventoryGrid = shownGui.GetComponent<DynamicInventoryGrid>();
+            SolidDynamicInventory inventoryGrid = shownGui.GetComponent<SolidDynamicInventory>();
             inventoryGrid.initalize(items, new Vector2Int((int) rows, (int) columns));
             tileEntityGUIController.setGUI(shownGui);
         }

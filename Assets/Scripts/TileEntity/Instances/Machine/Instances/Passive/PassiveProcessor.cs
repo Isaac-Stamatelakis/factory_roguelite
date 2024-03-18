@@ -11,7 +11,7 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
-    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable
+    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity
     {
         [SerializeField] public PassiveRecipeProcessor recipeProcessor;
         [SerializeField] public Tier tier;
@@ -32,18 +32,7 @@ namespace TileEntityModule.Instances.Machines {
 
         public void onClick()   
         {
-            if (machineUIPrefab == null) {
-                Debug.LogError("GUI GameObject for Machine:" + name + " null");
-                return;
-            }
-            GameObject instantiatedUI = GameObject.Instantiate(machineUIPrefab);
-            PassiveProcessorUI machineUI = instantiatedUI.GetComponent<PassiveProcessorUI>();
-            if (machineUI == null) {
-                Debug.LogError("Machine Gameobject doesn't have UI component");
-                return;
-            }
-            machineUI.displayMachine(layout, inventory, name, tier);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiatedUI);
+            recipeProcessor.displayTileEntity(inventory,recipeProcessor.name);
             
         }
         
@@ -72,7 +61,7 @@ namespace TileEntityModule.Instances.Machines {
             List<ItemSlot> solidOutputs;
             List<ItemSlot> fluidOutputs;
             ItemSlotHelper.sortInventoryByState(outputs, out solidOutputs, out fluidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.SolidOutputs.Slots,solidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
             currentRecipe = null;
         }
@@ -83,9 +72,9 @@ namespace TileEntityModule.Instances.Machines {
             }
             currentRecipe = recipeProcessor.GetPassiveRecipe(
                 inventory.Mode,
-                inventory.SolidInputs.Slots,
+                inventory.ItemInputs.Slots,
                 inventory.FluidInputs.Slots,
-                inventory.SolidOutputs.Slots,
+                inventory.ItemOutputs.Slots,
                 inventory.FluidOutputs.Slots
             );
             if (currentRecipe == null) {
@@ -107,7 +96,7 @@ namespace TileEntityModule.Instances.Machines {
 
         public ItemSlot extractItem(Vector2Int portPosition)
         {
-            foreach (ItemSlot itemSlot in inventory.SolidOutputs.Slots) {
+            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
                 if (itemSlot != null && itemSlot.itemObject != null) {
                     return itemSlot;
                 }
@@ -120,8 +109,8 @@ namespace TileEntityModule.Instances.Machines {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory.SolidInputs.Slots,itemSlot);
-            List<ItemSlot> inputs = inventory.SolidOutputs.Slots;
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
+            List<ItemSlot> inputs = inventory.ItemOutputs.Slots;
         }
 
         public ItemSlot extractFluid(Vector2Int portPosition)
@@ -144,6 +133,11 @@ namespace TileEntityModule.Instances.Machines {
         public int extractSignal(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
+        }
+
+        public RecipeProcessor getRecipeProcessor()
+        {
+            return recipeProcessor;
         }
     }
 

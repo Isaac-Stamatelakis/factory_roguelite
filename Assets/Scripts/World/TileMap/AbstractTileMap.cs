@@ -153,9 +153,6 @@ namespace TileMapModule {
             Vector3Int vect = tilemap.WorldToCell(position);
             return new Vector2Int(vect.x,vect.y);
         }
-        protected virtual bool hitHardness(TileOptions tileOptions) {
-            return false;
-        }
         protected virtual void breakTile(Vector2Int position) {
             Vector2Int chunkPartition = getPartitionPosition(position);
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);

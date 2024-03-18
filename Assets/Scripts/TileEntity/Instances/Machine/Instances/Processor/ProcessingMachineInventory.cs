@@ -2,48 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     /// <summary>
     /// The standard machine inventory with one item input, one item output, one fluid input, one fluid output, one energy inventory, and a mode
     /// </summary>
-    public class StandardMachineInventory : MachineInventory<StandardMachineInventoryLayout>, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
+    public class StandardMachineInventory : StandardSolidAndFluidInventory, IInputMachineInventory, IOutputMachineInventory, IEnergyMachineInventory, IBatterySlotInventory
     {
-        private Inventory itemInputs;
-        private Inventory itemOutputs;
-        private Inventory fluidInputs;
-        private Inventory fluidOutputs;
         private Inventory other;
         public int energy;
         public int mode;
         public int currentOperationEnergy;
         public int currentOperationCost;
 
-        public Inventory ItemInputs { get => itemInputs; set => itemInputs = value; }
-        public Inventory ItemOutputs { get => itemOutputs; set => itemOutputs = value; }
-        public Inventory FluidInputs { get => fluidInputs; set => fluidInputs = value; }
-        public Inventory FluidOutputs { get => fluidOutputs; set => fluidOutputs = value; }
+        public StandardMachineInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) : base(itemInputs, itemOutputs, fluidInputs, fluidOutputs)
+        {
+        }
+
         public Inventory Other { get => other; set => other = value; }
         public int Energy { get => energy; set => energy = value; }
         public int Mode { get => mode; set => mode = value; }
 
-        public override void display(MachineInventoryLayout layout,Transform parent)
-        {
-            if (layout is not StandardMachineInventoryLayout standardLayout) {
-                Debug.LogError("Invalid layout provided to display");
-                return;
-            }
-            MachineUIFactory.initInventory(itemInputs.Slots,standardLayout.itemInputs,ItemState.Solid,"ItemInputs",parent);
-            MachineUIFactory.initInventory(itemOutputs.Slots,standardLayout.itemOutputs,ItemState.Solid,"ItemOutputs",parent);
-            MachineUIFactory.initInventory(fluidInputs.Slots,standardLayout.fluidInputs,ItemState.Fluid,"FluidInputs",parent);
-            MachineUIFactory.initInventory(fluidOutputs.Slots,standardLayout.fluidOutputs,ItemState.Fluid,"FluidOutputs",parent);
-        }
-        public StandardMachineInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs) {
-            this.itemInputs = new Inventory(itemInputs);
-            this.itemOutputs = new Inventory(itemOutputs);
-            this.fluidInputs = new Inventory(fluidInputs);
-            this.fluidOutputs = new Inventory(fluidOutputs);
-        }
+        
     }
 
     public static class StandardMachineInventoryFactory {

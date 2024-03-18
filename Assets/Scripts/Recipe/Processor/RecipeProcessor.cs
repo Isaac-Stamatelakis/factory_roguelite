@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using ItemModule.Inventory;
+using TileEntityModule;
 
 namespace RecipeModule {
     /// <summary>
@@ -14,9 +16,18 @@ namespace RecipeModule {
     public interface IInitableRecipeProcessor {
         public void init();
     }
+    public interface IRegisterableProcessor {
+        public GameObject getUIPrefab();
+        public InventoryLayout getInventoryLayout();
+    }
+
+    public interface IDisplayableProcessor {
+        public GameObject getRecipeUI(IRecipe recipe, string processorName);
+    }
 
     public abstract class RecipeProcessor : ScriptableObject, IRecipeProcessor {
         public abstract int getRecipeCount();
+        public abstract List<IRecipe> getRecipes();
     }
 
     public interface ITypedRecipeProcessor {
@@ -55,16 +66,19 @@ namespace RecipeModule {
             return false;
         }
 
+        public override List<IRecipe> getRecipes()
+        {
+            List<IRecipe> recipes = new List<IRecipe>();
+            foreach (IRecipeCollection collection in recipeCollectionList) {
+                recipes.AddRange(collection.getRecipes());
+            }
+            return recipes;
+        }
+
         public Type getCollectionType() {
             return typeof(Collection);
         }
         public void addRecipeCollection(object recipeCollection, int mode) {
-            /*
-            if (recipesOfMode.ContainsKey(mode)) {
-                Debug.LogError(name + " already contains mode " + mode);
-                return;
-            }
-            */
             if (recipeCollection is not Collection casted) {
                 Debug.LogError(name + " tried to set invalid recipe collection type");
                 return;
@@ -89,6 +103,24 @@ namespace RecipeModule {
                 count += collection.getRecipeCount();
             }
             return count;
+        }
+    }
+
+    public abstract class DisplayableTypedRecipeProcessor<Collection> : TypedRecipeProcessor<Collection>, IRegisterableProcessor, IDisplayableProcessor where Collection : IRecipeCollection
+    {
+        [SerializeField] protected GameObject uiPrefab;
+        [SerializeField] protected InventoryLayout layout;
+
+        public InventoryLayout getInventoryLayout()
+        {
+            return layout;
+        }
+
+        public abstract GameObject getRecipeUI(IRecipe recipe, string processorName);
+
+        public GameObject getUIPrefab()
+        {
+            return uiPrefab;
         }
     }
 

@@ -9,6 +9,7 @@ using TileMapModule.Type;
 using ChunkModule.LoadController;
 using TileMapModule.Conduit;
 using ChunkModule.PartitionModule;
+using Tiles;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     /// <summary>
@@ -22,13 +23,14 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected Transform playerTransform;
         //public ChunkList chunkList;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
-        
+        protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
         protected PartitionUnloader partitionUnloader;    
         protected Transform chunkContainerTransform;
         public Transform ChunkContainerTransform {get{return chunkContainerTransform;}}
         protected int dim;
+        public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
 
         
@@ -88,6 +90,14 @@ namespace ChunkModule.ClosedChunkSystemModule {
             this.dim = dim;
             this.coveredArea = coveredArea;
             initLoaders();
+
+            GameObject breakIndicatorObject = new GameObject();
+            breakIndicator = breakIndicatorObject.AddComponent<TileBreakIndicator>();
+            breakIndicator.init(this);
+            breakIndicatorObject.transform.SetParent(transform,false);
+            breakIndicator.name = "TileBreakIndicator";
+            breakIndicator.transform.position = new Vector3(0,0,-1);
+
             CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
@@ -202,6 +212,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
             yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
+            breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
         }

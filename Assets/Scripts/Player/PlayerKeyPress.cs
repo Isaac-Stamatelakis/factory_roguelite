@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using ItemModule.Inventory;
 
 
 namespace PlayerModule.KeyPress {
@@ -21,7 +23,12 @@ namespace PlayerModule.KeyPress {
                 playerInventory.toggleInventory();
             }
 
-            // Select hotbar
+            inventoryNavigationKeys();
+            inventoryKeyPresses();
+
+        }
+
+        private void inventoryNavigationKeys() {
             if (Input.GetKeyDown(KeyCode.Alpha1)) {
                 playerInventory.changeSelectedSlot(0);
             }
@@ -52,8 +59,28 @@ namespace PlayerModule.KeyPress {
             if (Input.GetKeyDown(KeyCode.Alpha0)) {
                 playerInventory.changeSelectedSlot(9);
             }
+        }
 
-
+        private void inventoryKeyPresses() {
+            if (Input.GetKey(KeyCode.R)) {
+                GameObject current = EventSystem.current.currentSelectedGameObject;
+                if (current != null) {
+                    Debug.Log(current.name);
+                    ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+                    if (clickHandler != null) {
+                        clickHandler.showRecipes();
+                    } 
+                }
+            }
+            if (Input.GetKey(KeyCode.U)) {
+                GameObject current = EventSystem.current.currentSelectedGameObject;
+                if (current != null) {
+                    ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+                    if (clickHandler != null) {
+                        clickHandler.showUses();
+                    } 
+                }
+            }
         }
     }
 }

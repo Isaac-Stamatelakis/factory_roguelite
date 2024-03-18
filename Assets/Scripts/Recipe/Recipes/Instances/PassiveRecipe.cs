@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace RecipeModule {
-    public interface IPassiveRecipe : IItemRecipe {
+    public interface IPassiveRecipe : IItemRecipe,IRecipe {
         public int getRequiredTicks();
     }
     [CreateAssetMenu(fileName ="R~New Machine Recipe",menuName="Crafting/Recipe/Passive")]

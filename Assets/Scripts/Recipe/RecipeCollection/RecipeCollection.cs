@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace RecipeModule {
     public interface IRecipeCollection {
         public void setRecipes(Recipe[] recipes);
+        public List<Recipe> getRecipes();
         public void setMode(int mode);
         public int getMode();
         public int getRecipeCount();
@@ -37,6 +39,11 @@ namespace RecipeModule {
                 }
                 this.recipes.Add(valid);
             }
+        }
+
+        public List<Recipe> getRecipes()
+        {
+            return recipes.OfType<Recipe>().ToList();
         }
     }
 }
