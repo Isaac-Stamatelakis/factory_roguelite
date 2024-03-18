@@ -8,6 +8,12 @@ using ItemModule;
 public abstract class InventoryUI : MonoBehaviour {
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
+    public ItemSlot getItemSlot(int index) {
+        if (index < 0 || index >= inventory.Count) {
+            return null;
+        }
+        return inventory[index];
+    }
     protected void initalizeSlots() {
         for (int n = 0; n < inventory.Count; n ++) {
             initSlot(n);

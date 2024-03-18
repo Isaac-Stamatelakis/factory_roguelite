@@ -15,7 +15,7 @@ public abstract class ItemEntity : Entity
         }
     }
 
-    public virtual void Update()
+    public virtual void FixedUpdate()
     {
         iterateLifeTime();
     }

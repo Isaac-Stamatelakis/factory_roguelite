@@ -56,13 +56,7 @@ namespace TileEntityModule.Instances.Machines
         }
 
         private void initRecipe() {
-            if (currentRecipe is not IEnergyConsumeRecipe energyConsumeRecipe) {
-                Debug.LogError(name +  ": Processing Machine recieved recipe which doesn't consume energy");
-                currentRecipe = null;
-                return;
-            }
-            currentRecipeEnergy = energyConsumeRecipe.getTotalEnergyCost();
-            currentRecipeCost = energyConsumeRecipe.getEnergyCostPerTick();
+            
 
         }
 
@@ -96,6 +90,11 @@ namespace TileEntityModule.Instances.Machines
                 fluidInputs: inventory.FluidInputs.Slots,
                 fluidOutputs: inventory.FluidOutputs.Slots
             );
+            if (currentRecipe == null) {
+                return;
+            }
+            currentRecipeEnergy = currentRecipe.getTotalEnergyCost();
+            currentRecipeCost = currentRecipe.getEnergyCostPerTick();
         }
 
 

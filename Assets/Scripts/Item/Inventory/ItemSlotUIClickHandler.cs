@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using RecipeModule.Viewer;
+
 public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler
 {
     private InventoryUI inventoryUI;
@@ -21,4 +23,19 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void showRecipes() {
+        ItemSlot itemSlot = inventoryUI.getItemSlot(index);
+        if (itemSlot == null || itemSlot.itemObject == null) {
+            return;
+        }
+        RecipeViewerHelper.displayCraftingOfItem(itemSlot.itemObject);
+    }
+
+    public void showUses() {
+        ItemSlot itemSlot = inventoryUI.getItemSlot(index);
+        if (itemSlot == null || itemSlot.itemObject == null) {
+            return;
+        }
+        RecipeViewerHelper.displayUsesOfItem(itemSlot.itemObject);
+    }
 }
