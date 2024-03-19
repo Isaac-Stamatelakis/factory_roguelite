@@ -40,7 +40,9 @@ namespace UI.QuestBook {
             Vector2 gridPosition = QuestBookHelper.snapGrid(mousePosition,questBookUI.ContentContainer.position,questBookUI.ContentContainer.localScale.x);
             spawnedNodeObject.transform.position = gridPosition;
             if (Input.GetMouseButton(0)) {
+                questBookUI.CurrentPage.Nodes.Add(new QuestBookNode(spawnedNodeObject.transform.localPosition));
                 spawnedNodeObject = null;
+                
             }
         }
 

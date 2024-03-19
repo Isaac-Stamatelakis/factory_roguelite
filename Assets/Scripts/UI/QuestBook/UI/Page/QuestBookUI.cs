@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 namespace UI.QuestBook {
     public class QuestBookUI : MonoBehaviour
@@ -10,6 +12,8 @@ namespace UI.QuestBook {
         [SerializeField] private Transform lineContainer;
         [SerializeField] private Transform contentContainer;
         [SerializeField] private Transform contentMaskContainer;
+        [SerializeField] private Button backButton;
+        [SerializeField] private GridLayoutGroup chapterGridGroup;
         private string editModePath = "UI/Quest/EditModeElements";
         private QuestEditModeController editModeController;
 
@@ -17,6 +21,13 @@ namespace UI.QuestBook {
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => contentContainer;}
         public Transform ContentMaskContainer {get => contentMaskContainer;}
+        public bool EditMode { get => editMode; set => editMode = value; }
+        public QuestBook QuestBook { get => questBook; set => questBook = value; }
+        public QuestBookPage CurrentPage { get => currentPage; set => currentPage = value; }
+
+        private QuestBook questBook;
+        private GameObject selectorObject;
+        private QuestBookPage currentPage;
 
         private float minScale = 0.35f;
         private float maxScale = 3f;
@@ -28,6 +39,51 @@ namespace UI.QuestBook {
             if (editMode) {
                 initEditMode();
             }   
+        }
+
+        public void init(QuestBook questBook, GameObject selectorObject) {
+            this.questBook = questBook;
+            this.selectorObject = selectorObject;
+            this.backButton.onClick.AddListener(backButtonPress);
+            initPageChapters();
+            displayPage(0);
+        }
+
+        private void initPageChapters() {
+            for (int i = 0; i < chapterGridGroup.transform.childCount; i++) {
+                GameObject.Destroy(chapterGridGroup.transform.GetChild(i).gameObject);
+            }
+            for (int i = 0; i < questBook.Pages.Count; i++) {
+                GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.QuestBookChapterPrefabPath));
+                QuestPageChapterButton chapterButton = instantiated.GetComponent<QuestPageChapterButton>();
+                instantiated.transform.SetParent(chapterGridGroup.transform,false);
+                chapterButton.init(this,questBook.Pages[i],i);
+            }
+        }
+
+        private void backButtonPress() {
+            selectorObject.SetActive(true);
+            GameObject.Destroy(gameObject);
+        }
+
+        public void displayPage(int index) {
+            if (index < 0 || index >= questBook.Pages.Count) {
+                Debug.LogError("Out of range index:" + index);
+                return;
+            }
+            for (int i = 0; i < nodeContainer.childCount; i++) {
+                GameObject.Destroy(nodeContainer.GetChild(i).gameObject);
+            }
+            for (int i = 0; i < lineContainer.childCount; i++) {
+                GameObject.Destroy(lineContainer.GetChild(i).gameObject);
+            }
+            QuestBookPage page = questBook.Pages[index];
+            currentPage = page;
+            foreach (QuestBookNode node in page.Nodes) {
+                QuestBookUIFactory.generateNode(node,nodeContainer);
+            }
+            
+
         }
 
         public void FixedUpdate() {

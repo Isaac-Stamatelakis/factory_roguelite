@@ -8,14 +8,19 @@ namespace UI.QuestBook {
     {
         private List<string> connections;
         private string itemImageID;
-        private int x;
-        private int y;
+        private float x;
+        private float y;
         private QuestBookNodeContent content;
         public List<string> Connections { get => connections; set => connections = value; }
         public string ItemImageID { get => itemImageID; set => itemImageID = value; }
         public QuestBookNodeContent Content { get => content; set => content = value; }
-        public int X { get => x; set => x = value; }
-        public int Y { get => y; set => y = value; }
+        public float X { get => x; set => x = value; }
+        public float Y { get => y; set => y = value; }
+
+        public QuestBookNode(Vector2 position) {
+            this.X = position.x;
+            this.Y = position.y;
+        }
     }
 }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace UI.QuestBook {
-    public static class QuestBookLineFactory
+    public static class QuestBookUIFactory
     {
         public static void generateLine(Vector2 nodeAPosition, Vector2 nodeBPosition, Transform container, bool discovered) {
             GameObject line = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.LineModePrefabPath));
@@ -16,6 +16,13 @@ namespace UI.QuestBook {
             rotation.z = angle;
             line.transform.rotation = rotation;
             line.transform.SetParent(container,false);
+        }
+
+        public static void generateNode(QuestBookNode node, Transform container) {
+            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.NodeObjectPrefabPath));
+            QuestBookNodeObject nodeObject = instantiated.GetComponent<QuestBookNodeObject>();
+            nodeObject.init(node);
+            nodeObject.transform.SetParent(container,false);
         }
     }
 }
