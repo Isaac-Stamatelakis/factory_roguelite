@@ -19,9 +19,9 @@ namespace RecipeModule.Processors {
         [SerializeField] public TransmutableRecipeProcessor transmutableRecipeProcessor;
         [SerializeField] public TagRecipeProcessor tagRecipeProcessor;
 
-        public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName)
+        public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName, IInventoryListener listener)
         {
-            GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName).gameObject;
+            GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName,listener).gameObject;
             GlobalUIContainer.getInstance().getUiController().setGUI(ui);
         }
 

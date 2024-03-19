@@ -28,8 +28,8 @@ namespace RecipeModule {
             return null;
         }
 
-        public void displayTileEntity(PassiveProcessorInventory passiveProcessorInventory, string processorName) {
-            GameObject ui = PassiveProcessorUIFactory.getProcessMachineStandardUI(getUIPrefab(),getInventoryLayout(),passiveProcessorInventory,processorName).gameObject;
+        public void displayTileEntity(PassiveProcessorInventory passiveProcessorInventory, string processorName, IInventoryListener listener) {
+            GameObject ui = PassiveProcessorUIFactory.getProcessMachineStandardUI(getUIPrefab(),getInventoryLayout(),passiveProcessorInventory,processorName,listener).gameObject;
             GlobalUIContainer.getInstance().getUiController().setGUI(ui);
         }
 

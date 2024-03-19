@@ -14,7 +14,7 @@ namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         
         [SerializeField] public AggregatedPoweredMachineProcessor processor;       
@@ -36,7 +36,7 @@ namespace TileEntityModule.Instances.Machines
 
         public void onClick()   
         {
-            processor.displayTileEntity(inventory,tier,name);
+            processor.displayTileEntity(inventory,tier,name,this);
         }
         
 
@@ -47,7 +47,6 @@ namespace TileEntityModule.Instances.Machines
 
         public void tickUpdate()
         {
-            inventoryUpdate(); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
             if (currentRecipe == null) {
                 return;
             }
@@ -120,6 +119,7 @@ namespace TileEntityModule.Instances.Machines
 
         public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
+            inventoryUpdate();
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }

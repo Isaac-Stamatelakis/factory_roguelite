@@ -14,14 +14,14 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public ArrowProgressController arrowProgressController;
         private GameObject slotPrefab;
         private PassiveProcessorInventory machineInventory;
-        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName) {
-            layout.display(transform,machineInventory,InventoryUIMode.Standard);
+        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName,IInventoryListener listener) {
+            layout.display(transform,machineInventory,InventoryUIMode.Standard,listener);
             this.machineInventory = machineInventory;
             title.text = MachineUIFactory.formatMachineName(machineName);
         }
 
         public void displayRecipe(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName) {
-            layout.display(transform,machineInventory,InventoryUIMode.Recipe);
+            layout.display(transform,machineInventory,InventoryUIMode.Recipe,null);
             this.machineInventory = machineInventory;
             title.text = MachineUIFactory.formatMachineName(machineName);
         }
@@ -42,12 +42,12 @@ namespace TileEntityModule.Instances.Machines {
             return machineUI;
         }
 
-        public static PassiveProcessorUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, PassiveProcessorInventory inventory, string name) {
+        public static PassiveProcessorUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, PassiveProcessorInventory inventory, string name,IInventoryListener listener) {
             PassiveProcessorUI machineUI = ProcessorUIFactory.getMachineUI<PassiveProcessorUI>(uiPrefab,layout,name);
             if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
                 throw new InvalidOperationException(name + " layout is not standard layout");
             }
-            machineUI.displayMachine(standardLayout, inventory, name);
+            machineUI.displayMachine(standardLayout, inventory, name, listener);
             return machineUI;
         }
 

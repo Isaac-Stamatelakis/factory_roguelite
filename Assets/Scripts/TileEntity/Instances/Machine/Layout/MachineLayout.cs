@@ -11,7 +11,7 @@ namespace ItemModule.Inventory {
         Standard
     }
     public interface IDisplayableLayout<Inv> where Inv : TileEntityInventory {
-        public abstract void display(Transform parent, Inv inventory, InventoryUIMode uIType);
+        public abstract void display(Transform parent, Inv inventory, InventoryUIMode uIType, IInventoryListener listener);
     }
     public abstract class InventoryLayout : ScriptableObject {
         
@@ -19,7 +19,7 @@ namespace ItemModule.Inventory {
 
     public abstract class TypedInventoryLayout<Inv> : InventoryLayout, IDisplayableLayout<Inv> where Inv : TileEntityInventory
     {
-        public abstract void display(Transform parent, Inv inventory, InventoryUIMode uIType);
+        public abstract void display(Transform parent, Inv inventory, InventoryUIMode uIType,IInventoryListener listener);
     }
 
 
