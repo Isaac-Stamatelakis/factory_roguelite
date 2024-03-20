@@ -47,6 +47,13 @@ namespace UI.QuestBook {
                         },
                         "Alien Artifact Research Notes",
                         "Sprites/QuestBook/cb1"
+                    ),
+                    new QuestBook(
+                        new List<QuestBookPage>{
+                            new QuestBookPage("Chapter0", new List<QuestBookNode>())
+                        },
+                        "Home Improvement",
+                        "Sprites/QuestBook/cb1"
                     )
                 };
                 library = new QuestBookLibrary(books);

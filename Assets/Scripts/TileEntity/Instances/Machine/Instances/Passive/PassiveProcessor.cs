@@ -44,7 +44,6 @@ namespace TileEntityModule.Instances.Machines {
 
         public void tickUpdate()
         {
-            inventoryUpdate(); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
             if (currentRecipe == null) {
                 return;
             }
@@ -64,6 +63,7 @@ namespace TileEntityModule.Instances.Machines {
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
             currentRecipe = null;
+            inventoryUpdate();
         }
 
         public void inventoryUpdate() {

@@ -76,6 +76,7 @@ namespace TileEntityModule.Instances.Machines
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut);
             currentRecipe = null;
+            inventoryUpdate();
         }
 
         public void inventoryUpdate() {

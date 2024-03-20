@@ -24,7 +24,7 @@ namespace UI.QuestBook {
                     checkMarkTaskUI.init((CheckMarkQuestTask)task);
                     return checkObject;
                 case QuestTaskType.Dimension:
-                    GameObject dimObject = GameObject.Instantiate(Resources.Load<GameObject>("UI/Quest/Tasks/CheckMarkTaskUI"));
+                    GameObject dimObject = GameObject.Instantiate(Resources.Load<GameObject>("UI/Quest/Tasks/VisitDimensionTask"));
                     VisitDimensionTaskUI visitDimensionTaskUI = dimObject.GetComponent<VisitDimensionTaskUI>();
                     visitDimensionTaskUI.init((VisitDimensionQuestTask)task);
                     return dimObject;
