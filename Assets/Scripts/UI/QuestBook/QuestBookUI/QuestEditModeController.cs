@@ -47,7 +47,19 @@ namespace UI.QuestBook {
             Vector2 gridPosition = QuestBookHelper.snapGrid(mousePosition,questBookUI.ContentContainer.position,questBookUI.ContentContainer.localScale.x);
             spawnedNodeObject.transform.position = gridPosition;
             if (Input.GetMouseButton(0)) {
-                questBookUI.CurrentPage.Nodes.Add(new QuestBookNode(spawnedNodeObject.transform.localPosition));
+                questBookUI.CurrentPage.Nodes.Add(
+                    new QuestBookNode(
+                        spawnedNodeObject.transform.localPosition,
+                        null,
+                        new QuestBookNodeContent(
+                            new CheckMarkQuestTask(),
+                            "Empty Description",
+                            "New Task"
+                        ),
+                        new List<string>()
+                        )
+                    );
+                questBookUI.displayCurrentPage();
                 spawnedNodeObject = null;
                 
             }

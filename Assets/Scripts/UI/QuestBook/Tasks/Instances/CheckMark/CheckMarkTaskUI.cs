@@ -14,10 +14,15 @@ namespace UI.QuestBook {
             this.checkMarkQuestTask = checkMarkQuestTask;
             button.onClick.AddListener(checkClick);
             checkMarkSprites = Resources.LoadAll<Sprite>("Sprites/QuestBook/checkmark_sprites");
+            setImage();
         }
 
         private void checkClick() {
-            checkMarkQuestTask.Clicked = !checkMarkQuestTask.Clicked;
+            checkMarkQuestTask.Clicked = !checkMarkQuestTask.Clicked;   
+            setImage();
+        }
+
+        private void setImage() {
             int index = checkMarkQuestTask.Clicked ? 0 : 1;
             buttonImage.sprite = checkMarkSprites[index];
         }

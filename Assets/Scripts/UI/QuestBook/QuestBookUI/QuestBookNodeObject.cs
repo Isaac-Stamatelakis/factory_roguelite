@@ -13,16 +13,17 @@ namespace UI.QuestBook {
         [SerializeField] private Button button;
         private HoldClickInstance holdClickInstance;
         private QuestBookNode node;
+        private QuestBookUI questBookUI;
         
-        public void init(QuestBookNode node) {
+        public void init(QuestBookNode node, QuestBookUI questBookUI) {
             this.node = node;
             holdClickInstance = new HoldClickInstance(this);
             ItemObject itemObject = ItemRegistry.getInstance().getItemObject(node.ItemImageID);
             if (itemObject != null) {
                 image.sprite = itemObject.getSprite();
             }
+            this.questBookUI = questBookUI;
             transform.position = new Vector3(node.X,node.Y,0);
-            button.onClick.AddListener(openContent);
             
         }
 
@@ -68,7 +69,10 @@ namespace UI.QuestBook {
         }
 
         private void openContent() {
-            
+            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.TaskContentPrefabPath));
+            QuestBookTaskPageUI pageUI = instantiated.GetComponent<QuestBookTaskPageUI>();
+            instantiated.transform.SetParent(questBookUI.transform,false);
+            pageUI.init(node.Content,questBookUI);
         }
     }
 }

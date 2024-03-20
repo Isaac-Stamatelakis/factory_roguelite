@@ -12,6 +12,7 @@ namespace TileEntityModule.Instances.Machines {
     {
         [SerializeField] public TextMeshProUGUI title;
         [SerializeField] public ArrowProgressController arrowProgressController;
+        [SerializeField] public Image panel;
         private GameObject slotPrefab;
         private PassiveProcessorInventory machineInventory;
         public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, PassiveProcessorInventory machineInventory, string machineName,IInventoryListener listener) {
@@ -24,6 +25,7 @@ namespace TileEntityModule.Instances.Machines {
             layout.display(transform,machineInventory,InventoryUIMode.Recipe,null);
             this.machineInventory = machineInventory;
             title.text = MachineUIFactory.formatMachineName(machineName);
+            panel.enabled = false;
         }
 
         private void setArrow() {

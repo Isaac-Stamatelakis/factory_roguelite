@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
+using System;
 
 namespace UI.QuestBook {
     public class QuestBookCreationSceneController : MonoBehaviour
@@ -17,7 +18,13 @@ namespace UI.QuestBook {
             if (File.Exists(QuestBookHelper.DefaultQuestBookPath)) {
                 json = File.ReadAllText(QuestBookHelper.DefaultQuestBookPath);
             }
-            library = JsonConvert.DeserializeObject<QuestBookLibrary>(json);
+            try {
+                library = QuestBookLibraryFactory.deseralize(json);
+            } catch (Exception e)  {
+                Debug.LogWarning(e);
+                library = null;
+            }
+            
             if (library == null) {
                 List<QuestBook> books = new List<QuestBook>{
                     new QuestBook(
@@ -51,7 +58,7 @@ namespace UI.QuestBook {
         }
 
         void OnDestroy() {
-            string json = JsonConvert.SerializeObject(library);
+            string json = QuestBookLibraryFactory.seralize(library);
             File.WriteAllText(QuestBookHelper.DefaultQuestBookPath,json);
         }
 

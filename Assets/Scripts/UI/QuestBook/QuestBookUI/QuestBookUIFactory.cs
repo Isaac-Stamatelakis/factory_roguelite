@@ -18,10 +18,10 @@ namespace UI.QuestBook {
             line.transform.SetParent(container,false);
         }
 
-        public static void generateNode(QuestBookNode node, Transform container) {
+        public static void generateNode(QuestBookNode node, Transform container, QuestBookUI questBookUI) {
             GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.NodeObjectPrefabPath));
             QuestBookNodeObject nodeObject = instantiated.GetComponent<QuestBookNodeObject>();
-            nodeObject.init(node);
+            nodeObject.init(node,questBookUI);
             nodeObject.transform.SetParent(container,false);
         }
     }

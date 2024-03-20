@@ -13,6 +13,7 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public TextMeshProUGUI title;
         [SerializeField] public Slider energyBar;
         [SerializeField] public ArrowProgressController arrowProgressController;
+        [SerializeField] public Image panel;
         private GameObject slotPrefab;
         private Tier tier;
         private StandardMachineInventory machineInventory;
@@ -32,6 +33,7 @@ namespace TileEntityModule.Instances.Machines {
             layout.display(transform,machineInventory,InventoryUIMode.Recipe,null);
             title.text = MachineUIFactory.formatMachineName(machineName);
             energyBar.gameObject.SetActive(false);
+            panel.enabled = false;
         }
 
         private void setEnergyBar() {

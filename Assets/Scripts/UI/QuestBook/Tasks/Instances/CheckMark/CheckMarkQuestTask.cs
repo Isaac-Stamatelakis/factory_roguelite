@@ -12,6 +12,11 @@ namespace UI.QuestBook {
         {
             return clicked;
         }
+
+        public override QuestTaskType getTaskType()
+        {
+            return QuestTaskType.Checkmark;
+        }
     }
 
 }

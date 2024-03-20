@@ -46,7 +46,7 @@ namespace UI.QuestBook {
             this.selectorObject = selectorObject;
             this.backButton.onClick.AddListener(backButtonPress);
             loadPageChapters();
-            displayPage(0);
+            displayPageIndex(0);
         }
 
         public void loadPageChapters() {
@@ -66,24 +66,30 @@ namespace UI.QuestBook {
             GameObject.Destroy(gameObject);
         }
 
-        public void displayPage(int index) {
+        public void displayPageIndex(int index) {
             if (index < 0 || index >= questBook.Pages.Count) {
                 Debug.LogError("Out of range index:" + index);
                 return;
             }
+            displayPage(questBook.Pages[index]);
+        }
+
+        private void displayPage(QuestBookPage page) {
             for (int i = 0; i < nodeContainer.childCount; i++) {
                 GameObject.Destroy(nodeContainer.GetChild(i).gameObject);
             }
             for (int i = 0; i < lineContainer.childCount; i++) {
                 GameObject.Destroy(lineContainer.GetChild(i).gameObject);
             }
-            QuestBookPage page = questBook.Pages[index];
+            
             currentPage = page;
             foreach (QuestBookNode node in page.Nodes) {
-                QuestBookUIFactory.generateNode(node,nodeContainer);
+                QuestBookUIFactory.generateNode(node,nodeContainer,this);
             }
-            
+        }
 
+        public void displayCurrentPage() {
+            displayPage(currentPage);
         }
 
         public void FixedUpdate() {

@@ -2,17 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemQuestTaskUI : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
+namespace UI.QuestBook {
+    public class ItemQuestTaskUI : QuestBookTaskUI<ItemQuestTask>
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public override void init(ItemQuestTask task)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
+

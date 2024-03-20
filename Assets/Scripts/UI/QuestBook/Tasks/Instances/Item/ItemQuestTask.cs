@@ -17,6 +17,11 @@ namespace UI.QuestBook {
             }
             return true;
         }
+
+        public override QuestTaskType getTaskType()
+        {
+            return QuestTaskType.Item;
+        }
     }
 }
 

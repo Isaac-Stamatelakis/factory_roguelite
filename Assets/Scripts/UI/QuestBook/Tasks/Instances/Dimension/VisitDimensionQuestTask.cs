@@ -15,6 +15,11 @@ namespace UI.QuestBook {
         {
             return visited;
         }
+
+        public override QuestTaskType getTaskType()
+        {
+            return QuestTaskType.Dimension;
+        }
     }
 }
 
