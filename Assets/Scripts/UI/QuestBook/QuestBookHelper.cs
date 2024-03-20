@@ -13,6 +13,7 @@ namespace UI.QuestBook {
         private static string bookTitlePagePrefabPath = "UI/Quest/BookTitlePage";
         private static string questBookPrefabPath = "UI/Quest/QuestBook";
         private static string questBookChapterPrefabPath = "UI/Quest/PageChapter";
+        private static string editChapterPopUpPrefabPath = "UI/Quest/EditChapterPopUp";
         private static float gridSize = 64f;
 
         public static string NodeObjectPrefabPath { get => nodeObjectPrefabPath;}
@@ -24,6 +25,7 @@ namespace UI.QuestBook {
         public static string BookTitlePagePrefabPath { get => bookTitlePagePrefabPath;}
         public static string QuestBookPrefabPath { get => questBookPrefabPath;}
         public static string QuestBookChapterPrefabPath { get => questBookChapterPrefabPath;}
+        public static string EditChapterPopUpPrefabPath { get => editChapterPopUpPrefabPath;}
 
         public static Vector2 snapGrid(Vector2 position, Vector2 containerPosition, float containerScale) {
             float scaledGrid = gridSize*containerScale;
