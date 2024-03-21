@@ -25,10 +25,12 @@ namespace UI.QuestBook {
         private bool editMode = false;
 
         private QuestBookNodeContent nodeContent;
+        private QuestBookUI questBookUI;
         
         public void init(QuestBookNodeContent nodeContent, QuestBookUI questBookUI) {
             this.title.text = nodeContent.Title;
             this.description.text = nodeContent.Description;
+            this.questBookUI = questBookUI;
             this.nodeContent = nodeContent;
             if (nodeContent.Task == null) {
                 this.taskTitle.text = "No Task";
@@ -52,7 +54,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(taskContainer.GetChild(i).gameObject);
             }
             this.taskTitle.text = nodeContent.Task.getTaskType().ToString().Replace("_"," ");
-            GameObject questContent = QuestBookTaskUIFactory.getContent(nodeContent.Task);
+            GameObject questContent = QuestBookTaskUIFactory.getContent(nodeContent.Task, questBookUI);
             questContent.transform.SetParent(taskContainer,false);
         }
         private void goIntoEditMode() {

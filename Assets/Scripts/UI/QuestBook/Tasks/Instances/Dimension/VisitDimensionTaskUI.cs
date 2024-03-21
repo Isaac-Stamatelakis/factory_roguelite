@@ -10,7 +10,7 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private TextMeshProUGUI dimensionTitle;
         [SerializeField] private TextMeshProUGUI statusText;
-        public override void init(VisitDimensionQuestTask task)
+        public override void init(VisitDimensionQuestTask task, QuestBookUI questBookUI)
         {
             if (task.Visited) {
                 statusText.text = "Visited";

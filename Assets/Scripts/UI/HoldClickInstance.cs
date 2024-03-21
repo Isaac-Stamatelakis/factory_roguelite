@@ -6,13 +6,13 @@ namespace UI {
     public interface ILongClickable {
         public void longClick();
     }
-    public class HoldClickInstance
+    public class LongClickHandler 
     {
         public float longClickDuration = 0.25f;
         private bool isPointerDown = false;
         private float pointerDownTimer = 0f;
         private ILongClickable longClickable;
-        public HoldClickInstance(ILongClickable longClickable) {
+        public LongClickHandler (ILongClickable longClickable) {
             this.longClickable = longClickable;
         }
 

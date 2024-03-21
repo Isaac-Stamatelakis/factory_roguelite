@@ -12,24 +12,33 @@ namespace ItemModule {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return null;    
             }
-            GameObject imageObject = getItemImage(itemSlot);
+            GameObject imageObject = getItemImage(itemSlot.itemObject);
             imageObject.transform.SetParent(parent,false);
             return imageObject;
         }
 
-        public static GameObject getItemImage(ItemSlot itemSlot) {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return null;    
-            }
+        public static GameObject getItemImage(ItemObject itemObject, bool scale = false) {
             GameObject imageObject = new GameObject();
             imageObject.name = "item";
             RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
             rectTransform.localPosition = Vector3.zero;
             imageObject.AddComponent<CanvasRenderer>();
             Image image = imageObject.AddComponent<Image>();
-            image.sprite = itemSlot.itemObject.getSprite();
+            image.sprite = itemObject.getSprite();
             rectTransform.sizeDelta = getItemSize(image.sprite);
             return imageObject;
+        }
+
+        public static GameObject getItemImage(ItemObject itemObject, Transform parent) {
+            GameObject item = getItemImage(itemObject);
+            item.transform.SetParent(parent,false);
+            return item;
+        }
+        public static GameObject getItemImage(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return null;    
+            }
+            return getItemImage(itemSlot.itemObject);
         }
 
         public static GameObject getTagObject(ItemSlot itemSlot, Transform parent) {

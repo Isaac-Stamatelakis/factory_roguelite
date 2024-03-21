@@ -11,13 +11,13 @@ namespace UI.QuestBook {
     {
         [SerializeField] private Image image;
         [SerializeField] private Button button;
-        private HoldClickInstance holdClickInstance;
+        private LongClickHandler  holdClickInstance;
         private QuestBookNode node;
         private QuestBookUI questBookUI;
         
         public void init(QuestBookNode node, QuestBookUI questBookUI) {
             this.node = node;
-            holdClickInstance = new HoldClickInstance(this);
+            holdClickInstance = new LongClickHandler (this);
             ItemObject itemObject = ItemRegistry.getInstance().getItemObject(node.ItemImageID);
             if (itemObject != null) {
                 image.sprite = itemObject.getSprite();

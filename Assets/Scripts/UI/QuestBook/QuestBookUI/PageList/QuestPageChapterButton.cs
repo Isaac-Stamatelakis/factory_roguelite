@@ -12,13 +12,13 @@ namespace UI.QuestBook {
         private int index;
         private QuestBookUI questBookUI;
         private QuestBookPage page;
-        private HoldClickInstance holdClickInstance;
+        private LongClickHandler  holdClickInstance;
         public void init(QuestBookUI questBookUI, QuestBookPage page, int index) {
             this.index = index;
             this.page = page;
             this.questBookUI = questBookUI;
             text.text = page.Title;
-            holdClickInstance = new HoldClickInstance(this);
+            holdClickInstance = new LongClickHandler (this);
             
         }
 
