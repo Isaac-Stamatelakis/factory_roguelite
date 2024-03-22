@@ -8,7 +8,7 @@ using System;
 
 namespace UI {
 
-    public interface IReloadable {
+    public interface IItemListReloadable {
         public void reload();
         public void reloadAll();
     }
@@ -28,14 +28,14 @@ namespace UI {
         private int size = 7*7;
         private float initalSize;
         private SerializedItemSlot SerializedItemSlot {get => itemSlots[index];}
-        private IReloadable container;
+        private IItemListReloadable container;
         private List<SerializedItemSlot> itemSlots;
         private int index;
 
         private List<ItemObject> currentItems = new List<ItemObject>();
-        private IReloadable reloadable;
+        private IItemListReloadable reloadable;
         private float timeSinceLastDeletePress = 2f;
-        public void init(List<SerializedItemSlot> serializedItemSlots, int index, IReloadable reloadable, GameObject goBackTo) {
+        public void init(List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo) {
             this.itemSlots = serializedItemSlots;
             this.initalSize = scrollRect.content.sizeDelta.y;
             this.index = index;
@@ -142,7 +142,7 @@ namespace UI {
                 }
                 ItemObject itemObject = currentItems[size+i];
                 size ++;
-                GameObject panel = GlobalHelper.loadFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
+                GameObject panel = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
                 panel.transform.SetParent(itemSearchResultContainer.transform,false);
                 SerializedItemSlotEditItemPanel editItemPanel = panel.GetComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
@@ -158,7 +158,7 @@ namespace UI {
             scrollRect.content.sizeDelta = contentSize;
             for (int i = 0; i < Mathf.Min(currentItems.Count,size); i++) {
                 ItemObject itemObject = currentItems[i];
-                GameObject panel = GlobalHelper.loadFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
+                GameObject panel = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
                 panel.transform.SetParent(itemSearchResultContainer.transform,false);
                 SerializedItemSlotEditItemPanel editItemPanel = panel.GetComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
@@ -176,7 +176,7 @@ namespace UI {
         }
 
         public static SerializedItemSlotEditorUI createNewInstance() {
-            return GlobalHelper.loadFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotEditor").GetComponent<SerializedItemSlotEditorUI>();
+            return GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotEditor").GetComponent<SerializedItemSlotEditorUI>();
         }
     }
     

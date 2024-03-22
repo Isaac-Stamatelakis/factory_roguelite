@@ -28,7 +28,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(itemContainer.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < task.Items.Count; i++) {
-                GameObject element = GlobalHelper.loadFromResourcePath("UI/Quest/Tasks/Item/ItemElement");
+                GameObject element = GlobalHelper.instantiateFromResourcePath("UI/Quest/Tasks/Item/ItemElement");
                 ItemQuestItemElement itemQuestItemElement = element.GetComponent<ItemQuestItemElement>();
                 itemQuestItemElement.init(
                     task,

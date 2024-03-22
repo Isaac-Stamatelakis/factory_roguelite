@@ -54,7 +54,9 @@ namespace UI.QuestBook {
                         new QuestBookNodeContent(
                             new CheckMarkQuestTask(),
                             "Empty Description",
-                            "New Task"
+                            "New Task",
+                            new List<SerializedItemSlot>(),
+                            9999
                         ),
                         new List<string>()
                         )

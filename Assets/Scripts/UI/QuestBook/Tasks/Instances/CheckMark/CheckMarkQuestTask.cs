@@ -17,6 +17,16 @@ namespace UI.QuestBook {
         {
             return QuestTaskType.Checkmark;
         }
+
+        public override void setComplete()
+        {
+            clicked = true;
+        }
+
+        public override void setUnComplete()
+        {
+            clicked = false;
+        }
     }
 
 }

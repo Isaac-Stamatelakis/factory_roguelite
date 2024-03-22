@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UI;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IReloadable
+    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable
     {
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
@@ -38,7 +38,9 @@ namespace UI.QuestBook {
                 return;
             }
             itemImage.sprite = itemObject.getSprite();
-            itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
+            if (itemImage.sprite != null) {
+                itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
+            }
             itemName.text = itemObject.name;
             gottenAmount = Mathf.Clamp(gottenAmount,0,itemSlot.amount);
             if (gottenAmount == itemSlot.amount) {

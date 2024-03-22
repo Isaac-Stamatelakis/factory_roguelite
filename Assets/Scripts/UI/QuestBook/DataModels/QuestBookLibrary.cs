@@ -64,7 +64,9 @@ namespace UI.QuestBook {
             return new SerializedQuestBookContent(
                 seralizedTask,
                 content.Description,
-                content.Title
+                content.Title,
+                JsonConvert.SerializeObject(content.Rewards),
+                content.NumberOfRewards
             );
         }
 
@@ -116,7 +118,9 @@ namespace UI.QuestBook {
             return new QuestBookNodeContent(
                 task,
                 content.description,
-                content.title
+                content.title,
+                JsonConvert.DeserializeObject<List<SerializedItemSlot>>(content.rewards),
+                content.numberOfRewards
             );
         }
 
@@ -168,10 +172,14 @@ namespace UI.QuestBook {
             public string task;
             public string description;
             public string title;
-            public SerializedQuestBookContent(string task, string description, string title) {
+            public int numberOfRewards;
+            public string rewards;
+            public SerializedQuestBookContent(string task, string description, string title, string rewards, int numberOfRewards) {
                 this.task = task;
                 this.description = description;
                 this.title = title;
+                this.rewards = rewards;
+                this.numberOfRewards = numberOfRewards;
             }
         }
     }
