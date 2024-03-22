@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UI;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, ISerializedItemSlotContainer
+    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IReloadable
     {
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
@@ -17,11 +17,14 @@ namespace UI.QuestBook {
         private int gottenAmount;
         private ItemQuestTask itemQuestTask;
         private SerializedItemSlot ItemSlot {get => itemQuestTask.Items[index];}
+        private ItemQuestTaskUI taskUI;
         private int index;
+        
 
-        public void init(ItemQuestTask itemQuestTask, int index, QuestBookUI questBookUI) {
+        public void init(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookUI questBookUI) {
             this.itemQuestTask = itemQuestTask;
             this.questBookUI = questBookUI;
+            this.taskUI = taskUI;
             this.index = index;
             load();
         }
@@ -35,6 +38,7 @@ namespace UI.QuestBook {
                 return;
             }
             itemImage.sprite = itemObject.getSprite();
+            itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
             itemName.text = itemObject.name;
             gottenAmount = Mathf.Clamp(gottenAmount,0,itemSlot.amount);
             if (gottenAmount == itemSlot.amount) {
@@ -57,15 +61,21 @@ namespace UI.QuestBook {
         }
         private void navigateToEditMode() {
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = SerializedItemSlotEditorUI.createNewInstance();
-            serializedItemSlotEditorUI.init(ItemSlot,this,gameObject);
+            serializedItemSlotEditorUI.init(itemQuestTask.Items,index,this,gameObject);
             serializedItemSlotEditorUI.transform.SetParent(questBookUI.transform,false);
         }
 
-        public void setSeralizedItemSlot(SerializedItemSlot serializedItemSlot)
+        public void reload()
         {
-            itemQuestTask.Items[index] = serializedItemSlot;
             load();
         }
+
+        public void reloadAll()
+        {
+            taskUI.display();
+        }
+
+        
     }
 }
 

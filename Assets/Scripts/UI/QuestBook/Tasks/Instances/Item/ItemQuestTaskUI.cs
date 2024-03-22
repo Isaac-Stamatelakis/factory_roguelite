@@ -23,7 +23,7 @@ namespace UI.QuestBook {
             display();
         }
 
-        private void display() {
+        public void display() {
             for (int i = 0; i < itemContainer.transform.childCount; i++) {
                 GameObject.Destroy(itemContainer.transform.GetChild(i).gameObject);
             }
@@ -33,15 +33,10 @@ namespace UI.QuestBook {
                 itemQuestItemElement.init(
                     task,
                     i,
+                    this,
                     questBookUI
                 );
                 itemQuestItemElement.transform.SetParent(itemContainer.transform,false);
-            }
-        }
-
-        public void OnDestroy() {
-            foreach (SerializedItemSlot serializedItemSlot in task.Items) {
-                Debug.Log(serializedItemSlot.id);
             }
         }
 
