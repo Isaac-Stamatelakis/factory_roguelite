@@ -12,24 +12,33 @@ namespace ItemModule {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return null;    
             }
-            GameObject imageObject = getItemImage(itemSlot);
+            GameObject imageObject = getItemImage(itemSlot.itemObject);
             imageObject.transform.SetParent(parent,false);
             return imageObject;
         }
 
-        public static GameObject getItemImage(ItemSlot itemSlot) {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return null;    
-            }
+        public static GameObject getItemImage(ItemObject itemObject, bool scale = false) {
             GameObject imageObject = new GameObject();
             imageObject.name = "item";
             RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
             rectTransform.localPosition = Vector3.zero;
             imageObject.AddComponent<CanvasRenderer>();
             Image image = imageObject.AddComponent<Image>();
-            image.sprite = itemSlot.itemObject.getSprite();
+            image.sprite = itemObject.getSprite();
             rectTransform.sizeDelta = getItemSize(image.sprite);
             return imageObject;
+        }
+
+        public static GameObject getItemImage(ItemObject itemObject, Transform parent) {
+            GameObject item = getItemImage(itemObject);
+            item.transform.SetParent(parent,false);
+            return item;
+        }
+        public static GameObject getItemImage(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return null;    
+            }
+            return getItemImage(itemSlot.itemObject);
         }
 
         public static GameObject getTagObject(ItemSlot itemSlot, Transform parent) {
@@ -79,24 +88,34 @@ namespace ItemModule {
             return number;
         }
         public static Vector2 getItemSize(Sprite sprite) {
-        if (sprite == null) {
+            if (sprite == null) {
+                return Vector2.zero;
+            }
+            Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
+            if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
+                return new Vector2(32,32);
+            }
+            if (adjustedSpriteSize.x == adjustedSpriteSize.y) {
+                return new Vector2(64,64);
+            }
+            if (adjustedSpriteSize.x > adjustedSpriteSize.y) {
+                return new Vector2(64,adjustedSpriteSize.y/adjustedSpriteSize.x*64);
+            }
+            if (adjustedSpriteSize.y > adjustedSpriteSize.x) {
+                return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
+            }
             return Vector2.zero;
         }
-        Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
-        if (adjustedSpriteSize.x == 1 && adjustedSpriteSize.y == 1) {
-            return new Vector2(32,32);
+
+        public static Vector2 getItemScale(Sprite sprite) {
+            Vector2 size = getItemSize(sprite);
+            if (size.x >= size.y) {
+                return new Vector2(1,size.y/size.x);
+            } else {
+                return new Vector2(size.x/size.y,1);
+            }
+            
         }
-        if (adjustedSpriteSize.x == adjustedSpriteSize.y) {
-            return new Vector2(64,64);
-        }
-        if (adjustedSpriteSize.x > adjustedSpriteSize.y) {
-            return new Vector2(64,adjustedSpriteSize.y/adjustedSpriteSize.x*64);
-        }
-        if (adjustedSpriteSize.y > adjustedSpriteSize.x) {
-            return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
-        }
-        return Vector2.zero;
-    }
     }
 }
 

@@ -56,7 +56,7 @@ namespace UI.JEI
 
         private void onSearchChange(string search) {
             page = 1;
-            queriedItems = ItemRegistry.getInstance().query(search);
+            queriedItems = ItemRegistry.getInstance().query(search,int.MaxValue);
             maxPages = Mathf.CeilToInt(queriedItems.Count/limit)+1;
             lastSearch = currentSearch;
             currentSearch = search;

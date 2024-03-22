@@ -111,12 +111,18 @@ namespace ItemModule {
             }
         }
 
-        public List<ItemObject> query(string serach) {
+        public List<ItemObject> query(string serach, int limit) {
             List<ItemObject> queried = new List<ItemObject>();
+            int i = 0;
             foreach (ItemObject itemObject in items.Values) {
+                if (i >= limit) {
+                    break;
+                }
                 if (itemObject.name.ToLower().Contains(serach.ToLower())) {
                     queried.Add(itemObject);
+                    i ++;
                 }
+                
             }
             return queried;
         }

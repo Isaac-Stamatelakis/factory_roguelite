@@ -9,9 +9,9 @@ namespace RecipeModule {
     [CreateAssetMenu(fileName ="RP~New Energy Recipe Processor",menuName="Crafting/Processor/Energy")]
     public class EnergyRecipeProcessor : DisplayableTypedRecipeProcessor<EnergyRecipeCollection>, IEnergyRecipeProcessor
     {
-        public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName)
+        public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName, IInventoryListener listener)
         {
-            GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName).gameObject;
+            GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName,listener).gameObject;
             GlobalUIContainer.getInstance().getUiController().setGUI(ui);
         }
         public IEnergyProduceRecipe getEnergyRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)

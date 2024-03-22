@@ -7,8 +7,20 @@ using TMPro;
 public interface ILoadableInventory {
     public void initalize(List<ItemSlot> items);
 }
+
+public interface IInventoryListener {
+    public void inventoryUpdate();   
+}
 public abstract class AbstractSolidItemInventory : InventoryUI
 {
+    private List<IInventoryListener> listeners;
+
+    public void addListener(IInventoryListener listener) {
+        if (listeners == null) {
+            listeners = new List<IInventoryListener>();
+        }
+        listeners.Add(listener);
+    }
     public override void leftClick(int n)
     {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
@@ -33,11 +45,20 @@ public abstract class AbstractSolidItemInventory : InventoryUI
             inventory[n] = grabbedItemProperties.itemSlot;
             grabbedItemProperties.itemSlot = inventorySlot;
         }
-        
-        
+
+        updateAllListeners();
         unloadItem(n);
         loadItem(n);
         grabbedItemProperties.updateSprite();
+    }
+
+    private void updateAllListeners() {
+        if (listeners == null) {
+            return;
+        }
+        foreach (IInventoryListener listener in listeners) {
+            listener.inventoryUpdate();
+        }
     }
 
     public override void middleClick(int n)
@@ -57,6 +78,7 @@ public abstract class AbstractSolidItemInventory : InventoryUI
         if (inventorySlot == null || inventorySlot.itemObject == null) {
             return;
         }
+        updateAllListeners();
         if (grabbedItemProperties.setItemSlotFromInventory(inventory,n)) {
             return;
         }

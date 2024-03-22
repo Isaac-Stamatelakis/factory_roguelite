@@ -13,6 +13,7 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public TextMeshProUGUI title;
         [SerializeField] public Slider energyBar;
         [SerializeField] public ArrowProgressController arrowProgressController;
+        [SerializeField] public Image panel;
         private GameObject slotPrefab;
         private Tier tier;
         private StandardMachineInventory machineInventory;
@@ -20,8 +21,8 @@ namespace TileEntityModule.Instances.Machines {
         public void Update() {
             setEnergyBar();
         }
-        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName, Tier tier) {
-            layout.display(transform,machineInventory,InventoryUIMode.Standard);
+        public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName, Tier tier, IInventoryListener listener) {
+            layout.display(transform,machineInventory,InventoryUIMode.Standard,listener);
             this.machineInventory = machineInventory;
             this.tier = tier;
             title.text = MachineUIFactory.formatMachineName(machineName);
@@ -29,9 +30,10 @@ namespace TileEntityModule.Instances.Machines {
 
         public void displayRecipe(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName) {
             this.machineInventory = machineInventory;
-            layout.display(transform,machineInventory,InventoryUIMode.Recipe);
+            layout.display(transform,machineInventory,InventoryUIMode.Recipe,null);
             title.text = MachineUIFactory.formatMachineName(machineName);
             energyBar.gameObject.SetActive(false);
+            panel.enabled = false;
         }
 
         private void setEnergyBar() {
@@ -47,7 +49,7 @@ namespace TileEntityModule.Instances.Machines {
     }
 
     public static class MachineUIFactory {
-        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type) {
+        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener) {
             if (items == null) {
                 return;
             }
@@ -79,6 +81,9 @@ namespace TileEntityModule.Instances.Machines {
             if (inventoryUI == null) {
                 Debug.LogError("Could not init inventory for state " + itemState + " as uiinventory is null");
                 return;
+            }
+            if (listener != null && inventoryUI is AbstractSolidItemInventory solidItemInventory) {
+                solidItemInventory.addListener(listener);
             }
             
             int index = 0;
@@ -122,12 +127,12 @@ namespace TileEntityModule.Instances.Machines {
             return machineUI;
         }
 
-        public static ProcessMachineUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, StandardMachineInventory inventory, Tier tier, string name) {
+        public static ProcessMachineUI getProcessMachineStandardUI(GameObject uiPrefab, InventoryLayout layout, StandardMachineInventory inventory, Tier tier, string name, IInventoryListener listener) {
             ProcessMachineUI machineUI = getProcessMachineUI(uiPrefab,layout,name);
             if (layout is not IDisplayableLayout<StandardSolidAndFluidInventory> standardLayout) {
                 throw new InvalidOperationException(name + " layout is not standard layout");
             }
-            machineUI.displayMachine(standardLayout, inventory, name, tier);
+            machineUI.displayMachine(standardLayout, inventory, name, tier,listener);
             return machineUI;
         }
 

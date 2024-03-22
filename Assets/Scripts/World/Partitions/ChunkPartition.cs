@@ -142,7 +142,7 @@ namespace ChunkModule.PartitionModule {
         }
 
         protected void unloadEntities() {
-            Vector2 castPosition = (getRealPosition() + Vector2Int.one/2) * Global.ChunkPartitionSize/2;
+            Vector2 castPosition = (getRealPosition()) * Global.ChunkPartitionSize/2;
             RaycastHit2D[] hits = Physics2D.BoxCastAll(castPosition, new Vector2(Global.ChunkPartitionSize,Global.ChunkPartitionSize), 0f, Vector2.zero, Mathf.Infinity, 1 << LayerMask.NameToLayer("Entity"));
             List<EntityData> entityDatas = new List<EntityData>();
             foreach (RaycastHit2D hit in hits) {

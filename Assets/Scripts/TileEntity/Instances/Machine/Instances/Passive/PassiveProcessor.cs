@@ -11,7 +11,7 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
-    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity
+    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         [SerializeField] public PassiveRecipeProcessor recipeProcessor;
         [SerializeField] public Tier tier;
@@ -32,7 +32,7 @@ namespace TileEntityModule.Instances.Machines {
 
         public void onClick()   
         {
-            recipeProcessor.displayTileEntity(inventory,recipeProcessor.name);
+            recipeProcessor.displayTileEntity(inventory,recipeProcessor.name,this);
             
         }
         
@@ -44,7 +44,6 @@ namespace TileEntityModule.Instances.Machines {
 
         public void tickUpdate()
         {
-            inventoryUpdate(); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
             if (currentRecipe == null) {
                 return;
             }
@@ -64,6 +63,7 @@ namespace TileEntityModule.Instances.Machines {
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
             currentRecipe = null;
+            inventoryUpdate();
         }
 
         public void inventoryUpdate() {
