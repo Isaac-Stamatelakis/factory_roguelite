@@ -23,7 +23,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (questBookTaskPageUI.QuestBookUI.EditMode) {
+                if (QuestBookHelper.EditMode) {
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = SerializedItemSlotEditorUI.createNewInstance();
                     serializedItemSlotEditorUI.init(itemSlots,index,this,questBookTaskPageUI.gameObject);
                     serializedItemSlotEditorUI.transform.SetParent(questBookTaskPageUI.transform,false);

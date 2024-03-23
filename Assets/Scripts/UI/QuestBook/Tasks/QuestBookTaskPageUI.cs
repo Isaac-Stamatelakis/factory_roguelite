@@ -43,10 +43,10 @@ namespace UI.QuestBook {
             } else {
                 setTaskContent();
             }
-            titleField.interactable = questBookUI.EditMode;
-            descriptionField.interactable = questBookUI.EditMode;
+            titleField.interactable = QuestBookHelper.EditMode;
+            descriptionField.interactable = QuestBookHelper.EditMode;
             displayRewards();
-            if (questBookUI.EditMode) {
+            if (QuestBookHelper.EditMode) {
                 titleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
                 descriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
 
@@ -75,7 +75,7 @@ namespace UI.QuestBook {
                 connectionsPageUI.init(node,questBookUI);
                 connectionsPageUI.transform.SetParent(questBookUI.transform,false);
             });
-            editContainer.gameObject.SetActive(questBookUI.EditMode);
+            editContainer.gameObject.SetActive(QuestBookHelper.EditMode);
 
         }
 

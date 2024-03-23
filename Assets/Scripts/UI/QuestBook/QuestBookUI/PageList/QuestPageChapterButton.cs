@@ -30,7 +30,7 @@ namespace UI.QuestBook {
         }
         public void longClick()
         {
-            if (!questBookUI.EditMode) {
+            if (!QuestBookHelper.EditMode) {
                 return;
             }
             GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.EditChapterPopUpPrefabPath));
@@ -59,7 +59,7 @@ namespace UI.QuestBook {
         }
 
         private void handleRightClick() {
-            if (!questBookUI.EditMode) {
+            if (!QuestBookHelper.EditMode) {
                 return;
             } 
 

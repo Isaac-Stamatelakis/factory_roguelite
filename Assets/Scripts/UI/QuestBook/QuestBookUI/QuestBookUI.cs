@@ -7,7 +7,6 @@ using TMPro;
 namespace UI.QuestBook {
     public class QuestBookUI : MonoBehaviour
     {
-        [SerializeField] private bool editMode = true;
         [SerializeField] private Transform nodeContainer;
         [SerializeField] private Transform lineContainer;
         [SerializeField] private Transform contentContainer;
@@ -21,7 +20,6 @@ namespace UI.QuestBook {
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => contentContainer;}
         public Transform ContentMaskContainer {get => contentMaskContainer;}
-        public bool EditMode { get => editMode; set => editMode = value; }
         public QuestBook QuestBook { get => questBook; set => questBook = value; }
         public QuestBookPage CurrentPage { get => currentPage; set => currentPage = value; }
         public QuestBookLibrary Library { get => library; set => library = value; }
@@ -37,7 +35,7 @@ namespace UI.QuestBook {
         // Start is called before the first frame update
         void Start()
         {
-            if (editMode) {
+            if (QuestBookHelper.EditMode) {
                 initEditMode();
             }   
         }
@@ -69,7 +67,7 @@ namespace UI.QuestBook {
         }
 
         public void displayPageIndex(int index) {
-            if (index < 0 || index >= questBook.Pages.Count) {
+            if (index < 0 || index > questBook.Pages.Count) {
                 Debug.LogError("Out of range index:" + index);
                 return;
             }
@@ -103,24 +101,26 @@ namespace UI.QuestBook {
                         continue;
                     }
                     QuestBookNode otherNode = idNodeMap[id];
-                    bool discovered = questBookNode.RequireAllPrerequisites;
-                    foreach (int prereqID in questBookNode.Prerequisites) {
-                        bool preReqComplete = idNodeMap[prereqID].Content.Task.getComplete();
-                        if (questBookNode.RequireAllPrerequisites && !preReqComplete)  {
-                            discovered = false;
-                            break;
-                        }
-                        if (!questBookNode.RequireAllPrerequisites && preReqComplete) {
-                            discovered = true;
-                            break;
-                        }
-                    }
-                    if (questBookNode.Prerequisites.Count == 0) {
-                        discovered = true;
-                    }
+                    bool discovered = nodeDiscovered(questBookNode,idNodeMap);
                     QuestBookUIFactory.generateLine(questBookNode.Position,otherNode.Position,lineContainer,discovered);
                 }
             }
+        }
+
+        private bool nodeDiscovered(QuestBookNode questBookNode, Dictionary<int, QuestBookNode> idNodeMap) {
+            foreach (int prereqID in questBookNode.Prerequisites) {
+                bool preReqComplete = idNodeMap[prereqID].Content.Task.getComplete();
+                if (questBookNode.RequireAllPrerequisites && !preReqComplete)  {
+                    return false;
+                }
+                if (!questBookNode.RequireAllPrerequisites && preReqComplete) {
+                    return true;
+                }
+            }
+            // If the loop has gotten to this point, there are two cases
+            // i) If its RequireAllPrequestites, then all are complete so return RequireAllPrequresites aka true
+            // ii) If its not RequireAllPrequesites, then atleast oen is not complete so return not RequireAllPrequreistes aka false
+            return questBookNode.RequireAllPrerequisites;
         }
 
         public void displayCurrentPage() {

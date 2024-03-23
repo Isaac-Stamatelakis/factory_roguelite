@@ -9,6 +9,7 @@ namespace UI.QuestBook {
     public class QuestBookCreationSceneController : MonoBehaviour
     {
         [SerializeField] public Transform canvasTransform;
+        [SerializeField] private bool editMode;
         private QuestBookLibrary library;
         // Start is called before the first frame update
         void Start()
@@ -70,9 +71,9 @@ namespace UI.QuestBook {
         }
 
         // Update is called once per frame
-        void Update()
+        void Awake()
         {
-            
+            QuestBookHelper.EditMode = editMode;
         }
     }
 }

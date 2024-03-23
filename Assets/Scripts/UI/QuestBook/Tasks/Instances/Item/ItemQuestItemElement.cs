@@ -57,7 +57,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (questBookUI.EditMode) {
+                if (QuestBookHelper.EditMode) {
                     navigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
