@@ -10,13 +10,14 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private Button button;
-
+        private QuestBookLibrary library;
         private QuestBook questBook;
         private GameObject selectorGameObject;
         
-        public void init(QuestBook questBook, GameObject selectorGameObject) {
+        public void init(QuestBook questBook, GameObject selectorGameObject, QuestBookLibrary library) {
             this.questBook = questBook;
             this.selectorGameObject = selectorGameObject;
+            this.library = library;
             this.image.sprite = Resources.Load<Sprite>(questBook.SpritePath);
             this.title.text = questBook.Title;
             button.onClick.AddListener(navigatePress);
@@ -27,7 +28,7 @@ namespace UI.QuestBook {
             GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.QuestBookPrefabPath));
             QuestBookUI questBookUI = instantiated.GetComponent<QuestBookUI>();
             questBookUI.transform.SetParent(selectorGameObject.transform.parent,false);
-            questBookUI.init(questBook,selectorGameObject);
+            questBookUI.init(questBook,library,selectorGameObject);
         }
     }
 }

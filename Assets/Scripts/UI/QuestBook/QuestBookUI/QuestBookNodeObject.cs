@@ -72,7 +72,7 @@ namespace UI.QuestBook {
             GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.TaskContentPrefabPath));
             QuestBookTaskPageUI pageUI = instantiated.GetComponent<QuestBookTaskPageUI>();
             instantiated.transform.SetParent(questBookUI.transform,false);
-            pageUI.init(node.Content,questBookUI);
+            pageUI.init(node,questBookUI);
         }
     }
 }

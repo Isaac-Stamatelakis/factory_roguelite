@@ -24,11 +24,12 @@ namespace UI.QuestBook {
         public bool EditMode { get => editMode; set => editMode = value; }
         public QuestBook QuestBook { get => questBook; set => questBook = value; }
         public QuestBookPage CurrentPage { get => currentPage; set => currentPage = value; }
+        public QuestBookLibrary Library { get => library; set => library = value; }
 
         private QuestBook questBook;
         private GameObject selectorObject;
         private QuestBookPage currentPage;
-
+        private QuestBookLibrary library;
         private float minScale = 0.35f;
         private float maxScale = 3f;
         private float zoomSpeed = 0.3f;
@@ -41,9 +42,10 @@ namespace UI.QuestBook {
             }   
         }
 
-        public void init(QuestBook questBook, GameObject selectorObject) {
+        public void init(QuestBook questBook, QuestBookLibrary library, GameObject selectorObject) {
             this.questBook = questBook;
             this.selectorObject = selectorObject;
+            this.library = library;
             this.backButton.onClick.AddListener(backButtonPress);
             loadPageChapters();
             displayPageIndex(0);
@@ -85,6 +87,39 @@ namespace UI.QuestBook {
             currentPage = page;
             foreach (QuestBookNode node in page.Nodes) {
                 QuestBookUIFactory.generateNode(node,nodeContainer,this);
+            }
+            displayPrerequisites();
+        }
+
+        public void displayPrerequisites() {
+            HashSet<int> pageIds = new HashSet<int>();
+            foreach (QuestBookNode node in currentPage.Nodes) {
+                pageIds.Add(node.Id);
+            }
+            Dictionary<int, QuestBookNode> idNodeMap = library.IdNodeMap;
+            foreach (QuestBookNode questBookNode in currentPage.Nodes) {
+                foreach (int id in questBookNode.Prerequisites) {
+                    if (!pageIds.Contains(id)) {
+                        continue;
+                    }
+                    QuestBookNode otherNode = idNodeMap[id];
+                    bool discovered = questBookNode.RequireAllPrerequisites;
+                    foreach (int prereqID in questBookNode.Prerequisites) {
+                        bool preReqComplete = idNodeMap[prereqID].Content.Task.getComplete();
+                        if (questBookNode.RequireAllPrerequisites && !preReqComplete)  {
+                            discovered = false;
+                            break;
+                        }
+                        if (!questBookNode.RequireAllPrerequisites && preReqComplete) {
+                            discovered = true;
+                            break;
+                        }
+                    }
+                    if (questBookNode.Prerequisites.Count == 0) {
+                        discovered = true;
+                    }
+                    QuestBookUIFactory.generateLine(questBookNode.Position,otherNode.Position,lineContainer,discovered);
+                }
             }
         }
 

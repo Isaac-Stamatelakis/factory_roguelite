@@ -37,6 +37,9 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
                 return;
             }
+            if (this == null) {
+                return;
+            }
             itemImage.sprite = itemObject.getSprite();
             if (itemImage.sprite != null) {
                 itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);

@@ -25,7 +25,7 @@ namespace UI {
         [SerializeField] private Button deleteButton;
         [SerializeField] private Image deleteButtonPanel;
         [SerializeField] private TMP_InputField amountField;
-        private int size = 7*7;
+        private int size = 7*5;
         private float initalSize;
         private SerializedItemSlot SerializedItemSlot {get => itemSlots[index];}
         private IItemListReloadable container;
@@ -41,12 +41,29 @@ namespace UI {
             this.index = index;
             this.reloadable = reloadable;
             setImage();
-
+            
             backButton.onClick.AddListener(() => {
-                GameObject.Destroy(gameObject);
-                goBackTo.SetActive(true);
+                if (gameObject != null) {
+                    GameObject.Destroy(gameObject);
+                }
+                if (goBackTo != null) {
+                    goBackTo.SetActive(true);
+                }
+                
             });
             loadItems("");
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
+            scrollRect.verticalNormalizedPosition=1f;
+            
+            scrollRect.onValueChanged.AddListener((Vector2 value) => {
+                
+                if (value.y <= 0.05f && size < currentItems.Count) {
+                    loadOneMoreRow();
+                    Vector2 contentSize = scrollRect.content.sizeDelta;
+                    scrollRect.verticalNormalizedPosition += 100f/contentSize.y;
+                }
+            });
+            
             itemSearch.onValueChanged.AddListener((string value) => {
                 loadItems(value);
             });
@@ -95,17 +112,6 @@ namespace UI {
                 index = newIndex;
                 reloadable.reloadAll();
             });
-
-            scrollRect.onValueChanged.AddListener((Vector2 value) => {
-                Vector2 contentSize = scrollRect.content.sizeDelta;
-                if (value.y <= 85/contentSize.y && size < currentItems.Count) {
-                    contentSize.y = contentSize.y + 85;
-                    scrollRect.content.sizeDelta = contentSize;
-                    scrollRect.verticalNormalizedPosition = (170)/contentSize.y;
-                    loadOneMoreRow();
-                }
-            });
-
             deleteButton.onClick.AddListener(() =>{
                 if (timeSinceLastDeletePress <= 1f) {
                     itemSlots.RemoveAt(index);

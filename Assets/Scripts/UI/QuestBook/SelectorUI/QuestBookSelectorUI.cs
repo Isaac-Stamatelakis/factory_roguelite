@@ -62,7 +62,7 @@ namespace UI.QuestBook {
                 GameObject instantiatedBookPreview = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.BookTitlePagePrefabPath));
                 instantiatedBookPreview.transform.SetParent(layoutGroup.transform,false);
                 QuestBookPreview bookPreview = instantiatedBookPreview.GetComponent<QuestBookPreview>();
-                bookPreview.init(library.QuestBooks[i],gameObject);
+                bookPreview.init(library.QuestBooks[i],gameObject,library);
             }
         }
     }
