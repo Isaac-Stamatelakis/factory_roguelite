@@ -131,7 +131,7 @@ namespace ChunkModule.PartitionModule {
             if (tileItem.tileEntity is not ISoftLoadable) {
                 return null;
             }
-            return placeTileEntity(tileItem,options,positionInPartition);
+            return placeTileEntity(tileItem,options,positionInPartition,false);
         }
         protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y)
         {

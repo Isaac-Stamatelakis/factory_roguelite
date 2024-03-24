@@ -22,17 +22,21 @@ public static class ItemSlotHelper
                 continue;
             }
             // Success
-            int sum = inputSlot.amount + toInsert.amount;
-            if (sum > Global.MaxSize) {
-                toInsert.amount = sum - Global.MaxSize;
-                inputSlot.amount = Global.MaxSize;
-            } else {
-                inputSlot.amount = sum;
-                toInsert.amount = 0;
-            }
+            combineItems(inputSlot,toInsert);
             return true;
         }
         return false;
+    }
+
+    public static void combineItems(ItemSlot a, ItemSlot b) {
+        int sum = a.amount + b.amount;
+        if (sum > Global.MaxSize) {
+            a.amount = sum - Global.MaxSize;
+            b.amount = Global.MaxSize;
+        } else {
+            a.amount = sum;
+            b.amount = 0;
+        }
     }
 
     public static bool areEqual(ItemSlot first, ItemSlot second) {

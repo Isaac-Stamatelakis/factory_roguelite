@@ -96,6 +96,9 @@ namespace TileEntityModule.Instances.Machines {
 
         public ItemSlot extractItem(Vector2Int portPosition)
         {
+            if (inventory.ItemOutputs == null || inventory.ItemOutputs.Slots == null) {
+                return null;
+            }
             foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
                 if (itemSlot != null && itemSlot.itemObject != null) {
                     return itemSlot;
@@ -115,15 +118,26 @@ namespace TileEntityModule.Instances.Machines {
 
         public ItemSlot extractFluid(Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            if (inventory.FluidOutputs == null || inventory.FluidOutputs.Slots == null) {
+                return null;
+            }
+            foreach (ItemSlot itemSlot in inventory.FluidOutputs.Slots) {
+                if (itemSlot != null && itemSlot.itemObject != null) {
+                    return itemSlot;
+                }
+            }
+            return null;
         }
 
         public bool insertFluid(ItemSlot itemSlot,Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return false;
+            }
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
+            List<ItemSlot> inputs = inventory.ItemOutputs.Slots;
+            return true;
         }
-
-       
 
         public void insertSignal(int signal,Vector2Int portPosition)
         {
