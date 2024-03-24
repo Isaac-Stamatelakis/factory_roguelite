@@ -11,6 +11,7 @@ namespace UI.QuestBook {
     {
         [SerializeField] private Image image;
         [SerializeField] private Button button;
+        [SerializeField] private Image panel;
         private LongClickHandler  holdClickInstance;
         private QuestBookNode node;
         private QuestBookUI questBookUI;
@@ -34,19 +35,41 @@ namespace UI.QuestBook {
             
         }
 
+        public void setSelect(bool val) {
+            panel.color = val == false ? new Color(192f/255f,192f/255f,192f/255f,1f) : Color.magenta;
+        }
+
         public void longClick()
         {
-            
+            questBookUI.selectNode(this);
         }
 
         public void OnDestroy() {
             button.onClick.RemoveAllListeners();
         }
 
+        
+
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                openContent();
+                switch (questBookUI.Mode) {
+                    case QuestBookUIMode.View:
+                        openContent();
+                        break;
+                    case QuestBookUIMode.EditConnection:
+                        if (questBookUI.CurrentSelected != null && questBookUI.CurrentSelected.node.Id != node.Id) {
+                            HashSet<int> preReq = questBookUI.CurrentSelected.node.Prerequisites;
+                            if (!preReq.Contains(node.Id)) {
+                                preReq.Add(node.Id);
+                            } else {
+                                preReq.Remove(node.Id);
+                            }
+                            questBookUI.displayPrerequisites();
+                        }
+                        break;
+                }
+                
             } else if (eventData.button == PointerEventData.InputButton.Right) {
 
             }

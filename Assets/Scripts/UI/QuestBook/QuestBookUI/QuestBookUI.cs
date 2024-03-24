@@ -5,6 +5,11 @@ using UnityEngine.UI;
 using TMPro;
 
 namespace UI.QuestBook {
+
+    public enum QuestBookUIMode {
+        View,
+        EditConnection
+    }
     public class QuestBookUI : MonoBehaviour
     {
         [SerializeField] private Transform nodeContainer;
@@ -23,6 +28,8 @@ namespace UI.QuestBook {
         public QuestBook QuestBook { get => questBook; set => questBook = value; }
         public QuestBookPage CurrentPage { get => currentPage; set => currentPage = value; }
         public QuestBookLibrary Library { get => library; set => library = value; }
+        public QuestBookUIMode Mode { get => mode; set => mode = value; }
+        public QuestBookNodeObject CurrentSelected { get => selectedNode; set => selectedNode = value; }
 
         private QuestBook questBook;
         private GameObject selectorObject;
@@ -31,6 +38,8 @@ namespace UI.QuestBook {
         private float minScale = 0.35f;
         private float maxScale = 3f;
         private float zoomSpeed = 0.3f;
+        private QuestBookUIMode mode = QuestBookUIMode.View;
+        private QuestBookNodeObject selectedNode;
 
         // Start is called before the first frame update
         void Start()
@@ -65,10 +74,17 @@ namespace UI.QuestBook {
             selectorObject.SetActive(true);
             GameObject.Destroy(gameObject);
         }
+        public void selectNode(QuestBookNodeObject questBookNodeObject) {
+            if (CurrentSelected != null) {
+                CurrentSelected.setSelect(false);
+            }
+            CurrentSelected = questBookNodeObject;
+            CurrentSelected.setSelect(true);
+            
+        }
 
         public void displayPageIndex(int index) {
-            if (index < 0 || index > questBook.Pages.Count) {
-                Debug.LogError("Out of range index:" + index);
+            if (index < 0 || index >= questBook.Pages.Count) {
                 return;
             }
             displayPage(questBook.Pages[index]);
@@ -90,6 +106,7 @@ namespace UI.QuestBook {
         }
 
         public void displayPrerequisites() {
+            GlobalHelper.deleteAllChildren(lineContainer);
             HashSet<int> pageIds = new HashSet<int>();
             foreach (QuestBookNode node in currentPage.Nodes) {
                 pageIds.Add(node.Id);

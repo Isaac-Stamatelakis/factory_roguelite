@@ -9,6 +9,8 @@ namespace UI.QuestBook {
     {
         [SerializeField] private Button addNode;
         [SerializeField] private Button addChapter;
+        [SerializeField] private Button toggleConnectionMode;
+        [SerializeField] private Image toggleConnectionPanel;
         private QuestBookUI questBookUI;
         private GameObject spawnedNodeObject;
         
@@ -18,6 +20,10 @@ namespace UI.QuestBook {
             this.questBookUI = questBookUI;
             addNode.onClick.AddListener(addButtonClick);
             addChapter.onClick.AddListener(addChapterClick);
+            toggleConnectionMode.onClick.AddListener(() => {
+                questBookUI.Mode = questBookUI.Mode == QuestBookUIMode.EditConnection ? QuestBookUIMode.View : QuestBookUIMode.EditConnection;
+                toggleConnectionPanel.color = questBookUI.Mode == QuestBookUIMode.EditConnection ? new Color(1f,0f,0f,200f/255f) : new Color(0,1f,0f,200f/255f);
+            });
         }
 
         public void OnDestroy() {

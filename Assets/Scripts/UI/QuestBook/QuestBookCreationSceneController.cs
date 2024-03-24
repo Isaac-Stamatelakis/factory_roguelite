@@ -14,7 +14,7 @@ namespace UI.QuestBook {
         // Start is called before the first frame update
         void Start()
         {
-            Debug.Log("QuestBookPath: " + QuestBookHelper.DefaultQuestBookPath);
+            Debug.Log(Application.persistentDataPath);
             string json = "null";
             if (File.Exists(QuestBookHelper.DefaultQuestBookPath)) {
                 json = File.ReadAllText(QuestBookHelper.DefaultQuestBookPath);

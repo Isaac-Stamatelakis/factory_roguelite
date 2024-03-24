@@ -60,6 +60,10 @@ namespace UI.QuestBook {
                 }
                 deletionFailTime = 0f;
             });
+            editTitle.onValueChanged.AddListener((string value) => {
+                questBook.Title = value;
+                selectorUI.display();
+            });
         }
 
         public void Update() {

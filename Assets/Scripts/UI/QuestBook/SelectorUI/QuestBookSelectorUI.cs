@@ -14,7 +14,7 @@ namespace UI.QuestBook {
         [SerializeField] private GridLayoutGroup layoutGroup;
         [SerializeField] private Button addButton;
         private QuestBookLibrary library;
-        private int PageCount {get => library.QuestBooks.Count/BooksPerPage;}
+        private int PageCount {get => Mathf.CeilToInt(library.QuestBooks.Count/((float)BooksPerPage));}
         public QuestBookLibrary Library { get => library; set => library = value; }
 
         private int BooksPerPage = 3;
@@ -62,7 +62,7 @@ namespace UI.QuestBook {
             } else {
                 leftButton.gameObject.SetActive(true);
             }
-            if (page == PageCount) {
+            if (page == PageCount-1) {
                 rightButton.gameObject.SetActive(false);
             } else {
                 rightButton.gameObject.SetActive(true);
