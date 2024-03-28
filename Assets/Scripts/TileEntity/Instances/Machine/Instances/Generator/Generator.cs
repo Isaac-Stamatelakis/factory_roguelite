@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "E~New Generator", menuName = "Tile Entity/Machine/Generator")]
-    public class Generator : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class Generator : TileEntity, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         [SerializeField] public EnergyRecipeProcessor energyRecipeProcessor;
         [SerializeField] public Tier tier;
@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.Machines
             }
         }
 
-        public void onClick()   
+        public void onRightClick()   
         {
             energyRecipeProcessor.displayTileEntity(inventory,tier,energyRecipeProcessor.name,this);
         }

@@ -14,7 +14,7 @@ namespace TileEntityModule.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class ProcessingMachine : TileEntity, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         
         [SerializeField] public AggregatedPoweredMachineProcessor processor;       
@@ -34,7 +34,7 @@ namespace TileEntityModule.Instances.Machines
             }
         }
 
-        public void onClick()   
+        public void onRightClick()   
         {
             processor.displayTileEntity(inventory,tier,name,this);
         }
@@ -74,7 +74,11 @@ namespace TileEntityModule.Instances.Machines
                 inventory.Energy-=currentRecipeCost;
             }   
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut,Global.MaxSize);
+            List<ItemSlot> solidOutputs;
+            List<ItemSlot> fluidOutputs;
+            ItemSlotHelper.sortInventoryByState(recipeOut, out solidOutputs, out fluidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
+            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tier.getFluidStorage());
             currentRecipe = null;
             inventoryUpdate();
         }

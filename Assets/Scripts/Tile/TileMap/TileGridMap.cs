@@ -94,7 +94,7 @@ namespace TileMapModule {
                 return;
             }
             Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
-            TileEntity tileEntity = partition.GetTileEntity(tilePositionInPartition);
+            TileEntity tileEntity = getTileEntityAtPosition(position);
 
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
@@ -105,6 +105,14 @@ namespace TileMapModule {
             writeTile(partition,tilePositionInPartition,null);
         }
 
+        public TileEntity getTileEntityAtPosition(Vector2Int position) {
+            IChunkPartition partition = getPartitionAtPosition(position);
+            if (partition == null) {
+                return null;
+            }
+            Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
+            return partition.GetTileEntity(tilePositionInPartition);
+        }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);

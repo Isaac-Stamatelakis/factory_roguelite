@@ -11,7 +11,7 @@ using ItemModule;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Fluid Tank",menuName="Tile Entity/Storage/Fluid/Standard")]
-    public class FluidTank : TileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ILoadableTileEntity, IFluidConduitInteractable
+    public class FluidTank : TileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ILoadableTileEntity, IFluidConduitInteractable
     {
         [SerializeField] public Tier tier;
         [SerializeField] public ConduitPortLayout layout;
@@ -60,7 +60,7 @@ namespace TileEntityModule.Instances.Storage {
 
         }
 
-        public void onClick()
+        public void onRightClick()
         {
             FluidTankUI fluidTankUI = FluidTankUI.newInstance();
             fluidTankUI.init(this);
@@ -98,7 +98,7 @@ namespace TileEntityModule.Instances.Storage {
             if (!ItemSlotHelper.areEqual(itemSlot,toInsert)) {
                 return;
             }
-            ItemSlotHelper.combineItems(itemSlot,toInsert,getStorage());
+            ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,getStorage());
             updateVisual();
         }
     }

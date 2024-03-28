@@ -24,7 +24,6 @@ namespace ConduitModule.ConduitSystemModule {
             if (conduitPort == null) {
                 return;
             }
-            Debug.Log(conduitPort.GetType());
             if (conduitPort is not Port port) {
                 Debug.LogError("Item Conduit System recieved non item conduit port");
                 return;

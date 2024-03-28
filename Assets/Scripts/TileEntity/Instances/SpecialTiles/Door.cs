@@ -11,9 +11,9 @@ using TileMapModule.Type;
 namespace TileEntityModule.Instances {
 
     [CreateAssetMenu(fileName = "New Door", menuName = "Tile Entity/Door")]
-    public class Door : TileEntity, IClickableTileEntity
+    public class Door : TileEntity, IRightClickableTileEntity
     {
-        public void onClick()
+        public void onRightClick()
         {
             TileEntityHelper.stateIterate(this,2);
         }

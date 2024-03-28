@@ -11,7 +11,7 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
-    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         [SerializeField] public PassiveRecipeProcessor recipeProcessor;
         [SerializeField] public Tier tier;
@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.Machines {
             }
         }
 
-        public void onClick()   
+        public void onRightClick()   
         {
             recipeProcessor.displayTileEntity(inventory,recipeProcessor.name,this);
             

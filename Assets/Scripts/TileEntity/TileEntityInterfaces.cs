@@ -12,9 +12,15 @@ namespace TileEntityModule {
 
     
 
-    public interface IClickableTileEntity
+    public interface IRightClickableTileEntity
     {
-        public void onClick();
+        public void onRightClick();
+    }
+
+    public interface ILeftClickableTileEntity {
+        public void onLeftClick();
+        public bool canInteract();
+        public bool canBreak();
     }
 
     public interface ISoftLoadable {

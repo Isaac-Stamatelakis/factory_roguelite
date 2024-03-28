@@ -16,6 +16,7 @@ using UnityEngine.Tilemaps;
 using ConduitModule;
 using DimensionModule;
 using ItemModule;
+using TileEntityModule;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -187,6 +188,16 @@ namespace PlayerModule.Mouse {
             if (hit.collider != null) {
                 GameObject container = hit.collider.gameObject;
                 IHitableTileMap hitableTileMap = container.GetComponent<IHitableTileMap>();
+                if (hitableTileMap is TileGridMap tileGridMap) {
+                    Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
+                    TileEntity tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
+                    if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
+                        leftClickableTileEntity.onLeftClick();
+                        if (!leftClickableTileEntity.canBreak()) {
+                            return false;
+                        }
+                    }
+                }
                 if (devMode.instantBreak) {
                     hitableTileMap.deleteTile(position);
                 } else {

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace TileEntityModule.Instances {
     [CreateAssetMenu(fileName = "E~New Trap Door", menuName = "Tile Entity/Trap Door")]
-    public class TrapDoor : TileEntity, IClickableTileEntity
+    public class TrapDoor : TileEntity, IRightClickableTileEntity
     {
-        public void onClick()
+        public void onRightClick()
         {
             TileEntityHelper.stateIterate(this,1);
         }

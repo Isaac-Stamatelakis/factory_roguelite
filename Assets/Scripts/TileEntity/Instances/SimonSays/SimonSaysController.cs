@@ -11,7 +11,7 @@ using ChunkModule.ClosedChunkSystemModule;
 
 namespace TileEntityModule.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/Controller")]
-    public class SimonSaysController : TileEntity, IClickableTileEntity, ILoadableTileEntity
+    public class SimonSaysController : TileEntity, IRightClickableTileEntity, ILoadableTileEntity
     {
         [Header("The number of simon says sequences which are played")]
         [SerializeField] public int maxLength;
@@ -32,7 +32,7 @@ namespace TileEntityModule.Instances.SimonSays {
         public bool DisplayingSequence { get => displayingSequence; set => displayingSequence = value; }
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
 
-        public void onClick()
+        public void onRightClick()
         {
             bool started = coroutineController != null;
             if (!started) {

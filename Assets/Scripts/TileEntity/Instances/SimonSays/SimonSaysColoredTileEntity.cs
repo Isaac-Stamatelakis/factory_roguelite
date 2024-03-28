@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace TileEntityModule.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/ColoredTile")]
-    public class SimonSaysColoredTileEntity : TileEntity, IClickableTileEntity
+    public class SimonSaysColoredTileEntity : TileEntity, IRightClickableTileEntity
     {
         private SimonSaysController controller;
         public SimonSaysController Controller {set => controller = value;}
-        public void onClick()
+        public void onRightClick()
         {
             if (controller == null) {
                 return;

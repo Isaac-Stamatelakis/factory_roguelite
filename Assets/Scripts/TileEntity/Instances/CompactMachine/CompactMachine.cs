@@ -9,7 +9,7 @@ using DimensionModule;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
+    public class CompactMachine : TileEntity, IRightClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
@@ -48,7 +48,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             return 0;
         }
 
-        public void onClick()
+        public void onRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
                 CompactMachineHelper.teleportIntoCompactMachine(this);
