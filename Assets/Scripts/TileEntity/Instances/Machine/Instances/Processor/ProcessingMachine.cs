@@ -74,7 +74,7 @@ namespace TileEntityModule.Instances.Machines
                 inventory.Energy-=currentRecipeCost;
             }   
             List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut);
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,recipeOut,Global.MaxSize);
             currentRecipe = null;
             inventoryUpdate();
         }
@@ -124,7 +124,7 @@ namespace TileEntityModule.Instances.Machines
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot,Global.MaxSize);
         }
 
         public ItemSlot extractFluid(Vector2Int portPosition)
@@ -170,6 +170,26 @@ namespace TileEntityModule.Instances.Machines
         public RecipeProcessor getRecipeProcessor()
         {
             return processor;
+        }
+
+        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
+        }
+
+        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots, itemSlot, Global.MaxSize);
+        }
+
+        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
+        }
+
+        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots, itemSlot, tier.getFluidStorage());
         }
     }
 }

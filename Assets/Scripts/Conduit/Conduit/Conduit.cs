@@ -85,16 +85,16 @@ namespace ConduitModule {
         }
     }
 
-    public class ItemConduit : Conduit<AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>>
+    public class ItemConduit : Conduit<SolidItemConduitPort>
     {
-        public ItemConduit(int x, int y,ConduitItem conduitItem, AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> port) : base(x, y, conduitItem, port)
+        public ItemConduit(int x, int y,ConduitItem conduitItem, SolidItemConduitPort port) : base(x, y, conduitItem, port)
         {
         }
     }
 
-    public class FluidConduit : Conduit<IConduitPort>
+    public class FluidConduit : Conduit<FluidItemConduitPort>
     {
-        public FluidConduit(int x, int y, ConduitItem conduitItem, IConduitPort port) : base(x, y, conduitItem, port)
+        public FluidConduit(int x, int y, ConduitItem conduitItem, FluidItemConduitPort port) : base(x, y, conduitItem, port)
         {
         }
     }

@@ -5,7 +5,7 @@ using ConduitModule.Ports;
 
 namespace ConduitModule.ConduitSystemModule {
 
-    public class FluidConduitSystem : ItemConduitSystem<IFluidConduitInteractable, FluidFilter>
+    public class FluidConduitSystem : ItemConduitSystem<FluidItemConduitPort, FluidItemConduitInputPort, FluidItemConduitOutputPort>
     {
         public FluidConduitSystem(string id) : base(id)
         {

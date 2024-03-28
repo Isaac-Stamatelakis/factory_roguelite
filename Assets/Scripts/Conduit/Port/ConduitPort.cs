@@ -54,11 +54,11 @@ namespace ConduitModule.Ports {
     }
 
     public interface IItemConduitInteractable : IConduitInteractable {
-        public ItemSlot extractItem(Vector2Int portPosition);
-        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition);
+        
     }
     public interface ISolidItemConduitInteractable : IItemConduitInteractable {
-        
+        public ItemSlot extractSolidItem(Vector2Int portPosition);
+        public void insertSolidItem(ItemSlot itemSlot,Vector2Int portPosition);
     }
 
     public interface IEnergyConduitInteractable : IConduitInteractable {
@@ -70,7 +70,8 @@ namespace ConduitModule.Ports {
         public void insertSignal(int signal,Vector2Int portPosition);
     }
     public interface IFluidConduitInteractable : IItemConduitInteractable {
-        
+        public ItemSlot extractFluidItem(Vector2Int portPosition);
+        public void insertFluidItem(ItemSlot itemSlot,Vector2Int portPosition);
     }
 
     /// <summary>

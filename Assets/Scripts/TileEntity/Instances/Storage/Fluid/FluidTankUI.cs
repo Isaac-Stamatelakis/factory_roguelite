@@ -23,14 +23,11 @@ namespace TileEntityModule.Instances.Storage {
                 return;
             }
             image.gameObject.SetActive(true);
-            if (itemID == fluidTank.ItemSlot.itemObject.id) {
-                return;
-            } 
             image.sprite = fluidTank.ItemSlot.itemObject.getSprite();
             title.text = fluidTank.ItemSlot.itemObject.name;
-            Vector3 imagePosition = image.transform.position;
+            Vector3 imagePosition = image.transform.localPosition;
             imagePosition.y = spriteContainer.sizeDelta.y * fluidTank.FillRatio;
-            image.transform.position = imagePosition;
+            image.transform.localPosition = imagePosition;
         }
 
 

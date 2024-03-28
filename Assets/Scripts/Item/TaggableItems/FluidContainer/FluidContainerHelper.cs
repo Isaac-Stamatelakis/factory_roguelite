@@ -46,7 +46,7 @@ namespace ItemModule.Tags.FluidContainers {
                     // TODO spawn item
                         return;
                     } else {
-                        ItemSlotHelper.insertIntoInventory(inventory,empty);
+                        ItemSlotHelper.insertIntoInventory(inventory,empty,fluidContainer.getStorage());
                     }
                 }
                 
@@ -69,7 +69,7 @@ namespace ItemModule.Tags.FluidContainers {
                 grabbedItemProperties.updateSprite();
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory,newItemSlot);
+            ItemSlotHelper.insertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage());
             grabbedItemProperties.updateSprite();
         }
     }

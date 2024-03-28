@@ -7,7 +7,7 @@ using ConduitModule.Ports;
 
 namespace ConduitModule.ConduitSystemModule {
 
-    public class SolidItemConduitSystem : ItemConduitSystem<ISolidItemConduitInteractable, ItemFilter>
+    public class SolidItemConduitSystem : ItemConduitSystem<SolidItemConduitPort, SolidItemConduitInputPort, SolidItemConduitOutputPort>
     {
         public SolidItemConduitSystem(string id) : base(id)
         {

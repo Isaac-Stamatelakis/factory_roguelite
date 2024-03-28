@@ -17,7 +17,7 @@ namespace TileEntityModule.Instances.Storage {
         [SerializeField] public ConduitPortLayout layout;
         private ItemSlot itemSlot;
         public int FillAmount {get => itemSlot.amount;}
-        public float FillRatio {get => FillAmount/getStorage();}
+        public float FillRatio {get => ((float)FillAmount)/getStorage();}
         public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
         private SpriteRenderer visualElement;
 
@@ -47,13 +47,17 @@ namespace TileEntityModule.Instances.Storage {
             if (visualElement == null) {
                 return;
             }
-            if (itemSlot.itemObject == null) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
                 visualElement.gameObject.SetActive(false);
                 return;
             }
             visualElement.gameObject.SetActive(true);
             visualElement.sprite = itemSlot.itemObject.getSprite();
-            visualElement.transform.localScale = ItemSlotUIFactory.getItemScale(visualElement.sprite);
+            float height = FillRatio*0.5f;
+            visualElement.transform.localScale = new Vector3(0.5f,height,1);
+            Vector2 position = getWorldPosition();
+            visualElement.transform.position = new Vector3(position.x,position.y-0.25f+height/2,1.5f);
+
         }
 
         public void onClick()
@@ -78,15 +82,14 @@ namespace TileEntityModule.Instances.Storage {
             this.itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
         }
 
-        public ItemSlot extractItem(Vector2Int portPosition)
+        public ItemSlot extractFluidItem(Vector2Int portPosition)
         {
             updateVisual();
             return itemSlot;
         }
 
-        public void insertItem(ItemSlot toInsert, Vector2Int portPosition)
+        public void insertFluidItem(ItemSlot toInsert, Vector2Int portPosition)
         {
-            Debug.Log(toInsert.itemObject.name);
             if (itemSlot == null || itemSlot.itemObject == null) {
                 itemSlot = ItemSlotFactory.copy(toInsert);
                 toInsert.amount = 0;
@@ -95,7 +98,7 @@ namespace TileEntityModule.Instances.Storage {
             if (!ItemSlotHelper.areEqual(itemSlot,toInsert)) {
                 return;
             }
-            ItemSlotHelper.combineItems(itemSlot,toInsert);
+            ItemSlotHelper.combineItems(itemSlot,toInsert,getStorage());
             updateVisual();
         }
     }

@@ -5,8 +5,10 @@ using ItemModule.Tags;
 
 public static class ItemSlotHelper
 {
-    public static bool insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert) {
-        
+    public static bool insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, int maxSize) {
+        if (contained == null) {
+            return false;
+        }
         for (int i = 0; i < contained.Count; i++) {
             ItemSlot inputSlot = contained[i];
             if (inputSlot == null || inputSlot.itemObject == null) {
@@ -18,24 +20,33 @@ public static class ItemSlotHelper
                 continue;
             }
             
-            if (inputSlot.amount >= Global.MaxSize) {
+            if (inputSlot.amount >= maxSize) {
                 continue;
             }
             // Success
-            combineItems(inputSlot,toInsert);
+            combineItems(inputSlot,toInsert,maxSize);
             return true;
         }
         return false;
     }
 
-    public static void combineItems(ItemSlot a, ItemSlot b) {
-        int sum = a.amount + b.amount;
-        if (sum > Global.MaxSize) {
-            a.amount = sum - Global.MaxSize;
-            b.amount = Global.MaxSize;
+    public static ItemSlot extractFromInventory(List<ItemSlot> inventory) {
+        foreach (ItemSlot itemSlot in inventory) {
+            if (itemSlot != null && itemSlot.itemObject != null) {
+                return itemSlot;
+            }
+        }
+        return null;
+    }
+
+    public static void combineItems(ItemSlot toCombineInto, ItemSlot toTakeFrom, int size) {
+        int sum = toCombineInto.amount + toTakeFrom.amount;
+        if (sum > size) {
+            toCombineInto.amount = size;
+            toTakeFrom.amount = sum-size;
         } else {
-            a.amount = sum;
-            b.amount = 0;
+            toCombineInto.amount = sum;
+            toTakeFrom.amount = 0;
         }
     }
 
@@ -108,7 +119,7 @@ public static class ItemSlotHelper
         return inventory; 
     }
  
-    public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList) {
+    public static void insertListIntoInventory(List<ItemSlot> inventory, List<ItemSlot> insertList, int maxSize) {
         if (inventory == null) {
             return;
         }
@@ -116,7 +127,7 @@ public static class ItemSlotHelper
         while (n < insertList.Count) {
             ItemSlot outputItem = insertList[n];
 
-            bool inserted = insertIntoInventory(inventory,outputItem);
+            bool inserted = insertIntoInventory(inventory,outputItem,maxSize);
             
             if (outputItem.amount == 0 || !inserted) { 
                 n ++;
@@ -140,7 +151,6 @@ public static class ItemSlotHelper
             inputSlot.amount = sum;
             toInsert.amount = 0;
         }
-        return;
     }
 
     public static void sortInventoryByState(List<ItemSlot> inputs,out List<ItemSlot> solidRecipeInputs,out List<ItemSlot> fluidRecipeInputs) {

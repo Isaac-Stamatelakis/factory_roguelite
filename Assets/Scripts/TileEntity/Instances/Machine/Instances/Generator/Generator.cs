@@ -108,53 +108,10 @@ namespace TileEntityModule.Instances.Machines
             return conduitLayout;
         }
 
-        public ItemSlot extractItem(Vector2Int portPosition)
-        {
-            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
-                if (itemSlot != null && itemSlot.itemObject != null) {
-                    return itemSlot;
-                }
-            }
-            return null;
-        }
 
-        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
+        public void insertSolidItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
-            List<ItemSlot> inputs = inventory.ItemInputs.Slots;
-            for (int i = 0; i < inputs.Count; i++) {
-                ItemSlot inputSlot = inputs[i];
-                if (inputSlot == null || inputSlot.itemObject == null) {
-                    inputs[i] = new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
-                    itemSlot.amount=0;
-                    return;
-                }
-                if (inputSlot.itemObject.id != itemSlot.itemObject.id) {
-                    continue;
-                }
-                if (inputSlot.amount >= Global.MaxSize) {
-                    continue;
-                }
-                // Success
-                int sum = inputSlot.amount + itemSlot.amount;
-                if (sum > Global.MaxSize) {
-                    itemSlot.amount = sum - Global.MaxSize;
-                    inputSlot.amount = Global.MaxSize;
-                } else {
-                    inputSlot.amount = sum;
-                    itemSlot.amount = 0;
-                }
-                return;
-            }
-        }
-
-        public ItemSlot extractFluid(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool insertFluid(ItemSlot itemSlot,Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot,Global.MaxSize);
         }
 
         public int insertEnergy(int insertEnergy,Vector2Int portPosition)
@@ -185,6 +142,22 @@ namespace TileEntityModule.Instances.Machines
         public RecipeProcessor getRecipeProcessor()
         {
             return energyRecipeProcessor;
+        }
+
+        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
+        }
+
+        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
+            
+        }
+
+        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots,itemSlot,tier.getFluidStorage());
         }
     }
 }

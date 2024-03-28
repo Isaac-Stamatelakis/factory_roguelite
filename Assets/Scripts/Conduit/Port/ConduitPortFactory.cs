@@ -13,7 +13,8 @@ namespace ConduitModule.Ports {
             }
             switch (conduitType) {
                 case ConduitType.Item:
-                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = JsonConvert.DeserializeObject<AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>>(data);
+                    SolidItemConduitPort itemConduitPort = JsonConvert.DeserializeObject<SolidItemConduitPort>(data);
+                    
                     if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
                         return null;
                     }
@@ -28,7 +29,7 @@ namespace ConduitModule.Ports {
                     }
                     return itemConduitPort;
                 case ConduitType.Fluid:
-                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = JsonConvert.DeserializeObject<AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>>(data);
+                    FluidItemConduitPort fluidConduitPort = JsonConvert.DeserializeObject<FluidItemConduitPort>(data);
                     if (tileEntity is not IFluidConduitInteractable fluidConduitInteractable) {
                         return null;
                     }
@@ -94,29 +95,29 @@ namespace ConduitModule.Ports {
                     if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
                         return null;
                     }
-                    ItemConduitInputPort<ISolidItemConduitInteractable,ItemFilter> itemInputPort = null;
-                    ItemConduitOutputPort<ISolidItemConduitInteractable,ItemFilter> itemOutputPort = null;
+                    SolidItemConduitInputPort itemInputPort = null;
+                    SolidItemConduitOutputPort itemOutputPort = null;
                     if (portType == EntityPortType.All || portType == EntityPortType.Input) {
-                        itemInputPort = new ItemConduitInputPort<ISolidItemConduitInteractable,ItemFilter>(itemConduitInteractable);
+                        itemInputPort = new SolidItemConduitInputPort(itemConduitInteractable);
                     }
                     if (portType == EntityPortType.All || portType == EntityPortType.Output) {
-                        itemOutputPort = new ItemConduitOutputPort<ISolidItemConduitInteractable,ItemFilter>(itemConduitInteractable);
+                        itemOutputPort = new SolidItemConduitOutputPort(itemConduitInteractable);
                     }   
-                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = new AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>(itemInputPort,itemOutputPort);
+                    SolidItemConduitPort itemConduitPort = new SolidItemConduitPort(itemInputPort,itemOutputPort);
                     return itemConduitPort;
                 case ConduitType.Fluid:
                     if (tileEntity is not IFluidConduitInteractable fluidConduitInteractable) {
                         return null;
                     }
-                    ItemConduitInputPort<IFluidConduitInteractable,FluidFilter> fluidInputPort = null;
-                    ItemConduitOutputPort<IFluidConduitInteractable,FluidFilter> fluidOutputPort = null;
+                    FluidItemConduitInputPort fluidInputPort = null;
+                    FluidItemConduitOutputPort fluidOutputPort = null;
                     if (portType == EntityPortType.All || portType == EntityPortType.Input) {
-                        fluidInputPort = new ItemConduitInputPort<IFluidConduitInteractable,FluidFilter>(fluidConduitInteractable);
+                        fluidInputPort = new FluidItemConduitInputPort(fluidConduitInteractable);
                     }
                     if (portType == EntityPortType.All || portType == EntityPortType.Output) {
-                        fluidOutputPort = new ItemConduitOutputPort<IFluidConduitInteractable,FluidFilter>(fluidConduitInteractable);
+                        fluidOutputPort = new FluidItemConduitOutputPort(fluidConduitInteractable);
                     }   
-                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = new AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>(fluidInputPort,fluidOutputPort);
+                    FluidItemConduitPort fluidConduitPort = new FluidItemConduitPort(fluidInputPort,fluidOutputPort);
                     return fluidConduitPort;
                 case ConduitType.Energy:
                     if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {

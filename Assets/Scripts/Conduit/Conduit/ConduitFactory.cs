@@ -28,14 +28,14 @@ namespace ConduitModule {
                         x: cellPosition.x,
                         y: cellPosition.y,
                         conduitItem: conduitItem,
-                        port: (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>) port
+                        port: (SolidItemConduitPort) port
                     );
                 case ConduitType.Fluid:
                     return new FluidConduit(
                         x: cellPosition.x,
                         y: cellPosition.y,
                         conduitItem: conduitItem,
-                        port: port
+                        port: (FluidItemConduitPort) port
                     );
                 case ConduitType.Energy:
                     return new EnergyConduit(
@@ -64,7 +64,7 @@ namespace ConduitModule {
             ConduitType conduitType = conduitItem.getType();
             switch (conduitType) {
                 case ConduitType.Item:
-                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new ItemConduit(
                         x: x,
                         y: y,
@@ -72,7 +72,7 @@ namespace ConduitModule {
                         port: itemConduitPort
                     );
                 case ConduitType.Fluid:
-                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = (AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new FluidConduit(
                         x: x,
                         y: y,

@@ -7,9 +7,10 @@ using ConduitModule.Ports;
 
 namespace ConduitModule.ConduitSystemModule {
     
-    public abstract class ItemConduitSystem<Interactable, Filter> : ConduitSystem<ItemConduitInputPort<Interactable,Filter>, ItemConduitOutputPort<Interactable,Filter>>
-        where Interactable : IItemConduitInteractable
-        where Filter : IFilter
+    public abstract class ItemConduitSystem<Port, InputPort, OutputPort> : ConduitSystem<InputPort,OutputPort>
+        where Port : IConduitPort
+        where InputPort : IItemConduitInputPort
+        where OutputPort : IItemConduitOutputPort
     {
         
         public ItemConduitSystem(string id) : base(id)
@@ -23,30 +24,31 @@ namespace ConduitModule.ConduitSystemModule {
             if (conduitPort == null) {
                 return;
             }
-            if (conduitPort is not AbstractItemConduitPort<Interactable,Filter> itemPort) {
+            Debug.Log(conduitPort.GetType());
+            if (conduitPort is not Port port) {
                 Debug.LogError("Item Conduit System recieved non item conduit port");
                 return;
             }
-            object input = itemPort.getInputPort();
+            object input = port.getInputPort();
             if (input != null) {
-                addInputPort((ItemConduitInputPort<Interactable,Filter>) itemPort.getInputPort());
+                addInputPort((InputPort) port.getInputPort());
             } 
-            object output = itemPort.GetOutputPort();
+            object output = port.GetOutputPort();
             if (output != null) {
-                addOutputPort((ItemConduitOutputPort<Interactable,Filter>) itemPort.GetOutputPort());
+                addOutputPort((OutputPort) port.GetOutputPort());
             }
         }
 
-        public override void iterateTickUpdate(ItemConduitOutputPort<Interactable, Filter> outputPort, List<ItemConduitInputPort<Interactable, Filter>> inputPorts)
+        public override void iterateTickUpdate(OutputPort outputPort, List<InputPort> inputPorts)
         {
             ItemSlot toInsert = outputPort.extract();
             if (toInsert == null) {
                 return;
             }
-            int amount = Mathf.Min(toInsert.amount,outputPort.extractAmount);
+            int amount = Mathf.Min(toInsert.amount,outputPort.getExtractAmount());
             ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,tags: toInsert.tags);
-            foreach (ItemConduitInputPort<Interactable,Filter> itemConduitInputPort in inputPorts) {
-                if (itemConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
+            foreach (IItemConduitInputPort itemConduitInputPort in inputPorts) {
+                if (itemConduitInputPort.getTileEntity().Equals(outputPort.getTileEntity())) {
                     continue;
                 }
                 itemConduitInputPort.insert(tempItemSlot);
@@ -66,10 +68,10 @@ namespace ConduitModule.ConduitSystemModule {
             }
         }
 
-        protected override void addInputPortPostProcessing(ItemConduitInputPort<Interactable,Filter> inputPort)
+        protected override void addInputPortPostProcessing(InputPort inputPort)
         {
-            List<ItemConduitInputPort<Interactable,Filter>> prioritySortedPorts = ColoredInputPorts[inputPort.color];
-            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<ItemConduitInputPort<Interactable,Filter>>.Create((p1, p2) => p2.priority.CompareTo(p1.priority)));
+            List<InputPort> prioritySortedPorts = ColoredInputPorts[inputPort.getColor()];
+            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<InputPort>.Create((p1, p2) => p2.getPriority().CompareTo(p1.getPriority())));
             if (index < 0) {
                 // If negative, binary search couldn't find place, use bitwise complement
                 index = ~index;

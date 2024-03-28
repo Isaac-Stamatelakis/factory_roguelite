@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         private ItemSlot itemSlot;
         private CompactMachine compactMachine;
 
-        public ItemSlot extractItem(Vector2Int portPosition)
+        public ItemSlot extractSolidItem(Vector2Int portPosition)
         {
             return itemSlot;
         }
@@ -23,7 +23,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             return conduitPortLayout;
         }
 
-        public void insertItem(ItemSlot toInsert,Vector2Int portPosition)
+        public void insertSolidItem(ItemSlot toInsert,Vector2Int portPosition)
         {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 itemSlot = ItemSlotFactory.copy(toInsert);
