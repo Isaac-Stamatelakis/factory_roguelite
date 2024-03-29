@@ -8,7 +8,7 @@ using System.IO;
 public class RandomTileGenerator : EditorWindow {
     private string tileName;
     private Texture2D texture;
-    [MenuItem("Tools/Item Constructors/Tile/Standard/Random")]
+    [MenuItem("Tools/Item Constructors/Tile/Random")]
     public static void ShowWindow()
     {
         RandomTileGenerator window = (RandomTileGenerator)EditorWindow.GetWindow(typeof(RandomTileGenerator));

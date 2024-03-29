@@ -99,6 +99,9 @@ public static class ItemSlotHelper
     }
 
     public static bool canInsertIntoSlot(ItemSlot itemSlot, ItemSlot toInsert, int maxAmount) {
+        if (toInsert == null || toInsert.itemObject == null) {
+            return false;
+        }
         if (itemSlot == null || itemSlot.itemObject == null) {
             return true;
         }

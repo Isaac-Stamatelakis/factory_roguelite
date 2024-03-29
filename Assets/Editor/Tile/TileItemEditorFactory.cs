@@ -5,7 +5,10 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
-
+ public enum TileColliderType {
+    Tile,
+    Sprite
+}
 public static class TileItemEditorFactory
 {
     public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntity tileEntity = null) {
@@ -30,7 +33,7 @@ public static class TileItemEditorFactory
             idTile.setID(tileItem.id);
         }
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
-        Debug.Log("Background Tile Created at Path: " + path);
+        Debug.Log("Tile Created at Path: " + path);
     }
 
     public static void createDirectory(string tileName, string savePath = "Assets/EditorCreations/") {
@@ -46,14 +49,20 @@ public static class TileItemEditorFactory
         AssetDatabase.CreateAsset(tileBase, savePath + "T~" +tileName + addition + ".asset");
     }
 
+
     public static void saveTileEntity(TileEntity tileEntity, string tileName, string path = "Assets/EditorCreations/") {
         string savePath = path + tileName + "/";
         AssetDatabase.CreateAsset(tileEntity, savePath + "E~" +tileName + ".asset");
     }
-    public static StandardTile standardTileCreator(Sprite sprite) {
+    public static StandardTile standardTileCreator(Sprite sprite,TileColliderType colliderType) {
         StandardTile tile = ScriptableObject.CreateInstance<StandardTile>();
         tile.sprite = sprite;
-        tile.colliderType = Tile.ColliderType.Grid;
+        if (colliderType == TileColliderType.Tile) {
+            tile.colliderType = Tile.ColliderType.Grid;
+        } else if (colliderType == TileColliderType.Sprite) {
+            tile.colliderType = Tile.ColliderType.Sprite;
+        }
+        
         Vector2Int spriteSize = Global.getSpriteSize(sprite);
         Matrix4x4 tileTransform = tile.transform;
         if (spriteSize.x % 2 == 0) {

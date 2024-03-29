@@ -18,6 +18,7 @@ namespace TileEntityModule.Instances.Storage {
 
         public ItemSlot extractSolidItem(Vector2Int portPosition)
         {
+            loadVisual();
             return itemSlot;
         }
 
@@ -28,7 +29,18 @@ namespace TileEntityModule.Instances.Storage {
 
         public void insertSolidItem(ItemSlot insert, Vector2Int portPosition)
         {
-            ItemSlotHelper.insertIntoSlot(itemSlot, insert, maxStacks * Global.MaxSize);
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                itemSlot = ItemSlotFactory.copy(insert);
+                insert.amount = 0;
+                insert.itemObject = null;
+                loadVisual();
+                return;
+            }
+            if (ItemSlotHelper.canInsertIntoSlot(itemSlot,insert,maxStacks*Global.MaxSize)) {
+                ItemSlotHelper.insertIntoSlot(itemSlot, insert, maxStacks * Global.MaxSize);
+                loadVisual();
+            }
+            
         }
 
         public void load()
@@ -148,7 +160,7 @@ namespace TileEntityModule.Instances.Storage {
             if (!canInteract()) {
                 return false;
             }
-            return itemSlot == null;
+            return itemSlot == null || itemSlot.itemObject==null;
         }
     }
 }

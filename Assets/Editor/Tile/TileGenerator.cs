@@ -7,9 +7,10 @@ using System.IO;
 
 public class TileGeneratorWindow : EditorWindow {
     private Sprite sprite;
+    private TileColliderType colliderType;
     private string tileName;
     private string path;
-    [MenuItem("Tools/Item Constructors/Tile/Standard/Tile")]
+    [MenuItem("Tools/Item Constructors/Tile/Standard")]
     public static void ShowWindow()
     {
         TileGeneratorWindow window = (TileGeneratorWindow)EditorWindow.GetWindow(typeof(TileGeneratorWindow));
@@ -31,6 +32,15 @@ public class TileGeneratorWindow : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Collider:", GUILayout.Width(70));
+        
+        colliderType = (TileColliderType)EditorGUILayout.EnumPopup(colliderType);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
+        
         if (GUILayout.Button("Generate Tile Item"))
         {
             createTileItem();
@@ -39,7 +49,7 @@ public class TileGeneratorWindow : EditorWindow {
 
     void createTileItem()
     {
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite);
+        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,colliderType);
         TileItemEditorFactory.generateTileItem(tileName,tile,TileType.Block);
         TileItemEditorFactory.saveTile(tile,tileName);
         

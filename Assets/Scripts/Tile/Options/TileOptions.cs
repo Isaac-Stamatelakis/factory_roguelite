@@ -29,10 +29,12 @@ namespace Tiles {
     public struct SerializedTileOptions {
         public int rotation;
         public int state;
+        public bool mirror;
         [JsonConstructor]
-        public SerializedTileOptions(int rotation, int state) {
+        public SerializedTileOptions(int rotation, int state, bool mirror) {
             this.rotation = rotation;
             this.state = state;
+            this.mirror = mirror;
         }
     }
     [System.Serializable]
@@ -80,6 +82,7 @@ namespace Tiles {
                 );
             }
             try {
+                SerializedTileOptions serializedTileOptions = JsonConvert.DeserializeObject<SerializedTileOptions>(data);
                 return new TileOptions(
                     tileItem.tileOptions.StaticOptions,
                     tileItem.tileOptions.DynamicTileOptions,

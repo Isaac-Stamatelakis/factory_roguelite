@@ -92,6 +92,7 @@ namespace WorldModule {
             );
         }
         public static WorldTileData prefabToWorldTileData(GameObject prefab, CaveArea caveArea) {
+            /*
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             int width = (Mathf.Abs(caveArea.xInterval.y-caveArea.xInterval.x)+1) * Global.ChunkSize;
@@ -104,6 +105,8 @@ namespace WorldModule {
                 baseData,
                 backgroundData
             );
+            */
+            return null;
         }
 
         public static IntervalVector getTileMapChunkBounds(GameObject prefab) {
