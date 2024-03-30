@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ConduitModule.Ports;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
 
     public class FluidConduitSystem : ItemConduitSystem<FluidItemConduitPort, FluidItemConduitInputPort, FluidItemConduitOutputPort>
     {

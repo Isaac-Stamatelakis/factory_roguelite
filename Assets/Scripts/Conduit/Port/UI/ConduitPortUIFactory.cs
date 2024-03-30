@@ -8,7 +8,7 @@ using TMPro;
 namespace ConduitModule.Ports {
     public class ConduitPortUIFactory
     {
-        public static GameObject getUI(IConduit conduit, ConduitType conduitType, EntityPortType portType) {
+        public static GameObject getUI(IPortConduit conduit, ConduitType conduitType, EntityPortType portType) {
 
             // Base prefab which is used on all ports
             GameObject prefab = Resources.Load<GameObject>("Prefabs/Ports/BasePort");

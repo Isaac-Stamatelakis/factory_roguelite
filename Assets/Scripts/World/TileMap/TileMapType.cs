@@ -16,6 +16,7 @@ namespace TileMapModule.Type {
         FluidConduit,
         EnergyConduit,
         SignalConduit,
+        MatrixConduit
     }
 
     public static class TileMapTypeExtension {
@@ -128,6 +129,8 @@ namespace TileMapModule.Type {
                     return true;
                 case TileMapType.SignalConduit:
                     return true;
+                case TileMapType.MatrixConduit:
+                    return true;
                 default:
                     return false;
             }
@@ -143,6 +146,8 @@ namespace TileMapModule.Type {
                     return ConduitType.Energy;
                 case TileMapType.SignalConduit:
                     return ConduitType.Signal;
+                case TileMapType.MatrixConduit:
+                    return ConduitType.Matrix;
                 default:
                     Debug.LogError("Invalid tilemap type provided for converting to conduitytpe");
                     return ConduitType.Item;
@@ -164,6 +169,8 @@ namespace TileMapModule.Type {
                     return 1;
                 case TileMapType.ClimableObject:
                     return 1;
+                case TileMapType.MatrixConduit:
+                    return 1.05f;
                 case TileMapType.ItemConduit:
                     return 1.1f;
                 case TileMapType.FluidConduit:
@@ -172,6 +179,7 @@ namespace TileMapModule.Type {
                     return 1.5f;
                 case TileMapType.SignalConduit:
                     return 1.75f;
+
                 default:
                     return 9999;
             }

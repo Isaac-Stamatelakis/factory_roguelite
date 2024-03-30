@@ -86,7 +86,10 @@ namespace ConduitModule.Ports {
             if (conduit == null) {
                 return null;
             }
-            return JsonConvert.SerializeObject(conduit.getPort());
+            if (conduit is not IPortConduit portConduit) {
+                return null;
+            }
+            return JsonConvert.SerializeObject(portConduit.getPort());
         }
 
         public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, TileEntity tileEntity, ConduitItem conduitItem) {

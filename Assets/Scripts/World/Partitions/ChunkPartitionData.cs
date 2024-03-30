@@ -23,6 +23,7 @@ public class WorldTileConduitData : WorldTileData
     public SeralizedChunkConduitData fluidConduitData;
     public SeralizedChunkConduitData energyConduitData;
     public SeralizedChunkConduitData signalConduitData;
+    public SeralizedChunkConduitData matrixConduitData;
     public WorldTileConduitData(
         List<EntityData> entityData, 
         SerializedBaseTileData baseData, 
@@ -30,13 +31,15 @@ public class WorldTileConduitData : WorldTileData
         SeralizedChunkConduitData itemConduitData,
         SeralizedChunkConduitData fluidConduitData,
         SeralizedChunkConduitData energyConduitData,
-        SeralizedChunkConduitData signalConduitData
+        SeralizedChunkConduitData signalConduitData,
+        SeralizedChunkConduitData matrixConduitData
         ) : base(entityData, baseData, backgroundData)
     {
         this.itemConduitData = itemConduitData;
         this.fluidConduitData = fluidConduitData;
         this.energyConduitData = energyConduitData;
         this.signalConduitData = signalConduitData;
+        this.matrixConduitData = matrixConduitData;
     }
 }
 [System.Serializable]
@@ -53,4 +56,5 @@ public class SerializedTileConduitData : SerializedTileData {
     public SeralizedChunkConduitData fluidConduitData;
     public SeralizedChunkConduitData energyConduitData;
     public SeralizedChunkConduitData signalConduitData;
+    public SeralizedChunkConduitData matrixConduitData;
 }

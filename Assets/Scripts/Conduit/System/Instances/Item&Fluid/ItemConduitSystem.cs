@@ -5,7 +5,7 @@ using System.Linq;
 using ConduitModule;
 using ConduitModule.Ports;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
 
     public class SolidItemConduitSystem : ItemConduitSystem<SolidItemConduitPort, SolidItemConduitInputPort, SolidItemConduitOutputPort>
     {

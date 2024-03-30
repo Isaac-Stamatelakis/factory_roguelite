@@ -23,6 +23,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 TileMapType.FluidConduit,
                 TileMapType.SignalConduit,
                 TileMapType.EnergyConduit,
+                TileMapType.MatrixConduit
             };
         }
     }

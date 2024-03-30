@@ -4,7 +4,7 @@ using UnityEngine;
 using ChunkModule.PartitionModule;
 using TileMapModule.Layer;
 using ConduitModule.Ports;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 
 namespace ConduitModule {
     public interface IConduit {
@@ -14,20 +14,23 @@ namespace ConduitModule {
         public void setX(int val);
         public void setY(int val);
         public ConduitItem getConduitItem();
-        public IConduitPort getPort();
-        public void setPort(IConduitPort port);
         public string getId();
         public void setConduitSystem(IConduitSystem conduitSystem);
         public IConduitSystem getConduitSystem();
     }
-    public abstract class Conduit<Port> : IConduit where Port : IConduitPort
+
+    public interface IPortConduit : IConduit {
+        public IConduitPort getPort();
+        public void setPort(IConduitPort port);
+    }
+    public abstract class PortConduit<Port> : IPortConduit where Port : IConduitPort
     {
         private int x;
         private int y;
         private ConduitItem conduitItem;
         private Port port;
         private IConduitSystem conduitSystem;
-        public Conduit(int x, int y,  ConduitItem conduitItem, Port port) {
+        public PortConduit(int x, int y,  ConduitItem conduitItem, Port port) {
             this.x = x;
             this.y = y;
             this.conduitItem = conduitItem;
@@ -84,27 +87,27 @@ namespace ConduitModule {
         }
     }
 
-    public class ItemConduit : Conduit<SolidItemConduitPort>
+    public class ItemConduit : PortConduit<SolidItemConduitPort>
     {
         public ItemConduit(int x, int y,ConduitItem conduitItem, SolidItemConduitPort port) : base(x, y, conduitItem, port)
         {
         }
     }
 
-    public class FluidConduit : Conduit<FluidItemConduitPort>
+    public class FluidConduit : PortConduit<FluidItemConduitPort>
     {
         public FluidConduit(int x, int y, ConduitItem conduitItem, FluidItemConduitPort port) : base(x, y, conduitItem, port)
         {
         }
     }
 
-    public class SignalConduit : Conduit<IConduitPort>
+    public class SignalConduit : PortConduit<IConduitPort>
     {
         public SignalConduit(int x, int y, ConduitItem conduitItem, IConduitPort port) : base(x, y, conduitItem, port)
         {
         }
     }
-    public class EnergyConduit : Conduit<IConduitPort>
+    public class EnergyConduit : PortConduit<IConduitPort>
     {
         public EnergyConduit(int x, int y, ConduitItem conduitItem, IConduitPort port) : base(x, y, conduitItem, port)
         {

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using ChunkModule.PartitionModule;
 using TileMapModule.Type;
 

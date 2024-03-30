@@ -74,6 +74,10 @@ namespace ConduitModule.Ports {
         public void insertFluidItem(ItemSlot itemSlot,Vector2Int portPosition);
     }
 
+    public interface IMatrixConduitInteractable : IConduitInteractable {
+        
+    }
+
     /// <summary>
     /// Can't be a dictionary as they cannot be serialized
     /// </summary>

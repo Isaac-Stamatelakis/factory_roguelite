@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using TileMapModule.Type;
 using ConduitModule;
 using TileEntityModule;
@@ -111,6 +111,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             initConduitSystemManager(TileMapType.FluidConduit);
             initConduitSystemManager(TileMapType.EnergyConduit);
             initConduitSystemManager(TileMapType.SignalConduit);
+            initConduitSystemManager(TileMapType.MatrixConduit);
         }
 
         private void initConduitSystemManager(TileMapType conduitMapType) {

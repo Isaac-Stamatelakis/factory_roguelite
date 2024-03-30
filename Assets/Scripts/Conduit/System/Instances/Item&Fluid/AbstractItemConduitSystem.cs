@@ -5,9 +5,9 @@ using System.Linq;
 using ConduitModule;
 using ConduitModule.Ports;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
     
-    public abstract class ItemConduitSystem<Port, InputPort, OutputPort> : ConduitSystem<InputPort,OutputPort>
+    public abstract class ItemConduitSystem<Port, InputPort, OutputPort> : PortConduitSystem<InputPort,OutputPort>
         where Port : IConduitPort
         where InputPort : IItemConduitInputPort
         where OutputPort : IItemConduitOutputPort
@@ -18,7 +18,7 @@ namespace ConduitModule.ConduitSystemModule {
             
         }
 
-        public override void addPort(IConduit conduit)
+        public override void addPort(IPortConduit conduit)
         {
             IConduitPort conduitPort = conduit.getPort();
             if (conduitPort == null) {

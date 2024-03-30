@@ -5,7 +5,7 @@ using System.Linq;
 using ConduitModule.Ports;
 using TileEntityModule;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
 
     public interface IConduitSystemManager {
 
@@ -46,14 +46,20 @@ namespace ConduitModule.ConduitSystemModule {
             if (conduit == null) {
                 return null;
             }
-            return conduit.getPort();
+            if (conduit is not IPortConduit portConduit) {
+                return null;
+            }
+            return portConduit.getPort();
         }
         public IConduit getConduitWithPort(Vector2Int position) {
             IConduit conduit = getConduitCellPosition(position);
             if (conduit == null) {
                 return null;
             }
-            if (conduit.getPort() == null) {
+            if (conduit is not IPortConduit portConduit) {
+                return null;
+            }
+            if (portConduit.getPort() == null) {
                 return null;
             }
             return conduit;
@@ -87,6 +93,9 @@ namespace ConduitModule.ConduitSystemModule {
                 case ConduitType.Signal:
                     chunkConduitPorts[tileEntity] = layout.signalPorts;
                     break;
+                case ConduitType.Matrix:
+                    chunkConduitPorts[tileEntity] = layout.matrixPorts;
+                    break;
             }
             foreach (TileEntityPort port in chunkConduitPorts[tileEntity]) {
                 Vector2Int position = port.position + tileEntity.getCellPosition() - referencePosition;
@@ -97,7 +106,10 @@ namespace ConduitModule.ConduitSystemModule {
                 if (conduit == null) {
                     continue;
                 }
-                conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
+                if (conduit is not IPortConduit portConduit) {
+                    continue;
+                }
+                portConduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
                 conduit.getConduitSystem().rebuild();
             }
         }
@@ -107,7 +119,6 @@ namespace ConduitModule.ConduitSystemModule {
                 if (kvp.Key.getCellPosition() == position) {
                     foreach (TileEntityPort port in chunkConduitPorts[kvp.Key]) {
                         Vector2Int portPosition = port.position + position-referencePosition;
-                        
                         if (!inBounds(portPosition)) {
                             continue;
                         }
@@ -115,11 +126,14 @@ namespace ConduitModule.ConduitSystemModule {
                         if (conduit == null) {
                             continue;
                         }
-                        IConduitPort conduitPort = conduit.getPort();
+                        if (conduit is not IPortConduit portConduit) {
+                            continue;
+                        }
+                        IConduitPort conduitPort = portConduit.getPort();
                         if (conduitPort == null) {
                             continue;
                         }
-                        conduit.setPort(null);
+                        portConduit.setPort(null);
                         conduit.getConduitSystem().rebuild();
                     }
                     tileEntityConduitPorts.Remove(kvp.Key);
@@ -144,7 +158,6 @@ namespace ConduitModule.ConduitSystemModule {
                 }
                 return;
             }
-            IConduitPort conduitPort = conduit.getPort();
             conduit.setX(x);
             conduit.setY(y);
             conduits[x,y] = conduit;

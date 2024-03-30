@@ -14,7 +14,6 @@ namespace ConduitModule {
             if (conduitItem == null) {
                 return null;
             }
-            
             ConduitType conduitType = conduitItem.getType();
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
             if (tileEntity != null && port != null) {
@@ -51,6 +50,12 @@ namespace ConduitModule {
                         conduitItem: conduitItem,
                         port: port
                     );    
+                case ConduitType.Matrix:
+                    return new MatrixConduit(
+                        x : cellPosition.x,
+                        y : cellPosition.y,
+                        item: (MatrixConduitItem)conduitItem
+                    );
             }
             return null;
             
@@ -95,7 +100,14 @@ namespace ConduitModule {
                         conduitItem: conduitItem,
                         port: signalConduitPort
                     );
+                case ConduitType.Matrix:
+                    return new MatrixConduit(
+                        x: x,
+                        y: y,
+                        item: (MatrixConduitItem)conduitItem
+                    );
             }
+            Debug.LogError("Did not handle creation for type " + conduitType);
             return null;
         }
     }

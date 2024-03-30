@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using ConduitModule.Ports;
 
-namespace ConduitModule.ConduitSystemModule {
-    public class SignalConduitSystem : ConduitSystem<SignalConduitInputPort, SignalConduitOutputPort>
+namespace ConduitModule.Systems {
+    public class SignalConduitSystem : PortConduitSystem<SignalConduitInputPort, SignalConduitOutputPort>
     {
         public SignalConduitSystem(string id) : base(id)
         {
         }
 
-        public override void addPort(IConduit conduit)
+        public override void addPort(IPortConduit conduit)
         {
             IConduitPort conduitPort = conduit.getPort();
             if (conduitPort == null) {

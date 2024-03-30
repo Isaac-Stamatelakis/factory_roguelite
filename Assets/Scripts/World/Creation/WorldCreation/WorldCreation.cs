@@ -153,6 +153,13 @@ namespace WorldModule {
             if (signalConduitTransform != null) {
                 signalConduitTileMap = signalConduitTransform.GetComponent<Tilemap>();
             }
+            Transform matrixConduitTransform = prefab.transform.Find("MatrixConduit");
+            Tilemap matrixConduitTileMap = null;
+            if (matrixConduitTransform != null) {
+                matrixConduitTileMap = matrixConduitTransform.GetComponent<Tilemap>();
+            }
+
+
 
             SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
             SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
@@ -160,6 +167,7 @@ namespace WorldModule {
             SeralizedChunkConduitData fluidData = tileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
             SeralizedChunkConduitData energyData = tileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
             SeralizedChunkConduitData signalData = tileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
+            SeralizedChunkConduitData matrixData = tileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
             return new WorldTileConduitData(
                 new List<EntityData>(),
                 baseData,
@@ -167,7 +175,8 @@ namespace WorldModule {
                 itemData,
                 fluidData,
                 energyData,
-                signalData
+                signalData,
+                matrixData
             );
         }
         private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
@@ -177,26 +186,26 @@ namespace WorldModule {
             string[,] ids = new string[width,height];
             string[,] sTileEntityOptions = new string[width,height];
             string[,] sTileOptions = new string[width,height];
-            if (tilemap != null) {
-                BoundsInt bounds = tilemap.cellBounds;
-                for (int x = 0; x < width; x++)
+        
+            BoundsInt bounds = tilemap.cellBounds;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = 0; y < height; y++)
+                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                    if (tilemap.HasTile(tilePosition))
                     {
-                        Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                        if (tilemap.HasTile(tilePosition))
-                        {
-                            TileBase tile = tilemap.GetTile(tilePosition);
-                            if (tile is IIDTile) {
-                                string id = ((IIDTile) tile).getId();
-                                if (id == null || id == "") {
-                                    continue;
-                                }
-                                ids[x,y]= id;
+                        TileBase tile = tilemap.GetTile(tilePosition);
+                        if (tile is IIDTile) {
+                            string id = ((IIDTile) tile).getId();
+                            if (id == null || id == "") {
+                                continue;
                             }
+                            ids[x,y]= id;
                         }
                     }
                 }
+                
             }
         data.ids = ids;
         data.sTileEntityOptions = sTileEntityOptions;
@@ -239,27 +248,27 @@ namespace WorldModule {
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
             string[,] ids = new string[width,height];
             string[,] conduitOptions = new string[width,height];
-            if (tilemap != null) {
-                BoundsInt bounds = tilemap.cellBounds;
-                for (int x = 0; x < width; x++)
+            
+            BoundsInt bounds = tilemap.cellBounds;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = 0; y < height; y++)
+                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                    if (tilemap.HasTile(tilePosition))
                     {
-                        Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                        if (tilemap.HasTile(tilePosition))
-                        {
-                            TileBase tile = tilemap.GetTile(tilePosition);
-                            if (tile is StandardTile) {
-                                string id = ((StandardTile) tile).id;
-                                if (id == null || id == "") {
-                                    continue;
-                                }
-                                ids[x,y]= id;
+                        TileBase tile = tilemap.GetTile(tilePosition);
+                        if (tile is StandardTile) {
+                            string id = ((StandardTile) tile).id;
+                            if (id == null || id == "") {
+                                continue;
                             }
+                            ids[x,y]= id;
                         }
                     }
                 }
             }
+            
             data.ids = ids;
             data.conduitOptions = conduitOptions;
             return data;

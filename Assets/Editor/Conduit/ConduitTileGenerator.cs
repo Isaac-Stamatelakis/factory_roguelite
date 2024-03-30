@@ -56,6 +56,7 @@ public class ConduitTileGenerator : EditorWindow {
             Directory.Delete(path,true);
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", conduitName);
+        AssetDatabase.Refresh();
         RuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + conduitName, conduitName);
         AssetDatabase.CreateAsset(ruleTile, path + "T~" +conduitName + ".asset");
         ConduitItem conduitItem = null;

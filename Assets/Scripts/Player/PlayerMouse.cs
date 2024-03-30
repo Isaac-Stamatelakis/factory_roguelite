@@ -9,7 +9,7 @@ using TileMapModule;
 using TileMapModule.Place;
 using ChunkModule.PartitionModule;
 using TileMapModule.Type;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using ConduitModule.Ports;
 using GUIModule;
 using UnityEngine.Tilemaps;
@@ -133,8 +133,11 @@ namespace PlayerModule.Mouse {
             if (conduit == null) {
                 return false;
             }
+            if (conduit is not IPortConduit portConduit) {
+                return false;
+            }
             EntityPortType portType = conduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
-            GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType,portType);
+            GameObject ui = ConduitPortUIFactory.getUI(portConduit,conduitType,portType);
             GlobalUIContainer.getInstance().getUiController().setGUI(ui);
             return true;
         }

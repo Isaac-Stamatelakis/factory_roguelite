@@ -11,6 +11,7 @@ namespace TileMapModule.Layer {
         Fluid,
         Energy,
         Signal,
+        Matrix,
     }
 
     public static class TileMapLayerExtension {
@@ -44,6 +45,10 @@ namespace TileMapModule.Layer {
                 case TileMapLayer.Signal:
                     return new List<TileMapType>{
                         TileMapType.SignalConduit
+                    };
+                case TileMapLayer.Matrix:
+                    return new List<TileMapType>{
+                        TileMapType.MatrixConduit
                     };
                 default:
                     return null;

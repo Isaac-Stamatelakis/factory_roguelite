@@ -50,6 +50,9 @@ namespace ChunkModule.PartitionModule {
                 case ConduitType.Signal:
                     getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk,system);
                     return;
+                case ConduitType.Matrix:
+                    getConduitsFromData(serializedTileConduitData.matrixConduitData,systemConduits,referenceChunk,system);
+                    return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
         }
@@ -97,6 +100,9 @@ namespace ChunkModule.PartitionModule {
                             break;
                         case ConduitType.Signal:
                             entityPorts = layout.signalPorts;
+                            break;
+                        case ConduitType.Matrix:
+                            entityPorts = layout.matrixPorts;
                             break;
                     }
                     if (entityPorts == null) {
@@ -155,12 +161,17 @@ namespace ChunkModule.PartitionModule {
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
                     Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
-                    TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition);
+                    TileEntity tileEntity = null;
+                    if (options != null) {
+                        tileEntity = system.getSoftLoadedTileEntity(cellPosition);
+                    }
+                    
                     IConduit conduit = ConduitFactory.deseralize(cellPosition,referenceChunk,id,options,itemRegistry,tileEntity);
                     systemConduits[systemX,systemY] = conduit;
                 }
             }
         }
+
 
         public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle)
         {
@@ -265,6 +276,18 @@ namespace ChunkModule.PartitionModule {
                     layer: TileMapLayer.Signal
                 );
             }
+            string matrixID = data.matrixConduitData.ids[x,y];
+            if (matrixID != null) {
+                place(
+                    id: matrixID, 
+                    sConduitOptions: data.matrixConduitData.conduitOptions[x,y],
+                    itemRegistry: itemRegistry,
+                    tileGridMaps: tileGridMaps,
+                    realPosition: realPosition,
+                    positionInPartition: partitionPosition,
+                    layer: TileMapLayer.Matrix
+                );
+            }
         }
 
         private void place(string id, string sConduitOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
@@ -313,18 +336,21 @@ namespace ChunkModule.PartitionModule {
             switch (type) {
                 case ConduitType.Item:
                     serializedTileConduitData.itemConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Fluid:
                     serializedTileConduitData.fluidConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Energy:
                     serializedTileConduitData.energyConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Signal:
                     serializedTileConduitData.signalConduitData.ids[position.x,position.y] = id;
-                    break;
-
+                    return;
+                case ConduitType.Matrix:
+                    serializedTileConduitData.matrixConduitData.ids[position.x,position.y] = id;
+                    return;
             }
+            Debug.LogError("Did not handle case for ConduitType " + type);
         }
 
         public void activate(ILoadedChunk loadedChunk)

@@ -11,7 +11,7 @@ using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
 using ConduitModule;
 using ConduitModule.Ports;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using Tiles;
 
 namespace TileMapModule.Place {
