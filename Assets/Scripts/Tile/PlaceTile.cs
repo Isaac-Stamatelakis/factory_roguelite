@@ -191,8 +191,6 @@ namespace TileMapModule.Place {
             }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
-                //Debug.Log(state);
-                //Debug.Log(MousePositionFactory.getHorizontalMousePosition(worldPosition));
             }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
             if (tileItem.tileEntity != null) {

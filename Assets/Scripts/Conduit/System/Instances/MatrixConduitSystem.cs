@@ -6,8 +6,7 @@ using TileEntityModule.Instances.Matrix;
 namespace ConduitModule.Systems {
     public class MatrixConduitSystem : ConduitSystem<IConduit>
     {
-        private List<MatrixInterface> interfaces;
-        private ItemMatrixController controller;
+        private List<IMatrixConduitInteractable> tileEntities;
         public MatrixConduitSystem(string id) : base(id)
         {
             
@@ -15,15 +14,12 @@ namespace ConduitModule.Systems {
 
         public override void rebuild()
         {
-            interfaces = new List<MatrixInterface>();
-            controller = null;
+            tileEntities = new List<IMatrixConduitInteractable>();
         }
 
         public override void tickUpdate()
         {
-            if (controller == null) {
-                return;
-            }
+            
         }
     }
 }

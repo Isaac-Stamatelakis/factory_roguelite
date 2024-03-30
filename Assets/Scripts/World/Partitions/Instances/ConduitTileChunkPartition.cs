@@ -160,14 +160,18 @@ namespace ChunkModule.PartitionModule {
                     string options = data.conduitOptions[x,y];
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
-                    Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
-                    TileEntity tileEntity = null;
-                    if (options != null) {
-                        tileEntity = system.getSoftLoadedTileEntity(cellPosition);
+                    ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
+                    if (conduitItem == null) {
+                        continue;
                     }
-                    
-                    IConduit conduit = ConduitFactory.deseralize(cellPosition,referenceChunk,id,options,itemRegistry,tileEntity);
-                    systemConduits[systemX,systemY] = conduit;
+                    Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
+                    systemConduits[systemX,systemY] = ConduitFactory.deseralizeConduit(
+                        cellPosition: cellPosition,
+                        referencePosition: referenceChunk,
+                        conduitItem: conduitItem,
+                        conduitOptionData: data.conduitOptions[x,y],
+                        system : system
+                    );
                 }
             }
         }
@@ -201,6 +205,18 @@ namespace ChunkModule.PartitionModule {
                                     break;
                                 case ConduitType.Signal:
                                     data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    break;
+                                case ConduitType.Matrix:
+                                    if (conduit is not MatrixConduit matrixConduit) {
+                                        continue;
+                                    }
+                                    if (matrixConduit.HasTileEntity) {
+                                        MatrixConduitData matrixConduitData = new MatrixConduitData(true);
+                                        data.matrixConduitData.conduitOptions[x,y] = Newtonsoft.Json.JsonConvert.SerializeObject(matrixConduitData);
+                                    } else {
+                                        data.matrixConduitData.conduitOptions[x,y] = null;
+                                    }
+                                    
                                     break;
                             }
                         }

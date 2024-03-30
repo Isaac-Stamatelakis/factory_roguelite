@@ -49,6 +49,9 @@ namespace ItemModule {
         /// Returns tileItem if id maps to tile item, null otherwise
         ///
         public TileItem getTileItem(string id) {
+            if (id == null) {
+                return null;
+            }
             if (!items.ContainsKey(id)) {
                 return null;
             }

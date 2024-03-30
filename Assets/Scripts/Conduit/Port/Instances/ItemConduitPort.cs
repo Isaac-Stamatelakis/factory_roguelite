@@ -26,7 +26,9 @@ namespace ConduitModule.Ports {
         }
     }
 
-    public abstract class ItemConduitInputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort, IItemConduitInputPort 
+    public abstract class ItemConduitInputPort<Interactable,Filter> : 
+    ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort, IItemConduitInputPort, IConduitIOPort 
+    
     where Interactable : IItemConduitInteractable where Filter : IFilter
     {
         private bool enabled;
@@ -54,9 +56,7 @@ namespace ConduitModule.Ports {
             
         }
 
-        protected virtual void doInsertion(ItemSlot itemSlot) {
-                
-        }
+        protected abstract void doInsertion(ItemSlot itemSlot);
 
         public int getColor()
         {
@@ -92,6 +92,14 @@ namespace ConduitModule.Ports {
         {
             return tileEntity;
         }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not Interactable interactable) {
+                return;
+            }
+            this.tileEntity = interactable;
+        }
     }
 
     public class SolidItemConduitInputPort : ItemConduitInputPort<ISolidItemConduitInteractable, ItemFilter>
@@ -119,7 +127,8 @@ namespace ConduitModule.Ports {
     }
 
     [System.Serializable]
-    public class ItemConduitOutputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort, IItemConduitOutputPort 
+    public class ItemConduitOutputPort<Interactable,Filter> : 
+    ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort, IItemConduitOutputPort, IConduitIOPort 
     where Interactable : IItemConduitInteractable where Filter : IFilter
     { 
         private bool enabled;
@@ -175,6 +184,14 @@ namespace ConduitModule.Ports {
         {
             return tileEntity;
         }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not Interactable interactable) {
+                return;
+            }
+            this.tileEntity = interactable;
+        }
     }
 
     public class SolidItemConduitOutputPort : ItemConduitOutputPort<ISolidItemConduitInteractable, ItemFilter>
@@ -219,7 +236,7 @@ namespace ConduitModule.Ports {
         } 
     }
 
-    public class SolidItemConduitPort : ConduitPort<SolidItemConduitInputPort, SolidItemConduitOutputPort> 
+    public class SolidItemConduitPort : ConduitPort<SolidItemConduitInputPort, SolidItemConduitOutputPort>
     {
         public SolidItemConduitPort(SolidItemConduitInputPort inPort, SolidItemConduitOutputPort outPort) : base(inPort, outPort)
         {

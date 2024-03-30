@@ -11,10 +11,15 @@ namespace ConduitModule {
         private int y;
         private MatrixConduitItem matrixConduitItem;
         private IConduitSystem conduitSystem;
-        public MatrixConduit(int x, int y, MatrixConduitItem item) {
+        private IMatrixConduitInteractable matrixConduitInteractable;
+        public bool HasTileEntity {get => matrixConduitInteractable != null;}
+        public IMatrixConduitInteractable MatrixConduitInteractable { get => matrixConduitInteractable; set => matrixConduitInteractable = value; }
+
+        public MatrixConduit(int x, int y, MatrixConduitItem item, IMatrixConduitInteractable matrixConduitInteractable) {
             this.x = x;
             this.y = y;
             this.matrixConduitItem = item;
+            this.matrixConduitInteractable = matrixConduitInteractable;
         }
         public ConduitItem getConduitItem()
         {

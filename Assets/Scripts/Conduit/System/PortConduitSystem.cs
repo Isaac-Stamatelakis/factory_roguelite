@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace ConduitModule.Systems {
     public interface IConduitSystem {
-        public void tickUpdate();
         public int getSize();
         public bool connectsTo(IConduitSystem conduitSystem);
         public bool contains(IConduit conduit);
@@ -17,8 +16,13 @@ namespace ConduitModule.Systems {
         public string getId();
         public HashSet<IConduit> getConduits();
         public void rebuild();
+        public void tickUpdate();
     }
-    public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>
+
+    public interface ITickableConduitSystem {
+        
+    }
+    public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>, ITickableConduitSystem
     
         where InPort : IColorPort 
         where OutPort : IColorPort

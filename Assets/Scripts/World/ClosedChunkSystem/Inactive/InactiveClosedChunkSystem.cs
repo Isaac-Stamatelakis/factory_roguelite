@@ -10,6 +10,7 @@ using ConduitModule.Ports;
 using ChunkModule.PartitionModule;
 using TileEntityModule.Instances.CompactMachines;
 using ChunkModule.IO;
+using TileMapModule.Layer;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
@@ -152,58 +153,19 @@ namespace ChunkModule.ClosedChunkSystemModule {
         /// Returns the tileEntity at a given cellPosition
         /// </summary>
         public TileEntity getSoftLoadedTileEntity(Vector2Int cellPosition) {
-            // This method is a little complicated as partitions store tileEntities
-
-            Dictionary<Vector2Int, IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
-            Dictionary<Vector2Int, IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
-            // Check center first
-            TileEntity tileEntity = iterateTileEntitySearch(cellPosition,chunkCache,partitionCache);
+            Vector2Int? tilePosition = FindTileAtLocation.find(cellPosition,this);
+            if (tilePosition == null) {
+                return null;
+            }
+            TileEntity tileEntity = GetTileEntity((Vector2Int)tilePosition);
             if (tileEntity != null) {
                 return tileEntity;
             }
-            // Search order has to search top quadrant first due to mismatch of tile size (2x2) at 0,0 covers x:[0,1] to x:[0,1]
-            for (int searchRange = 1; searchRange < 8; searchRange ++) {
-                // Left top edge
-                for (int x = 0; x <= searchRange; x++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Left edge
-                for (int y = searchRange; y >= -searchRange; y--) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(searchRange,y),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Bottom edge
-                for (int x = searchRange; x >= -searchRange; x--) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,-searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Right edge
-                for (int y = 0; y <= searchRange; y++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(-searchRange,y),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Right top edge
-                for (int x = -searchRange; x > 0; x++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-            }
-            Debug.LogWarning("Could not find tileEntity at " + cellPosition);
             return null;
         }
 
-        private TileEntity iterateTileEntitySearch(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache) {
+
+        public TileItem getTileItem(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache, TileMapLayer layer) {
             Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
             Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
             if (!chunkCache.ContainsKey(chunkPosition)) {
@@ -219,8 +181,21 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             IChunkPartition partition = partitionCache[partitionPosition];
             Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
-            TileEntity tileEntity = partition.GetTileEntity(cellPositionInPartition);
-            return tileEntity;
+            TileItem tileItem = partition.GetTileItem(cellPositionInPartition,layer);
+            return tileItem;
+        }
+
+        public TileEntity GetTileEntity(Vector2Int currentCellPosition) {
+            Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
+            IChunk chunk = getChunk(chunkPosition);
+            if (chunk == null) {
+                return null;
+            }
+            Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PartitionsPerChunk;
+            IChunkPartition partition = chunk.getPartition(adjustedPartitionPosition);
+            Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
+            return partition.GetTileEntity(cellPositionInPartition);
         }
 
         private IChunk getChunk(Vector2Int cellPosition) {

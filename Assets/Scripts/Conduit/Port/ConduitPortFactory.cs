@@ -7,76 +7,19 @@ using TileEntityModule;
 namespace ConduitModule.Ports {
     public static class ConduitPortFactory
     {
-        public static IConduitPort deseralize(string data, ConduitType conduitType, TileEntity tileEntity, ConduitItem conduitItem) {
+        public static IConduitPort deseralize(string data, ConduitType conduitType, ConduitItem conduitItem) {
             if (data == null) {
                 return null;
             }
             switch (conduitType) {
                 case ConduitType.Item:
-                    SolidItemConduitPort itemConduitPort = JsonConvert.DeserializeObject<SolidItemConduitPort>(data);
-                    
-                    if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
-                        return null;
-                    }
-                    if (itemConduitPort == null) {
-                        return null;
-                    }
-                    if (itemConduitPort.inputPort != null) {
-                        itemConduitPort.inputPort.TileEntity = itemConduitInteractable;
-                    }
-                    if (itemConduitPort.outputPort != null) {
-                        itemConduitPort.outputPort.TileEntity = itemConduitInteractable;
-                    }
-                    return itemConduitPort;
+                    return JsonConvert.DeserializeObject<SolidItemConduitPort>(data);
                 case ConduitType.Fluid:
-                    FluidItemConduitPort fluidConduitPort = JsonConvert.DeserializeObject<FluidItemConduitPort>(data);
-                    if (tileEntity is not IFluidConduitInteractable fluidConduitInteractable) {
-                        return null;
-                    }
-                    if (fluidConduitPort == null) {
-                        return null;
-                    }
-                    if (fluidConduitPort.inputPort != null) {
-                        fluidConduitPort.inputPort.TileEntity = fluidConduitInteractable;
-                    }
-                    if (fluidConduitPort.outputPort != null) {
-                        fluidConduitPort.outputPort.TileEntity = fluidConduitInteractable;
-                    }
-                    return fluidConduitPort;
+                    return JsonConvert.DeserializeObject<FluidItemConduitPort>(data);
                 case ConduitType.Energy:
-                    EnergyConduitPort energyConduitPort = JsonConvert.DeserializeObject<EnergyConduitPort>(data);
-                    if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
-                        return null;
-                    }
-                    if (conduitItem is not ResourceConduitItem energyConduit) {
-                        return null;
-                    }
-                    if (energyConduitPort == null) {
-                        return null;
-                    }
-                    if (energyConduitPort.inputPort != null) {
-                        energyConduitPort.inputPort.TileEntity = energyConduitInteractable;
-                    }
-                    if (energyConduitPort.outputPort != null) {
-                        energyConduitPort.outputPort.TileEntity = energyConduitInteractable;
-                        energyConduitPort.outputPort.extractionRate = energyConduit.maxSpeed;
-                    }
-                    return energyConduitPort;
+                    return JsonConvert.DeserializeObject<EnergyConduitPort>(data);
                 case ConduitType.Signal:
-                    SignalConduitPort signalConduitPort = JsonConvert.DeserializeObject<SignalConduitPort>(data);
-                    if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
-                        return null;
-                    }
-                    if (signalConduitPort == null) {
-                        return null;
-                    }
-                    if (signalConduitPort.inputPort != null) {
-                        signalConduitPort.inputPort.TileEntity = signalConduitInteractable;
-                    }
-                    if (signalConduitPort.outputPort != null) {
-                        signalConduitPort.outputPort.TileEntity = signalConduitInteractable;
-                    }
-                    return signalConduitPort;
+                    return JsonConvert.DeserializeObject<SignalConduitPort>(data);
             }
             Debug.LogError("ConduitPortFactory method 'fromData' did not handle switch case '" + conduitType.ToString() + "'");
             return null;

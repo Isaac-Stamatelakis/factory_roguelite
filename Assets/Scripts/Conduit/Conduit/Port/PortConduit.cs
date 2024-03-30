@@ -1,24 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.PartitionModule;
-using TileMapModule.Layer;
 using ConduitModule.Ports;
 using ConduitModule.Systems;
 
 namespace ConduitModule {
-    public interface IConduit {
-        
-        public int getX();
-        public int getY();
-        public void setX(int val);
-        public void setY(int val);
-        public ConduitItem getConduitItem();
-        public string getId();
-        public void setConduitSystem(IConduitSystem conduitSystem);
-        public IConduitSystem getConduitSystem();
-    }
-
     public interface IPortConduit : IConduit {
         public IConduitPort getPort();
         public void setPort(IConduitPort port);
@@ -86,32 +72,4 @@ namespace ConduitModule {
             y = val;
         }
     }
-
-    public class ItemConduit : PortConduit<SolidItemConduitPort>
-    {
-        public ItemConduit(int x, int y,ConduitItem conduitItem, SolidItemConduitPort port) : base(x, y, conduitItem, port)
-        {
-        }
-    }
-
-    public class FluidConduit : PortConduit<FluidItemConduitPort>
-    {
-        public FluidConduit(int x, int y, ConduitItem conduitItem, FluidItemConduitPort port) : base(x, y, conduitItem, port)
-        {
-        }
-    }
-
-    public class SignalConduit : PortConduit<IConduitPort>
-    {
-        public SignalConduit(int x, int y, ConduitItem conduitItem, IConduitPort port) : base(x, y, conduitItem, port)
-        {
-        }
-    }
-    public class EnergyConduit : PortConduit<IConduitPort>
-    {
-        public EnergyConduit(int x, int y, ConduitItem conduitItem, IConduitPort port) : base(x, y, conduitItem, port)
-        {
-        }
-    }
-   
 }

@@ -226,15 +226,19 @@ namespace PlayerModule.Mouse {
                 Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
                 
                 Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
-                Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
-                Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
+                Vector2Int? tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
+                if (tilePosition == null) {
+                    return false;
+                }
+                Vector2Int nonNullPosition = (Vector2Int) tilePosition;
+                Vector2 worldPositionTile = new Vector2(nonNullPosition.x/2f,nonNullPosition.y/2f);
                 ILoadedChunk chunk = getChunk(worldPositionTile);
                 if (chunk == null) {
                     return false;
                 }
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-                Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
+                Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.ChunkPartitionSize;
                 IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
                 if (chunkPartition.clickTileEntity(tilePositionInPartition)) {
                     return true;

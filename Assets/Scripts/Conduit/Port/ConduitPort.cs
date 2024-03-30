@@ -9,6 +9,11 @@ namespace ConduitModule.Ports {
         public object getInputPort();
         public object GetOutputPort();
         public void setPosition(Vector2Int position);
+        public void setTileEntity(TileEntity tileEntity);
+    }
+
+    public interface IConduitIOPort {
+        public void setTileEntity(TileEntity tileEntity);
     }
 
     public interface IConduitInputPort<T> : ITogglablePort {
@@ -31,7 +36,8 @@ namespace ConduitModule.Ports {
         //public T extract();
         public int getColor();
     }
-    public abstract class ConduitPort<InPort,OutPort> : IConduitPort {
+    public abstract class ConduitPort<InPort,OutPort> : IConduitPort 
+    where InPort : IConduitIOPort where OutPort : IConduitIOPort {
         public ConduitPort(InPort inPort, OutPort outPort) {
             this.inputPort = inPort;
             this.outputPort = outPort;
@@ -51,31 +57,15 @@ namespace ConduitModule.Ports {
 
         public abstract void setPosition(Vector2Int position);
 
-    }
-
-    public interface IItemConduitInteractable : IConduitInteractable {
-        
-    }
-    public interface ISolidItemConduitInteractable : IItemConduitInteractable {
-        public ItemSlot extractSolidItem(Vector2Int portPosition);
-        public void insertSolidItem(ItemSlot itemSlot,Vector2Int portPosition);
-    }
-
-    public interface IEnergyConduitInteractable : IConduitInteractable {
-        public int insertEnergy(int energy, Vector2Int portPosition);
-        public ref int getEnergy(Vector2Int portPosition);
-    }
-    public interface ISignalConduitInteractable : IConduitInteractable {
-        public int extractSignal(Vector2Int portPosition);
-        public void insertSignal(int signal,Vector2Int portPosition);
-    }
-    public interface IFluidConduitInteractable : IItemConduitInteractable {
-        public ItemSlot extractFluidItem(Vector2Int portPosition);
-        public void insertFluidItem(ItemSlot itemSlot,Vector2Int portPosition);
-    }
-
-    public interface IMatrixConduitInteractable : IConduitInteractable {
-        
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (inputPort != null) {
+                inputPort.setTileEntity(tileEntity);
+            }
+            if (outputPort != null) {
+                outputPort.setTileEntity(tileEntity);
+            }
+        }
     }
 
     /// <summary>

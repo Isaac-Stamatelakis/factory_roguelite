@@ -106,10 +106,12 @@ namespace ConduitModule.Systems {
                 if (conduit == null) {
                     continue;
                 }
-                if (conduit is not IPortConduit portConduit) {
-                    continue;
+                if (conduit is IPortConduit portConduit) {
+                    portConduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
+                } else if (conduit is MatrixConduit matrixConduit && tileEntity is IMatrixConduitInteractable matrixConduitInteractable) {
+                    matrixConduit.MatrixConduitInteractable = matrixConduitInteractable;
                 }
-                portConduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
+                
                 conduit.getConduitSystem().rebuild();
             }
         }
