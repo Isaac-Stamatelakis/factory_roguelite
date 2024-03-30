@@ -47,6 +47,7 @@ public static class TileItemEditorFactory
     public static void saveTile(TileBase tileBase, string tileName, string addition = "",string path = "Assets/EditorCreations/") {
         string savePath = path + tileName + "/";
         AssetDatabase.CreateAsset(tileBase, savePath + "T~" +tileName + addition + ".asset");
+        AssetDatabase.Refresh();
     }
 
 

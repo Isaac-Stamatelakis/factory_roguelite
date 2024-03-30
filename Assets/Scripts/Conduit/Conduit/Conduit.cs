@@ -19,7 +19,6 @@ namespace ConduitModule {
         public string getId();
         public void setConduitSystem(IConduitSystem conduitSystem);
         public IConduitSystem getConduitSystem();
-
     }
     public abstract class Conduit<Port> : IConduit where Port : IConduitPort
     {

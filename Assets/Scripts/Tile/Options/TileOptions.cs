@@ -21,6 +21,9 @@ namespace Tiles {
         public bool rotatable = false;
         public bool hasStates = false;
         public List<DropOption> dropOptions;
+        public bool requireTileBelow = false;
+        public bool requireTileAbove = false;
+        public bool requireTileSide = false;
     }
     /// </summary>
     /// Options which require serializaiton

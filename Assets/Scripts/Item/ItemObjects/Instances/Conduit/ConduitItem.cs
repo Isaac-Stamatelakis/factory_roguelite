@@ -8,7 +8,8 @@ public enum ConduitType {
     Item,
     Fluid,
     Energy,
-    Signal
+    Signal,
+    Matrix
 }
 
 public static class ConduitTypeExtension {

@@ -73,6 +73,9 @@ public abstract class InventoryUI : MonoBehaviour {
     }
 
     public virtual void setItem(int n, ItemSlot data) {
+        if (n < 0 || n >= slots.Count) {
+            return;
+        }
         GameObject slot = slots[n];
         if (itemGuard(slot, n,"set item")) {
             return;

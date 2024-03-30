@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using ConduitModule;
 
 public class ConduitTileGenerator : EditorWindow {
     private Texture2D texture;
@@ -25,18 +26,20 @@ public class ConduitTileGenerator : EditorWindow {
         texture = EditorGUILayout.ObjectField("Sprite", texture, typeof(Texture2D), true) as Texture2D;
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
 
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Conduit Name:", GUILayout.Width(70));
+        EditorGUILayout.LabelField("Conduit Name:", GUILayout.Width(100));
         conduitName = EditorGUILayout.TextField(conduitName);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
 
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Type", GUILayout.Width(70));
         conduitType = (ConduitType)EditorGUILayout.EnumPopup("Conduit Type", conduitType);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
         
         EditorGUILayout.Space();
         if (GUILayout.Button("Generate"))
@@ -48,10 +51,9 @@ public class ConduitTileGenerator : EditorWindow {
     void createRuleTile()
     {
         string path = "Assets/EditorCreations/" + conduitName + "/";
-        
         if (AssetDatabase.IsValidFolder(path)) {
-            Debug.LogError("Tile Generation for "+  conduitName + "Abanadoned as Folder already exists at EditorCreations");
-            return;
+            Debug.LogWarning("Deleted existing folder at " + path);
+            Directory.Delete(path,true);
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", conduitName);
         RuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + conduitName, conduitName);
@@ -74,9 +76,11 @@ public class ConduitTileGenerator : EditorWindow {
                 conduitItem = resourceConduitItem2;
                 break;
             case ConduitType.Signal:
-            conduitItem = ScriptableObject.CreateInstance<SignalConduitItem>();
+                conduitItem = ScriptableObject.CreateInstance<SignalConduitItem>();
                 break;
-
+            case ConduitType.Matrix:
+                conduitItem = ScriptableObject.CreateInstance<MatrixConduitItem>();
+                break;
         };
         if (conduitItem == null) { // should never get here
             Debug.LogError("Conduit Item Null");
