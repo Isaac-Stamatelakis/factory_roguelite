@@ -165,8 +165,8 @@ public class EditorFactory
         return ruleTile;
     }
 
-    public static Sprite[] spritesFromTexture(Texture2D texture, string spritePath, string name) {
-        if (texture.width % 16 != 0 || texture.height % 16 != 0) {
+    public static Sprite[] spritesFromTexture(Texture2D texture, string spritePath, string name, int width, int height) {
+        if (texture.width % width != 0 || texture.height % height != 0) {
             Debug.Log("Invalid dimensions for texture");
             return null;
         }
@@ -174,17 +174,17 @@ public class EditorFactory
         AssetDatabase.CreateFolder(spritePath, "Sprites");
         
         spritePath += "/Sprites/";
-        int rows = texture.height/16;
-        int columns = texture.width/16;
+        int rows = texture.height/height;
+        int columns = texture.width/width;
         Sprite[] sprites = new Sprite[rows*columns];
         for (int y = 0; y < rows ; y++) {
             for (int x = 0; x < columns; x ++) {
                 int index = y*columns+x;
                 RuleVal ruleVal = indexToRule(index);
 
-                Color[] pixels = texture.GetPixels(16*x,16*y,16,16);
-                Texture2D spliteTexture = new Texture2D(16,16);
-                spliteTexture.SetPixels(0,0,16,16,pixels);
+                Color[] pixels = texture.GetPixels(width*x,height*y,width,height);
+                Texture2D spliteTexture = new Texture2D(width,height);
+                spliteTexture.SetPixels(0,0,width,height,pixels);
                 
 
                 string spriteSavePath = spritePath + "S~" + name +"-" + index.ToString();

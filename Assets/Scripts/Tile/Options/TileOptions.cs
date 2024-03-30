@@ -56,8 +56,10 @@ namespace Tiles {
     } 
     [System.Serializable]
     public class DropOption {
-        public string id;
+        public ItemObject itemObject;
         public int weight;
+        public int lowerAmount;
+        public int upperAmount;
     }
 
     public static class TileOptionFactory {

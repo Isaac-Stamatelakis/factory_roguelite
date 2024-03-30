@@ -63,6 +63,12 @@ public static class TileItemEditorFactory
             tile.colliderType = Tile.ColliderType.Sprite;
         }
         
+        setTileTransformOffset(sprite,tile);
+        
+        return tile;
+    }
+
+    public static void setTileTransformOffset(Sprite sprite, Tile tile) {
         Vector2Int spriteSize = Global.getSpriteSize(sprite);
         Matrix4x4 tileTransform = tile.transform;
         if (spriteSize.x % 2 == 0) {
@@ -72,6 +78,5 @@ public static class TileItemEditorFactory
             tileTransform.m13 = 0.25f;
         }
         tile.transform = tileTransform;
-        return tile;
     }
 }

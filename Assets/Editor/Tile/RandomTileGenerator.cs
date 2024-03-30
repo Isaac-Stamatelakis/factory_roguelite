@@ -8,6 +8,8 @@ using System.IO;
 public class RandomTileGenerator : EditorWindow {
     private string tileName;
     private Texture2D texture;
+    private int width = 1;
+    private int height = 1;
     [MenuItem("Tools/Item Constructors/Tile/Random")]
     public static void ShowWindow()
     {
@@ -31,6 +33,16 @@ public class RandomTileGenerator : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
+
+        GUILayout.Label("Enter Dimensions in tiles");
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Width:", GUILayout.Width(50));
+        width = EditorGUILayout.IntField(width);
+        EditorGUILayout.LabelField("Height:", GUILayout.Width(50));
+        height = EditorGUILayout.IntField(height);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
         if (GUILayout.Button("Generate Tile Items"))
         {
             createTileItems();
@@ -49,17 +61,21 @@ public class RandomTileGenerator : EditorWindow {
         
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         string collectionPath = "Assets/EditorCreations/" + tileName;
-        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName);
-
+        AssetDatabase.Refresh();
+        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName,width*16,height*16);
+        AssetDatabase.Refresh();
         RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
         randomTile.m_Sprites = sprites;
         randomTile.sprite = sprites[0];
-        
+        TileItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);
+        AssetDatabase.Refresh();
+        AssetDatabase.CreateAsset(randomTile,path + "T~" + tileName + ".asset");
         TileItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: randomTile,
             tileType: TileType.Block,
             createFolder: false
         );
+        AssetDatabase.Refresh();
     }
 }

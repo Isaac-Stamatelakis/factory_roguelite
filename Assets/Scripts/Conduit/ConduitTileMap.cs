@@ -45,7 +45,7 @@ namespace TileMapModule.Conduit {
                 }
                 Vector2Int tilePositionInPartition = base.getTilePositionInPartition(vect);
                 ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-                spawnItemEntity(conduitItem,vect);
+                spawnItemEntity(conduitItem,1,vect);
                 breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
                 conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
             }
