@@ -9,9 +9,9 @@ using TileMapModule.Type;
 namespace TileMapModule.Conduit {
     public class ConduitTileMap : AbstractTileMap<ConduitItem>
     {
-        private ConduitSystemManager conduitSystemManager;
+        private IConduitSystemManager conduitSystemManager;
 
-        public ConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
+        public IConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
 
         public override void deleteTile(Vector2 position)
         {

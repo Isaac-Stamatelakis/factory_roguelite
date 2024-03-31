@@ -10,6 +10,10 @@ namespace TileEntityModule {
         public void tickUpdate();
     }
 
+    public interface ILoadedTickableTileEntity {
+        public void loadedTickUpdate();
+    }
+
     
 
     public interface IRightClickableTileEntity

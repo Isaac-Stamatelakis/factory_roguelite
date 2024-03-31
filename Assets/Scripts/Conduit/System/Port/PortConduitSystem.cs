@@ -16,13 +16,13 @@ namespace ConduitModule.Systems {
         public string getId();
         public HashSet<IConduit> getConduits();
         public void rebuild();
+    }
+
+    public interface IPortConduitSystem : IConduitSystem {
         public void tickUpdate();
     }
 
-    public interface ITickableConduitSystem {
-        
-    }
-    public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>, ITickableConduitSystem
+    public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>, IPortConduitSystem
     
         where InPort : IColorPort 
         where OutPort : IColorPort
@@ -53,7 +53,7 @@ namespace ConduitModule.Systems {
         public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
         public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
 
-        public override void tickUpdate()
+        public void tickUpdate()
         {
             foreach (KeyValuePair<int,List<OutPort>> colorOutputPortList in ColoredOutputPorts) {
                 if (ColoredInputPorts.ContainsKey(colorOutputPortList.Key)) {

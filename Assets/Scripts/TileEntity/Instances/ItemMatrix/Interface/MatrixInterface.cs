@@ -27,12 +27,17 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
-            controller.sendFluid(itemSlot);
+            controller.sendItem(itemSlot);
         }
 
         public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
-            controller.sendSolid(itemSlot);
+            controller.sendItem(itemSlot);
+        }
+
+        public void syncToController(ItemMatrixController matrixController)
+        {
+            matrixController.addInterface(this);
         }
     }
 }

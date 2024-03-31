@@ -229,8 +229,7 @@ namespace TileMapModule.Place {
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.getType();
-
-            ConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
+            IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
             TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);

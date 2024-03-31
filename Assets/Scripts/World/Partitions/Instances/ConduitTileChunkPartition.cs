@@ -141,9 +141,7 @@ namespace ChunkModule.PartitionModule {
         }
         protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y)
         {
-            if (tileItem.tileEntity is ITickableTileEntity) {
-                return;
-            }
+            
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 

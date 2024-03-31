@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
+using TileEntityModule.Instances.Matrix;
+
 public interface IItemConduitInteractable : IConduitInteractable {
         
 }
@@ -24,5 +26,5 @@ public interface IFluidConduitInteractable : IItemConduitInteractable {
 }
 
 public interface IMatrixConduitInteractable : IConduitInteractable {
-    
+    public void syncToController(ItemMatrixController matrixController);
 }

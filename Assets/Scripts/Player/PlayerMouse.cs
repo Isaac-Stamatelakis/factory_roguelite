@@ -123,23 +123,27 @@ namespace PlayerModule.Mouse {
             }
             ConduitType conduitType = conduitItem.getType();
             //ConduitType conduitType = devMode.breakType.toConduit();
-            ConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
+            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;
             }
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            IConduit conduit = conduitSystemManager.getConduitWithPort(cellPosition);
-            if (conduit == null) {
-                return false;
+            if (conduitSystemManager is PortConduitSystemManager portConduitSystemManager) {
+                Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+                IConduit conduit = portConduitSystemManager.getConduitWithPort(cellPosition);
+                if (conduit == null) {
+                    return false;
+                }
+                if (conduit is not IPortConduit portConduit) {
+                    return false;
+                }
+                EntityPortType portType = portConduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
+                GameObject ui = ConduitPortUIFactory.getUI(portConduit,conduitType,portType);
+                GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+                return true;
             }
-            if (conduit is not IPortConduit portConduit) {
-                return false;
-            }
-            EntityPortType portType = conduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
-            GameObject ui = ConduitPortUIFactory.getUI(portConduit,conduitType,portType);
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
-            return true;
+            return false;
+            
         }
         private void breakMouseHover(Vector2 mousePosition) {
             if (Input.GetMouseButtonDown(0)) {

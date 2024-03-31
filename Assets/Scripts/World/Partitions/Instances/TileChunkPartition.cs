@@ -187,11 +187,11 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition, bool load) {
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
             tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile, this.parent);
-            if (tileEntity is ISerializableTileEntity) {
-                ((ISerializableTileEntity) tileEntity).unserialize(options);
+            if (tileEntity is ISerializableTileEntity serializableTileEntity) {
+                serializableTileEntity.unserialize(options);
             }
-            if (load && tileEntity is ILoadableTileEntity) {
-                ((ILoadableTileEntity) tileEntity).load();
+            if (load && tileEntity is ILoadableTileEntity loadableTileEntity) {
+                loadableTileEntity.load();
             }
             return tileEntity;
         }

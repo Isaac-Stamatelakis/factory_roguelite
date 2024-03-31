@@ -70,8 +70,6 @@ namespace ConduitModule.Systems {
         }
 
         public abstract void rebuild();
-
-        public abstract void tickUpdate();
     }
 }
 

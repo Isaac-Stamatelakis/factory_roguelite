@@ -16,7 +16,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
     {
         private IntervalVector coveredArea;
-        private Dictionary<TileMapType, ConduitSystemManager> conduitSystemManagersDict; 
+        private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
         private List<SoftLoadedConduitTileChunk> softLoadedChunk;
         public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks) {
             this.softLoadedChunk = unloadedChunks;
@@ -29,7 +29,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunk; set => softLoadedChunk = value; }
-        public Dictionary<TileMapType, ConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
+        public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
 
         public bool chunkIsNeighbor(SoftLoadedConduitTileChunk unloadedChunk) {
@@ -107,7 +107,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
         }
         private void initConduitSystemManagers() {
-            conduitSystemManagersDict = new Dictionary<TileMapType, ConduitSystemManager>();
+            conduitSystemManagersDict = new Dictionary<TileMapType, IConduitSystemManager>();
             initConduitSystemManager(TileMapType.ItemConduit);
             initConduitSystemManager(TileMapType.FluidConduit);
             initConduitSystemManager(TileMapType.EnergyConduit);
@@ -117,7 +117,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
-            ConduitSystemManager manager = new ConduitSystemManager(
+            IConduitSystemManager manager = ConduitSystemManagerFactory.createManager(
                 conduitType: conduitType,
                 conduits: getConduits(conduitType),
                 size: getSize(),
@@ -249,8 +249,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         continue;
                     }
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
-                    foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
-                        partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
+                    foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
+                        IConduitSystemManager manager = kvp.Value;
+                        if (manager is PortConduitSystemManager portConduitSystemManager) {
+                            partitionConduits[kvp.Key.toConduitType()] = portConduitSystemManager.getConduitPartitionData(partition.getRealPosition());
+                        }
+                        
                     }
                     conduitTileChunkPartition.setConduits(partitionConduits);
                     partition.save();
@@ -260,8 +264,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public void tickUpdate() {
-            foreach (ConduitSystemManager manager in conduitSystemManagersDict.Values) {
-                manager.tickUpdate();
+            foreach (IConduitSystemManager manager in conduitSystemManagersDict.Values) {
+                if (manager is ITickableConduitSystem tickableConduitSystem) {
+                    tickableConduitSystem.tickUpdate();
+                }
             }
             foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
