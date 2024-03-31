@@ -157,11 +157,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
             if (tilePosition == null) {
                 return null;
             }
-            TileEntity tileEntity = GetTileEntity((Vector2Int)tilePosition);
-            if (tileEntity != null) {
-                return tileEntity;
-            }
-            return null;
+            return GetTileEntity((Vector2Int)tilePosition);
+            
         }
 
 

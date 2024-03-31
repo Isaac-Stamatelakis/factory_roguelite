@@ -8,15 +8,16 @@ namespace TileEntityModule.Instances.Matrix {
     public class MatrixInterface : TileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IMatrixConduitInteractable
     {
         [SerializeField] private ConduitPortLayout layout;
+        private ItemMatrixController controller;
 
         public ItemSlot extractFluidItem(Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
         public ItemSlot extractSolidItem(Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -26,12 +27,12 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            controller.sendFluid(itemSlot);
         }
 
         public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            controller.sendSolid(itemSlot);
         }
     }
 }

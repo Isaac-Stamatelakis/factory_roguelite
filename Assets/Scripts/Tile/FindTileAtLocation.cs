@@ -60,12 +60,13 @@ public static class FindTileAtLocation
         Dictionary<Vector2Int,IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
         Dictionary<Vector2Int,IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
         TileItem originTileItem = system.getTileItem(hitPosition,chunkCache,partitionCache,TileMapLayer.Base);
+        /*
         if (originTileItem != null) {
-            Debug.Log("Hi");
+            Debug.Log(originTileItem.name);
             return hitPosition;
         }   
-        Debug.Log(hitPosition);
         return null;
+        */
         while (searchWidth < maxSearchWidth) {
             if (Global.modInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
@@ -114,9 +115,9 @@ public static class FindTileAtLocation
             }
             searchWidth ++;
         }
-        // Mathematically impossible to ever get here if maxSearchDist is infinity.
+        // Mathematically impossible to ever get here if maxSearchDist is infinity. NVM it is possible lol
         // Since the biggest tile I'm probably ever gonna put in the game is 16x16, will never get here.
-        Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
+        //Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
         return null;
     }
 
@@ -141,7 +142,6 @@ public static class FindTileAtLocation
 
     private static bool isHitTile(Sprite sprite, int searchWidth) {
         Vector2Int spriteSize = Global.getSpriteSize(sprite);
-        
-        return spriteSize.y >= searchWidth || spriteSize.x >= searchWidth;
+        return spriteSize.y >= searchWidth && spriteSize.x >= searchWidth;
     } 
 }

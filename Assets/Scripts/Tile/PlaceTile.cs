@@ -214,13 +214,14 @@ namespace TileMapModule.Place {
                     tileEntity = GameObject.Instantiate(tileItem.tileEntity);
                     tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
                 } 
+                TileMapLayer layer = tileMap.getType().toLayer();
+                partition.addTileEntity(layer,tileEntity,positionInPartition);
                 if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     if (tileEntity is IConduitInteractable) {
                         conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
                     }
                 }
-                TileMapLayer layer = tileMap.getType().toLayer();
-                partition.addTileEntity(layer,tileEntity,positionInPartition);
+                
             }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
         }
@@ -232,7 +233,6 @@ namespace TileMapModule.Place {
             ConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
             TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
-
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
             conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
 

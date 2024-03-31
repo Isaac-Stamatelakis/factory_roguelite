@@ -13,7 +13,9 @@ namespace ItemModule.Tags {
         Inventory,
         RobotBlueprint,
         ItemFilter,
-        FluidFilter
+        FluidFilter,
+        EncodedRecipe,
+        StorageDrive
     }   
     public static class ItemTagExtension {
         public static string serialize(this ItemTag tag, ItemTagCollection tagCollection) {
@@ -27,6 +29,7 @@ namespace ItemModule.Tags {
                 ItemTag.FluidContainer => serializeFluidContainer(tagData),
                 ItemTag.EnergyContainer => serializeEnergyContainer(tagData),
                 ItemTag.CompactMachine => serializeCompactMachineTag(tagData),
+                ItemTag.StorageDrive => serializeStorageDriver(tagData),
                 _ => serializeDefaultSwitchCase(tag)
             };
         }
@@ -65,6 +68,14 @@ namespace ItemModule.Tags {
             return id;
         }
 
+        private static string serializeStorageDriver(object tagData) {
+            if (tagData is not List<ItemSlot> inventory) {
+                logInvalidType(ItemTag.StorageDrive);
+                return null;
+            }
+            return ItemSlotFactory.serializeList(inventory);
+        }
+
         public static GameObject getVisualElement(this ItemTag tag, ItemSlot itemSlot, object tagData) {
             return tag switch {
                 ItemTag.FluidContainer => getFluidContainerVisualElement(itemSlot,tagData),
@@ -75,7 +86,6 @@ namespace ItemModule.Tags {
         }
 
         private static GameObject visualDefaultSwitchCase(ItemTag tag) {
-            Debug.LogError("ItemTagExtension method 'getVisualElement' did not cover case for " + tag);
             return null;
         }
 
@@ -115,6 +125,7 @@ namespace ItemModule.Tags {
                 ItemTag.FluidContainer => ItemSlotFactory.deseralizeItemSlotFromString(data),
                 ItemTag.EnergyContainer => JsonConvert.DeserializeObject<int>(data),
                 ItemTag.CompactMachine => data,
+                ItemTag.StorageDrive => ItemSlotFactory.deserialize(data),
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using ItemModule.Tags.FluidContainers;
 using System.Linq;
+using ItemModule.Tags.Matrix;
 
 namespace ItemModule.Tags{
     public static class ItemTagFactory
@@ -45,6 +46,17 @@ namespace ItemModule.Tags{
                 tags[ItemTag.FluidContainer] = null;
             }
             if (taggable is TileItem tileItem) {
+
+            }
+            if (taggable is EncodedRecipeItem encodedRecipeItem) {
+
+            }
+            if (taggable is MatrixDriveItem matrixDriveItem) {
+                List<ItemSlot> inventory = new List<ItemSlot>();
+                for (int i = 0; i < matrixDriveItem.MaxItems; i++) {
+                    inventory.Add(null);
+                }
+                tags[ItemTag.StorageDrive] = inventory;
 
             }
             if (tags.Count == 0) {

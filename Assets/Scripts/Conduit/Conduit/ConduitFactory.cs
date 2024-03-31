@@ -74,18 +74,10 @@ namespace ConduitModule {
 
         private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, SoftLoadedClosedChunkSystem system) {
             IMatrixConduitInteractable matrixConduitInteractable = null;
-            if (conduitOptionData != null) {
-                MatrixConduitData matrixConduitData = Newtonsoft.Json.JsonConvert.DeserializeObject<MatrixConduitData>(conduitOptionData);
-                if (matrixConduitData.attached) {
-                    Debug.Log(matrixConduitData.attached);
-                    TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition+referencePosition);
-                    if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
-                        Debug.Log("Assigned");
-                        matrixConduitInteractable = matrixConduitInteractable1;
-                    }
-                }
+            TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition+referencePosition);
+            if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
+                matrixConduitInteractable = matrixConduitInteractable1;
             }
-            
             return new MatrixConduit(
                 x : cellPosition.x,
                 y : cellPosition.y,
