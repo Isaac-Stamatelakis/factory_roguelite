@@ -10,6 +10,14 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private TMP_InputField searchBar;
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private ScrollRect itemContainerScroll;
+
+        public void init(MatrixTerminal matrixTerminal) {
+            List<ItemSlot> matrixInventory = matrixTerminal.Controller.getInventory();
+        }
+
+        public static MatrixTerminalUI newInstance() {
+            return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalUI").GetComponent<MatrixTerminalUI>();
+        }
     }
 }
 

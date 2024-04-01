@@ -117,11 +117,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
+            Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts = getTileEntityPorts(conduitType);
             IConduitSystemManager manager = ConduitSystemManagerFactory.createManager(
                 conduitType: conduitType,
-                conduits: getConduits(conduitType),
+                conduits: getConduits(conduitType,tileEntityPorts),
                 size: getSize(),
-                chunkConduitPorts: getTileEntityPorts(conduitType),
+                chunkConduitPorts: tileEntityPorts,
                 referencePosition: getBottomLeftCorner()
             );
             conduitSystemManagersDict[conduitMapType] = manager;
@@ -203,7 +204,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             return null;
         }
-        private IConduit[,] getConduits(ConduitType conduitType) {
+        private IConduit[,] getConduits(ConduitType conduitType,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
             IConduit[,] conduits = new IConduit[size.x,size.y];
@@ -213,7 +214,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference,this);
+                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference,tileEntityPorts);
                 }
             }
             return conduits;

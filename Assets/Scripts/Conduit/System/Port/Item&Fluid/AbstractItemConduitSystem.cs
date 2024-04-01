@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using ConduitModule;
 using ConduitModule.Ports;
+using TileEntityModule;
 
 namespace ConduitModule.Systems {
     

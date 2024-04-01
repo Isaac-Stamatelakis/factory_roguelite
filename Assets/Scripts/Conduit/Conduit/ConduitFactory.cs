@@ -11,32 +11,31 @@ using ChunkModule.ClosedChunkSystemModule;
 namespace ConduitModule {
     public static class ConduitFactory {
 
-        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, SoftLoadedClosedChunkSystem system) {
+        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
             ConduitType type = conduitItem.getType();
             cellPosition -= referencePosition;
             bool isPortConduit = type == ConduitType.Item || type == ConduitType.Fluid || type == ConduitType.Energy || type == ConduitType.Signal;
             if (isPortConduit) {
-                return deseralizePortConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,system);
+                return deseralizePortConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity,portType);
             }
             bool isMatrixConduit = type == ConduitType.Matrix;
             if (isMatrixConduit) {
-                return deseralizeMatrixConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,system);
+                return deseralizeMatrixConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity);
             }
             Debug.LogError("Did not handle deseralizaiton case for " + type);
             return null;
         
         }
-        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, SoftLoadedClosedChunkSystem system) {
+        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
             ConduitType conduitType = conduitItem.getType();
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,conduitItem);
-            if (port != null) {
-                TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition+referencePosition);
-                if (tileEntity != null) {
-                    port.setTileEntity(tileEntity);
-                    Vector2Int relativePosition = cellPosition + referencePosition - tileEntity.getCellPosition();
-                    port.setPosition(relativePosition);
+            if (tileEntity != null && portType != null) {
+                if (port == null) {
+                    port = ConduitPortFactory.createDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
                 }
-                
+                port.setTileEntity(tileEntity);
+                Vector2Int relativePosition = cellPosition + referencePosition - tileEntity.getCellPosition();
+                port.setPosition(relativePosition);
             }
             switch (conduitType) {
                 case ConduitType.Item:
@@ -72,12 +71,13 @@ namespace ConduitModule {
             
         }
 
-        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, SoftLoadedClosedChunkSystem system) {
+        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity) {
             IMatrixConduitInteractable matrixConduitInteractable = null;
-            TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition+referencePosition);
             if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
                 matrixConduitInteractable = matrixConduitInteractable1;
+                Debug.Log(tileEntity.name);
             }
+            
             return new MatrixConduit(
                 x : cellPosition.x,
                 y : cellPosition.y,

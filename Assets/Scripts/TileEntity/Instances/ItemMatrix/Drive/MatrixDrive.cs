@@ -4,6 +4,7 @@ using ConduitModule.Ports;
 using UnityEngine;
 using GUIModule;
 using ChunkModule;
+using ConduitModule.Systems;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
@@ -81,7 +82,12 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToController(ItemMatrixController matrixController)
         {
-            matrixController.addDrive(this);
+            
+        }
+
+        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        {
+            matrixConduitSystem.addDrive(this);
         }
 
         public void tickUpdate()

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using ConduitModule.Ports;
+using ConduitModule.Systems;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {
@@ -37,7 +38,12 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToController(ItemMatrixController matrixController)
         {
-            matrixController.addInterface(this);
+            
+        }
+
+        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        {
+            matrixConduitSystem.addInterface(this);
         }
     }
 }

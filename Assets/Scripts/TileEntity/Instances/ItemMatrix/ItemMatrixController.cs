@@ -13,61 +13,54 @@ namespace TileEntityModule.Instances.Matrix {
     public class ItemMatrixController : TileEntity, IMatrixConduitInteractable
     {
         [SerializeField] private ConduitPortLayout layout;
-        private List<MatrixInterface> interfaces;
-        private List<MatrixDriveInventory> driveInventories;
+        private HashSet<MatrixConduitSystem> systems;
         public ConduitPortLayout getConduitPortLayout()
         {
             return layout;
         }
 
-        public void addDrive(MatrixDrive matrixDrive) {
-            foreach (ItemSlot drive in matrixDrive.StorageDrives) {
-                if (
-                    drive == null || 
-                    drive.itemObject == null || 
-                    drive.tags == null || 
-                    !drive.tags.Dict.ContainsKey(ItemTag.StorageDrive) || 
-                    drive.itemObject is not MatrixDriveItem matrixDriveItem
-                ) {
-                    continue;
-                }
-                driveInventories.Add(new MatrixDriveInventory(
-                    (List<ItemSlot>)drive.tags.Dict[ItemTag.StorageDrive],
-                    matrixDriveItem.MaxAmount
-                ));
-            }
-        }
+        
 
         public void resetSystem() {
-            interfaces = new List<MatrixInterface>();
-            driveInventories = new List<MatrixDriveInventory>();
+            
         }
 
-        public void addInterface(MatrixInterface matrixInterface) {
-            interfaces.Add(matrixInterface);
-        }
+        
 
-    
 
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition, tileBase, chunk);
+            systems = new HashSet<MatrixConduitSystem>();
         }
 
     
         public void sendItem(ItemSlot toInsert) {
-            foreach (MatrixDriveInventory matrixDriveInventory in driveInventories) {  
-                foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
-                    if (!ItemSlotHelper.canInsertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize)) {
-                        continue;
-                    }
-                    ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize);
-                    if (itemSlot.amount <= 0) {
-                        itemSlot.itemObject = null;
-                        return;
+            foreach (MatrixConduitSystem matrixConduitSystem in systems) {
+                foreach (MatrixDriveInventory matrixDriveInventory in matrixConduitSystem.DriveInventories) {  
+                    foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
+                        if (!ItemSlotHelper.canInsertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize)) {
+                            continue;
+                        }
+                        ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize);
+                        if (itemSlot.amount <= 0) {
+                            itemSlot.itemObject = null;
+                            return;
+                        }
                     }
                 }
             }
+        }
+
+        public List<ItemSlot> getInventory() {
+
+            List<ItemSlot> inventories = new List<ItemSlot>();
+            foreach (MatrixConduitSystem system in systems) {
+                foreach (MatrixDriveInventory driveInventory in system.DriveInventories) {
+                    inventories.AddRange(driveInventory.inventories);
+                }
+            }
+            return inventories;
         }
         public void syncToController(ItemMatrixController matrixController)
         {
@@ -77,13 +70,18 @@ namespace TileEntityModule.Instances.Matrix {
             Debug.Log("Controller synced to system");
         }
 
-        private class MatrixDriveInventory {
-            public List<ItemSlot> inventories;
-            public int maxSize;
-            public MatrixDriveInventory(List<ItemSlot> inventories, int maxSize) {
-                this.inventories = inventories;
-                this.maxSize = maxSize;
-            }
+        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        {
+            systems.Add(matrixConduitSystem);
+        }
+    }
+
+    public class MatrixDriveInventory {
+        public List<ItemSlot> inventories;
+        public int maxSize;
+        public MatrixDriveInventory(List<ItemSlot> inventories, int maxSize) {
+            this.inventories = inventories;
+            this.maxSize = maxSize;
         }
     }
 }

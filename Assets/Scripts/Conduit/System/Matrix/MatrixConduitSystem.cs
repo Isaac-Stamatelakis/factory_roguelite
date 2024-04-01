@@ -2,11 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Matrix;
+using ItemModule.Tags;
+using ItemModule.Tags.Matrix;
 
 namespace ConduitModule.Systems {
     public class MatrixConduitSystem : ConduitSystem<MatrixConduit>
     {
         private List<IMatrixConduitInteractable> tileEntities;
+        
+        private List<MatrixInterface> interfaces;
+        private List<MatrixDriveInventory> driveInventories;
+
+        public List<MatrixInterface> Interfaces { get => interfaces;}
+        public List<MatrixDriveInventory> DriveInventories { get => driveInventories; }
+
         public MatrixConduitSystem(string id) : base(id)
         {
             tileEntities = new List<IMatrixConduitInteractable>();
@@ -33,9 +42,6 @@ namespace ConduitModule.Systems {
             if (!matrixConduit.HasTileEntity) {
                 return;
             } 
-            if (matrixConduit.MatrixConduitInteractable is ItemMatrixController controller) {
-                
-            }
             tileEntities.Add(matrixConduit.MatrixConduitInteractable);
         }
 
@@ -43,7 +49,7 @@ namespace ConduitModule.Systems {
             ItemMatrixController controller = null;
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 if (matrixConduitInteractable is ItemMatrixController controller1) {
-                    if (controller != null) { // Hard Enforcement of only one controller per system
+                    if (controller != null && !controller.Equals(controller1)) { // Hard Enforcement of only one controller per system
                         return;
                     }
                     controller = controller1;
@@ -52,9 +58,32 @@ namespace ConduitModule.Systems {
             if (controller == null) {
                 return;
             }
-            controller.resetSystem();
+            interfaces = new List<MatrixInterface>();
+            driveInventories = new List<MatrixDriveInventory>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
+                matrixConduitInteractable.syncToSystem(this);
                 matrixConduitInteractable.syncToController(controller);
+            }
+        }
+
+        public void addInterface(MatrixInterface matrixInterface) {
+            interfaces.Add(matrixInterface);
+        }
+        public void addDrive(MatrixDrive matrixDrive) {
+            foreach (ItemSlot drive in matrixDrive.StorageDrives) {
+                if (
+                    drive == null || 
+                    drive.itemObject == null || 
+                    drive.tags == null || 
+                    !drive.tags.Dict.ContainsKey(ItemTag.StorageDrive) || 
+                    drive.itemObject is not MatrixDriveItem matrixDriveItem
+                ) {
+                    continue;
+                }
+                driveInventories.Add(new MatrixDriveInventory(
+                    (List<ItemSlot>)drive.tags.Dict[ItemTag.StorageDrive],
+                    matrixDriveItem.MaxAmount
+                ));
             }
         }
     }

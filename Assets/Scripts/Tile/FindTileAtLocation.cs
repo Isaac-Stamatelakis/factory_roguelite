@@ -129,19 +129,22 @@ public static class FindTileAtLocation
     /// <returns>True if spriteSize is greater than or equal to searchWidth </returns>
     /// </summary>
     private static bool isHitTile(TileBase tileBase, int searchWidth) {
+        if (tileBase == null) {
+            return false;
+        }
         if (tileBase is Tile) {
             return isHitTile(((Tile) tileBase).sprite,searchWidth);
         } else if (tileBase is RuleTile) {
             return isHitTile(((RuleTile) tileBase).m_DefaultSprite,searchWidth);
         } else if (tileBase is AnimatedTile) {
-            isHitTile(((AnimatedTile) tileBase).m_AnimatedSprites[0],searchWidth);
+            return isHitTile(((AnimatedTile) tileBase).m_AnimatedSprites[0],searchWidth);
         }
-        Debug.LogError("IsHitTile did not get sprite for tilebase");
+        Debug.LogError("IsHitTile did not get sprite for " + tileBase.GetType());
         return false;
     } 
 
     private static bool isHitTile(Sprite sprite, int searchWidth) {
         Vector2Int spriteSize = Global.getSpriteSize(sprite);
-        return spriteSize.y >= searchWidth && spriteSize.x >= searchWidth;
+        return spriteSize.y >= searchWidth || spriteSize.x >= searchWidth;
     } 
 }

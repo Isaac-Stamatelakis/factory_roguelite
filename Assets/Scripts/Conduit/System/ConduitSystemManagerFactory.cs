@@ -16,7 +16,6 @@ namespace ConduitModule.Systems {
         ) {
             bool isPort = conduitType == ConduitType.Item || conduitType == ConduitType.Fluid || conduitType == ConduitType.Energy || conduitType == ConduitType.Signal;
             if (isPort) {
-                
                 return new PortConduitSystemManager(
                     conduitType: conduitType,
                     conduits: castConduitArray<IPortConduit>(conduits,size),

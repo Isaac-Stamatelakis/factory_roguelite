@@ -124,10 +124,7 @@ namespace ConduitModule.Systems {
             return position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y;
         }
         public void setConduit(int x, int y, IConduit conduit) {
-            if (conduit is not TConduit typeConduit) {
-                Debug.LogError("Tried to add invalid conduit type to conduit system");
-                return;
-            }
+            
             x -= referencePosition.x;
             y -= referencePosition.y;
             if (x < 0 || x >= size.x || y < 0 || y >= size.y) {
@@ -138,6 +135,10 @@ namespace ConduitModule.Systems {
                 if (conduits[x,y] != null) {
                     removeConduitFromSystem(conduits[x,y],x,y);
                 }
+                return;
+            }
+            if (conduit is not TConduit typeConduit) {
+                Debug.LogError("Tried to add invalid conduit type to conduit system");
                 return;
             }
             conduit.setX(x);
