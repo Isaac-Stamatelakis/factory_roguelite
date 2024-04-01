@@ -68,6 +68,9 @@ public static class TileSpriteShapeFactory
         textureImporter.spritePixelsPerUnit = 32;
         AssetDatabase.ImportAsset(spritePath + ".png", ImportAssetOptions.ForceUpdate);
         AssetDatabase.Refresh();
-        return AssetDatabase.LoadAssetAtPath<Sprite>(spritePath + ".png");
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath + ".png");
+        SpriteEditorHelper.set(sprite,false,false);
+        AssetDatabase.Refresh();
+        return sprite;
     }
 }

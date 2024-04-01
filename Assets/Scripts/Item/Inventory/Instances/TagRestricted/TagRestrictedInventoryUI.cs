@@ -7,7 +7,7 @@ namespace ItemModule.Inventory {
     public class TagRestrictedInventoryUI : AbstractSolidItemInventory
     {
         [SerializeField] private ItemTag validTag;
-        public void initalize(List<ItemSlot> items,ItemTag validTag)
+        public void initalize(List<ItemSlot> items, ItemTag validTag)
         {
             this.inventory = items;
             this.validTag = validTag;

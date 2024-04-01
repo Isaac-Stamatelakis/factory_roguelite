@@ -75,7 +75,6 @@ namespace ConduitModule {
             IMatrixConduitInteractable matrixConduitInteractable = null;
             if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
                 matrixConduitInteractable = matrixConduitInteractable1;
-                Debug.Log(tileEntity.name);
             }
             
             return new MatrixConduit(

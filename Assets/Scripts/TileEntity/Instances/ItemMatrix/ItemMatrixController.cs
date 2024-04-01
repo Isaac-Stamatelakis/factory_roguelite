@@ -37,15 +37,17 @@ namespace TileEntityModule.Instances.Matrix {
     
         public void sendItem(ItemSlot toInsert) {
             foreach (MatrixConduitSystem matrixConduitSystem in systems) {
-                foreach (MatrixDriveInventory matrixDriveInventory in matrixConduitSystem.DriveInventories) {  
-                    foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
-                        if (!ItemSlotHelper.canInsertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize)) {
-                            continue;
-                        }
-                        ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize);
-                        if (itemSlot.amount <= 0) {
-                            itemSlot.itemObject = null;
-                            return;
+                foreach (List<MatrixDriveInventory> matrixDriveInventoryList in matrixConduitSystem.DriveInventories.Values) {  
+                    foreach (MatrixDriveInventory matrixDriveInventory in matrixDriveInventoryList) {
+                        foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
+                            if (!ItemSlotHelper.canInsertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize)) {
+                                continue;
+                            }
+                            ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize);
+                            if (itemSlot.amount <= 0) {
+                                itemSlot.itemObject = null;
+                                return;
+                            }
                         }
                     }
                 }
@@ -56,8 +58,10 @@ namespace TileEntityModule.Instances.Matrix {
 
             List<ItemSlot> inventories = new List<ItemSlot>();
             foreach (MatrixConduitSystem system in systems) {
-                foreach (MatrixDriveInventory driveInventory in system.DriveInventories) {
-                    inventories.AddRange(driveInventory.inventories);
+                foreach (List<MatrixDriveInventory> matrixDriveInventoryList in system.DriveInventories.Values) {
+                    foreach (MatrixDriveInventory driveInventory in matrixDriveInventoryList) {
+                        inventories.AddRange(driveInventory.inventories);
+                    }
                 }
             }
             return inventories;
@@ -67,7 +71,6 @@ namespace TileEntityModule.Instances.Matrix {
             if (!matrixController.Equals(this)) {
                 return;
             }
-            Debug.Log("Controller synced to system");
         }
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)

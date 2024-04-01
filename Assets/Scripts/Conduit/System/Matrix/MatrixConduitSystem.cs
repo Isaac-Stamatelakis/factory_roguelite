@@ -11,10 +11,10 @@ namespace ConduitModule.Systems {
         private List<IMatrixConduitInteractable> tileEntities;
         
         private List<MatrixInterface> interfaces;
-        private List<MatrixDriveInventory> driveInventories;
+        private Dictionary<MatrixDrive, List<MatrixDriveInventory>> driveInventories;
 
         public List<MatrixInterface> Interfaces { get => interfaces;}
-        public List<MatrixDriveInventory> DriveInventories { get => driveInventories; }
+        public Dictionary<MatrixDrive, List<MatrixDriveInventory>> DriveInventories { get => driveInventories; }
 
         public MatrixConduitSystem(string id) : base(id)
         {
@@ -59,7 +59,7 @@ namespace ConduitModule.Systems {
                 return;
             }
             interfaces = new List<MatrixInterface>();
-            driveInventories = new List<MatrixDriveInventory>();
+            driveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 matrixConduitInteractable.syncToSystem(this);
                 matrixConduitInteractable.syncToController(controller);
@@ -69,7 +69,8 @@ namespace ConduitModule.Systems {
         public void addInterface(MatrixInterface matrixInterface) {
             interfaces.Add(matrixInterface);
         }
-        public void addDrive(MatrixDrive matrixDrive) {
+        public void setDrive(MatrixDrive matrixDrive) {
+            List<MatrixDriveInventory> inventories = new List<MatrixDriveInventory>();
             foreach (ItemSlot drive in matrixDrive.StorageDrives) {
                 if (
                     drive == null || 
@@ -80,10 +81,17 @@ namespace ConduitModule.Systems {
                 ) {
                     continue;
                 }
-                driveInventories.Add(new MatrixDriveInventory(
+                inventories.Add(new MatrixDriveInventory(
                     (List<ItemSlot>)drive.tags.Dict[ItemTag.StorageDrive],
                     matrixDriveItem.MaxAmount
                 ));
+            }
+            driveInventories[matrixDrive] = inventories;
+        }
+
+        public void removeDrive(MatrixDrive matrixDrive) {
+            if (DriveInventories.ContainsKey(matrixDrive)) {
+                driveInventories.Remove(matrixDrive);
             }
         }
     }

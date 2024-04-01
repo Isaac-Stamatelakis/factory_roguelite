@@ -9,7 +9,8 @@ using ConduitModule.Systems;
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
     public class MatrixDrive : TileEntity, 
-        IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, ILoadableTileEntity, ITickableTileEntity, IBreakActionTileEntity
+        IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, 
+        ILoadableTileEntity, ITickableTileEntity, IBreakActionTileEntity, IInventoryListener
     {
         [SerializeField] private ConduitPortLayout layout;
         [SerializeField] private int rows;
@@ -18,12 +19,18 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GameObject visualPrefab;
         private List<ItemSlot> storageDrives;
         private MatrixDriverPixelContainer pixelContainer;
+        private MatrixConduitSystem matrixConduitSystem;
 
         public List<ItemSlot> StorageDrives { get => storageDrives; }
 
         public ConduitPortLayout getConduitPortLayout()
         {
             return layout;
+        }
+
+        public void inventoryUpdate()
+        {
+            matrixConduitSystem.setDrive(this);
         }
 
         public void load()
@@ -59,6 +66,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void onBreak()
         {
+            matrixConduitSystem.removeDrive(this);
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
@@ -87,7 +95,8 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
-            matrixConduitSystem.addDrive(this);
+            this.matrixConduitSystem = matrixConduitSystem;
+            matrixConduitSystem.setDrive(this);
         }
 
         public void tickUpdate()

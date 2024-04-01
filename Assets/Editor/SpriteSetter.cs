@@ -27,13 +27,18 @@ public class SpriteRuleSetter : EditorWindow {
         spriteSheet = EditorGUILayout.Toggle("SpriteSheet", spriteSheet);
         if (GUILayout.Button("Set"))
         {
-            set();
+            SpriteEditorHelper.set(sprite,readWrite,spriteSheet);
         }
         EditorGUILayout.Space();
         
     }
 
-    void set() {
+    
+
+}
+
+public static class SpriteEditorHelper {
+    public static void set(Sprite sprite, bool readWrite, bool spriteSheet) {
         string path = AssetDatabase.GetAssetPath(sprite);
         TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
         importer.isReadable = readWrite;
@@ -46,10 +51,9 @@ public class SpriteRuleSetter : EditorWindow {
             importer.spriteImportMode = SpriteImportMode.Single;
         }
         importer.SaveAndReimport();
-        EditorUtility.SetDirty(importer);
+        EditorUtility.SetDirty(importer); 
     }
-
+    
 }
-
 
 

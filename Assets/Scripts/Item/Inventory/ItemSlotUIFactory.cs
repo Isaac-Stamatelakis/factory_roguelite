@@ -8,6 +8,14 @@ using TMPro;
 namespace ItemModule {
     public static class ItemSlotUIFactory
     {
+        
+        public static GameObject getSlot(ItemSlot itemSlot) {
+            GameObject slot = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
+            getItemImage(itemSlot,slot.transform);
+            getNumber(itemSlot,slot.transform);
+            getTagObject(itemSlot,slot.transform);
+            return slot;
+        }
         public static GameObject getItemImage(ItemSlot itemSlot, Transform parent) {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return null;    

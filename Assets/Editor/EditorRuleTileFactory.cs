@@ -63,6 +63,8 @@ public class EditorFactory
                 AssetDatabase.Refresh();
 
                 Sprite sprite1 = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath + ".png");
+                SpriteEditorHelper.set(sprite1,false,false);
+                AssetDatabase.Refresh();
                 sprites[index]=sprite1;
 
 
@@ -280,7 +282,9 @@ public class EditorFactory
                         AssetDatabase.Refresh();
 
                         Sprite sprite1 = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath + ".png");
-
+                        
+                        SpriteEditorHelper.set(sprite1,false,false);
+                        AssetDatabase.Refresh();
                         RuleTile.TilingRule rule = new RuleTile.TilingRule();
                         rule.m_ColliderType = Tile.ColliderType.Grid;
                         rule.m_Sprites = new Sprite[1];
