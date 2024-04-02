@@ -8,7 +8,8 @@ public enum ConduitType {
     Item,
     Fluid,
     Energy,
-    Signal
+    Signal,
+    Matrix
 }
 
 public static class ConduitTypeExtension {
@@ -22,6 +23,8 @@ public static class ConduitTypeExtension {
                 return TileMapType.EnergyConduit;
             case ConduitType.Signal:
                 return TileMapType.SignalConduit;
+            case ConduitType.Matrix:
+                return TileMapType.MatrixConduit;
             default:
                 Debug.LogError("ConduitTypeExtension method toTileMapType did not include switch case " + conduitType.ToString());
                 return TileMapType.ItemConduit;
@@ -38,7 +41,6 @@ public enum ResourceConduitType {
 public abstract class ConduitItem : ItemObject, IPlacableItem
 {
     public RuleTile ruleTile;
-    public int hardness;
     public override Sprite getSprite()
     {
         return ruleTile.m_DefaultSprite;

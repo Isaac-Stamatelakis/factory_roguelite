@@ -158,14 +158,14 @@ namespace TileMapModule {
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             Vector2Int tilePositon = getTilePositionInPartition(position);
         }
-        protected virtual void spawnItemEntity(Item item, Vector2Int hitTilePosition) {
+        protected virtual void spawnItemEntity(ItemObject itemObject, int amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = getChunk(hitTilePosition);
             if (chunk == null) {
                 return;
             }
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(item,1);
+            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,amount);
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 

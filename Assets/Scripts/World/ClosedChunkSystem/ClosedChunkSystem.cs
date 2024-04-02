@@ -228,11 +228,9 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public virtual void saveOnDestroy() {
             partitionUnloader.clearAll();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (List<IChunkPartition> chunkPartitionList in chunk.getChunkPartitions()) {
-                    foreach (IChunkPartition partition in chunkPartitionList) {
-                        if (partition.getLoaded()) {
-                            partition.save();
-                        }
+                foreach (IChunkPartition partition in  chunk.getChunkPartitions()) {
+                    if (partition.getLoaded()) {
+                        partition.save();
                     }
                 }
                 ChunkIO.writeChunk(chunk);

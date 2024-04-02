@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class GlobalHelper 
 {
-    public static GameObject loadFromResourcePath(string path) {
+    public static GameObject instantiateFromResourcePath(string path) {
         return GameObject.Instantiate(Resources.Load<GameObject>(path));
     }
     public static void deleteAllChildren(Transform parent) {

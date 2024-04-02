@@ -21,6 +21,9 @@ namespace Tiles {
         public bool rotatable = false;
         public bool hasStates = false;
         public List<DropOption> dropOptions;
+        public bool requireTileBelow = false;
+        public bool requireTileAbove = false;
+        public bool requireTileSide = false;
     }
     /// </summary>
     /// Options which require serializaiton
@@ -29,10 +32,12 @@ namespace Tiles {
     public struct SerializedTileOptions {
         public int rotation;
         public int state;
+        public bool mirror;
         [JsonConstructor]
-        public SerializedTileOptions(int rotation, int state) {
+        public SerializedTileOptions(int rotation, int state, bool mirror) {
             this.rotation = rotation;
             this.state = state;
+            this.mirror = mirror;
         }
     }
     [System.Serializable]
@@ -54,8 +59,10 @@ namespace Tiles {
     } 
     [System.Serializable]
     public class DropOption {
-        public string id;
+        public ItemObject itemObject;
         public int weight;
+        public int lowerAmount;
+        public int upperAmount;
     }
 
     public static class TileOptionFactory {
@@ -80,6 +87,7 @@ namespace Tiles {
                 );
             }
             try {
+                SerializedTileOptions serializedTileOptions = JsonConvert.DeserializeObject<SerializedTileOptions>(data);
                 return new TileOptions(
                     tileItem.tileOptions.StaticOptions,
                     tileItem.tileOptions.DynamicTileOptions,

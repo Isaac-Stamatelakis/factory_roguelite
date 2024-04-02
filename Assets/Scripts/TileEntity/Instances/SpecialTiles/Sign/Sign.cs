@@ -6,11 +6,11 @@ using GUIModule;
 
 namespace TileEntityModule.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]
-    public class Sign : TileEntity, IClickableTileEntity, ISerializableTileEntity
+    public class Sign : TileEntity, IRightClickableTileEntity, ISerializableTileEntity
     {
         public GameObject signUIPrefab;
         private SignData signData;
-        public void onClick()
+        public void onRightClick()
         {
             if (signData == null) {
                 signData = new SignData("","","");

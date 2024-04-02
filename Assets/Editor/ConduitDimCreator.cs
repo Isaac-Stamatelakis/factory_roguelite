@@ -67,7 +67,8 @@ public class ConduitDimCreatorWindow : EditorWindow {
         initTileMap("ItemConduit",tileMapContainer.transform);
         initTileMap("FluidConduit",tileMapContainer.transform);
         initTileMap("EnergyConduit",tileMapContainer.transform);
-        initTileMap("SignalCOnduit",tileMapContainer.transform);
+        initTileMap("SignalConduit",tileMapContainer.transform);
+        initTileMap("MatrixConduit",tileMapContainer.transform);
         PrefabUtility.SaveAsPrefabAsset(tileMapContainer, GeneratePath + "/" + tileMapContainer.name + ".prefab");
     }
 

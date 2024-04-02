@@ -22,7 +22,7 @@ public static class Global
     private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
     //private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5);
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(7,6);
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5);
     private static int chunkPartitionExtraTileEntityLoadRange = 2;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
@@ -118,4 +118,21 @@ public static class Global
     }
 
 
+}
+
+public struct Dim2Bounds {
+    public int XLowerBound;
+    public int XUpperBound;
+    public int YLowerBound;
+    public int YUpperBound;
+    public Dim2Bounds(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound) {
+        this.XLowerBound = xLowerBound;
+        this.YLowerBound = yLowerBound;
+        this.XUpperBound = xUpperBound;
+        this.YUpperBound = yUpperBound;
+    }
+
+    public Vector2Int size() {
+        return new Vector2Int(Mathf.Abs(XLowerBound-XUpperBound)+1,Mathf.Abs(YLowerBound-YUpperBound)+1);
+    }
 }

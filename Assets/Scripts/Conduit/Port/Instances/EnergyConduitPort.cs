@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using TileEntityModule;
 
 namespace ConduitModule.Ports {
-    public class EnergyConduitInputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitInputPort<int>, IColorPort, IPriorityPort
+    public class EnergyConduitInputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitInputPort<int>, IColorPort, IPriorityPort, IConduitIOPort
     {
         public bool enabled;
         public int color;
@@ -48,10 +49,18 @@ namespace ConduitModule.Ports {
         {
             priority = val;
         }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
+                return;
+            } 
+            this.tileEntity = energyConduitInteractable;
+        }
     }
 
     [System.Serializable]
-    public class EnergyConduitOutputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitOutputPort<int>, IColorPort
+    public class EnergyConduitOutputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitOutputPort<int>, IColorPort, IConduitIOPort
     { 
         public bool enabled;
         public int color;
@@ -83,6 +92,14 @@ namespace ConduitModule.Ports {
         public void setEnabled(bool val)
         {
             this.enabled = val;
+        }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
+                return;
+            }
+            this.tileEntity = energyConduitInteractable;
         }
     }
 

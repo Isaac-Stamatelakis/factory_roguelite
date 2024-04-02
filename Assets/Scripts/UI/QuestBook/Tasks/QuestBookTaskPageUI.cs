@@ -9,67 +9,46 @@ using System;
 namespace UI.QuestBook {
     public class QuestBookTaskPageUI : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI title;
-        [SerializeField] private TextMeshProUGUI taskTitle;
-        [SerializeField] private TextMeshProUGUI description;
         [SerializeField] private GridLayoutGroup rewardsGroup;
         [SerializeField] private Button acceptRewardsButton;
         [SerializeField] private Button backButton;
         [SerializeField] private Transform taskContainer;
         [SerializeField] private Button editButton;
         [SerializeField] private Transform editContainer;
-        [SerializeField] private TMP_InputField editTitle;
-        [SerializeField] private TMP_InputField editDescription;
+        [SerializeField] private TMP_InputField titleField;
+        [SerializeField] private TMP_InputField descriptionField;
         [SerializeField] private TMP_Dropdown changeTaskDropDown;
+        [SerializeField] private Button addRewardButton;
 
-        private bool editMode = false;
-
-        private QuestBookNodeContent nodeContent;
+        private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
         private QuestBookUI questBookUI;
-        
-        public void init(QuestBookNodeContent nodeContent, QuestBookUI questBookUI) {
-            this.title.text = nodeContent.Title;
-            this.description.text = nodeContent.Description;
+
+        private QuestBookNode node;
+        public QuestBookUI QuestBookUI { get => questBookUI; set => questBookUI = value; }
+        public List<int> SelectedRewards { get => selectedRewards; set => selectedRewards = value; }
+
+        private List<int> selectedRewards = new List<int>();
+
+        public bool RewardsSelectable {get => Content.Rewards.Count > Content.NumberOfRewards;}
+
+        public void init(QuestBookNode node, QuestBookUI questBookUI) {
+            this.node = node;
+            this.titleField.text = Content.Title;
+            this.descriptionField.text = Content.Description;
             this.questBookUI = questBookUI;
-            this.nodeContent = nodeContent;
-            if (nodeContent.Task == null) {
-                this.taskTitle.text = "No Task";
+            this.node = node;
+
+            if (Content.Task == null) {
+                this.titleField.text = "No Task";
             } else {
                 setTaskContent();
             }
-            
-            backButton.onClick.AddListener(() => {questBookUI.gameObject.SetActive(true);GameObject.Destroy(gameObject);});
-            if (questBookUI.EditMode) {
-                editButton.onClick.AddListener(goIntoEditMode);
-                
-
-            } else {
-                editButton.gameObject.SetActive(false);
-            }
-            editContainer.gameObject.SetActive(false);
-        }
-
-        private void setTaskContent() {
-            for (int i = 0; i < taskContainer.childCount; i++) {
-                GameObject.Destroy(taskContainer.GetChild(i).gameObject);
-            }
-            this.taskTitle.text = nodeContent.Task.getTaskType().ToString().Replace("_"," ");
-            GameObject questContent = QuestBookTaskUIFactory.getContent(nodeContent.Task, questBookUI);
-            questContent.transform.SetParent(taskContainer,false);
-        }
-        private void goIntoEditMode() {
-            editMode = !editMode;
-            if (editMode) {
-                editTitle.onValueChanged.RemoveAllListeners();
-                editDescription.onValueChanged.RemoveAllListeners();
-                changeTaskDropDown.onValueChanged.RemoveAllListeners();
-
-                editContainer.gameObject.SetActive(true);
-                editTitle.onValueChanged.AddListener((string value) => {nodeContent.Title = value;});
-                editTitle.text = nodeContent.Title;
-                
-                editDescription.onValueChanged.AddListener((string value) => {nodeContent.Description = value;});
-                editDescription.text = nodeContent.Description;
+            titleField.interactable = QuestBookHelper.EditMode;
+            descriptionField.interactable = QuestBookHelper.EditMode;
+            displayRewards();
+            if (QuestBookHelper.EditMode) {
+                titleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
+                descriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
 
                 changeTaskDropDown.ClearOptions();
                 List<TMPro.TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
@@ -77,32 +56,80 @@ namespace UI.QuestBook {
                     options.Add(new TMPro.TMP_Dropdown.OptionData(taskType.ToString()));
                 }
                 changeTaskDropDown.AddOptions(options);
+
+                QuestTaskType? currentTask = Content.Task == null ? null : Content.Task.getTaskType();
+                int currentTaskIndex = currentTask == null ? 0 : (int) currentTask;
+                changeTaskDropDown.value = currentTaskIndex;
                 changeTaskDropDown.onValueChanged.AddListener(dropDownValueChanged);
-            } else {
-                editContainer.gameObject.SetActive(false);
-                this.title.text = nodeContent.Title;
-                this.description.text = nodeContent.Description;
             }
-            
+            addRewardButton.onClick.AddListener(() => {
+                Content.Rewards.Add(new SerializedItemSlot("stone",1,null));
+                displayRewards();
+            });
+            backButton.onClick.AddListener(() => {
+                questBookUI.gameObject.SetActive(true);
+                GameObject.Destroy(gameObject);
+            });
+            editButton.onClick.AddListener(() => {
+                EditConnectionsPageUI connectionsPageUI = EditConnectionsPageUI.newInstance();
+                connectionsPageUI.init(node,questBookUI);
+                connectionsPageUI.transform.SetParent(questBookUI.transform,false);
+            });
+            editContainer.gameObject.SetActive(QuestBookHelper.EditMode);
+
+        }
+
+        private void setTaskContent() {
+            for (int i = 0; i < taskContainer.childCount; i++) {
+                GameObject.Destroy(taskContainer.GetChild(i).gameObject);
+            }
+            this.titleField.text = Content.Task.getTaskType().ToString().Replace("_"," ");
+            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, questBookUI);
+            questContent.transform.SetParent(taskContainer,false);
         }
 
         private void dropDownValueChanged(int value) {
             QuestTaskType selectedTaskType = (QuestTaskType)Enum.Parse(typeof(QuestTaskType), changeTaskDropDown.options[value].text);
-            if (nodeContent.Task != null && nodeContent.Task.getTaskType() == selectedTaskType) {
+            if (Content.Task != null && Content.Task.getTaskType() == selectedTaskType) {
                 return;
             }
             switch (selectedTaskType) {
                 case QuestTaskType.Checkmark:
-                    nodeContent.Task = new CheckMarkQuestTask();
+                    Content.Task = new CheckMarkQuestTask();
                     break;
                 case QuestTaskType.Item:
-                    nodeContent.Task = new ItemQuestTask();
+                    Content.Task = new ItemQuestTask();
                     break;
                 case QuestTaskType.Dimension:
-                    nodeContent.Task = new VisitDimensionQuestTask();
+                    Content.Task = new VisitDimensionQuestTask();
                     break;
             }
             setTaskContent();
+        }
+
+        public void addReward(int index) {
+            if (selectedRewards.Count < Content.NumberOfRewards) {
+                selectedRewards.Add(index);
+            } else {
+                selectedRewards.RemoveAt(0);
+                selectedRewards.Add(index);
+            }
+        }
+
+        public void removeReward(int index) {
+            selectedRewards.RemoveAt(index);
+        }
+
+        public void displayRewards() {
+            GlobalHelper.deleteAllChildren(rewardsGroup.transform);
+            if (Content.Rewards == null) {
+                Content.Rewards = new List<SerializedItemSlot>();
+            }
+            for (int i = 0; i < Content.Rewards.Count; i++) {
+                RewardListElement rewardListElement = RewardListElement.newInstance();
+                rewardListElement.init(Content.Rewards,i,this);
+                rewardListElement.transform.SetParent(rewardsGroup.transform,false);
+            }
         }
     }
 }

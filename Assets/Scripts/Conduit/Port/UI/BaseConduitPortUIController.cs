@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ConduitModule.Ports.UI {
     public interface IConduitPortUIController {
-        public void initalize(IConduit conduit);
+        public void initalize(IPortConduit conduit);
     }
     public class BaseConduitPortUIController : ConduitPortUIController, IConduitPortUIController 
     {
@@ -19,7 +19,7 @@ namespace ConduitModule.Ports.UI {
         [SerializeField] public GameObject extractDisable;
         
 
-        public override void initalize(IConduit conduit)
+        public override void initalize(IPortConduit conduit)
         {
             base.initalize(conduit);
             toggleInsertButton.onClick.AddListener(insertToggle);

@@ -11,7 +11,7 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
-    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class PassiveProcessor : TileEntity, ITickableTileEntity,  IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         [SerializeField] public PassiveRecipeProcessor recipeProcessor;
         [SerializeField] public Tier tier;
@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.Machines {
             }
         }
 
-        public void onClick()   
+        public void onRightClick()   
         {
             recipeProcessor.displayTileEntity(inventory,recipeProcessor.name,this);
             
@@ -60,8 +60,8 @@ namespace TileEntityModule.Instances.Machines {
             List<ItemSlot> solidOutputs;
             List<ItemSlot> fluidOutputs;
             ItemSlotHelper.sortInventoryByState(outputs, out solidOutputs, out fluidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs);
+            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
+            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tier.getFluidStorage());
             currentRecipe = null;
             inventoryUpdate();
         }
@@ -94,36 +94,6 @@ namespace TileEntityModule.Instances.Machines {
             return conduitLayout;
         }
 
-        public ItemSlot extractItem(Vector2Int portPosition)
-        {
-            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
-                if (itemSlot != null && itemSlot.itemObject != null) {
-                    return itemSlot;
-                }
-            }
-            return null;
-        }
-
-        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
-        {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot);
-            List<ItemSlot> inputs = inventory.ItemOutputs.Slots;
-        }
-
-        public ItemSlot extractFluid(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool insertFluid(ItemSlot itemSlot,Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-       
 
         public void insertSignal(int signal,Vector2Int portPosition)
         {
@@ -138,6 +108,26 @@ namespace TileEntityModule.Instances.Machines {
         public RecipeProcessor getRecipeProcessor()
         {
             return recipeProcessor;
+        }
+
+        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
+        }
+
+        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots, itemSlot, Global.MaxSize);
+        }
+
+        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        {
+            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
+        }
+
+        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots, itemSlot, tier.getFluidStorage());
         }
     }
 

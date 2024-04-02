@@ -11,24 +11,25 @@ using TileMapModule.Place;
 using ChunkModule.PartitionModule;
 using ChunkModule.ClosedChunkSystemModule;
 using Tiles;
+using ItemModule;
 
 namespace TileMapModule {
     public class TileGridMap : AbstractTileMap<TileItem>
     {   
-        protected override void spawnItemEntity(TileItem tileItem, Vector2Int hitTilePosition) {
+        protected override void spawnItemEntity(ItemObject itemObject, int amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = getChunk(hitTilePosition);  
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
 
-            Vector2 spriteSize =  Global.getSpriteSize(tileItem.getSprite());
+            Vector2 spriteSize =  Global.getSpriteSize(itemObject.getSprite());
             if (PlaceTile.mod(spriteSize.x,2) == 0) {
                 realXPosition += 0.25f;
             }
             if (PlaceTile.mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
-            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(tileItem,1);
+            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,amount);
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
@@ -94,7 +95,7 @@ namespace TileMapModule {
                 return;
             }
             Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
-            TileEntity tileEntity = partition.GetTileEntity(tilePositionInPartition);
+            TileEntity tileEntity = getTileEntityAtPosition(position);
 
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
@@ -105,6 +106,14 @@ namespace TileMapModule {
             writeTile(partition,tilePositionInPartition,null);
         }
 
+        public TileEntity getTileEntityAtPosition(Vector2Int position) {
+            IChunkPartition partition = getPartitionAtPosition(position);
+            if (partition == null) {
+                return null;
+            }
+            Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
+            return partition.GetTileEntity(tilePositionInPartition);
+        }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
@@ -140,41 +149,55 @@ namespace TileMapModule {
             if (tileBase == null) {
                 return;
             }
+            
             if (tileBase is IStateTile stateTile) {
                 TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
                 Vector2 pos = new Vector2(x/2f+0.25f,y/2f+0.25f);
                 tileBase = stateTile.getTileAtState(tileOptions.SerializedTileOptions.state);
             } 
             tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
+            if (tileItem.tileOptions != null && tileItem.tileOptions.StaticOptions != null && tileItem.tileOptions.StaticOptions.rotatable) {
+                TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
+                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
+                
+                if (tileOptions.SerializedTileOptions.mirror) {
+                    transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 180f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                } else {
+                    transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 0f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                }
+                tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
+            }
+            
         }
 
         public override void hitTile(Vector2 position) {
             Vector2Int hitTilePosition = getHitTilePosition(position);
             Vector3Int vec3Hit = (Vector3Int) hitTilePosition;
             TileOptions tileOptions = getOptionsAtPosition(hitTilePosition);
-            /*
-            Matrix4x4 originalMatrix = tilemap.GetTransformMatrix(vec3Hit);
-            float xOffset = originalMatrix.m03;
-            float yOffset = originalMatrix.m13;
-            if (xOffset > 0.1f) {
-                xOffset = 0.25f;
-            } else {
-                xOffset = 0;
-            }
-            if (yOffset > 0.1f) {
-                yOffset = 0.25f;
-            } else {
-                xOffset = 0;
-            }
-            xOffset += UnityEngine.Random.Range(-0.001f,0.001f);
-            yOffset += UnityEngine.Random.Range(-0.001f,0.001f);
-            originalMatrix.m03 = xOffset;
-            originalMatrix.m13 = yOffset;
-            tilemap.SetTransformMatrix(vec3Hit,originalMatrix);
-            */
             if (hitHardness(hitTilePosition)) {
                 TileItem tileItem = getTileItem(hitTilePosition);
-                spawnItemEntity(tileItem,hitTilePosition);
+                if (tileItem.tileOptions == null || tileItem.tileOptions.StaticOptions == null || tileItem.tileOptions.StaticOptions.dropOptions.Count == 0) {
+                    spawnItemEntity(tileItem,1,hitTilePosition);
+                } else {
+                    int totalWeight = 0;
+                    foreach (DropOption dropOption in tileItem.tileOptions.StaticOptions.dropOptions) {
+                        totalWeight += dropOption.weight;
+                    }
+                    int ran = UnityEngine.Random.Range(0,totalWeight);
+                    totalWeight = 0;
+                    foreach (DropOption dropOption in tileItem.tileOptions.StaticOptions.dropOptions) {
+                        totalWeight += dropOption.weight;
+                        if (totalWeight >= ran) {
+                            if (dropOption.itemObject != null) {
+                                int amount = UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
+                                amount = Mathf.Max(1,amount);
+                                spawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
+                            }
+                            
+                        }
+                    }
+                }
+                
                 breakTile(hitTilePosition);
             }
         }

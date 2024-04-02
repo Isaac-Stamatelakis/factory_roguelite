@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Teleporter")]
-    public class CompactMachineTeleporter : TileEntity, IClickableTileEntity, ICompactMachineInteractable, ISoftLoadable
+    public class CompactMachineTeleporter : TileEntity, IRightClickableTileEntity, ICompactMachineInteractable, ISoftLoadable
     {
         [SerializeField] public GameObject uiPrefab;
         private CompactMachine compactMachine;
         
-        public void onClick()
+        public void onRightClick()
         {
             if (uiPrefab == null) {
                 CompactMachineHelper.teleportOutOfCompactMachine(compactMachine);

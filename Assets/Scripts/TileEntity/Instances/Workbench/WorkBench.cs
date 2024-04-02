@@ -5,7 +5,7 @@ using RecipeModule;
 
 namespace TileEntityModule.Instances.WorkBenchs {
     [CreateAssetMenu(fileName ="E~New WorkBench",menuName="Tile Entity/Workbench")]
-    public class WorkBench : TileEntity, IClickableTileEntity, IProcessorTileEntity
+    public class WorkBench : TileEntity, IRightClickableTileEntity, IProcessorTileEntity
     {
         [SerializeField] public WorkBenchRecipeProcessor workBenchRecipeProcessor;
         [SerializeField] public GameObject uiPrefab;
@@ -15,7 +15,7 @@ namespace TileEntityModule.Instances.WorkBenchs {
             return workBenchRecipeProcessor;
         }
 
-        public void onClick()
+        public void onRightClick()
         {
             if (uiPrefab == null) {
                 Debug.LogError(name + " uiPrefab is null");

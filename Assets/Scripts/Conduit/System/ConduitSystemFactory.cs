@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
     public static class ConduitSystemFactory {
         public static IConduitSystem create(IConduit conduit) {
             ConduitItem conduitItem = conduit.getConduitItem();
@@ -20,6 +20,9 @@ namespace ConduitModule.ConduitSystemModule {
                     break;
                 case ConduitType.Signal:
                     system = new SignalConduitSystem(conduitItem.id);
+                    break;
+                case ConduitType.Matrix:
+                    system = new MatrixConduitSystem(conduitItem.id);
                     break;
             }
 

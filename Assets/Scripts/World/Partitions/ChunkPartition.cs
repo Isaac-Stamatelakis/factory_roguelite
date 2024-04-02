@@ -188,8 +188,8 @@ namespace ChunkModule.PartitionModule {
             if (tileEntity == null) {
                 return false;
             }
-            if (tileEntity is IClickableTileEntity) {
-                ((IClickableTileEntity) tileEntity).onClick();
+            if (tileEntity is IRightClickableTileEntity) {
+                ((IRightClickableTileEntity) tileEntity).onRightClick();
                 return true;
             }
             return false;

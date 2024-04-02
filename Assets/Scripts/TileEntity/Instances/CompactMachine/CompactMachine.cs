@@ -9,7 +9,7 @@ using DimensionModule;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntity, IClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
+    public class CompactMachine : TileEntity, IRightClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
     {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
@@ -20,13 +20,6 @@ namespace TileEntityModule.Instances.CompactMachines {
         public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporter Teleporter { get => teleporter; set => teleporter = value; }
 
-        public ItemSlot extractItem(Vector2Int portPosition)
-        {
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                return inventory.ItemPorts[portPosition].extractItem(portPosition);
-            }
-            return null;
-        }
 
         public ConduitPortLayout getConduitPortLayout()
         {
@@ -55,15 +48,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             return 0;
         }
 
-        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
-        {
-            
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                inventory.ItemPorts[portPosition].insertItem(itemSlot,portPosition);
-            }
-        }
-
-        public void onClick()
+        public void onRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
                 CompactMachineHelper.teleportIntoCompactMachine(this);
@@ -100,25 +85,55 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             throw new System.NotImplementedException();
         }
+
+        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        {
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                return inventory.ItemPorts[portPosition].extractSolidItem(portPosition);
+            }
+            return null;
+        }
+
+        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                inventory.ItemPorts[portPosition].insertSolidItem(itemSlot,portPosition);
+            }
+        }
+
+        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        {
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                return inventory.FluidPorts[portPosition].extractFluidItem(portPosition);
+            }
+            return null;
+        }
+
+        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            if (inventory.ItemPorts.ContainsKey(portPosition)) {
+                inventory.FluidPorts[portPosition].insertFluidItem(itemSlot,portPosition);
+            }
+        }
     }
 
     public class CompactMachinePortInventory {
         private CompactMachine compactMachine;
         private Dictionary<Vector2Int, IEnergyConduitInteractable> energyPorts;
-        private Dictionary<Vector2Int, IItemConduitInteractable> itemPorts;
+        private Dictionary<Vector2Int, ISolidItemConduitInteractable> itemPorts;
         private Dictionary<Vector2Int, IFluidConduitInteractable> fluidPorts;
         private Dictionary<Vector2Int, ISignalConduitInteractable> signalPorts;
 
         public CompactMachinePortInventory(CompactMachine compactMachine) {
             this.compactMachine = compactMachine;
             this.energyPorts = new Dictionary<Vector2Int, IEnergyConduitInteractable>();
-            this.itemPorts = new Dictionary<Vector2Int, IItemConduitInteractable>();
+            this.itemPorts = new Dictionary<Vector2Int, ISolidItemConduitInteractable>();
             this.fluidPorts = new Dictionary<Vector2Int, IFluidConduitInteractable>();
             this.signalPorts = new Dictionary<Vector2Int, ISignalConduitInteractable>();
         }
 
         public Dictionary<Vector2Int, IEnergyConduitInteractable> EnergyPorts { get => energyPorts; set => energyPorts = value; }
-        public Dictionary<Vector2Int, IItemConduitInteractable> ItemPorts { get => itemPorts; set => itemPorts = value; }
+        public Dictionary<Vector2Int, ISolidItemConduitInteractable> ItemPorts { get => itemPorts; set => itemPorts = value; }
         public Dictionary<Vector2Int, IFluidConduitInteractable> FluidPorts { get => fluidPorts; set => fluidPorts = value; }
         public Dictionary<Vector2Int, ISignalConduitInteractable> SignalPorts { get => signalPorts; set => signalPorts = value; }
 
@@ -131,7 +146,7 @@ namespace TileEntityModule.Instances.CompactMachines {
                         duplicateWarning(positionOutsideCompactMachine,type);
                         return;
                     }
-                    if (tileEntity is not IItemConduitInteractable itemConduitInteractable) {
+                    if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
                         Debug.LogWarning("Attempted to add " + tileEntity.name + " which is not item conduit interactable to compact machine '" + compactMachine.name + "'");
                         return;
                     }

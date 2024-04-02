@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using ChunkModule.PartitionModule;
 using TileMapModule.Type;
 
 namespace TileMapModule.Conduit {
     public class ConduitTileMap : AbstractTileMap<ConduitItem>
     {
-        private ConduitSystemManager conduitSystemManager;
+        private IConduitSystemManager conduitSystemManager;
 
-        public ConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
+        public IConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
 
         public override void deleteTile(Vector2 position)
         {
@@ -45,7 +45,7 @@ namespace TileMapModule.Conduit {
                 }
                 Vector2Int tilePositionInPartition = base.getTilePositionInPartition(vect);
                 ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-                spawnItemEntity(conduitItem,vect);
+                spawnItemEntity(conduitItem,1,vect);
                 breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
                 conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
             }

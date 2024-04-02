@@ -11,7 +11,7 @@ using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule.PartitionModule;
 using ConduitModule;
 using ConduitModule.Ports;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using Tiles;
 
 namespace TileMapModule.Place {
@@ -191,8 +191,6 @@ namespace TileMapModule.Place {
             }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
-                //Debug.Log(state);
-                //Debug.Log(MousePositionFactory.getHorizontalMousePosition(worldPosition));
             }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
             if (tileItem.tileEntity != null) {
@@ -216,13 +214,14 @@ namespace TileMapModule.Place {
                     tileEntity = GameObject.Instantiate(tileItem.tileEntity);
                     tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
                 } 
+                TileMapLayer layer = tileMap.getType().toLayer();
+                partition.addTileEntity(layer,tileEntity,positionInPartition);
                 if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                     if (tileEntity is IConduitInteractable) {
                         conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
                     }
                 }
-                TileMapLayer layer = tileMap.getType().toLayer();
-                partition.addTileEntity(layer,tileEntity,positionInPartition);
+                
             }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
         }
@@ -230,11 +229,9 @@ namespace TileMapModule.Place {
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.getType();
-
-            ConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
+            IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
             TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
-
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
             conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
 

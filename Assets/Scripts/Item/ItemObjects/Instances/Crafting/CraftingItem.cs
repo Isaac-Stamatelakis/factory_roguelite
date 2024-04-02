@@ -23,4 +23,24 @@ namespace ItemModule {
             return state;
         }
     }
+
+    public class AnimatedCraftingItem : ItemObject, IStateItem, IMultipleSpriteObject
+    {
+        [SerializeField] private ItemState state;
+        [SerializeField] private Sprite[] sprites;
+        public ItemState getItemState()
+        {
+            return state;
+        }
+
+        public override Sprite getSprite()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Sprite[] getSprites()
+        {
+            return sprites;
+        }
+    }
 }

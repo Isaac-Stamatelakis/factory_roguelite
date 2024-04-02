@@ -23,7 +23,7 @@ namespace UI.QuestBook {
         }
 
         private void setImage() {
-            int index = checkMarkQuestTask.Clicked ? 0 : 1;
+            int index = checkMarkQuestTask.Clicked ? 1 : 0;
             buttonImage.sprite = checkMarkSprites[index];
         }
     }

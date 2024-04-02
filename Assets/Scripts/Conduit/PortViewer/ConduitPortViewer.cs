@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ConduitModule.Ports;
 using ConduitModule;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using UnityEngine.Tilemaps;
 using ChunkModule.ClosedChunkSystemModule;
 using TileEntityModule;
@@ -11,13 +11,13 @@ using TileEntityModule;
 namespace ConduitModule.PortViewer {
     public class ConduitPortViewer : MonoBehaviour
     {
-        private ConduitSystemManager systemManager;
+        private IConduitSystemManager systemManager;
         private Tilemap mTilemap;
         private TilemapRenderer mTilemapRender;
         private Dictionary<EntityPortType,TileBase> portTypeToTile;
         private Grid mGrid;
-        public ConduitType Type {get => systemManager.Type;}
-        public void initalize(ConduitSystemManager systemManager, Vector3Int referenceFrame) {
+        public ConduitType Type {get => systemManager.getConduitType();}
+        public void initalize(IConduitSystemManager systemManager, Vector3Int referenceFrame) {
             this.systemManager = systemManager;
             mTilemap = gameObject.AddComponent<Tilemap>();
             mTilemapRender = gameObject.AddComponent<TilemapRenderer>();
@@ -25,7 +25,7 @@ namespace ConduitModule.PortViewer {
             mGrid = gameObject.AddComponent<Grid>();
             mGrid.cellSize = new Vector3(0.5f,0.5f,1f);
             initTiles();
-            foreach (KeyValuePair<TileEntity,List<TileEntityPort>> kvp in systemManager.tileEntityConduitPorts) {
+            foreach (KeyValuePair<TileEntity,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
                     mTilemap.SetTile(position,portTypeToTile[portData.portType]);

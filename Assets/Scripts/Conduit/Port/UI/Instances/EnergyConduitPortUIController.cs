@@ -11,7 +11,7 @@ namespace ConduitModule.Ports.UI {
         [SerializeField] public Button minusPriorityButton;
         [SerializeField] public TextMeshProUGUI priorityText;
 
-        public override void initalize(IConduit conduit)
+        public override void initalize(IPortConduit conduit)
         {
             base.initalize(conduit);
             minusPriorityButton.onClick.AddListener(priorityMinus);

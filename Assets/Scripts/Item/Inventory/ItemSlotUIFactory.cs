@@ -8,6 +8,14 @@ using TMPro;
 namespace ItemModule {
     public static class ItemSlotUIFactory
     {
+        
+        public static GameObject getSlot(ItemSlot itemSlot) {
+            GameObject slot = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
+            getItemImage(itemSlot,slot.transform);
+            getNumber(itemSlot,slot.transform);
+            getTagObject(itemSlot,slot.transform);
+            return slot;
+        }
         public static GameObject getItemImage(ItemSlot itemSlot, Transform parent) {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return null;    
@@ -114,7 +122,19 @@ namespace ItemModule {
             } else {
                 return new Vector2(size.x/size.y,1);
             }
-            
+        }
+
+        /// <summary>
+        /// Calculates the scale for a sprite to fit within a given size while maintaining its aspect ratio.
+        /// </summary>
+        /// <param name="sprite">The sprite to be scaled.</param>
+        /// <param name="size">The maximum size in tiles the sprite should fit within.</param>
+        /// <returns>The scale factors for the sprite to fit within the specified size.</returns>
+        public static Vector2 getConstrainedItemScale(Sprite sprite, Vector2 size) {
+            Vector2 itemSize = new Vector2(sprite.rect.width, sprite.rect.height)/16f;
+            float scaleX = size.x / itemSize.x;
+            float scaleY = size.y / itemSize.y;
+            return new Vector2(scaleX,scaleY);
         }
     }
 }

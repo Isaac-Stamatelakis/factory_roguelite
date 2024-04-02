@@ -9,6 +9,4 @@ public class SolidItemInventory : AbstractSolidItemInventory, ILoadableInventory
         this.inventory = items;
         initalizeSlots();
     }
-
-    
 }

@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using UI;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IReloadable
+    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable
     {
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
@@ -37,8 +37,13 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
                 return;
             }
+            if (this == null) {
+                return;
+            }
             itemImage.sprite = itemObject.getSprite();
-            itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
+            if (itemImage.sprite != null) {
+                itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
+            }
             itemName.text = itemObject.name;
             gottenAmount = Mathf.Clamp(gottenAmount,0,itemSlot.amount);
             if (gottenAmount == itemSlot.amount) {
@@ -52,7 +57,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (questBookUI.EditMode) {
+                if (QuestBookHelper.EditMode) {
                     navigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {

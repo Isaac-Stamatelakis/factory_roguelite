@@ -44,16 +44,16 @@ public class DoorTileGenerator : EditorWindow {
     {
         TileItemEditorFactory.createDirectory(tileName);
 
-        StandardTile leftClosedTile = TileItemEditorFactory.standardTileCreator(leftClosed);
+        StandardTile leftClosedTile = TileItemEditorFactory.standardTileCreator(leftClosed,TileColliderType.Sprite);
         TileItemEditorFactory.saveTile(leftClosedTile,tileName,"LeftClosed");
 
-        StandardTile leftOpenTile = TileItemEditorFactory.standardTileCreator(leftOpen);
+        StandardTile leftOpenTile = TileItemEditorFactory.standardTileCreator(leftOpen,TileColliderType.Sprite);
         TileItemEditorFactory.saveTile(leftOpenTile,tileName,"LeftOpen");
 
-        StandardTile rightClosedTile = TileItemEditorFactory.standardTileCreator(rightClosed);
+        StandardTile rightClosedTile = TileItemEditorFactory.standardTileCreator(rightClosed,TileColliderType.Sprite);
         TileItemEditorFactory.saveTile(rightClosedTile,tileName,"RightClosed");
 
-        StandardTile rightOpenTile = TileItemEditorFactory.standardTileCreator(rightOpen);
+        StandardTile rightOpenTile = TileItemEditorFactory.standardTileCreator(rightOpen,TileColliderType.Sprite);
         TileItemEditorFactory.saveTile(rightOpenTile,tileName,"RightOpen");
 
         RestrictedDoorTile doorTile = ScriptableObject.CreateInstance<RestrictedDoorTile>();

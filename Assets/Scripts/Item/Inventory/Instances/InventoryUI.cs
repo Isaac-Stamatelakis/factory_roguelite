@@ -43,7 +43,7 @@ public abstract class InventoryUI : MonoBehaviour {
     protected virtual void initSlot(int n) {
         Transform slotTransform = transform.Find("slot" + n);
         if (slotTransform == null) {
-            Debug.LogError("Slot" + n + " doesn't exist but tried to load it into  inventory " + name);
+            Debug.LogError("slot" + n + " doesn't exist but tried to load it into  inventory " + name);
             slots.Add(null);
             return;
         }
@@ -73,6 +73,9 @@ public abstract class InventoryUI : MonoBehaviour {
     }
 
     public virtual void setItem(int n, ItemSlot data) {
+        if (n < 0 || n >= slots.Count) {
+            return;
+        }
         GameObject slot = slots[n];
         if (itemGuard(slot, n,"set item")) {
             return;

@@ -9,3 +9,15 @@ abstract public class ItemObject : ScriptableObject
     public string id;
     public abstract Sprite getSprite();
 }
+
+public interface ISingleSpriteObject {
+    public Sprite getSprite();
+}
+
+public interface IMultipleSpriteObject {
+    public Sprite[] getSprites();
+}
+
+public interface IAnimatedSpriteObject {
+    public Sprite[] getSprites();
+}

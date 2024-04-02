@@ -14,7 +14,7 @@ using ChunkModule.ClosedChunkSystemModule;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {
-        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,SoftLoadedClosedChunkSystem system);
+        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts);
         public bool getConduitLoaded();
         public void setConduitLoaded(bool val);
         public void softLoadTileEntities();
@@ -34,21 +34,24 @@ namespace ChunkModule.PartitionModule {
         {
         }
 
-        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, SoftLoadedClosedChunkSystem system)
+        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts)
         {
             SerializedTileConduitData serializedTileConduitData = (SerializedTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
-                    getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk,system);
+                    getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Fluid:
-                    getConduitsFromData(serializedTileConduitData.fluidConduitData,systemConduits,referenceChunk,system);
+                    getConduitsFromData(serializedTileConduitData.fluidConduitData,systemConduits,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Energy:
-                    getConduitsFromData(serializedTileConduitData.energyConduitData,systemConduits,referenceChunk,system);
+                    getConduitsFromData(serializedTileConduitData.energyConduitData,systemConduits,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Signal:
-                    getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk,system);
+                    getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    return;
+                case ConduitType.Matrix:
+                    getConduitsFromData(serializedTileConduitData.matrixConduitData,systemConduits,referenceChunk,tileEntityPorts);
                     return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
@@ -98,6 +101,9 @@ namespace ChunkModule.PartitionModule {
                         case ConduitType.Signal:
                             entityPorts = layout.signalPorts;
                             break;
+                        case ConduitType.Matrix:
+                            entityPorts = layout.matrixPorts;
+                            break;
                     }
                     if (entityPorts == null) {
                         continue;
@@ -131,17 +137,15 @@ namespace ChunkModule.PartitionModule {
             if (tileItem.tileEntity is not ISoftLoadable) {
                 return null;
             }
-            return placeTileEntity(tileItem,options,positionInPartition);
+            return placeTileEntity(tileItem,options,positionInPartition,false);
         }
         protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y)
         {
-            if (tileItem.tileEntity is ITickableTileEntity) {
-                return;
-            }
+            
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 
-        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, SoftLoadedClosedChunkSystem system) {
+        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts) {
             IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
@@ -154,13 +158,39 @@ namespace ChunkModule.PartitionModule {
                     string options = data.conduitOptions[x,y];
                     int systemX = x+partitionOffset.x-referenceChunk.x;
                     int systemY = y+partitionOffset.y-referenceChunk.y;
+                    ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
+                    if (conduitItem == null) {
+                        continue;
+                    }
                     Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
-                    TileEntity tileEntity = system.getSoftLoadedTileEntity(cellPosition);
-                    IConduit conduit = ConduitFactory.deseralize(cellPosition,referenceChunk,id,options,itemRegistry,tileEntity);
-                    systemConduits[systemX,systemY] = conduit;
+                    TileEntity tileEntity = null;
+                    EntityPortType? port = null;
+                    foreach (KeyValuePair<TileEntity, List<TileEntityPort>> kvp in tileEntityPorts) {
+                        if (tileEntity != null) {
+                            break;
+                        }
+                        foreach (TileEntityPort tileEntityPort in kvp.Value) {
+                            if (kvp.Key.getCellPosition() + tileEntityPort.position == cellPosition) {
+                                tileEntity = kvp.Key;
+                                port = tileEntityPort.portType;
+                                break;
+                            }
+                        }
+                    }
+                    systemConduits[systemX,systemY] = ConduitFactory.deseralizeConduit(
+                        cellPosition: cellPosition,
+                        referencePosition: referenceChunk,
+                        conduitItem: conduitItem,
+                        conduitOptionData: data.conduitOptions[x,y],
+                        tileEntity : tileEntity,
+                        portType: port
+                    );
+                    
+                    
                 }
             }
         }
+
 
         public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle)
         {
@@ -190,6 +220,18 @@ namespace ChunkModule.PartitionModule {
                                     break;
                                 case ConduitType.Signal:
                                     data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    break;
+                                case ConduitType.Matrix:
+                                    if (conduit is not MatrixConduit matrixConduit) {
+                                        continue;
+                                    }
+                                    if (matrixConduit.HasTileEntity) {
+                                        MatrixConduitData matrixConduitData = new MatrixConduitData(true);
+                                        data.matrixConduitData.conduitOptions[x,y] = Newtonsoft.Json.JsonConvert.SerializeObject(matrixConduitData);
+                                    } else {
+                                        data.matrixConduitData.conduitOptions[x,y] = null;
+                                    }
+                                    
                                     break;
                             }
                         }
@@ -265,6 +307,18 @@ namespace ChunkModule.PartitionModule {
                     layer: TileMapLayer.Signal
                 );
             }
+            string matrixID = data.matrixConduitData.ids[x,y];
+            if (matrixID != null) {
+                place(
+                    id: matrixID, 
+                    sConduitOptions: data.matrixConduitData.conduitOptions[x,y],
+                    itemRegistry: itemRegistry,
+                    tileGridMaps: tileGridMaps,
+                    realPosition: realPosition,
+                    positionInPartition: partitionPosition,
+                    layer: TileMapLayer.Matrix
+                );
+            }
         }
 
         private void place(string id, string sConduitOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
@@ -313,18 +367,21 @@ namespace ChunkModule.PartitionModule {
             switch (type) {
                 case ConduitType.Item:
                     serializedTileConduitData.itemConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Fluid:
                     serializedTileConduitData.fluidConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Energy:
                     serializedTileConduitData.energyConduitData.ids[position.x,position.y] = id;
-                    break;
+                    return;
                 case ConduitType.Signal:
                     serializedTileConduitData.signalConduitData.ids[position.x,position.y] = id;
-                    break;
-
+                    return;
+                case ConduitType.Matrix:
+                    serializedTileConduitData.matrixConduitData.ids[position.x,position.y] = id;
+                    return;
             }
+            Debug.LogError("Did not handle case for ConduitType " + type);
         }
 
         public void activate(ILoadedChunk loadedChunk)

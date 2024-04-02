@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using TileEntityModule;
 
 namespace ConduitModule.Ports {
-    public class SignalConduitInputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitInputPort<int>, IColorPort
+    public class SignalConduitInputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitInputPort<int>, IColorPort, IConduitIOPort
     {
         public bool enabled;
         public int color;
@@ -36,8 +37,16 @@ namespace ConduitModule.Ports {
         {
             this.enabled = val;
         }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
+                return;
+            } 
+            this.tileEntity = signalConduitInteractable;
+        }
     }
-    public class SignalConduitOutputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitOutputPort<int>, IColorPort
+    public class SignalConduitOutputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitOutputPort<int>, IColorPort, IConduitIOPort
     { 
         public bool enabled;
         public int color;
@@ -68,6 +77,14 @@ namespace ConduitModule.Ports {
         public void setEnabled(bool val)
         {
             this.enabled = val;
+        }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
+                return;
+            } 
+            this.tileEntity = signalConduitInteractable;
         }
     }
 

@@ -29,6 +29,31 @@ namespace UI.QuestBook {
         {
             return QuestTaskType.Item;
         }
+
+        public override void setComplete()
+        {
+            balanceLists();
+            for (int i = 0; i < items.Count; i++) {
+                gottenAmounts[i] = items[i].amount;
+            }
+        }
+
+        private void balanceLists() {
+            while (gottenAmounts.Count > items.Count) {
+                gottenAmounts.RemoveAt(gottenAmounts.Count-1);
+            }
+            while (gottenAmounts.Count < items.Count) {
+                gottenAmounts.Add(0);
+            }
+        }
+
+        public override void setUnComplete()
+        {
+            balanceLists();
+            for (int i = 0; i < gottenAmounts.Count; i++) {
+                gottenAmounts[i] = 0;
+            }
+        }
     }
 }
 

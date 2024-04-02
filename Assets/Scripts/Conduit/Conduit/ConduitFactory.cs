@@ -6,36 +6,51 @@ using TileMapModule.Layer;
 using ChunkModule.PartitionModule;
 using TileEntityModule;
 using ItemModule;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace ConduitModule {
     public static class ConduitFactory {
-        public static IConduit deseralize(Vector2Int cellPosition, Vector2Int referencePosition, string id, string conduitOptionData, ItemRegistry itemRegistry, TileEntity tileEntity) {
-            ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
-            if (conduitItem == null) {
-                return null;
+
+        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
+            ConduitType type = conduitItem.getType();
+            cellPosition -= referencePosition;
+            bool isPortConduit = type == ConduitType.Item || type == ConduitType.Fluid || type == ConduitType.Energy || type == ConduitType.Signal;
+            if (isPortConduit) {
+                return deseralizePortConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity,portType);
             }
-            
+            bool isMatrixConduit = type == ConduitType.Matrix;
+            if (isMatrixConduit) {
+                return deseralizeMatrixConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity);
+            }
+            Debug.LogError("Did not handle deseralizaiton case for " + type);
+            return null;
+        
+        }
+        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
             ConduitType conduitType = conduitItem.getType();
-            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,tileEntity,conduitItem);
-            if (tileEntity != null && port != null) {
-                Vector2Int relativePosition = cellPosition - tileEntity.getCellPosition();
+            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,conduitItem);
+            if (tileEntity != null && portType != null) {
+                if (port == null) {
+                    port = ConduitPortFactory.createDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
+                }
+                port.setTileEntity(tileEntity);
+                Vector2Int relativePosition = cellPosition + referencePosition - tileEntity.getCellPosition();
                 port.setPosition(relativePosition);
             }
-            cellPosition -= referencePosition;
             switch (conduitType) {
                 case ConduitType.Item:
                     return new ItemConduit(
                         x: cellPosition.x,
                         y: cellPosition.y,
                         conduitItem: conduitItem,
-                        port: (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>) port
+                        port: (SolidItemConduitPort) port
                     );
                 case ConduitType.Fluid:
                     return new FluidConduit(
                         x: cellPosition.x,
                         y: cellPosition.y,
                         conduitItem: conduitItem,
-                        port: port
+                        port: (FluidItemConduitPort) port
                     );
                 case ConduitType.Energy:
                     return new EnergyConduit(
@@ -56,6 +71,20 @@ namespace ConduitModule {
             
         }
 
+        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity) {
+            IMatrixConduitInteractable matrixConduitInteractable = null;
+            if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
+                matrixConduitInteractable = matrixConduitInteractable1;
+            }
+            
+            return new MatrixConduit(
+                x : cellPosition.x,
+                y : cellPosition.y,
+                item: (MatrixConduitItem)conduitItem,
+                matrixConduitInteractable: matrixConduitInteractable
+            );
+        }
+
 
         /// <summary>
         /// Sets the port of given conduit to default port
@@ -64,7 +93,7 @@ namespace ConduitModule {
             ConduitType conduitType = conduitItem.getType();
             switch (conduitType) {
                 case ConduitType.Item:
-                    AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter> itemConduitPort = (AbstractItemConduitPort<ISolidItemConduitInteractable,ItemFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new ItemConduit(
                         x: x,
                         y: y,
@@ -72,7 +101,7 @@ namespace ConduitModule {
                         port: itemConduitPort
                     );
                 case ConduitType.Fluid:
-                    AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter> fluidConduitPort = (AbstractItemConduitPort<IFluidConduitInteractable,FluidFilter>)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
                     return new FluidConduit(
                         x: x,
                         y: y,
@@ -95,7 +124,19 @@ namespace ConduitModule {
                         conduitItem: conduitItem,
                         port: signalConduitPort
                     );
+                case ConduitType.Matrix:
+                    IMatrixConduitInteractable matrixConduitInteractable = null;
+                    if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
+                        matrixConduitInteractable = matrixConduitInteractable1;
+                    }
+                    return new MatrixConduit(
+                        x: x,
+                        y: y,
+                        item: (MatrixConduitItem)conduitItem,
+                        matrixConduitInteractable
+                    );
             }
+            Debug.LogError("Did not handle creation for type " + conduitType);
             return null;
         }
     }

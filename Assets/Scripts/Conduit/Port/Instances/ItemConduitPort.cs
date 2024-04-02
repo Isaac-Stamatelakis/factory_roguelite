@@ -5,6 +5,16 @@ using Newtonsoft.Json;
 using TileEntityModule;
 
 namespace ConduitModule.Ports {
+    public interface IItemConduitInputPort : IColorPort, IPriorityPort {
+        public void insert(ItemSlot itemSlot);
+        public IItemConduitInteractable getTileEntity();
+    }
+    public interface IItemConduitOutputPort : IColorPort{
+        public ItemSlot extract();
+        public int getExtractAmount();
+        public IItemConduitInteractable getTileEntity();
+    }
+
 
     public abstract class ConduitTransferPort<Interactable> where Interactable : IConduitInteractable {
         protected Interactable tileEntity;
@@ -16,7 +26,10 @@ namespace ConduitModule.Ports {
         }
     }
 
-    public class ItemConduitInputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort where Interactable : IItemConduitInteractable where Filter : IFilter
+    public abstract class ItemConduitInputPort<Interactable,Filter> : 
+    ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort, IItemConduitInputPort, IConduitIOPort 
+    
+    where Interactable : IItemConduitInteractable where Filter : IFilter
     {
         private bool enabled;
         public Filter filter;
@@ -26,6 +39,7 @@ namespace ConduitModule.Ports {
 
         public ItemConduitInputPort(Interactable tileEntity) : base(tileEntity)
         {
+
         }
 
         public bool Enabled { get => enabled; set => enabled = value; }
@@ -38,8 +52,11 @@ namespace ConduitModule.Ports {
                     return;
                 }
             }
-            tileEntity.insertItem(itemSlot,relativePosition);
+            doInsertion(itemSlot);
+            
         }
+
+        protected abstract void doInsertion(ItemSlot itemSlot);
 
         public int getColor()
         {
@@ -70,10 +87,49 @@ namespace ConduitModule.Ports {
         {
             priority = val;
         }
+
+        public IItemConduitInteractable getTileEntity()
+        {
+            return tileEntity;
+        }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not Interactable interactable) {
+                return;
+            }
+            this.tileEntity = interactable;
+        }
+    }
+
+    public class SolidItemConduitInputPort : ItemConduitInputPort<ISolidItemConduitInteractable, ItemFilter>
+    {
+        public SolidItemConduitInputPort(ISolidItemConduitInteractable tileEntity) : base(tileEntity)
+        {
+        }
+
+        protected override void doInsertion(ItemSlot itemSlot)
+        {
+            tileEntity.insertSolidItem(itemSlot,relativePosition);
+        }
+    }
+
+    public class FluidItemConduitInputPort : ItemConduitInputPort<IFluidConduitInteractable, FluidFilter>
+    {
+        public FluidItemConduitInputPort(IFluidConduitInteractable tileEntity) : base(tileEntity)
+        {
+        }
+
+        protected override void doInsertion(ItemSlot itemSlot)
+        {
+            tileEntity.insertFluidItem(itemSlot,relativePosition);
+        }
     }
 
     [System.Serializable]
-    public class ItemConduitOutputPort<Interactable,Filter> : ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort where Interactable : IItemConduitInteractable where Filter : IFilter
+    public class ItemConduitOutputPort<Interactable,Filter> : 
+    ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort, IItemConduitOutputPort, IConduitIOPort 
+    where Interactable : IItemConduitInteractable where Filter : IFilter
     { 
         private bool enabled;
         public int color;
@@ -86,13 +142,17 @@ namespace ConduitModule.Ports {
             this.tileEntity = tileEntity;
         }
         public ItemSlot extract() {
-            ItemSlot output = TileEntity.extractItem(relativePosition);
+            ItemSlot output = doExtraction();
             if (filter != null) {
                 if (!filter.filter(output)) {
                     return null;
                 }
             }
             return output;
+        }
+
+        public virtual ItemSlot doExtraction() {
+            return null;
         }
 
         public int getColor()
@@ -114,6 +174,47 @@ namespace ConduitModule.Ports {
         {
             this.enabled = val;
         }
+
+        public int getExtractAmount()
+        {
+            return extractAmount;
+        }
+
+        public IItemConduitInteractable getTileEntity()
+        {
+            return tileEntity;
+        }
+
+        public void setTileEntity(TileEntity tileEntity)
+        {
+            if (tileEntity is not Interactable interactable) {
+                return;
+            }
+            this.tileEntity = interactable;
+        }
+    }
+
+    public class SolidItemConduitOutputPort : ItemConduitOutputPort<ISolidItemConduitInteractable, ItemFilter>
+    {
+        public SolidItemConduitOutputPort(ISolidItemConduitInteractable tileEntity) : base(tileEntity)
+        {
+        }
+
+        public override ItemSlot doExtraction()
+        {
+            return tileEntity.extractSolidItem(relativePosition);
+        }
+    }
+    public class FluidItemConduitOutputPort : ItemConduitOutputPort<IFluidConduitInteractable, FluidFilter>
+    {
+        public FluidItemConduitOutputPort(IFluidConduitInteractable tileEntity) : base(tileEntity)
+        {
+        }
+
+        public override ItemSlot doExtraction()
+        {
+            return tileEntity.extractFluidItem(relativePosition);
+        }
     }
 
     public class AbstractItemConduitPort<Interactable,Filter> : ConduitPort<ItemConduitInputPort<Interactable,Filter>, ItemConduitOutputPort<Interactable,Filter>> 
@@ -132,7 +233,42 @@ namespace ConduitModule.Ports {
             if (outputPort != null) {
                 outputPort.RelativePosition = position;
             }
-        }
-        
+        } 
     }
+
+    public class SolidItemConduitPort : ConduitPort<SolidItemConduitInputPort, SolidItemConduitOutputPort>
+    {
+        public SolidItemConduitPort(SolidItemConduitInputPort inPort, SolidItemConduitOutputPort outPort) : base(inPort, outPort)
+        {
+        }
+
+        public override void setPosition(Vector2Int position)
+        {
+            if (inputPort != null) {
+                inputPort.RelativePosition = position;
+            }
+            if (outputPort != null) {
+                outputPort.RelativePosition = position;
+            }
+        }
+    }
+
+   public class FluidItemConduitPort: ConduitPort<FluidItemConduitInputPort, FluidItemConduitOutputPort> 
+    {
+        public FluidItemConduitPort(FluidItemConduitInputPort inPort, FluidItemConduitOutputPort outPort) : base(inPort, outPort)
+        {
+        }
+
+        public override void setPosition(Vector2Int position)
+        {
+            if (inputPort != null) {
+                inputPort.RelativePosition = position;
+            }
+            if (outputPort != null) {
+                outputPort.RelativePosition = position;
+            }
+        }
+    }
+
+
 }

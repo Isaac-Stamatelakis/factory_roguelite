@@ -92,15 +92,10 @@ namespace WorldModule.Generation {
                 partionConduitData.signalConduitData = new SeralizedChunkConduitData();
                 partionConduitData.signalConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
                 partionConduitData.signalConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                /*
-                TODO add support for conduits
-                for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
-                    for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
-                        int xIndex = xStart+tileX;
-                        int yIndex = yStart+tileY;
-                    }
-                }
-                */
+                
+                partionConduitData.matrixConduitData = new SeralizedChunkConduitData();
+                partionConduitData.matrixConduitData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+                partionConduitData.matrixConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
             }
             return partitionData;
         }

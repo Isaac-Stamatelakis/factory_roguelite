@@ -42,11 +42,11 @@ namespace ItemModule.Tags.FluidContainers {
                 if (container.amount == 0) {
                     grabbedItemProperties.itemSlot = empty;
                 } else {
-                    if (!ItemSlotHelper.canInsert(inventory,container,fluidContainer.getStorage())) {
+                    if (!ItemSlotHelper.canInsertIntoInventory(inventory,container,fluidContainer.getStorage())) {
                     // TODO spawn item
                         return;
                     } else {
-                        ItemSlotHelper.insertIntoInventory(inventory,empty);
+                        ItemSlotHelper.insertIntoInventory(inventory,empty,fluidContainer.getStorage());
                     }
                 }
                 
@@ -57,7 +57,7 @@ namespace ItemModule.Tags.FluidContainers {
             // Input fluid cell into player inventory
             
             ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
-            if (!ItemSlotHelper.canInsert(inventory,newItemSlot,fluidContainer.getStorage())) {
+            if (!ItemSlotHelper.canInsertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage())) {
                 return;
             }
             newItemSlot.tags.Dict[ItemTag.FluidContainer] = fluidInventory[index];
@@ -69,7 +69,7 @@ namespace ItemModule.Tags.FluidContainers {
                 grabbedItemProperties.updateSprite();
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory,newItemSlot);
+            ItemSlotHelper.insertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage());
             grabbedItemProperties.updateSprite();
         }
     }

@@ -9,13 +9,14 @@ using TileMapModule;
 using TileMapModule.Place;
 using ChunkModule.PartitionModule;
 using TileMapModule.Type;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using ConduitModule.Ports;
 using GUIModule;
 using UnityEngine.Tilemaps;
 using ConduitModule;
 using DimensionModule;
 using ItemModule;
+using TileEntityModule;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -122,20 +123,27 @@ namespace PlayerModule.Mouse {
             }
             ConduitType conduitType = conduitItem.getType();
             //ConduitType conduitType = devMode.breakType.toConduit();
-            ConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
+            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;
             }
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            IConduit conduit = conduitSystemManager.getConduitWithPort(cellPosition);
-            if (conduit == null) {
-                return false;
+            if (conduitSystemManager is PortConduitSystemManager portConduitSystemManager) {
+                Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+                IConduit conduit = portConduitSystemManager.getConduitWithPort(cellPosition);
+                if (conduit == null) {
+                    return false;
+                }
+                if (conduit is not IPortConduit portConduit) {
+                    return false;
+                }
+                EntityPortType portType = portConduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
+                GameObject ui = ConduitPortUIFactory.getUI(portConduit,conduitType,portType);
+                GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+                return true;
             }
-            EntityPortType portType = conduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
-            GameObject ui = ConduitPortUIFactory.getUI(conduit,conduitType,portType);
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
-            return true;
+            return false;
+            
         }
         private void breakMouseHover(Vector2 mousePosition) {
             if (Input.GetMouseButtonDown(0)) {
@@ -187,6 +195,16 @@ namespace PlayerModule.Mouse {
             if (hit.collider != null) {
                 GameObject container = hit.collider.gameObject;
                 IHitableTileMap hitableTileMap = container.GetComponent<IHitableTileMap>();
+                if (hitableTileMap is TileGridMap tileGridMap) {
+                    Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
+                    TileEntity tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
+                    if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
+                        leftClickableTileEntity.onLeftClick();
+                        if (!leftClickableTileEntity.canBreak()) {
+                            return false;
+                        }
+                    }
+                }
                 if (devMode.instantBreak) {
                     hitableTileMap.deleteTile(position);
                 } else {
@@ -212,15 +230,19 @@ namespace PlayerModule.Mouse {
                 Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
                 
                 Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
-                Vector2Int tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
-                Vector2 worldPositionTile = new Vector2(tilePosition.x/2f,tilePosition.y/2f);
+                Vector2Int? tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
+                if (tilePosition == null) {
+                    return false;
+                }
+                Vector2Int nonNullPosition = (Vector2Int) tilePosition;
+                Vector2 worldPositionTile = new Vector2(nonNullPosition.x/2f,nonNullPosition.y/2f);
                 ILoadedChunk chunk = getChunk(worldPositionTile);
                 if (chunk == null) {
                     return false;
                 }
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
                 Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-                Vector2Int tilePositionInPartition = tilePosition-partitionPosition*Global.ChunkPartitionSize;
+                Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.ChunkPartitionSize;
                 IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
                 if (chunkPartition.clickTileEntity(tilePositionInPartition)) {
                     return true;

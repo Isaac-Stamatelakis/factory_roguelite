@@ -8,7 +8,7 @@ using System.IO;
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
     private Texture2D texture;
-    [MenuItem("Tools/Item Constructors/Tile/Standard/Multi-Tile")]
+    [MenuItem("Tools/Item Constructors/Tile/Multi-Standard")]
     public static void ShowWindow()
     {
         TileMultiGeneratorWindow window = (TileMultiGeneratorWindow)EditorWindow.GetWindow(typeof(TileMultiGeneratorWindow));
@@ -47,10 +47,10 @@ public class TileMultiGeneratorWindow : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", collectionName);
         string collectionPath = "Assets/EditorCreations/" + collectionName;
-        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName);
+        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName,16,16);
         int index = 0;
         foreach (Sprite sprite in sprites) {
-            StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite);
+            StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
             string tileName = collectionName + index.ToString();
             string tilePath = collectionPath + "/" + tileName + "/";
             TileItemEditorFactory.generateTileItem(

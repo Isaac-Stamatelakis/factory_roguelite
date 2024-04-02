@@ -20,6 +20,16 @@ namespace UI.QuestBook {
         {
             return QuestTaskType.Dimension;
         }
+
+        public override void setComplete()
+        {
+            visited = true;
+        }
+
+        public override void setUnComplete()
+        {
+            visited = false;
+        }
     }
 }
 

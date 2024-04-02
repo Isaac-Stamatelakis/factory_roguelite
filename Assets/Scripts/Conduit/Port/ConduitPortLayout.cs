@@ -10,6 +10,7 @@ namespace ConduitModule.Ports {
         public List<TileEntityPort> fluidPorts;
         public List<TileEntityPort> energyPorts;
         public List<TileEntityPort> signalPorts;
+        public List<TileEntityPort> matrixPorts;
     }
 }
 

@@ -8,7 +8,7 @@ using GUIModule;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName = "E~New Battery", menuName = "Tile Entity/Storage/Battery")]
-    public class Battery : TileEntity, ITickableTileEntity, IClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IEnergyConduitInteractable
+    public class Battery : TileEntity, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IEnergyConduitInteractable
     {
         private int energy;
         [SerializeField] private int storage;
@@ -42,7 +42,7 @@ namespace TileEntityModule.Instances.Storage {
             return input;
         }
 
-        public void onClick()
+        public void onRightClick()
         {
             if (uiPrefab == null) {
                 Debug.LogError(name + " uiPrefab is null");

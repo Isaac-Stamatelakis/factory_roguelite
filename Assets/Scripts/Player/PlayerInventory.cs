@@ -139,6 +139,14 @@ namespace PlayerModule {
             return inventory[selectedSlot].itemObject.id;
         }
 
+        public ItemSlot getSelectedItemSlot() {
+            return inventory[selectedSlot];
+        }
+
+        public void removeSelectedItemSlot() {
+            inventory[selectedSlot] = null;
+        }
+
         public string getJson() {
             return ItemSlotFactory.serializeList(inventory);
         }

@@ -17,9 +17,7 @@ namespace UI.QuestBook {
             this.task = task;
             
             addButton.onClick.AddListener(addItem);
-            if (!questBookUI.EditMode) {
-                addButton.gameObject.SetActive(false);
-            }
+            addButton.gameObject.SetActive(QuestBookHelper.EditMode);
             display();
         }
 
@@ -28,7 +26,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(itemContainer.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < task.Items.Count; i++) {
-                GameObject element = GlobalHelper.loadFromResourcePath("UI/Quest/Tasks/Item/ItemElement");
+                GameObject element = GlobalHelper.instantiateFromResourcePath("UI/Quest/Tasks/Item/ItemElement");
                 ItemQuestItemElement itemQuestItemElement = element.GetComponent<ItemQuestItemElement>();
                 itemQuestItemElement.init(
                     task,

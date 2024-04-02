@@ -12,9 +12,54 @@ namespace UI.QuestBook {
         private List<QuestBook> questBooks;
 
         public List<QuestBook> QuestBooks { get => questBooks; set => questBooks = value; }
+        [JsonIgnore] public Dictionary<int, QuestBookNode> IdNodeMap { get => idNodeMap;}
+
         public QuestBookLibrary(List<QuestBook> books) {
             this.questBooks = books;
+            initIdNodeMap();
         }
+        private void initIdNodeMap() {
+            idNodeMap = new Dictionary<int, QuestBookNode>();
+            foreach (QuestBook questBook in questBooks) {
+                foreach (QuestBookPage page in questBook.Pages) {
+                    foreach (QuestBookNode node in page.Nodes) {
+                        if (idNodeMap.ContainsKey(node.Id)) {
+                            Debug.LogWarning("Nodes " + node.Content.Title + " and " + idNodeMap[node.Id].Content.Title+ " have duplicate id:" + node.Id);
+                            continue;
+                        }
+                        idNodeMap[node.Id] = node;
+                    }
+                }
+            }
+        }
+
+        public int getSmallestNewID() {
+            int smallestNewID = 0;
+            while (idNodeMap.ContainsKey(smallestNewID)) {
+                smallestNewID++;
+            }
+            return smallestNewID;
+        }
+
+        public void addNode(QuestBookNode node) {
+            idNodeMap[node.Id] = node;
+        }
+
+        public QuestBookNode getNode(int id) {
+            if (idNodeMap.ContainsKey(id)) {
+                return idNodeMap[id];
+            }
+            return null;
+        }
+
+        public void removeNode(QuestBookNode node) {
+            if (idNodeMap.ContainsKey(node.Id)) {
+                idNodeMap.Remove(node.Id);
+            }
+        }
+
+        
+        [JsonIgnore] private Dictionary<int, QuestBookNode> idNodeMap;
     }
 
     public static class QuestBookLibraryFactory {
@@ -55,7 +100,9 @@ namespace UI.QuestBook {
                 questBookNode.Y,
                 questBookNode.ItemImageID,
                 convertQuestBookNodeContent(questBookNode.Content),
-                questBookNode.Connections
+                questBookNode.Prerequisites,
+                questBookNode.Id,
+                questBookNode.RequireAllPrerequisites
             );
         }
 
@@ -64,7 +111,9 @@ namespace UI.QuestBook {
             return new SerializedQuestBookContent(
                 seralizedTask,
                 content.Description,
-                content.Title
+                content.Title,
+                JsonConvert.SerializeObject(content.Rewards),
+                content.NumberOfRewards
             );
         }
 
@@ -107,7 +156,9 @@ namespace UI.QuestBook {
                 new Vector2(node.x,node.y), 
                 node.itemImageID,
                 deseralizeContent(node.content),
-                node.connections
+                node.connections,
+                node.id,
+                node.requireAllPrerequisites
             );
         }
 
@@ -116,7 +167,9 @@ namespace UI.QuestBook {
             return new QuestBookNodeContent(
                 task,
                 content.description,
-                content.title
+                content.title,
+                JsonConvert.DeserializeObject<List<SerializedItemSlot>>(content.rewards),
+                content.numberOfRewards
             );
         }
 
@@ -149,18 +202,22 @@ namespace UI.QuestBook {
         }
 
         private class SerializedQuestBookNode {
-            public List<string> connections;
+            public HashSet<int> connections;
             public string itemImageID;
             public float x;
             public float y;
+            public int id;
             public SerializedQuestBookContent content;
+            public bool requireAllPrerequisites;
 
-            public SerializedQuestBookNode(float x, float y, string itemImageID, SerializedQuestBookContent content, List<string> connections) {
+            public SerializedQuestBookNode(float x, float y, string itemImageID, SerializedQuestBookContent content, HashSet<int> connections, int id, bool requireAllPrerequisites) {
                 this.x = x;
                 this.y = y;
                 this.itemImageID = itemImageID;
                 this.connections = connections;
                 this.content = content;
+                this.id = id;
+                this.requireAllPrerequisites = requireAllPrerequisites;
             }
         }
 
@@ -168,10 +225,14 @@ namespace UI.QuestBook {
             public string task;
             public string description;
             public string title;
-            public SerializedQuestBookContent(string task, string description, string title) {
+            public int numberOfRewards;
+            public string rewards;
+            public SerializedQuestBookContent(string task, string description, string title, string rewards, int numberOfRewards) {
                 this.task = task;
                 this.description = description;
                 this.title = title;
+                this.rewards = rewards;
+                this.numberOfRewards = numberOfRewards;
             }
         }
     }

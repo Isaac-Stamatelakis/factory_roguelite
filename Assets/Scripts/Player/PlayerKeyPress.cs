@@ -65,7 +65,6 @@ namespace PlayerModule.KeyPress {
             if (Input.GetKey(KeyCode.R)) {
                 GameObject current = EventSystem.current.currentSelectedGameObject;
                 if (current != null) {
-                    Debug.Log(current.name);
                     ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
                     if (clickHandler != null) {
                         clickHandler.showRecipes();

@@ -5,64 +5,46 @@ using System.Linq;
 using ConduitModule.Ports;
 using TileEntityModule;
 
-namespace ConduitModule.ConduitSystemModule {
+namespace ConduitModule.Systems {
 
     public interface IConduitSystemManager {
-
+        public void setConduit(int x, int y, IConduit conduit);
+        public TileEntity getTileEntityAtPosition(int x, int y);
+        public ConduitType getConduitType();
+        public Dictionary<TileEntity, List<TileEntityPort>> getTileEntityPorts();
+        public EntityPortType getPortTypeAtPosition(int x, int y);
+        public void addTileEntity(TileEntity tileEntity);
+        public void deleteTileEntity(Vector2Int position);
     }
-    public class ConduitSystemManager : IConduitSystemManager {
-        private List<IConduitSystem> conduitSystems;
-        private ConduitType type;
-        private IConduit[,] conduits;
-        private Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts;
-        private Vector2Int size;
-        private Vector2Int referencePosition;
+
+    public interface ITickableConduitSystem {
+        public void tickUpdate();
+    }
+    public abstract class ConduitSystemManager<TConduit, TSystem> : IConduitSystemManager where TConduit : IConduit where TSystem : IConduitSystem {
+        protected List<TSystem> conduitSystems;
+        protected ConduitType type;
+        protected TConduit[,] conduits;
+        protected Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts;
+        protected Vector2Int size;
+        protected Vector2Int referencePosition;
 
         public ConduitType Type { get => type;}
         public Dictionary<TileEntity, List<TileEntityPort>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
 
-        public ConduitSystemManager(ConduitType conduitType, IConduit[,] conduits, Vector2Int size,Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) {
+        public ConduitSystemManager(ConduitType conduitType, TConduit[,] conduits, Vector2Int size,Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) {
             this.type = conduitType;
             this.conduits = conduits;
             this.size = size;
             this.tileEntityConduitPorts = chunkConduitPorts;
             this.referencePosition = referencePosition;
-            conduitSystems = new List<IConduitSystem>();
-            generate();
-        }
-
-        public void tickUpdate() {
-            foreach (IConduitSystem system in conduitSystems) {
-                system.tickUpdate();
-            }
-        }
-
-        private void generate() {
+            conduitSystems = new List<TSystem>();
             generateSystemsFromArray();
         }
 
-        public IConduitPort getPort(Vector2Int position) {
-            IConduit conduit = getConduitCellPosition(position);
-            if (conduit == null) {
-                return null;
-            }
-            return conduit.getPort();
-        }
-        public IConduit getConduitWithPort(Vector2Int position) {
-            IConduit conduit = getConduitCellPosition(position);
-            if (conduit == null) {
-                return null;
-            }
-            if (conduit.getPort() == null) {
-                return null;
-            }
-            return conduit;
-        }
-
-        public IConduit getConduitCellPosition(Vector2Int position) {
+        public TConduit getConduitCellPosition(Vector2Int position) {
             Vector2Int relativePosition = position-referencePosition;
             if (!inBounds(relativePosition)) {
-                return null;
+                return default(TConduit);
             }
             return conduits[relativePosition.x,relativePosition.y];
         }
@@ -87,6 +69,9 @@ namespace ConduitModule.ConduitSystemModule {
                 case ConduitType.Signal:
                     chunkConduitPorts[tileEntity] = layout.signalPorts;
                     break;
+                case ConduitType.Matrix:
+                    chunkConduitPorts[tileEntity] = layout.matrixPorts;
+                    break;
             }
             foreach (TileEntityPort port in chunkConduitPorts[tileEntity]) {
                 Vector2Int position = port.position + tileEntity.getCellPosition() - referencePosition;
@@ -97,7 +82,12 @@ namespace ConduitModule.ConduitSystemModule {
                 if (conduit == null) {
                     continue;
                 }
-                conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
+                if (conduit is IPortConduit portConduit) {
+                    portConduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
+                } else if (conduit is MatrixConduit matrixConduit && tileEntity is IMatrixConduitInteractable matrixConduitInteractable) {
+                    matrixConduit.MatrixConduitInteractable = matrixConduitInteractable;
+                }
+                
                 conduit.getConduitSystem().rebuild();
             }
         }
@@ -107,7 +97,6 @@ namespace ConduitModule.ConduitSystemModule {
                 if (kvp.Key.getCellPosition() == position) {
                     foreach (TileEntityPort port in chunkConduitPorts[kvp.Key]) {
                         Vector2Int portPosition = port.position + position-referencePosition;
-                        
                         if (!inBounds(portPosition)) {
                             continue;
                         }
@@ -115,11 +104,14 @@ namespace ConduitModule.ConduitSystemModule {
                         if (conduit == null) {
                             continue;
                         }
-                        IConduitPort conduitPort = conduit.getPort();
+                        if (conduit is not IPortConduit portConduit) {
+                            continue;
+                        }
+                        IConduitPort conduitPort = portConduit.getPort();
                         if (conduitPort == null) {
                             continue;
                         }
-                        conduit.setPort(null);
+                        portConduit.setPort(null);
                         conduit.getConduitSystem().rebuild();
                     }
                     tileEntityConduitPorts.Remove(kvp.Key);
@@ -132,6 +124,7 @@ namespace ConduitModule.ConduitSystemModule {
             return position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y;
         }
         public void setConduit(int x, int y, IConduit conduit) {
+            
             x -= referencePosition.x;
             y -= referencePosition.y;
             if (x < 0 || x >= size.x || y < 0 || y >= size.y) {
@@ -144,50 +137,57 @@ namespace ConduitModule.ConduitSystemModule {
                 }
                 return;
             }
-            IConduitPort conduitPort = conduit.getPort();
+            if (conduit is not TConduit typeConduit) {
+                Debug.LogError("Tried to add invalid conduit type to conduit system");
+                return;
+            }
             conduit.setX(x);
             conduit.setY(y);
-            conduits[x,y] = conduit;
+            conduits[x,y] = typeConduit;
             updateSystemsOnPlace(conduit,x,y);
         }
 
         private void updateSystemsOnPlace(IConduit conduit, int x, int y) {
-            List<IConduitSystem> systemsToMerge = new List<IConduitSystem>();
+            List<TSystem> systemsToMerge = new List<TSystem>();
             if (x + 1 < size.x) {
                 IConduit right = conduits[x+1,y];
                 if (right != null) {
-                    systemsToMerge.Add(right.getConduitSystem());
+                    systemsToMerge.Add((TSystem)right.getConduitSystem());
                 }
             }
             if (x - 1 >= 0) {
                 IConduit left = conduits[x-1,y];
                 if (left != null) {
-                    systemsToMerge.Add(left.getConduitSystem());
+                    systemsToMerge.Add((TSystem)left.getConduitSystem());
                 }
             }
             if (y + 1 < size.y) {
                 IConduit up = conduits[x,y+1];
                 if (up != null) {
-                    systemsToMerge.Add(up.getConduitSystem());
+                    systemsToMerge.Add((TSystem)up.getConduitSystem());
                 }
             }
             if (y - 1 >= 0) {
                 IConduit down = conduits[x,y-1];
                 if (down != null) {
-                    systemsToMerge.Add(down.getConduitSystem());
+                    systemsToMerge.Add((TSystem)down.getConduitSystem());
                 }
             }
             IConduitSystem newSystem = ConduitSystemFactory.create(conduit);
-            newSystem.addConduit(conduit);
-            if (systemsToMerge.Count == 0) { // No systems to merge, create new system
-                conduitSystems.Add(newSystem);
+            if (newSystem is not TSystem system) {
+                Debug.LogError("Tried to add invalid system to conduit manager");
                 return;
             }
-            IConduitSystem mergeInto = systemsToMerge[0];
+            newSystem.addConduit(conduit);
+            if (systemsToMerge.Count == 0) { // No systems to merge, create new system
+                conduitSystems.Add(system);
+                return;
+            }
+            TSystem mergeInto = systemsToMerge[0];
             mergeInto.merge(newSystem);
             for (int i = 1; i < systemsToMerge.Count; i++) {
-                IConduitSystem toMerge = systemsToMerge[i];
-                if (toMerge == null || toMerge == mergeInto) {
+                TSystem toMerge = systemsToMerge[i];
+                if (toMerge == null || toMerge.Equals(mergeInto)) {
                     continue;
                 }
                 mergeInto.merge(toMerge);
@@ -197,7 +197,7 @@ namespace ConduitModule.ConduitSystemModule {
 
         private void removeConduitFromSystem(IConduit conduit, int x, int y) {
             // Step 1, delete conduit system
-            IConduitSystem conduitSystem = conduit.getConduitSystem();
+            TSystem conduitSystem = (TSystem) conduit.getConduitSystem();
             if (conduitSystem == null) {
                 Debug.LogError("Conduit somehow didn't belong to a conduit system");
             }
@@ -206,13 +206,13 @@ namespace ConduitModule.ConduitSystemModule {
             DFSNull(conduit,conduit.getConduitItem().id);
 
             // Step 3, delete the conduit from the conduit array
-            conduits[x,y] = null;
+            conduits[x,y] = default(TConduit);
 
             // Step 4, Regenerate systems by running DFSConduit on up, left, down, right
             if (x + 1 < size.x) {
                 IConduit right = conduits[x+1,y];
                 if (right != null && right.getConduitSystem() == null) {
-                    IConduitSystem system = ConduitSystemFactory.create(right);
+                    TSystem system = (TSystem)ConduitSystemFactory.create(right);
                     conduitSystems.Add(system);
                     DFSConduit(right,system);
                 }
@@ -221,7 +221,7 @@ namespace ConduitModule.ConduitSystemModule {
             if (x - 1 >= 0) {
                 IConduit left = conduits[x-1,y];
                 if (left != null && left.getConduitSystem() == null) {
-                    IConduitSystem system = ConduitSystemFactory.create(left);
+                    TSystem system = (TSystem)ConduitSystemFactory.create(left);
                     conduitSystems.Add(system);
                     DFSConduit(left,system);
                 }
@@ -229,7 +229,7 @@ namespace ConduitModule.ConduitSystemModule {
             if (y + 1 < size.y) {
                 IConduit up = conduits[x,y+1];
                 if (up != null && up.getConduitSystem() == null) {
-                    IConduitSystem system = ConduitSystemFactory.create(up);
+                    TSystem system = (TSystem)ConduitSystemFactory.create(up);
                     conduitSystems.Add(system);
                     DFSConduit(up,system);
                 }
@@ -237,7 +237,7 @@ namespace ConduitModule.ConduitSystemModule {
             if (y - 1 >= 0) {
                 IConduit down = conduits[x,y-1];
                 if (down != null && down.getConduitSystem() == null) {
-                    IConduitSystem system = ConduitSystemFactory.create(down);
+                    TSystem system = (TSystem)ConduitSystemFactory.create(down);
                     conduitSystems.Add(system);
                     DFSConduit(down,system);
                 }
@@ -334,13 +334,14 @@ namespace ConduitModule.ConduitSystemModule {
                 if (conduit.getConduitSystem() != null) {
                     continue;
                 }
-                IConduitSystem conduitSystem = ConduitSystemFactory.create(conduit);
+                TSystem conduitSystem = (TSystem)ConduitSystemFactory.create(conduit);
                 conduitSystems.Add(conduitSystem);
                 DFSConduit(conduit, conduitSystem); // Search Array for all connecting conduits
             }
-
-            
+            onGenerationCompleted();
         }
+
+        public abstract void onGenerationCompleted();
 
         private void DFSConduit(IConduit conduit,IConduitSystem conduitSystem) {
             if (conduit == null) {
@@ -373,6 +374,16 @@ namespace ConduitModule.ConduitSystemModule {
                 IConduit upConduit = conduits[conduit.getX(),up];
                 DFSConduit(upConduit,conduitSystem);
             }
+        }
+
+        public ConduitType getConduitType()
+        {
+            return type;
+        }
+
+        public Dictionary<TileEntity, List<TileEntityPort>> getTileEntityPorts()
+        {
+            return tileEntityConduitPorts;
         }
     }
 }

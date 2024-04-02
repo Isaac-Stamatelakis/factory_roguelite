@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule;
-using ConduitModule.ConduitSystemModule;
+using ConduitModule.Systems;
 using TileMapModule.Type;
 using ConduitModule;
 using TileEntityModule;
@@ -10,12 +10,13 @@ using ConduitModule.Ports;
 using ChunkModule.PartitionModule;
 using TileEntityModule.Instances.CompactMachines;
 using ChunkModule.IO;
+using TileMapModule.Layer;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
     {
         private IntervalVector coveredArea;
-        private Dictionary<TileMapType, ConduitSystemManager> conduitSystemManagersDict; 
+        private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
         private List<SoftLoadedConduitTileChunk> softLoadedChunk;
         public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks) {
             this.softLoadedChunk = unloadedChunks;
@@ -28,7 +29,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunk; set => softLoadedChunk = value; }
-        public Dictionary<TileMapType, ConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
+        public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
 
         public bool chunkIsNeighbor(SoftLoadedConduitTileChunk unloadedChunk) {
@@ -106,20 +107,22 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
         }
         private void initConduitSystemManagers() {
-            conduitSystemManagersDict = new Dictionary<TileMapType, ConduitSystemManager>();
+            conduitSystemManagersDict = new Dictionary<TileMapType, IConduitSystemManager>();
             initConduitSystemManager(TileMapType.ItemConduit);
             initConduitSystemManager(TileMapType.FluidConduit);
             initConduitSystemManager(TileMapType.EnergyConduit);
             initConduitSystemManager(TileMapType.SignalConduit);
+            initConduitSystemManager(TileMapType.MatrixConduit);
         }
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
-            ConduitSystemManager manager = new ConduitSystemManager(
+            Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts = getTileEntityPorts(conduitType);
+            IConduitSystemManager manager = ConduitSystemManagerFactory.createManager(
                 conduitType: conduitType,
-                conduits: getConduits(conduitType),
+                conduits: getConduits(conduitType,tileEntityPorts),
                 size: getSize(),
-                chunkConduitPorts: getTileEntityPorts(conduitType),
+                chunkConduitPorts: tileEntityPorts,
                 referencePosition: getBottomLeftCorner()
             );
             conduitSystemManagersDict[conduitMapType] = manager;
@@ -151,58 +154,16 @@ namespace ChunkModule.ClosedChunkSystemModule {
         /// Returns the tileEntity at a given cellPosition
         /// </summary>
         public TileEntity getSoftLoadedTileEntity(Vector2Int cellPosition) {
-            // This method is a little complicated as partitions store tileEntities
-
-            Dictionary<Vector2Int, IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
-            Dictionary<Vector2Int, IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
-            // Check center first
-            TileEntity tileEntity = iterateTileEntitySearch(cellPosition,chunkCache,partitionCache);
-            if (tileEntity != null) {
-                return tileEntity;
+            Vector2Int? tilePosition = FindTileAtLocation.find(cellPosition,this);
+            if (tilePosition == null) {
+                return null;
             }
-            // Search order has to search top quadrant first due to mismatch of tile size (2x2) at 0,0 covers x:[0,1] to x:[0,1]
-            for (int searchRange = 1; searchRange < 8; searchRange ++) {
-                // Left top edge
-                for (int x = 0; x <= searchRange; x++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Left edge
-                for (int y = searchRange; y >= -searchRange; y--) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(searchRange,y),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Bottom edge
-                for (int x = searchRange; x >= -searchRange; x--) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,-searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Right edge
-                for (int y = 0; y <= searchRange; y++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(-searchRange,y),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-                // Right top edge
-                for (int x = -searchRange; x > 0; x++) {
-                    tileEntity = iterateTileEntitySearch(cellPosition + new Vector2Int(x,searchRange),chunkCache,partitionCache);
-                    if (tileEntity != null) {
-                        return tileEntity;
-                    }
-                }
-            }
-            Debug.LogWarning("Could not find tileEntity at " + cellPosition);
-            return null;
+            return GetTileEntity((Vector2Int)tilePosition);
+            
         }
 
-        private TileEntity iterateTileEntitySearch(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache) {
+
+        public TileItem getTileItem(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache, TileMapLayer layer) {
             Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
             Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
             if (!chunkCache.ContainsKey(chunkPosition)) {
@@ -218,8 +179,21 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             IChunkPartition partition = partitionCache[partitionPosition];
             Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
-            TileEntity tileEntity = partition.GetTileEntity(cellPositionInPartition);
-            return tileEntity;
+            TileItem tileItem = partition.GetTileItem(cellPositionInPartition,layer);
+            return tileItem;
+        }
+
+        public TileEntity GetTileEntity(Vector2Int currentCellPosition) {
+            Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
+            IChunk chunk = getChunk(chunkPosition);
+            if (chunk == null) {
+                return null;
+            }
+            Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PartitionsPerChunk;
+            IChunkPartition partition = chunk.getPartition(adjustedPartitionPosition);
+            Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
+            return partition.GetTileEntity(cellPositionInPartition);
         }
 
         private IChunk getChunk(Vector2Int cellPosition) {
@@ -230,7 +204,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
             return null;
         }
-        private IConduit[,] getConduits(ConduitType conduitType) {
+        private IConduit[,] getConduits(ConduitType conduitType,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
             IConduit[,] conduits = new IConduit[size.x,size.y];
@@ -240,7 +214,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference,this);
+                    ((IConduitTileChunkPartition) partition).getConduits(conduitType,conduits,chunkFrameOfReference,tileEntityPorts);
                 }
             }
             return conduits;
@@ -276,8 +250,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
                         continue;
                     }
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
-                    foreach (KeyValuePair<TileMapType,ConduitSystemManager> kvp in conduitSystemManagersDict) {
-                        partitionConduits[kvp.Key.toConduitType()] = kvp.Value.getConduitPartitionData(partition.getRealPosition());
+                    foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
+                        IConduitSystemManager manager = kvp.Value;
+                        if (manager is PortConduitSystemManager portConduitSystemManager) {
+                            partitionConduits[kvp.Key.toConduitType()] = portConduitSystemManager.getConduitPartitionData(partition.getRealPosition());
+                        }
+                        
                     }
                     conduitTileChunkPartition.setConduits(partitionConduits);
                     partition.save();
@@ -287,8 +265,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public void tickUpdate() {
-            foreach (ConduitSystemManager manager in conduitSystemManagersDict.Values) {
-                manager.tickUpdate();
+            foreach (IConduitSystemManager manager in conduitSystemManagersDict.Values) {
+                if (manager is ITickableConduitSystem tickableConduitSystem) {
+                    tickableConduitSystem.tickUpdate();
+                }
             }
             foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {

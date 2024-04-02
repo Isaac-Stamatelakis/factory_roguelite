@@ -114,5 +114,20 @@ namespace TileEntityModule {
             Vector2Int positionInPartition = Global.getPositionInPartition(offsetCellPosition);
             return partition.GetTileEntity(positionInPartition);
         }
+
+        public static void dfsTileEntity<T>(TileEntity tileEntity, HashSet<T> visited) {
+            if (tileEntity is not T typedTileEntity) {
+                return;
+            }
+            if (visited.Contains(typedTileEntity)) {
+                return;
+            }
+            visited.Add(typedTileEntity);
+            Vector2Int cellPosition = tileEntity.getCellPosition();
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.up),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.down),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.left),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
+        }
     }
 }

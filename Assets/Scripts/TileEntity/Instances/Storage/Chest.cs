@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 namespace TileEntityModule.Instances
 {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Chest")]
-    public class Chest : TileEntity, IClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, IConduitInteractable
+    public class Chest : TileEntity, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, IConduitInteractable
     {
         [Header("Only input items")]
         ConduitPortLayout layout;
@@ -39,7 +39,7 @@ namespace TileEntityModule.Instances
             }
         }
 
-        public void onClick()
+        public void onRightClick()
         {
             if (gui == null) {
                 Debug.LogError("GUI GameObject for chest:" + name + " null");
