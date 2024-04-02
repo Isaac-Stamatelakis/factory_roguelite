@@ -15,6 +15,7 @@ namespace ConduitModule.Systems {
 
         public List<MatrixInterface> Interfaces { get => interfaces;}
         public Dictionary<MatrixDrive, List<MatrixDriveInventory>> DriveInventories { get => driveInventories; }
+        private List<MatrixAutoCraftCore> autoCraftingCores;
 
         public MatrixConduitSystem(string id) : base(id)
         {
@@ -60,6 +61,7 @@ namespace ConduitModule.Systems {
             }
             interfaces = new List<MatrixInterface>();
             driveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
+            autoCraftingCores = new List<MatrixAutoCraftCore>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 matrixConduitInteractable.syncToSystem(this);
                 matrixConduitInteractable.syncToController(controller);
@@ -92,6 +94,15 @@ namespace ConduitModule.Systems {
         public void removeDrive(MatrixDrive matrixDrive) {
             if (DriveInventories.ContainsKey(matrixDrive)) {
                 driveInventories.Remove(matrixDrive);
+            }
+        }
+
+        public void addAutoCrafter(MatrixAutoCraftCore core) {
+            autoCraftingCores.Add(core);
+        }
+        public void removeAutoCrafter(MatrixAutoCraftCore core) {
+            if (autoCraftingCores.Contains(core)) {
+                autoCraftingCores.Remove(core);
             }
         }
     }

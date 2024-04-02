@@ -48,4 +48,8 @@ namespace TileEntityModule {
         public RecipeProcessor getRecipeProcessor();
     }
 
+    public interface IMultiBlockTileEntity {
+        public void assembleMultiBlock();
+    }
+
 }

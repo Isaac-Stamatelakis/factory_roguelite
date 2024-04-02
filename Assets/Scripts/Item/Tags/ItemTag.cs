@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using ItemModule.Tags.FluidContainers;
+using RecipeModule;
 
 namespace ItemModule.Tags {
     public enum ItemTag {
@@ -30,6 +31,7 @@ namespace ItemModule.Tags {
                 ItemTag.EnergyContainer => serializeEnergyContainer(tagData),
                 ItemTag.CompactMachine => serializeCompactMachineTag(tagData),
                 ItemTag.StorageDrive => serializeStorageDriver(tagData),
+                ItemTag.EncodedRecipe => seralizeEncodedRecipe(tagData),
                 _ => serializeDefaultSwitchCase(tag)
             };
         }
@@ -74,6 +76,15 @@ namespace ItemModule.Tags {
                 return null;
             }
             return ItemSlotFactory.serializeList(inventory);
+        }
+
+        private static string seralizeEncodedRecipe(object tagData) {
+            if (tagData is not MatrixRecipe matrixRecipe) {
+                logInvalidType(ItemTag.EncodedRecipe);
+                return null;
+            }
+            return RecipeSeralizationFactory.seralizeRecipe(matrixRecipe);
+            
         }
 
         public static GameObject getVisualElement(this ItemTag tag, ItemSlot itemSlot, object tagData) {
@@ -126,6 +137,7 @@ namespace ItemModule.Tags {
                 ItemTag.EnergyContainer => JsonConvert.DeserializeObject<int>(data),
                 ItemTag.CompactMachine => data,
                 ItemTag.StorageDrive => ItemSlotFactory.deserialize(data),
+                ItemTag.EncodedRecipe => RecipeSeralizationFactory.deseralizeRecipe(data),
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }

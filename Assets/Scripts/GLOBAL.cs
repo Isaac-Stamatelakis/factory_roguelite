@@ -119,3 +119,20 @@ public static class Global
 
 
 }
+
+public struct Dim2Bounds {
+    public int XLowerBound;
+    public int XUpperBound;
+    public int YLowerBound;
+    public int YUpperBound;
+    public Dim2Bounds(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound) {
+        this.XLowerBound = xLowerBound;
+        this.YLowerBound = yLowerBound;
+        this.XUpperBound = xUpperBound;
+        this.YUpperBound = yUpperBound;
+    }
+
+    public Vector2Int size() {
+        return new Vector2Int(Mathf.Abs(XLowerBound-XUpperBound)+1,Mathf.Abs(YLowerBound-YUpperBound)+1);
+    }
+}

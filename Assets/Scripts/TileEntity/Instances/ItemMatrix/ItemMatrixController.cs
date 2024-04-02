@@ -54,8 +54,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public List<ItemSlot> getInventory() {
-
+        public List<ItemSlot> getItemSlots() {
             List<ItemSlot> inventories = new List<ItemSlot>();
             foreach (MatrixConduitSystem system in systems) {
                 foreach (List<MatrixDriveInventory> matrixDriveInventoryList in system.DriveInventories.Values) {
@@ -65,6 +64,16 @@ namespace TileEntityModule.Instances.Matrix {
                 }
             }
             return inventories;
+        }
+
+        public Dictionary<MatrixDrive, List<MatrixDriveInventory>> getInventory() {
+            Dictionary<MatrixDrive, List<MatrixDriveInventory>> totalDriveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
+            foreach (MatrixConduitSystem system in systems) {
+                foreach (KeyValuePair<MatrixDrive, List<MatrixDriveInventory>> kvp in system.DriveInventories) {
+                    totalDriveInventories[kvp.Key] = kvp.Value;
+                }
+            }
+            return totalDriveInventories;
         }
         public void syncToController(ItemMatrixController matrixController)
         {
@@ -76,6 +85,10 @@ namespace TileEntityModule.Instances.Matrix {
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             systems.Add(matrixConduitSystem);
+        }
+
+        public void addAutoCrafter(MatrixAutoCraftCore core) {
+
         }
     }
 
