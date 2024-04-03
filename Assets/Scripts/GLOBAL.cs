@@ -96,17 +96,22 @@ public static class Global
 
     public static Vector2Int getPositionInPartition(Vector2Int cellPosition)
     {
-        int partitionX = Mathf.Abs(cellPosition.x) % (Global.chunkPartitionSize);
-        int partitionY = Mathf.Abs(cellPosition.y) % (Global.chunkPartitionSize);
-        return new Vector2Int(partitionX, partitionY);
+        return getPositionInObject(cellPosition,Global.chunkPartitionSize);
     }
 
     public static Vector2Int getPositionInChunk(Vector2Int cellPosition)
     {
-        int chunkX = Mathf.Abs(cellPosition.x) % (Global.ChunkSize);
-        int chunkY = Mathf.Abs(cellPosition.y) % (Global.ChunkSize);
-        return new Vector2Int(chunkX, chunkY);
+        return getPositionInObject(cellPosition,Global.ChunkSize);
+    }
 
+    private static Vector2Int getPositionInObject(Vector2Int cellPosition, int objectSize) {
+        int x = Mathf.Abs(cellPosition.x) % objectSize;
+        x = cellPosition.x < 0 && x != 0 ? objectSize - x : x;
+
+        int y = Mathf.Abs(cellPosition.y) % objectSize;
+        y = cellPosition.y < 0 && y != 0 ? objectSize - y : y;
+
+        return new Vector2Int(x, y);
     }
 
 

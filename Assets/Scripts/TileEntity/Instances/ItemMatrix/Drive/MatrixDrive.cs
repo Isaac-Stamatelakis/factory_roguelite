@@ -5,6 +5,8 @@ using UnityEngine;
 using GUIModule;
 using ChunkModule;
 using ConduitModule.Systems;
+using ItemModule.Tags;
+using ItemModule.Tags.Matrix;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
@@ -20,6 +22,7 @@ namespace TileEntityModule.Instances.Matrix {
         private List<ItemSlot> storageDrives;
         private MatrixDriverPixelContainer pixelContainer;
         private MatrixConduitSystem matrixConduitSystem;
+        private ItemMatrixController controller;
 
         public List<ItemSlot> StorageDrives { get => storageDrives; }
 
@@ -56,17 +59,58 @@ namespace TileEntityModule.Instances.Matrix {
             for (int i = 0; i < Mathf.Min(pixelContainer.orderedPixels.Count,storageDrives.Count); i++) {
                 ItemSlot itemSlot = storageDrives[i];
                 SpriteRenderer spriteRenderer = pixelContainer.orderedPixels[i];
+                if (controller == null) {
+                    spriteRenderer.gameObject.SetActive(true);
+                    spriteRenderer.color = Color.black;
+                    continue;
+                }
                 if (itemSlot == null || itemSlot.itemObject == null) {
                     spriteRenderer.gameObject.SetActive(false);
                     continue;
                 }
+                if (
+                    itemSlot.itemObject is not MatrixDriveItem matrixDriveItem || 
+                    itemSlot.tags == null || 
+                    !itemSlot.tags.Dict.ContainsKey(ItemTag.StorageDrive)
+                ) {
+                    continue;
+                }
                 spriteRenderer.gameObject.SetActive(true);
+                bool allAssigned = true;
+                List<ItemSlot> driveInventory = (List<ItemSlot>)itemSlot.tags.Dict[ItemTag.StorageDrive];
+                foreach (ItemSlot item in driveInventory) {
+                    if (item == null || item.itemObject == null) {
+                        allAssigned = false;
+                        break;
+                    }
+                }
+                if (!allAssigned) {
+                    spriteRenderer.color = Color.green;
+                    continue;
+                }
+                bool full = true;
+                foreach (ItemSlot item in driveInventory) {
+                    if (item.amount != matrixDriveItem.MaxAmount) {
+                        full = false;
+                        break;
+                    }
+                }
+                if (!full) {
+                    spriteRenderer.color = new Color(1f,165f/255f,0f); // Orange
+                } else {
+                    spriteRenderer.color = Color.red;
+                }
+                
+                
             }
         }
 
         public void onBreak()
         {
-            matrixConduitSystem.removeDrive(this);
+            if (matrixConduitSystem != null) {
+                matrixConduitSystem.removeDrive(this);
+            }
+            
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
@@ -90,7 +134,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToController(ItemMatrixController matrixController)
         {
-            
+            this.controller = matrixController;
         }
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)

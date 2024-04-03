@@ -207,6 +207,9 @@ namespace ChunkModule.PartitionModule {
 
         public TileOptions getTileOptions(Vector2Int position)
         {
+            if (tileOptionsArray == null) {
+                return null;
+            }
             return tileOptionsArray[position.x,position.y];
         }
 

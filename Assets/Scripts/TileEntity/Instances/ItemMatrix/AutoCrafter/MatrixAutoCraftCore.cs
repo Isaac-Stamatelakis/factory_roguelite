@@ -5,21 +5,28 @@ using ConduitModule.Systems;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {
-    public class MatrixAutoCraftCore : TileEntity, IMatrixConduitInteractable, IMultiBlockTileEntity
+    [CreateAssetMenu(fileName = "E~New Matrix Crafting Core", menuName = "Tile Entity/Item Matrix/Crafting/Core")]
+    public class MatrixAutoCraftCore : MatrixAutoCraftingChassis, IMatrixConduitInteractable, IMultiBlockTileEntity
     {
         [SerializeField] private ConduitPortLayout layout;
         private ItemMatrixController controller;
         private int totalMemory;
         private int totalProcessors;
+        private bool assembled = false;
+        public bool Assembled {get => assembled;}
 
         public int TotalMemory { get => totalMemory; set => totalMemory = value; }
         public int TotalProcessors { get => totalProcessors; set => totalProcessors = value; }
+
+        
 
         public void assembleMultiBlock()
         {
             HashSet<IMatrixCraftTile> connectedCraftTiles = new HashSet<IMatrixCraftTile>();
             TileEntityHelper.dfsTileEntity(this,connectedCraftTiles); 
-            // Verify shape is rectangular
+            foreach (IMatrixCraftTile craftTile in connectedCraftTiles) {
+                craftTile.deactivate();
+            }
             Dim2Bounds bounds = new Dim2Bounds(0,0,0,0);
             Vector2Int corePosition = getCellPosition();
             foreach (TileEntity tileEntity in connectedCraftTiles) {
@@ -37,19 +44,39 @@ namespace TileEntityModule.Instances.Matrix {
                 }
             }
             Vector2Int size = bounds.size();
-            // Add one to account for core, if tileCount + 1 == size.x*size.y, then the shape is rectangular
-            bool isRectangular = connectedCraftTiles.Count+1 == size.x*size.y; 
+            bool isRectangular = connectedCraftTiles.Count == size.x*size.y; 
             if (!isRectangular) {
                 return;
             }
+            assembled = true;
             foreach (IMatrixCraftTile matrixCraftTile in connectedCraftTiles) {
                 matrixCraftTile.sync(this);
             }  
+            // Will only not be assembled after this point if another core is within dfs search
+            bool functionable = totalMemory > 0 && totalProcessors > 0;
+            assembled = assembled && functionable;
+            if (!assembled) {
+                return;
+            }
+            foreach (IMatrixCraftTile matrixCraftTile in connectedCraftTiles) {
+                matrixCraftTile.load();
+            }
+            
         }
+        
+       
 
         public ConduitPortLayout getConduitPortLayout()
         {
             return layout;
+        }
+
+        public override void sync(MatrixAutoCraftCore core)
+        {
+            if (!core.Equals(this)) {
+                assembled = false;
+            }
+            this.core = core;
         }
 
         public void syncToController(ItemMatrixController matrixController)
@@ -59,12 +86,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
-            // An autocrafter with no memory and no processors cannot do anything
-            bool canFunction = totalMemory > 0 && totalProcessors > 0;
-            if (!canFunction) {
-                return;
-            }
-            matrixConduitSystem.addAutoCrafter(this);
+            
         }
     }
 }

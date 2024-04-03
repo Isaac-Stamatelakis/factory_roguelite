@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface ITileUpdateReciever
 {
-    public void tileUpdate();
+    public void tileUpdate(TileItem tileItem);
 }

@@ -148,6 +148,8 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             if (tileItem == null) {
                 return;
             }
+            TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
+            tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
             if (tileItem.tileEntity != null ) {
                 placeTileEntityFromLoad(
                     tileItem,
@@ -158,9 +160,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     positionInPartition.y
                 );
             }
-            TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
             
-            tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
             TileBase tileBase = tileItem.tile;
             if (tileItem.tile is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(options.SerializedTileOptions.state);

@@ -32,6 +32,7 @@ namespace ConduitModule.Systems {
         }
         public override void rebuild()
         {
+            
             tileEntities = new List<IMatrixConduitInteractable>();
             foreach (MatrixConduit matrixConduit in conduits) {
                 addTileEntity(matrixConduit);
@@ -48,6 +49,7 @@ namespace ConduitModule.Systems {
 
         public void syncToController() {
             ItemMatrixController controller = null;
+            controller = null;
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 if (matrixConduitInteractable is ItemMatrixController controller1) {
                     if (controller != null && !controller.Equals(controller1)) { // Hard Enforcement of only one controller per system
@@ -57,6 +59,9 @@ namespace ConduitModule.Systems {
                 }
             }
             if (controller == null) {
+                foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
+                    matrixConduitInteractable.syncToController(null);
+                }
                 return;
             }
             interfaces = new List<MatrixInterface>();

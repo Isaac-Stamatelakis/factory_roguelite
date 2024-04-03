@@ -9,8 +9,8 @@ using TileEntityModule.Instances.SimonSays;
 
 namespace Tiles {
     
-    [CreateAssetMenu(fileName ="T~New Simon Says Tile",menuName="Tile/State/SimonSays")]
-    public class SimonSaysTile : TileBase, IIDTile, ITypeSwitchType, IStateTile
+    [CreateAssetMenu(fileName ="T~New Simon Says Tile",menuName="Tile/State/TwoState")]
+    public class TwoStateTile : TileBase, IIDTile, ITypeSwitchType, IStateTile
     {
         [SerializeField] public string id;
         [SerializeField] public Tile activeTile;
