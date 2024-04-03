@@ -108,12 +108,13 @@ public static class ItemSlotHelper
         if (itemSlot.itemObject.id != toInsert.itemObject.id) {
             return false;
         }
+        if (itemSlot.amount < maxAmount) {
+            return false;
+        }
         if (itemSlot.tags != null && toInsert.tags != null && !itemSlot.tags.Equals(toInsert.tags)) {
             return false;
         }
-        if (itemSlot.amount + toInsert.amount > maxAmount) {
-            return false;
-        }
+        
         return true;
     }
 

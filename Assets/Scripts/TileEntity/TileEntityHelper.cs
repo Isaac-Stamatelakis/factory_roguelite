@@ -68,6 +68,9 @@ namespace TileEntityModule {
             IChunkPartition chunkPartition = tileEntity.getPartition();
             Vector2Int positionInPartition = tileEntity.getPositionInPartition();
             TileOptions tileOptions = chunkPartition.getTileOptions(positionInPartition);
+            if (tileOptions == null) {
+                return;
+            }
             SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
             int oldState = serializedTileOptions.state;
             serializedTileOptions.state = state;
@@ -106,10 +109,7 @@ namespace TileEntityModule {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;
                 }
-                partition = adjacentSoftLoadedChunk.getPartition(partitionPosition);
-                Debug.Log(adjacentSoftLoadedChunk.getPosition() + "," + (partition.getRealPosition() - chunkPosition*Global.PartitionsPerChunk) + "," + Global.getPositionInPartition(offsetCellPosition) +","  + offsetCellPosition);
-                
-                
+                partition = adjacentSoftLoadedChunk.getPartition(partitionPosition);   
             }
             if (partition == null) {
                 Debug.LogError("Attempted to locate adjcaent tile entity in null partition");
@@ -121,6 +121,21 @@ namespace TileEntityModule {
         }
 
         public static void dfsTileEntity<T>(TileEntity tileEntity, HashSet<T> visited) {
+            if (tileEntity == null || tileEntity is not T typedTileEntity) {
+                return;
+            }
+            if (visited.Contains(typedTileEntity)) {
+                return;
+            }
+            visited.Add(typedTileEntity);
+            Vector2Int cellPosition = tileEntity.getCellPosition();
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.up),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.down),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.left),visited);
+            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
+        }
+
+        public static void dfsTileEntity<T>(TileEntity tileEntity, List<T> visited) {
             if (tileEntity == null || tileEntity is not T typedTileEntity) {
                 return;
             }

@@ -9,7 +9,6 @@ namespace TileEntityModule.Instances.Matrix {
     public class MatrixAutoCraftCore : MatrixAutoCraftingChassis, IMatrixConduitInteractable, IMultiBlockTileEntity
     {
         [SerializeField] private ConduitPortLayout layout;
-        private ItemMatrixController controller;
         private int totalMemory;
         private int totalProcessors;
         private bool assembled = false;
@@ -18,10 +17,15 @@ namespace TileEntityModule.Instances.Matrix {
         public int TotalMemory { get => totalMemory; set => totalMemory = value; }
         public int TotalProcessors { get => totalProcessors; set => totalProcessors = value; }
 
-        
+        private MatrixConduitSystem matrixConduitSystem;
 
         public void assembleMultiBlock()
         {
+            if (matrixConduitSystem != null) {
+                matrixConduitSystem.removeAutoCrafter(this);
+            }
+            totalMemory = 0;
+            totalProcessors = 0;
             HashSet<IMatrixCraftTile> connectedCraftTiles = new HashSet<IMatrixCraftTile>();
             TileEntityHelper.dfsTileEntity(this,connectedCraftTiles); 
             foreach (IMatrixCraftTile craftTile in connectedCraftTiles) {
@@ -61,6 +65,9 @@ namespace TileEntityModule.Instances.Matrix {
             foreach (IMatrixCraftTile matrixCraftTile in connectedCraftTiles) {
                 matrixCraftTile.load();
             }
+            if (matrixConduitSystem != null) {
+                matrixConduitSystem.addAutoCrafter(this);
+            }
             
         }
         
@@ -86,7 +93,10 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
-            
+            this.matrixConduitSystem = matrixConduitSystem;
+            if (assembled) {
+                matrixConduitSystem.addAutoCrafter(this);
+            }
         }
     }
 }
