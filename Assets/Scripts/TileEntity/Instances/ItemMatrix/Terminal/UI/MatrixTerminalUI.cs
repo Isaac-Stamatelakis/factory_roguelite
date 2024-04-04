@@ -12,12 +12,11 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private TMP_InputField searchBar;
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private ScrollRect itemContainerScroll;
-        [SerializeField] private SolidItemInventory inventoryUI;
+        [SerializeField] private MatrixTerminalInventoryUI inventoryUI;
 
         public void init(MatrixTerminal matrixTerminal) {
             Dictionary<MatrixDrive, List<MatrixDriveInventory>> inventories = matrixTerminal.Controller.getInventory();
-
-        
+            inventoryUI.init(inventories,new List<ItemModule.Tags.Matrix.EncodedRecipeItem>(),itemContainer.transform);
         }
 
         public static MatrixTerminalUI newInstance() {

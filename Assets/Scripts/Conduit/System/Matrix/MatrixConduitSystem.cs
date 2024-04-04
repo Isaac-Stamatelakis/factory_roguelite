@@ -16,7 +16,6 @@ namespace ConduitModule.Systems {
         public List<MatrixInterface> Interfaces { get => interfaces;}
         public Dictionary<MatrixDrive, List<MatrixDriveInventory>> DriveInventories { get => driveInventories; }
         private List<MatrixAutoCraftCore> autoCraftingCores;
-
         public MatrixConduitSystem(string id) : base(id)
         {
             tileEntities = new List<IMatrixConduitInteractable>();

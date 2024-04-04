@@ -5,7 +5,12 @@ using UnityEngine.UI;
 using TMPro;
 using ItemModule;
 
-public abstract class InventoryUI : MonoBehaviour {
+public interface IItemUIClickReciever {
+    public void leftClick(int n);
+    public void rightClick(int n);
+    public void middleClick(int n);
+}
+public abstract class InventoryUI : MonoBehaviour, IItemUIClickReciever {
     protected List<GameObject> slots = new List<GameObject>();
     protected List<ItemSlot> inventory;
     public ItemSlot getItemSlot(int index) {
@@ -69,7 +74,6 @@ public abstract class InventoryUI : MonoBehaviour {
         loadTagVisual(slot,itemSlot); 
         loadItemImage(slot,itemSlot);
         loadItemAmountNumber(slot,itemSlot);  
-        
     }
 
     public virtual void setItem(int n, ItemSlot data) {

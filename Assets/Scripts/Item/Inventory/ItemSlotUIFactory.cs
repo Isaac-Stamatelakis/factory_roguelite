@@ -8,7 +8,14 @@ using TMPro;
 namespace ItemModule {
     public static class ItemSlotUIFactory
     {
-        
+        private static string itemImageName = "item";
+        private static string itemAmountName = "amount";
+        private static string itemTagName = "tags";
+
+        public static string ItemImageName { get => itemImageName; }
+        public static string ItemAmountName { get => itemAmountName; }
+        public static string ItemTagName { get => itemTagName; }
+
         public static GameObject getSlot(ItemSlot itemSlot) {
             GameObject slot = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
             getItemImage(itemSlot,slot.transform);
@@ -27,7 +34,7 @@ namespace ItemModule {
 
         public static GameObject getItemImage(ItemObject itemObject, bool scale = false) {
             GameObject imageObject = new GameObject();
-            imageObject.name = "item";
+            imageObject.name = itemImageName;
             RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
             rectTransform.localPosition = Vector3.zero;
             imageObject.AddComponent<CanvasRenderer>();
@@ -57,7 +64,7 @@ namespace ItemModule {
                 return null;
             }
             GameObject tagObject = new GameObject();
-            tagObject.name = "tags";
+            tagObject.name = itemTagName;
             tagObject.transform.SetParent(parent,false);
             setItemImageTagVisuals(itemSlot,tagObject);
             return tagObject;
@@ -83,7 +90,7 @@ namespace ItemModule {
                 return null;    
             }
             GameObject number = new GameObject();
-            number.name = "amount";
+            number.name = itemAmountName;
             number.transform.SetParent(parent,false);
             number.AddComponent<RectTransform>();
             TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
@@ -136,6 +143,58 @@ namespace ItemModule {
             float scaleY = size.y / itemSize.y;
             return new Vector2(scaleX,scaleY);
         }
+
+        public static void reload(GameObject slot, ItemSlot itemSlot) {
+            if (slot == null) {
+                return;
+            }
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return;   
+            }
+            Transform imageTransform = slot.transform.Find(itemImageName);
+            if (imageTransform == null) {
+                getItemImage(itemSlot,slot.transform);
+                return;
+            }
+            GameObject imageObject = imageTransform.gameObject;
+            Image image = imageObject.GetComponent<Image>();
+            image.sprite = itemSlot.itemObject.getSprite();
+            Transform numberTransform = slot.transform.Find(itemAmountName);
+            if (numberTransform == null) {
+                getNumber(itemSlot,slot.transform);
+                return;
+            }
+            GameObject number = numberTransform.gameObject;
+            TextMeshProUGUI textMeshPro = number.GetComponent<TextMeshProUGUI>();
+            textMeshPro.text = itemSlot.amount.ToString();
+            
+            Transform tagTransform = slot.transform.Find(itemTagName);
+            if (tagTransform == null) {
+                getTagObject(itemSlot,slot.transform);
+            }
+        }
+
+        public static void load(ItemSlot itemSlot,Transform transform) {
+            ItemSlotUIFactory.getItemImage(itemSlot,transform);
+            ItemSlotUIFactory.getNumber(itemSlot,transform);
+            ItemSlotUIFactory.getTagObject(itemSlot,transform);
+        }
+
+        public static void unload(Transform slotTransform) {
+            Transform imageTransform = slotTransform.Find(itemImageName);
+            if (imageTransform != null) {
+                GameObject.Destroy(imageTransform.gameObject);
+            }
+            Transform amountTransform = slotTransform.Find(ItemAmountName);
+            if (amountTransform != null) {
+                GameObject.Destroy(amountTransform.gameObject);
+            }
+            Transform tagTransform = slotTransform.Find(ItemTagName);
+            if (tagTransform != null) {
+                GameObject.Destroy(tagTransform.gameObject);
+            }
+        }
     }
+    
 }
 

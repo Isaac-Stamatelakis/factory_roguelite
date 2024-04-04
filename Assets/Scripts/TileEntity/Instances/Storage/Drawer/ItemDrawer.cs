@@ -173,6 +173,9 @@ namespace TileEntityModule.Instances.Storage {
             if (controller == null) {
                 return;
             }
+            if (tileItem != null && !(tileItem.tileEntity != null && tileItem.tileEntity is ItemDrawer drawer)) {
+                return;
+            }
             controller.assembleMultiBlock();
         }
     }

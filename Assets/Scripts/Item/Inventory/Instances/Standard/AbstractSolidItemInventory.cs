@@ -23,9 +23,59 @@ public abstract class AbstractSolidItemInventory : InventoryUI
     }
     public override void leftClick(int n)
     {
+        SolidItemInventoryHelper.leftClick(inventory,n);
+        updateAllListeners();
+        unloadItem(n);
+        loadItem(n);
+        
+    }
+
+    private void updateAllListeners() {
+        if (listeners == null) {
+            return;
+        }
+        foreach (IInventoryListener listener in listeners) {
+            listener.inventoryUpdate();
+        }
+    }
+
+    public override void middleClick(int n)
+    {
+        // TODO 
+    }
+
+    public override void rightClick(int n)
+    {
+        SolidItemInventoryHelper.rightClick(inventory,n);
+        updateAllListeners();
+    }
+
+    
+}
+
+public static class SolidItemInventoryHelper {
+    public static void rightClick(List<ItemSlot> inventory, int n) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
-            Debug.LogError("Inventory " + name + " GrabbedItem is null");
+            return;
+        }
+        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
+        ItemSlot inventorySlot = inventory[n];
+        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+        if (inventorySlot == null || inventorySlot.itemObject == null) {
+            return;
+        }
+        
+        if (grabbedItemProperties.setItemSlotFromInventory(inventory,n)) {
+            return;
+        }
+        grabbedItemProperties.addItemSlotFromInventory(inventory,n);
+    }
+
+    public static void leftClick(List<ItemSlot> inventory, int n) {
+        GameObject grabbedItem = GameObject.Find("GrabbedItem");
+        if (grabbedItem == null) {
+            Debug.LogError("Inventory GrabbedItem is null");
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         ItemSlot inventorySlot = inventory[n];
@@ -45,44 +95,6 @@ public abstract class AbstractSolidItemInventory : InventoryUI
             inventory[n] = grabbedItemProperties.itemSlot;
             grabbedItemProperties.itemSlot = inventorySlot;
         }
-
-        updateAllListeners();
-        unloadItem(n);
-        loadItem(n);
         grabbedItemProperties.updateSprite();
     }
-
-    private void updateAllListeners() {
-        if (listeners == null) {
-            return;
-        }
-        foreach (IInventoryListener listener in listeners) {
-            listener.inventoryUpdate();
-        }
-    }
-
-    public override void middleClick(int n)
-    {
-        // TODO 
-    }
-
-    public override void rightClick(int n)
-    {
-        GameObject grabbedItem = GameObject.Find("GrabbedItem");
-        if (grabbedItem == null) {
-            Debug.LogError("Inventory " + name + " GrabbedItem is null");
-        }
-        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        ItemSlot inventorySlot = inventory[n];
-        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-        if (inventorySlot == null || inventorySlot.itemObject == null) {
-            return;
-        }
-        updateAllListeners();
-        if (grabbedItemProperties.setItemSlotFromInventory(inventory,n)) {
-            return;
-        }
-        grabbedItemProperties.addItemSlotFromInventory(inventory,n);
-    }
 }
-
