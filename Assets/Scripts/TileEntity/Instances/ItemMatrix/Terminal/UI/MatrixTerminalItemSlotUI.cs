@@ -5,21 +5,14 @@ using UnityEngine.EventSystems;
 
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixTerminalItemSlotClickListener {
-        public int getIndex();
-        public int getDriveIndex();
-        public MatrixDrive getMatrixDrive();
-        public GameObject getGameObject();
+        
     }
     public class MatrixTerminalItemSlotUI : MonoBehaviour, IPointerClickHandler, IMatrixTerminalItemSlotClickListener
     {
-        private MatrixDrive matrixDrive;
-        private int index;
-        private int driveIndex;
+        private ItemSlot itemSlot;
         private IMatrixTerminalItemClickReciever reciever;
-        public void init(MatrixDrive matrixDrive, int index, int driveIndex, IMatrixTerminalItemClickReciever reciever){
-            this.matrixDrive = matrixDrive;
-            this.index = index;
-            this.driveIndex = driveIndex;
+        public void init(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever){
+            this.itemSlot = itemSlot;
             this.reciever = reciever;
         }
         public void OnPointerClick(PointerEventData eventData)
@@ -33,30 +26,10 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public static MatrixTerminalItemSlotUI newInstance(MatrixDrive matrixDrive, int index, int driveIndex, IMatrixTerminalItemClickReciever reciever) {
+        public static MatrixTerminalItemSlotUI newInstance(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever) {
             MatrixTerminalItemSlotUI itemSlotUI = GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalItemUIPanel").GetComponent<MatrixTerminalItemSlotUI>();
-            itemSlotUI.init(matrixDrive,index,driveIndex,reciever);
+            itemSlotUI.init(itemSlot, reciever);
             return itemSlotUI;
-        }
-
-        public int getIndex()
-        {
-            return index;
-        }
-
-        public int getDriveIndex()
-        {
-            return driveIndex;
-        }
-
-        public MatrixDrive getMatrixDrive()
-        {
-            return matrixDrive;
-        }
-
-        public GameObject getGameObject()
-        {
-            return gameObject;
         }
     }
 }

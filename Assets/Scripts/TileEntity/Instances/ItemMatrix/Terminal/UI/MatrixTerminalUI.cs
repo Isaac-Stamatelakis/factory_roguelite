@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using ItemModule;
 using ItemModule.Inventory;
+using ItemModule.Tags.Matrix;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixTerminalUI : MonoBehaviour
@@ -15,8 +16,7 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private MatrixTerminalInventoryUI inventoryUI;
 
         public void init(MatrixTerminal matrixTerminal) {
-            Dictionary<MatrixDrive, List<MatrixDriveInventory>> inventories = matrixTerminal.Controller.getInventory();
-            inventoryUI.init(inventories,new List<ItemModule.Tags.Matrix.EncodedRecipeItem>(),itemContainer.transform);
+            inventoryUI.init(matrixTerminal.Controller,new List<EncodedRecipeItem>(),itemContainer.transform);
         }
 
         public static MatrixTerminalUI newInstance() {

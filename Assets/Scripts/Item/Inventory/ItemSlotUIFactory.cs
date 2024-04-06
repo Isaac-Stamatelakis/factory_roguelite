@@ -15,6 +15,7 @@ namespace ItemModule {
         public static string ItemImageName { get => itemImageName; }
         public static string ItemAmountName { get => itemAmountName; }
         public static string ItemTagName { get => itemTagName; }
+        private static readonly string[] suffixes = {"k","M","B","T"};
 
         public static GameObject getSlot(ItemSlot itemSlot) {
             GameObject slot = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
@@ -94,7 +95,9 @@ namespace ItemModule {
             number.transform.SetParent(parent,false);
             number.AddComponent<RectTransform>();
             TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-            textMeshPro.text = itemSlot.amount.ToString();
+
+            textMeshPro.text = formatAmountText(itemSlot.amount);
+            
             textMeshPro.fontSize = 30;
             RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
             rectTransform.localPosition = new Vector3(5f,5f,1);
@@ -102,6 +105,20 @@ namespace ItemModule {
             textMeshPro.alignment = TextAlignmentOptions.BottomLeft;
             return number;
         }
+
+        private static string formatAmountText(int amount) {
+            if (amount < 1000) {
+                return amount.ToString();
+            }
+            int i = 0;
+            float fAmount = amount/1000;
+            while (i < suffixes.Length-1 && fAmount >= 1000) {
+                fAmount /= 1000;
+                i++;
+            }
+            return fAmount.ToString("0.##" + suffixes[i]);
+        }
+       
         public static Vector2 getItemSize(Sprite sprite) {
             if (sprite == null) {
                 return Vector2.zero;

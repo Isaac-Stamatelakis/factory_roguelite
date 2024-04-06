@@ -24,10 +24,16 @@ namespace TileEntityModule.Instances.Matrix {
             }
             inventoryList.constraintCount=columns;
             tagRestrictedInventoryUI.initalize(inventory,ItemTag.StorageDrive);
+            tagRestrictedInventoryUI.addListener(matrixDrive);
         }
 
         public static MatrixDriveUI createInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Drive/MatrixDriveUI").GetComponent<MatrixDriveUI>();
+        }
+
+        public void inventoryUpdate()
+        {
+            
         }
     }
 }

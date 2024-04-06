@@ -104,7 +104,23 @@ namespace TileEntityModule.Instances.Matrix {
                 
             }
         }
-
+        public Queue<ItemSlot> getQueueOfDrives() {
+            Queue<ItemSlot> queue = new Queue<ItemSlot>();
+            foreach (ItemSlot itemSlot in storageDrives) {
+                if (
+                    itemSlot == null || 
+                    itemSlot.itemObject == null || 
+                    itemSlot.tags == null || 
+                    itemSlot.tags.Dict == null || 
+                    !itemSlot.tags.Dict.ContainsKey(ItemTag.StorageDrive) ||
+                    itemSlot.itemObject is not MatrixDriveItem matrixDriveItem
+                    ) {
+                    continue;
+                }
+                queue.Enqueue(itemSlot);
+            }
+            return queue;
+        }
         public void onBreak()
         {
             if (matrixConduitSystem != null) {
