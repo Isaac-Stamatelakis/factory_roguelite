@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixTerminalItemSlotClickListener {
-        
+        public ItemSlot GetItemSlot();
     }
     public class MatrixTerminalItemSlotUI : MonoBehaviour, IPointerClickHandler, IMatrixTerminalItemSlotClickListener
     {
@@ -30,6 +30,11 @@ namespace TileEntityModule.Instances.Matrix {
             MatrixTerminalItemSlotUI itemSlotUI = GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalItemUIPanel").GetComponent<MatrixTerminalItemSlotUI>();
             itemSlotUI.init(itemSlot, reciever);
             return itemSlotUI;
+        }
+
+        public ItemSlot GetItemSlot()
+        {
+            return itemSlot;
         }
     }
 }

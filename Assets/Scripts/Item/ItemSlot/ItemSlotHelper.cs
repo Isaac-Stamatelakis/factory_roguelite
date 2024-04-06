@@ -47,6 +47,7 @@ public static class ItemSlotHelper
         } else {
             toCombineInto.amount = sum;
             toTakeFrom.amount = 0;
+            toTakeFrom.itemObject = null;
         }
     }
 

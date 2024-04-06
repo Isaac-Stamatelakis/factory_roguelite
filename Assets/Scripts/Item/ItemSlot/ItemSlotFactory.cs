@@ -32,7 +32,25 @@ public static class ItemSlotFactory
     }
 
     public static ItemSlot copy(ItemSlot itemSlot) {
-        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
+        if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
+            return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
+        } 
+        Dictionary<ItemTag, object> tagCopy = new Dictionary<ItemTag, object>();
+        
+        foreach (KeyValuePair<ItemTag,object> kvp in itemSlot.tags.Dict) {
+            tagCopy[kvp.Key] = kvp.Key.copyData(kvp.Value);
+        }
+        ItemTagCollection itemTagCollection = new ItemTagCollection(tagCopy);
+        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemTagCollection);
+    }
+
+    public static ItemSlot splice(ItemSlot itemSlot, int amount) {
+        ItemSlot clone = copy(itemSlot);
+        if (clone == null) {
+            return null;
+        }
+        clone.amount = amount;
+        return clone;
     }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();

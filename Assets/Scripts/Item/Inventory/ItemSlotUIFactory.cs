@@ -98,11 +98,13 @@ namespace ItemModule {
 
             textMeshPro.text = formatAmountText(itemSlot.amount);
             
-            textMeshPro.fontSize = 30;
+            textMeshPro.fontSize = 25;
             RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
-            rectTransform.localPosition = new Vector3(5f,5f,1);
-            rectTransform.sizeDelta = new Vector2(96,96);
-            textMeshPro.alignment = TextAlignmentOptions.BottomLeft;
+            rectTransform.anchorMax = new Vector2(1,1);
+            rectTransform.anchorMin = new Vector2(0,0);
+            rectTransform.localPosition = new Vector3(2,-2,1);
+            rectTransform.sizeDelta = Vector2.zero;
+            textMeshPro.alignment = TextAlignmentOptions.BottomRight;
             return number;
         }
 
@@ -111,12 +113,12 @@ namespace ItemModule {
                 return amount.ToString();
             }
             int i = 0;
-            float fAmount = amount/1000;
+            float fAmount = amount/1000f;
             while (i < suffixes.Length-1 && fAmount >= 1000) {
                 fAmount /= 1000;
                 i++;
             }
-            return fAmount.ToString("0.##" + suffixes[i]);
+            return fAmount.ToString("0.#" + suffixes[i]);
         }
        
         public static Vector2 getItemSize(Sprite sprite) {
@@ -171,23 +173,27 @@ namespace ItemModule {
             Transform imageTransform = slot.transform.Find(itemImageName);
             if (imageTransform == null) {
                 getItemImage(itemSlot,slot.transform);
-                return;
+            } else {
+                Sprite sprite = itemSlot.itemObject.getSprite();
+                Image itemImage = imageTransform.GetComponent<Image>();
+                if (itemImage.sprite != sprite) {
+                    itemImage.sprite = sprite;
+                    imageTransform.GetComponent<RectTransform>().sizeDelta = getItemSize(sprite);
+                }
             }
-            GameObject imageObject = imageTransform.gameObject;
-            Image image = imageObject.GetComponent<Image>();
-            image.sprite = itemSlot.itemObject.getSprite();
             Transform numberTransform = slot.transform.Find(itemAmountName);
             if (numberTransform == null) {
                 getNumber(itemSlot,slot.transform);
-                return;
+            } else {
+                numberTransform.GetComponent<TextMeshProUGUI>().text = formatAmountText(itemSlot.amount);
             }
-            GameObject number = numberTransform.gameObject;
-            TextMeshProUGUI textMeshPro = number.GetComponent<TextMeshProUGUI>();
-            textMeshPro.text = itemSlot.amount.ToString();
+            
             
             Transform tagTransform = slot.transform.Find(itemTagName);
             if (tagTransform == null) {
                 getTagObject(itemSlot,slot.transform);
+            } else {
+                // TODO
             }
         }
 

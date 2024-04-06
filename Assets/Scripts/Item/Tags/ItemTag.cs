@@ -141,6 +141,20 @@ namespace ItemModule.Tags {
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }
+
+        public static object copyData(this ItemTag tag, object data) {
+            if (data == null) {
+                return null;
+            }
+            return tag switch  {
+                ItemTag.FluidContainer => data,
+                ItemTag.EnergyContainer => data,
+                ItemTag.CompactMachine => data,
+                ItemTag.StorageDrive => data,
+                ItemTag.EncodedRecipe => data,
+                _ => deserializeDefaultSwitchCase(tag)
+            };
+        }
         private static object deserializeDefaultSwitchCase(ItemTag tag) {
             Debug.LogError("ItemTagExtension method 'deseralize' did not cover case for " + tag);
             return null;

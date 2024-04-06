@@ -38,7 +38,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToController(ItemMatrixController matrixController)
         {
-            
+            this.controller = matrixController;
         }
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
