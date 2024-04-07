@@ -67,6 +67,7 @@ namespace ItemModule {
             GameObject tagObject = new GameObject();
             tagObject.name = itemTagName;
             tagObject.transform.SetParent(parent,false);
+            tagObject.transform.SetSiblingIndex(0);
             setItemImageTagVisuals(itemSlot,tagObject);
             return tagObject;
         }

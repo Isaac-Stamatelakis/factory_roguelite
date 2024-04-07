@@ -16,7 +16,7 @@ namespace UI.JEI
     {
         private int page = 1;
         private int maxPages = 1;
-        private int limit = 84;
+        private int limit = 6*12;
         private CatalogueMode mode = CatalogueMode.Recipe;
         private string lastSearch;
         private HashSet<string> displayedIDs;
