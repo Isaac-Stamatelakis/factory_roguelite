@@ -5,7 +5,6 @@ using RecipeModule.Transmutation;
 using TileEntityModule.Instances.Machines;
 using ItemModule.Inventory;
 using TileEntityModule;
-using GUIModule;
 using System;
 
 namespace RecipeModule.Processors {

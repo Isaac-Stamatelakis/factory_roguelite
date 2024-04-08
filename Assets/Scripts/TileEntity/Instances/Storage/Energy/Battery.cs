@@ -4,7 +4,6 @@ using UnityEngine;
 using TileEntityModule;
 using ConduitModule.Ports;
 using Newtonsoft.Json;
-using GUIModule;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName = "E~New Battery", menuName = "Tile Entity/Storage/Battery")]

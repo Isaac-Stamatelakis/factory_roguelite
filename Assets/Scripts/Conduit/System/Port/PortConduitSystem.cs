@@ -32,7 +32,6 @@ namespace ConduitModule.Systems {
             init();
         }
 
-
         public override void addConduit(IConduit conduit) {
             base.addConduit(conduit);
             addPort((IPortConduit)conduit);

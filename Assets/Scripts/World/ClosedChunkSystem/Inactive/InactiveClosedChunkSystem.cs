@@ -17,23 +17,24 @@ namespace ChunkModule.ClosedChunkSystemModule {
     {
         private IntervalVector coveredArea;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
-        private List<SoftLoadedConduitTileChunk> softLoadedChunk;
+        private List<SoftLoadedConduitTileChunk> softLoadedChunks;
         public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks) {
-            this.softLoadedChunk = unloadedChunks;
+            this.softLoadedChunks = unloadedChunks;
             if (unloadedChunks.Count == 0) {
                 return;
             }
             for (int i = 0; i < unloadedChunks.Count; i++) {
                 updateCoveredArea(unloadedChunks[i]);
+                UnloadedChunks[i].System = this;
             } 
         }
 
-        public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunk; set => softLoadedChunk = value; }
+        public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunks; set => softLoadedChunks = value; }
         public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
 
         public bool chunkIsNeighbor(SoftLoadedConduitTileChunk unloadedChunk) {
-            foreach (SoftLoadedConduitTileChunk containedChunk in softLoadedChunk) {
+            foreach (SoftLoadedConduitTileChunk containedChunk in softLoadedChunks) {
                 Vector2Int dif = containedChunk.getPosition() - unloadedChunk.getPosition();
                 if (Mathf.Abs(dif.x) <= 1 && Mathf.Abs(dif.y) <= 1) {
                     return true;
@@ -50,7 +51,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return false;
         }
         public void merge(SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            this.softLoadedChunk.AddRange(inactiveClosedChunkSystem.UnloadedChunks);
+            this.softLoadedChunks.AddRange(inactiveClosedChunkSystem.UnloadedChunks);
             IntervalVector toMergeArea = inactiveClosedChunkSystem.coveredArea;
             if (toMergeArea.X.UpperBound > coveredArea.X.UpperBound) {
                 coveredArea.X.UpperBound = toMergeArea.X.UpperBound;
@@ -67,6 +68,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
 
         public void addChunk(SoftLoadedConduitTileChunk chunk) {
             this.UnloadedChunks.Add(chunk);
+            chunk.System = this;
             updateCoveredArea(chunk);
         }
 
@@ -91,13 +93,15 @@ namespace ChunkModule.ClosedChunkSystemModule {
             }
         }
 
+       
         public void softLoad() {
             softLoadTileEntities();
+            assembleMultiBlocks();
             initConduitSystemManagers();
         }
 
         public void syncToCompactMachine(CompactMachine compactMachine) {
-            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunk) {
+            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
@@ -134,7 +138,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
             Dictionary<TileEntity, List<TileEntityPort>> tileEntityPortData = new Dictionary<TileEntity, List<TileEntityPort>>();
-            foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunk) {
+            foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
@@ -196,8 +200,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return partition.GetTileEntity(cellPositionInPartition);
         }
 
-        private IChunk getChunk(Vector2Int cellPosition) {
-            foreach (IChunk chunk in UnloadedChunks) {
+        public SoftLoadedConduitTileChunk getChunk(Vector2Int cellPosition) {
+            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
                 if (chunk.getPosition().Equals(cellPosition)) {
                     return chunk;
                 }
@@ -208,7 +212,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
             IConduit[,] conduits = new IConduit[size.x,size.y];
-            foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunk) {
+            foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
@@ -232,12 +236,23 @@ namespace ChunkModule.ClosedChunkSystemModule {
             return new Vector2Int((coveredArea.X.UpperBound+coveredArea.X.LowerBound)/2,(coveredArea.Y.UpperBound+coveredArea.Y.LowerBound)/2);
         }
         private void softLoadTileEntities() {
-            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunk) {
+            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                     }
                     ((IConduitTileChunkPartition) partition).softLoadTileEntities();
+                }
+            }
+        }
+
+        private void assembleMultiBlocks() {
+            foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
+                foreach (IChunkPartition partition in chunk.Partitions) {
+                    if (partition is not IConduitTileChunkPartition) {
+                        Debug.LogError("Attempted to tick load non conduit tile chunk partition");
+                    }
+                    ((IConduitTileChunkPartition) partition).assembleMultiBlocks();
                 }
             }
         }

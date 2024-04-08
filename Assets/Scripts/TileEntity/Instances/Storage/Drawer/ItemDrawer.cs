@@ -8,13 +8,18 @@ using ItemModule;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Storage/Drawer/Instance")]
-    public class ItemDrawer : TileEntity, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IBreakActionTileEntity
+    public class ItemDrawer : TileEntity, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileUpdateReciever
     {
+        
         [SerializeField] private ConduitPortLayout conduitPortLayout;
         [SerializeField] private int maxStacks;
         private ItemSlot itemSlot;
         private SpriteRenderer visualElement;
         private float invincibilityFrames;
+        private DrawerController controller;
+        public int Amount {get => maxStacks*Global.MaxSize;}
+
+        public ItemSlot ItemSlot { get => itemSlot; }
 
         public ItemSlot extractSolidItem(Vector2Int portPosition)
         {
@@ -161,6 +166,17 @@ namespace TileEntityModule.Instances.Storage {
                 return false;
             }
             return itemSlot == null || itemSlot.itemObject==null;
+        }
+
+        public void tileUpdate(TileItem tileItem)
+        {
+            if (controller == null) {
+                return;
+            }
+            if (tileItem != null && !(tileItem.tileEntity != null && tileItem.tileEntity is ItemDrawer drawer)) {
+                return;
+            }
+            controller.assembleMultiBlock();
         }
     }
 }

@@ -25,8 +25,6 @@ namespace TileEntityModule.Instances.Matrix {
             
         }
 
-        
-
 
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
@@ -37,43 +35,18 @@ namespace TileEntityModule.Instances.Matrix {
     
         public void sendItem(ItemSlot toInsert) {
             foreach (MatrixConduitSystem matrixConduitSystem in systems) {
-                foreach (List<MatrixDriveInventory> matrixDriveInventoryList in matrixConduitSystem.DriveInventories.Values) {  
-                    foreach (MatrixDriveInventory matrixDriveInventory in matrixDriveInventoryList) {
-                        foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
-                            if (!ItemSlotHelper.canInsertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize)) {
-                                continue;
-                            }
-                            ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,matrixDriveInventory.maxSize);
-                            if (itemSlot.amount <= 0) {
-                                itemSlot.itemObject = null;
-                                return;
-                            }
-                        }
-                    }
+                matrixConduitSystem.DriveCollection.send(toInsert);
+                if (toInsert.itemObject == null || toInsert.amount == 0) {
+                    return;
                 }
             }
         }
-
-        public List<ItemSlot> getItemSlots() {
-            List<ItemSlot> inventories = new List<ItemSlot>();
+        public MatrixDriveCollection getEntireDriveCollection() {
+            MatrixDriveCollection matrixInventory = new MatrixDriveCollection();
             foreach (MatrixConduitSystem system in systems) {
-                foreach (List<MatrixDriveInventory> matrixDriveInventoryList in system.DriveInventories.Values) {
-                    foreach (MatrixDriveInventory driveInventory in matrixDriveInventoryList) {
-                        inventories.AddRange(driveInventory.inventories);
-                    }
-                }
+                matrixInventory.merge(system.DriveCollection);
             }
-            return inventories;
-        }
-
-        public Dictionary<MatrixDrive, List<MatrixDriveInventory>> getInventory() {
-            Dictionary<MatrixDrive, List<MatrixDriveInventory>> totalDriveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
-            foreach (MatrixConduitSystem system in systems) {
-                foreach (KeyValuePair<MatrixDrive, List<MatrixDriveInventory>> kvp in system.DriveInventories) {
-                    totalDriveInventories[kvp.Key] = kvp.Value;
-                }
-            }
-            return totalDriveInventories;
+            return matrixInventory;
         }
         public void syncToController(ItemMatrixController matrixController)
         {

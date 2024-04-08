@@ -17,6 +17,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
     /// A Dimension can have a collection of ClosedChunkSystems 
     /// </summary>
 
+    
+
     public abstract class ClosedChunkSystem : MonoBehaviour
     {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();

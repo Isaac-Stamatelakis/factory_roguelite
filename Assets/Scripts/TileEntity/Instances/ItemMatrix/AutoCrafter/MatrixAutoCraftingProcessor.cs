@@ -5,11 +5,13 @@ using ConduitModule.Systems;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {
-    public class MatrixAutoCraftingProcessor : TileEntity, IMatrixCraftTile
+    [CreateAssetMenu(fileName = "E~New Matrix Crafting Processor", menuName = "Tile Entity/Item Matrix/Crafting/Processor")]
+    public class MatrixAutoCraftingProcessor : MatrixAutoCraftingChassis
     {
-        public void sync(MatrixAutoCraftCore core)
+        public override void sync(MatrixAutoCraftCore core)
         {
             core.TotalProcessors += 1;
+            this.core = core;
         }
     }
 }

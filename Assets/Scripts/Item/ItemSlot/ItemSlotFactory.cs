@@ -4,6 +4,8 @@ using UnityEngine;
 using Newtonsoft.Json;
 using ItemModule;
 using ItemModule.Tags;
+using System;
+using System.Linq;
 
 public enum ItemSlotOption {
 
@@ -12,6 +14,25 @@ public enum ItemSlotOption {
 
 public static class ItemSlotFactory 
 {
+
+    public static void clampList(List<ItemSlot> itemSlots, int count) {
+        if (count < 0) {
+            throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be negative.");
+        }
+        int currentCount = itemSlots.Count;
+        if (itemSlots.Count > count) {
+            itemSlots.RemoveRange(count, currentCount - count);
+        } else if (itemSlots.Count < count) {
+            itemSlots.AddRange(Enumerable.Repeat<ItemSlot>(null, count - currentCount));
+        }
+    }
+    public static List<ItemSlot> copyList(List<ItemSlot> itemSlots) {
+        List<ItemSlot> listCopy = new List<ItemSlot>();
+        foreach (ItemSlot itemSlot in itemSlots) {
+            listCopy.Add(copy(itemSlot));
+        }
+        return listCopy;
+    }
     public static List<ItemSlot> deserialize(string json) {
         ItemRegistry itemRegister = ItemRegistry.getInstance();
         List<ItemSlot> itemSlots = new List<ItemSlot>();
@@ -32,7 +53,28 @@ public static class ItemSlotFactory
     }
 
     public static ItemSlot copy(ItemSlot itemSlot) {
-        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
+        if (itemSlot == null) {
+            return null;
+        }
+        if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
+            return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemSlot.tags);
+        } 
+        Dictionary<ItemTag, object> tagCopy = new Dictionary<ItemTag, object>();
+        
+        foreach (KeyValuePair<ItemTag,object> kvp in itemSlot.tags.Dict) {
+            tagCopy[kvp.Key] = kvp.Key.copyData(kvp.Value);
+        }
+        ItemTagCollection itemTagCollection = new ItemTagCollection(tagCopy);
+        return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemTagCollection);
+    }
+
+    public static ItemSlot splice(ItemSlot itemSlot, int amount) {
+        ItemSlot clone = copy(itemSlot);
+        if (clone == null) {
+            return null;
+        }
+        clone.amount = amount;
+        return clone;
     }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();

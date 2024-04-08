@@ -13,7 +13,10 @@ public interface IInventoryListener {
 }
 public abstract class AbstractSolidItemInventory : InventoryUI
 {
+    private bool allowInputs = true;
     private List<IInventoryListener> listeners;
+
+    public bool AllowInputs { get => allowInputs; set => allowInputs = value; }
 
     public void addListener(IInventoryListener listener) {
         if (listeners == null) {
@@ -23,33 +26,11 @@ public abstract class AbstractSolidItemInventory : InventoryUI
     }
     public override void leftClick(int n)
     {
-        GameObject grabbedItem = GameObject.Find("GrabbedItem");
-        if (grabbedItem == null) {
-            Debug.LogError("Inventory " + name + " GrabbedItem is null");
-        }
-        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-        ItemSlot inventorySlot = inventory[n];
-        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-        if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
-            // Merge
-            int sum = inventorySlot.amount + grabbedSlot.amount;
-            if (sum > Global.MaxSize) {
-                grabbedSlot.amount = sum-Global.MaxSize;
-                inventorySlot.amount = Global.MaxSize;
-            } else { // Overflow
-                inventorySlot.amount = sum;
-                grabbedItemProperties.itemSlot = null;
-            }
-        } else {    
-            // Swap
-            inventory[n] = grabbedItemProperties.itemSlot;
-            grabbedItemProperties.itemSlot = inventorySlot;
-        }
-
+        SolidItemInventoryHelper.leftClick(inventory,n,allowInputs);
         updateAllListeners();
         unloadItem(n);
         loadItem(n);
-        grabbedItemProperties.updateSprite();
+        
     }
 
     private void updateAllListeners() {
@@ -68,9 +49,18 @@ public abstract class AbstractSolidItemInventory : InventoryUI
 
     public override void rightClick(int n)
     {
+        SolidItemInventoryHelper.rightClick(inventory,n);
+        updateAllListeners();
+    }
+
+    
+}
+
+public static class SolidItemInventoryHelper {
+    public static void rightClick(List<ItemSlot> inventory, int n) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
-            Debug.LogError("Inventory " + name + " GrabbedItem is null");
+            return;
         }
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         ItemSlot inventorySlot = inventory[n];
@@ -78,11 +68,41 @@ public abstract class AbstractSolidItemInventory : InventoryUI
         if (inventorySlot == null || inventorySlot.itemObject == null) {
             return;
         }
-        updateAllListeners();
+        
         if (grabbedItemProperties.setItemSlotFromInventory(inventory,n)) {
             return;
         }
         grabbedItemProperties.addItemSlotFromInventory(inventory,n);
     }
-}
 
+    public static void leftClick(List<ItemSlot> inventory, int n, bool allowInputs) {
+        GameObject grabbedItem = GameObject.Find("GrabbedItem");
+        if (grabbedItem == null) {
+            Debug.LogError("Inventory GrabbedItem is null");
+        }
+        GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
+        ItemSlot inventorySlot = inventory[n];
+        ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+        if (!allowInputs && grabbedSlot == null) {
+            inventory[n] = null;
+            grabbedItemProperties.itemSlot = inventorySlot;
+            return;
+        }
+        if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
+            // Merge
+            int sum = inventorySlot.amount + grabbedSlot.amount;
+            if (sum > Global.MaxSize) {
+                grabbedSlot.amount = sum-Global.MaxSize;
+                inventorySlot.amount = Global.MaxSize;
+            } else { // Overflow
+                inventorySlot.amount = sum;
+                grabbedItemProperties.itemSlot = null;
+            }
+        } else {    
+            // Swap
+            inventory[n] = grabbedItemProperties.itemSlot;
+            grabbedItemProperties.itemSlot = inventorySlot;
+        }
+        grabbedItemProperties.updateSprite();
+    }
+}

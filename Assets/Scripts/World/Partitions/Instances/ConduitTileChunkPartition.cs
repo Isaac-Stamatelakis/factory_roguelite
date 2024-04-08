@@ -11,6 +11,7 @@ using ConduitModule.Ports;
 using ItemModule;
 using TileEntityModule.Instances.CompactMachines;
 using ChunkModule.ClosedChunkSystemModule;
+using Tiles;
 
 namespace ChunkModule.PartitionModule {
     public interface IConduitTileChunkPartition {
@@ -24,6 +25,7 @@ namespace ChunkModule.PartitionModule {
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void activate(ILoadedChunk loadedChunk);
         public void syncToCompactMachine(CompactMachine compactMachine);
+        public void assembleMultiBlocks();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduitData>, IConduitTileChunkPartition where T : SerializedTileConduitData
     {
@@ -71,6 +73,8 @@ namespace ChunkModule.PartitionModule {
             loadTickableTileEntityLayer(data.baseData);
             tickLoaded = true;
         }
+
+        
 
         public Dictionary<TileEntity, List<TileEntityPort>> getEntityPorts(ConduitType type, Vector2Int referenceFrame) {
             Dictionary<TileEntity, List<TileEntityPort>> ports = new Dictionary<TileEntity, List<TileEntityPort>>();
@@ -405,6 +409,16 @@ namespace ChunkModule.PartitionModule {
                     continue;
                 }
                 compactMachineInteractable.syncToCompactMachine(compactMachine);
+            }
+        }
+
+        public void assembleMultiBlocks()
+        {
+            foreach (TileEntity tileEntity in tileEntities) {
+                if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {
+                    continue;
+                }
+                multiBlockTileEntity.assembleMultiBlock();
             }
         }
     }

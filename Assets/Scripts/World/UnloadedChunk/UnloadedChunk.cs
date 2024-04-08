@@ -2,18 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.PartitionModule;
+using ChunkModule.ClosedChunkSystemModule;
 
 namespace ChunkModule {
+
+    public interface ISoftLoadedChunk {
+        public SoftLoadedClosedChunkSystem getSystem();
+    }
     /// <summary>
     /// A lightweight version of a conduit tile chunk
     /// </summary>
-    public class SoftLoadedConduitTileChunk : IChunk
+    public class SoftLoadedConduitTileChunk : IChunk, ISoftLoadedChunk
     {
         private IChunkPartition[,] partitions;
         private Vector2Int position;
         private int dim;
         public Vector2Int Position { get => position; set => position = value; }
         public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
+        public SoftLoadedClosedChunkSystem System { get => system; set => system = value; }
+
+        private SoftLoadedClosedChunkSystem system;
 
         public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, int dim) {
             this.position = chunkPosition;
@@ -70,6 +78,11 @@ namespace ChunkModule {
                 dataList.Add(chunkPartition.getData());
             }
             return dataList;
+        }
+
+        public SoftLoadedClosedChunkSystem getSystem()
+        {
+            return system;   
         }
     }
 }

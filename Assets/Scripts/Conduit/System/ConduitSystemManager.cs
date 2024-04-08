@@ -193,6 +193,7 @@ namespace ConduitModule.Systems {
                 mergeInto.merge(toMerge);
                 conduitSystems.Remove(toMerge);
             }
+            mergeInto.rebuild();
         }
 
         private void removeConduitFromSystem(IConduit conduit, int x, int y) {

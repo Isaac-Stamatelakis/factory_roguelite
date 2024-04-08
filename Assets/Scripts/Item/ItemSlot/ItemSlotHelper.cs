@@ -5,6 +5,16 @@ using ItemModule.Tags;
 
 public static class ItemSlotHelper
 {
+
+    
+    public static bool inventoryAllNull(List<ItemSlot> itemSlots) {
+        foreach (ItemSlot itemSlot in itemSlots) {
+            if (itemSlot != null && itemSlot.itemObject != null) {
+                return false;
+            }
+        }
+        return true;
+    }
     public static bool insertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, int maxSize) {
         if (contained == null) {
             return false;
@@ -39,6 +49,14 @@ public static class ItemSlotHelper
         return null;
     }
 
+    public static List<ItemSlot> createNullInventory(int count) {
+        List<ItemSlot> inventory = new List<ItemSlot>();
+        for (int i = 0; i < count; i++) {
+            inventory.Add(null);
+        }
+        return inventory;
+    }
+
     public static void insertIntoSlot(ItemSlot toCombineInto, ItemSlot toTakeFrom, int size) {
         int sum = toCombineInto.amount + toTakeFrom.amount;
         if (sum > size) {
@@ -47,6 +65,7 @@ public static class ItemSlotHelper
         } else {
             toCombineInto.amount = sum;
             toTakeFrom.amount = 0;
+            toTakeFrom.itemObject = null;
         }
     }
 
@@ -108,12 +127,13 @@ public static class ItemSlotHelper
         if (itemSlot.itemObject.id != toInsert.itemObject.id) {
             return false;
         }
+        if (itemSlot.amount < maxAmount) {
+            return false;
+        }
         if (itemSlot.tags != null && toInsert.tags != null && !itemSlot.tags.Equals(toInsert.tags)) {
             return false;
         }
-        if (itemSlot.amount + toInsert.amount > maxAmount) {
-            return false;
-        }
+        
         return true;
     }
 

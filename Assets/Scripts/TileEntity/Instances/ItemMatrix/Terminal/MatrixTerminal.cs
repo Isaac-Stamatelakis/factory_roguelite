@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ConduitModule.Ports;
 using ConduitModule.Systems;
 using UnityEngine;
-using GUIModule;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Terminal")]

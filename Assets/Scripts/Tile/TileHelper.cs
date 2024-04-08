@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TileMapModule;
+using TileEntityModule;
 
 /**
 Collection of static methods for tiles
@@ -29,5 +31,22 @@ public class TileHelper
 
     public static float getRealTileCenter(float n) {
         return Mathf.FloorToInt(2*n)/2f+0.25f;
+    }
+    public static void tileUpdate(Vector2Int position, TileItem item, TileGridMap tileGridMap)
+        {
+            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.up),item);
+            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.down),item);
+            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.left),item);
+            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.right),item);
+        }
+
+    public static void callTileEntityPlaceListener(TileEntity tileEntity, TileItem tileItem) {
+        if (tileEntity == null) {
+            return;
+        }
+        if (tileEntity is not ITileUpdateReciever tileUpdateReciever) {
+            return;
+        }
+        tileUpdateReciever.tileUpdate(tileItem);
     }
 }

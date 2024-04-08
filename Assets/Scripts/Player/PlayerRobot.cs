@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
 using ItemModule;
-using GUIModule;
 
 public class PlayerRobot : MonoBehaviour
 {

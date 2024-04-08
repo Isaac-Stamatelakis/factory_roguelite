@@ -29,6 +29,10 @@ namespace TileMapModule.Place {
             Vector2 worldPosition = new Vector2(cellPosition.x/2f,cellPosition.y/2f)+Vector2.one/4f;
             return PlaceFromWorldPosition(itemObject,worldPosition,closedChunkSystem,checkConditions);
         }
+
+        public static void tilePlaceUpdate(Vector2Int position, TileMapType tileMapType) {
+
+        }
         /**
         Conditions:
         i) no tileBlock within sprite size.
@@ -193,6 +197,7 @@ namespace TileMapModule.Place {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
             }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
                 Vector2Int chunkPosition = Global.getChunkFromWorld(worldPosition);
                 Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
@@ -221,9 +226,12 @@ namespace TileMapModule.Place {
                         conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
                     }
                 }
-                
             }
-            tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
+            if (tileMap is not TileGridMap tileGridMap) {
+                return;
+            }
+            TileHelper.tileUpdate(placePosition, tileItem,tileGridMap);
+            
         }
 
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
@@ -238,6 +246,8 @@ namespace TileMapModule.Place {
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             return true;
         }
+
+        
 
         private static bool conduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap) {
             Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);

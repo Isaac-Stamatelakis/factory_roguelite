@@ -11,12 +11,11 @@ namespace ConduitModule.Systems {
         private List<IMatrixConduitInteractable> tileEntities;
         
         private List<MatrixInterface> interfaces;
-        private Dictionary<MatrixDrive, List<MatrixDriveInventory>> driveInventories;
+        private MatrixDriveCollection driveCollection;
 
         public List<MatrixInterface> Interfaces { get => interfaces;}
-        public Dictionary<MatrixDrive, List<MatrixDriveInventory>> DriveInventories { get => driveInventories; }
+        public MatrixDriveCollection DriveCollection { get => driveCollection; }
         private List<MatrixAutoCraftCore> autoCraftingCores;
-
         public MatrixConduitSystem(string id) : base(id)
         {
             tileEntities = new List<IMatrixConduitInteractable>();
@@ -32,6 +31,7 @@ namespace ConduitModule.Systems {
         }
         public override void rebuild()
         {
+            
             tileEntities = new List<IMatrixConduitInteractable>();
             foreach (MatrixConduit matrixConduit in conduits) {
                 addTileEntity(matrixConduit);
@@ -48,6 +48,7 @@ namespace ConduitModule.Systems {
 
         public void syncToController() {
             ItemMatrixController controller = null;
+            controller = null;
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 if (matrixConduitInteractable is ItemMatrixController controller1) {
                     if (controller != null && !controller.Equals(controller1)) { // Hard Enforcement of only one controller per system
@@ -57,10 +58,13 @@ namespace ConduitModule.Systems {
                 }
             }
             if (controller == null) {
+                foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
+                    matrixConduitInteractable.syncToController(null);
+                }
                 return;
             }
             interfaces = new List<MatrixInterface>();
-            driveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
+            driveCollection = new MatrixDriveCollection();
             autoCraftingCores = new List<MatrixAutoCraftCore>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 matrixConduitInteractable.syncToSystem(this);
@@ -72,29 +76,10 @@ namespace ConduitModule.Systems {
             interfaces.Add(matrixInterface);
         }
         public void setDrive(MatrixDrive matrixDrive) {
-            List<MatrixDriveInventory> inventories = new List<MatrixDriveInventory>();
-            foreach (ItemSlot drive in matrixDrive.StorageDrives) {
-                if (
-                    drive == null || 
-                    drive.itemObject == null || 
-                    drive.tags == null || 
-                    !drive.tags.Dict.ContainsKey(ItemTag.StorageDrive) || 
-                    drive.itemObject is not MatrixDriveItem matrixDriveItem
-                ) {
-                    continue;
-                }
-                inventories.Add(new MatrixDriveInventory(
-                    (List<ItemSlot>)drive.tags.Dict[ItemTag.StorageDrive],
-                    matrixDriveItem.MaxAmount
-                ));
-            }
-            driveInventories[matrixDrive] = inventories;
+            driveCollection.setDrive(matrixDrive);
         }
-
         public void removeDrive(MatrixDrive matrixDrive) {
-            if (DriveInventories.ContainsKey(matrixDrive)) {
-                driveInventories.Remove(matrixDrive);
-            }
+            driveCollection.removeDrive(matrixDrive);
         }
 
         public void addAutoCrafter(MatrixAutoCraftCore core) {

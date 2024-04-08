@@ -4,7 +4,6 @@ using UnityEngine;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using ChunkModule;
-using GUIModule;
 using DimensionModule;
 
 namespace TileEntityModule.Instances.CompactMachines {

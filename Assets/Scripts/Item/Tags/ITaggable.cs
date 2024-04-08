@@ -7,5 +7,9 @@ namespace ItemModule {
     {
 
     }
+
+    public interface ICloneableTag {
+        public object copy();
+    }
 }
 

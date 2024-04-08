@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using GUIModule;
 
 namespace TileEntityModule.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]

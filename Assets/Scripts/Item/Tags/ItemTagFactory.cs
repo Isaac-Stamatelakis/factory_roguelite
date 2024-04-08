@@ -49,7 +49,7 @@ namespace ItemModule.Tags{
 
             }
             if (taggable is EncodedRecipeItem encodedRecipeItem) {
-
+                tags[ItemTag.EncodedRecipe] = null;
             }
             if (taggable is MatrixDriveItem matrixDriveItem) {
                 List<ItemSlot> inventory = new List<ItemSlot>();
@@ -57,7 +57,6 @@ namespace ItemModule.Tags{
                     inventory.Add(null);
                 }
                 tags[ItemTag.StorageDrive] = inventory;
-
             }
             if (tags.Count == 0) {
                 return null;

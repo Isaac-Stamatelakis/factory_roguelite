@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine.UI;
 using ItemModule.Tags.FluidContainers;
 using RecipeModule;
+using TileEntityModule.Instances.Matrix;
 
 namespace ItemModule.Tags {
     public enum ItemTag {
@@ -79,24 +80,43 @@ namespace ItemModule.Tags {
         }
 
         private static string seralizeEncodedRecipe(object tagData) {
-            if (tagData is not MatrixRecipe matrixRecipe) {
+            if (tagData == null) {
+                return null;
+            }
+            if (tagData is not EncodedRecipe encodedRecipe) {
                 logInvalidType(ItemTag.EncodedRecipe);
                 return null;
             }
-            return RecipeSeralizationFactory.seralizeRecipe(matrixRecipe);
-            
+            return EncodedRecipeFactory.seralize(encodedRecipe);
         }
 
         public static GameObject getVisualElement(this ItemTag tag, ItemSlot itemSlot, object tagData) {
             return tag switch {
                 ItemTag.FluidContainer => getFluidContainerVisualElement(itemSlot,tagData),
                 ItemTag.EnergyContainer => getEnergyContainerVisualElement(itemSlot,tagData),
-                ItemTag.CompactMachine => null,
+                ItemTag.EncodedRecipe => getRecipeVisualElement(itemSlot, tagData),
                 _ => visualDefaultSwitchCase(tag)
             };
         }
 
+        public static bool getVisualLayer(this ItemTag tag) {
+            return tag switch {
+                ItemTag.EncodedRecipe => true,
+                _ => false
+            };
+        }
+
         private static GameObject visualDefaultSwitchCase(ItemTag tag) {
+            return null;
+        }
+
+        private static GameObject getRecipeVisualElement(ItemSlot itemSlot, object tagData) {
+            if (tagData == null || tagData is not EncodedRecipe encodedRecipe) {
+                return null;
+            }
+            if (encodedRecipe.Outputs.Count > 0) {
+                return ItemSlotUIFactory.getItemImage(encodedRecipe.Outputs[0]);
+            }
             return null;
         }
 
@@ -137,7 +157,21 @@ namespace ItemModule.Tags {
                 ItemTag.EnergyContainer => JsonConvert.DeserializeObject<int>(data),
                 ItemTag.CompactMachine => data,
                 ItemTag.StorageDrive => ItemSlotFactory.deserialize(data),
-                ItemTag.EncodedRecipe => RecipeSeralizationFactory.deseralizeRecipe(data),
+                ItemTag.EncodedRecipe => EncodedRecipeFactory.deseralize(data),
+                _ => deserializeDefaultSwitchCase(tag)
+            };
+        }
+
+        public static object copyData(this ItemTag tag, object data) {
+            if (data == null) {
+                return null;
+            }
+            return tag switch  {
+                ItemTag.FluidContainer => data,
+                ItemTag.EnergyContainer => data,
+                ItemTag.CompactMachine => data,
+                ItemTag.StorageDrive => data,
+                ItemTag.EncodedRecipe => data,
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }

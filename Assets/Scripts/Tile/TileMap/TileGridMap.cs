@@ -96,7 +96,6 @@ namespace TileMapModule {
             }
             Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
             TileEntity tileEntity = getTileEntityAtPosition(position);
-
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
                 partition.breakTileEntity(layer,tilePositionInPartition);
@@ -104,6 +103,7 @@ namespace TileMapModule {
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             writeTile(partition,tilePositionInPartition,null);
+            TileHelper.tileUpdate(position, null,this);
         }
 
         public TileEntity getTileEntityAtPosition(Vector2Int position) {
@@ -216,6 +216,10 @@ namespace TileMapModule {
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
         }
+
+        
+
+        
     }
 }
 
