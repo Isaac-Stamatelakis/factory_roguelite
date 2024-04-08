@@ -4,6 +4,9 @@ using UnityEngine;
 using TMPro;
 using System;
 using PlayerModule.IO;
+using ItemModule.Inventory;
+using ItemModule;
+
 namespace PlayerModule {
 
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -92,7 +95,7 @@ namespace PlayerModule {
                             if (itemEntityProperities.itemSlot.amount <= 0) {
                                 Destroy(itemEntityProperities.gameObject);
                             }
-                            playerInventoryGrid.updateAmount(n,inventorySlot.amount);
+                            playerInventoryGrid.reloadItem(n);
                         }
                     }
                     if (!alreadyInInventory && firstOpenSlot >= 0) {
@@ -115,9 +118,10 @@ namespace PlayerModule {
             inventory[selectedSlot].amount--;
             if (inventory[selectedSlot].amount == 0) {
                 inventory[selectedSlot] = null;
+                
                 playerInventoryGrid.unloadItem(selectedSlot);
             } else {
-                playerInventoryGrid.updateAmount(selectedSlot,inventory[selectedSlot].amount);
+                playerInventoryGrid.reloadItem(selectedSlot);
             }
         }
 

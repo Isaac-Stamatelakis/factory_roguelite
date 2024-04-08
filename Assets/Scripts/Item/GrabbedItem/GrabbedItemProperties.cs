@@ -20,11 +20,9 @@ public class GrabbedItemProperties : MonoBehaviour
     }
 
     public void updateSprite() {
-        unload();
+        ItemSlotUIFactory.unload(transform);
         if (itemSlot != null && itemSlot.itemObject != null && itemSlot.itemObject.id != null) {
-            GameObject tag = ItemSlotUIFactory.getTagObject(itemSlot,transform);
-            GameObject imageObject = ItemSlotUIFactory.getItemImage(itemSlot,transform);
-            GameObject numberObject = ItemSlotUIFactory.getNumber(itemSlot,transform);
+            ItemSlotUIFactory.load(itemSlot,transform);
             return;
         }
     }
@@ -58,20 +56,5 @@ public class GrabbedItemProperties : MonoBehaviour
         }
         this.itemSlot.amount += 1;
         updateSprite();
-    }
-
-    private void unload() {
-        Transform previousNumber = transform.Find("amount");
-        if (previousNumber != null) {
-            Destroy(previousNumber.gameObject);
-        }   
-        Transform previousTag = transform.Find("tags");
-        if (previousTag != null) {
-            Destroy(previousTag.gameObject);
-        }
-        Transform previousImage = transform.Find("item");
-        if (previousImage != null) {
-            Destroy(previousImage.gameObject);
-        }
     }
 }

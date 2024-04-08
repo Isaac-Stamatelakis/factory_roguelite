@@ -168,11 +168,6 @@ namespace TileEntityModule.Instances.Matrix {
             });
             for (int i = 0; i < slots.Count; i++) {
                 (ItemSlot, Transform) value = slots[i];
-                /*
-                if (value.Item2.GetSiblingIndex() == i) {
-                    continue;
-                }
-                */
                 value.Item2.SetSiblingIndex(i);
             }
         }
@@ -192,6 +187,7 @@ namespace TileEntityModule.Instances.Matrix {
                 }
                 ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
                 grabbedItemProperties.itemSlot = matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,Global.MaxSize);
+                
                 grabbedItemProperties.updateSprite();
                 return;
             }
@@ -222,6 +218,10 @@ namespace TileEntityModule.Instances.Matrix {
             }
             controller.sendItem(inventorySlot);
             */
+        }
+
+        private void updateSlot(ItemSlot itemSlot) {
+            
         }
 
         private void takeFromInventory(ItemSlot inventorySlot, GameObject slot, List<ItemSlot> inventory, int n, GrabbedItemProperties grabbedItemProperties) {

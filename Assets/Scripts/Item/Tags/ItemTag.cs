@@ -94,12 +94,29 @@ namespace ItemModule.Tags {
             return tag switch {
                 ItemTag.FluidContainer => getFluidContainerVisualElement(itemSlot,tagData),
                 ItemTag.EnergyContainer => getEnergyContainerVisualElement(itemSlot,tagData),
-                ItemTag.CompactMachine => null,
+                ItemTag.EncodedRecipe => getRecipeVisualElement(itemSlot, tagData),
                 _ => visualDefaultSwitchCase(tag)
             };
         }
 
+        public static bool getVisualLayer(this ItemTag tag) {
+            return tag switch {
+                ItemTag.EncodedRecipe => true,
+                _ => false
+            };
+        }
+
         private static GameObject visualDefaultSwitchCase(ItemTag tag) {
+            return null;
+        }
+
+        private static GameObject getRecipeVisualElement(ItemSlot itemSlot, object tagData) {
+            if (tagData == null || tagData is not EncodedRecipe encodedRecipe) {
+                return null;
+            }
+            if (encodedRecipe.Outputs.Count > 0) {
+                return ItemSlotUIFactory.getItemImage(encodedRecipe.Outputs[0]);
+            }
             return null;
         }
 

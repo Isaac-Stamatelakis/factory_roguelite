@@ -11,11 +11,12 @@ namespace ItemModule {
         private static string slotName = "slot";
         private static string itemImageName = "item";
         private static string itemAmountName = "amount";
-        private static string itemTagName = "tags";
-
+        private static string itemTagNameFront = "tagFront";
+        private static string itemTagNameBehind = "tagBehind";
         public static string ItemImageName { get => itemImageName; }
         public static string ItemAmountName { get => itemAmountName; }
-        public static string ItemTagName { get => itemTagName; }
+        public static string ItemTagNameFront { get => itemTagNameFront; }
+        public static string ItemTagNameBehind { get => itemTagNameBehind; }
         private static readonly string[] suffixes = {"k","M","B","T"};
 
         public static GameObject getSlot(ItemSlot itemSlot, int index) {
@@ -75,25 +76,48 @@ namespace ItemModule {
             if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
                 return null;
             }
-            GameObject tagObject = new GameObject();
-            tagObject.name = itemTagName;
-            tagObject.transform.SetParent(parent,false);
-            tagObject.transform.SetSiblingIndex(0);
-            setItemImageTagVisuals(itemSlot,tagObject);
-            return tagObject;
+            
+            GameObject endTag = new GameObject();
+            endTag.name = itemTagNameBehind;
+            endTag.transform.SetParent(parent,false);
+            endTag.transform.SetSiblingIndex(0);
+
+            GameObject frontTag = new GameObject();
+            frontTag.name = itemTagNameFront;
+            frontTag.transform.SetParent(parent,false);
+            
+            setItemImageTagVisuals(itemSlot,frontTag.transform,endTag.transform);
+            return frontTag;
         }
 
-        public static void setItemImageTagVisuals(ItemSlot itemSlot, GameObject itemImageObject) {
+        public static void reloadTagVisual(ItemSlot itemSlot, Transform frontTag, Transform endTag) {
+            if (itemSlot == null) {
+                return;
+            }
+            if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
+                return;
+            }
+            setItemImageTagVisuals(itemSlot,frontTag.transform,endTag.transform);
+        }
+
+        public static void setItemImageTagVisuals(ItemSlot itemSlot, Transform frontContainer, Transform endContainer) {
             if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
                 return;
             }
             
             foreach (KeyValuePair<ItemTag, object> keyValuePair in itemSlot.tags.Dict) {
-                GameObject visualElement = keyValuePair.Key.getVisualElement(itemSlot,keyValuePair.Value);
+                ItemTag tag = keyValuePair.Key;
+                object data = keyValuePair.Value;
+                GameObject visualElement = tag.getVisualElement(itemSlot,data);
                 if (visualElement == null) {
                     continue;
                 }
-                visualElement.transform.SetParent(itemImageObject.transform,false);
+                bool inFront = tag.getVisualLayer();
+                if (inFront) {
+                    visualElement.transform.SetParent(frontContainer,false);
+                } else {
+                    visualElement.transform.SetParent(endContainer,false);
+                }
             }
             
         }
@@ -119,8 +143,10 @@ namespace ItemModule {
             textMeshPro.alignment = TextAlignmentOptions.BottomRight;
             return number;
         }
-
         private static string formatAmountText(int amount) {
+            if (amount == 1) {
+                return "";
+            }
             if (amount < 1000) {
                 return amount.ToString();
             }
@@ -200,13 +226,17 @@ namespace ItemModule {
                 numberTransform.GetComponent<TextMeshProUGUI>().text = formatAmountText(itemSlot.amount);
             }
             
-            
-            Transform tagTransform = slot.transform.Find(itemTagName);
-            if (tagTransform == null) {
+            /*
+            Transform frontTag = slot.transform.Find(itemTagNameFront);
+            Transform endTag = slot.transform.Find(itemTagNameBehind);
+            if (frontTag == null && endTag == null) { // This is slightly unsafe but these if both are either null or not null
                 getTagObject(itemSlot,slot.transform);
             } else {
-                // TODO
+                GlobalHelper.deleteAllChildren(frontTag);
+                GlobalHelper.deleteAllChildren(endTag);
+                reloadTagVisual(itemSlot,frontTag,endTag);
             }
+            */
         }
 
         public static void load(ItemSlot itemSlot,Transform transform) {
@@ -224,9 +254,13 @@ namespace ItemModule {
             if (amountTransform != null) {
                 GameObject.Destroy(amountTransform.gameObject);
             }
-            Transform tagTransform = slotTransform.Find(ItemTagName);
-            if (tagTransform != null) {
-                GameObject.Destroy(tagTransform.gameObject);
+            Transform frontTagTransform = slotTransform.Find(ItemTagNameFront);
+            if (frontTagTransform != null) {
+                GameObject.Destroy(frontTagTransform.gameObject);
+            }
+            Transform behindTagTransform = slotTransform.Find(ItemTagNameBehind);
+            if (behindTagTransform != null) {
+                GameObject.Destroy(behindTagTransform.gameObject);
             }
         }
     }
