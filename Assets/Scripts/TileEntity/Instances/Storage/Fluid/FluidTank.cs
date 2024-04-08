@@ -4,7 +4,6 @@ using ChunkModule;
 using ConduitModule.Ports;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using GUIModule;
 using UI;
 using ItemModule;
 

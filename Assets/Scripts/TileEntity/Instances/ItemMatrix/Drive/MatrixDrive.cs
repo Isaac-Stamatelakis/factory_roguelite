@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using ConduitModule.Ports;
 using UnityEngine;
-using GUIModule;
 using ChunkModule;
 using ConduitModule.Systems;
 using ItemModule.Tags;

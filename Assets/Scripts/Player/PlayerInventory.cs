@@ -6,7 +6,7 @@ using System;
 using PlayerModule.IO;
 namespace PlayerModule {
 
-    public class PlayerInventory : MonoBehaviour
+    public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
 
         private static int entityLayer;
@@ -33,22 +33,19 @@ namespace PlayerModule {
             GetComponent<PlayerIO>().initRead();
             GameObject canvas = GameObject.Find("UICanvas");
             uiPlayerInventoryContainer = Global.findChild(canvas.transform, "PlayerInventory");
-            loadInventoryUI();
-
+            inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
+            playerInventoryGrid = uiPlayerInventoryContainer.AddComponent<PlayerInventoryGrid>();
+            playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
         }
 
-        private void loadInventoryUI() {
-            inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
-            hotbarNumbersContainer = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/GUI/InventoryHotbar"));
-            GameObject inventoryContainer = Global.findChild(hotbarNumbersContainer.transform,"Inventory");
-            hotbarNumbersContainer.transform.SetParent(uiPlayerInventoryContainer.transform,false);
-            playerInventoryGrid = inventoryContainer.AddComponent<PlayerInventoryGrid>();
-            playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
+        public void cloneInventoryUI(Transform container) {
+            PlayerInventoryGrid cloneGrid = container.gameObject.AddComponent<PlayerInventoryGrid>();
+            cloneGrid.initalize(inventory,new Vector2Int(10,4));
         }
         // Update is called 50 times per second
         void Update()
         {
-        raycastHitTileEntities();
+            raycastHitTileEntities();
         }
 
         public void toggleInventory() {
@@ -150,5 +147,22 @@ namespace PlayerModule {
         public string getJson() {
             return ItemSlotFactory.serializeList(inventory);
         }
+
+        public void inventoryUpdate()
+        {
+            
+        }
+
+        public void hideUI() {
+            playerInventoryGrid.gameObject.SetActive(false);
+        }
+
+        public void showUI() {
+            playerInventoryGrid.gameObject.SetActive(true);
+        }
+    }
+
+    public interface IPlayerInventoryIntegratedUI {
+        
     }
 }

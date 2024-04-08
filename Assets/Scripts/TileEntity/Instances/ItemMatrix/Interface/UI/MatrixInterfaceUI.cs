@@ -19,10 +19,14 @@ namespace TileEntityModule.Instances.Matrix {
         private TagRestrictedInventoryUI recipeRestrictedInventory;
 
         public void init(MatrixInterface matrixInterface) {
+            GlobalHelper.deleteAllChildren(upgradeContainer.transform);
             typeRestrictedInventory = upgradeContainer.gameObject.AddComponent<MatrixInterfaceUpgradeRestrictedInventoryUI>();
+            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Upgrades,upgradeContainer.transform);
             typeRestrictedInventory.initalize(matrixInterface.Upgrades);
 
+            GlobalHelper.deleteAllChildren(recipeContainer.transform);
             recipeRestrictedInventory = recipeContainer.gameObject.AddComponent<TagRestrictedInventoryUI>();
+            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Recipes,recipeContainer.transform);
             recipeRestrictedInventory.initalize(matrixInterface.Recipes,ItemTag.EncodedRecipe);
 
             priorityText.text = matrixInterface.Priority.ToString();

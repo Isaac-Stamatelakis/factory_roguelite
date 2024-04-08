@@ -8,6 +8,7 @@ using TMPro;
 namespace ItemModule {
     public static class ItemSlotUIFactory
     {
+        private static string slotName = "slot";
         private static string itemImageName = "item";
         private static string itemAmountName = "amount";
         private static string itemTagName = "tags";
@@ -17,12 +18,22 @@ namespace ItemModule {
         public static string ItemTagName { get => itemTagName; }
         private static readonly string[] suffixes = {"k","M","B","T"};
 
-        public static GameObject getSlot(ItemSlot itemSlot) {
-            GameObject slot = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
-            getItemImage(itemSlot,slot.transform);
-            getNumber(itemSlot,slot.transform);
-            getTagObject(itemSlot,slot.transform);
+        public static GameObject getSlot(ItemSlot itemSlot, int index) {
+            GameObject slot = GlobalHelper.instantiateFromResourcePath(InventoryHelper.SolidSlotPrefabPath);
+            slot.name = slotName + index;
+            if (itemSlot != null && itemSlot.itemObject != null) {
+                getItemImage(itemSlot,slot.transform);
+                getNumber(itemSlot,slot.transform);
+                getTagObject(itemSlot,slot.transform);
+            }
             return slot;
+        }
+
+        public static void getSlotsForInventory(List<ItemSlot> inventories, Transform container) {
+            for (int i = 0; i < inventories.Count; i++) {
+                GameObject slot = getSlot(inventories[i],i);
+                slot.transform.SetParent(container);
+            }
         }
         public static GameObject getItemImage(ItemSlot itemSlot, Transform parent) {
             if (itemSlot == null || itemSlot.itemObject == null) {

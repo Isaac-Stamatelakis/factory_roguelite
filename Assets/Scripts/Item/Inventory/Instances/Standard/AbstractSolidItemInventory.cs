@@ -13,7 +13,10 @@ public interface IInventoryListener {
 }
 public abstract class AbstractSolidItemInventory : InventoryUI
 {
+    private bool allowInputs = true;
     private List<IInventoryListener> listeners;
+
+    public bool AllowInputs { get => allowInputs; set => allowInputs = value; }
 
     public void addListener(IInventoryListener listener) {
         if (listeners == null) {
@@ -23,7 +26,7 @@ public abstract class AbstractSolidItemInventory : InventoryUI
     }
     public override void leftClick(int n)
     {
-        SolidItemInventoryHelper.leftClick(inventory,n);
+        SolidItemInventoryHelper.leftClick(inventory,n,allowInputs);
         updateAllListeners();
         unloadItem(n);
         loadItem(n);
@@ -72,7 +75,7 @@ public static class SolidItemInventoryHelper {
         grabbedItemProperties.addItemSlotFromInventory(inventory,n);
     }
 
-    public static void leftClick(List<ItemSlot> inventory, int n) {
+    public static void leftClick(List<ItemSlot> inventory, int n, bool allowInputs) {
         GameObject grabbedItem = GameObject.Find("GrabbedItem");
         if (grabbedItem == null) {
             Debug.LogError("Inventory GrabbedItem is null");
@@ -80,6 +83,11 @@ public static class SolidItemInventoryHelper {
         GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
         ItemSlot inventorySlot = inventory[n];
         ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+        if (!allowInputs && grabbedSlot == null) {
+            inventory[n] = null;
+            grabbedItemProperties.itemSlot = inventorySlot;
+            return;
+        }
         if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
             // Merge
             int sum = inventorySlot.amount + grabbedSlot.amount;

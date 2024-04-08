@@ -4,7 +4,6 @@ using ConduitModule.Ports;
 using ConduitModule.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
-using GUIModule;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Interface")]
@@ -75,15 +74,7 @@ namespace TileEntityModule.Instances.Matrix {
         public void unserialize(string data)
         {
             if (data == null) {
-                priority = 0;
-                upgrades = new List<ItemSlot>{
-                    null
-                };
-                recipes = new List<ItemSlot>(); 
-                for (int i = 0; i < 9; i++) {
-                    recipes.Add(null);
-                }  
-
+                initInventories();
                 return;
             }
             SeralizedMatrixInterface seralizedMatrixInterface = JsonConvert.DeserializeObject<SeralizedMatrixInterface>(data);
@@ -92,8 +83,25 @@ namespace TileEntityModule.Instances.Matrix {
             recipes = ItemSlotFactory.deserialize(seralizedMatrixInterface.recipes);
         }
 
+        private void initInventories() {
+            priority = 0;
+
+            upgrades = new List<ItemSlot>{
+                null
+            };
+            int recipeCount = 9;
+            recipes = new List<ItemSlot>(); 
+            for (int i = 0; i < recipeCount; i++) {
+                recipes.Add(null);
+            }  
+            return;
+            
+        }
         public void onRightClick()
         {
+            if (upgrades == null || recipes == null) {
+                initInventories();
+            }
             MatrixInterfaceUI matrixInterfaceUI = MatrixInterfaceUI.newInstance();
             matrixInterfaceUI.init(this);
             GlobalUIContainer.getInstance().getUiController().setGUI(matrixInterfaceUI.gameObject);

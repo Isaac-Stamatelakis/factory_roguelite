@@ -7,7 +7,6 @@ namespace ItemModule.Tags.Matrix {
     public class EncodedRecipeItem : ItemObject, ITaggable
     {
         [SerializeField] private Sprite sprite;
-        [SerializeField] private Sprite encodedSprite;
         public override Sprite getSprite()
         {
             return sprite;
