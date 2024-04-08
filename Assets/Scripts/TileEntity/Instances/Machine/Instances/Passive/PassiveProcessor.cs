@@ -62,10 +62,10 @@ namespace TileEntityModule.Instances.Machines {
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tier.getFluidStorage());
             currentRecipe = null;
-            inventoryUpdate();
+            inventoryUpdate(0);
         }
 
-        public void inventoryUpdate() {
+        public void inventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }

@@ -78,20 +78,16 @@ namespace ConduitModule.Systems {
                 if (!inBounds(position)) {
                     continue;
                 }
-                IConduit conduit = conduits[position.x,position.y];
+                TConduit conduit = conduits[position.x,position.y];
                 if (conduit == null) {
                     continue;
                 }
-                if (conduit is IPortConduit portConduit) {
-                    portConduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
-                } else if (conduit is MatrixConduit matrixConduit && tileEntity is IMatrixConduitInteractable matrixConduitInteractable) {
-                    matrixConduit.MatrixConduitInteractable = matrixConduitInteractable;
-                }
-                
-                conduit.getConduitSystem().rebuild();
+                onTileEntityAdd(conduit,tileEntity,port);
             }
         }
 
+        public abstract void onTileEntityAdd(TConduit conduit,TileEntity tileEntity, TileEntityPort port);
+        public abstract void onTileEntityRemoved(TConduit conduit);
         public void deleteTileEntity(Vector2Int position) {
             foreach (KeyValuePair<TileEntity, List<TileEntityPort>> kvp in chunkConduitPorts) {
                 if (kvp.Key.getCellPosition() == position) {
@@ -100,19 +96,11 @@ namespace ConduitModule.Systems {
                         if (!inBounds(portPosition)) {
                             continue;
                         }
-                        IConduit conduit = conduits[portPosition.x,portPosition.y];
+                        TConduit conduit = conduits[portPosition.x,portPosition.y];
                         if (conduit == null) {
                             continue;
                         }
-                        if (conduit is not IPortConduit portConduit) {
-                            continue;
-                        }
-                        IConduitPort conduitPort = portConduit.getPort();
-                        if (conduitPort == null) {
-                            continue;
-                        }
-                        portConduit.setPort(null);
-                        conduit.getConduitSystem().rebuild();
+                        onTileEntityRemoved(conduit);
                     }
                     tileEntityConduitPorts.Remove(kvp.Key);
                     return;

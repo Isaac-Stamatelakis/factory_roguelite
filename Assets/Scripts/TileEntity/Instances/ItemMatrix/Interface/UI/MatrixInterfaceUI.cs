@@ -8,7 +8,7 @@ using ItemModule.Inventory;
 using ItemModule.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
-    public class MatrixInterfaceUI : MonoBehaviour
+    public class MatrixInterfaceUI : MonoBehaviour, IInventoryListener
     {
         [SerializeField] private Button plusPriorityButton;
         [SerializeField] private Button minusProrityButton;
@@ -17,8 +17,11 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup upgradeContainer;
         private MatrixInterfaceUpgradeRestrictedInventoryUI typeRestrictedInventory;
         private TagRestrictedInventoryUI recipeRestrictedInventory;
+        private MatrixInterface matrixInterface;
 
         public void init(MatrixInterface matrixInterface) {
+            this.matrixInterface = matrixInterface;
+
             GlobalHelper.deleteAllChildren(upgradeContainer.transform);
             typeRestrictedInventory = upgradeContainer.gameObject.AddComponent<MatrixInterfaceUpgradeRestrictedInventoryUI>();
             ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Upgrades,upgradeContainer.transform);
@@ -26,6 +29,7 @@ namespace TileEntityModule.Instances.Matrix {
 
             GlobalHelper.deleteAllChildren(recipeContainer.transform);
             recipeRestrictedInventory = recipeContainer.gameObject.AddComponent<TagRestrictedInventoryUI>();
+            recipeRestrictedInventory.addListener(this);
             ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Recipes,recipeContainer.transform);
             recipeRestrictedInventory.initalize(matrixInterface.Recipes,ItemTag.EncodedRecipe);
 
@@ -43,6 +47,16 @@ namespace TileEntityModule.Instances.Matrix {
 
         public static MatrixInterfaceUI newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Interface/InterfaceUI").GetComponent<MatrixInterfaceUI>();
+        }
+
+        public void inventoryUpdate(int n)
+        {
+            List<EncodedRecipe> recipes = matrixInterface.getRecipes();
+            if (n >= recipes.Count) {
+                return;
+            }
+            EncodedRecipe encodedRecipe = recipes[n];
+            matrixInterface.recipeUpdate(encodedRecipe,n);
         }
     }
 }

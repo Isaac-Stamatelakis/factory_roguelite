@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.Matrix {
             return layout;
         }
 
-        public void inventoryUpdate()
+        public void inventoryUpdate(int n)
         {
             matrixConduitSystem.setDrive(this);
         }
@@ -122,10 +122,6 @@ namespace TileEntityModule.Instances.Matrix {
         }
         public void onBreak()
         {
-            if (matrixConduitSystem != null) {
-                matrixConduitSystem.removeDrive(this);
-            }
-            
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
@@ -176,6 +172,13 @@ namespace TileEntityModule.Instances.Matrix {
         public void unserialize(string data)
         {
             storageDrives = ItemSlotFactory.deserialize(data);
+        }
+
+        public void removeFromSystem()
+        {
+            if (matrixConduitSystem != null) {
+                matrixConduitSystem.removeDrive(this);
+            }
         }
     }
 }

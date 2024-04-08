@@ -9,8 +9,9 @@ public interface ILoadableInventory {
 }
 
 public interface IInventoryListener {
-    public void inventoryUpdate();   
+    public void inventoryUpdate(int n);   
 }
+
 public abstract class AbstractSolidItemInventory : InventoryUI
 {
     private bool allowInputs = true;
@@ -27,18 +28,18 @@ public abstract class AbstractSolidItemInventory : InventoryUI
     public override void leftClick(int n)
     {
         SolidItemInventoryHelper.leftClick(inventory,n,allowInputs);
-        updateAllListeners();
+        updateAllListeners(n);
         unloadItem(n);
         loadItem(n);
         
     }
 
-    private void updateAllListeners() {
+    private void updateAllListeners(int n) {
         if (listeners == null) {
             return;
         }
         foreach (IInventoryListener listener in listeners) {
-            listener.inventoryUpdate();
+            listener.inventoryUpdate(n);
         }
     }
 
@@ -50,7 +51,7 @@ public abstract class AbstractSolidItemInventory : InventoryUI
     public override void rightClick(int n)
     {
         SolidItemInventoryHelper.rightClick(inventory,n);
-        updateAllListeners();
+        updateAllListeners(n);
     }
 
     

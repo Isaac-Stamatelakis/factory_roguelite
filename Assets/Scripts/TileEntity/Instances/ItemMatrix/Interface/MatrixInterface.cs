@@ -4,6 +4,7 @@ using ConduitModule.Ports;
 using ConduitModule.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Interface")]
@@ -20,6 +21,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         private List<ItemSlot> upgrades;
         private List<ItemSlot> recipes;
+        private MatrixConduitSystem system;
 
 
         public ItemSlot extractFluidItem(Vector2Int portPosition)
@@ -54,6 +56,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
+            this.system = matrixConduitSystem;
             matrixConduitSystem.addInterface(this);
         }
 
@@ -95,7 +98,51 @@ namespace TileEntityModule.Instances.Matrix {
                 recipes.Add(null);
             }  
             return;
-            
+        }
+
+        public void recipeUpdate(EncodedRecipe encodedRecipe, int n) {
+            /*
+            if (encodedRecipe == null) {
+                // This is semi scuffed, but if removed it must be in the grabbed item
+                GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
+                ItemSlot grabbedItem = grabbedItemProperties.itemSlot;
+                if (grabbedItem == null || grabbedItem.itemObject == null || grabbedItem.tags == null || !grabbedItem.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
+                    return;
+                }
+                EncodedRecipe removedRecipe = (EncodedRecipe) grabbedItem.tags.Dict[ItemTag.EncodedRecipe];
+                foreach (ItemSlot output in removedRecipe.Outputs) {
+                    if (output == null || output.itemObject == null) {
+                        continue;
+                    }
+                    controller.Recipes.removeRecipe(this,output.itemObject.id,new ItemTagKey(output.tags));
+                }
+            } else {
+                foreach (ItemSlot output in encodedRecipe.Outputs) {
+                    if (output == null || output.itemObject == null) {
+                        continue;
+                    }
+                    controller.Recipes.addRecipe(this,output.itemObject.id,new ItemTagKey(output.tags),encodedRecipe);
+                }
+            }
+            */
+            Debug.Log(controller.Recipes.Count);
+        }
+
+        public List<EncodedRecipe> getRecipes() {
+            List<EncodedRecipe> encodedRecipes = new List<EncodedRecipe>();
+            foreach (ItemSlot itemSlot in recipes) {
+                if (itemSlot == null || itemSlot.itemObject == null || itemSlot.tags == null || !itemSlot.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
+                    encodedRecipes.Add(null);
+                    continue;
+                }
+                object data = itemSlot.tags.Dict[ItemTag.EncodedRecipe];
+                if (data == null || data is not EncodedRecipe encodedRecipe) {
+                    encodedRecipes.Add(null);
+                    continue;
+                }
+                encodedRecipes.Add(encodedRecipe);
+            }
+            return encodedRecipes;
         }
         public void onRightClick()
         {
@@ -105,6 +152,11 @@ namespace TileEntityModule.Instances.Matrix {
             MatrixInterfaceUI matrixInterfaceUI = MatrixInterfaceUI.newInstance();
             matrixInterfaceUI.init(this);
             GlobalUIContainer.getInstance().getUiController().setGUI(matrixInterfaceUI.gameObject);
+        }
+
+        public void removeFromSystem()
+        {
+            system.removeInterface(this);
         }
 
         private class SeralizedMatrixInterface {

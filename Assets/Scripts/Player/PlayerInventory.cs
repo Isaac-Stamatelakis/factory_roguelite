@@ -152,7 +152,7 @@ namespace PlayerModule {
             return ItemSlotFactory.serializeList(inventory);
         }
 
-        public void inventoryUpdate()
+        public void inventoryUpdate(int n)
         {
             
         }

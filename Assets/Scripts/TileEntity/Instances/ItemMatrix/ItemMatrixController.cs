@@ -14,13 +14,14 @@ namespace TileEntityModule.Instances.Matrix {
     {
         [SerializeField] private ConduitPortLayout layout;
         private HashSet<MatrixConduitSystem> systems;
+        private MatrixRecipeCollection recipes;
+
+        public MatrixRecipeCollection Recipes { get => recipes;}
+
         public ConduitPortLayout getConduitPortLayout()
         {
             return layout;
         }
-
-        
-
         public void resetSystem() {
             
         }
@@ -30,6 +31,7 @@ namespace TileEntityModule.Instances.Matrix {
         {
             base.initalize(tilePosition, tileBase, chunk);
             systems = new HashSet<MatrixConduitSystem>();
+            recipes = new MatrixRecipeCollection();
         }
 
     
@@ -62,6 +64,19 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void addAutoCrafter(MatrixAutoCraftCore core) {
 
+        }
+
+        public void onInterfaceRemoved() {
+            // There is probably a more efficent way to do this, not sure. 
+            // Currently rebuilds entire system so its O(n) where n is the number of outputs in recipes
+            // A very advanced system will have maybe 10,000 recipes? Assuming it takes about 0.00001ms per output, that takes 0.1 sec
+
+            
+        }
+
+        public void removeFromSystem()
+        {
+            
         }
     }
 

@@ -79,10 +79,10 @@ namespace TileEntityModule.Instances.Machines
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tier.getFluidStorage());
             currentRecipe = null;
-            inventoryUpdate();
+            inventoryUpdate(0);
         }
 
-        public void inventoryUpdate() {
+        public void inventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }
@@ -123,7 +123,7 @@ namespace TileEntityModule.Instances.Machines
 
         public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
         {
-            inventoryUpdate();
+            inventoryUpdate(0);
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
