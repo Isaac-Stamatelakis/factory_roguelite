@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using ItemModule.Tags.FluidContainers;
 using RecipeModule;
 using TileEntityModule.Instances.Matrix;
+using ItemModule.Inventory;
 
 namespace ItemModule.Tags {
     public enum ItemTag {

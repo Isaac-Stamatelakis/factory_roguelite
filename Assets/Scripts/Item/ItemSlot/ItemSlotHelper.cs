@@ -82,6 +82,7 @@ public static class ItemSlotHelper
         if (first.itemObject.id != second.itemObject.id) {
             return false;
         }
+        
         if (!ItemTagFactory.tagsEqual(first.tags,second.tags)) {
             return false;
         }

@@ -7,6 +7,7 @@ using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using RecipeModule;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]

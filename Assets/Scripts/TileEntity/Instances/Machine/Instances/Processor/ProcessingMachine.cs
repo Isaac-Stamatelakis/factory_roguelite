@@ -8,6 +8,7 @@ using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using RecipeModule.Processors;
 using RecipeModule;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines
 {

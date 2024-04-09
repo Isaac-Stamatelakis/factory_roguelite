@@ -6,6 +6,7 @@ using ChunkModule;
 using ConduitModule.Systems;
 using ItemModule.Tags;
 using ItemModule.Tags.Matrix;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]

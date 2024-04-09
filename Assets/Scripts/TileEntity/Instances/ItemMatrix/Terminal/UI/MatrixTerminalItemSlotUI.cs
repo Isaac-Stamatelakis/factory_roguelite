@@ -2,17 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Matrix {
-    public interface IMatrixTerminalItemSlotClickListener {
-        public ItemSlot GetItemSlot();
-    }
-    public class MatrixTerminalItemSlotUI : MonoBehaviour, IPointerClickHandler, IMatrixTerminalItemSlotClickListener
+    
+    public class MatrixTerminalItemSlotUI : MonoBehaviour, IItemSlotUIElement, IPointerClickHandler
     {
         private ItemSlot itemSlot;
         private IMatrixTerminalItemClickReciever reciever;
+        private int amount;
+        private ItemObject itemObject;
         public void init(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever){
-            this.itemSlot = itemSlot;
+            setItemSlot(itemSlot);
             this.reciever = reciever;
         }
         public void OnPointerClick(PointerEventData eventData)
@@ -32,9 +33,36 @@ namespace TileEntityModule.Instances.Matrix {
             return itemSlotUI;
         }
 
-        public ItemSlot GetItemSlot()
+        public ItemSlot getItemSlot()
         {
             return itemSlot;
+        }
+
+        public GameObject getGameObject()
+        {
+            return gameObject;
+        }
+
+        public void setItemSlot(ItemSlot itemSlot)
+        {
+            this.itemSlot = itemSlot;
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                this.itemObject = null;
+                this.amount = -1;
+            } else {
+                this.itemObject = itemSlot.itemObject;
+                this.amount = itemSlot.amount;
+            }
+        }
+
+        public int getDisplayAmount()
+        {
+            return amount;
+        }
+
+        public ItemObject getDisplayItemObject()
+        {
+            return itemObject;
         }
     }
 }

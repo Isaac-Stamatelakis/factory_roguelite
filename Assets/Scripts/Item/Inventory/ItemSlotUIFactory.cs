@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using ItemModule.Tags;
 using TMPro;
 
-namespace ItemModule {
+namespace ItemModule.Inventory {
     public static class ItemSlotUIFactory
     {
         private static string slotName = "slot";

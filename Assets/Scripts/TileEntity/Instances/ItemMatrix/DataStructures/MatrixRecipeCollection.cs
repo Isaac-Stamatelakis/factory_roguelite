@@ -7,6 +7,7 @@ namespace TileEntityModule.Instances.Matrix {
     {
         Dictionary<string, Dictionary<ItemTagKey, List<(EncodedRecipe,MatrixInterface)>>> recipes;
         public int Count {get=> recipes.Count;}
+        
         public MatrixRecipeCollection() {
             this.recipes = new Dictionary<string, Dictionary<ItemTagKey, List<(EncodedRecipe, MatrixInterface)>>>();
         }
@@ -22,6 +23,19 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
+
+        public List<(string,ItemTagKey,EncodedRecipe)> toList() {
+            List<(string,ItemTagKey,EncodedRecipe)> idTagRecipeList = new List<(string, ItemTagKey, EncodedRecipe)>();
+            foreach (KeyValuePair<string, Dictionary<ItemTagKey, List<(EncodedRecipe,MatrixInterface)>>> idTagRecipeListDict in recipes) {
+                foreach (KeyValuePair<ItemTagKey, List<(EncodedRecipe,MatrixInterface)>> tagRecipeList in idTagRecipeListDict.Value) {
+                    List<(EncodedRecipe,MatrixInterface)> list = tagRecipeList.Value;
+                    if (list.Count > 0) {
+                        idTagRecipeList.Add((idTagRecipeListDict.Key,tagRecipeList.Key,list[0].Item1));
+                    }
+                }
+            }
+            return idTagRecipeList;
+        }
         public int getIndexByPriority(List<(EncodedRecipe, MatrixInterface)> recipeInterfaceList, MatrixInterface matrixInterface)
         {
             MatrixInterfacePriorityComparer comparer = new MatrixInterfacePriorityComparer();

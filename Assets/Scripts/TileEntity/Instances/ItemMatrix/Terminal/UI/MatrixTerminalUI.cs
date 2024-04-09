@@ -16,7 +16,7 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private MatrixTerminalInventoryUI inventoryUI;
 
         public void init(MatrixTerminal matrixTerminal) {
-            inventoryUI.init(matrixTerminal.Controller,new List<EncodedRecipeItem>(),itemContainer.transform);
+            inventoryUI.init(matrixTerminal.Controller,itemContainer.transform);
         }
 
         public static MatrixTerminalUI newInstance() {

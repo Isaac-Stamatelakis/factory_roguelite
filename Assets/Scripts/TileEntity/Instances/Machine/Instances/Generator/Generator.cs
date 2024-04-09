@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
+using ItemModule.Inventory;
 using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines

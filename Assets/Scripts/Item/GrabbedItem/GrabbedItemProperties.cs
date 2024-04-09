@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using ItemModule;
+using ItemModule.Inventory;
 
 public class GrabbedItemProperties : MonoBehaviour
 {

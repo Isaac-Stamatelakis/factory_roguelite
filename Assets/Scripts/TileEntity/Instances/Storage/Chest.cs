@@ -4,6 +4,7 @@ using UnityEngine;
 using ChunkModule;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances
 {
