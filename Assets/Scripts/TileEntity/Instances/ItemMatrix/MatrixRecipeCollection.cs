@@ -12,36 +12,13 @@ namespace TileEntityModule.Instances.Matrix {
         }
         public void removeInterface(MatrixInterface matrixInterface) {
             foreach (EncodedRecipe encodedRecipe in matrixInterface.getRecipes()) {
-                foreach (ItemSlot output in encodedRecipe.Outputs) {
-                    if (output == null || output.itemObject == null) {
-                        continue;
-                    }
-                    string id = output.itemObject.id;
-                    if (!recipes.ContainsKey(id)) {
-                        continue;
-                    }
-                    ItemTagKey key = new ItemTagKey(output.tags);
-                    if (!recipes[id].ContainsKey(key)) {
-                        continue;
-                    }
-                    removeRecipe(matrixInterface,id,key);
-                }
+                removeRecipe(encodedRecipe,matrixInterface);
             }
         }
 
         public void addInterface(MatrixInterface matrixInterface) {
             foreach (EncodedRecipe encodedRecipe in matrixInterface.getRecipes()) {
-                if (encodedRecipe == null) {
-                    continue;
-                }
-                foreach (ItemSlot output in encodedRecipe.Outputs) {
-                    if (output == null || output.itemObject == null) {
-                        continue;
-                    }
-                    string id = output.itemObject.id;
-                    ItemTagKey key = new ItemTagKey(output.tags);
-                    addRecipe(matrixInterface,id,key,encodedRecipe);
-                }
+                addRecipe(encodedRecipe,matrixInterface);
             }
         }
 
@@ -58,7 +35,7 @@ namespace TileEntityModule.Instances.Matrix {
             return insertionIndex;
         }
 
-        public void addRecipe(MatrixInterface matrixInterface, string id, ItemTagKey itemTagKey, EncodedRecipe encodedRecipe) {
+        private void addRecipeOutput(MatrixInterface matrixInterface, string id, ItemTagKey itemTagKey, EncodedRecipe encodedRecipe) {
             if (!recipes.ContainsKey(id)) {
                 recipes[id] = new Dictionary<ItemTagKey, List<(EncodedRecipe, MatrixInterface)>>();
             }
@@ -72,39 +49,51 @@ namespace TileEntityModule.Instances.Matrix {
             int insertionIndex = getIndexByPriority(recipeInterfaceList,matrixInterface);
             recipeInterfaceList.Insert(insertionIndex,(encodedRecipe,matrixInterface));
         }
+        public void addRecipe(EncodedRecipe encodedRecipe,MatrixInterface matrixInterface) {
+            if (encodedRecipe == null) {
+                return;
+            }
+            foreach (ItemSlot output in encodedRecipe.Outputs) {
+                if (output == null || output.itemObject == null) {
+                    continue;
+                }
+                string id = output.itemObject.id;
+                ItemTagKey key = new ItemTagKey(output.tags);
+                addRecipeOutput(matrixInterface,id,key,encodedRecipe);
+            }
+        }
 
-        public void removeRecipe(MatrixInterface matrixInterface, string id, ItemTagKey itemTagKey) {
+        public void removeRecipe(EncodedRecipe encodedRecipe, MatrixInterface matrixInterface) {
+            foreach (ItemSlot output in encodedRecipe.Outputs) {
+                if (output == null || output.itemObject == null) {
+                    continue;
+                }
+                string id = output.itemObject.id;
+                if (!recipes.ContainsKey(id)) {
+                    continue;
+                }
+                ItemTagKey key = new ItemTagKey(output.tags);
+                if (!recipes[id].ContainsKey(key)) {
+                    continue;
+                }
+                removeRecipeOutput(matrixInterface,id,key);
+            }
+        }
+        private void removeRecipeOutput(MatrixInterface matrixInterface, string id, ItemTagKey itemTagKey) {
             List<(EncodedRecipe,MatrixInterface)> recipeInterfaceList = recipes[id][itemTagKey];
             for (int i = 0; i < recipeInterfaceList.Count; i++) {
                 (EncodedRecipe, MatrixInterface) value = recipeInterfaceList[i];
-                if (value.Item2 == matrixInterface) {
+                if (value.Item2.Equals(matrixInterface)) {
                     recipeInterfaceList.RemoveAt(i);
-                    return;
+                    break;
                 }
             }
-            // O(nlogn) deletion, where n is the number of recipes in the interface
-            // Only removes the recipe if it is the highest priority recipe
-            //HashSet<(string, ItemTagKey)> usedRecipes = interfaceRecipes[matrixInterface];
-            /*
-            foreach ((string, ItemTagKey) val in usedRecipes) {
-                List<(EncodedRecipe, MatrixInterface)> recipeInterfaceList = getRecipeAndInterface(val.Item1,val.Item2);
-                if (recipeInterfaceList == null || recipeInterfaceList.Count < 1) {
-                    continue;
-                }
-                (EncodedRecipe, MatrixInterface) currentRecipeInterface = recipeInterfaceList[0];
-                if (currentRecipeInterface.Item2 != matrixInterface) {
-                    //int deletionIndex = getIndexByPriority(recipeInterfaceList,matrixInterface);
-                    // This gives a the index of the priority, but due to collisions, we have to check all nearby interfaces until we find.
-
-                    continue;
-                }
-                recipeInterfaceList.RemoveAt(0);
-                if (recipeInterfaceList.Count < 1) {
-                    (EncodedRecipe, MatrixInterface) newRecipeInterface = recipeInterfaceList[0];
-                    interfaceRecipes[newRecipeInterface.Item2].Add(val);
-                }
+            if (recipeInterfaceList.Count == 0) {
+                recipes[id].Remove(itemTagKey);
             }
-            */
+            if (recipes[id].Count == 0) {
+                recipes.Remove(id);
+            }
         }
 
         public EncodedRecipe getRecipe(string id, ItemTagKey itemTagKey) {

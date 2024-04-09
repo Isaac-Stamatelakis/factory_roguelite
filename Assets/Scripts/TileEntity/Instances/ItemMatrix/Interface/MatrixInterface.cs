@@ -18,6 +18,7 @@ namespace TileEntityModule.Instances.Matrix {
         public int Priority {get => priority;}
         public List<ItemSlot> Upgrades { get => upgrades; }
         public List<ItemSlot> Recipes { get => recipes; }
+        public ItemMatrixController Controller { get => controller;}
 
         private List<ItemSlot> upgrades;
         private List<ItemSlot> recipes;
@@ -100,49 +101,24 @@ namespace TileEntityModule.Instances.Matrix {
             return;
         }
 
-        public void recipeUpdate(EncodedRecipe encodedRecipe, int n) {
-            /*
-            if (encodedRecipe == null) {
-                // This is semi scuffed, but if removed it must be in the grabbed item
-                GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-                ItemSlot grabbedItem = grabbedItemProperties.itemSlot;
-                if (grabbedItem == null || grabbedItem.itemObject == null || grabbedItem.tags == null || !grabbedItem.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
-                    return;
-                }
-                EncodedRecipe removedRecipe = (EncodedRecipe) grabbedItem.tags.Dict[ItemTag.EncodedRecipe];
-                foreach (ItemSlot output in removedRecipe.Outputs) {
-                    if (output == null || output.itemObject == null) {
-                        continue;
-                    }
-                    controller.Recipes.removeRecipe(this,output.itemObject.id,new ItemTagKey(output.tags));
-                }
-            } else {
-                foreach (ItemSlot output in encodedRecipe.Outputs) {
-                    if (output == null || output.itemObject == null) {
-                        continue;
-                    }
-                    controller.Recipes.addRecipe(this,output.itemObject.id,new ItemTagKey(output.tags),encodedRecipe);
-                }
-            }
-            */
-            Debug.Log(controller.Recipes.Count);
-        }
 
         public List<EncodedRecipe> getRecipes() {
             List<EncodedRecipe> encodedRecipes = new List<EncodedRecipe>();
             foreach (ItemSlot itemSlot in recipes) {
-                if (itemSlot == null || itemSlot.itemObject == null || itemSlot.tags == null || !itemSlot.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
-                    encodedRecipes.Add(null);
-                    continue;
-                }
-                object data = itemSlot.tags.Dict[ItemTag.EncodedRecipe];
-                if (data == null || data is not EncodedRecipe encodedRecipe) {
-                    encodedRecipes.Add(null);
-                    continue;
-                }
-                encodedRecipes.Add(encodedRecipe);
+                encodedRecipes.Add(getRecipe(itemSlot));
             }
             return encodedRecipes;
+        }
+
+        public EncodedRecipe getRecipe(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null || itemSlot.tags == null || !itemSlot.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
+                return null;
+            }
+            object data = itemSlot.tags.Dict[ItemTag.EncodedRecipe];
+            if (data == null || data is not EncodedRecipe encodedRecipe) {
+                return null;
+            }
+            return encodedRecipe;
         }
         public void onRightClick()
         {

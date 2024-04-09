@@ -8,7 +8,7 @@ using ItemModule.Inventory;
 using ItemModule.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
-    public class MatrixInterfaceUI : MonoBehaviour, IInventoryListener
+    public class MatrixInterfaceUI : MonoBehaviour
     {
         [SerializeField] private Button plusPriorityButton;
         [SerializeField] private Button minusProrityButton;
@@ -16,7 +16,7 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup recipeContainer;
         [SerializeField] private GridLayoutGroup upgradeContainer;
         private MatrixInterfaceUpgradeRestrictedInventoryUI typeRestrictedInventory;
-        private TagRestrictedInventoryUI recipeRestrictedInventory;
+        private EncodedRecipeTagInventoryUI recipeRestrictedInventory;
         private MatrixInterface matrixInterface;
 
         public void init(MatrixInterface matrixInterface) {
@@ -28,10 +28,9 @@ namespace TileEntityModule.Instances.Matrix {
             typeRestrictedInventory.initalize(matrixInterface.Upgrades);
 
             GlobalHelper.deleteAllChildren(recipeContainer.transform);
-            recipeRestrictedInventory = recipeContainer.gameObject.AddComponent<TagRestrictedInventoryUI>();
-            recipeRestrictedInventory.addListener(this);
+            recipeRestrictedInventory = recipeContainer.gameObject.AddComponent<EncodedRecipeTagInventoryUI>();
             ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Recipes,recipeContainer.transform);
-            recipeRestrictedInventory.initalize(matrixInterface.Recipes,ItemTag.EncodedRecipe);
+            recipeRestrictedInventory.initalize(matrixInterface.Recipes,matrixInterface);
 
             priorityText.text = matrixInterface.Priority.ToString();
             plusPriorityButton.onClick.AddListener(() => {
@@ -47,16 +46,6 @@ namespace TileEntityModule.Instances.Matrix {
 
         public static MatrixInterfaceUI newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Interface/InterfaceUI").GetComponent<MatrixInterfaceUI>();
-        }
-
-        public void inventoryUpdate(int n)
-        {
-            List<EncodedRecipe> recipes = matrixInterface.getRecipes();
-            if (n >= recipes.Count) {
-                return;
-            }
-            EncodedRecipe encodedRecipe = recipes[n];
-            matrixInterface.recipeUpdate(encodedRecipe,n);
         }
     }
 }

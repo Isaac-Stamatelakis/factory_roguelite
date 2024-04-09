@@ -82,7 +82,6 @@ namespace ConduitModule.Systems {
             interfaces.Add(matrixInterface);
             if (controller != null) {
                 controller.Recipes.addInterface(matrixInterface);
-                Debug.Log(controller.Recipes.Count);
             }
 
         }
