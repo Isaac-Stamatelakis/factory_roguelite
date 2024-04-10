@@ -11,12 +11,12 @@ public interface IItemSlotUIElement {
     public GameObject getGameObject();
     public int getDisplayAmount();
     public ItemObject getDisplayItemObject();
-    public void reload(ItemSlot inventorySlot) {
+    public void reload(ItemSlot inventorySlot,bool force=false) {
         ItemObject displayedItemObject = getDisplayItemObject();
         if (inventorySlot == null || inventorySlot.itemObject == null) {
             return;
         }
-        if (inventorySlot.itemObject.Equals(displayedItemObject) && inventorySlot.amount == getDisplayAmount()) {
+        if (!force && inventorySlot.itemObject.Equals(displayedItemObject) && inventorySlot.amount == getDisplayAmount()) {
             return;
         }
         setItemSlot(inventorySlot);
