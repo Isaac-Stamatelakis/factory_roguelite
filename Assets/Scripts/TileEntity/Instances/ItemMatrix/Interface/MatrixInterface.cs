@@ -104,6 +104,9 @@ namespace TileEntityModule.Instances.Matrix {
 
         public List<EncodedRecipe> getRecipes() {
             List<EncodedRecipe> encodedRecipes = new List<EncodedRecipe>();
+            if (recipes == null) {
+                return encodedRecipes;
+            }
             foreach (ItemSlot itemSlot in recipes) {
                 encodedRecipes.Add(getRecipe(itemSlot));
             }

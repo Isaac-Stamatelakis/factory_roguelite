@@ -134,7 +134,7 @@ namespace ItemModule.Inventory {
 
             textMeshPro.text = formatAmountText(itemSlot.amount);
             
-            textMeshPro.fontSize = 25;
+            textMeshPro.fontSize = 20;
             RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
             rectTransform.anchorMax = new Vector2(1,1);
             rectTransform.anchorMin = new Vector2(0,0);
@@ -147,7 +147,7 @@ namespace ItemModule.Inventory {
             if (amount == 1) {
                 return "";
             }
-            if (amount < 1000) {
+            if (amount < 10000) {
                 return amount.ToString();
             }
             int i = 0;
@@ -261,6 +261,13 @@ namespace ItemModule.Inventory {
             Transform behindTagTransform = slotTransform.Find(ItemTagNameBehind);
             if (behindTagTransform != null) {
                 GameObject.Destroy(behindTagTransform.gameObject);
+            }
+        }
+
+        public static void replaceAmountTextWithString(Transform slotTransform, string text) {
+            Transform amountTransform = slotTransform.Find(ItemAmountName);
+            if (amountTransform != null) {
+                amountTransform.GetComponent<TextMeshProUGUI>().text = text;
             }
         }
     }

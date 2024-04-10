@@ -43,6 +43,10 @@ namespace TileEntityModule.Instances.Matrix {
             return gameObject;
         }
 
+        public void showCraftText() {
+            ItemSlotUIFactory.replaceAmountTextWithString(transform,"Craft");
+        }
+
         public void setItemSlot(ItemSlot itemSlot)
         {
             this.itemSlot = itemSlot;
