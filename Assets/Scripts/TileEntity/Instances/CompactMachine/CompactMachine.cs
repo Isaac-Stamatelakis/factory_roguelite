@@ -35,7 +35,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             base.initalize(tilePosition, tileBase, chunk);
             this.inventory = new CompactMachinePortInventory(this);
-            CompactMachineDimController dimController = DimensionManagerContainer.getInstance().getManager().GetCompactMachineDimController();
+            CompactMachineDimController dimController = DimensionManagerContainer.getManager().GetCompactMachineDimController();
             dimController.activateSystem(this);
         }
 

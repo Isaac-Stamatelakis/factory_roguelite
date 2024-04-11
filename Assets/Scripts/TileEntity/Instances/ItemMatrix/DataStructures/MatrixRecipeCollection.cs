@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixRecipeCollection

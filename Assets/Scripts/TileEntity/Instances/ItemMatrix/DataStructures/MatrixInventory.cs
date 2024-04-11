@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Tags;
 using ItemModule.Tags.Matrix;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixItemCollection {

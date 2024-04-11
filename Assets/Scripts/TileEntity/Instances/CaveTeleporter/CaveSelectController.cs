@@ -39,8 +39,7 @@ namespace TileEntityModule.Instances {
             CaveGenerator.generateCave();
             GameObject player = GameObject.Find("Player");
             player.transform.position = new Vector3(0,0,player.transform.position.z);
-            DimensionManagerContainer dimensionManagerContainer = DimensionManagerContainer.getInstance();
-            dimensionManagerContainer.getManager().setActiveSystemFromCellPosition(-1,Vector2Int.zero);
+            DimensionManagerContainer.getManager().setActiveSystemFromCellPosition(-1,Vector2Int.zero);
         }
     }
 }

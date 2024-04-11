@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public class EncodedRecipe 

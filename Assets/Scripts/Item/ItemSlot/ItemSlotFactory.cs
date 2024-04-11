@@ -76,6 +76,22 @@ public static class ItemSlotFactory
         clone.amount = amount;
         return clone;
     }
+
+    public static ItemSlot deepSlice(ItemSlot itemSlot, int amount) {
+        int dif = itemSlot.amount - amount;
+        if (dif <= 0) {
+            ItemSlot copy = ItemSlotFactory.copy(itemSlot);
+            itemSlot.amount = 0;
+            itemSlot.itemObject = null;
+            return copy;
+        } else {
+            ItemSlot spliced = ItemSlotFactory.splice(itemSlot,amount);
+            itemSlot.amount -= amount;
+            return spliced;
+        }
+        
+        
+    }
     public static string createEmptySerializedInventory(int size) {
         List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>();
         for (int n = 0; n < size; n ++) {

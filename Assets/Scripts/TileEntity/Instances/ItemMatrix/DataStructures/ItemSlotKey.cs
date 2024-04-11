@@ -4,7 +4,7 @@ using UnityEngine;
 using ItemModule.Tags;
 using System.Linq;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace ItemModule {
     public class ItemSlotKey
     {
         public Dictionary<string, Dictionary<int, GameObject>> idTagItemSlotDict;
