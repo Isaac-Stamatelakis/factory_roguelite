@@ -274,7 +274,7 @@ namespace TileEntityModule.Instances.Matrix {
         private bool insertItemIntoSystemFromTerminal(ItemSlot itemSlot, GrabbedItemProperties grabbedItemProperties) {
             int preAmount = itemSlot.amount;
             ItemSlot grabbedItemCopy = ItemSlotFactory.copy(itemSlot);
-            matrixDriveCollection.send(itemSlot);
+            controller.sendItem(itemSlot);
             grabbedItemCopy.amount -= itemSlot.amount;
             if (grabbedItemCopy.amount == 0) { // Was not inserted
                 return false;
@@ -354,7 +354,7 @@ namespace TileEntityModule.Instances.Matrix {
                 }
                 string id = inventorySlot.itemObject.id;
                 ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
-                ItemSlot extracted = matrixDriveCollection.take(id,itemTagKey,fluidContainer.getStorage());
+                ItemSlot extracted = controller.takeItem(id,itemTagKey,fluidContainer.getStorage());
                 if (extracted.amount == 0) {
                     return false;
                 }

@@ -12,10 +12,8 @@ namespace TileEntityModule.Instances.Matrix {
 
         public Stack<(ItemSlot, int)> NotFull { get => notFull; }
         public Stack<(ItemSlot, int)> Full { get => full; }
-        public int Amount {get => amount;}
-
-        private int amount;
-
+        public int TotalAmount {get => totalAmount;}
+        private int totalAmount;
         public MatrixItemCollection() {
             notFull = new Stack<(ItemSlot, int)>();
             full = new Stack<(ItemSlot, int)>();
@@ -26,7 +24,7 @@ namespace TileEntityModule.Instances.Matrix {
                 Debug.LogError("Tried to add matrix drive which had more items in it than its maxSize");
                 matrixDriveSlot.amount = driveInventory.maxSize;
             }
-            amount += matrixDriveSlot.amount;
+            totalAmount += matrixDriveSlot.amount;
             if (matrixDriveSlot.amount == driveInventory.maxSize) {
                 full.Push((matrixDriveSlot,driveInventory.maxSize));
             } else {
@@ -42,7 +40,7 @@ namespace TileEntityModule.Instances.Matrix {
             int amountBefore = itemSlot.amount;
             ItemSlotHelper.insertIntoSlot(driveSlot,itemSlot,value.Item2);
             int difference = amountBefore-itemSlot.amount;
-            amount += difference;
+            totalAmount += difference;
             if (driveSlot.amount == value.Item2) {
                 full.Push(value);
             } else {
@@ -78,8 +76,7 @@ namespace TileEntityModule.Instances.Matrix {
                     break;
                 }
             }
-            Debug.Log(spliced.amount);
-            amount -= spliced.amount;
+            totalAmount-= spliced.amount;
             return spliced;
         }
     }
@@ -103,7 +100,7 @@ namespace TileEntityModule.Instances.Matrix {
                 return;
             }
             idTagItemDict[toInsert.itemObject.id][itemTagKey].sendItem(toInsert);
-            if (toInsert.itemObject == null) {
+            if (toInsert.itemObject == null || toInsert.amount == 0) {
                 return;
             }
             insertNewItem(toInsert,itemTagKey);
@@ -145,7 +142,7 @@ namespace TileEntityModule.Instances.Matrix {
             if (!idTagItemDict.ContainsKey(id) || !idTagItemDict[id].ContainsKey(itemTagKey)) {
                 return 0;
             }
-            return idTagItemDict[id][itemTagKey].Amount;
+            return idTagItemDict[id][itemTagKey].TotalAmount;
         }
         
         public void merge(MatrixDriveCollection matrixDriveCollection) {

@@ -63,7 +63,7 @@ namespace TileEntityModule.Instances.Matrix {
                 ItemTagKey tagKey = new ItemTagKey(input.tags);
                 int requiredAmount = preparedRecipe.Amount * input.amount;
                 int amountOfInput = controller.amountOf(id, tagKey);
-                Debug.Log(amountOfInput);
+                Debug.Log(input.itemObject.name + ":" + amountOfInput);
                 if (amountOfInput >= requiredAmount) {
                     (ItemSlot, int,bool) tuple = preparedRecipe.AvailableInputs[i];
                     tuple.Item2 = requiredAmount;
