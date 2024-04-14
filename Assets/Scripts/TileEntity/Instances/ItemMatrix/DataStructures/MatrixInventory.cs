@@ -12,6 +12,9 @@ namespace TileEntityModule.Instances.Matrix {
 
         public Stack<(ItemSlot, int)> NotFull { get => notFull; }
         public Stack<(ItemSlot, int)> Full { get => full; }
+        public int Amount {get => amount;}
+
+        private int amount;
 
         public MatrixItemCollection() {
             notFull = new Stack<(ItemSlot, int)>();
@@ -23,6 +26,7 @@ namespace TileEntityModule.Instances.Matrix {
                 Debug.LogError("Tried to add matrix drive which had more items in it than its maxSize");
                 matrixDriveSlot.amount = driveInventory.maxSize;
             }
+            amount += matrixDriveSlot.amount;
             if (matrixDriveSlot.amount == driveInventory.maxSize) {
                 full.Push((matrixDriveSlot,driveInventory.maxSize));
             } else {
@@ -35,7 +39,10 @@ namespace TileEntityModule.Instances.Matrix {
             }
             (ItemSlot,int) value = notFull.Pop();
             ItemSlot driveSlot = value.Item1;
+            int amountBefore = itemSlot.amount;
             ItemSlotHelper.insertIntoSlot(driveSlot,itemSlot,value.Item2);
+            int difference = amountBefore-itemSlot.amount;
+            amount += difference;
             if (driveSlot.amount == value.Item2) {
                 full.Push(value);
             } else {
@@ -59,7 +66,7 @@ namespace TileEntityModule.Instances.Matrix {
                 ItemSlotHelper.insertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     notFull.Push(driveValue);
-                    return spliced;
+                    break;
                 }
             }
             while (spliced.amount < amount && full.Count > 0) {
@@ -68,11 +75,12 @@ namespace TileEntityModule.Instances.Matrix {
                 ItemSlotHelper.insertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     full.Push(driveValue);
-                    return spliced;
+                    break;
                 }
             }
+            Debug.Log(spliced.amount);
+            amount -= spliced.amount;
             return spliced;
-            
         }
     }
     public class MatrixDriveCollection
@@ -131,6 +139,13 @@ namespace TileEntityModule.Instances.Matrix {
                 return null;
             }
             return idTagItemDict[id][itemTagKey].takeItem(amount);
+        }
+
+        public int amountOf(string id, ItemTagKey itemTagKey) {
+            if (!idTagItemDict.ContainsKey(id) || !idTagItemDict[id].ContainsKey(itemTagKey)) {
+                return 0;
+            }
+            return idTagItemDict[id][itemTagKey].Amount;
         }
         
         public void merge(MatrixDriveCollection matrixDriveCollection) {

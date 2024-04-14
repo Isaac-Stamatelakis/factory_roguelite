@@ -26,9 +26,11 @@ namespace TileEntityModule.Instances.Matrix {
         private Queue<MatrixDriveInventory> driveInventoryToRebuild;
         private int driveRebuildIndex;
         private Dictionary<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idTagItemSlotDict;
-        public void init(ItemMatrixController controller, Transform itemContainer) {
+        private MatrixTerminalUI matrixTerminalUI;
+        public void init(ItemMatrixController controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
             this.controller = controller;
             this.itemContainer = itemContainer;
+            this.matrixTerminalUI = matrixTerminalUI;
             matrixDriveCollection = controller.getEntireDriveCollection();
             toRebuild = matrixDriveCollection.getQueueOfDrives();
             driveInventoryToRebuild = new Queue<MatrixDriveInventory>();
@@ -329,7 +331,9 @@ namespace TileEntityModule.Instances.Matrix {
             if (!canNavigateToCraft) {
                 return false;
             }
-            Debug.Log("To Craft");
+            CraftAmountPopUpUI craftAmountPopUpUI = CraftAmountPopUpUI.newInstance();
+            craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
+            GlobalUIContainer.getInstance().getUiController().addGUI(craftAmountPopUpUI.gameObject);
             return true;
         }
         private bool fluidCellClick(GrabbedItemProperties grabbedItemProperties, ItemSlot inventorySlot, IItemSlotUIElement slotUIElement) {
@@ -364,7 +368,6 @@ namespace TileEntityModule.Instances.Matrix {
             if (!Input.GetKey(KeyCode.LeftShift)) { // User must be holding shift to send fluid contents into system
                 return false;
             }
-            Debug.Log(tagData);
             if (tagData is not ItemSlot fluidCellContent) {
                 return false;
             }

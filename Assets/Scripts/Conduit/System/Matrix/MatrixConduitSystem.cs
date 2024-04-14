@@ -16,6 +16,8 @@ namespace ConduitModule.Systems {
 
         public HashSet<MatrixInterface> Interfaces { get => interfaces;}
         public MatrixDriveCollection DriveCollection { get => driveCollection; }
+        public HashSet<MatrixAutoCraftCore> AutoCraftingCores { get => autoCraftingCores; }
+
         private HashSet<MatrixAutoCraftCore> autoCraftingCores;
         private ItemMatrixController controller;
         public MatrixConduitSystem(string id) : base(id)

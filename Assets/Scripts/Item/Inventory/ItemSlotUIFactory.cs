@@ -143,8 +143,8 @@ namespace ItemModule.Inventory {
             textMeshPro.alignment = TextAlignmentOptions.BottomRight;
             return number;
         }
-        private static string formatAmountText(int amount) {
-            if (amount == 1) {
+        public static string formatAmountText(int amount,bool oneInvisible = true) {
+            if (amount == 1 && oneInvisible) {
                 return "";
             }
             if (amount < 10000) {
@@ -158,6 +158,7 @@ namespace ItemModule.Inventory {
             }
             return fAmount.ToString("0.#" + suffixes[i]);
         }
+
        
         public static Vector2 getItemSize(Sprite sprite) {
             if (sprite == null) {

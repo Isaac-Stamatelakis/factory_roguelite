@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 using ChunkModule;
 using ItemModule.Tags;
 using ItemModule.Tags.Matrix;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Controller")]
@@ -43,6 +44,39 @@ namespace TileEntityModule.Instances.Matrix {
                 }
             }
         }
+
+        public ItemSlot takeItem(string id, ItemTagKey itemTagKey, int amount) {
+            ItemSlot toReturn = null;
+            int takeAmount = amount;
+            foreach (MatrixConduitSystem matrixConduitSystem in systems) {
+                ItemSlot taken = matrixConduitSystem.DriveCollection.take(id,itemTagKey,takeAmount);
+                if (taken == null || taken.itemObject == null) {
+                    continue;
+                }
+                takeAmount -= taken.amount;
+                if (toReturn == null) {
+                    toReturn = taken;
+                } else {
+                    toReturn.amount += taken.amount; 
+                }
+                if (takeAmount == 0) {
+                    return toReturn;
+                } 
+                if (takeAmount < 0) {
+                    Debug.LogError("ItemMatrixController take item return took more than takeAmount");
+                    return toReturn;
+                }
+            }
+            return toReturn;
+        }
+
+        public int amountOf(string id, ItemTagKey itemTagKey) {
+            int amount = 0;
+            foreach (MatrixConduitSystem matrixConduitSystem in systems) {
+                amount += matrixConduitSystem.DriveCollection.amountOf(id,itemTagKey);
+            }    
+            return amount;
+        }
         public MatrixDriveCollection getEntireDriveCollection() {
             MatrixDriveCollection matrixInventory = new MatrixDriveCollection();
             foreach (MatrixConduitSystem system in systems) {
@@ -62,21 +96,18 @@ namespace TileEntityModule.Instances.Matrix {
             systems.Add(matrixConduitSystem);
         }
 
-        public void addAutoCrafter(MatrixAutoCraftCore core) {
-
-        }
-
-        public void onInterfaceRemoved() {
-            // There is probably a more efficent way to do this, not sure. 
-            // Currently rebuilds entire system so its O(n) where n is the number of outputs in recipes
-            // A very advanced system will have maybe 10,000 recipes? Assuming it takes about 0.00001ms per output, that takes 0.1 sec
-
-            
-        }
-
         public void removeFromSystem()
         {
             
+        }
+        public HashSet<MatrixAutoCraftCore> getAutoCraftControllers() {
+            HashSet<MatrixAutoCraftCore> cores = new HashSet<MatrixAutoCraftCore>();
+            foreach (MatrixConduitSystem system in systems) {
+                foreach (MatrixAutoCraftCore craftCore in system.AutoCraftingCores) {
+                    cores.Add(craftCore);
+                }
+            }
+            return cores;
         }
     }
 

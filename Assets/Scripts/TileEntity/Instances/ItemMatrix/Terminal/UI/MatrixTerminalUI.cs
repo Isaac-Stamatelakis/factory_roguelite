@@ -18,7 +18,7 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup playerInventoryContainer;
 
         public void init(MatrixTerminal matrixTerminal) {
-            inventoryUI.init(matrixTerminal.Controller,itemContainer.transform);
+            inventoryUI.init(matrixTerminal.Controller,itemContainer.transform,this);
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             playerInventory.cloneInventoryUI(playerInventoryContainer.transform);
             playerInventory.hideUI();

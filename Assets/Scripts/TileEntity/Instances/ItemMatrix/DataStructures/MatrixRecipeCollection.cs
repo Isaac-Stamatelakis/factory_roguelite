@@ -122,13 +122,29 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return list[0].Item1;
         }
-
-        private List<(EncodedRecipe,MatrixInterface)> getRecipeAndInterface(string id, ItemTagKey itemTagKey) {
-            // O(1) lookup
-            if (!recipes.ContainsKey(id) || !recipes[id].ContainsKey(itemTagKey)) {
+        public EncodedRecipe getRecipe(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
                 return null;
             }
-            return recipes[id][itemTagKey];
+            return getRecipe(itemSlot.itemObject.id,new ItemTagKey(itemSlot.tags));
+        }
+
+        public (EncodedRecipe, MatrixInterface) getRecipeAndInterface(string id, ItemTagKey itemTagKey) {
+            if (!recipes.ContainsKey(id) || !recipes[id].ContainsKey(itemTagKey)) {
+                return (null,null);
+            }
+            List<(EncodedRecipe,MatrixInterface)> list = recipes[id][itemTagKey];
+            if (list.Count < 1) {
+                return (null,null);
+            }
+            return list[0];
+        }
+
+        public (EncodedRecipe, MatrixInterface) getRecipeAndInterface(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return (null,null);
+            }
+            return getRecipeAndInterface(itemSlot.itemObject.id,new ItemTagKey(itemSlot.tags));
         }
 
         private class MatrixInterfacePriorityComparer : IComparer<(EncodedRecipe, MatrixInterface)>

@@ -71,16 +71,7 @@ public static class ItemSlotHelper
     }
 
     public static bool areEqual(ItemSlot first, ItemSlot second) {
-        if (ReferenceEquals(first,second)) {
-            return true;
-        }
-        bool firstNull = first == null || first.itemObject == null;
-        bool secondNull = second == null || second.itemObject == null;
         if (first == null || first.itemObject == null || second == null || second.itemObject == null) {
-            return false;
-        }
-        
-        if (!first.itemObject.id.Equals(second.itemObject.id)) {
             return false;
         }
         ItemTagKey firstTagKey = new ItemTagKey(first.tags);
@@ -89,7 +80,7 @@ public static class ItemSlotHelper
     }
 
     public static bool areEqual(string firstId, ItemTagKey firstTagKey, string secondId, ItemTagKey secondTagKey) {
-        return !firstId.Equals(secondId) && firstTagKey.Equals(secondTagKey);
+        return firstId.Equals(secondId) && firstTagKey.Equals(secondTagKey);
     }
 
     public static bool areEqualNoNullCheck(ItemSlot first, ItemSlot second) {
