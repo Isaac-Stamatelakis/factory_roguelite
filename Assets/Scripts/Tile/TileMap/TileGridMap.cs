@@ -216,10 +216,6 @@ namespace TileMapModule {
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
         }
-
-        
-
-        
     }
 }
 

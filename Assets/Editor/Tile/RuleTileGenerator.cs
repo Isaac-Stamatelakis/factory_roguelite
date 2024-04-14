@@ -48,8 +48,8 @@ public class RuleTileGenerator : EditorWindow {
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         IdRuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        TileItemEditorFactory.saveTile(ruleTile,tileName);
-        TileItemEditorFactory.generateTileItem(
+        ItemEditorFactory.saveTile(ruleTile,tileName);
+        ItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: ruleTile,
             tileType: TileType.Block,

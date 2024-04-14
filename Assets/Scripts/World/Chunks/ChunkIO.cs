@@ -132,6 +132,11 @@ namespace ChunkModule.IO {
         public string[,] sTileEntityOptions;
     }
 
+    public class SeralizedFluidTileData {
+        public string[,] ids;
+        public int[,] fill;
+    }
+
     [System.Serializable]
     public class SerializedBackgroundTileData {
         public string[,] ids;

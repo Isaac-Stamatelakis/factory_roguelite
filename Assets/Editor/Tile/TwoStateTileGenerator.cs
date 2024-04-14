@@ -38,21 +38,21 @@ public class TwoStateTileGenerator : EditorWindow
     }
     void createTileItem()
     {
-        TileItemEditorFactory.createDirectory(tileName);
+        ItemEditorFactory.createDirectory(tileName);
 
-        StandardTile inactiveTile = TileItemEditorFactory.standardTileCreator(inactive,TileColliderType.Tile);
-        TileItemEditorFactory.saveTile(inactiveTile,tileName,"Inactive");
+        StandardTile inactiveTile = ItemEditorFactory.standardTileCreator(inactive,TileColliderType.Tile);
+        ItemEditorFactory.saveTile(inactiveTile,tileName,"Inactive");
 
-        StandardTile activeTile = TileItemEditorFactory.standardTileCreator(active,TileColliderType.Sprite);
-        TileItemEditorFactory.saveTile(activeTile,tileName,"Active");
+        StandardTile activeTile = ItemEditorFactory.standardTileCreator(active,TileColliderType.Sprite);
+        ItemEditorFactory.saveTile(activeTile,tileName,"Active");
 
        
         TwoStateTile twoStateTile = ScriptableObject.CreateInstance<TwoStateTile>();
         twoStateTile.activeTile = activeTile;
         twoStateTile.inactiveTile = inactiveTile;
         twoStateTile.setID(tileName.ToLower().Replace(" ", "_"));
-        TileItemEditorFactory.saveTile(twoStateTile,tileName);
-        TileItemEditorFactory.generateTileItem(
+        ItemEditorFactory.saveTile(twoStateTile,tileName);
+        ItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: twoStateTile,
             tileType: TileType.Block,

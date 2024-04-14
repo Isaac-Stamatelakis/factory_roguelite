@@ -16,7 +16,8 @@ namespace TileMapModule.Type {
         FluidConduit,
         EnergyConduit,
         SignalConduit,
-        MatrixConduit
+        MatrixConduit,
+        Fluid
     }
 
     public static class TileMapTypeExtension {
@@ -136,6 +137,10 @@ namespace TileMapModule.Type {
             }
         }
 
+        public static bool isFluid(this TileMapType tileMapType) {
+            return tileMapType == TileMapType.Fluid;
+        }
+
         public static ConduitType toConduitType(this TileMapType tileMapType) {
             switch (tileMapType) {
                 case TileMapType.ItemConduit:
@@ -179,7 +184,8 @@ namespace TileMapModule.Type {
                     return 1.5f;
                 case TileMapType.SignalConduit:
                     return 1.75f;
-
+                case TileMapType.Fluid:
+                    return 2f;
                 default:
                     return 9999;
             }

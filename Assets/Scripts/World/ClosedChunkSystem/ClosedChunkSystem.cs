@@ -10,6 +10,7 @@ using ChunkModule.LoadController;
 using TileMapModule.Conduit;
 using ChunkModule.PartitionModule;
 using Tiles;
+using Fluids;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     /// <summary>
@@ -129,6 +130,10 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
                 tileGridMap.type = tileType;
                 tileGridMaps[tileType] = tileGridMap;
+            } else if (tileType.isFluid()) {
+                FluidTileMap fluidTileMap = container.AddComponent<FluidTileMap>();
+                fluidTileMap.type = TileMapType.Fluid;
+                tileGridMaps[tileType] = fluidTileMap;
             }
         }
         

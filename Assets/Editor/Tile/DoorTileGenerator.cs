@@ -42,19 +42,19 @@ public class DoorTileGenerator : EditorWindow {
 
     void createTileItem()
     {
-        TileItemEditorFactory.createDirectory(tileName);
+        ItemEditorFactory.createDirectory(tileName);
 
-        StandardTile leftClosedTile = TileItemEditorFactory.standardTileCreator(leftClosed,TileColliderType.Sprite);
-        TileItemEditorFactory.saveTile(leftClosedTile,tileName,"LeftClosed");
+        StandardTile leftClosedTile = ItemEditorFactory.standardTileCreator(leftClosed,TileColliderType.Sprite);
+        ItemEditorFactory.saveTile(leftClosedTile,tileName,"LeftClosed");
 
-        StandardTile leftOpenTile = TileItemEditorFactory.standardTileCreator(leftOpen,TileColliderType.Sprite);
-        TileItemEditorFactory.saveTile(leftOpenTile,tileName,"LeftOpen");
+        StandardTile leftOpenTile = ItemEditorFactory.standardTileCreator(leftOpen,TileColliderType.Sprite);
+        ItemEditorFactory.saveTile(leftOpenTile,tileName,"LeftOpen");
 
-        StandardTile rightClosedTile = TileItemEditorFactory.standardTileCreator(rightClosed,TileColliderType.Sprite);
-        TileItemEditorFactory.saveTile(rightClosedTile,tileName,"RightClosed");
+        StandardTile rightClosedTile = ItemEditorFactory.standardTileCreator(rightClosed,TileColliderType.Sprite);
+        ItemEditorFactory.saveTile(rightClosedTile,tileName,"RightClosed");
 
-        StandardTile rightOpenTile = TileItemEditorFactory.standardTileCreator(rightOpen,TileColliderType.Sprite);
-        TileItemEditorFactory.saveTile(rightOpenTile,tileName,"RightOpen");
+        StandardTile rightOpenTile = ItemEditorFactory.standardTileCreator(rightOpen,TileColliderType.Sprite);
+        ItemEditorFactory.saveTile(rightOpenTile,tileName,"RightOpen");
 
         RestrictedDoorTile doorTile = ScriptableObject.CreateInstance<RestrictedDoorTile>();
         doorTile.left = leftClosedTile;
@@ -64,11 +64,11 @@ public class DoorTileGenerator : EditorWindow {
         doorTile.setID(tileName.ToLower().Replace(" ", "_"));
 
         Door door = ScriptableObject.CreateInstance<Door>();
-        TileItemEditorFactory.saveTileEntity(door,tileName);
+        ItemEditorFactory.saveTileEntity(door,tileName);
 
-        TileItemEditorFactory.saveTile(doorTile,tileName);
+        ItemEditorFactory.saveTile(doorTile,tileName);
 
-        TileItemEditorFactory.generateTileItem(
+        ItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: doorTile,
             tileType: TileType.Block,

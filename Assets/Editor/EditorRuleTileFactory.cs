@@ -317,11 +317,57 @@ public class EditorFactory
                         ruleTile.m_TilingRules.Add(rule);
                     }
                 }
-                
             }
         }
         ruleTile.m_DefaultColliderType = Tile.ColliderType.Grid;
         return ruleTile;
+    }
+
+    public static Tile[] fluidTilesFromSprite(Texture2D texture, string spritePath, string tileName, bool inverted) {
+        int TILES_TO_CREATE = 8;
+        AssetDatabase.CreateFolder(spritePath, "Sprites");
+        Tile[] tiles = new Tile[8];
+        spritePath += "/Sprites/";
+        
+        for (int i = 0; i < TILES_TO_CREATE; i++) {
+            int yMin = inverted ? 0 : 16-2*(TILES_TO_CREATE-(i+1));
+            int yMax = inverted ? 2*(TILES_TO_CREATE-(i+1)) : 16;
+            Debug.Log(yMin);
+            Color[] pixels = texture.GetPixels(0,0,16,16);
+            if (i != TILES_TO_CREATE-1) {
+                for (int x = 0; x < 16; x++) {
+                    for (int y = yMin; y < yMax; y++) {
+                        pixels[y*16+x] = new Color(0,0,0,0);
+                    }
+                }
+            }
+            Texture2D dividedTexture = new Texture2D(16,16);
+            dividedTexture.SetPixels(0,0,16,16,pixels);
+            string spriteName = tileName + "[" + i + "]";
+            string spriteSavePath = spritePath + "S~" + spriteName;
+            byte[] pngBytes = dividedTexture.EncodeToPNG();
+            File.WriteAllBytes(spriteSavePath+".png", pngBytes);
+            AssetDatabase.Refresh();
+
+            TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath + ".png") as TextureImporter;
+            textureImporter.textureType = TextureImporterType.Sprite;
+            textureImporter.spritePixelsPerUnit = 32;
+            AssetDatabase.ImportAsset(spriteSavePath + ".png", ImportAssetOptions.ForceUpdate);
+            AssetDatabase.Refresh();
+
+            Sprite sprite1 = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath + ".png");
+            SpriteEditorHelper.set(sprite1,false,false);
+            AssetDatabase.Refresh();
+
+            TileColliderType tileColliderType = i == TILES_TO_CREATE -1 ? TileColliderType.Tile : TileColliderType.Sprite;
+            
+            StandardTile tile = ItemEditorFactory.standardTileCreator(sprite1,tileColliderType);
+            tile.id = ItemEditorFactory.formatId(tileName);
+            tile.name = tileName + "[" + i + "]";
+            AssetDatabase.CreateAsset(tile,spritePath + tile.name + ".asset");
+            AssetDatabase.Refresh();
+        }
+        return tiles;
     }
 
     private static RuleVal indexToRule(int index) {

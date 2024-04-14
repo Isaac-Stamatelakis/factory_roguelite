@@ -28,5 +28,6 @@ namespace ChunkModule.PartitionModule {
         public TileEntity GetTileEntity(Vector2Int position);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
+        public int getFill(Vector2Int position);
     }
 }

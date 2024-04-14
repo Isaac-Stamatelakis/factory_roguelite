@@ -55,9 +55,9 @@ public class TileGeneratorWindow : EditorWindow {
 
     void createTileItem()
     {
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,colliderType);
-        TileItemEditorFactory.generateTileItem(tileName,tile,tileType);
-        TileItemEditorFactory.saveTile(tile,tileName);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,colliderType);
+        ItemEditorFactory.generateTileItem(tileName,tile,tileType);
+        ItemEditorFactory.saveTile(tile,tileName);
         
     }
 }

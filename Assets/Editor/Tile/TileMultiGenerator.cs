@@ -50,10 +50,10 @@ public class TileMultiGeneratorWindow : EditorWindow {
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName,16,16);
         int index = 0;
         foreach (Sprite sprite in sprites) {
-            StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+            StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
             string tileName = collectionName + index.ToString();
             string tilePath = collectionPath + "/" + tileName + "/";
-            TileItemEditorFactory.generateTileItem(
+            ItemEditorFactory.generateTileItem(
                 tileName: tileName,
                 tile: tile,
                 tileType: TileType.Block,

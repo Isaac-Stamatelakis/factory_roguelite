@@ -9,7 +9,7 @@ using TileEntityModule;
     Tile,
     Sprite
 }
-public static class TileItemEditorFactory
+public static class ItemEditorFactory
 {
     public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntity tileEntity = null) {
         string path = savePath + tileName + "/";
@@ -18,9 +18,8 @@ public static class TileItemEditorFactory
             createDirectory(tileName,savePath);
         }
         TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
-        tileItem.id = tileName;
         tileItem.tileType = tileType;
-        tileItem.id = tileItem.id.ToLower().Replace(" ","_");
+        tileItem.id = formatId(tileName);
         tileItem.name = tileName;
         tileItem.tile = tile;
         if (tileEntity != null) {
@@ -36,6 +35,9 @@ public static class TileItemEditorFactory
         Debug.Log("Tile Created at Path: " + path);
     }
 
+    public static string formatId(string tileName) {
+        return tileName.ToLower().Replace(" ","_");
+    }
     public static void createDirectory(string tileName, string savePath = "Assets/EditorCreations/") {
         string path = savePath + tileName + "/";
         if (AssetDatabase.IsValidFolder(path)) {

@@ -78,9 +78,9 @@ public class StandardHammerTileGenerator : EditorWindow {
     }
 
     private void formStandard(string path) {
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
-        TileItemEditorFactory.generateTileItem(tileName,tile,TileType.Block);
-        TileItemEditorFactory.saveTile(tile,tileName);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        ItemEditorFactory.generateTileItem(tileName,tile,TileType.Block);
+        ItemEditorFactory.saveTile(tile,tileName);
 
         Tile slab = saveSlab(sprite,path,"slab");
         Tile slanted = saveSlant(sprite,path,"slanted");
@@ -93,7 +93,7 @@ public class StandardHammerTileGenerator : EditorWindow {
         AssetDatabase.CreateAsset(hammerTile,path + "T~"+tileName +"_Hammer" + ".asset");
         AssetDatabase.Refresh();
 
-        TileItemEditorFactory.generateTileItem(tileName,hammerTile,TileType.Block,createFolder:false);
+        ItemEditorFactory.generateTileItem(tileName,hammerTile,TileType.Block,createFolder:false);
         AssetDatabase.Refresh();
     }
 
@@ -101,8 +101,8 @@ public class StandardHammerTileGenerator : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations/" + tileName, spriteName);
         AssetDatabase.Refresh();
         Sprite sprite = TileSpriteShapeFactory.generateSlab(baseSprite.texture,path + "/" + spriteName +"/");
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
-        TileItemEditorFactory.saveTile(tile,spriteName,path:path);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        ItemEditorFactory.saveTile(tile,spriteName,path:path);
         AssetDatabase.Refresh();
         return tile;
     }
@@ -110,15 +110,15 @@ public class StandardHammerTileGenerator : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations/" + tileName, spriteName);
         AssetDatabase.Refresh();
         Sprite sprite = TileSpriteShapeFactory.generateStandardSlanted(baseSprite.texture,path + "/" + spriteName +"/");
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
-        TileItemEditorFactory.saveTile(tile,spriteName,path:path);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        ItemEditorFactory.saveTile(tile,spriteName,path:path);
         AssetDatabase.Refresh();
         return tile;
     }
     private void formNature(string path) {
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
-        TileItemEditorFactory.generateTileItem(tileName,tile,TileType.Block);
-        TileItemEditorFactory.saveTile(tile,tileName);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        ItemEditorFactory.generateTileItem(tileName,tile,TileType.Block);
+        ItemEditorFactory.saveTile(tile,tileName);
 
         Tile slab = saveSlab(sprite,path,"slab");
         Tile slanted = saveSlant(sprite,path,"slanted");
@@ -139,7 +139,7 @@ public class StandardHammerTileGenerator : EditorWindow {
         natureTile.natureSlants = new Tile[slantShapes.Length];
         for (int i = 0; i < slants.Length; i++) {
             string spriteName = "slants_" + i;
-            StandardTile natureSlant = TileItemEditorFactory.standardTileCreator(slants[i],TileColliderType.Sprite);
+            StandardTile natureSlant = ItemEditorFactory.standardTileCreator(slants[i],TileColliderType.Sprite);
             natureSlant.id = natureTile.id;
             natureTile.natureSlants[i] = natureSlant;
             AssetDatabase.CreateAsset(natureSlant, path + natureSlantPath + "/" + spriteName + ".asset");
@@ -153,7 +153,7 @@ public class StandardHammerTileGenerator : EditorWindow {
         natureTile.natureSlabs = new Tile[slabs.Length];
         for (int i = 0; i < slabs.Length; i++){
             string spriteName = "slabs_" + i;
-            StandardTile natureSlab = TileItemEditorFactory.standardTileCreator(slabs[i],TileColliderType.Sprite);
+            StandardTile natureSlab = ItemEditorFactory.standardTileCreator(slabs[i],TileColliderType.Sprite);
             natureSlab.id = natureTile.id;
             natureTile.natureSlabs[i] = natureSlab;
             AssetDatabase.CreateAsset(natureSlab, path + natureSlabPath + "/" + spriteName + ".asset");
@@ -163,7 +163,7 @@ public class StandardHammerTileGenerator : EditorWindow {
         AssetDatabase.CreateAsset(natureTile,path + "T~"+ tileName +"_Hammer"+ ".asset");
         AssetDatabase.Refresh();
 
-        TileItemEditorFactory.generateTileItem(tileName,natureTile,TileType.Block,createFolder:false);
+        ItemEditorFactory.generateTileItem(tileName,natureTile,TileType.Block,createFolder:false);
         AssetDatabase.Refresh();
     }
 }

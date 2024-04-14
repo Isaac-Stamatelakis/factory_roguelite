@@ -99,6 +99,16 @@ namespace ItemModule {
             }
             return items[id];   
         }
+        public FluidTileItem getFluidTileItem(string id) {
+            if (id == null || !items.ContainsKey(id)) {
+                return null;
+            }
+            ItemObject itemObject = items[id];
+            if (itemObject is FluidTileItem) {
+                return (FluidTileItem) itemObject;
+            }
+            return null;
+        }
         ///
         /// Returns ConduitItem if id maps to ConduitItem, null otherwise
         ///

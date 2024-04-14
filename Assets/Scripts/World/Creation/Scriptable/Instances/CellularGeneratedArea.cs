@@ -138,6 +138,9 @@ namespace WorldModule.Generation {
             SerializedBackgroundTileData backgroundTileData = new SerializedBackgroundTileData();
             backgroundTileData.ids = new string[width,height];
 
+            SeralizedFluidTileData fluidTileData = new SeralizedFluidTileData();
+            fluidTileData.ids = new string[width,height];
+            fluidTileData.fill = new int[width,height];
             for (int x = 0; x < width; x ++) {
                 for (int y = 0; y < height; y ++) {
                     if (grid[x,y] == 1) {
@@ -148,7 +151,8 @@ namespace WorldModule.Generation {
             WorldTileData worldTileData = new WorldTileData(
                 entityData:new List<EntityData>(),
                 baseData: baseTileData, 
-                backgroundData: backgroundTileData
+                backgroundData: backgroundTileData,
+                fluidTileData
             );
             return worldTileData;
         }

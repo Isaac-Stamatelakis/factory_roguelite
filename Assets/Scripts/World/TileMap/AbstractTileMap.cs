@@ -28,10 +28,7 @@ namespace TileMapModule {
         public void removeForSwitch(Vector2Int position);
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
     }
-    /**
-    Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
-    **/
-
+    
     public abstract class AbstractTileMap<Item> : MonoBehaviour, IHitableTileMap, ITileMap where Item : ItemObject
     {
         public TileMapType type;
@@ -55,13 +52,12 @@ namespace TileMapModule {
             }
             closedChunkSystem = transform.parent.GetComponent<ClosedChunkSystem>();
             devMode = GameObject.Find("Player").GetComponent<DevMode>();
-            
         }
         
         public void addPartition(IChunkPartition partition) {
             partitions.Add(partition.getRealPosition());
         }
-        public IEnumerator removePartition(Vector2Int partitionPosition) {
+        public virtual IEnumerator removePartition(Vector2Int partitionPosition) {
             if (!containsPartition(partitionPosition)) {
                 yield return null;
             }

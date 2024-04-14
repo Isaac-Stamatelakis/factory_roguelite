@@ -16,10 +16,15 @@ namespace ChunkModule.ClosedChunkSystemModule {
             foreach (TileMapType tileMapType in tileMaps) {
                 initTileMapContainer(tileMapType);
             }
+            initTileMapContainer(TileMapType.Fluid);
         }
         public override void saveOnDestroy()
         {
             base.saveOnDestroy();
+        }
+
+        private void initFluidTileMap() {
+
         }
 
 
