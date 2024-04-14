@@ -6,6 +6,7 @@ using TMPro;
 using ItemModule;
 using ItemModule.Inventory;
 using ItemModule.Tags.Matrix;
+using PlayerModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixTerminalUI : MonoBehaviour
@@ -14,13 +15,22 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private ScrollRect itemContainerScroll;
         [SerializeField] private MatrixTerminalInventoryUI inventoryUI;
+        [SerializeField] private GridLayoutGroup playerInventoryContainer;
 
         public void init(MatrixTerminal matrixTerminal) {
-            inventoryUI.init(matrixTerminal.Controller,new List<EncodedRecipeItem>(),itemContainer.transform);
+            inventoryUI.init(matrixTerminal.Controller,itemContainer.transform,this);
+            PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
+            playerInventory.cloneInventoryUI(playerInventoryContainer.transform);
+            playerInventory.hideUI();
+
         }
 
         public static MatrixTerminalUI newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalUI").GetComponent<MatrixTerminalUI>();
+        }
+
+        public void OnDestroy() {
+            PlayerContainer.getInstance().getInventory().showUI(); 
         }
     }
 }

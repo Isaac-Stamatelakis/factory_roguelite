@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public class EncodedRecipe 
@@ -15,6 +16,20 @@ namespace TileEntityModule.Instances.Matrix {
         public EncodedRecipe(List<ItemSlot> inputs, List<ItemSlot> outputs) {
             this.inputs = inputs;
             this.outputs = outputs;
+        }
+
+        public ItemSlot getOutput(string id, ItemTagKey tagKey) {
+            foreach (ItemSlot output in outputs) {
+                if (output == null || output.itemObject == null) {
+                    continue;
+                }
+                string outputId = output.itemObject.id;
+                ItemTagKey outputTagKey = new ItemTagKey(output.tags);
+                if (id.Equals(outputId) && tagKey.Equals(outputTagKey)) {
+                    return ItemSlotFactory.copy(output);
+                }
+            }
+            return null;
         }
     }
 

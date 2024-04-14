@@ -101,6 +101,11 @@ namespace TileEntityModule.Instances.Matrix {
 
         }
 
+        public void removeFromSystem()
+        {
+            
+        }
+
         private class SeralizedMatrixRecipeEncoder {
             public string blankRecipes;
             public string encodedRecipes;

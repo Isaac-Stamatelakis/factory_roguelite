@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Tags.Matrix;
 using ItemModule;
+using ItemModule.Inventory;
 using ItemModule.Tags;
 using ItemModule.Tags.FluidContainers;
 using System.Linq;
+using PlayerModule;
+using DimensionModule;
+using ChunkModule;
 
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixTerminalItemClickReciever {
-        public void itemLeftClick(IMatrixTerminalItemSlotClickListener listener);
-        public void itemRightClick(IMatrixTerminalItemSlotClickListener listener);
-        public void itemMiddleClick(IMatrixTerminalItemSlotClickListener listener);
+        public void itemLeftClick(IItemSlotUIElement listener);
+        public void itemRightClick(IItemSlotUIElement listener);
+        public void itemMiddleClick(IItemSlotUIElement listener);
     } 
-
-    public interface IMatrixRecipeClickReciever {
-        public void rightClickRecipe(int n);
-    }
-    public class MatrixTerminalInventoryUI : MonoBehaviour, IMatrixTerminalItemClickReciever, IMatrixRecipeClickReciever
+    public class MatrixTerminalInventoryUI : MonoBehaviour, IMatrixTerminalItemClickReciever
     {
         private ItemMatrixController controller;
         private Transform itemContainer;
         private MatrixDriveCollection matrixDriveCollection;
         private Queue<(MatrixDrive, Queue<MatrixDriveInventory>)> toRebuild;
         private Queue<MatrixDriveInventory> driveInventoryToRebuild;
-        private Dictionary<string, Dictionary<ItemTagKey, (ItemSlot,GameObject)>> idTagItemSlotDict;
-        public void init(ItemMatrixController controller, List<EncodedRecipeItem> recipes, Transform itemContainer) {
+        private int driveRebuildIndex;
+        private Dictionary<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idTagItemSlotDict;
+        private MatrixTerminalUI matrixTerminalUI;
+        public void init(ItemMatrixController controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
             this.controller = controller;
             this.itemContainer = itemContainer;
+            this.matrixTerminalUI = matrixTerminalUI;
             matrixDriveCollection = controller.getEntireDriveCollection();
             toRebuild = matrixDriveCollection.getQueueOfDrives();
             driveInventoryToRebuild = new Queue<MatrixDriveInventory>();
             GlobalHelper.deleteAllChildren(itemContainer);
-            idTagItemSlotDict = new Dictionary<string, Dictionary<ItemTagKey, (ItemSlot, GameObject)>>();
+            idTagItemSlotDict = new Dictionary<string, Dictionary<ItemTagKey, (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe)>>();
             buildDict();
-            foreach (EncodedRecipeItem encodedRecipeItem in recipes) {
-                
-            }
+            putRecipesInDict();
             createItemSlotGameObjects();
             sortItemSlots();
             // Add some extra blank slots
@@ -44,8 +45,6 @@ namespace TileEntityModule.Instances.Matrix {
                 MatrixTerminalItemSlotUI slot = MatrixTerminalItemSlotUI.newInstance(null, this);
                 slot.transform.SetParent(itemContainer, false);
             }
-            
-            
         }
 
         public void createItemSlotGameObjects() {
@@ -53,63 +52,138 @@ namespace TileEntityModule.Instances.Matrix {
             {
                 foreach (var itemSlotGameObject in tagKeyDict.Value.ToList()) // Convert to a list to avoid modifying the collection directly
                 {
-                    if (itemSlotGameObject.Value.Item2 != null) {
-                        continue;
-                    }
-                    if (itemSlotGameObject.Value.Item1.amount <= 0) {
-                        continue;
-                    }
-                    MatrixTerminalItemSlotUI slot = MatrixTerminalItemSlotUI.newInstance(itemSlotGameObject.Value.Item1, this);
-                    ItemSlotUIFactory.load(itemSlotGameObject.Value.Item1, slot.transform);
-                    var updatedValue = (itemSlotGameObject.Value.Item1, slot.gameObject);
-                    idTagItemSlotDict[tagKeyDict.Key][itemSlotGameObject.Key] = updatedValue;
-                    slot.transform.SetParent(itemContainer, false);
+                    createItemSlotGameObject(itemSlotGameObject.Value,tagKeyDict.Key,itemSlotGameObject.Key);
                 }
             }
         }
+
+        private void loadItemIntoDict(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return;
+            }
+            if (!idTagItemSlotDict.ContainsKey(itemSlot.itemObject.id)) {
+                idTagItemSlotDict[itemSlot.itemObject.id] = new Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>();
+            }
+            ItemTagKey tagKey = new ItemTagKey(itemSlot.tags);
+            if (idTagItemSlotDict[itemSlot.itemObject.id].ContainsKey(tagKey)) {
+                (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[itemSlot.itemObject.id][tagKey];
+                if (tuple.Item1 == null || tuple.Item1.itemObject == null) {
+                    tuple.Item1 = ItemSlotFactory.copy(itemSlot);
+                } else {
+                    tuple.Item1.amount += itemSlot.amount;
+                }
+            } else {
+                idTagItemSlotDict[itemSlot.itemObject.id][tagKey] = (ItemSlotFactory.copy(itemSlot),null,null);
+            }
+        }
+        private void createItemSlotGameObject((ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe) tuple, string id, ItemTagKey tagKey) {
+            ItemSlot itemSlot = tuple.Item1;
+            MatrixTerminalItemSlotUI itemSlotUI = tuple.Item2;
+            EncodedRecipe encodedRecipe = tuple.Item3;
+            if (tuple.Item2 != null) {
+                return;
+            }
+            ItemSlot toDisplay = null;
+            bool recipeOnly = false;
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                if (encodedRecipe == null) {
+                    return;
+                }
+                ItemSlot outputItem = encodedRecipe.getOutput(id,tagKey);
+                if (outputItem == null) {
+                    return;
+                }
+                recipeOnly = true;
+                outputItem.amount = 1;
+                toDisplay = outputItem;
+            } else {
+                if (tuple.Item1.amount <= 0) {
+                    return;
+                }
+                toDisplay = itemSlot;
+            }
+            MatrixTerminalItemSlotUI slot = MatrixTerminalItemSlotUI.newInstance(toDisplay, this);
+            ItemSlotUIFactory.load(toDisplay, slot.transform);
+            if (recipeOnly) {
+                slot.showCraftText();
+            }
+            var updatedValue = (tuple.Item1, slot,tuple.Item3);
+            idTagItemSlotDict[id][tagKey] = updatedValue;
+            slot.transform.SetParent(itemContainer, false);
+        }
+
         public void buildDict() {
             foreach (KeyValuePair<MatrixDrive,List<MatrixDriveInventory>> kvp in matrixDriveCollection.DriveInventories) {
                 for (int driveIndex = 0; driveIndex < kvp.Value.Count; driveIndex++) {
                     List<ItemSlot> matrixDriveInventory = kvp.Value[driveIndex].inventories;
                     for (int i = 0; i < matrixDriveInventory.Count; i++) {
-                        ItemSlot itemSlot = matrixDriveInventory[i];
-                        if (itemSlot == null || itemSlot.itemObject == null) {
-                            continue;
-                        }
-                        if (!idTagItemSlotDict.ContainsKey(itemSlot.itemObject.id)) {
-                            idTagItemSlotDict[itemSlot.itemObject.id] = new Dictionary<ItemTagKey, (ItemSlot,GameObject)>();
-                        }
-                        ItemTagKey tagKey = new ItemTagKey(itemSlot.tags);
-                        if (idTagItemSlotDict[itemSlot.itemObject.id].ContainsKey(tagKey)) {
-                            idTagItemSlotDict[itemSlot.itemObject.id][tagKey].Item1.amount += itemSlot.amount;
-                        } else {
-                            idTagItemSlotDict[itemSlot.itemObject.id][tagKey] = (ItemSlotFactory.copy(itemSlot),null);
-                        }
+                        loadItemIntoDict(matrixDriveInventory[i]);
                     }
+                }
+            }
+
+            
+        }
+
+        private void putRecipesInDict() {
+            foreach ((string, ItemTagKey, EncodedRecipe) itemSlotRecipe in controller.Recipes.toList()) {
+                string id = itemSlotRecipe.Item1;
+                ItemTagKey tagKey = itemSlotRecipe.Item2;
+                EncodedRecipe encodedRecipe = itemSlotRecipe.Item3;
+                if (itemInDict(id,tagKey)) {
+                    (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe) tuple = idTagItemSlotDict[id][tagKey];
+                    tuple.Item3 = encodedRecipe;
+                    idTagItemSlotDict[id][tagKey] = tuple;
+                } else {
+                    if (!idTagItemSlotDict.ContainsKey(id)) {
+                        idTagItemSlotDict[id] = new Dictionary<ItemTagKey, (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe)>();
+                    }
+                    idTagItemSlotDict[id][tagKey] = (null,null,encodedRecipe); 
                 }
             }
         }
 
         public void rebuildDict() {
             // Reset amounts
-            foreach (KeyValuePair<string, Dictionary<ItemTagKey, (ItemSlot,GameObject)>> idDictKVP in idTagItemSlotDict) {
-                foreach (KeyValuePair<ItemTagKey, (ItemSlot,GameObject)> kvp in idDictKVP.Value) {
+            foreach (KeyValuePair<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idDictKVP in idTagItemSlotDict) {
+                foreach (KeyValuePair<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)> kvp in idDictKVP.Value) {
+                    if (kvp.Value.Item1 == null) {
+                        continue;
+                    }
                     kvp.Value.Item1.amount = 0;
                 }
             }
             // Rebuild amounts
             buildDict();
-            // Destroy items with no amount
-            foreach (KeyValuePair<string, Dictionary<ItemTagKey, (ItemSlot,GameObject)>> idDictKVP in idTagItemSlotDict) {
-                foreach (KeyValuePair<ItemTagKey, (ItemSlot,GameObject)> kvp in idDictKVP.Value) {
-                    if (kvp.Value.Item1.amount <= 0) {
-                        GameObject.Destroy(kvp.Value.Item2);
-                    }
+            
+            foreach (KeyValuePair<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idDictKVP in idTagItemSlotDict) {
+                foreach (KeyValuePair<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)> kvp in idDictKVP.Value) {
+                    (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) value = kvp.Value;
+                    handleDestruction(kvp.Value);
                 }
             }
             createItemSlotGameObjects();
-            
+        }
 
+
+
+        private bool handleDestruction((ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple) {
+            // Destroy items with no amount, and no recipe
+            ItemSlot itemSlot = tuple.Item1;
+            MatrixTerminalItemSlotUI matrixTerminalItemSlotUI = tuple.Item2;
+            EncodedRecipe encodedRecipe = tuple.Item3;
+            if (matrixTerminalItemSlotUI == null) {
+                return true;
+            }
+            if (itemSlot == null || itemSlot.itemObject == null || itemSlot.amount == 0) {
+                if (encodedRecipe == null) {
+                    GameObject.Destroy(matrixTerminalItemSlotUI.gameObject);
+                    return true;
+                } else {
+                    matrixTerminalItemSlotUI.showCraftText();
+                }
+            }
+            return false; 
         }
         public void FixedUpdate() {
             if (toRebuild.Count == 0) {
@@ -123,26 +197,31 @@ namespace TileEntityModule.Instances.Matrix {
                 driveInventoryToRebuild = drive.Item2;
                 return;
             }
-            MatrixDriveInventory matrixDriveInventory = driveInventoryToRebuild.Dequeue();
-            foreach (ItemSlot itemSlot in matrixDriveInventory.inventories) {
-                if (itemSlot == null || itemSlot.itemObject == null) {
-                    continue;
-                }
-                if (!idTagItemSlotDict.ContainsKey(itemSlot.itemObject.id)) {
-                    continue;
-                }
-                ItemTagKey key = new ItemTagKey(itemSlot.tags);
-                if (!idTagItemSlotDict[itemSlot.itemObject.id].ContainsKey(key)) {
-                    continue;
-                }
-                (ItemSlot, GameObject) value = idTagItemSlotDict[itemSlot.itemObject.id][key];
-                
-                GameObject slot = value.Item2;
-                ItemSlot valueItem = value.Item1;
-                ItemSlotUIFactory.reload(slot,value.Item1);
-                sortItemSlots();
+            MatrixDriveInventory matrixDriveInventory = driveInventoryToRebuild.Peek();
+            if (driveRebuildIndex >= matrixDriveInventory.inventories.Count) {
+                driveInventoryToRebuild.Dequeue();
+                driveRebuildIndex = 0;
+                return;
+            } 
+            ItemSlot itemSlot = matrixDriveInventory.inventories[driveRebuildIndex];
+            driveRebuildIndex++;
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return;
             }
-
+            if (!idTagItemSlotDict.ContainsKey(itemSlot.itemObject.id)) {
+                return;
+            }
+            ItemTagKey key = new ItemTagKey(itemSlot.tags);
+            if (!idTagItemSlotDict[itemSlot.itemObject.id].ContainsKey(key)) {
+                return;
+            }
+            (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) value = idTagItemSlotDict[itemSlot.itemObject.id][key];
+            MatrixTerminalItemSlotUI slot = value.Item2;
+            if (slot != null) {
+                sortItemSlots();
+                ((IItemSlotUIElement)slot).reload(value.Item1);
+            }
+            
         }
 
         private void sortItemSlots() {
@@ -150,7 +229,7 @@ namespace TileEntityModule.Instances.Matrix {
             for (int i = 0; i < itemContainer.childCount; i++) {
                 Transform child = itemContainer.GetChild(i);
                 MatrixTerminalItemSlotUI matrixTerminalItemSlotUI = child.GetComponent<MatrixTerminalItemSlotUI>();
-                ItemSlot itemSlot = matrixTerminalItemSlotUI.GetItemSlot();
+                ItemSlot itemSlot = matrixTerminalItemSlotUI.getItemSlot();
                 if (itemSlot == null || itemSlot.itemObject == null) {
                     continue;
                 }
@@ -172,124 +251,178 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public void itemLeftClick(IMatrixTerminalItemSlotClickListener listener)
-        {
-            GameObject grabbedItem = GameObject.Find("GrabbedItem");
-            GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            ItemSlot inventorySlot = listener.GetItemSlot();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
-            if (grabbedItem == null) {
-                Debug.LogError("Inventory GrabbedItem is null");
+        private bool itemInDict(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                return false;
             }
-            if (grabbedSlot == null || grabbedSlot.itemObject == null) {
-                if (inventorySlot == null) {
-                    return;
-                }
-                ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
-                grabbedItemProperties.itemSlot = matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,Global.MaxSize);
-                
-                grabbedItemProperties.updateSprite();
-                return;
-            }
-            matrixDriveCollection.send(grabbedSlot);
-            grabbedItemProperties.updateSprite();
-            /*
-            MatrixDrive matrixDrive = listener.getMatrixDrive();
-            int n = listener.getIndex();
-            int driveIndex = listener.getDriveIndex();
-            GameObject slot = listener.getGameObject();
-            List<MatrixDriveInventory> matrixDriveInventoryList = driveInventories[matrixDrive];
-            MatrixDriveInventory matrixDriveInventory = matrixDriveInventoryList[driveIndex];
-            ItemSlot itemSlot = matrixDriveInventory.inventories[n];
-            List<ItemSlot> inventory = matrixDriveInventoryList[driveIndex].inventories;
-            
-            if (grabbedSlot == null || grabbedSlot.itemObject == null && (inventorySlot != null || inventorySlot.itemObject != null)) {
-                
-                //takeFromInventory(inventorySlot,slot,inventory,n,grabbedItemProperties);
-                return;
-            }
-            ItemState itemState = ItemState.Solid;
-            if (itemSlot != null && itemSlot.itemObject != null && itemSlot.itemObject is IStateItem stateItem) {
-                itemState = stateItem.getItemState();
-            }
-            if (itemState == ItemState.Fluid && grabbedSlot.itemObject is IFluidContainer fluidContainer && grabbedSlot.tags != null && grabbedSlot.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
-                FluidContainerHelper.handleClick(grabbedItemProperties,inventory,n);
-                return;
-            }
-            controller.sendItem(inventorySlot);
-            */
+            return itemInDict(itemSlot.itemObject.id,new ItemTagKey(itemSlot.tags));
+        }
+        private bool itemInDict(string id, ItemTagKey tagKey) {
+            return idTagItemSlotDict.ContainsKey(id) && idTagItemSlotDict[id].ContainsKey(tagKey);
         }
 
-        private void updateSlot(ItemSlot itemSlot) {
-            
+        private void updateSlotOnRemoval(ItemSlot inventorySlot,string id, ItemTagKey itemTagKey, GrabbedItemProperties grabbedItemProperties, IItemSlotUIElement slotUIElement) {
+            (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[inventorySlot.itemObject.id][itemTagKey];
+            bool destroyed = handleDestruction(tuple);
+            if (!destroyed && inventorySlot.amount != 0) {
+                slotUIElement.reload(inventorySlot);   
+            } 
+            sortItemSlots();
+            grabbedItemProperties.updateSprite();
         }
 
-        private void takeFromInventory(ItemSlot inventorySlot, GameObject slot, List<ItemSlot> inventory, int n, GrabbedItemProperties grabbedItemProperties) {
-            int size = Mathf.Min(Global.MaxSize,inventorySlot.amount);
-            inventorySlot.amount -= size;
-            grabbedItemProperties.itemSlot = new ItemSlot(inventorySlot.itemObject,size,inventorySlot.tags);
-            grabbedItemProperties.updateSprite();
-            if (inventorySlot.amount <= 0) {
-                ItemSlotUIFactory.unload(slot.transform);
-                ItemSlotUIFactory.load(inventory[n],slot.transform);
+        private bool insertItemIntoSystemFromTerminal(ItemSlot itemSlot, GrabbedItemProperties grabbedItemProperties) {
+            int preAmount = itemSlot.amount;
+            ItemSlot grabbedItemCopy = ItemSlotFactory.copy(itemSlot);
+            controller.sendItem(itemSlot);
+            grabbedItemCopy.amount -= itemSlot.amount;
+            if (grabbedItemCopy.amount == 0) { // Was not inserted
+                return false;
+            }
+            
+            string grabbedSlotId = grabbedItemCopy.itemObject.id;
+            ItemTagKey grabbedSlotTagKey = new ItemTagKey(grabbedItemCopy.tags); 
+            loadItemIntoDict(grabbedItemCopy);
+            if (!itemInDict(grabbedSlotId,grabbedSlotTagKey)) {
+                Debug.LogWarning("Item was inserted into system but was not in itemDict");
+                return false;
+            }
+            (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[grabbedSlotId][grabbedSlotTagKey];
+            if (tuple.Item2 == null) {
+                createItemSlotGameObject(tuple,grabbedSlotId,grabbedSlotTagKey);
             } else {
-                ItemSlotUIFactory.reload(slot,inventorySlot);
+                ((IItemSlotUIElement)tuple.Item2).reload(tuple.Item1,force:true);
             }
+            grabbedItemProperties.updateSprite();
+            sortItemSlots();
+            return true;
         }
 
-        private void giveToInventory(ItemSlot grabbedSlot, GrabbedItemProperties grabbedItemProperties) {
-            /*
-            foreach (KeyValuePair<MatrixDrive,List<MatrixDriveInventory>> kvp in driveInventories) {
-                for (int driveIndex = 0; driveIndex < kvp.Value.Count; driveIndex++) {
-                    List<ItemSlot> matrixDriveInventory = kvp.Value[driveIndex].inventories;
-                    for (int i = 0; i < matrixDriveInventory.Count; i++) {
-                        if (grabbedSlot.amount <= 0) {
-                            grabbedItemProperties.updateSprite();
-                            return;
-                        }
-                        ItemSlot itemSlot = matrixDriveInventory[i];
-                        if (itemSlot == null || itemSlot.itemObject == null) {
-                            continue;
-                        }
-                        if (!ItemSlotFactory.Equals(grabbedSlot,itemSlot)) {
-                            continue;
-                        }
-                        ItemSlotHelper.insertIntoSlot(itemSlot,grabbedSlot,kvp.Value[driveIndex].maxSize);
-                        //ItemSlotUIFactory.reload()
-                    }
-                }
+        private void giveAmountToGrabbedItem(ItemSlot inventorySlot, GrabbedItemProperties grabbedItemProperties, IItemSlotUIElement slotUIElement, int amount) {
+            if (inventorySlot == null || inventorySlot.itemObject == null) {
+                return;
             }
-            // Has only gotten here if grabbed slot amount is greater than 0
-            foreach (KeyValuePair<MatrixDrive,List<MatrixDriveInventory>> kvp in driveInventories) {
-                for (int driveIndex = 0; driveIndex < kvp.Value.Count; driveIndex++) {
-                    List<ItemSlot> matrixDriveInventory = kvp.Value[driveIndex].inventories;
-                    for (int i = 0; i < matrixDriveInventory.Count; i++) {
-                        ItemSlot itemSlot = matrixDriveInventory[i];
-                        if (itemSlot != null && itemSlot.itemObject != null) {
-                            continue;
-                        }
-                        matrixDriveInventory[i] = grabbedSlot;
-                        grabbedItemProperties.itemSlot = null;
+            if (inventorySlot.itemObject is IStateItem stateItem && stateItem.getItemState() != ItemState.Solid) {
+                return;
+            }
+            
+            ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
+            grabbedItemProperties.itemSlot = matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,amount);
+            if (grabbedItemProperties.itemSlot == null || grabbedItemProperties.itemSlot.itemObject == null) {
+                return;
+            }
+            inventorySlot.amount -= grabbedItemProperties.itemSlot.amount;
+            updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
+        }
+
+        private bool handleCraftClick(ItemSlot inventorySlot) {
+            string id = inventorySlot.itemObject.id;
+            ItemTagKey tagKey = new ItemTagKey(inventorySlot.tags);
+            if (!itemInDict(id,tagKey)) {
+                return false;
+            }
+            (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[id][tagKey];
+            EncodedRecipe encodedRecipe = tuple.Item3;
+            if (encodedRecipe == null) {
+                return false;
+            }
+            ItemSlot itemSlot = tuple.Item1;
+            bool canNavigateToCraft = itemSlot == null || itemSlot.itemObject == null || Input.GetKeyDown(KeyCode.LeftShift);
+            if (!canNavigateToCraft) {
+                return false;
+            }
+            CraftAmountPopUpUI craftAmountPopUpUI = CraftAmountPopUpUI.newInstance();
+            craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
+            GlobalUIContainer.getInstance().getUiController().addGUI(craftAmountPopUpUI.gameObject);
+            return true;
+        }
+        private bool fluidCellClick(GrabbedItemProperties grabbedItemProperties, ItemSlot inventorySlot, IItemSlotUIElement slotUIElement) {
+            
+            
+            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            if (grabbedSlot.itemObject is not IFluidContainer fluidContainer || grabbedSlot.tags == null || !grabbedSlot.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
+                return false;
+            }
+            object tagData = grabbedSlot.tags.Dict[ItemTag.FluidContainer];
+            if (tagData == null) {
+                if (inventorySlot == null || inventorySlot.itemObject == null || inventorySlot.itemObject is not IStateItem stateItem) {
+                    return false;
+                }
+                ItemState itemState = stateItem.getItemState();
+                if (itemState != ItemState.Fluid) {
+                    return false;
+                }
+                string id = inventorySlot.itemObject.id;
+                ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
+                ItemSlot extracted = controller.takeItem(id,itemTagKey,fluidContainer.getStorage());
+                if (extracted.amount == 0) {
+                    return false;
+                }
+                ItemSlot spliced = ItemSlotFactory.deepSlice(grabbedSlot,1);
+                spliced.tags.Dict[ItemTag.FluidContainer] = extracted;
+                PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
+                playerInventory.give(spliced);
+                updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
+                return true;
+            }
+            if (!Input.GetKey(KeyCode.LeftShift)) { // User must be holding shift to send fluid contents into system
+                return false;
+            }
+            if (tagData is not ItemSlot fluidCellContent) {
+                return false;
+            }
+            insertItemIntoSystemFromTerminal(fluidCellContent,grabbedItemProperties);
+            if (fluidCellContent == null || fluidCellContent.amount == 0 || fluidCellContent.itemObject == null) {
+                
+            }
+            return true;
+        }
+        public void itemLeftClick(IItemSlotUIElement slotUIElement)
+        {
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
+            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot inventorySlot = slotUIElement.getItemSlot();
+            
+            if (grabbedSlot == null || grabbedSlot.itemObject == null) {
+                if (inventorySlot != null && inventorySlot.itemObject != null) {
+                    bool inCraftMenu = handleCraftClick(inventorySlot);
+                    if (inCraftMenu) {
                         return;
                     }
+                } 
+                giveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,Global.MaxSize);
+            } else {
+                bool fluidClick = fluidCellClick(grabbedItemProperties,inventorySlot,slotUIElement);
+                if (fluidClick) {
+                    return;
                 }
-            }          
-            */
+                insertItemIntoSystemFromTerminal(grabbedSlot,grabbedItemProperties);
+            }
+
+        }
+        public void itemMiddleClick(IItemSlotUIElement slotUIElement)
+        {
+            // Maybe add this later not sure
         }
 
-        public void itemMiddleClick(IMatrixTerminalItemSlotClickListener listener)
+        public void itemRightClick(IItemSlotUIElement slotUIElement)
         {
-            
-        }
-
-        public void itemRightClick(IMatrixTerminalItemSlotClickListener listener)
-        {
-            
-        }
-
-        public void rightClickRecipe(int n)
-        {
-            
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
+            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot inventorySlot = slotUIElement.getItemSlot();
+            if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
+                giveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,1);
+            } else {
+                ItemSlot spliced = ItemSlotFactory.splice(grabbedSlot,1);
+                insertItemIntoSystemFromTerminal(spliced,grabbedItemProperties);
+                if (spliced.amount == 0) {
+                    grabbedItemProperties.itemSlot.amount--;
+                }
+                if (grabbedItemProperties.itemSlot.amount == 0) {
+                    grabbedItemProperties.itemSlot = null;
+                    grabbedItemProperties.updateSprite();
+                }
+            }
         }
     }
 }

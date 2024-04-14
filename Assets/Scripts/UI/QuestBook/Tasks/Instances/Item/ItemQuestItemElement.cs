@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using ItemModule;
 using UnityEngine.EventSystems;
 using UI;
+using ItemModule.Inventory;
 
 namespace UI.QuestBook {
     public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable

@@ -17,6 +17,26 @@ namespace ConduitModule.Systems {
                 system.syncToController();
             }
         }
+
+        public override void onTileEntityAdd(MatrixConduit conduit, TileEntity tileEntity, TileEntityPort port)
+        {
+            IConduitSystem system = conduit.getConduitSystem();
+            if (system is not MatrixConduitSystem matrixConduitSystem) {
+                Debug.LogError("Matrix conduit did not belong to matrix conduit system");
+                return;
+            }
+            if (tileEntity is not IMatrixConduitInteractable matrixConduitInteractable) {
+                return;
+            }
+            conduit.MatrixConduitInteractable = matrixConduitInteractable;
+            matrixConduitSystem.addTileEntityToSystem(conduit,matrixConduitInteractable);
+        }
+
+        public override void onTileEntityRemoved(MatrixConduit conduit)
+        {
+            conduit.MatrixConduitInteractable.removeFromSystem();
+            conduit.MatrixConduitInteractable = null;
+        }
     }
 }
 

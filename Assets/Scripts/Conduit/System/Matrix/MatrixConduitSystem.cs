@@ -4,18 +4,22 @@ using UnityEngine;
 using TileEntityModule.Instances.Matrix;
 using ItemModule.Tags;
 using ItemModule.Tags.Matrix;
+using TileEntityModule;
 
 namespace ConduitModule.Systems {
     public class MatrixConduitSystem : ConduitSystem<MatrixConduit>
     {
         private List<IMatrixConduitInteractable> tileEntities;
         
-        private List<MatrixInterface> interfaces;
+        private HashSet<MatrixInterface> interfaces;
         private MatrixDriveCollection driveCollection;
 
-        public List<MatrixInterface> Interfaces { get => interfaces;}
+        public HashSet<MatrixInterface> Interfaces { get => interfaces;}
         public MatrixDriveCollection DriveCollection { get => driveCollection; }
-        private List<MatrixAutoCraftCore> autoCraftingCores;
+        public HashSet<MatrixAutoCraftCore> AutoCraftingCores { get => autoCraftingCores; }
+
+        private HashSet<MatrixAutoCraftCore> autoCraftingCores;
+        private ItemMatrixController controller;
         public MatrixConduitSystem(string id) : base(id)
         {
             tileEntities = new List<IMatrixConduitInteractable>();
@@ -31,7 +35,6 @@ namespace ConduitModule.Systems {
         }
         public override void rebuild()
         {
-            
             tileEntities = new List<IMatrixConduitInteractable>();
             foreach (MatrixConduit matrixConduit in conduits) {
                 addTileEntity(matrixConduit);
@@ -39,6 +42,12 @@ namespace ConduitModule.Systems {
             syncToController();
         }
 
+        /// <summary>
+        /// Rebuilds sections of the system depending on the TileEntity
+        /// </summary>
+        public void addTileEntityToSystem(MatrixConduit matrixConduit, IMatrixConduitInteractable matrixConduitInteractable) {
+            matrixConduitInteractable.syncToSystem(this);
+        }
         private void addTileEntity(MatrixConduit matrixConduit) {
             if (!matrixConduit.HasTileEntity) {
                 return;
@@ -47,7 +56,6 @@ namespace ConduitModule.Systems {
         }
 
         public void syncToController() {
-            ItemMatrixController controller = null;
             controller = null;
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 if (matrixConduitInteractable is ItemMatrixController controller1) {
@@ -63,9 +71,9 @@ namespace ConduitModule.Systems {
                 }
                 return;
             }
-            interfaces = new List<MatrixInterface>();
+            interfaces = new HashSet<MatrixInterface>();
             driveCollection = new MatrixDriveCollection();
-            autoCraftingCores = new List<MatrixAutoCraftCore>();
+            autoCraftingCores = new HashSet<MatrixAutoCraftCore>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 matrixConduitInteractable.syncToSystem(this);
                 matrixConduitInteractable.syncToController(controller);
@@ -74,6 +82,18 @@ namespace ConduitModule.Systems {
 
         public void addInterface(MatrixInterface matrixInterface) {
             interfaces.Add(matrixInterface);
+            if (controller != null) {
+                controller.Recipes.addInterface(matrixInterface);
+            }
+
+        }
+
+        public void removeInterface(MatrixInterface matrixInterface) {
+            interfaces.Remove(matrixInterface);
+            if (controller != null) {
+                controller.Recipes.removeInterface(matrixInterface);
+            }
+            
         }
         public void setDrive(MatrixDrive matrixDrive) {
             driveCollection.setDrive(matrixDrive);

@@ -7,6 +7,7 @@ using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using RecipeModule;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
@@ -62,10 +63,10 @@ namespace TileEntityModule.Instances.Machines {
             ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
             ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tier.getFluidStorage());
             currentRecipe = null;
-            inventoryUpdate();
+            inventoryUpdate(0);
         }
 
-        public void inventoryUpdate() {
+        public void inventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }

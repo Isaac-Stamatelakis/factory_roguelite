@@ -4,6 +4,7 @@ using ConduitModule.Ports;
 using ConduitModule.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
+using ItemModule.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Interface")]
@@ -17,9 +18,11 @@ namespace TileEntityModule.Instances.Matrix {
         public int Priority {get => priority;}
         public List<ItemSlot> Upgrades { get => upgrades; }
         public List<ItemSlot> Recipes { get => recipes; }
+        public ItemMatrixController Controller { get => controller;}
 
         private List<ItemSlot> upgrades;
         private List<ItemSlot> recipes;
+        private MatrixConduitSystem system;
 
 
         public ItemSlot extractFluidItem(Vector2Int portPosition)
@@ -54,6 +57,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
+            this.system = matrixConduitSystem;
             matrixConduitSystem.addInterface(this);
         }
 
@@ -95,7 +99,29 @@ namespace TileEntityModule.Instances.Matrix {
                 recipes.Add(null);
             }  
             return;
-            
+        }
+
+
+        public List<EncodedRecipe> getRecipes() {
+            List<EncodedRecipe> encodedRecipes = new List<EncodedRecipe>();
+            if (recipes == null) {
+                return encodedRecipes;
+            }
+            foreach (ItemSlot itemSlot in recipes) {
+                encodedRecipes.Add(getRecipe(itemSlot));
+            }
+            return encodedRecipes;
+        }
+
+        public EncodedRecipe getRecipe(ItemSlot itemSlot) {
+            if (itemSlot == null || itemSlot.itemObject == null || itemSlot.tags == null || !itemSlot.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
+                return null;
+            }
+            object data = itemSlot.tags.Dict[ItemTag.EncodedRecipe];
+            if (data == null || data is not EncodedRecipe encodedRecipe) {
+                return null;
+            }
+            return encodedRecipe;
         }
         public void onRightClick()
         {
@@ -105,6 +131,11 @@ namespace TileEntityModule.Instances.Matrix {
             MatrixInterfaceUI matrixInterfaceUI = MatrixInterfaceUI.newInstance();
             matrixInterfaceUI.init(this);
             GlobalUIContainer.getInstance().getUiController().setGUI(matrixInterfaceUI.gameObject);
+        }
+
+        public void removeFromSystem()
+        {
+            system.removeInterface(this);
         }
 
         private class SeralizedMatrixInterface {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Matrix {
     public class RecipeEncoderInventoryUI : InventoryUI

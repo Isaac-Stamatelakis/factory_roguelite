@@ -28,6 +28,11 @@ namespace TileEntityModule.Instances.Matrix {
             GlobalUIContainer.getInstance().getUiController().setGUI(matrixTerminalUI.gameObject);
         }
 
+        public void removeFromSystem()
+        {
+            
+        }
+
         public void syncToController(ItemMatrixController matrixController)
         {
             this.controller = matrixController;

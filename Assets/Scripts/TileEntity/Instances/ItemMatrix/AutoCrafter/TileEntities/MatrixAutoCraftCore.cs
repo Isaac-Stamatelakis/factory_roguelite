@@ -98,6 +98,13 @@ namespace TileEntityModule.Instances.Matrix {
                 matrixConduitSystem.addAutoCrafter(this);
             }
         }
+
+        public void removeFromSystem()
+        {
+            if (matrixConduitSystem != null) {
+                matrixConduitSystem.removeAutoCrafter(this);
+            }
+        }
     }
 }
 

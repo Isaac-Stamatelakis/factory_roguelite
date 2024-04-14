@@ -29,4 +29,5 @@ public interface IFluidConduitInteractable : IItemConduitInteractable {
 public interface IMatrixConduitInteractable : IConduitInteractable {
     public void syncToController(ItemMatrixController matrixController);
     public void syncToSystem(MatrixConduitSystem matrixConduitSystem);
+    public void removeFromSystem();
 }

@@ -93,7 +93,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         }
 
         public static bool isCreated(CompactMachine compactMachine) {
-            CompactMachineDimController dimController = DimensionManagerContainer.getInstance().getManager().GetCompactMachineDimController();
+            CompactMachineDimController dimController = DimensionManagerContainer.getManager().GetCompactMachineDimController();
             return dimController.hasSystemOfCompactMachine(compactMachine);
         }
 
@@ -149,7 +149,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
             int depth = getDepth(compactMachine.getCellPosition());
-            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
             if (depth == 0) {
                 dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
@@ -162,7 +162,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             
         }
         public static void teleportIntoCompactMachine(CompactMachine compactMachine) {
-            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
             dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
             dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
         }

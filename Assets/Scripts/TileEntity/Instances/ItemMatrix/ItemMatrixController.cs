@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 using ChunkModule;
 using ItemModule.Tags;
 using ItemModule.Tags.Matrix;
+using ItemModule;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Controller")]
@@ -14,13 +15,14 @@ namespace TileEntityModule.Instances.Matrix {
     {
         [SerializeField] private ConduitPortLayout layout;
         private HashSet<MatrixConduitSystem> systems;
+        private MatrixRecipeCollection recipes;
+
+        public MatrixRecipeCollection Recipes { get => recipes;}
+
         public ConduitPortLayout getConduitPortLayout()
         {
             return layout;
         }
-
-        
-
         public void resetSystem() {
             
         }
@@ -30,6 +32,7 @@ namespace TileEntityModule.Instances.Matrix {
         {
             base.initalize(tilePosition, tileBase, chunk);
             systems = new HashSet<MatrixConduitSystem>();
+            recipes = new MatrixRecipeCollection();
         }
 
     
@@ -40,6 +43,39 @@ namespace TileEntityModule.Instances.Matrix {
                     return;
                 }
             }
+        }
+
+        public ItemSlot takeItem(string id, ItemTagKey itemTagKey, int amount) {
+            ItemSlot toReturn = null;
+            int takeAmount = amount;
+            foreach (MatrixConduitSystem matrixConduitSystem in systems) {
+                ItemSlot taken = matrixConduitSystem.DriveCollection.take(id,itemTagKey,takeAmount);
+                if (taken == null || taken.itemObject == null) {
+                    continue;
+                }
+                takeAmount -= taken.amount;
+                if (toReturn == null) {
+                    toReturn = taken;
+                } else {
+                    toReturn.amount += taken.amount; 
+                }
+                if (takeAmount == 0) {
+                    return toReturn;
+                } 
+                if (takeAmount < 0) {
+                    Debug.LogError("ItemMatrixController take item return took more than takeAmount");
+                    return toReturn;
+                }
+            }
+            return toReturn;
+        }
+
+        public int amountOf(string id, ItemTagKey itemTagKey) {
+            int amount = 0;
+            foreach (MatrixConduitSystem matrixConduitSystem in systems) {
+                amount += matrixConduitSystem.DriveCollection.amountOf(id,itemTagKey);
+            }    
+            return amount;
         }
         public MatrixDriveCollection getEntireDriveCollection() {
             MatrixDriveCollection matrixInventory = new MatrixDriveCollection();
@@ -60,8 +96,18 @@ namespace TileEntityModule.Instances.Matrix {
             systems.Add(matrixConduitSystem);
         }
 
-        public void addAutoCrafter(MatrixAutoCraftCore core) {
-
+        public void removeFromSystem()
+        {
+            
+        }
+        public HashSet<MatrixAutoCraftCore> getAutoCraftControllers() {
+            HashSet<MatrixAutoCraftCore> cores = new HashSet<MatrixAutoCraftCore>();
+            foreach (MatrixConduitSystem system in systems) {
+                foreach (MatrixAutoCraftCore craftCore in system.AutoCraftingCores) {
+                    cores.Add(craftCore);
+                }
+            }
+            return cores;
         }
     }
 

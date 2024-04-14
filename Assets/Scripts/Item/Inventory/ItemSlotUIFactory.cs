@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using ItemModule.Tags;
 using TMPro;
 
-namespace ItemModule {
+namespace ItemModule.Inventory {
     public static class ItemSlotUIFactory
     {
         private static string slotName = "slot";
@@ -134,7 +134,7 @@ namespace ItemModule {
 
             textMeshPro.text = formatAmountText(itemSlot.amount);
             
-            textMeshPro.fontSize = 25;
+            textMeshPro.fontSize = 20;
             RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
             rectTransform.anchorMax = new Vector2(1,1);
             rectTransform.anchorMin = new Vector2(0,0);
@@ -143,11 +143,11 @@ namespace ItemModule {
             textMeshPro.alignment = TextAlignmentOptions.BottomRight;
             return number;
         }
-        private static string formatAmountText(int amount) {
-            if (amount == 1) {
+        public static string formatAmountText(int amount,bool oneInvisible = true) {
+            if (amount == 1 && oneInvisible) {
                 return "";
             }
-            if (amount < 1000) {
+            if (amount < 10000) {
                 return amount.ToString();
             }
             int i = 0;
@@ -158,6 +158,7 @@ namespace ItemModule {
             }
             return fAmount.ToString("0.#" + suffixes[i]);
         }
+
        
         public static Vector2 getItemSize(Sprite sprite) {
             if (sprite == null) {
@@ -261,6 +262,13 @@ namespace ItemModule {
             Transform behindTagTransform = slotTransform.Find(ItemTagNameBehind);
             if (behindTagTransform != null) {
                 GameObject.Destroy(behindTagTransform.gameObject);
+            }
+        }
+
+        public static void replaceAmountTextWithString(Transform slotTransform, string text) {
+            Transform amountTransform = slotTransform.Find(ItemAmountName);
+            if (amountTransform != null) {
+                amountTransform.GetComponent<TextMeshProUGUI>().text = text;
             }
         }
     }

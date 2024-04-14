@@ -5,6 +5,7 @@ using UnityEngine;
 using ChunkModule;
 using PlayerModule;
 using ItemModule;
+using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Storage/Drawer/Instance")]

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RecipeModule.Transmutation;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
+using ItemModule.Inventory;
 using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines
@@ -42,7 +43,7 @@ namespace TileEntityModule.Instances.Machines
 
         public void tickUpdate()
         {
-            inventoryUpdate(); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
+            inventoryUpdate(0); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
             if (currentRecipe == null) {
                 return;
             }
@@ -63,7 +64,7 @@ namespace TileEntityModule.Instances.Machines
             }
         }
 
-        public void inventoryUpdate() {
+        public void inventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }

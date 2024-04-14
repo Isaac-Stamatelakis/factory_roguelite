@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using ItemModule;
+using ItemModule.Inventory;
 
 public class GrabbedItemProperties : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class GrabbedItemProperties : MonoBehaviour
 
     public void updateSprite() {
         ItemSlotUIFactory.unload(transform);
-        if (itemSlot != null && itemSlot.itemObject != null && itemSlot.itemObject.id != null) {
+        if (itemSlot != null && itemSlot.itemObject != null) {
             ItemSlotUIFactory.load(itemSlot,transform);
             return;
         }

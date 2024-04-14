@@ -67,7 +67,7 @@ namespace PlayerModule.KeyPress {
                 if (current != null) {
                     ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
                     if (clickHandler != null) {
-                        clickHandler.showRecipes();
+                        ((IItemSlotUIElement) clickHandler).showRecipes();
                     } 
                 }
             }
@@ -76,7 +76,7 @@ namespace PlayerModule.KeyPress {
                 if (current != null) {
                     ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
                     if (clickHandler != null) {
-                        clickHandler.showUses();
+                        ((IItemSlotUIElement) clickHandler).showUses();
                     } 
                 }
             }

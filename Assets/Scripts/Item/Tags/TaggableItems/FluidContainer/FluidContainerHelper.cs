@@ -49,13 +49,10 @@ namespace ItemModule.Tags.FluidContainers {
                         ItemSlotHelper.insertIntoInventory(inventory,empty,fluidContainer.getStorage());
                     }
                 }
-                
-                
                 grabbedItemProperties.updateSprite();
                 return;
             }
             // Input fluid cell into player inventory
-            
             ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
             if (!ItemSlotHelper.canInsertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage())) {
                 return;

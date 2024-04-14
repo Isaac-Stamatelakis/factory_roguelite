@@ -6,7 +6,7 @@ namespace DimensionModule {
     public class DimensionManagerContainer
     {
         private static DimensionManagerContainer instance;
-        private DimensionManager dimensionManager;
+        private static DimensionManager dimensionManager;
         private DimensionManagerContainer() {
             dimensionManager = GameObject.Find("DimensionManager").GetComponent<DimensionManager>();
         }
@@ -16,7 +16,10 @@ namespace DimensionModule {
             }
             return instance;
         }
-        public DimensionManager getManager() {
+        public static DimensionManager getManager() {
+            if (instance == null) {
+                instance = new DimensionManagerContainer();
+            }
             return dimensionManager;
         }
     }

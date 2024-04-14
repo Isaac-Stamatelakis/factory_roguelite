@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ItemModule.Tags;
+using ItemModule;
 
 public static class ItemSlotHelper
 {
@@ -70,22 +71,16 @@ public static class ItemSlotHelper
     }
 
     public static bool areEqual(ItemSlot first, ItemSlot second) {
-        if (ReferenceEquals(first,second)) {
-            return true;
-        }
-        if (first == null || second == null) {
+        if (first == null || first.itemObject == null || second == null || second.itemObject == null) {
             return false;
         }
-        if (first.itemObject == null || second.itemObject == null) {
-            return false;
-        }
-        if (first.itemObject.id != second.itemObject.id) {
-            return false;
-        }
-        if (!ItemTagFactory.tagsEqual(first.tags,second.tags)) {
-            return false;
-        }
-        return true;
+        ItemTagKey firstTagKey = new ItemTagKey(first.tags);
+        ItemTagKey secondTagKey = new ItemTagKey(second.tags);
+        return areEqual(first.itemObject.id,firstTagKey,second.itemObject.id,secondTagKey);
+    }
+
+    public static bool areEqual(string firstId, ItemTagKey firstTagKey, string secondId, ItemTagKey secondTagKey) {
+        return firstId.Equals(secondId) && firstTagKey.Equals(secondTagKey);
     }
 
     public static bool areEqualNoNullCheck(ItemSlot first, ItemSlot second) {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Machines;
+using ItemModule.Inventory;
 
 namespace RecipeModule {
     public interface IPassiveRecipeProcessor {

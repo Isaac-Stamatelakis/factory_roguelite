@@ -70,7 +70,7 @@ namespace PlayerModule.Mouse {
         }
 
         private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
-            DimensionManager dimensionManager = DimensionManagerContainer.getInstance().getManager();
+            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
             return dimensionManager.ActiveSystem;
         }
 

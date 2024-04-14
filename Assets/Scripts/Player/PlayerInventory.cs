@@ -6,6 +6,8 @@ using System;
 using PlayerModule.IO;
 using ItemModule.Inventory;
 using ItemModule;
+using DimensionModule;
+using ChunkModule;
 
 namespace PlayerModule {
 
@@ -128,9 +130,20 @@ namespace PlayerModule {
         public void iterateSelectedTile(int iterator) {
             selectedSlot += iterator;
             selectedSlot = (int) Global.modInt(selectedSlot,playerInventoryGrid.Size.x);
-            changeSelectedSlot(selectedSlot);
+            changeSelectedSlot(selectedSlot); 
+        }
 
-            
+        public void give(ItemSlot itemSlot) {
+            if (!ItemSlotHelper.canInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
+                DimensionManager dimensionManager = DimensionManagerContainer.getManager();
+                IChunk chunk = dimensionManager.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
+                if (chunk is not ILoadedChunk loadedChunk) {
+                    return;
+                }
+                ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
+            } else {
+                ItemSlotHelper.insertIntoInventory(inventory,itemSlot,Global.MaxSize);
+            }
         }
 
         public string getSelectedId() {
@@ -152,7 +165,7 @@ namespace PlayerModule {
             return ItemSlotFactory.serializeList(inventory);
         }
 
-        public void inventoryUpdate()
+        public void inventoryUpdate(int n)
         {
             
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using ItemModule;
+using ItemModule.Inventory;
 
 
 namespace UI.JEI
