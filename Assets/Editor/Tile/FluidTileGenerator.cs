@@ -69,5 +69,6 @@ public class FluidTileGeneratorWindow : EditorWindow {
         fluidTileItem.tiles = EditorFactory.fluidTilesFromSprite(texture,"Assets/EditorCreations/" + tileName, tileName,invertedGravity);
         
         AssetDatabase.CreateAsset(fluidTileItem,"Assets/EditorCreations/" + tileName + "/" + tileName + ".asset");
+        AssetDatabase.Refresh();
     }
 }

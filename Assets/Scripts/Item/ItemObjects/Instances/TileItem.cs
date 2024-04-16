@@ -38,6 +38,17 @@ public static class TileTypeExtension {
                 return TileMapType.Block;
         }
     }
+
+    public static bool isSolid(this TileType tileType) {
+        switch (tileType) {
+            case TileType.Block:
+                return true;
+            case TileType.SlipperyBlock:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
 
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]

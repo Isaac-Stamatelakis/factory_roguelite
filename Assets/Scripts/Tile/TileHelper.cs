@@ -32,7 +32,7 @@ public class TileHelper
     public static float getRealTileCenter(float n) {
         return Mathf.FloorToInt(2*n)/2f+0.25f;
     }
-    public static void tileUpdate(Vector2Int position, TileItem item, TileGridMap tileGridMap)
+    public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, TileGridMap tileGridMap)
         {
             callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.up),item);
             callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.down),item);
@@ -44,7 +44,7 @@ public class TileHelper
         if (tileEntity == null) {
             return;
         }
-        if (tileEntity is not ITileUpdateReciever tileUpdateReciever) {
+        if (tileEntity is not ITileItemUpdateReciever tileUpdateReciever) {
             return;
         }
         tileUpdateReciever.tileUpdate(tileItem);

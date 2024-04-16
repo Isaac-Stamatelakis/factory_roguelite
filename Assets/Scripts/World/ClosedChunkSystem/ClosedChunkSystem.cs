@@ -113,29 +113,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.init(this,partitionLoader);
         }
-
-        protected void initTileMapContainer(TileMapType tileType) {
-            GameObject container = new GameObject();
-            container.transform.SetParent(gameObject.transform);
-            container.name = tileType.ToString();
-            container.layer = LayerMask.NameToLayer(tileType.ToString());
-            container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
-            Grid grid = container.AddComponent<Grid>();
-            grid.cellSize = new Vector3(0.5f,0.5f,1f);
-            if (tileType.isTile()) {
-                TileGridMap tileGridMap = container.AddComponent<TileGridMap>();
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
-            } else if (tileType.isConduit()) {
-                ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
-            } else if (tileType.isFluid()) {
-                FluidTileMap fluidTileMap = container.AddComponent<FluidTileMap>();
-                fluidTileMap.type = TileMapType.Fluid;
-                tileGridMaps[tileType] = fluidTileMap;
-            }
-        }
         
         public abstract void playerChunkUpdate(); 
 

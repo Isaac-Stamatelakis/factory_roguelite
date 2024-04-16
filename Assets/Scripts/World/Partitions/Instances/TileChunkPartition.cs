@@ -54,8 +54,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     }
                 }
             }
-            int[,] fluidFill = fluidTileMap.getFill(position);
-            data.fluidData.fill = fluidFill;
         }
 
         protected virtual string saveTileEntity(TileEntity tileEntity) {
@@ -271,10 +269,10 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             tileOptionsArray[position.x,position.y] = tileOptions;
         }
 
-        public override int getFill(Vector2Int position)
+        public override (string[,], string[,], int[,]) getFluidData()
         {
-            SerializedTileData tileData = (SerializedTileData) getData();
-            return tileData.fluidData.fill[position.x,position.y];
+            SerializedTileData serializedTileData = (SerializedTileData) getData();
+            return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
     }
 }

@@ -332,7 +332,6 @@ public class EditorFactory
         for (int i = 0; i < TILES_TO_CREATE; i++) {
             int yMin = inverted ? 0 : 16-2*(TILES_TO_CREATE-(i+1));
             int yMax = inverted ? 2*(TILES_TO_CREATE-(i+1)) : 16;
-            Debug.Log(yMin);
             Color[] pixels = texture.GetPixels(0,0,16,16);
             if (i != TILES_TO_CREATE-1) {
                 for (int x = 0; x < 16; x++) {
@@ -362,6 +361,7 @@ public class EditorFactory
             TileColliderType tileColliderType = i == TILES_TO_CREATE -1 ? TileColliderType.Tile : TileColliderType.Sprite;
             
             StandardTile tile = ItemEditorFactory.standardTileCreator(sprite1,tileColliderType);
+            tiles[i] = tile;
             tile.id = ItemEditorFactory.formatId(tileName);
             tile.name = tileName + "[" + i + "]";
             AssetDatabase.CreateAsset(tile,spritePath + tile.name + ".asset");

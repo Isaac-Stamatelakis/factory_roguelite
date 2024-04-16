@@ -24,17 +24,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
         
         public override void Awake()
         {
-            List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();
-            foreach (TileMapType tileMapType in standardMaps) {
-                initTileMapContainer(tileMapType);
-            }
-            initTileMapContainer(TileMapType.Fluid);
-            List<TileMapType> conduitMaps = TileMapBundleFactory.getConduitTileTypes();
-            foreach (TileMapType tileMapType in conduitMaps) {
-                initTileMapContainer(tileMapType);
-            }
-            
             base.Awake();
+            TileMapBundleFactory.loadConduitSystemMaps(transform,tileGridMaps);
         }
 
 

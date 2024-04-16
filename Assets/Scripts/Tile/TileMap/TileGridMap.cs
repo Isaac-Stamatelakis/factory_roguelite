@@ -103,7 +103,8 @@ namespace TileMapModule {
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             writeTile(partition,tilePositionInPartition,null);
-            TileHelper.tileUpdate(position, null,this);
+            TileHelper.tilePlaceTileEntityUpdate(position, null,this);
+            callListeners(position);
         }
 
         public TileEntity getTileEntityAtPosition(Vector2Int position) {
@@ -116,7 +117,7 @@ namespace TileMapModule {
         }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                    conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
+                conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
             }
         }
 
