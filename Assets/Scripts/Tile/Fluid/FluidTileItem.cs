@@ -19,7 +19,7 @@ public class FluidTileItem : ItemObject
         }
         fill--;
         if(fill >= tiles.Length) {
-            return null;
+            return tiles[tiles.Length-1];
         }
         return tiles[fill];
     }

@@ -165,7 +165,7 @@ namespace TileMapModule.Type {
                 case TileMapType.Background:
                     return 3;
                 case TileMapType.Object:
-                    return 1;
+                    return 1.5f;
                 case TileMapType.Platform:
                     return 1;
                 case TileMapType.SlipperyBlock:
@@ -175,17 +175,17 @@ namespace TileMapModule.Type {
                 case TileMapType.ClimableObject:
                     return 1;
                 case TileMapType.MatrixConduit:
-                    return 1.05f;
-                case TileMapType.ItemConduit:
-                    return 1.1f;
-                case TileMapType.FluidConduit:
-                    return 1.25f;
-                case TileMapType.EnergyConduit:
-                    return 1.5f;
-                case TileMapType.SignalConduit:
-                    return 1.75f;
-                case TileMapType.Fluid:
                     return 2f;
+                case TileMapType.ItemConduit:
+                    return 2.1f;
+                case TileMapType.FluidConduit:
+                    return 2.2f;
+                case TileMapType.EnergyConduit:
+                    return 2.3f;
+                case TileMapType.SignalConduit:
+                    return 2.4f;
+                case TileMapType.Fluid:
+                    return 1.1f;
                 default:
                     return 9999;
             }
