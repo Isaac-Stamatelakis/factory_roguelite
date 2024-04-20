@@ -15,7 +15,7 @@ namespace TileEntityModule {
     }
 
     public interface IClimableTileEntity {
-        
+        public int getSpeed();
     }
 
     

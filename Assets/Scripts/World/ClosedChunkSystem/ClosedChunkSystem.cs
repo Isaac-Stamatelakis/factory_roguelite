@@ -11,6 +11,7 @@ using TileMapModule.Conduit;
 using ChunkModule.PartitionModule;
 using Tiles;
 using Fluids;
+using PlayerModule;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     /// <summary>
@@ -24,7 +25,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
     {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
-        //public ChunkList chunkList;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;

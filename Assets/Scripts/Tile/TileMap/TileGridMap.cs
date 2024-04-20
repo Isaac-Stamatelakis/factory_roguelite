@@ -216,6 +216,9 @@ namespace TileMapModule {
 
         public TileItem getTileItem(Vector2Int cellPosition) {
             IChunkPartition partition = getPartitionAtPosition(cellPosition);
+            if (partition == null) {
+                return null;
+            }
             Vector2Int positionInPartition = getTilePositionInPartition(cellPosition);
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
