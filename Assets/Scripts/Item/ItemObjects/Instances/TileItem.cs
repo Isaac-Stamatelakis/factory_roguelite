@@ -12,7 +12,6 @@ public enum TileType {
     Background,
     Object,
     SlipperyBlock,
-    ColladableObject,
     ClimableObject,
     Platform
 }
@@ -25,8 +24,6 @@ public static class TileTypeExtension {
                 return TileMapType.Background;
             case TileType.ClimableObject:
                 return TileMapType.SlipperyBlock;
-            case TileType.ColladableObject:
-                return TileMapType.ClimableObject;
             case TileType.Object:
                 return TileMapType.Object;
             case TileType.SlipperyBlock:

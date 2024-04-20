@@ -11,7 +11,6 @@ namespace TileMapModule.Type {
         Platform,
         SlipperyBlock,
         ColladableObject,
-        ClimableObject,
         ItemConduit,
         FluidConduit,
         EnergyConduit,
@@ -34,8 +33,6 @@ namespace TileMapModule.Type {
                 case TileMapType.SlipperyBlock:
                     return TileMapLayer.Base;
                 case TileMapType.ColladableObject:
-                    return TileMapLayer.Base;
-                case TileMapType.ClimableObject:
                     return TileMapLayer.Base;
                 case TileMapType.ItemConduit:
                     return TileMapLayer.Item;
@@ -64,8 +61,6 @@ namespace TileMapModule.Type {
                     return true;
                 case TileMapType.ColladableObject:
                     return true;
-                case TileMapType.ClimableObject:
-                    return true;
                 case TileMapType.ItemConduit:
                     return false;
                 case TileMapType.FluidConduit:
@@ -92,8 +87,6 @@ namespace TileMapModule.Type {
                     return true;
                 case TileMapType.ColladableObject:
                     return true;
-                case TileMapType.ClimableObject:
-                    return true;
                 case TileMapType.ItemConduit:
                     return false;
                 case TileMapType.FluidConduit:
@@ -119,8 +112,6 @@ namespace TileMapModule.Type {
                 case TileMapType.SlipperyBlock:
                     return false;
                 case TileMapType.ColladableObject:
-                    return false;
-                case TileMapType.ClimableObject:
                     return false;
                 case TileMapType.ItemConduit:
                     return true;
@@ -171,8 +162,6 @@ namespace TileMapModule.Type {
                 case TileMapType.SlipperyBlock:
                     return 1;
                 case TileMapType.ColladableObject:
-                    return 1;
-                case TileMapType.ClimableObject:
                     return 1;
                 case TileMapType.MatrixConduit:
                     return 2f;

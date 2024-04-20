@@ -17,7 +17,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
                 TileMapType.Platform,
                 TileMapType.SlipperyBlock,
                 TileMapType.ColladableObject,
-                TileMapType.ClimableObject
             };
         }
         public static List<TileMapType> getConduitTileTypes() {
