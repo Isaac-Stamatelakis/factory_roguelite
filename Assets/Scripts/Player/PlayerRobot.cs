@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
 using ItemModule;
+using ChunkModule.ClosedChunkSystemModule;
+using ChunkModule;
+using TileMapModule;
+using TileEntityModule;
 
 public class PlayerRobot : MonoBehaviour
 {
@@ -14,11 +18,9 @@ public class PlayerRobot : MonoBehaviour
     private bool onGround;
     public bool OnGround { get => onGround; set => onGround = value; }
     public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
-
-    [SerializeField]
-    public RobotItem robotItem;
-    [SerializeField]
-    public Robot overrideRobot;
+    private bool climbing;    
+    [SerializeField] public RobotItem robotItem;
+    [SerializeField] public Robot overrideRobot;
     private Robot currentRobot;
     void Start() {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -31,10 +33,16 @@ public class PlayerRobot : MonoBehaviour
     
 
     public void FixedUpdate() {
+        canStartClimbing();
+        float playerWidth = spriteRenderer.sprite.bounds.extents.x;
         
+        if (climbing) {
+            handleClimbing();
+            return;
+        }
         noCollisionWithPlatformCounter--;
         Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
-        float playerWidth = spriteRenderer.sprite.bounds.extents.x;
+        
         int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
         RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
         if (raycastHit.collider != null) {
@@ -66,7 +74,61 @@ public class PlayerRobot : MonoBehaviour
     }
 
     private void handleEngineerMovement() {
+        
+    }
 
+    private void canStartClimbing() {
+        bool climbKeyInput = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
+        if (climbing || !climbKeyInput) {
+            return;
+        }
+        if (!standingOnClimbable()) {
+            return;
+        }
+        climbing = true;
+        rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        rb.gravityScale = 0;
+        Vector3 position = transform.position;
+        float x = position.x;
+        x = Mathf.Floor(x*2)/2f+0.25f;
+        position.x = x;
+        transform.position = position;
+    }
+    private bool standingOnClimbable() {
+        int objectLayer = (1 << LayerMask.NameToLayer("Object"));
+        RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
+        if (objHit.collider == null) {
+            return false;
+        }
+        TileGridMap tileGridMap = objHit.collider.GetComponent<TileGridMap>();
+        if (tileGridMap == null) {
+            return false;
+        }
+        TileItem tileItem = tileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position));
+        if (tileItem == null || tileItem.tileEntity == null) {
+            return false;
+        }
+        return tileItem.tileEntity is IClimableTileEntity;
+    }
+
+    private void handleClimbing() {
+        int speed = 7;
+        Vector2 velocity = rb.velocity;
+        rb.velocity = velocity;
+        if (Input.GetKey(KeyCode.W)) {
+            velocity.y = speed;
+        } else if (Input.GetKey(KeyCode.S)) {
+            velocity.y = -speed;
+        } else {
+            velocity.y = 0;
+        }
+        rb.velocity = velocity;
+        
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || !standingOnClimbable()) {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            climbing = false;
+            rb.gravityScale = 3;
+        } 
     }
 
     public void setRobot(RobotItem robotItem) {

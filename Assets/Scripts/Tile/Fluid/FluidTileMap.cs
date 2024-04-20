@@ -187,9 +187,9 @@ namespace Fluids {
             }
             int avg = 0;
             if (canMergeLeft && canMergeRight) {
-                avg = Mathf.RoundToInt(sum/3f);
+                avg = Mathf.CeilToInt(sum/3f);
             } else {
-                avg = Mathf.FloorToInt(sum/2f);
+                avg = Mathf.CeilToInt(sum/2f);
             }
             if (avg > 8) {
                 avg = 8;
@@ -351,16 +351,27 @@ namespace Fluids {
                 return false;
             }
             int gravFill = adjGravityData.fill;
+            if (gravFill >= FluidTileHelper.MaxFill) {
+                return false;
+            }
             int centerFill = centerPartitionData.fill[centerPositionInPartition.x,centerPositionInPartition.y];
-            gravFill += centerFill; // Allow fluid to exceed max capacity for visual appearance. (Still looks like fill 8)
+            gravFill += centerFill;
             centerFill = 0;
+            /*
+            if (gravFill > FluidTileHelper.MaxFill) {
+                centerFill = gravFill - FluidTileHelper.MaxFill;
+                gravFill = FluidTileHelper.MaxFill;
+            } else {
+                centerFill = 0;
+            }
+            */
             setUpdatedFluidTile(
                 centerPartitionData,
                 centerPositionInPartition,
                 position,
-                0,
-                null,
-                null
+                centerFill,
+                centerFluidTile.id,
+                centerFluidTile
             );
             setUpdatedFluidTile(
                 adjGravityData.fluidPartitionData,
