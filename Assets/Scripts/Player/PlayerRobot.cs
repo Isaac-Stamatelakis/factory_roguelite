@@ -14,15 +14,13 @@ namespace PlayerModule {
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private PlayerPlatformDetector playerFeet;
         private PolygonCollider2D polygonCollider;
-        
         private int noCollisionWithPlatformCounter;
         private GlobalUIContainer globalUIContainer;
         private bool onGround;
         public bool OnGround { get => onGround; set => onGround = value; }
         public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
-        private bool climbing;    
-        [SerializeField] public RobotItem robotItem;
-        [SerializeField] public Robot overrideRobot;
+        private bool climbing;
+        [SerializeField] public ItemSlot robotItemSlot;
         private Robot currentRobot;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -43,34 +41,9 @@ namespace PlayerModule {
                 return;
             }
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
-            //onGround = playerFeet.OnGround;
             int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
             onGround = raycastHit.collider != null;            
-
-            //noCollisionWithPlatformCounter--;
-            
-            /*
-            
-            
-            int platformLayer = (1 << LayerMask.NameToLayer("Platform"));
-            RaycastHit2D platformCast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.2f),0,Vector2.zero,Mathf.Infinity,layers);
-            if (platformCast.collider == null) {
-                Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), true);
-            } else {
-                if (noCollisionWithPlatformCounter > 0) {
-                    Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), true);
-                }
-                if (rb.velocity.y > 0.2) {
-                    noCollisionWithPlatformCounter=5;
-                }
-                if (noCollisionWithPlatformCounter == 0) {
-                    Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),LayerMask.NameToLayer("Platform"), false);
-                }
-            }
-            */
-            
-            
             if (!globalUIContainer.isActive()) {
                 if (currentRobot == null) {
                     handleEngineerMovement();
@@ -147,19 +120,19 @@ namespace PlayerModule {
             rb.velocity = velocity;
         }
 
-        public void setRobot(RobotItem robotItem) {
+        public void setRobot(ItemSlot robotItemSlot) {
             if (spriteRenderer == null) {
                 spriteRenderer = GetComponent<SpriteRenderer>();
             }
             if (rb == null) {
                 rb = GetComponent<Rigidbody2D>();
             }
-            if (overrideRobot != null) {
-                currentRobot = overrideRobot;
-            } else {
-                this.robotItem = robotItem;
-                currentRobot = robotItem.robot;
+            if (robotItemSlot == null || robotItemSlot.itemObject == null || robotItemSlot.itemObject is not RobotItem robotItem) {
+                Debug.LogError("Tried to set invalid robot");
+                return;
             }
+            this.currentRobot = robotItem.robot;
+            this.robotItemSlot = robotItemSlot;
             
             if (currentRobot == null) {
                 // Play as engineer

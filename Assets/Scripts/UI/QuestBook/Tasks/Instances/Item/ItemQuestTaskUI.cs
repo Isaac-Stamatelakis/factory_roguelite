@@ -9,9 +9,9 @@ namespace UI.QuestBook {
     {
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private Button addButton;
-        private QuestBookUI questBookUI;
+        private QuestBookPageUI questBookUI;
         private ItemQuestTask task;
-        public override void init(ItemQuestTask task, QuestBookUI questBookUI)
+        public override void init(ItemQuestTask task, QuestBookPageUI questBookUI)
         {
             this.questBookUI = questBookUI;
             this.task = task;

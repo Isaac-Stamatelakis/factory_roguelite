@@ -17,8 +17,12 @@ namespace PlayerModule {
             if (jumpDownDisable) {
                 return;
             }
-            physicCollider.enabled = rb.velocity.y <= 0;
-            if (onPlatform && Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.Space)) {
+            physicCollider.enabled = rb.velocity.y <= 0.1f;
+            
+        }
+
+        public void Update() {
+            if (onPlatform && Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.Space)) {
                 onPlatform = false;
                 StartCoroutine(disablePlatformCollisions());
             }

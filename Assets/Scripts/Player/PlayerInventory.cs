@@ -8,30 +8,35 @@ using ItemModule.Inventory;
 using ItemModule;
 using DimensionModule;
 using ChunkModule;
+using UnityEngine.UI;
 
 namespace PlayerModule {
 
+
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
-
+        [SerializeField] private PlayerRobot playerRobot;
+        private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
         private List<ItemSlot> inventory;
+        private List<ItemSlot> toolInventory;
         private PlayerInventoryGrid playerInventoryGrid;
         private GameObject inventoryContainer;
         private GameObject inventoryItemContainer;
         private GameObject uiPlayerInventoryContainer;
         private GameObject hotbarNumbersContainer;
         private bool expanded = false;
+        private PlayerInventoryGrid inventoryGrid;
 
         public List<ItemSlot> Inventory { get => inventory; set => inventory = value; }
 
         // Start is called before the first frame update
         void Start()
         {
-                entityLayer = 1 << LayerMask.NameToLayer("Entity");
-                initInventory();
+            entityLayer = 1 << LayerMask.NameToLayer("Entity");
+            initInventory();
         }
 
         private void initInventory() {
@@ -47,7 +52,36 @@ namespace PlayerModule {
             PlayerInventoryGrid cloneGrid = container.gameObject.AddComponent<PlayerInventoryGrid>();
             cloneGrid.initalize(inventory,new Vector2Int(10,4));
         }
-        // Update is called 50 times per second
+
+        public void changeDisplayMode(InventoryDisplayMode displayMode) {
+            if (this.mode == displayMode) {
+                return;
+            }
+            this.mode = displayMode;
+            switch (mode) {
+                case InventoryDisplayMode.Inventory:
+                    playerInventoryGrid.setInventory(inventory);
+                    break;
+                case InventoryDisplayMode.Tools:
+                    playerInventoryGrid.setInventory(toolInventory);
+                    break;
+            }
+        }
+
+        public void toggleToolAndInventory() {
+            switch (mode) {
+                case InventoryDisplayMode.Inventory:
+                    changeDisplayMode(InventoryDisplayMode.Inventory);
+                    break;
+                case InventoryDisplayMode.Tools:
+                    changeDisplayMode(InventoryDisplayMode.Tools);
+                    break;
+                default:
+                    changeDisplayMode(InventoryDisplayMode.Inventory);
+                    break;
+            }
+        }
+
         void Update()
         {
             raycastHitTileEntities();
@@ -64,7 +98,6 @@ namespace PlayerModule {
         public void changeSelectedSlot(int slot) {
             selectedSlot = slot;
             playerInventoryGrid.selectSlot(slot);
-            
         }
         
         private void raycastHitTileEntities() {
@@ -177,9 +210,16 @@ namespace PlayerModule {
         public void showUI() {
             playerInventoryGrid.gameObject.SetActive(true);
         }
+
+        
     }
 
     public interface IPlayerInventoryIntegratedUI {
         
     }
+
+    public enum InventoryDisplayMode {
+            Inventory,
+            Tools
+        }
 }

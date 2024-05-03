@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ItemModule {
     public interface ITaggable
     {
-
+        
     }
 
     public interface ICloneableTag {

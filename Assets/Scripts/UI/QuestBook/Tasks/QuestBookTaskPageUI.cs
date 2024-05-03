@@ -21,21 +21,21 @@ namespace UI.QuestBook {
         [SerializeField] private Button addRewardButton;
 
         private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
-        private QuestBookUI questBookUI;
+        private QuestBookPageUI questBookPageUI;
 
         private QuestBookNode node;
-        public QuestBookUI QuestBookUI { get => questBookUI; set => questBookUI = value; }
+        public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
         public List<int> SelectedRewards { get => selectedRewards; set => selectedRewards = value; }
 
         private List<int> selectedRewards = new List<int>();
 
         public bool RewardsSelectable {get => Content.Rewards.Count > Content.NumberOfRewards;}
 
-        public void init(QuestBookNode node, QuestBookUI questBookUI) {
+        public void init(QuestBookNode node, QuestBookPageUI questBookPageUI) {
             this.node = node;
             this.titleField.text = Content.Title;
             this.descriptionField.text = Content.Description;
-            this.questBookUI = questBookUI;
+            this.questBookPageUI = questBookPageUI;
             this.node = node;
 
             if (Content.Task == null) {
@@ -67,13 +67,13 @@ namespace UI.QuestBook {
                 displayRewards();
             });
             backButton.onClick.AddListener(() => {
-                questBookUI.gameObject.SetActive(true);
+                questBookPageUI.gameObject.SetActive(true);
                 GameObject.Destroy(gameObject);
             });
             editButton.onClick.AddListener(() => {
                 EditConnectionsPageUI connectionsPageUI = EditConnectionsPageUI.newInstance();
-                connectionsPageUI.init(node,questBookUI);
-                connectionsPageUI.transform.SetParent(questBookUI.transform,false);
+                connectionsPageUI.init(node,questBookPageUI);
+                connectionsPageUI.transform.SetParent(questBookPageUI.transform,false);
             });
             editContainer.gameObject.SetActive(QuestBookHelper.EditMode);
 
@@ -84,7 +84,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(taskContainer.GetChild(i).gameObject);
             }
             this.titleField.text = Content.Task.getTaskType().ToString().Replace("_"," ");
-            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, questBookUI);
+            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, questBookPageUI);
             questContent.transform.SetParent(taskContainer,false);
         }
 

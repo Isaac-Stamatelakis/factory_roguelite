@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UI.NodeNetwork;
 
 namespace UI.QuestBook {
-    public class QuestBookNode
+    public class QuestBookNode : INode
     {
         private HashSet<int> prerequisites;
         private string itemImageID;
@@ -30,6 +31,21 @@ namespace UI.QuestBook {
             this.content = content;
             this.id = id;
             this.requireAllPrerequisites = requireAllPrerequisites;
+        }
+
+        public Vector3 getPosition()
+        {
+            return new Vector3(x,y,0);
+        }
+
+        public int getId()
+        {
+            return id;
+        }
+
+        public HashSet<int> getPrerequisites()
+        {
+            return prerequisites;
         }
     }
 }

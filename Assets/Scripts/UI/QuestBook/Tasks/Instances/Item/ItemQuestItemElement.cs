@@ -14,7 +14,7 @@ namespace UI.QuestBook {
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
         [SerializeField] private Image itemImage;
-        private QuestBookUI questBookUI;
+        private QuestBookPageUI questBookUI;
         private int gottenAmount;
         private ItemQuestTask itemQuestTask;
         private SerializedItemSlot ItemSlot {get => itemQuestTask.Items[index];}
@@ -22,7 +22,7 @@ namespace UI.QuestBook {
         private int index;
         
 
-        public void init(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookUI questBookUI) {
+        public void init(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookPageUI questBookUI) {
             this.itemQuestTask = itemQuestTask;
             this.questBookUI = questBookUI;
             this.taskUI = taskUI;

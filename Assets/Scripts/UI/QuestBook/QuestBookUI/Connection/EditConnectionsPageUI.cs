@@ -13,15 +13,15 @@ namespace UI.QuestBook {
         [SerializeField] private Button backButton;
         [SerializeField] private Toggle requireAllToggle;
         private QuestBookNode node;
-        private QuestBookUI questBookUI;
+        private QuestBookPageUI questBookPageUI;
         private HashSet<int> displayed;
         private string currentSearch;
         
-        public void init(QuestBookNode node, QuestBookUI questBookUI) {
+        public void init(QuestBookNode node, QuestBookPageUI questBookPageUI) {
             this.node = node;
-            this.questBookUI = questBookUI;
+            this.questBookPageUI = questBookPageUI;
             backButton.onClick.AddListener(() => {
-                questBookUI.displayPrerequisites();
+                questBookPageUI.displayLines();
                 GameObject.Destroy(gameObject);
             });
 
@@ -31,7 +31,7 @@ namespace UI.QuestBook {
 
             scrollView.onValueChanged.AddListener((Vector2 value) => {
                 Vector2 contentSize = scrollView.content.sizeDelta;
-                if (value.y <= 100/contentSize.y && displayed.Count < questBookUI.Library.IdNodeMap.Count) {
+                if (value.y <= 100/contentSize.y && displayed.Count < questBookPageUI.Library.IdNodeMap.Count) {
                     displayNonPreRequisites(1);
                 }
             });
@@ -45,7 +45,7 @@ namespace UI.QuestBook {
         public void displayConnections() {
             GlobalHelper.deleteAllChildren(connectionList.transform);
             displayed = new HashSet<int>();
-            Dictionary<int, QuestBookNode> idNodeMap = questBookUI.Library.IdNodeMap;
+            Dictionary<int, QuestBookNode> idNodeMap = questBookPageUI.Library.IdNodeMap;
 
             // Display nodes in connections first so they are easier to remove
             foreach (int id in node.Prerequisites) {
@@ -59,7 +59,7 @@ namespace UI.QuestBook {
 
         private void displayNonPreRequisites(int amount) {
             int i = 0;
-            Dictionary<int, QuestBookNode> idNodeMap = questBookUI.Library.IdNodeMap;
+            Dictionary<int, QuestBookNode> idNodeMap = questBookPageUI.Library.IdNodeMap;
             foreach (int id in idNodeMap.Keys) {
                 if (i >= amount) {
                     break;
@@ -82,7 +82,7 @@ namespace UI.QuestBook {
 
         private void displayConnection(int id) {
             ConnectionElementUI connectionElementUI = ConnectionElementUI.newInstance();
-            connectionElementUI.init(node.Prerequisites,questBookUI.Library.getNode(id));
+            connectionElementUI.init(node.Prerequisites,questBookPageUI.Library.getNode(id));
             connectionElementUI.transform.SetParent(connectionList.transform,false);
         }
 

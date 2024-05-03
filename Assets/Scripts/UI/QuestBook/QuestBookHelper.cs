@@ -16,13 +16,10 @@ namespace UI.QuestBook {
         private static string editChapterPopUpPrefabPath = "UI/Quest/EditChapterPopUp";
         private static string taskContentPrefabPath = "UI/Quest/QuestBookTaskContent";
         private static string questBookSpritePath = "UI/Quest/EditQuestBook/Sprites";
-        private static float gridSize = 64f;
-
         public static string NodeObjectPrefabPath { get => nodeObjectPrefabPath;}
         public static string EditModePrefabPath { get => editModePrefabPath;}
         public static string LineModePrefabPath { get => lineModePrefabPath;}
         public static string DefaultQuestBookPath {get => defaultQuestBookPath;}
-        public static float GridSize { get => gridSize;}
         public static string SelectorPrefabPath { get => selectorPrefabPath;}
         public static string BookTitlePagePrefabPath { get => bookTitlePagePrefabPath;}
         public static string QuestBookPrefabPath { get => questBookPrefabPath;}
@@ -32,12 +29,6 @@ namespace UI.QuestBook {
         public static string QuestBookSpritePath { get => questBookSpritePath;}
         public static bool EditMode { get => editMode; set => editMode = value; }
         private static bool editMode = false;
-        public static Vector2 snapGrid(Vector2 position, Vector2 containerPosition, float containerScale) {
-            float scaledGrid = gridSize*containerScale;
-            float snappedX = Mathf.Round((position.x - containerPosition.x) / scaledGrid) * scaledGrid + containerPosition.x;
-            float snappedY = Mathf.Round((position.y - containerPosition.y) / scaledGrid) * scaledGrid + containerPosition.y;
-            return new Vector2(snappedX, snappedY);
-        }
     }
 }
 

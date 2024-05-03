@@ -20,7 +20,11 @@ namespace PlayerModule.KeyPress {
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.E)) {
+                playerInventory.changeDisplayMode(InventoryDisplayMode.Inventory);
                 playerInventory.toggleInventory();
+            }
+            if (Input.GetKeyDown(KeyCode.C)) {
+                playerInventory.toggleToolAndInventory();
             }
 
             inventoryNavigationKeys();
@@ -80,6 +84,10 @@ namespace PlayerModule.KeyPress {
                     } 
                 }
             }
+        }
+
+        private void controls() {
+
         }
     }
 }

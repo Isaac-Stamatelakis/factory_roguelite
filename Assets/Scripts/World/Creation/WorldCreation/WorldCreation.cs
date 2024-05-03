@@ -42,7 +42,7 @@ namespace WorldModule {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                robotID: "happy_mk1",
+                playerRobot: null,
                 name: "Izakio",
                 inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );

@@ -15,8 +15,7 @@ namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
-        [SerializeField]
-        public PlayerData playerData;
+        [SerializeField] public PlayerData playerData;
         TilePlacePreviewController tilePlacePreviewController;
         DevMode devMode;
         // Start is called before the first frame update
@@ -31,7 +30,7 @@ namespace PlayerModule.IO {
             string json = File.ReadAllText(playerJsonPath);
             playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
             //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
-            GetComponent<PlayerRobot>().setRobot(ItemRegistry.getInstance().GetRobotItem(playerData.robotID));
+            //GetComponent<PlayerRobot>().setRobot(ItemRegistry.getInstance().GetRobotItem(playerData.play));
             tilePlacePreviewController.toggle();
         }
 
@@ -46,11 +45,11 @@ namespace PlayerModule.IO {
             playerData.dim = DimensionManagerContainer.getManager().Dim;
             playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
             string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
-            RobotItem robotItem = GetComponent<PlayerRobot>().robotItem;
+            ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             if (robotItem == null) {
-                playerData.robotID = null;
+                playerData.playerRobot = null;
             } else {
-                playerData.robotID = robotItem.id;
+                playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
             }
             File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));
         }
@@ -63,17 +62,17 @@ namespace PlayerModule.IO {
 
     [System.Serializable]
     public class PlayerData {
-        public PlayerData(float x, float y, string robotID, string name, string inventoryJson) {
+        public PlayerData(float x, float y, string playerRobot, string name, string inventoryJson) {
             this.x = x;
             this.y = y;
-            this.robotID = robotID;
+            this.playerRobot = playerRobot;
             this.name = name;
             this.inventoryJson = inventoryJson;
         }
         public float x;
         public float y;
         public int dim;
-        public string robotID;
+        public string playerRobot;
         public string name;
         public string inventoryJson;
         public int stage;

@@ -6,11 +6,11 @@ using UnityEngine;
 namespace UI.QuestBook {
     public abstract class QuestBookTaskUI<Task> : MonoBehaviour where Task : QuestBookTask
     {
-        public abstract void init(Task task, QuestBookUI questBookUI);
+        public abstract void init(Task task, QuestBookPageUI questBookUI);
     }
 
     public static class QuestBookTaskUIFactory {
-        public static GameObject getContent(QuestBookTask task, QuestBookUI questBookUI) {
+        public static GameObject getContent(QuestBookTask task, QuestBookPageUI questBookUI) {
             QuestTaskType taskType = task.getTaskType();
             switch (taskType) {
                 case QuestTaskType.Item:
