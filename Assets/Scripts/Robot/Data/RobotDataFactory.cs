@@ -25,7 +25,9 @@ namespace RobotModule {
             );
         }
         public static ItemSlot getDefaultRobot() {
-            ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem("happy_mk1");
+            string infId = "happy_inf";
+            string baseId = "happy_mk1";
+            ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem(infId);
             if (robotItem == null) {
                 Debug.LogWarning("Tried to get default robot which was null");
             }
