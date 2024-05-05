@@ -12,7 +12,6 @@ public enum TileType {
     Background,
     Object,
     SlipperyBlock,
-    ColladableObject,
     ClimableObject,
     Platform
 }
@@ -25,8 +24,6 @@ public static class TileTypeExtension {
                 return TileMapType.Background;
             case TileType.ClimableObject:
                 return TileMapType.SlipperyBlock;
-            case TileType.ColladableObject:
-                return TileMapType.ClimableObject;
             case TileType.Object:
                 return TileMapType.Object;
             case TileType.SlipperyBlock:
@@ -36,6 +33,17 @@ public static class TileTypeExtension {
             default:
                 Debug.LogError("TileTypeExtension method toTileMapType did not include switch case " + tileType.ToString());
                 return TileMapType.Block;
+        }
+    }
+
+    public static bool isSolid(this TileType tileType) {
+        switch (tileType) {
+            case TileType.Block:
+                return true;
+            case TileType.SlipperyBlock:
+                return true;
+            default:
+                return false;
         }
     }
 }

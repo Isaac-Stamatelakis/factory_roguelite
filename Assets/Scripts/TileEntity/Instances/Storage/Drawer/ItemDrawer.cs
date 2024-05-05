@@ -9,7 +9,7 @@ using ItemModule.Inventory;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Storage/Drawer/Instance")]
-    public class ItemDrawer : TileEntity, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileUpdateReciever
+    public class ItemDrawer : TileEntity, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
     {
         
         [SerializeField] private ConduitPortLayout conduitPortLayout;

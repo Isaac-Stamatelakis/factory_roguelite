@@ -10,16 +10,18 @@ namespace RobotModule.Instances {
     [CreateAssetMenu(fileName = "RB~New Happy INF", menuName = "Robots/HAPPYINF")]
     public class HAPPY_INF : Robot
     {
-        [SerializeField]
-        public float speed;
+        [SerializeField] public float speed;
         public override void handleMovement(Transform playerTransform)
         {
+            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
             Vector3 position = playerTransform.position;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 position.x -= speed;
+                spriteRenderer.flipX = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 position.x += speed;
+                spriteRenderer.flipX = false;
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
                 position.y += speed;

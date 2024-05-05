@@ -62,6 +62,10 @@ namespace WorldModule.Generation {
             partitionData.backgroundData = new SerializedBackgroundTileData();
             partitionData.backgroundData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
 
+            partitionData.fluidData = new SeralizedFluidTileData();
+            partitionData.fluidData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            partitionData.fluidData.fill = new int[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+
             for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
                 for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
                     int xIndex = xStart+tileX;
@@ -71,6 +75,9 @@ namespace WorldModule.Generation {
                     partitionData.baseData.sTileOptions[tileX,tileY] = worldTileData.baseData.sTileOptions[xIndex,yIndex];
 
                     partitionData.backgroundData.ids[tileX,tileY] = worldTileData.backgroundData.ids[xIndex,yIndex];
+
+                    partitionData.fluidData.ids[tileX,tileY] = worldTileData.fluidData.ids[xIndex,yIndex];
+                    partitionData.fluidData.fill[tileX,tileY] = worldTileData.fluidData.fill[xIndex,yIndex];
                 }
             }
             if (worldTileData is WorldTileConduitData) {

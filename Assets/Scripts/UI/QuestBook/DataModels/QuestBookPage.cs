@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UI.NodeNetwork;
 
 namespace UI.QuestBook {
-    public class QuestBookPage
+    public class QuestBookPage : INodeNetwork<QuestBookNode>
     {
         private string title;
         private List<QuestBookNode> nodes;
@@ -15,6 +16,11 @@ namespace UI.QuestBook {
         public QuestBookPage(string title, List<QuestBookNode> nodes) {
             this.title = title;
             this.nodes = nodes;
+        }
+
+        public List<QuestBookNode> getNodes()
+        {
+            return nodes;
         }
     }
 

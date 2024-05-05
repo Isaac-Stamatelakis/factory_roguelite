@@ -48,8 +48,8 @@ public class BackgroundGeneratorWindow : EditorWindow {
         
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
-        TileItemEditorFactory.saveTile(tile,tileName);
-        TileItemEditorFactory.generateTileItem(
+        ItemEditorFactory.saveTile(tile,tileName);
+        ItemEditorFactory.generateTileItem(
             tileName: tileName,
             tile: tile,
             tileType: TileType.Background,

@@ -11,12 +11,12 @@ namespace TileMapModule.Type {
         Platform,
         SlipperyBlock,
         ColladableObject,
-        ClimableObject,
         ItemConduit,
         FluidConduit,
         EnergyConduit,
         SignalConduit,
-        MatrixConduit
+        MatrixConduit,
+        Fluid
     }
 
     public static class TileMapTypeExtension {
@@ -33,8 +33,6 @@ namespace TileMapModule.Type {
                 case TileMapType.SlipperyBlock:
                     return TileMapLayer.Base;
                 case TileMapType.ColladableObject:
-                    return TileMapLayer.Base;
-                case TileMapType.ClimableObject:
                     return TileMapLayer.Base;
                 case TileMapType.ItemConduit:
                     return TileMapLayer.Item;
@@ -63,8 +61,6 @@ namespace TileMapModule.Type {
                     return true;
                 case TileMapType.ColladableObject:
                     return true;
-                case TileMapType.ClimableObject:
-                    return true;
                 case TileMapType.ItemConduit:
                     return false;
                 case TileMapType.FluidConduit:
@@ -90,8 +86,6 @@ namespace TileMapModule.Type {
                 case TileMapType.SlipperyBlock:
                     return true;
                 case TileMapType.ColladableObject:
-                    return true;
-                case TileMapType.ClimableObject:
                     return true;
                 case TileMapType.ItemConduit:
                     return false;
@@ -119,8 +113,6 @@ namespace TileMapModule.Type {
                     return false;
                 case TileMapType.ColladableObject:
                     return false;
-                case TileMapType.ClimableObject:
-                    return false;
                 case TileMapType.ItemConduit:
                     return true;
                 case TileMapType.FluidConduit:
@@ -134,6 +126,10 @@ namespace TileMapModule.Type {
                 default:
                     return false;
             }
+        }
+
+        public static bool isFluid(this TileMapType tileMapType) {
+            return tileMapType == TileMapType.Fluid;
         }
 
         public static ConduitType toConduitType(this TileMapType tileMapType) {
@@ -160,26 +156,25 @@ namespace TileMapModule.Type {
                 case TileMapType.Background:
                     return 3;
                 case TileMapType.Object:
-                    return 1;
+                    return 1.5f;
                 case TileMapType.Platform:
                     return 1;
                 case TileMapType.SlipperyBlock:
                     return 1;
                 case TileMapType.ColladableObject:
                     return 1;
-                case TileMapType.ClimableObject:
-                    return 1;
                 case TileMapType.MatrixConduit:
-                    return 1.05f;
+                    return 2f;
                 case TileMapType.ItemConduit:
-                    return 1.1f;
+                    return 2.1f;
                 case TileMapType.FluidConduit:
-                    return 1.25f;
+                    return 2.2f;
                 case TileMapType.EnergyConduit:
-                    return 1.5f;
+                    return 2.3f;
                 case TileMapType.SignalConduit:
-                    return 1.75f;
-
+                    return 2.4f;
+                case TileMapType.Fluid:
+                    return 1.1f;
                 default:
                     return 9999;
             }

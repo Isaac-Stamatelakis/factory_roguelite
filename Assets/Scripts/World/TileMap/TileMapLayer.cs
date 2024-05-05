@@ -20,7 +20,6 @@ namespace TileMapModule.Layer {
                 case TileMapLayer.Base:
                     return new List<TileMapType>{
                         TileMapType.Block,
-                        TileMapType.ClimableObject,
                         TileMapType.Platform,
                         TileMapType.Object,
                         TileMapType.SlipperyBlock,

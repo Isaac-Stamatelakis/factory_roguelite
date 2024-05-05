@@ -11,8 +11,7 @@ namespace RobotModule {
     /// </summary>
     public abstract class Robot : ScriptableObject, IRobot
     {
-       public Sprite defaultSprite;
-
+        public Sprite defaultSprite;
         public abstract void handleMovement(Transform playerTransform);
         public abstract void init(GameObject playerGameObject);
     }

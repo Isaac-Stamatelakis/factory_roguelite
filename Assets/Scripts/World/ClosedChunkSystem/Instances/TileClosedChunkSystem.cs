@@ -12,14 +12,15 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public override void Awake()
         {
             base.Awake();
-            List<TileMapType> tileMaps = TileMapBundleFactory.getStandardTileTypes();
-            foreach (TileMapType tileMapType in tileMaps) {
-                initTileMapContainer(tileMapType);
-            }
+            TileMapBundleFactory.loadTileSystemMaps(transform,tileGridMaps);
         }
         public override void saveOnDestroy()
         {
             base.saveOnDestroy();
+        }
+
+        private void initFluidTileMap() {
+
         }
 
 

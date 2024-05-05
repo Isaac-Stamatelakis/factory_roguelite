@@ -56,6 +56,19 @@ namespace ItemModule.Inventory {
                 popSlot();
             }
         }
+
+        public void setInventory(List<ItemSlot> itemSlots) {
+            this.inventory = itemSlots;
+            for (int i = 0; i < itemSlots.Count; i++) {
+                if (i >= slots.Count) {
+                    Debug.LogWarning("Tried to change inventory to one larger than the current size");
+                    break;
+                }
+                GameObject slot = slots[i];
+                ItemSlotUIFactory.unload(slot.transform);
+                ItemSlotUIFactory.load(itemSlots[i],slot.transform);
+            }
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PlayerModule;
 
 namespace RobotModule.Instances {
     /// <summary>
@@ -13,14 +14,17 @@ namespace RobotModule.Instances {
         {
             Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
             PlayerRobot playerRobot = playerTransform.GetComponent<PlayerRobot>();
+            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
 
             Vector2 velocity = Vector2.zero;
             velocity.y = rb.velocity.y;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 velocity.x = -4f;
+                spriteRenderer.flipX = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 velocity.x = +4f;
+                spriteRenderer.flipX = false;
             }
             if (playerRobot.OnGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
                 if (Input.GetKey(KeyCode.S)) {

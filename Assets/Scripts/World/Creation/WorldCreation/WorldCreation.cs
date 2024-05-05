@@ -8,6 +8,7 @@ using TileMapModule.Layer;
 using PlayerModule.IO;
 using WorldModule.Generation;
 using ItemModule;
+using RobotModule;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -42,7 +43,7 @@ namespace WorldModule {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                robotID: "happy_mk1",
+                playerRobot: RobotDataFactory.getDefaultRobotString(),
                 name: "Izakio",
                 inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );
@@ -163,6 +164,7 @@ namespace WorldModule {
 
             SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
             SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
+            SeralizedFluidTileData fluidTileData = emptyTileFluidData(width,height);
             SeralizedChunkConduitData itemData = tileMapToSerializedChunkConduitData(itemConduitTileMap,TileMapLayer.Item,width,height);
             SeralizedChunkConduitData fluidData = tileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
             SeralizedChunkConduitData energyData = tileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
@@ -172,6 +174,7 @@ namespace WorldModule {
                 new List<EntityData>(),
                 baseData,
                 backgroundData,
+                fluidTileData,
                 itemData,
                 fluidData,
                 energyData,
@@ -215,31 +218,71 @@ namespace WorldModule {
 
     private static SerializedBackgroundTileData tileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            Debug.Log("Generating SerializedBackgroundTileData for Background");
-            SerializedBackgroundTileData data = new SerializedBackgroundTileData();
-            string[,] ids = new string[width,height];
-            if (tilemap != null) {
-                BoundsInt bounds = tilemap.cellBounds;
-                for (int x = 0; x < width; x++)
+        Debug.Log("Generating SerializedBackgroundTileData");
+        SerializedBackgroundTileData data = new SerializedBackgroundTileData();
+        string[,] ids = new string[width,height];
+        if (tilemap != null) {
+            BoundsInt bounds = tilemap.cellBounds;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
                 {
-                    for (int y = 0; y < height; y++)
+                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                    if (tilemap.HasTile(tilePosition))
                     {
-                        Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                        if (tilemap.HasTile(tilePosition))
-                        {
-                            TileBase tile = tilemap.GetTile(tilePosition);
-                            if (tile is IIDTile) {
-                                string id = ((IIDTile) tile).getId();
-                                if (id == null || id == "") {
-                                    continue;
-                                }
-                                ids[x,y]= id;
+                        TileBase tile = tilemap.GetTile(tilePosition);
+                        if (tile is IIDTile) {
+                            string id = ((IIDTile) tile).getId();
+                            if (id == null || id == "") {
+                                continue;
                             }
+                            ids[x,y]= id;
                         }
                     }
                 }
             }
+        }
         data.ids = ids;
+        return data;
+    }
+
+    private static SeralizedFluidTileData tileMapToFluidTileData(Tilemap tilemap, int width, int height) {
+        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+        Debug.Log("Generating SeralizedFluidTileData");
+        SeralizedFluidTileData data = new SeralizedFluidTileData();
+        int[,] fill = new int[width,height];
+        string[,] ids = new string[width,height];
+        if (tilemap != null) {
+            BoundsInt bounds = tilemap.cellBounds;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                    if (tilemap.HasTile(tilePosition))
+                    {
+                        TileBase tile = tilemap.GetTile(tilePosition);
+                        if (tile is IIDTile) {
+                            string id = ((IIDTile) tile).getId();
+                            if (id == null || id == "") {
+                                continue;
+                            }
+                            fill[x,y] = 8;
+                            ids[x,y]= id;
+                        }
+                    }
+                }
+            }
+        }
+        data.ids = ids;
+        data.fill = fill;
+        return data;
+    }
+
+    private static SeralizedFluidTileData emptyTileFluidData(int width, int height) {
+        SeralizedFluidTileData data = new SeralizedFluidTileData();
+        data.ids = new string[width,height];
+        data.fill = new int[width,height];
         return data;
     }
     private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {

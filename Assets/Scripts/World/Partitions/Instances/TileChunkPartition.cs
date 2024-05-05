@@ -9,6 +9,7 @@ using Tiles;
 using UnityEngine.Tilemaps;
 using ItemModule;
 using ConduitModule.Ports;
+using Fluids;
 
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -22,12 +23,13 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             if (tileEntities == null) {
                 tileEntities = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
+            fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.load(tileGridMaps,angle);
         }
+        private FluidTileMap fluidTileMap;
 
         public override void save()
         {
-            
             Vector2Int position = getRealPosition();
             SerializedTileData data = (SerializedTileData) getData();
 
@@ -128,6 +130,16 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     positionInPartition: partitionPosition
                 );
             }
+            string fluidID = data.fluidData.ids[x,y];
+            if (fluidID != null) {
+                placeFluid(
+                    id: fluidID,
+                    itemRegistry: itemRegistry,
+                    tileGridMaps: tileGridMaps,
+                    realPosition: realPosition,
+                    positionInPartition: partitionPosition
+                );
+            }
         }
 
         private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
@@ -142,6 +154,19 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 tileItem
             );
             
+        }
+
+        private void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
+            FluidTileItem fluidTileItem = itemRegistry.getFluidTileItem(id);
+            if (fluidTileItem == null) {
+                return;
+            }
+            ITileMap tileGridMap = tileGridMaps[TileMapType.Fluid];
+            tileGridMap.placeItemTileAtLocation(
+                realPosition,
+                positionInPartition,
+                fluidTileItem
+            );
         }
         private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.getTileItem(id);
@@ -225,7 +250,10 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     break;
                 case TileMapLayer.Background:
                     tileData.backgroundData.ids[position.x,position.y] = id;
-                    break;  
+                    return;
+                case TileMapLayer.Fluid:
+                    tileData.fluidData.ids[position.x,position.y] = id;
+                    return;
             }
             if (id == null) {
                 tileOptionsArray[position.x,position.y] = null;
@@ -239,6 +267,12 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                 tileOptions.SerializedTileOptions = serializedTileOptions;
             }
             tileOptionsArray[position.x,position.y] = tileOptions;
+        }
+
+        public override (string[,], string[,], int[,]) getFluidData()
+        {
+            SerializedTileData serializedTileData = (SerializedTileData) getData();
+            return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
     }
 }

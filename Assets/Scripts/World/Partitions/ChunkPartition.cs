@@ -222,5 +222,7 @@ namespace ChunkModule.PartitionModule {
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
 
         public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
+
+        public abstract (string[,], string[,], int[,]) getFluidData();
     }
 }

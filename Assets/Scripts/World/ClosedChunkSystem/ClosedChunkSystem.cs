@@ -10,6 +10,8 @@ using ChunkModule.LoadController;
 using TileMapModule.Conduit;
 using ChunkModule.PartitionModule;
 using Tiles;
+using Fluids;
+using PlayerModule;
 
 namespace ChunkModule.ClosedChunkSystemModule {
     /// <summary>
@@ -23,7 +25,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
     {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
-        //public ChunkList chunkList;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
@@ -111,25 +112,6 @@ namespace ChunkModule.ClosedChunkSystemModule {
             partitionLoader.init(this);
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.init(this,partitionLoader);
-        }
-
-        protected void initTileMapContainer(TileMapType tileType) {
-            GameObject container = new GameObject();
-            container.transform.SetParent(gameObject.transform);
-            container.name = tileType.ToString();
-            container.layer = LayerMask.NameToLayer(tileType.ToString());
-            container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
-            Grid grid = container.AddComponent<Grid>();
-            grid.cellSize = new Vector3(0.5f,0.5f,1f);
-            if (tileType.isTile()) {
-                TileGridMap tileGridMap = container.AddComponent<TileGridMap>();
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
-            } else if (tileType.isConduit()) {
-                ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
-            }
         }
         
         public abstract void playerChunkUpdate(); 

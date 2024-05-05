@@ -14,7 +14,10 @@ using Tiles;
 using ItemModule;
 
 namespace TileMapModule {
-    public class TileGridMap : AbstractTileMap<TileItem>
+    public interface ITileGridMap {
+        public TileItem getTileItem(Vector2Int cellPosition);
+    }
+    public class TileGridMap : AbstractTileMap<TileItem>, ITileGridMap
     {   
         protected override void spawnItemEntity(ItemObject itemObject, int amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = getChunk(hitTilePosition);  
@@ -103,7 +106,8 @@ namespace TileMapModule {
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
             writeTile(partition,tilePositionInPartition,null);
-            TileHelper.tileUpdate(position, null,this);
+            TileHelper.tilePlaceTileEntityUpdate(position, null,this);
+            callListeners(position);
         }
 
         public TileEntity getTileEntityAtPosition(Vector2Int position) {
@@ -116,7 +120,7 @@ namespace TileMapModule {
         }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                    conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
+                conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
             }
         }
 
@@ -210,16 +214,15 @@ namespace TileMapModule {
             partition.setTile(position,getType().toLayer(),item);
         }
 
-        protected TileItem getTileItem(Vector2Int cellPosition) {
+        public TileItem getTileItem(Vector2Int cellPosition) {
             IChunkPartition partition = getPartitionAtPosition(cellPosition);
+            if (partition == null) {
+                return null;
+            }
             Vector2Int positionInPartition = getTilePositionInPartition(cellPosition);
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
         }
-
-        
-
-        
     }
 }
 

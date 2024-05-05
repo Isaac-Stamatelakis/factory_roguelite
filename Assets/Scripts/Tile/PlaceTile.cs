@@ -13,6 +13,7 @@ using ConduitModule;
 using ConduitModule.Ports;
 using ConduitModule.Systems;
 using Tiles;
+using Fluids;
 
 namespace TileMapModule.Place {
     public static class PlaceTile {
@@ -40,36 +41,35 @@ namespace TileMapModule.Place {
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
         public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null) {
-            if (itemObject is TileItem) {
-                TileItem tileItem = (TileItem) itemObject;
-                bool placable = true;
-                if (checkConditions) {
-                    placable = tilePlacable(tileItem,worldPlaceLocation);
+            if (itemObject is TileItem tileItem) {
+                if (checkConditions && !tilePlacable(tileItem,worldPlaceLocation)) {
+                    return false;
                 }
-                if (placable) {
-                    TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity);
-                    return true;
-                }
-            } else if (itemObject is ConduitItem) {
+                TileMapType tileMapType = tileItem.tileType.toTileMapType();
+                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity);
+                return true;
+                
+            } else if (itemObject is ConduitItem conduitItem) {
                 if (closedChunkSystem is not ConduitTileClosedChunkSystem) {
                     return false;
                 }
-                bool placable = true;
-                ConduitItem conduitItem = ((ConduitItem) itemObject);
                 TileMapType tileMapType = conduitItem.getType().toTileMapType();
                 ITileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
                 if (conduitMap == null || conduitMap is not ConduitTileMap) {
                     return false;
                 }
-                if (checkConditions) {
-                    placable = conduitPlacable(conduitItem,worldPlaceLocation,conduitMap);
+                if (checkConditions && !conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
+                    return false;
                 }
+                placeConduit(conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
+                return true;
                 
-                if (placable) {
-                    placeConduit(conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
-                    return true;
+            } else if (itemObject is FluidTileItem fluidTileItem) {
+                ITileMap fluidMap = closedChunkSystem.getTileMap(TileMapType.Fluid);
+                if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
+                    return false;
                 }
+                return placeFluid(fluidTileItem,worldPlaceLocation,fluidMap);
             }
             return false;
         }
@@ -230,7 +230,7 @@ namespace TileMapModule.Place {
             if (tileMap is not TileGridMap tileGridMap) {
                 return;
             }
-            TileHelper.tileUpdate(placePosition, tileItem,tileGridMap);
+            TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
             
         }
 
@@ -247,9 +247,23 @@ namespace TileMapModule.Place {
             return true;
         }
 
+        private static bool placeFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, ITileMap tileMap) {
+            if (tileMap is not FluidTileMap fluidTileMap) {
+                return false;
+            }
+            Vector2Int placePosition = Global.getCellPositionFromWorld(worldPosition);
+            tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,fluidTileItem);
+            return true;
+        }
+
         
 
         private static bool conduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap) {
+            Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
+            return !tileMap.hasTile(tileMapPosition);
+        }
+
+        private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, ITileMap tileMap) {
             Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
             return !tileMap.hasTile(tileMapPosition);
         }

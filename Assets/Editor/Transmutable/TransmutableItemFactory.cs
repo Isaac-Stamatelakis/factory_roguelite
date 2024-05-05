@@ -28,7 +28,7 @@ public static class TransmutableItemFactory
     private static TransmutableTileItem generateTileItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite sprite, string id, string path) {
         TransmutableTileItem transmutableItemObject = ScriptableObject.CreateInstance<TransmutableTileItem>();
         transmutableItemObject.name = name;
-        StandardTile tile = TileItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
         tile.name = "T~" + name;
         tile.id = id;
         transmutableItemObject.setState(state);

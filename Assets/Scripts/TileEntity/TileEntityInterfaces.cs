@@ -14,6 +14,10 @@ namespace TileEntityModule {
         public void loadedTickUpdate();
     }
 
+    public interface IClimableTileEntity {
+        public int getSpeed();
+    }
+
     
 
     public interface IRightClickableTileEntity

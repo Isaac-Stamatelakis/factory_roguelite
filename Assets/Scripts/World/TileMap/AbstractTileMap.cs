@@ -27,11 +27,13 @@ namespace TileMapModule {
         public bool hasTile(Vector2Int position);
         public void removeForSwitch(Vector2Int position);
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
+        public void addListener(ITileMapListener listener);
     }
-    /**
-    Takes in a 16 x 16 array of tileIDs and creates a TileMap out of them
-    **/
 
+    public interface ITileMapListener {
+        void tileUpdate(Vector2Int position);
+    }
+    
     public abstract class AbstractTileMap<Item> : MonoBehaviour, IHitableTileMap, ITileMap where Item : ItemObject
     {
         public TileMapType type;
@@ -42,6 +44,7 @@ namespace TileMapModule {
         protected HashSet<Vector2Int> partitions;
         protected DevMode devMode;
         protected ClosedChunkSystem closedChunkSystem;
+        private List<ITileMapListener> listeners = new List<ITileMapListener>();
 
 
         public virtual void Start() {
@@ -55,13 +58,12 @@ namespace TileMapModule {
             }
             closedChunkSystem = transform.parent.GetComponent<ClosedChunkSystem>();
             devMode = GameObject.Find("Player").GetComponent<DevMode>();
-            
         }
         
-        public void addPartition(IChunkPartition partition) {
+        public virtual void addPartition(IChunkPartition partition) {
             partitions.Add(partition.getRealPosition());
         }
-        public IEnumerator removePartition(Vector2Int partitionPosition) {
+        public virtual IEnumerator removePartition(Vector2Int partitionPosition) {
             if (!containsPartition(partitionPosition)) {
                 yield return null;
             }
@@ -76,6 +78,9 @@ namespace TileMapModule {
             }
         }
 
+        public void addListener(ITileMapListener listener) {
+            listeners.Add(listener);
+        }
         protected void removeTile(int x, int y) {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
@@ -95,19 +100,23 @@ namespace TileMapModule {
             setTile(x, y, (Item) item);
         }
 
+        public void callListeners(Vector2Int position) {
+            foreach (ITileMapListener listener in listeners) {
+                listener.tileUpdate(position);
+            }
+        }
         protected abstract void writeTile(IChunkPartition partition, Vector2Int position, Item item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
         public void placeItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
-            setTile(
-                partitionPosition.x *Global.ChunkPartitionSize + tilePartitionPosition.x, 
-                partitionPosition.y *Global.ChunkPartitionSize + tilePartitionPosition.y, 
-                (Item) item
-            );
+            Vector2Int cellPosition = partitionPosition*Global.ChunkPartitionSize + tilePartitionPosition;
+            callListeners(cellPosition);
+            setTile(cellPosition.x, cellPosition.y, (Item) item);
         }
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase) {
+            callListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
         public abstract void hitTile(Vector2 position);
@@ -118,6 +127,7 @@ namespace TileMapModule {
             IChunkPartition partition = getPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = getTilePositionInPartition(hitTilePosition);
             writeTile(partition,tilePositionInPartition,null);
+            callListeners(hitTilePosition);
         }
 
         protected abstract void setTile(int x, int y,Item item);
