@@ -22,20 +22,16 @@ namespace PlayerModule {
         private bool climbing;
         [SerializeField] public ItemSlot robotItemSlot;
         private Robot currentRobot;
+        private RobotItemData robotItemData;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
             globalUIContainer = GlobalUIContainer.getInstance();
         }
-        
-        
-
-        
 
         public void FixedUpdate() {
             canStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
-            
             if (climbing) {
                 handleClimbing();
                 return;
@@ -51,7 +47,6 @@ namespace PlayerModule {
                     currentRobot.handleMovement(transform);
                 }
             }
-            
         }
 
         private void handleEngineerMovement() {

@@ -30,7 +30,8 @@ namespace PlayerModule.IO {
             string json = File.ReadAllText(playerJsonPath);
             playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
             //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
-            //GetComponent<PlayerRobot>().setRobot(ItemRegistry.getInstance().GetRobotItem(playerData.play));
+            ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerData.playerRobot);
+            GetComponent<PlayerRobot>().setRobot(playerRobotItem);
             tilePlacePreviewController.toggle();
         }
 

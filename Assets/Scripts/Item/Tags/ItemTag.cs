@@ -7,6 +7,7 @@ using ItemModule.Tags.FluidContainers;
 using RecipeModule;
 using TileEntityModule.Instances.Matrix;
 using ItemModule.Inventory;
+using RobotModule;
 
 namespace ItemModule.Tags {
     public enum ItemTag {
@@ -18,7 +19,8 @@ namespace ItemModule.Tags {
         ItemFilter,
         FluidFilter,
         EncodedRecipe,
-        StorageDrive
+        StorageDrive,
+        RobotData
     }   
     public static class ItemTagExtension {
         public static string serialize(this ItemTag tag, ItemTagCollection tagCollection) {
@@ -34,6 +36,7 @@ namespace ItemModule.Tags {
                 ItemTag.CompactMachine => serializeCompactMachineTag(tagData),
                 ItemTag.StorageDrive => serializeStorageDriver(tagData),
                 ItemTag.EncodedRecipe => seralizeEncodedRecipe(tagData),
+                ItemTag.RobotData => seralizeRobot(tagData),
                 _ => serializeDefaultSwitchCase(tag)
             };
         }
@@ -78,6 +81,14 @@ namespace ItemModule.Tags {
                 return null;
             }
             return ItemSlotFactory.serializeList(inventory);
+        }
+
+        private static string seralizeRobot(object tagData) {
+            if (tagData is not RobotItemData robotItemData) {
+                logInvalidType(ItemTag.RobotData);
+                return null;
+            }
+            return RobotDataFactory.seralize(robotItemData);
         }
 
         private static string seralizeEncodedRecipe(object tagData) {
@@ -159,6 +170,7 @@ namespace ItemModule.Tags {
                 ItemTag.CompactMachine => data,
                 ItemTag.StorageDrive => ItemSlotFactory.deserialize(data),
                 ItemTag.EncodedRecipe => EncodedRecipeFactory.deseralize(data),
+                ItemTag.RobotData => RobotDataFactory.deseralize(data),
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }

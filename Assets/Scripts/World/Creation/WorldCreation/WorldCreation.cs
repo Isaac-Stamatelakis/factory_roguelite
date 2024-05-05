@@ -8,6 +8,7 @@ using TileMapModule.Layer;
 using PlayerModule.IO;
 using WorldModule.Generation;
 using ItemModule;
+using RobotModule;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -42,7 +43,7 @@ namespace WorldModule {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                playerRobot: null,
+                playerRobot: RobotDataFactory.getDefaultRobotString(),
                 name: "Izakio",
                 inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );
