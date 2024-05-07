@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using WorldModule.Generation;
+using WorldModule.Caves;
 using DimensionModule;
 
 namespace TileEntityModule.Instances {
@@ -12,14 +12,14 @@ namespace TileEntityModule.Instances {
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
-        private CaveRegion currentCave;
-        public void showCave(CaveRegion caveRegion) {
+        private Cave currentCave;
+        public void showCave(Cave cave) {
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(teleportButtonPress);
             teleportButton.gameObject.SetActive(true);
-            currentCave = caveRegion;
-            nameText.text = caveRegion.ToString();
-            descriptionText.text = caveRegion.getDescription();
+            currentCave = cave;
+            nameText.text = cave.name;
+            descriptionText.text = cave.Description;
         }
 
         public void showDefault() {
@@ -29,13 +29,12 @@ namespace TileEntityModule.Instances {
         }
 
         private void teleportButtonPress() {
-            Debug.Log("Teleporting to " + currentCave);
-            GeneratedArea generatedArea = currentCave.getGeneratedArea();
-            if (generatedArea == null) {
-                Debug.LogError("CaveRegion did not have generated area");
+            if (currentCave == null) {
+                Debug.LogError("Tried to teleport to null cave");
                 return;
             }
-            Global.CurrentCave = generatedArea; 
+            Debug.Log("Teleporting to " + currentCave);
+            Global.CurrentCave = currentCave; 
             CaveGenerator.generateCave();
             GameObject player = GameObject.Find("Player");
             player.transform.position = new Vector3(0,0,player.transform.position.z);

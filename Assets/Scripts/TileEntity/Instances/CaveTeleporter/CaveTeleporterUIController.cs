@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using WorldModule.Caves;
 
 namespace TileEntityModule.Instances {
     public class CaveTeleporterUIController : MonoBehaviour
@@ -14,19 +15,19 @@ namespace TileEntityModule.Instances {
         void Start()
         {
             caveSelectController.showDefault();
-            List<CaveRegion> caves = CaveRegionFactory.getRegionsUnlocked(2);
-            mCaveButtons = new Button[caves.Count];
+            Cave[] caves = CaveRegistry.getAll();
+            mCaveButtons = new Button[caves.Length];
             int index = 0;
-            foreach (CaveRegion caveRegion in caves) {
-                Button button = CaveTeleporterUIFactory.getButton(caveRegion,buttonPrefab,mListView.transform);
+            foreach (Cave cave in caves) {
+                Button button = CaveTeleporterUIFactory.generateButton(cave,buttonPrefab,mListView.transform);
                 mCaveButtons[index] = button;
-                button.onClick.AddListener(() => buttonPress(caveRegion));
+                button.onClick.AddListener(() => buttonPress(cave));
             }
             
 
         }
-        private void buttonPress(CaveRegion caveRegion) {
-            caveSelectController.showCave(caveRegion);
+        private void buttonPress(Cave cave) {
+            caveSelectController.showCave(cave);
         }
     }
 }

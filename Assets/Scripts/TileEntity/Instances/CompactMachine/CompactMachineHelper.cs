@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using WorldModule;
 using DimensionModule;
-using WorldModule.Generation;
+using WorldModule.Caves;
 using ConduitModule.Ports;
 
 namespace TileEntityModule.Instances.CompactMachines {

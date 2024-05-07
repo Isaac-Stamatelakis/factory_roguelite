@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-    namespace WorldModule.Generation {
+    namespace WorldModule.Caves {
     public static class CaveGenerator
     {
         public static void generateCave() {

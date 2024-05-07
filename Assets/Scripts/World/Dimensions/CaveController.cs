@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.ClosedChunkSystemModule;
-using WorldModule.Generation;
+using WorldModule.Caves;
 
 namespace DimensionModule {
     public class CaveController : DimController, ISingleSystemController
     {
-        [SerializeField] public GeneratedArea cave;
+        [SerializeField] public Cave cave;
 
         public ClosedChunkSystem getSystem()
         {

@@ -4,9 +4,9 @@ using UnityEngine;
 using ChunkModule.IO;
 using System;
 
-namespace WorldModule.Generation {
+namespace WorldModule.Caves {
     public static class WorldGenerationFactory {
-        public static void saveToJson(WorldTileData worldTileData, GeneratedArea cave, int dim) {
+        public static void saveToJson(WorldTileData worldTileData, Cave cave, int dim) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
             int tileMaxX = Global.ChunkSize*caveSize.x;

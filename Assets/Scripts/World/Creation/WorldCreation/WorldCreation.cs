@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 using ChunkModule.IO;
 using TileMapModule.Layer;
 using PlayerModule.IO;
-using WorldModule.Generation;
+using WorldModule.Caves;
 using ItemModule;
 using RobotModule;
 
@@ -92,24 +92,7 @@ namespace WorldModule {
                 new Interval<int>(-3,3)
             );
         }
-        public static WorldTileData prefabToWorldTileData(GameObject prefab, CaveArea caveArea) {
-            /*
-            Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
-            BoundsInt baseBounds = baseTileMap.cellBounds;
-            int width = (Mathf.Abs(caveArea.xInterval.y-caveArea.xInterval.x)+1) * Global.ChunkSize;
-            int height = (Mathf.Abs(caveArea.yInterval.y-caveArea.yInterval.x)+1) * Global.ChunkSize;
-            Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();
-            SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
-            SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
-            return new WorldTileData(
-                new List<EntityData>(),
-                baseData,
-                backgroundData
-            );
-            */
-            return null;
-        }
-
+        
         public static IntervalVector getTileMapChunkBounds(GameObject prefab) {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
