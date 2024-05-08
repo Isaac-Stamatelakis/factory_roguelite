@@ -24,7 +24,7 @@ namespace UI.Title {
             for (int n = 0; n < 3; n++) {
                 int k = n;
                 Button button = rootElement.Q<Button>("slot_" + k + "_button");
-                if (WorldCreation.worldExists("world" + n)) {
+                if (WorldLoadUtils.defaultWorldExists("world" + n)) {
                     button.text = "Slot " + n;
                 } else {
                     button.text = "Empty Slot";
@@ -37,7 +37,7 @@ namespace UI.Title {
                 int k = n;
                 Button button = rootElement.Q<Button>("slot_" + k + "_edit");
                 button.clickable.clicked += () => editPressed(k);
-                if (!WorldCreation.worldExists("world" + n)) {
+                if (!WorldLoadUtils.defaultWorldExists("world" + n)) {
                     button.visible=false;
                 }
                 editButtons.Add(button);
@@ -49,17 +49,12 @@ namespace UI.Title {
         
         private void OnDestroy()
         {
-            /*
-            foreach (Button button in slotButtons) {
-                button.clickable.clicked
-            }
-            */
             m_BackButton.clickable.clicked -= goBack;
         }
         
         private void slotPressed(int n) {
             string name = "world" + n;
-            if (!WorldCreation.worldExists(name)) {
+            if (!WorldLoadUtils.defaultWorldExists(name)) {
                 WorldCreation.createWorld(name);
                  //slotButtons[n].name = "Slot " + n;
             }

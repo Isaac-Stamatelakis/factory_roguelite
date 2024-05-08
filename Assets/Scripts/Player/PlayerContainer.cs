@@ -20,6 +20,9 @@ namespace PlayerModule {
         public PlayerInventory getInventory() {
             return playerInventory;
         }
+        public static void reset() {
+            instance = null;
+        }
     }
 }
 

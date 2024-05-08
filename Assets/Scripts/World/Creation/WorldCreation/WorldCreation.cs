@@ -13,77 +13,46 @@ using RobotModule;
 namespace WorldModule {
     public static class WorldCreation
     {
-        public static bool worldExists(string name) {
-            string path = getWorldPath(name);
-            return folderExists(path);
-        }
-
-        public static bool folderExists(string path) {
-            return File.Exists(path) || Directory.Exists(path);
-        }
-
         public static void createWorld(string name) {
-            Global.WorldName=name;
-            string path = getWorldPath(name);
+            WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
+            string path = WorldLoadUtils.getWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
-            Directory.CreateDirectory(path + "/Dimensions");
+            string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
+            Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
-            initPlayerData(name);
-            initDim0(name);
-            createDimFolder(Global.WorldName,1);
-
+            initPlayerData(WorldLoadUtils.getPlayerDataPath());
+            initDim0();
+            WorldLoadUtils.createDimFolder(1);
         }
-        public static string getWorldPath(string name) {
-            return Application.persistentDataPath + "/worlds/" + name; 
-        }
+        
 
-        public static void initPlayerData(string name) {
-            
+        public static void initPlayerData(string path) {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                playerRobot: RobotDataFactory.getDefaultRobotString(),
+                playerRobot: RobotDataFactory.getDefaultRobotString(false),
                 name: "Izakio",
                 inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            string path = getPlayerDataPath(name);
             File.WriteAllText(path,json);
         }
 
-        public static string getPlayerDataPath(string name) {
-            return getWorldPath(name) + "/player_data.json";;
-        }
-        public static string getDimensionFolderPath(string name) {
-            return getWorldPath(name) + "/Dimensions";
-        }
-
-        public static bool dimExists(string name, int dim) {
-            string path = getDimPath(name, dim);
-            return folderExists(path);
-        }
-        public static void createDimFolder(string worldName, int dim) {
-            string path = getDimPath(worldName,dim);
-            Directory.CreateDirectory(path);
-        }
-
-        public static string getDimPath(string worldName, int dim) {
-            return getDimensionFolderPath(worldName) + "/dim" + dim;
-        }
-
-        public static void initDim0(string name) {
-            if (dimExists(name,0)) {
+        
+        public static void initDim0() {
+            if (WorldLoadUtils.dimExists(0)) {
                 Debug.LogError("Attempted to init dim 0 when already exists");
+                return;
             }
-            createDimFolder(name,0);
+            WorldLoadUtils.createDimFolder(0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
             IntervalVector dim0Bounds = getDim0Bounds();
 
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(dim0Bounds.X.LowerBound-dim0Bounds.X.UpperBound+1),Mathf.Abs(dim0Bounds.Y.LowerBound-dim0Bounds.Y.UpperBound+1));
             
             WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
-            WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0);
+            WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0,WorldLoadUtils.getDimPath(0));
         }
 
         public static IntervalVector getDim0Bounds() {

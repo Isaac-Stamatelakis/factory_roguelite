@@ -10,8 +10,6 @@ public static class Global
     public static int Rotation {get{return rotation;} set{rotation = value;}}
     private static float inventoryScale = 1.2f;
     public static float InventoryScale {get{return inventoryScale;}}
-    private static string worldName = "world2";
-    public static string WorldName {set{worldName=value;} get{return worldName;}}
     private static float pixelsPerBlock = 16;
     public static float PixelsPerBlock {get {return pixelsPerBlock;}}
     private static int partitionsPerChunk = 6;
@@ -55,6 +53,8 @@ public static class Global
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
 
     public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
+    
+
     private static Cave currentCave;
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {

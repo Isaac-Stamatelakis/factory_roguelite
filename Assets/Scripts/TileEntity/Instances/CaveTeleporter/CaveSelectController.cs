@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using WorldModule.Caves;
-using DimensionModule;
+using Dimensions;
 
 namespace TileEntityModule.Instances {
     public class CaveSelectController : MonoBehaviour

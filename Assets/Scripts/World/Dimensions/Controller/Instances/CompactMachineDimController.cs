@@ -8,7 +8,7 @@ using ChunkModule.PartitionModule;
 using TileEntityModule.Instances.CompactMachines;
 using WorldModule;
 
-namespace DimensionModule {
+namespace Dimensions {
     public class CompactMachineDimController : DimController, IMultipleSystemController
     {
         private List<SoftLoadedClosedChunkSystem>[] systemsInRingDepth;

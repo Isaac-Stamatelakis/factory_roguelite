@@ -20,10 +20,10 @@ namespace ChunkModule.IO {
             string filePath = getPath(chunkPosition,dim);
             return (Directory.Exists(filePath));
         }
-        public static List<SoftLoadedConduitTileChunk> getUnloadedChunks(int dim) {
-            string path = WorldCreation.getDimPath(Global.WorldName,dim);
+        public static List<SoftLoadedConduitTileChunk> getUnloadedChunks(int dim, string path) {
             string[] files = Directory.GetFiles(path);
             List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
+            Debug.Log(path);
             foreach (string file in files) {
                 string[] seperated = file.Split("\\");
                 string name = seperated[seperated.Length-1];
@@ -93,7 +93,7 @@ namespace ChunkModule.IO {
             File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
         }
         public static string getPath(Vector2Int chunkPosition, int dim) {
-            return Application.persistentDataPath + "/worlds/" + Global.WorldName + "/Dimensions/dim" + dim + "/" + getName(chunkPosition);
+            return Path.Combine(WorldLoadUtils.getDimPath(dim),getName(chunkPosition));
         }
 
         public static string getPath(IChunk chunk) {
@@ -103,8 +103,9 @@ namespace ChunkModule.IO {
             return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";
         }
 
-        public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<IChunkPartitionData> data) {
-            File.WriteAllText(getPath(chunkPosition,dim),Newtonsoft.Json.JsonConvert.SerializeObject(data));
+        public static void writeNewChunk(Vector2Int chunkPosition, int dim, List<IChunkPartitionData> data, string dimPath) {
+            string chunkPath = Path.Combine(dimPath,getName(chunkPosition));
+            File.WriteAllText(chunkPath,Newtonsoft.Json.JsonConvert.SerializeObject(data));
         }
 
         private static List<List<Dictionary<string,object>>> getSeralizedOptions(string tilePath, string json, string optionPath) {

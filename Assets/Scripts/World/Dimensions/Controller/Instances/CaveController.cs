@@ -4,7 +4,7 @@ using UnityEngine;
 using ChunkModule.ClosedChunkSystemModule;
 using WorldModule.Caves;
 
-namespace DimensionModule {
+namespace Dimensions {
     public class CaveController : DimController, ISingleSystemController
     {
         [SerializeField] public Cave cave;

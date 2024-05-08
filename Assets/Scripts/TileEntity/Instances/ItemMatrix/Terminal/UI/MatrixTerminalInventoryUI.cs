@@ -8,7 +8,7 @@ using ItemModule.Tags;
 using ItemModule.Tags.FluidContainers;
 using System.Linq;
 using PlayerModule;
-using DimensionModule;
+using Dimensions;
 using ChunkModule;
 
 namespace TileEntityModule.Instances.Matrix {

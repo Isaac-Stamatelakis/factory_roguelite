@@ -38,7 +38,7 @@ namespace UI.Title {
 
 
         private void delete() {
-            string path = WorldCreation.getWorldPath(worldName);
+            string path = WorldLoadUtils.getPathOfDefaultWorld(worldName);
             Directory.Delete(path, true);
             Debug.Log(worldName + " Deleted");
             goBack();

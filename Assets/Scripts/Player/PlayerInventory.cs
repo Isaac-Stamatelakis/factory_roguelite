@@ -6,7 +6,7 @@ using System;
 using PlayerModule.IO;
 using ItemModule.Inventory;
 using ItemModule;
-using DimensionModule;
+using Dimensions;
 using ChunkModule;
 using UnityEngine.UI;
 

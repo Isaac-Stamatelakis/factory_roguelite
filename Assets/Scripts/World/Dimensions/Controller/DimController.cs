@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.ClosedChunkSystemModule;
 
-namespace DimensionModule {
+namespace Dimensions {
 
     public interface IMultipleSystemController {
         public ClosedChunkSystem getSystemFromWorldPosition(Vector2 position);

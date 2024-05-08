@@ -7,7 +7,7 @@ using ChunkModule;
 using ChunkModule.IO;
 using ChunkModule.PartitionModule;
 
-namespace DimensionModule {
+namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
         private SoftLoadedClosedChunkSystem dim0System;
@@ -17,7 +17,8 @@ namespace DimensionModule {
         public ClosedChunkSystem getSystem()
         {
             if (dim0System == null) {
-                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0);
+                string path = WorldLoadUtils.getDimPath(0);
+                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
                 dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
                 dim0System.softLoad();
             }

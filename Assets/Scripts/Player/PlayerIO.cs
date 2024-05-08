@@ -9,7 +9,7 @@ using RobotModule;
 using ItemModule;
 using TileMapModule.Previewer;
 using TileEntityModule.Instances;
-using DimensionModule;
+using Dimensions;
 
 namespace PlayerModule.IO {
 
@@ -26,7 +26,7 @@ namespace PlayerModule.IO {
         }
 
         public void initRead() {
-            string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
+            string playerJsonPath = WorldLoadUtils.getPlayerDataPath();
             string json = File.ReadAllText(playerJsonPath);
             playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
             //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
@@ -45,7 +45,7 @@ namespace PlayerModule.IO {
             playerData.y = transform.position.y;
             playerData.dim = DimensionManagerContainer.getManager().Dim;
             playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
-            string playerJsonPath =  WorldCreation.getPlayerDataPath(Global.WorldName);
+            string playerJsonPath =  WorldLoadUtils.getPlayerDataPath();
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             if (robotItem == null) {
                 playerData.playerRobot = null;

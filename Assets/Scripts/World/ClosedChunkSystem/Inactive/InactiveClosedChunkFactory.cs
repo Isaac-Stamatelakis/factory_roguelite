@@ -46,7 +46,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         private static string getFileData(Vector2Int position, int dim) {
-            string folderPath = WorldCreation.getDimPath(Global.WorldName,dim);
+            string folderPath = WorldLoadUtils.getDimPath(dim);
             string filePath = folderPath + "\\" + ChunkIO.getName(position);
             if (!File.Exists(filePath)) {
                 return null;
