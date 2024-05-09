@@ -130,6 +130,7 @@ public static class ItemSlotFactory
         }
         return Newtonsoft.Json.JsonConvert.SerializeObject(serializedItemSlots);
     }
+    
 
     private static SerializedItemSlot serialize(ItemSlot itemSlot) {
         if (itemSlot == null || itemSlot.itemObject == null) {

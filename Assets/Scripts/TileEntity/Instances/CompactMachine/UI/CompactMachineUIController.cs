@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using DimensionModule;
+using Dimensions;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public class CompactMachineUIController : MonoBehaviour

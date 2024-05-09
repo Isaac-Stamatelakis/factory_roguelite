@@ -6,7 +6,7 @@ using TileEntityModule;
 namespace RecipeModule.Viewer {
     public static class RecipeViewerHelper
     {
-        private static string path = "UI/RecipeViewer";
+        private static string path = "Assets/UI/Recipe/RecipeViewer.prefab";
         public static void displayUsesOfItem(ItemObject itemObject) {
             
             
@@ -57,18 +57,7 @@ namespace RecipeModule.Viewer {
         }
 
         private static RecipeViewer getViewer() {
-            GameObject prefab = Resources.Load<GameObject>(path);
-            if (prefab == null) {
-                Debug.LogError("RecipeViewer prefab is null");
-                return null;
-            }
-            GameObject instantiated = GameObject.Instantiate(prefab);
-            RecipeViewer recipeViewer = instantiated.GetComponent<RecipeViewer>();
-            if (recipeViewer == null) {
-                Debug.LogError("RecipeViewer prefab doesn't have RecipeViewer component");
-                return null;
-            }
-            return recipeViewer;
+            return AddressableLoader.getPrefabComponentInstantly<RecipeViewer>(path);
         }
     }
 }

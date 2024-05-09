@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using DimensionModule;
+using Dimensions;
+using System.IO;
 
 namespace WorldModule {
     public static class OpenWorld 
     {
         public static void loadWorld(string worldName) {
-            if (!WorldCreation.worldExists(worldName)) {
+            if (!WorldLoadUtils.defaultWorldExists(worldName)) {
                 Debug.LogError("Attempted to open world which doesn't exist");
             }
-            Global.WorldName = worldName;
+            WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,worldName));
             SceneManager.LoadScene("MainScene");
         }
 

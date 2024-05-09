@@ -8,8 +8,9 @@ using ItemModule.Tags;
 using ItemModule.Tags.FluidContainers;
 using System.Linq;
 using PlayerModule;
-using DimensionModule;
+using Dimensions;
 using ChunkModule;
+using System.Threading.Tasks;
 
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixTerminalItemClickReciever {
@@ -315,7 +316,7 @@ namespace TileEntityModule.Instances.Matrix {
             updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
         }
 
-        private bool handleCraftClick(ItemSlot inventorySlot) {
+        private async Task<bool> handleCraftClick(ItemSlot inventorySlot) {
             string id = inventorySlot.itemObject.id;
             ItemTagKey tagKey = new ItemTagKey(inventorySlot.tags);
             if (!itemInDict(id,tagKey)) {
@@ -331,7 +332,7 @@ namespace TileEntityModule.Instances.Matrix {
             if (!canNavigateToCraft) {
                 return false;
             }
-            CraftAmountPopUpUI craftAmountPopUpUI = CraftAmountPopUpUI.newInstance();
+            CraftAmountPopUpUI craftAmountPopUpUI = await CraftAmountPopUpUI.newInstance();
             craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
             GlobalUIContainer.getInstance().getUiController().addGUI(craftAmountPopUpUI.gameObject);
             return true;
@@ -377,7 +378,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return true;
         }
-        public void itemLeftClick(IItemSlotUIElement slotUIElement)
+        public async void itemLeftClick(IItemSlotUIElement slotUIElement)
         {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
             ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
@@ -385,7 +386,7 @@ namespace TileEntityModule.Instances.Matrix {
             
             if (grabbedSlot == null || grabbedSlot.itemObject == null) {
                 if (inventorySlot != null && inventorySlot.itemObject != null) {
-                    bool inCraftMenu = handleCraftClick(inventorySlot);
+                    bool inCraftMenu = await handleCraftClick(inventorySlot);
                     if (inCraftMenu) {
                         return;
                     }

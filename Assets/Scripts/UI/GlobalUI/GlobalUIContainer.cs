@@ -35,8 +35,11 @@ public class GlobalUIContainer
     public bool isActive() {
         return gUIController.isActive;
     }
-    public void refresh() {
+    public static void refresh() {
         instance = new GlobalUIContainer();
+    }
+    public static void reset() {
+        instance = null;
     }
 }
 

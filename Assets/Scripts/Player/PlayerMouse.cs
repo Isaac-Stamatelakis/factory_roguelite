@@ -13,7 +13,7 @@ using ConduitModule.Systems;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using ConduitModule;
-using DimensionModule;
+using Dimensions;
 using ItemModule;
 using TileEntityModule;
 

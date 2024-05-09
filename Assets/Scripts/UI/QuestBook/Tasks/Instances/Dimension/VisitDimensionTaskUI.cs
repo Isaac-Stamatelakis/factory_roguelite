@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using WorldModule.Caves;
 
 namespace UI.QuestBook {
     public class VisitDimensionTaskUI : QuestBookTaskUI<VisitDimensionQuestTask>
@@ -19,7 +20,12 @@ namespace UI.QuestBook {
                 statusText.text = "Not Visited";
                 statusText.color = Color.red;
             }
-            dimensionTitle.text = task.Cave.ToString();
+            string caveId = task.CaveId;
+            Cave cave = CaveRegistry.getCave(caveId);
+            if (cave == null) {
+                return;
+            }
+            dimensionTitle.text = cave.name;
         }
     }
 }

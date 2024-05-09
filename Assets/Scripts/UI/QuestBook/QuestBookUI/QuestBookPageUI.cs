@@ -6,12 +6,13 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage, QuestEditModeController>
     {
-        private string editModePath = "UI/Quest/EditModeElements";
+        [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
+        [SerializeField] private QuestEditModeController questEditModeControllerPrefab;
+        [SerializeField] private GameObject linePrefab;
         private QuestBookLibrary library;
         public QuestBookLibrary Library {get => library;}
         private QuestBook questBook;
         public QuestBook QuestBook {get => questBook;}
-        private QuestEditModeController editModeController;
         private QuestBookUI questBookUI;
         public QuestBookUI QuestBookUI {get => questBookUI;}
         public void init(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI) {
@@ -38,27 +39,20 @@ namespace UI.QuestBook {
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
                     bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.generateLine(questBookNode.Position,otherNode.Position,LineContainer,discovered);
+                    QuestBookUIFactory.generateLine(questBookNode.Position,otherNode.Position,LineContainer,discovered,linePrefab);
                 }
             }
         }
         protected override void generateNode(QuestBookNode node)
         {
-            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.NodeObjectPrefabPath));
-            QuestBookNodeObject nodeObject = instantiated.GetComponent<QuestBookNodeObject>();
+            QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
             nodeObject.init(node,this);
             nodeObject.transform.SetParent(nodeContainer,false);
         }
 
         protected override void initEditMode()
         {
-            GameObject prefab = Resources.Load<GameObject>(editModePath);
-            if (prefab == null) {
-                Debug.LogError("QuestBookUI edit mode prefab is null");
-                return;
-            }
-            GameObject instianated = GameObject.Instantiate(prefab);
-            editModeController = instianated.GetComponent<QuestEditModeController>();
+            QuestEditModeController editModeController = GameObject.Instantiate(questEditModeControllerPrefab);
             editModeController.transform.SetParent(questBookUI.transform,false);
             editModeController.init(this);
         }
@@ -108,7 +102,7 @@ namespace UI.QuestBook {
 
         public override GameObject generateNewNodeObject()
         {
-            return GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.NodeObjectPrefabPath));
+            return GameObject.Instantiate(questBookNodeObjectPrefab).gameObject;
         }
     }
 }

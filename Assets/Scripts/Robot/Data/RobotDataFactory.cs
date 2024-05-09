@@ -24,10 +24,10 @@ namespace RobotModule {
                 seralizedRobotItemData.name
             );
         }
-        public static ItemSlot getDefaultRobot() {
-            string infId = "happy_inf";
-            string baseId = "happy_mk1";
-            ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem(infId);
+        public static ItemSlot getDefaultRobot(bool creative) {
+            string id = creative ? "happy_inf" : "happy_mk1";
+            Debug.Log(id);
+            ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem(id);
             if (robotItem == null) {
                 Debug.LogWarning("Tried to get default robot which was null");
             }
@@ -52,8 +52,8 @@ namespace RobotModule {
             );
         }
 
-        public static string getDefaultRobotString() {
-            return ItemSlotFactory.seralizeItemSlot(getDefaultRobot());
+        public static string getDefaultRobotString(bool creative) {
+            return ItemSlotFactory.seralizeItemSlot(getDefaultRobot(creative));
         }
 
         private class SeralizedRobotItemData

@@ -10,6 +10,7 @@ namespace UI.QuestBook {
     {
         [SerializeField] public Transform canvasTransform;
         [SerializeField] private bool editMode;
+        [SerializeField] private QuestBookSelectorUI questBookSelectorUIPrefab;
         private QuestBookLibrary library;
         // Start is called before the first frame update
         void Start()
@@ -59,8 +60,7 @@ namespace UI.QuestBook {
                 };
                 library = new QuestBookLibrary(books);
             }
-            GameObject selectorController = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.SelectorPrefabPath));
-            QuestBookSelectorUI questBookSelectorUI = selectorController.GetComponent<QuestBookSelectorUI>();
+            QuestBookSelectorUI questBookSelectorUI = GameObject.Instantiate(questBookSelectorUIPrefab);
             questBookSelectorUI.init(library);
             questBookSelectorUI.transform.SetParent(canvasTransform,false);
         }
@@ -69,8 +69,6 @@ namespace UI.QuestBook {
             string json = QuestBookLibraryFactory.seralize(library);
             File.WriteAllText(QuestBookHelper.DefaultQuestBookPath,json);
         }
-
-        // Update is called once per frame
         void Awake()
         {
             QuestBookHelper.EditMode = editMode;

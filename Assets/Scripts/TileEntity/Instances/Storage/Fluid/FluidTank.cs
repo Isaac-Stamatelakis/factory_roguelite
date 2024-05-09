@@ -12,8 +12,9 @@ namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Fluid Tank",menuName="Tile Entity/Storage/Fluid/Standard")]
     public class FluidTank : TileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ILoadableTileEntity, IFluidConduitInteractable
     {
-        [SerializeField] public Tier tier;
-        [SerializeField] public ConduitPortLayout layout;
+        [SerializeField] private Tier tier;
+        [SerializeField] private ConduitPortLayout layout;
+        [SerializeField] private FluidTankUI uiPrefab;
         private ItemSlot itemSlot;
         public int FillAmount {get => itemSlot.amount;}
         public float FillRatio {get => ((float)FillAmount)/getStorage();}
@@ -61,7 +62,7 @@ namespace TileEntityModule.Instances.Storage {
 
         public void onRightClick()
         {
-            FluidTankUI fluidTankUI = FluidTankUI.newInstance();
+            FluidTankUI fluidTankUI = GameObject.Instantiate(uiPrefab);
             fluidTankUI.init(this);
             GlobalUIContainer.getInstance().getUiController().setGUI(fluidTankUI.gameObject);
         }

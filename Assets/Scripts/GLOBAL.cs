@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using WorldModule.Generation;
+using WorldModule.Caves;
 
 public static class Global
 {
@@ -10,8 +10,6 @@ public static class Global
     public static int Rotation {get{return rotation;} set{rotation = value;}}
     private static float inventoryScale = 1.2f;
     public static float InventoryScale {get{return inventoryScale;}}
-    private static string worldName = "world2";
-    public static string WorldName {set{worldName=value;} get{return worldName;}}
     private static float pixelsPerBlock = 16;
     public static float PixelsPerBlock {get {return pixelsPerBlock;}}
     private static int partitionsPerChunk = 6;
@@ -21,8 +19,8 @@ public static class Global
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
     private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(11,8); // Required for large view
-    //private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5); // Required for medium view
+    //private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(11,8); // Required for large view
+    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5); // Required for medium view
     private static int chunkPartitionExtraTileEntityLoadRange = 2;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
@@ -54,8 +52,11 @@ public static class Global
     private static float itemEntityLifeSpan = 300f;
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
 
-    public static GeneratedArea CurrentCave { get => currentCave; set => currentCave = value; }
-    private static GeneratedArea currentCave;
+    public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
+    public static string EditorCreationPath { get => editorCreationPath; set => editorCreationPath = value; }
+
+    private static Cave currentCave;
+    private static string editorCreationPath = "EditorCreations";
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
             if (transform.GetChild(n).name == childName) {

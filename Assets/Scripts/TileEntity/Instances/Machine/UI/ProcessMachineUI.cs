@@ -49,11 +49,10 @@ namespace TileEntityModule.Instances.Machines {
     }
 
     public static class MachineUIFactory {
-        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener) {
+        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener, GameObject slotPrefab) {
             if (items == null) {
                 return;
             }
-    
             GameObject inventoryContainer = new GameObject();
             ILoadableInventory inventoryUI = null;
             switch (itemState) {
@@ -88,19 +87,7 @@ namespace TileEntityModule.Instances.Machines {
             
             int index = 0;
             foreach (Vector2Int vector in layoutVectors) {
-                GameObject slot = null;
-                switch (itemState) {
-                    case ItemState.Solid:
-                        slot = GameObject.Instantiate(Resources.Load<GameObject>(InventoryHelper.SolidSlotPrefabPath));
-                        break;
-                    case ItemState.Fluid:
-                        slot = GameObject.Instantiate(Resources.Load<GameObject>(InventoryHelper.FluidSlotPrefabPath));
-                        break;
-                }
-                if (slot == null) {
-                    Debug.LogError("Tried to init inventory with null slot " + containerName);
-                    continue;
-                }
+                GameObject slot = GameObject.Instantiate(slotPrefab);
                 slot.name = "slot" + index;
                 slot.transform.SetParent(inventoryContainer.transform);
                 RectTransform rectTransform = slot.GetComponent<RectTransform>();

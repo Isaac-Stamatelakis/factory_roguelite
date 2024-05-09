@@ -12,6 +12,7 @@ namespace ItemModule.Inventory {
         public void middleClick(int n);
     }
     public abstract class InventoryUI : MonoBehaviour, IItemUIClickReciever {
+        [SerializeField] protected GameObject slotPrefab;
         protected List<GameObject> slots = new List<GameObject>();
         protected List<ItemSlot> inventory;
         public ItemSlot getItemSlot(int index) {

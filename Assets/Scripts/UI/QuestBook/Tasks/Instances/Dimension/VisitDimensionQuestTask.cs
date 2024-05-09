@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances;
+using WorldModule.Caves;
 
 namespace UI.QuestBook {
     public class VisitDimensionQuestTask : QuestBookTask
     {
         private bool visited;
-        private CaveRegion cave;
+        private string caveId;
         public bool Visited { get => visited; set => visited = value; }
-        public CaveRegion Cave { get => cave; set => cave = value; }
+        public string CaveId { get => caveId; set => caveId = value; }
 
         public override bool getComplete()
         {

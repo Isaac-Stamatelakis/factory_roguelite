@@ -4,7 +4,7 @@ using UnityEngine;
 using ConduitModule.Ports;
 using UnityEngine.Tilemaps;
 using ChunkModule;
-using DimensionModule;
+using Dimensions;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
@@ -35,7 +35,11 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             base.initalize(tilePosition, tileBase, chunk);
             this.inventory = new CompactMachinePortInventory(this);
-            CompactMachineDimController dimController = DimensionManagerContainer.getManager().GetCompactMachineDimController();
+            if (DimensionManagerContainer.getManager() is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in with dimension manager");
+                return;
+            }
+            CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
             dimController.activateSystem(this);
         }
 

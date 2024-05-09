@@ -13,6 +13,7 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private GridLayoutGroup layoutGroup;
         [SerializeField] private Button addButton;
+        [SerializeField] private QuestBookPreview questBookPreviewPrefab;
         private QuestBookLibrary library;
         private int PageCount {get => Mathf.CeilToInt(library.QuestBooks.Count/((float)BooksPerPage));}
         public QuestBookLibrary Library { get => library; set => library = value; }
@@ -72,9 +73,8 @@ namespace UI.QuestBook {
                 if (index >= library.QuestBooks.Count) {
                     break;
                 }
-                GameObject instantiatedBookPreview = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.BookTitlePagePrefabPath));
-                instantiatedBookPreview.transform.SetParent(layoutGroup.transform,false);
-                QuestBookPreview bookPreview = instantiatedBookPreview.GetComponent<QuestBookPreview>();
+                QuestBookPreview bookPreview = GameObject.Instantiate(questBookPreviewPrefab);
+                bookPreview.transform.SetParent(layoutGroup.transform,false);
                 bookPreview.init(index,this,library);
             }
         }

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using ItemModule;
 using ItemModule.Inventory;
 using UI;
+using System.Threading.Tasks;
 using System;
 
 namespace TileEntityModule.Instances.Matrix {
@@ -34,8 +35,8 @@ namespace TileEntityModule.Instances.Matrix {
 
         }
 
-        public static CraftAmountPopUpUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/Matrix/AutoCrafting/CraftAmountPopUp").GetComponent<CraftAmountPopUpUI>();
+        public static async Task<CraftAmountPopUpUI> newInstance() {
+            return await AddressableLoader.getPrefabComponent<CraftAmountPopUpUI>("UI/Matrix/AutoCrafting/CraftAmountPopUp");
         }
     }
 }
