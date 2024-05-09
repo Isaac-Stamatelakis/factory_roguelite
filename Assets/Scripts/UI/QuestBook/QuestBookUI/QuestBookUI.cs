@@ -16,6 +16,7 @@ namespace UI.QuestBook {
         [SerializeField] private GridLayoutGroup chapterGridGroup;
         [SerializeField] private Button addChapter;
         [SerializeField] private Button backButton;
+        [SerializeField] private QuestPageChapterButton chapterButtonPrefab;
         public QuestBook QuestBook { get => questBook; set => questBook = value; }
         public QuestBookPage CurrentPage { get => currentPage; set => currentPage = value; }
         public QuestBookLibrary Library { get => library; set => library = value; }
@@ -46,9 +47,8 @@ namespace UI.QuestBook {
                 GameObject.Destroy(chapterGridGroup.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < questBook.Pages.Count; i++) {
-                GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.QuestBookChapterPrefabPath));
-                QuestPageChapterButton chapterButton = instantiated.GetComponent<QuestPageChapterButton>();
-                instantiated.transform.SetParent(chapterGridGroup.transform,false);
+                QuestPageChapterButton chapterButton = GameObject.Instantiate(chapterButtonPrefab);
+                chapterButton.transform.SetParent(chapterGridGroup.transform,false);
                 chapterButton.init(this,questBook.Pages[i],i);
             }
         }

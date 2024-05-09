@@ -15,7 +15,7 @@ namespace WorldModule {
     {
         public static void createWorld(string name) {
             WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
-            string path = WorldLoadUtils.getWorldPath();
+            string path = WorldLoadUtils.getFullWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
             string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);

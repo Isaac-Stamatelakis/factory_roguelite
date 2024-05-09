@@ -29,7 +29,7 @@ namespace ItemModule.Inventory {
             if (slots.Count >= size.x * size.y) {
                 return null;
             }
-            GameObject slot = Instantiate(Resources.Load<GameObject>(InventoryHelper.SolidSlotPrefabPath));
+            GameObject slot = Instantiate(slotPrefab);
             slot.name = "slot" + (slots.Count).ToString();
             slot.transform.SetParent(transform,false);
             slots.Add(slot);

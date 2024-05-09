@@ -7,6 +7,7 @@ namespace UI {
     public class DynamicColorTextUI : MonoBehaviour
     {
         [SerializeField] private GridLayoutGroup list;
+        [SerializeField] private DynamicTextCharacter charPrefab;
         private int fixedUpdatesForChange;
         private int frame;
         private List<Color> colors;
@@ -19,7 +20,7 @@ namespace UI {
             characters = new DynamicTextCharacter[text.Length];
             int i = 0;
             foreach (char c in text) {
-                DynamicTextCharacter character = DynamicTextCharacter.newInstance();
+                DynamicTextCharacter character = GameObject.Instantiate(charPrefab);
                 character.init(c);
                 character.transform.SetParent(list.transform,false);
                 characters[i] = character;
@@ -52,10 +53,6 @@ namespace UI {
                 int index = i % positions.Count;
                 characters[i].setPosition(positions[index]);
             }
-        }
-
-        public static DynamicColorTextUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/General/DynamicText/DynamicColorText").GetComponent<DynamicColorTextUI>();
         }
     }
 }

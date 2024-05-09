@@ -53,9 +53,10 @@ public static class Global
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
 
     public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
-    
+    public static string EditorCreationPath { get => editorCreationPath; set => editorCreationPath = value; }
 
     private static Cave currentCave;
+    private static string editorCreationPath = "EditorCreations";
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
             if (transform.GetChild(n).name == childName) {

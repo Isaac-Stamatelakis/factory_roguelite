@@ -21,7 +21,7 @@ namespace Dimensions {
 
 
         public override void Start() {
-            Debug.Log("Loading world: " + WorldLoadUtils.getWorldPath());
+            Debug.Log("Loading world: " + WorldLoadUtils.getFullWorldPath());
             DimensionManagerContainer.getInstance();
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
             //setActiveSystemFromCellPosition(playerIO.playerData.dim,playerCellPosition);

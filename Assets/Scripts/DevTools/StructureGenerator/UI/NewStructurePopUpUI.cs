@@ -12,11 +12,12 @@ namespace DevTools.Structures {
         [SerializeField] private Button backButton;
         [SerializeField] private Button createButton;
         [SerializeField] private Transform dynamicTextContainer;
+        [SerializeField] private DynamicColorTextUI dynamicColorTextPrefab;
         private StructureDevControllerUI controllerUI;
 
         public void init(StructureDevControllerUI controllerUI) {
             this.controllerUI = controllerUI;
-            DynamicColorTextUI dynamicColorTextUI = DynamicColorTextUI.newInstance();
+            DynamicColorTextUI dynamicColorTextUI = GameObject.Instantiate(dynamicColorTextPrefab);
             dynamicColorTextUI.init(
                 colors: DynamicTextColorFactory.getRainbow(),
                 positions: DynamicTextPositionFactory.getWave(),
@@ -44,7 +45,7 @@ namespace DevTools.Structures {
         }
 
         public static NewStructurePopUpUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/DevTools/Structure/NewStructurePopUp").GetComponent<NewStructurePopUpUI>();
+            return AddressableLoader.getPrefabComponentInstantly<NewStructurePopUpUI>("Assets/UI/DevTools/Structure/NewStructurePopUp.prefab");
         }
     }
 }

@@ -10,6 +10,7 @@ namespace WorldModule {
         private readonly static string defaultWorldFolder = "worlds"; 
         private readonly static string playerDataName = "player_data.json";
         private readonly static string dimensionFolderName = "Dimensions";
+        private readonly static string dimFolderPrefix = "dim";
 
         public static string DefaultWorldFolder => defaultWorldFolder;
 
@@ -17,23 +18,36 @@ namespace WorldModule {
 
         public static string DimensionFolderName => dimensionFolderName;
 
-        public static string getWorldPath() {
-            return Path.Combine(Application.persistentDataPath,WorldManager.getInstance().getWorldPath());
+        public static string getFullWorldPath() {
+            return getFullWorldPath(WorldManager.getInstance().getWorldPath());
         }
-        public static string getPathOfDefaultWorld(string worldName) {
-            string folderPath = Path.Combine(Application.persistentDataPath,defaultWorldFolder);
-            return Path.Combine(folderPath,worldName);
+        public static string getFullWorldPath(string path) {
+            return Path.Combine(Application.persistentDataPath,path);
         }
         public static string getPlayerDataPath() {
-            return Path.Combine(getWorldPath(),playerDataName);
+            return getPlayerDataPath(WorldManager.getInstance().getWorldPath());
+        }
+        public static string getPlayerDataPath(string worldName) {
+            string worldPath = getFullWorldPath(worldName);
+            return Path.Combine(worldPath,playerDataName);
         }
         public static string getDimensionFolderPath() {
-            return Path.Combine(getWorldPath(),dimensionFolderName);
+            return Path.Combine(getFullWorldPath(),dimensionFolderName);
+        }
+        public static string getDimensionFolderPath(string worldName) {
+            return Path.Combine(getFullWorldPath(worldName),dimensionFolderName);
         }
         public static string getDimPath(int dim) {
-            return Path.Combine(getDimensionFolderPath(),"dim" + dim.ToString());
+            return Path.Combine(getDimensionFolderPath(),dimFolderPrefix + dim.ToString());
+        }
+        public static string getDimPath(string worldName, int dim) {
+            return Path.Combine(getDimensionFolderPath(worldName),dimFolderPrefix + dim.ToString());
         }
         public static bool dimExists(int dim) {
+            string path = getDimPath(dim);
+            return pathExists(path);
+        }
+        public static bool dimExists(string worldName, int dim) {
             string path = getDimPath(dim);
             return pathExists(path);
         }
@@ -46,7 +60,7 @@ namespace WorldModule {
             return pathExists(worldPath);
         }
         public static bool defaultWorldExists(string worldName) {
-            string worldPath = getPathOfDefaultWorld(worldName);
+            string worldPath = getFullWorldPath(Path.Combine(DefaultWorldFolder,worldName));
             return pathExists(worldPath);
         }
         public static bool pathExists(string path) {

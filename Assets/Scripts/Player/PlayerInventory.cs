@@ -16,16 +16,15 @@ namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
         [SerializeField] private PlayerRobot playerRobot;
+        [SerializeField] private PlayerInventoryGrid playerInventoryGrid;
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
         private List<ItemSlot> inventory;
         private List<ItemSlot> toolInventory;
-        private PlayerInventoryGrid playerInventoryGrid;
         private GameObject inventoryContainer;
         private GameObject inventoryItemContainer;
-        private GameObject uiPlayerInventoryContainer;
         private GameObject hotbarNumbersContainer;
         private bool expanded = false;
         private PlayerInventoryGrid inventoryGrid;
@@ -41,10 +40,7 @@ namespace PlayerModule {
 
         private void initInventory() {
             GetComponent<PlayerIO>().initRead();
-            GameObject canvas = GameObject.Find("UICanvas");
-            uiPlayerInventoryContainer = Global.findChild(canvas.transform, "PlayerInventory");
             inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
-            playerInventoryGrid = uiPlayerInventoryContainer.AddComponent<PlayerInventoryGrid>();
             playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
         }
 

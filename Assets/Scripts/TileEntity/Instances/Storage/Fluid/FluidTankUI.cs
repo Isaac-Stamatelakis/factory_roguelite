@@ -29,11 +29,6 @@ namespace TileEntityModule.Instances.Storage {
             imagePosition.y = spriteContainer.sizeDelta.y * fluidTank.FillRatio;
             image.transform.localPosition = imagePosition;
         }
-
-
-        public static FluidTankUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/TileEntities/FluidTank/FluidTankUI").GetComponent<FluidTankUI>();
-        }
     }
 }
 

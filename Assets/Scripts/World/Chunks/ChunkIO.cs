@@ -23,7 +23,6 @@ namespace ChunkModule.IO {
         public static List<SoftLoadedConduitTileChunk> getUnloadedChunks(int dim, string path) {
             string[] files = Directory.GetFiles(path);
             List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
-            Debug.Log(path);
             foreach (string file in files) {
                 string[] seperated = file.Split("\\");
                 string name = seperated[seperated.Length-1];

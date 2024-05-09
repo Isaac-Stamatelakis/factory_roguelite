@@ -44,7 +44,7 @@ namespace DevTools.Structures {
             
         }
         public static EditStructurePopUpUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/DevTools/Structure/EditStructurePopUp").GetComponent<EditStructurePopUpUI>();
+            return AddressableLoader.getPrefabComponentInstantly<EditStructurePopUpUI>("Assets/UI/DevTools/Structure/EditStructurePopUp.prefab");
         }
     }
 }

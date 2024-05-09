@@ -6,8 +6,8 @@ using UnityEngine.UI;
 namespace UI.QuestBook {
     public static class QuestBookUIFactory
     {
-        public static void generateLine(Vector2 nodeAPosition, Vector2 nodeBPosition, Transform container, bool discovered) {
-            GameObject line = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.LineModePrefabPath));
+        public static void generateLine(Vector2 nodeAPosition, Vector2 nodeBPosition, Transform container, bool discovered, GameObject linePrefab) {
+            GameObject line = GameObject.Instantiate(linePrefab);
             RectTransform rectTransform = line.GetComponent<RectTransform>();
             line.transform.position = (nodeAPosition+nodeBPosition)/2f;
             float width = rectTransform.sizeDelta.x; // width is set by prefab

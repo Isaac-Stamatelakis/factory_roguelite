@@ -11,9 +11,11 @@ namespace DevTools.Structures {
     {
         [SerializeField] private GridLayoutGroup list;
         [SerializeField] private Button addButton;
+        [SerializeField] private StructureSelectorUI listElementPrefab;
+        [SerializeField] private NewStructurePopUpUI newStructurePopUpUIPrefab;
         public void init() {
             addButton.onClick.AddListener(() => {
-                NewStructurePopUpUI newStructurePopUpUI = NewStructurePopUpUI.newInstance();
+                NewStructurePopUpUI newStructurePopUpUI = GameObject.Instantiate(newStructurePopUpUIPrefab);
                 newStructurePopUpUI.init(this);
                 newStructurePopUpUI.transform.SetParent(transform,false);
             });
@@ -21,7 +23,7 @@ namespace DevTools.Structures {
         }
 
         public static StructureDevControllerUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/DevTools/Structure/Structures").GetComponent<StructureDevControllerUI>();
+            return AddressableLoader.getPrefabComponentInstantly<StructureDevControllerUI>("Assets/UI/DevTools/Structure/Structures.prefab");
         }
 
         public void displayList() {
@@ -38,7 +40,7 @@ namespace DevTools.Structures {
             }
             folderValues = folderValues.OrderByDescending(f => f.lastModified).ToList();
             foreach (FolderInfo folderInfo in folderValues) {
-                StructureSelectorUI listElement = StructureSelectorUI.newInstance();
+                StructureSelectorUI listElement = GameObject.Instantiate(listElementPrefab);
                 listElement.init(this, folderInfo.name,folderInfo.lastModified.ToString());
                 listElement.transform.SetParent(list.transform);
             }

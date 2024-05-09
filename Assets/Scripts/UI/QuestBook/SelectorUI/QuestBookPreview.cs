@@ -11,6 +11,9 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private Button button;
+
+        [SerializeField] private QuestBookUI questBookUiPrefab;
+        [SerializeField] private EditQuestBookUI editQuestBookUIPrefab;
         private QuestBookLibrary library;
         private QuestBook questBook {get => library.QuestBooks[index];}
         private QuestBookSelectorUI questBookSelectorUI;
@@ -29,7 +32,7 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (QuestBookHelper.EditMode) {
-                    EditQuestBookUI editQuestBookUI = EditQuestBookUI.newInstance();
+                    EditQuestBookUI editQuestBookUI = GameObject.Instantiate(editQuestBookUIPrefab);
                     editQuestBookUI.init(questBookSelectorUI,library,index);
                     editQuestBookUI.transform.SetParent(questBookSelectorUI.transform,false);
                 }
@@ -39,8 +42,7 @@ namespace UI.QuestBook {
 
         private void navigatePress() {
             questBookSelectorUI.gameObject.SetActive(false);
-            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.QuestBookPrefabPath));
-            QuestBookUI questBookUI = instantiated.GetComponent<QuestBookUI>();
+            QuestBookUI questBookUI = GameObject.Instantiate(questBookUiPrefab);
             questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
             questBookUI.init(questBook,library,questBookSelectorUI.gameObject);
         }

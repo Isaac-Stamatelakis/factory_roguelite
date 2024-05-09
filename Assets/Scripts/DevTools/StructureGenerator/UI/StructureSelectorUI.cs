@@ -17,18 +17,19 @@ namespace DevTools.Structures {
         [SerializeField] private TextMeshProUGUI date;
         [SerializeField] private Button editButton;
         [SerializeField] private Button downloadButton;
+        [SerializeField] private EditStructurePopUpUI editStructurePopUpUIPrefab;
         private StructureDevControllerUI structureDevControllerUI;
         public void init(StructureDevControllerUI structureDevControllerUI, string title, string date) {
             this.structureDevControllerUI = structureDevControllerUI;
             this.title.text = title;
             this.date.text = date;
             editButton.onClick.AddListener(() => {
-                EditStructurePopUpUI editStructurePopUpUI = EditStructurePopUpUI.newInstance();
+                EditStructurePopUpUI editStructurePopUpUI = GameObject.Instantiate(editStructurePopUpUIPrefab);
                 editStructurePopUpUI.transform.SetParent(transform.parent.parent.parent.parent,false); // Don't ask it works
                 editStructurePopUpUI.init(this);
             });
             downloadButton.onClick.AddListener(() => {
-
+                StructureGeneratorHelper.generateStructure(this.title.text);
             });
             GetComponent<Button>().onClick.AddListener(() => {
                 string path = StructureGeneratorHelper.getPath(this.title.text);
@@ -52,9 +53,6 @@ namespace DevTools.Structures {
         }
         public string getTitle() {
             return title.text;
-        }
-        public static StructureSelectorUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/DevTools/Structure/StructureListElement").GetComponent<StructureSelectorUI>();
         }
     }
 }

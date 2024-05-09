@@ -7,6 +7,8 @@ using WorldModule;
 using PlayerModule;
 using PlayerModule.IO;
 using RobotModule;
+using ChunkModule;
+using ChunkModule.IO;
 
 namespace DevTools.Structures {
     public static class StructureGeneratorHelper
@@ -76,6 +78,23 @@ namespace DevTools.Structures {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             string playerDataPath = Path.Combine(path,"player_data.json");
             File.WriteAllText(playerDataPath,json);
+        }
+
+        public static void generateStructure(string structureName) {
+            Structure structure = ScriptableObject.CreateInstance<Structure>();
+            structure.name = structureName;
+            string creationPath = Path.Combine(Global.EditorCreationPath,structureName);
+            if (Directory.Exists(creationPath)) {
+                Directory.Delete(creationPath,true);
+            }
+            Directory.CreateDirectory(creationPath);
+            string path = getPath(structureName);
+            string dimPath = WorldLoadUtils.getDimPath(path, 0);
+
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
+            Debug.Log(chunks.Count);
+
+            
         }
     }
 }

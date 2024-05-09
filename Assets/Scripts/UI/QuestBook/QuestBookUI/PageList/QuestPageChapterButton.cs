@@ -9,6 +9,7 @@ namespace UI.QuestBook {
     public class QuestPageChapterButton : MonoBehaviour, IPointerClickHandler, ILongClickable, IPointerDownHandler, IPointerUpHandler
     {
         [SerializeField] private TextMeshProUGUI text;
+        [SerializeField] private EditQuestPagePopup editQuestPagePopupPrefab;
         private int index;
         private QuestBookUI questBookUI;
         private QuestBookPage page;
@@ -33,8 +34,7 @@ namespace UI.QuestBook {
             if (!QuestBookHelper.EditMode) {
                 return;
             }
-            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.EditChapterPopUpPrefabPath));
-            EditQuestPagePopup editQuestPagePopup = instantiated.GetComponent<EditQuestPagePopup>();
+            EditQuestPagePopup editQuestPagePopup = GameObject.Instantiate(editQuestPagePopupPrefab);
             editQuestPagePopup.init(index,questBookUI.QuestBook.Pages,questBookUI);
             editQuestPagePopup.transform.SetParent(questBookUI.transform,false);
         }
