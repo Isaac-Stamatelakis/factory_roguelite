@@ -45,6 +45,11 @@ namespace ItemModule {
         public List<ItemObject> getAllItems() {
             return items.Values.ToList();
         }
+
+        public List<ItemObject> getAllItemsWithPrefix(string idPrefix) {
+            List<ItemObject> list = items.Values.ToList();
+            return list.Where(item => item.id.StartsWith(idPrefix)).ToList();
+        }
         ///
         /// Returns tileItem if id maps to tile item, null otherwise
         ///

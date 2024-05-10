@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Entitys.Scriptable {
+namespace Entities.Scriptable {
     /// <summary>
     /// Inherients behavior from entity object script
     /// </summary>

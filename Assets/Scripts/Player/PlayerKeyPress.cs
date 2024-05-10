@@ -9,7 +9,7 @@ namespace PlayerModule.KeyPress {
 
     public class PlayerKeyPress : MonoBehaviour
     {
-        PlayerInventory playerInventory;
+        private PlayerInventory playerInventory;
         // Start is called before the first frame update
         void Start()
         {
@@ -19,6 +19,9 @@ namespace PlayerModule.KeyPress {
         // Update is called once per frame
         void Update()
         {
+            if (EventSystem.current.currentSelectedGameObject != null) {
+                return;
+            }
             if (Input.GetKeyDown(KeyCode.E)) {
                 playerInventory.changeDisplayMode(InventoryDisplayMode.Inventory);
                 playerInventory.toggleInventory();

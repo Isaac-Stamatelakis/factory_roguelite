@@ -7,6 +7,8 @@ using ChunkModule.ClosedChunkSystemModule;
 using ChunkModule;
 using TileMapModule;
 using TileEntityModule;
+using UnityEngine.EventSystems;
+
 namespace PlayerModule {
     public class PlayerRobot : MonoBehaviour
     {
@@ -30,6 +32,9 @@ namespace PlayerModule {
         }
 
         public void FixedUpdate() {
+            if (EventSystem.current.currentSelectedGameObject != null) {
+                return;
+            }
             canStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {

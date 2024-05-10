@@ -52,6 +52,15 @@ public static class ItemSlotFactory
         return new ItemSlot(itemObject,amount,itemTagData);
     }
 
+    public static ItemSlot createNewItemSlot(string id, int amount) {
+        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
+        if (itemObject == null) {
+            return null;
+        }
+        ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
+        return new ItemSlot(itemObject,amount,itemTagData);
+    }
+
     public static ItemSlot copy(ItemSlot itemSlot) {
         if (itemSlot == null) {
             return null;

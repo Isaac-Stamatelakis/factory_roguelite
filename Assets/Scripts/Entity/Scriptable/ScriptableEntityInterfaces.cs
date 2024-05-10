@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ItemModule;
 
-namespace Entitys.Scriptable {
+namespace Entities.Scriptable {
     public interface IMovableEntity {
         public ScriptableEntityMovement getMovement();
     }

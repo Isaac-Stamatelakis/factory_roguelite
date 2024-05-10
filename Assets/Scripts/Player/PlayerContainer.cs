@@ -6,9 +6,12 @@ namespace PlayerModule {
     {
         private static PlayerContainer instance;
         private PlayerInventory playerInventory;
+        private GameObject player;
+        private PlayerRobot playerRobot;
         private PlayerContainer() {
-            GameObject player = GameObject.Find("Player");
+            player = GameObject.Find("Player");
             this.playerInventory = player.GetComponent<PlayerInventory>();
+            this.playerRobot = player.GetComponent<PlayerRobot>();
         }
         public static PlayerContainer getInstance() {
             if (instance == null) {
@@ -19,6 +22,12 @@ namespace PlayerModule {
 
         public PlayerInventory getInventory() {
             return playerInventory;
+        }
+        public Transform getTransform() {
+            return player.transform;
+        }
+        public PlayerRobot getPlayerRobot() {
+            return playerRobot;
         }
         public static void reset() {
             instance = null;
