@@ -5,16 +5,20 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.IO;
 using Newtonsoft.Json;
+using ChunkModule.ClosedChunkSystemModule;
+using ChunkModule;
+using System.Threading.Tasks;
 
 namespace Entities.Mobs {
     public class EntityRegistry
     {
-        private static readonly int MAX_CACHE_SIZE = 40;
         private Dictionary<string, GameObject> cache = new Dictionary<string, GameObject>();
+        private Dictionary<string, Task> cachingTasks = new Dictionary<string, Task>();
 
         private static EntityRegistry instance;
         private EntityRegistry() {
             cache = new Dictionary<string, GameObject>();
+            cachingTasks = new Dictionary<string, Task>();
         }
         public static EntityRegistry getInstance() {
             if (instance == null) {
@@ -23,13 +27,16 @@ namespace Entities.Mobs {
             return instance;
         }
 
-        public void spawnEntity(string id, Vector2 position, Dictionary<string,string> componentData, Transform container)
+        public async void spawnEntity(string id, Vector2 position, Dictionary<string,string> componentData, Transform container)
         {
             if (cache.ContainsKey(id)) {
                 spawn(id,position,componentData, container);
+            } else if (cachingTasks.ContainsKey(id)) {
+                await cachingTasks[id];
+                spawn(id,position,componentData,container);
             }
             else {
-                loadEntityIntoMemory(id,position,componentData, container);
+                loadEntityIntoMemoryThenSpawn(id,position,componentData, container);
             }
         }
 
@@ -45,14 +52,29 @@ namespace Entities.Mobs {
             mobEntity.initalize();
             mobEntity.deseralize(id, componentData);
             entity.transform.SetParent(container);
-            Debug.Log($"Spawned entity {entity.name} at position {position}");
+            //Debug.Log($"Spawned entity {entity.name} at position {position}");
         }
 
-        private async void loadEntityIntoMemory(string id, Vector2 position, Dictionary<string,string> componentData,Transform container)
-        {
-            if (cache.ContainsKey(id)) {
-                spawn(id,position,componentData,container);
+        public void reset() {
+            foreach (GameObject prefab in cache.Values) {
+                Addressables.Release(prefab);
             }
+            cache = new Dictionary<string, GameObject>();
+        }
+
+        public async Task cacheFromSystem(ClosedChunkSystem system) {
+            foreach (ILoadedChunk chunk in system.CachedChunk.Values) {
+                HashSet<string> ids = chunk.getEntityIds();
+                foreach (string id in ids) {
+                    if (cache.ContainsKey(id)) {
+                        continue;
+                    }
+                    await loadEntityIntoMemeory(id);
+                }
+            }
+        }
+
+        private async Task loadEntityIntoMemeory(string id) {
             string path = EntityUtils.getObjectPath(id);
             if (!Directory.Exists(path)) {
                 Debug.LogWarning($"No entity folder found with id '{id}'");
@@ -75,13 +97,12 @@ namespace Entities.Mobs {
             }
             string prefabFile = prefabFiles[0];
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(prefabFile);
+            cachingTasks[id] = handle.Task;
             await handle.Task;
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                //Debug.Log($"{id} loaded into cache");
                 GameObject prefab = handle.Result;
                 addToCache(id,prefab);
-                spawn(id,position,componentData,container);
             }
             else
             {
@@ -89,9 +110,17 @@ namespace Entities.Mobs {
             }
         }
 
+        private async void loadEntityIntoMemoryThenSpawn(string id, Vector2 position, Dictionary<string,string> componentData,Transform container)
+        {
+            await loadEntityIntoMemeory(id);
+            spawn(id,position,componentData,container);
+        }
+
         private void addToCache(string id, GameObject prefab) {
-            if (cache.Count > MAX_CACHE_SIZE) {
-                // Remove least recently used prefab
+            //Debug.Log($"{id} loaded into cache");
+            if (cache.ContainsKey(id)) {
+                Addressables.Release(prefab);
+                return;
             }
             cache[id] = prefab;
         }

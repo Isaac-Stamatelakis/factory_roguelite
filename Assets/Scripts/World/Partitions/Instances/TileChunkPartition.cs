@@ -31,6 +31,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                     EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
                 }
             }
+            data.entityData = new List<SeralizedEntityData>(); // Prevents duplication
             
         }
         private FluidTileMap fluidTileMap;

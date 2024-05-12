@@ -9,6 +9,9 @@ using TileMapModule;
 using TileMapModule.Type;
 using TileEntityModule;
 using Dimensions;
+using Entities;
+using Entities.Mobs;
+using Newtonsoft.Json;
 
 namespace ChunkModule {
     public interface ILoadedChunk : IChunk {
@@ -26,6 +29,7 @@ namespace ChunkModule {
         public Transform getTileEntityContainer();
         public ITileMap getTileMap(TileMapType type);
         public ClosedChunkSystem getSystem();
+        public HashSet<string> getEntityIds();
         
     }
 
@@ -35,6 +39,7 @@ namespace ChunkModule {
         public IChunkPartition getPartition(Vector2Int position);
         public int getDim();
         public List<IChunkPartitionData> getChunkPartitionData();
+        
     }
 
     public interface ISerizable {
@@ -68,10 +73,6 @@ namespace ChunkModule {
             this.position = chunkPosition;
             this.partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
             this.closedChunkSystem = closedChunkSystem;
-
-            DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
-            entityContainer = dimController.EntityContainer;
-            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
             initalizeContainers();
@@ -89,6 +90,9 @@ namespace ChunkModule {
         }
 
         protected void initalizeContainers() {
+            DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
+            entityContainer = dimController.EntityContainer;
+            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;
@@ -214,6 +218,30 @@ namespace ChunkModule {
         public ClosedChunkSystem getSystem()
         {
             return closedChunkSystem;
+        }
+
+        public HashSet<string> getEntityIds()
+        {
+            HashSet<string> entityIds = new HashSet<string>();
+            foreach (IChunkPartition partition in partitions) {
+                IChunkPartitionData data = partition.getData();
+                if (data is not SerializedTileData serializedTileData) {
+                    continue;
+                }
+                foreach (SeralizedEntityData seralizedEntityData in serializedTileData.entityData) {
+                    if (seralizedEntityData.type != EntityType.Mob) {
+                        continue;
+                    }
+                    try {
+                        SerializedMobData serializedMobData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMobData>(seralizedEntityData.data);
+                        entityIds.Add(serializedMobData.id);
+                    } catch (JsonSerializationException e) {
+                        Debug.LogError($"Chunk failed to get an id with data: {seralizedEntityData.data}\nerror: {e}");
+                    }
+                    
+                }
+            }
+            return entityIds;
         }
     }
 }

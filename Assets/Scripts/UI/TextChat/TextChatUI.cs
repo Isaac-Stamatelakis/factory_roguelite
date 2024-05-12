@@ -8,6 +8,15 @@ using UnityEngine.EventSystems;
 namespace UI.Chat {
     public class TextChatUI : MonoBehaviour
     {
+        private static TextChatUI instance;
+        public static TextChatUI Instance {get => instance;}
+        public void Awake() {
+            if (instance != null) {
+                Debug.LogWarning("Duplicate text chat ui's. There should only be one");
+                return;
+            }
+            instance = this;
+        }
         [SerializeField] private TMP_InputField inputField;
         [SerializeField] private VerticalLayoutGroup textList;
         [SerializeField] private TextChatMessageUI textChatMessageUIPrefab;
@@ -22,7 +31,7 @@ namespace UI.Chat {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<string>();
             sentMessages = new List<string>();
-            string title = "Welcome to <color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
+            string title = "<color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
             string message = $"Welcome to {title} This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
             sendMessage(message); 
         }

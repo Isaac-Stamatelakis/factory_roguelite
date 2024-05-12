@@ -4,6 +4,8 @@ using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
 using ChunkModule.ClosedChunkSystemModule;
+using Entities.Mobs;
+using System.Threading.Tasks;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -31,9 +33,7 @@ namespace Dimensions {
         public int Dim {get => dim;}
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
         public ClosedChunkSystem ActiveSystem { get => activeSystem; set => activeSystem = value; }
-
         public abstract void Start();
-        
         public void Update()
         {
             if (ActiveSystem == null) {
@@ -76,13 +76,21 @@ namespace Dimensions {
             activateSystem(newSystem);
         }
         private void activateSystem(ClosedChunkSystem newSystem) {
+            
+            //await resetMobRegistry(newSystem);
             if (activeSystem != null) {
                 activeSystem.deactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);
             }
             activeSystem = newSystem;
+            
         }
 
+        private async Task resetMobRegistry(ClosedChunkSystem system) {
+            EntityRegistry entityRegistry = EntityRegistry.getInstance();
+            entityRegistry.reset();
+            await entityRegistry.cacheFromSystem(system);
+        }
 
         public abstract DimController getCurrentController();
 

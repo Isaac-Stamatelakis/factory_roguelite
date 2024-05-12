@@ -26,6 +26,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
+        public Dictionary<Vector2Int,ILoadedChunk> CachedChunk {get => cachedChunks;}
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;

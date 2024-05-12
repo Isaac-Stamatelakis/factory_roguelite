@@ -12,11 +12,8 @@ public class GlobalUIContainer
 {
     private static GlobalUIContainer instance;
     private GlobalUIController gUIController;
-    private TextChatUI textChatUI;
-
     private GlobalUIContainer() {
         GameObject container = GameObject.Find(UIUtils.GlobalUIContainerName);
-        textChatUI = GameObject.Find(UIUtils.TextChatName).GetComponent<TextChatUI>();
         if (container == null) {
             Debug.LogError("GlobalUIContainer 'constructor' attempted to get component GlobalUIController from null gameobject. Ensure there is a GameObject called 'GlobalUIController' in the scene");
             return;
@@ -35,9 +32,7 @@ public class GlobalUIContainer
         }
         return gUIController;
     }
-    public TextChatUI getTextChatUI() {
-        return textChatUI;
-    }
+
     public bool isActive() {
         return gUIController.isActive;
     }

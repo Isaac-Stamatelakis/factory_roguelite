@@ -41,7 +41,7 @@ namespace UI.Chat {
         }
 
         private static void executeHelp(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             var commands = Enum.GetValues(typeof(ChatCommand));
             List<string> stringCommands = new List<string>();
             foreach (ChatCommand chatCommand in commands) {
@@ -53,7 +53,7 @@ namespace UI.Chat {
                 foreach (string stringCommand in stringCommands) {
                     output += stringCommand + ", ";
                 }
-                GlobalUIContainer.getInstance().getTextChatUI().sendMessage(output);
+                TextChatUI.Instance.sendMessage(output);
             } else {
                 try {
                     int page = Convert.ToInt32(parameters[0]);
@@ -86,7 +86,7 @@ namespace UI.Chat {
         }
 
         private static void executeTeleport(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             try {
                 int x = Convert.ToInt32(parameters[0]);
                 int y = Convert.ToInt32(parameters[1]);
@@ -99,14 +99,14 @@ namespace UI.Chat {
                 chatUI.sendMessage("Invalid parameter format");
             }
             catch (FormatException e) {
-                GlobalUIContainer.getInstance().getTextChatUI().sendMessage(e.ToString());
+                TextChatUI.Instance.sendMessage(e.ToString());
             } catch (OverflowException e) {
-                GlobalUIContainer.getInstance().getTextChatUI().sendMessage(e.ToString());
+                TextChatUI.Instance.sendMessage(e.ToString());
             }
         }
 
         private static void executeSpawn(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             try {
                 Vector3 playerPosition = PlayerContainer.getInstance().getTransform().position;
                 string id = parameters[0];
@@ -122,7 +122,7 @@ namespace UI.Chat {
         }
 
         private static void executeGive(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             try {
                 string id = parameters[0];
                 int amount = Convert.ToInt32(parameters[1]);
@@ -144,7 +144,7 @@ namespace UI.Chat {
         }
 
         private static void executeSetRobot(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             try {
                 string id = parameters[0];
                 RobotItem robotItem = ItemRegistry.getInstance().GetRobotItem(id);
@@ -160,7 +160,7 @@ namespace UI.Chat {
         }
 
         private static void executeGamemode(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             try {
                 int mode = Convert.ToInt32(parameters[0]);
                 
@@ -172,7 +172,7 @@ namespace UI.Chat {
         }
 
         private static void executeLightMode(string[] parameters) {
-            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            TextChatUI chatUI = TextChatUI.Instance;
             Light2D globalLight = GameObject.Find("GlobalLight").GetComponent<Light2D>();
             double intensity;
             Color color;

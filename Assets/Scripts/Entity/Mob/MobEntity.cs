@@ -21,7 +21,7 @@ namespace Entities.Mobs {
                     Debug.LogError("Type '" + kvp.Key + "' could not be deserialized as not on gameObject");
                     continue;
                 }
-                if (type is not ISerializableMobComponent serializableMobComponent) {
+                if (component is not ISerializableMobComponent serializableMobComponent) {
                     Debug.LogError("Type '" + kvp.Key + "' could not be deserialized as not ISerializedMobComponent");
                     continue;
                 }
@@ -36,10 +36,9 @@ namespace Entities.Mobs {
 
         public SeralizedEntityData serialize() {
             ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
-            if (serializableMobComponents.Length == 0) {
-                return null;
-            }
-            Dictionary<string, string> componentSerializedDict = new Dictionary<string, string>();
+            Dictionary<string, string> componentSerializedDict = serializableMobComponents.Length == 0 
+                ? null
+                : new Dictionary<string, string>();
             foreach (ISerializableMobComponent component in serializableMobComponents) {
                 string typeName = component.GetType().FullName;
                 componentSerializedDict.Add(typeName,component.serialize());
@@ -48,7 +47,7 @@ namespace Entities.Mobs {
                 id,
                 componentSerializedDict
             );
-            
+            Debug.Log(id);
             return new SeralizedEntityData(
                 type: EntityType.Mob,
                 position: transform.position,
