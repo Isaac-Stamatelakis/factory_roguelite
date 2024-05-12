@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ChunkModule.IO;
+using Entities;
 
 namespace WorldModule.Caves {
     public enum RandomType {
@@ -21,7 +22,7 @@ namespace WorldModule.Caves {
         public RandomType randomType;
 
         
-        public override WorldTileData generateBase(int seed) {
+        public override SerializedTileData generateBase(int seed) {
             UnityEngine.Random.InitState(seed);
             int[,] noiseField = generateNoiseField();
             int[,] grid = cellular_automaton(noiseField);
@@ -125,7 +126,7 @@ namespace WorldModule.Caves {
             return grid;
         }
 
-        private WorldTileData generateWorld(int[,] grid) {
+        private SerializedTileData generateWorld(int[,] grid) {
             UnityEngine.Vector2Int caveSize = getChunkSize();
             int width = Global.ChunkSize * caveSize.x;
             int height = Global.ChunkSize*caveSize.y;
@@ -148,11 +149,11 @@ namespace WorldModule.Caves {
                     } 
                 }
             }
-            WorldTileData worldTileData = new WorldTileData(
-                entityData:new List<EntityData>(),
-                baseData: baseTileData, 
-                backgroundData: backgroundTileData,
-                fluidTileData
+            SerializedTileData worldTileData = new SerializedTileData(
+                baseTileData: baseTileData, 
+                backgroundTileData: backgroundTileData,
+                entityData: new List<SeralizedEntityData>(),
+                fluidTileData: fluidTileData
             );
             return worldTileData;
         }

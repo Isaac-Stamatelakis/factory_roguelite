@@ -35,7 +35,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             base.initalize(tilePosition, tileBase, chunk);
             this.inventory = new CompactMachinePortInventory(this);
-            if (DimensionManagerContainer.getManager() is not ICompactMachineDimManager compactMachineDimManager) {
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in with dimension manager");
                 return;
             }

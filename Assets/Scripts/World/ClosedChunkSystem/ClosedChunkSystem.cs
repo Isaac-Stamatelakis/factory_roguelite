@@ -35,8 +35,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected int dim;
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
-
-        
+        private bool isQuitting = false;
         public virtual void Awake () {
             
         }
@@ -196,23 +195,28 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
             yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
+            chunkPartition.unloadEntities();
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
         }
 
-        /// <summary> 
-        /// This is called when game ends. Saves all partitions
-        /// </summary>
+        public void OnApplicationQuit() {
+            isQuitting = true;
+            saveOnDestroy();
+        }
         public void OnDisable()
         {
+            if (isQuitting) {
+                return;
+            }
             saveOnDestroy();
         }
 
         public virtual void saveOnDestroy() {
             partitionUnloader.clearAll();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in  chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     if (partition.getLoaded()) {
                         partition.save();
                     }

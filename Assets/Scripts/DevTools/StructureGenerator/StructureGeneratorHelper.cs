@@ -49,7 +49,7 @@ namespace DevTools.Structures {
             Directory.CreateDirectory(structureDimPath);
             GameObject structDimPrefab = Resources.Load<GameObject>("TileMaps/StructDimTileMap");
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(structDimBounds.X.LowerBound-structDimBounds.X.UpperBound+1),Mathf.Abs(structDimBounds.Y.LowerBound-structDimBounds.Y.UpperBound+1));
-            WorldTileConduitData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
+            SerializedTileData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
             WorldGenerationFactory.saveToJson(dimData,caveSize,structDimBounds,0,structureDimPath);
 
 

@@ -15,7 +15,7 @@ namespace WorldModule.Caves {
             Other,
             Slant,
         }
-        public static void SetNatureTileStates(WorldTileData worldTileData, int width, int height) {
+        public static void SetNatureTileStates(SerializedTileData worldTileData, int width, int height) {
 
             BlockState?[,] states = new BlockState?[width,height];
             SerializedBaseTileData serializedTileData = worldTileData.baseData;

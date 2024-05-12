@@ -29,5 +29,6 @@ namespace ChunkModule.PartitionModule {
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
         public (string[,],string[,], int[,]) getFluidData();
+        public void unloadEntities();
     }
 }

@@ -16,7 +16,6 @@ namespace DevTools.Structures {
         public override void Start()
         {
             Debug.Log("Loading Structure Creator: " + WorldManager.getInstance().getWorldPath());
-            DimensionManagerContainer.getInstance();
             dimController.getSystem();
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
             setActiveSystemFromCellPosition(0,Vector2Int.zero);

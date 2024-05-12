@@ -11,6 +11,11 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        private static DimensionManager instance;
+        public static DimensionManager Instance {get => instance;}
+        public void Awake() {
+            instance = this;
+        }
         protected ClosedChunkSystem activeSystem;
         [SerializeField] public PlayerIO playerIO;
         private int playerXChunk;

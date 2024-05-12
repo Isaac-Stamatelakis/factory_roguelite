@@ -27,7 +27,7 @@ namespace UI.Chat {
             return matchingStrings;
         }
         private static List<string> getSpawnStrings(string paramPrefix) {
-            return new List<string>();
+            return EntityUtils.getAllIds();
         }
         private static List<string> getGameModeString() {
             return new List<string> {

@@ -12,6 +12,7 @@ using ChunkModule.PartitionModule;
 using ChunkModule.ClosedChunkSystemModule;
 using Tiles;
 using ItemModule;
+using Entities;
 
 namespace TileMapModule {
     public interface ITileGridMap {

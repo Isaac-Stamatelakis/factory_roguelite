@@ -4,6 +4,10 @@ using UnityEngine;
 using System;
 using ItemModule;
 using PlayerModule;
+using Entities;
+using Dimensions;
+using Entities.Mobs;
+using UnityEngine.Rendering.Universal;
 
 namespace UI.Chat {
     public static class ChatCommendExecutionExtension {
@@ -26,6 +30,9 @@ namespace UI.Chat {
                     break;
                 case ChatCommand.gamemode:
                     executeGamemode(parameters);
+                    break;
+                case ChatCommand.setlight:
+                    executeLightMode(parameters);
                     break;
                 default:
                     Debug.LogWarning("No execute behavior for command :" + command);
@@ -101,11 +108,17 @@ namespace UI.Chat {
         private static void executeSpawn(string[] parameters) {
             TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
             try {
+                Vector3 playerPosition = PlayerContainer.getInstance().getTransform().position;
                 string id = parameters[0];
+                EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,DimensionManager.Instance.CurrentDimension.EntityContainer);
                 
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
             }
+        }
+
+        private static void onEntityReady(Entity entity) {
+            Debug.Log(entity.name);
         }
 
         private static void executeGive(string[] parameters) {
@@ -156,6 +169,46 @@ namespace UI.Chat {
             } catch (FormatException) {
                 chatUI.sendMessage("Invalid parameter format");
             }
+        }
+
+        private static void executeLightMode(string[] parameters) {
+            TextChatUI chatUI = GlobalUIContainer.getInstance().getTextChatUI();
+            Light2D globalLight = GameObject.Find("GlobalLight").GetComponent<Light2D>();
+            double intensity;
+            Color color;
+            try {
+                intensity = Convert.ToDouble(parameters[0]);
+            } catch (IndexOutOfRangeException) {
+                chatUI.sendMessage("Intensity not provided");
+                return;
+            } catch (FormatException) {
+                chatUI.sendMessage("Intensity is not a number");
+                return;
+            }
+            globalLight.intensity = (float) intensity;
+            if (parameters.Length == 1) {
+                globalLight.color = Color.white;
+                return;
+            }
+            int r = getColorInt(parameters,1,chatUI,"Red");
+            int g = getColorInt(parameters,2,chatUI,"Green");
+            int b = getColorInt(parameters,3,chatUI,"Blue");
+            if (Mathf.Min(r,g,b) < 0) { // Atleast one value will be -1 if an error occurs
+                return;
+            }
+            color = new Color(r/255f,g/255f,b/255f);
+            globalLight.color = color;
+        }
+
+        private static int getColorInt(string[] parameters, int index, TextChatUI chatUI, string parameterName) {
+            try {
+                return Mathf.Clamp(Convert.ToInt32(parameters[index]),0,255);
+            } catch (IndexOutOfRangeException) {
+                chatUI.sendMessage($"{parameterName} not provided");
+            } catch {
+                chatUI.sendMessage($"{parameterName} is not a number");
+            }
+            return -1;
         }
     }
 }

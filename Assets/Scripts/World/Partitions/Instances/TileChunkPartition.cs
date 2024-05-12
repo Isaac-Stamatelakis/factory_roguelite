@@ -10,6 +10,7 @@ using UnityEngine.Tilemaps;
 using ItemModule;
 using ConduitModule.Ports;
 using Fluids;
+using Entities;
 
 namespace ChunkModule.PartitionModule {
 public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
@@ -25,6 +26,12 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             }
             fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.load(tileGridMaps,angle);
+            if (parent is ILoadedChunk loadedChunk) {
+                foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
+                    EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
+                }
+            }
+            
         }
         private FluidTileMap fluidTileMap;
 
@@ -32,7 +39,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         {
             Vector2Int position = getRealPosition();
             SerializedTileData data = (SerializedTileData) getData();
-
             if (tileOptionsArray != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -52,7 +58,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                             data.baseData.sTileEntityOptions[x,y] = saveTileEntity(tileEntity);
                         }
                     }
-                }
+                }   
             }
         }
 
@@ -102,7 +108,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             array[x,y] = null;
             return true;
         }
-
 
         protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);

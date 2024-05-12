@@ -9,6 +9,7 @@ using ItemModule;
 using Dimensions;
 using ChunkModule;
 using UnityEngine.UI;
+using Entities;
 
 namespace PlayerModule {
 
@@ -164,8 +165,7 @@ namespace PlayerModule {
 
         public void give(ItemSlot itemSlot) {
             if (!ItemSlotHelper.canInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
-                DimensionManager dimensionManager = DimensionManagerContainer.getManager();
-                IChunk chunk = dimensionManager.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
+                IChunk chunk = DimensionManager.Instance.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {
                     return;
                 }

@@ -16,6 +16,7 @@ using ConduitModule;
 using Dimensions;
 using ItemModule;
 using TileEntityModule;
+using Entities;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -61,17 +62,12 @@ namespace PlayerModule.Mouse {
         }
 
         private ILoadedChunk getChunk(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
             if (closedChunkSystem == null) {
                 return null;
             }
             Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
             return closedChunkSystem.getChunk(chunkPosition);
-        }
-
-        private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
-            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
-            return dimensionManager.ActiveSystem;
         }
 
         private void handleRightClick(Vector2 mousePosition) {
@@ -105,12 +101,12 @@ namespace PlayerModule.Mouse {
             }
 
             if (!somethingClicked) {
-                handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
+                handlePlace(mousePosition,DimensionManager.Instance.GetClosedChunkSystem());
             }
         }
 
         private bool handlePortClick(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
@@ -173,7 +169,7 @@ namespace PlayerModule.Mouse {
                 raycastHitBlock(mousePosition,layer);  
             } else {
                 foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                    ITileMap tileMap = GetClosedChunkSystem(mousePosition).getTileMap(tileMapType);
+                    ITileMap tileMap = DimensionManager.Instance.GetClosedChunkSystem().getTileMap(tileMapType);
                     if (tileMap is IHitableTileMap) {
                         IHitableTileMap hitableTileMap = ((IHitableTileMap) tileMap);
                         if (devMode.instantBreak) {

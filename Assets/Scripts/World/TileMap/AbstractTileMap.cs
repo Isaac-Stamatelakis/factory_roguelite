@@ -9,6 +9,7 @@ using ChunkModule.ClosedChunkSystemModule;
 using TileMapModule.Place;
 using Tiles;
 using ChunkModule.PartitionModule;
+using Entities;
 
 namespace TileMapModule {
     public interface IHitableTileMap {

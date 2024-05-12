@@ -9,6 +9,7 @@ using PlayerModule.IO;
 using WorldModule.Caves;
 using ItemModule;
 using RobotModule;
+using Entities;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -48,10 +49,8 @@ namespace WorldModule {
             WorldLoadUtils.createDimFolder(0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
             IntervalVector dim0Bounds = getDim0Bounds();
-
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(dim0Bounds.X.LowerBound-dim0Bounds.X.UpperBound+1),Mathf.Abs(dim0Bounds.Y.LowerBound-dim0Bounds.Y.UpperBound+1));
-            
-            WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
+            SerializedTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
             WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0,WorldLoadUtils.getDimPath(0));
         }
 
@@ -73,7 +72,7 @@ namespace WorldModule {
             int yUpper = ySize / 2;
             return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
         }
-        public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
+        public static SerializedTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
             
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
@@ -122,10 +121,10 @@ namespace WorldModule {
             SeralizedChunkConduitData energyData = tileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
             SeralizedChunkConduitData signalData = tileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
             SeralizedChunkConduitData matrixData = tileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
-            return new WorldTileConduitData(
-                new List<EntityData>(),
+            return new SerializedTileConduitData(
                 baseData,
                 backgroundData,
+                new List<SeralizedEntityData>(),
                 fluidTileData,
                 itemData,
                 fluidData,

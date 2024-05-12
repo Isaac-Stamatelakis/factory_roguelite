@@ -8,6 +8,7 @@ using ChunkModule.PartitionModule;
 using TileMapModule;
 using TileMapModule.Type;
 using TileEntityModule;
+using Dimensions;
 
 namespace ChunkModule {
     public interface ILoadedChunk : IChunk {
@@ -53,12 +54,11 @@ namespace ChunkModule {
         /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
         /// </summary>
         [SerializeField] protected bool chunkLoaded = false;
+        protected Transform entityContainer;
         protected ClosedChunkSystem closedChunkSystem;
         protected Vector2Int position; 
         protected int dim;
-        protected Transform entityContainer;
         protected Transform tileEntityContainer;
-
         public float distanceFrom(Vector2Int target)
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
@@ -69,6 +69,8 @@ namespace ChunkModule {
             this.partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
             this.closedChunkSystem = closedChunkSystem;
 
+            DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
+            entityContainer = dimController.EntityContainer;
             transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
@@ -91,11 +93,6 @@ namespace ChunkModule {
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;
             tileEntityContainer.transform.SetParent(transform,false);
-
-            GameObject entityContainerObject = new GameObject();
-            entityContainerObject.name = "Entities";
-            entityContainer = entityContainerObject.transform;
-            entityContainer.transform.SetParent(transform,false);
         }
 
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
@@ -185,6 +182,7 @@ namespace ChunkModule {
 
         public Transform getEntityContainer()
         {
+            
             return entityContainer;
         }
 

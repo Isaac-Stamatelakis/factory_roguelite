@@ -15,7 +15,8 @@ namespace UI.Chat {
         spawn,
         give,
         setrobot,
-        gamemode
+        gamemode,
+        setlight
     }
 
     public static class ChatCommandUtils {
