@@ -29,6 +29,7 @@ namespace UI.Chat {
         private readonly float hintBlinkTime = 0.4f;
         private float hintBlinkCounter = 0f;
         private Color textBoxBackgroundColor;
+        private int previousMessageIndex;
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<string>();
@@ -43,7 +44,8 @@ namespace UI.Chat {
                 if (typing) {
                     showTextField();
                 } else {
-                    sentMessages.Add(inputField.text);
+                    sentMessages.Insert(0,inputField.text);
+                    previousMessageIndex = 0;
                     sendMessage(inputField.text);
                     hideTextField();
                 }
@@ -56,11 +58,13 @@ namespace UI.Chat {
                 commandFillParameters();
             }
             if (typing && Input.GetKeyDown(KeyCode.DownArrow)) {
-                if (sentMessages.Count == 0) {
-                    inputField.text = "";
-                } else {
-                    inputField.text = sentMessages[sentMessages.Count-1];
-                }
+                previousMessageIndex--;
+                setInputToPreviousMessage();
+                
+            }
+            if (typing && Input.GetKeyDown(KeyCode.UpArrow)) {
+                previousMessageIndex++;
+                setInputToPreviousMessage();
             }
             hintBlinkCounter -= Time.deltaTime;
             if (hintBlinkCounter < 0f) {
@@ -72,6 +76,16 @@ namespace UI.Chat {
 
         public void recordMessage(string message) {
             this.recordedMessages.Add(message);
+        }
+
+        private void setInputToPreviousMessage() {
+            previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,sentMessages.Count-1);
+            if (previousMessageIndex == -1) {
+                inputField.text = "";
+            } else {
+                inputField.text = sentMessages[previousMessageIndex];
+            }
+            inputField.caretPosition = inputField.text.Length;
         }
 
         private void commandFillParameters() {
