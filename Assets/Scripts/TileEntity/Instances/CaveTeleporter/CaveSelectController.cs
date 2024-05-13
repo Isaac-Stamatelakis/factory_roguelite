@@ -28,7 +28,7 @@ namespace TileEntityModule.Instances {
             teleportButton.gameObject.SetActive(false);
         }
 
-        private void teleportButtonPress() {
+        private async void teleportButtonPress() {
             if (currentCave == null) {
                 Debug.LogError("Tried to teleport to null cave");
                 return;
@@ -38,7 +38,7 @@ namespace TileEntityModule.Instances {
             CaveGenerator.generateCave();
             GameObject player = GameObject.Find("Player");
             player.transform.position = new Vector3(0,0,player.transform.position.z);
-            DimensionManager.Instance.setActiveSystemFromCellPosition(-1,Vector2Int.zero);
+            await DimensionManager.Instance.setActiveSystemFromCellPosition(-1,Vector2Int.zero);
         }
     }
 }

@@ -150,23 +150,23 @@ namespace TileEntityModule.Instances.CompactMachines {
             return bounds;
         }
 
-        public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
+        public static async void teleportOutOfCompactMachine(CompactMachine compactMachine) {
             int depth = getDepth(compactMachine.getCellPosition());
             DimensionManager dimensionManager = DimensionManager.Instance;
             if (depth == 0) {
-                dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
+                await dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
             } else {
                 Vector2Int parentPosition = compactMachine.getCellPosition()/24;
-                dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
+                await dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
             }
             
             
         }
-        public static void teleportIntoCompactMachine(CompactMachine compactMachine) {
+        public static async void teleportIntoCompactMachine(CompactMachine compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
+            await dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
             dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
         }
     }

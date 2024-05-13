@@ -72,6 +72,7 @@ namespace Entities.Mobs {
                     await loadEntityIntoMemeory(id);
                 }
             }
+            Debug.Log($"{cache.Count} entities cached for system {system.name}");
         }
 
         private async Task loadEntityIntoMemeory(string id) {

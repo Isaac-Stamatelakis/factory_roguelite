@@ -52,7 +52,9 @@ namespace ChunkModule.ClosedChunkSystemModule {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
             container.name = tileType.ToString();
-            container.layer = LayerMask.NameToLayer(tileType.ToString());
+            if (tileType.hasCollider()) {
+                container.layer = LayerMask.NameToLayer(tileType.ToString());
+            }
             container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);

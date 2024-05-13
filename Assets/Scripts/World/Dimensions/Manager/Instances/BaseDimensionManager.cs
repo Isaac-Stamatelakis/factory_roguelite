@@ -18,12 +18,12 @@ namespace Dimensions {
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
 
-        public override void Start() {
+        public override async void Start() {
             Debug.Log("Loading world: " + WorldLoadUtils.getFullWorldPath());
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
             //setActiveSystemFromCellPosition(playerIO.playerData.dim,playerCellPosition);
             //setPlayerPosition(playerIO.getPlayerPosition());
-            setActiveSystemFromCellPosition(0,Vector2Int.zero);
+            await setActiveSystemFromCellPosition(0,Vector2Int.zero);
             setPlayerPosition(Vector2.zero);
         }
 

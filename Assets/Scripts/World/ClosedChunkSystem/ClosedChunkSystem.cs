@@ -37,6 +37,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
         private bool isQuitting = false;
+        private LoadedPartitionBoundary loadedPartitionBoundary;
         public virtual void Awake () {
             
         }
@@ -105,6 +106,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
+
+            GameObject loadedPartitionBoundaryObject = new GameObject();
+            loadedPartitionBoundaryObject.name = "Boundary";
+            loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
+            loadedPartitionBoundaryObject.transform.SetParent(transform);
+            
         }
 
         public virtual void initLoaders() {
@@ -191,15 +198,19 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
+            loadedPartitionBoundary.partitionLoaded(chunkPartition.getRealPosition());
             yield return chunkPartition.load(tileGridMaps,angle);
             chunkPartition.setTileLoaded(true);
+            
         }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
-            yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
             chunkPartition.unloadEntities();
+            loadedPartitionBoundary.partitionUnloaded(chunkPartition.getRealPosition());
+            yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
+            
         }
 
         public void OnApplicationQuit() {

@@ -61,7 +61,7 @@ namespace Dimensions {
             return ActiveSystem;
         }
 
-        public void setActiveSystemFromCellPosition(int dim, Vector2Int cellPosition) {
+        public async Task setActiveSystemFromCellPosition(int dim, Vector2Int cellPosition) {
             this.dim = dim;
             currentDimension = getCurrentController();
             ClosedChunkSystem newSystem = null;
@@ -73,11 +73,11 @@ namespace Dimensions {
             if (newSystem == null) {
                 return;
             }
-            activateSystem(newSystem);
+            await activateSystem(newSystem);
         }
-        private void activateSystem(ClosedChunkSystem newSystem) {
+        private async Task activateSystem(ClosedChunkSystem newSystem) {
             
-            //await resetMobRegistry(newSystem);
+            await resetMobRegistry(newSystem);
             if (activeSystem != null) {
                 activeSystem.deactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);

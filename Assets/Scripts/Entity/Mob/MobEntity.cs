@@ -47,7 +47,6 @@ namespace Entities.Mobs {
                 id,
                 componentSerializedDict
             );
-            Debug.Log(id);
             return new SeralizedEntityData(
                 type: EntityType.Mob,
                 position: transform.position,
