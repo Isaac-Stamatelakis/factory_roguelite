@@ -9,24 +9,22 @@ using ItemModule;
 namespace UI.Chat {
     public static class ChatCommandParameterFillExtension
     {
-        public static List<string> getAutoFill(this ChatCommand command, string paramPrefix, int paramIndex) {
+        public static List<string> getAutoFill(this ChatCommand command, int paramIndex) {
             return command switch
             {
-                ChatCommand.help => getHelpStrings(paramPrefix),
-                ChatCommand.spawn => getSpawnStrings(paramPrefix),
-                ChatCommand.give => getGiveStrings(paramPrefix,paramIndex),
+                ChatCommand.help => getHelpStrings(),
+                ChatCommand.spawn => getSpawnStrings(),
+                ChatCommand.give => getGiveStrings(paramIndex),
                 ChatCommand.gamemode => getGameModeString(),
-                ChatCommand.setrobot => getRobotStrings(paramPrefix),
+                ChatCommand.setrobot => getRobotStrings(),
                 _ => new List<string>()
             };
         }
 
-        private static List<string> getHelpStrings(string paramPrefix) {
-            List<string> strings = ChatCommandUtils.getAllCommandStrings();
-            var matchingStrings = strings.Where(s => s.StartsWith(paramPrefix)).ToList();
-            return matchingStrings;
+        private static List<string> getHelpStrings() {
+            return ChatCommandUtils.getAllCommandStrings();
         }
-        private static List<string> getSpawnStrings(string paramPrefix) {
+        private static List<string> getSpawnStrings() {
             return EntityUtils.getAllIds();
         }
         private static List<string> getGameModeString() {
@@ -35,8 +33,8 @@ namespace UI.Chat {
                 "1"
             };
         }
-        private static List<string> getRobotStrings(string paramPrefix) {
-            List<ItemObject> items = ItemRegistry.getInstance().getAllItemsWithPrefix(paramPrefix);
+        private static List<string> getRobotStrings() {
+            List<ItemObject> items = ItemRegistry.getInstance().getAllItems();
             List<string> ids = new List<string>();
             foreach (ItemObject itemObject in items) {
                 if (itemObject is not RobotItem) {
@@ -46,11 +44,11 @@ namespace UI.Chat {
             }
             return ids;
         }
-        private static List<string> getGiveStrings(string paramPrefix, int paramIndex) {
+        private static List<string> getGiveStrings(int paramIndex) {
             if (paramIndex != 0) {
                 return new List<string>();
             }
-            List<ItemObject> items = ItemRegistry.getInstance().getAllItemsWithPrefix(paramPrefix);
+            List<ItemObject> items = ItemRegistry.getInstance().getAllItems();
             List<string> ids = new List<string>();
             foreach (ItemObject item in items) {
                 ids.Add(item.id);

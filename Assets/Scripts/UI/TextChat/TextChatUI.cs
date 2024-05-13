@@ -4,10 +4,12 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 namespace UI.Chat {
     public class TextChatUI : MonoBehaviour
     {
+        private static readonly float messageDisplayDuration = 6f;
         private static TextChatUI instance;
         public static TextChatUI Instance {get => instance;}
         public void Awake() {
@@ -41,7 +43,6 @@ namespace UI.Chat {
                 if (typing) {
                     showTextField();
                 } else {
-                    GlobalHelper.deleteAllChildren(textList.transform);
                     sentMessages.Add(inputField.text);
                     sendMessage(inputField.text);
                     hideTextField();
@@ -69,26 +70,37 @@ namespace UI.Chat {
             }
         }
 
+        public void recordMessage(string message) {
+            this.recordedMessages.Add(message);
+        }
+
         private void commandFillParameters() {
             if (!inputField.text.StartsWith("/")) {
                 return;
             }
             CommandData commandData = getCommand(inputField.text);
-            if (commandData.Command == null) {
-                return;
-            }
             int paramIndex = commandData.Parameters.Length-1;
             if (paramIndex < 0) {
+                List<string> commands = ChatCommandUtils.getAllCommandStrings();
+                string currentCommand = inputField.text.Replace("/","");
+                commands = commands.Where(s => s.StartsWith(currentCommand)).ToList();
+                fillSuggested(commands,"/");
                 return;
             }
             string paramPrefix = commandData.Parameters[paramIndex];
-            List<string> suggested = ((ChatCommand)commandData.Command).getAutoFill(paramPrefix,paramIndex);
+            List<string> suggested = ((ChatCommand)commandData.Command).getAutoFill(paramIndex);
+            suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
+            fillSuggested(suggested,"");
+        }
+
+        private void fillSuggested(List<string> suggested,string prefix) {
             if (suggested.Count == 1) {
                 string completed = inputField.text;
                 string[] split = inputField.text.Split(" ");
                 split[split.Length-1] = suggested[0];
                 string reconstructed = fromArray(split, " ");
-                inputField.text = reconstructed;
+                inputField.text = $"{prefix}{reconstructed}";
+                inputField.caretPosition=inputField.text.Length;
             } else {
                 sendMessage(fromArray(suggested.ToArray(), ", "));
             }
@@ -98,7 +110,7 @@ namespace UI.Chat {
             string val = "";
             for (int i = 0; i < strings.Length; i++) {
                 val += strings[i];
-                if (i <= strings.Length-1) {
+                if (i < strings.Length-1) {
                     val += seperator;
                 }
             }
@@ -139,21 +151,19 @@ namespace UI.Chat {
             if (recordedMessages.Count > 50) {
                 recordedMessages.RemoveAt(0);
             }
-            recordedMessages.Add(text);
-            addMessageToList(text,true);
+            addMessageToList(text,messageDisplayDuration);
         }
 
-        private void addMessageToList(string text, bool fade) {
+        private void addMessageToList(string text, float time) {
             TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab);
-            newMessage.init(text,fade,8f);
+            newMessage.init(text,this,time);
             newMessage.transform.SetParent(textList.transform,false);
             LayoutRebuilder.ForceRebuildLayoutImmediate(textList.GetComponent<RectTransform>());
         }
 
         public void displayRecordedMessages() {
-            GlobalHelper.deleteAllChildren(textList.transform);
             foreach (string message in recordedMessages) {
-                addMessageToList(message,false);
+                addMessageToList(message,0f);
             }
         }
         public void showTextField() {
@@ -161,12 +171,23 @@ namespace UI.Chat {
             inputField.ActivateInputField();
             inputField.Select();
             displayRecordedMessages();
+            setFadeForAllMessages(false);
+            
         }
         public void hideTextField() {
             EventSystem.current.SetSelectedGameObject(null);
             inputField.text = "";
             inputField.DeactivateInputField();
             inputField.gameObject.SetActive(false);
+            setFadeForAllMessages(true);
+        }
+
+        public void setFadeForAllMessages(bool fade) {
+            for (int i = 0; i < textList.transform.childCount; i++) {
+                Transform messageTransform = textList.transform.GetChild(i);
+                TextChatMessageUI textChatMessageUI = messageTransform.GetComponent<TextChatMessageUI>();
+                textChatMessageUI.setFade(fade);
+            }
         }
 
         private class CommandData {
