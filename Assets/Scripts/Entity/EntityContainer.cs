@@ -36,7 +36,7 @@ namespace Entities {
 
                 IChunkPartition partition = chunk.getPartition(partitionPosition);
                 IChunkPartitionData partitionData = partition.getData();
-                if (partitionData is not SerializedTileData serializedTileData) {
+                if (partitionData is not SeralizedWorldData serializedTileData) {
                     continue;
                 }
                 serializedTileData.entityData.Add(seralizedEntityData);

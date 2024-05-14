@@ -42,11 +42,11 @@ namespace ChunkModule {
         /// Generates a partition
         /// </summary>
         protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
-            if (data is SerializedTileData) {
-                if (data is SerializedTileConduitData) {
-                    return new ConduitChunkPartition<SerializedTileConduitData>((SerializedTileConduitData) data,position,this);
+            if (data is SeralizedWorldData) {
+                if (data is WorldTileConduitData) {
+                    return new ConduitChunkPartition<WorldTileConduitData>((WorldTileConduitData) data,position,this);
                 }
-                return new TileChunkPartition<SerializedTileData>((SerializedTileData) data,position,this);
+                return new TileChunkPartition<SeralizedWorldData>((SeralizedWorldData) data,position,this);
             } else 
             return null;
         }

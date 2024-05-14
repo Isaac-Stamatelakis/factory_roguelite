@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace WorldModule.Caves {
     public interface IGenerationModel {
-        public SerializedTileData generateBase(int seed);
+        public SeralizedWorldData generateBase(int seed);
     }
     
     public enum GenerationModelType {
@@ -12,7 +12,7 @@ namespace WorldModule.Caves {
     }
     public abstract class GenerationModel : ScriptableObject, IGenerationModel
     {
-        public abstract SerializedTileData generateBase(int seed);
+        public abstract SeralizedWorldData generateBase(int seed);
         [Header("X Interval in Chunks")]
         [SerializeField] public Vector2Int xInterval;
         [Header("Y Interval in Chunks")]

@@ -27,18 +27,18 @@ namespace ChunkModule.PartitionModule {
         public void syncToCompactMachine(CompactMachine compactMachine);
         public void assembleMultiBlocks();
     }
-    public class ConduitChunkPartition<T> : TileChunkPartition<SerializedTileConduitData>, IConduitTileChunkPartition where T : SerializedTileConduitData
+    public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
     {
         protected bool tickLoaded;
         protected Dictionary<ConduitType, IConduit[,]> conduits;
         private Dictionary<TileMapLayer, IConduit[,]> conduitArrayDict = new Dictionary<TileMapLayer, IConduit[,]>();
-        public ConduitChunkPartition(SerializedTileConduitData data, Vector2Int position, IChunk parent) : base(data, position, parent)
+        public ConduitChunkPartition(WorldTileConduitData data, Vector2Int position, IChunk parent) : base(data, position, parent)
         {
         }
 
         public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts)
         {
-            SerializedTileConduitData serializedTileConduitData = (SerializedTileConduitData) data;
+            WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
                     getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk,tileEntityPorts);
@@ -205,7 +205,7 @@ namespace ChunkModule.PartitionModule {
         {
             base.save();
             Vector2Int position = getRealPosition();
-            SerializedTileConduitData data = (SerializedTileConduitData) getData();
+            WorldTileConduitData data = (WorldTileConduitData) getData();
             
             if (conduits != null) {
                 foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
@@ -259,7 +259,7 @@ namespace ChunkModule.PartitionModule {
         {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
             Vector2Int partitionPosition = new Vector2Int(x,y);
-            SerializedTileConduitData data = (SerializedTileConduitData) getData();
+            WorldTileConduitData data = (WorldTileConduitData) getData();
             string itemID = data.itemConduitData.ids[x,y];
             if (itemID != null) {
                 place(
@@ -367,7 +367,7 @@ namespace ChunkModule.PartitionModule {
             if (item != null) {
                 id = item.id;
             }
-            SerializedTileConduitData serializedTileConduitData = (SerializedTileConduitData)getData();
+            WorldTileConduitData serializedTileConduitData = (WorldTileConduitData)getData();
             switch (type) {
                 case ConduitType.Item:
                     serializedTileConduitData.itemConduitData.ids[position.x,position.y] = id;

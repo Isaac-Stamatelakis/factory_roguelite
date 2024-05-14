@@ -13,9 +13,9 @@ using Fluids;
 using Entities;
 
 namespace ChunkModule.PartitionModule {
-public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
+public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T : SeralizedWorldData
     {
-        public TileChunkPartition(SerializedTileData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)
+        public TileChunkPartition(SeralizedWorldData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)
         {
 
         }
@@ -39,7 +39,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
         public override void save()
         {
             Vector2Int position = getRealPosition();
-            SerializedTileData data = (SerializedTileData) getData();
+            SeralizedWorldData data = (SeralizedWorldData) getData();
             if (tileOptionsArray != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -245,7 +245,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         public override void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem)
         {
-            SerializedTileData tileData = (SerializedTileData) getData();
+            SeralizedWorldData tileData = (SeralizedWorldData) getData();
             string id = null;
             if (tileItem != null) {
                 id = tileItem.id;
@@ -277,7 +277,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         public override (string[,], string[,], int[,]) getFluidData()
         {
-            SerializedTileData serializedTileData = (SerializedTileData) getData();
+            SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
             return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
     }

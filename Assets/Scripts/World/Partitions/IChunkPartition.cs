@@ -9,7 +9,7 @@ using Tiles;
 
 namespace ChunkModule.PartitionModule {
     public interface IChunkPartition {
-        public IChunkPartitionData getData();
+        public SeralizedWorldData getData();
         public UnityEngine.Vector2Int getRealPosition();
         public bool getLoaded();
         public void setTileLoaded(bool val);

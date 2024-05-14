@@ -12,7 +12,7 @@ using System.IO;
                 Directory.Delete(path, true);
             }
             WorldLoadUtils.createDimFolder(-1);
-            SerializedTileData worldTileData = Global.CurrentCave.generate(UnityEngine.Random.Range(-2147483648,2147483647));
+            SeralizedWorldData worldTileData = Global.CurrentCave.generate(UnityEngine.Random.Range(-2147483648,2147483647));
             WorldGenerationFactory.saveToJson(
                 worldTileData,
                 Global.CurrentCave.getChunkCaveSize(),

@@ -139,7 +139,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public static void initalizeCompactMachineSystem(CompactMachine compactMachine) {
             IntervalVector bounds = getCompactMachineBounds(compactMachine);
-            SerializedTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.tilemapContainer,bounds);
+            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.tilemapContainer,bounds);
             WorldGenerationFactory.saveToJson(systemData,bounds.getSize(),bounds,1,WorldLoadUtils.getDimPath(1));
             Debug.Log(compactMachine.name + " Closed Chunk System Generated");
         }

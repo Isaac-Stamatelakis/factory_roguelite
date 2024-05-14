@@ -12,7 +12,7 @@ using Entities;
 
 namespace ChunkModule.PartitionModule {
     
-    public abstract class ChunkPartition<T> : IChunkPartition where T : SerializedTileData
+    public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {
         protected bool loaded;
         protected bool scheduledForUnloading = false;
@@ -34,7 +34,7 @@ namespace ChunkModule.PartitionModule {
             return Mathf.Pow(target.x-realPosition.x,2) + Mathf.Pow(target.y-realPosition.y,2);
         }
 
-        public IChunkPartitionData getData()
+        public SeralizedWorldData getData()
         {
             return data;
         }

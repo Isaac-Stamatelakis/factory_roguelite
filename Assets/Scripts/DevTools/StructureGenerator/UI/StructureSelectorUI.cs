@@ -29,7 +29,7 @@ namespace DevTools.Structures {
                 editStructurePopUpUI.init(this);
             });
             downloadButton.onClick.AddListener(() => {
-                StructureGeneratorHelper.generateStructure(this.title.text);
+                
             });
             GetComponent<Button>().onClick.AddListener(() => {
                 string path = StructureGeneratorHelper.getPath(this.title.text);

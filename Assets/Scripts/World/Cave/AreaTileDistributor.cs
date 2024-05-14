@@ -8,14 +8,14 @@ using System;
 namespace WorldModule.Caves {
 
     public interface IDistributor {
-        public void distribute(SerializedTileData worldTileData, int seed, int width, int height);
+        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height);
     }
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
     public class AreaTileDistributor : ScriptableObject, IDistributor
     {
         public List<TileDistribution> tileDistributions;
 
-        public void distribute(SerializedTileData worldTileData, int seed, int width, int height) {
+        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height) {
             UnityEngine.Random.InitState(seed);
             SerializedBaseTileData baseData = worldTileData.baseData;
 

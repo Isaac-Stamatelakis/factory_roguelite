@@ -8,14 +8,14 @@ public interface IChunkPartitionData {
 }
 
 [System.Serializable]
-public class SerializedTileData : IChunkPartitionData
+public class SeralizedWorldData : IChunkPartitionData
 {
     public List<SeralizedEntityData> entityData;
     public SerializedBaseTileData baseData;
     public SerializedBackgroundTileData backgroundData;
     public SeralizedFluidTileData fluidData;
 
-    public SerializedTileData(
+    public SeralizedWorldData(
         SerializedBaseTileData baseTileData, 
         SerializedBackgroundTileData backgroundTileData, 
         List<SeralizedEntityData> entityData, 
@@ -29,14 +29,14 @@ public class SerializedTileData : IChunkPartitionData
 }
 
 [System.Serializable]
-public class SerializedTileConduitData : SerializedTileData {
+public class WorldTileConduitData : SeralizedWorldData {
     public SeralizedChunkConduitData itemConduitData;
     public SeralizedChunkConduitData fluidConduitData;
     public SeralizedChunkConduitData energyConduitData;
     public SeralizedChunkConduitData signalConduitData;
     public SeralizedChunkConduitData matrixConduitData;
 
-    public SerializedTileConduitData(
+    public WorldTileConduitData(
         SerializedBaseTileData baseTileData, 
         SerializedBackgroundTileData backgroundTileData, 
         List<SeralizedEntityData> entityData, 

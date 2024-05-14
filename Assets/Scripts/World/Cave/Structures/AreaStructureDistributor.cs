@@ -8,7 +8,7 @@ namespace WorldModule.Caves {
     public class AreaStructureDistributor : ScriptableObject, IDistributor
     {
         public List<StructureFrequency> structures;
-        public void distribute(SerializedTileData worldTileData, int seed, int width, int height) {
+        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height) {
 
         }
     }

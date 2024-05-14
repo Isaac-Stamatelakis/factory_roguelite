@@ -17,10 +17,16 @@ public class IntervalVector
         return position.x >= X.LowerBound && position.x <= X.UpperBound && position.y >= Y.LowerBound && position.y <= Y.UpperBound;
     }
     public void add(Vector2Int position) {
-        X.LowerBound += position.x;
-        X.UpperBound += position.x;
-        Y.LowerBound += position.y;
-        Y.UpperBound += position.y;
+        if (position.x < x.LowerBound) {
+            x.LowerBound = position.x;
+        } else if (position.x > x.UpperBound) {
+            x.UpperBound = position.x;
+        }
+        if (position.y < y.LowerBound) {
+            y.LowerBound = position.y;
+        } else if (position.y > y.UpperBound) {
+            y.UpperBound = position.y;
+        }
     }
     public Vector2Int getSize() {
         return new Vector2Int(Mathf.Abs(X.LowerBound-X.UpperBound)+1,Mathf.Abs(Y.LowerBound-Y.UpperBound)+1);

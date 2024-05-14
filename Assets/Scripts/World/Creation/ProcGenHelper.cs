@@ -4,10 +4,13 @@ using UnityEngine;
 using ChunkModule.IO;
 using System;
 using Entities;
+using ChunkModule.PartitionModule;
+using ChunkModule;
+using WorldModule.Caves;
 
-namespace WorldModule.Caves {
+namespace WorldModule {
     public static class WorldGenerationFactory {
-        public static void saveToJson(SerializedTileData worldTileData, Cave cave, int dim, string dimPath) {
+        public static void saveToJson(SeralizedWorldData worldTileData, Cave cave, int dim, string dimPath) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
             int tileMaxX = Global.ChunkSize*caveSize.x;
@@ -21,7 +24,7 @@ namespace WorldModule.Caves {
             }
         }
 
-        public static void saveToJson(SerializedTileData worldTileData, Vector2Int caveSize, IntervalVector caveCoveredArea, int dim, string dimPath) {
+        public static void saveToJson(SeralizedWorldData worldTileData, Vector2Int caveSize, IntervalVector caveCoveredArea, int dim, string dimPath) {
             int tileMaxX = Global.ChunkSize*caveSize.x;
             int tileMaxY = Global.ChunkSize*caveSize.y;
             int minX = caveCoveredArea.X.LowerBound; int maxX = caveCoveredArea.X.UpperBound;
@@ -33,7 +36,7 @@ namespace WorldModule.Caves {
             }
         }
 
-        private static void saveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SerializedTileData worldTileData, string dimPath) {
+        private static void saveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             for (int partitionX = 0; partitionX < Global.PartitionsPerChunk; partitionX ++) {
                 for (int partitionY = 0; partitionY < Global.PartitionsPerChunk; partitionY ++) {
@@ -43,7 +46,80 @@ namespace WorldModule.Caves {
             ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList,dimPath);
         }
 
-        private static IChunkPartitionData convertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SerializedTileData worldTileData) {
+        public static WorldTileConduitData createEmpty(Vector2Int size) {
+            SerializedBaseTileData baseTileData = new SerializedBaseTileData();
+            baseTileData.ids = new string[size.x,size.y];
+            baseTileData.sTileEntityOptions = new string[size.x,size.y];
+            baseTileData.sTileOptions = new string[size.x,size.y];
+
+            SerializedBackgroundTileData backgroundTileData = new SerializedBackgroundTileData();
+            backgroundTileData.ids = new string[size.x,size.y];
+
+            SeralizedFluidTileData seralizedFluidTileData = new SeralizedFluidTileData();
+            seralizedFluidTileData.ids = new string[size.x,size.y];
+            seralizedFluidTileData.fill = new int[size.x,size.y];
+
+            SeralizedChunkConduitData itemConduitData = new SeralizedChunkConduitData();
+            itemConduitData.ids = new string[size.x,size.y];
+            itemConduitData.conduitOptions = new string[size.x,size.y];
+
+            SeralizedChunkConduitData fluidConduitData = new SeralizedChunkConduitData();
+            fluidConduitData.ids = new string[size.x,size.y];
+            fluidConduitData.conduitOptions = new string[size.x,size.y];
+
+            SeralizedChunkConduitData energyConduitData = new SeralizedChunkConduitData();
+            energyConduitData.ids = new string[size.x,size.y];
+            energyConduitData.conduitOptions = new string[size.x,size.y];
+
+            SeralizedChunkConduitData signalConduitData = new SeralizedChunkConduitData();
+            signalConduitData.ids = new string[size.x,size.y];
+            signalConduitData.conduitOptions = new string[size.x,size.y];
+
+            SeralizedChunkConduitData matrixConduitData = new SeralizedChunkConduitData();
+            matrixConduitData.ids = new string[size.x,size.y];
+            matrixConduitData.conduitOptions = new string[size.x,size.y];
+
+            return new WorldTileConduitData(
+                baseTileData: baseTileData,
+                backgroundTileData: backgroundTileData,
+                entityData: new List<SeralizedEntityData>(),
+                fluidTileData: seralizedFluidTileData,
+                itemConduitData: itemConduitData,
+                fluidConduitData: fluidConduitData,
+                energyConduitData: energyConduitData,
+                signalConduitData: signalConduitData,
+                matrixConduitData: matrixConduitData
+            );
+        }
+
+        public static void mapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
+            copyTo.baseData.ids[positionTo.x,positionTo.y] = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
+            copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
+            copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.backgroundData.ids[positionTo.x,positionTo.y] = copyFrom.backgroundData.ids[positionFrom.x,positionFrom.y];
+
+            copyTo.fluidData.ids[positionTo.x,positionTo.y] = copyFrom.fluidData.ids[positionFrom.x,positionFrom.y];
+            copyTo.fluidData.fill[positionTo.x,positionTo.y] = copyFrom.fluidData.fill[positionFrom.x,positionFrom.y];
+
+            copyTo.itemConduitData.ids[positionTo.x,positionTo.y] = copyFrom.itemConduitData.ids[positionFrom.x,positionFrom.y];
+            copyTo.itemConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.itemConduitData.conduitOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.fluidConduitData.ids[positionTo.x,positionTo.y] = copyFrom.fluidConduitData.ids[positionFrom.x,positionFrom.y];
+            copyTo.fluidConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.fluidConduitData.conduitOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.energyConduitData.ids[positionTo.x,positionTo.y] = copyFrom.energyConduitData.ids[positionFrom.x,positionFrom.y];
+            copyTo.energyConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.energyConduitData.conduitOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.signalConduitData.ids[positionTo.x,positionTo.y] = copyFrom.signalConduitData.ids[positionFrom.x,positionFrom.y];
+            copyTo.signalConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.signalConduitData.conduitOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.matrixConduitData.ids[positionTo.x,positionTo.y] = copyFrom.matrixConduitData.ids[positionFrom.x,positionFrom.y];
+            copyTo.matrixConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.matrixConduitData.conduitOptions[positionFrom.x,positionFrom.y];
+            
+        }
+
+        private static IChunkPartitionData convertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.ChunkPartitionSize + Global.ChunkSize * (chunkX-minX);
             int yStart = partitionY*Global.ChunkPartitionSize + Global.ChunkSize * (chunkY-minY);
             
@@ -76,7 +152,7 @@ namespace WorldModule.Caves {
                     fluidData.fill[tileX,tileY] = worldTileData.fluidData.fill[xIndex,yIndex];
                 }
             }
-            if (worldTileData is SerializedTileConduitData partionConduitData) {
+            if (worldTileData is WorldTileConduitData partionConduitData) {
                 SeralizedChunkConduitData itemConduitData = new SeralizedChunkConduitData();
                 itemConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
                 itemConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
@@ -96,7 +172,7 @@ namespace WorldModule.Caves {
                 SeralizedChunkConduitData matrixConduitData = new SeralizedChunkConduitData();
                 matrixConduitData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
                 matrixConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                return new SerializedTileConduitData(
+                return new WorldTileConduitData(
                     baseTileData: baseData,
                     backgroundTileData: backgroundData,
                     entityData: entityData,
@@ -108,7 +184,7 @@ namespace WorldModule.Caves {
                     matrixConduitData: matrixConduitData
                 );
             }
-            return new SerializedTileData(
+            return new SeralizedWorldData(
                 baseTileData: baseData,
                 backgroundTileData: backgroundData,
                 entityData: entityData,

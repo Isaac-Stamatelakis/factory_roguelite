@@ -33,7 +33,7 @@ namespace ChunkModule.IO {
                 int y = Convert.ToInt32(xy[1]);
                 string data = File.ReadAllText(file);
                 List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
-                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<WorldTileConduitData>>(data));
                 SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y),dim);
                 unloadedChunks.Add(unloadedConduitTileChunk);
             }
@@ -42,7 +42,7 @@ namespace ChunkModule.IO {
 
         public static SoftLoadedConduitTileChunk fromData(string data, Vector2Int position, int dim) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
-            chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(data));
+            chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<WorldTileConduitData>>(data));
             SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,position,dim);
             return unloadedConduitTileChunk;
         }
@@ -70,9 +70,9 @@ namespace ChunkModule.IO {
             }
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             if (closedChunkSystem is TileClosedChunkSystem) {
-                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileData>>(json));
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeralizedWorldData>>(json));
             } else if (closedChunkSystem is ConduitTileClosedChunkSystem) {
-                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SerializedTileConduitData>>(json));
+                chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<WorldTileConduitData>>(json));
             }
             List<IChunkPartitionData> chunkPartitionData = new List<IChunkPartitionData>();
             foreach (IChunkPartitionData serializedTileData in chunkPartitionDataList) {

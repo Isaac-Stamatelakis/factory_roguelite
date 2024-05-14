@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using WorldModule.Caves;
+using System.IO;
 
 public static class Global
 {
@@ -54,7 +55,7 @@ public static class Global
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
 
     public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
-    public static string EditorCreationPath { get => editorCreationPath; }
+    public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
 
     public static bool ShowSystemParameter => showSystemParameter;
 

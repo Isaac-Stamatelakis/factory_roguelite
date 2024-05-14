@@ -5,13 +5,25 @@ using UnityEngine;
 namespace WorldModule.Caves {
     public class Structure : ScriptableObject
     {
-        public List<StructureVariant> structureVariants;
+        public List<StructureVariant> variants = new List<StructureVariant>();
     }
 
+    [System.Serializable]
     public class StructureVariant {
-        public string seralizedWorldTileData;
-        public Vector2Int size;
-        public int frequency;
+        [SerializeField] private string data;
+        [SerializeField] private Vector2Int size;
+        [SerializeField] private int frequency;
+
+        public StructureVariant(string data, Vector2Int size, int frequency)
+        {
+            this.data = data;
+            this.size = size;
+            this.frequency = frequency;
+        }
+
+        public string Data { get => data; }
+        public Vector2Int Size { get => size;  }
+        public int Frequency { get => frequency; set => frequency = value;}
     }
 
 }
