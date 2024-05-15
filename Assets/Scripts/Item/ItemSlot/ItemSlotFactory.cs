@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using ItemModule;
-using ItemModule.Tags;
+using Items;
+using Items.Tags;
 using System;
 using System.Linq;
 

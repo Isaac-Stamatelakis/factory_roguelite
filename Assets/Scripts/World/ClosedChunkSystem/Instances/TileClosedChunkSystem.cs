@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
+using TileMaps.Type;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public class TileClosedChunkSystem : ChunkLoadingClosedChunkSystem
     {
         public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim) {

@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.Partitions;
 using Tiles;
-using TileMapModule.Type;
+using TileMaps.Type;
 using UnityEngine.Tilemaps;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 
 namespace TileEntityModule {
     public static class TileEntityHelper {
@@ -35,7 +35,7 @@ namespace TileEntityModule {
 
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
-            TileMapModule.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
+            TileMaps.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
 
             // Switch to open/closed
@@ -47,7 +47,7 @@ namespace TileEntityModule {
 
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMapModule.ITileMap newMap = loadedChunk.getTileMap(newType);
+            TileMaps.ITileMap newMap = loadedChunk.getTileMap(newType);
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
 
@@ -76,11 +76,11 @@ namespace TileEntityModule {
             serializedTileOptions.state = state;
             tileOptions.SerializedTileOptions = serializedTileOptions;
             TileMapType tileMapType = switchType.getStateType(oldState);
-            TileMapModule.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
+            TileMaps.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMapModule.ITileMap newMap = loadedChunk.getTileMap(newType);
+            TileMaps.ITileMap newMap = loadedChunk.getTileMap(newType);
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
 

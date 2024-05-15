@@ -2,14 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule {
-    public class InterfaceUpgradeItem : ItemObject
+namespace Items {
+    public class InterfaceUpgradeItem : PresetItemObject
     {
-        [SerializeField] private Sprite sprite;
-        public override Sprite getSprite()
-        {
-            return sprite;
-        }
+        
     }
 }
 

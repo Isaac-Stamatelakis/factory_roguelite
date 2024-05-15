@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
+using Items;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public interface IItemUIClickReciever {
         public void leftClick(int n);
         public void rightClick(int n);

@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule;
-using ItemModule.Tags.FluidContainers;
+using Items;
+using Items.Tags.FluidContainers;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class FluidInventoryGrid : InventoryUI, ILoadableInventory
     {
         public void initalize(List<ItemSlot> items) {

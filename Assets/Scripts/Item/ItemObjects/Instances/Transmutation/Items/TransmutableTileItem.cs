@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Transmutable {
+namespace Items.Transmutable {
     public class TransmutableTileItem : TileItem, ITransmutableItem
     {
         [SerializeField] private TransmutableItemState state;

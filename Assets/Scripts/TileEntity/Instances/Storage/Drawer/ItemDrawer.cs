@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine;
-using ChunkModule;
+using Chunks;
 using PlayerModule;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
 using Entities;
 
 namespace TileEntityModule.Instances.Storage {

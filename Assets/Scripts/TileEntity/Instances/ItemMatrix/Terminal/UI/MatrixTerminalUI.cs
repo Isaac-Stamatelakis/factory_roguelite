@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
-using ItemModule.Inventory;
-using ItemModule.Tags.Matrix;
+using Items;
+using Items.Inventory;
+using Items.Tags.Matrix;
 using PlayerModule;
 
 namespace TileEntityModule.Instances.Matrix {

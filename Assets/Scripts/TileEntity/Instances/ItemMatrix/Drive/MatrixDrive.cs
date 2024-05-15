@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine;
-using ChunkModule;
-using ConduitModule.Systems;
-using ItemModule.Tags;
-using ItemModule.Tags.Matrix;
-using ItemModule.Inventory;
+using Chunks;
+using Conduits.Systems;
+using Items.Tags;
+using Items.Tags.Matrix;
+using Items.Inventory;
 using Entities;
 
 namespace TileEntityModule.Instances.Matrix {

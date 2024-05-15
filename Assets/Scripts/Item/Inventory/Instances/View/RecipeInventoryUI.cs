@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule.Viewer;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class RecipeInventoryUI : InventoryUI, ILoadableInventory
     {
         public void initalize(List<ItemSlot> items)

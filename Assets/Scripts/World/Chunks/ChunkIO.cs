@@ -5,14 +5,14 @@ using System.IO.Compression;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ChunkModule;
+using Chunks;
 using UI.Title;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 using WorldModule;
 using System;
-using ChunkModule.PartitionModule;
+using Chunks.Partitions;
 
-namespace ChunkModule.IO {
+namespace Chunks.IO {
     public class ChunkIO {
 
         public static bool jsonExists(Vector2Int chunkPosition, int dim) {

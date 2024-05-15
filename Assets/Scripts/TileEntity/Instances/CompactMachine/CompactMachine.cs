@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using ChunkModule;
+using Chunks;
 using Dimensions;
 
 namespace TileEntityModule.Instances.CompactMachines {

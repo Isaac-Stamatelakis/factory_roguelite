@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using UI;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
 
 namespace UI.QuestBook {
     public class RewardListElement : MonoBehaviour, IPointerClickHandler,  IItemListReloadable

@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using ConduitModule;
-using ConduitModule.Ports;
+using Conduits;
+using Conduits.Ports;
 using TileEntityModule;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     
     public abstract class ItemConduitSystem<Port, InputPort, OutputPort> : PortConduitSystem<InputPort,OutputPort>
         where Port : IConduitPort

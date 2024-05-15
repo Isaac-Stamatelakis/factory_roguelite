@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags;
-using ItemModule.Tags.Matrix;
-using ItemModule;
+using Items.Tags;
+using Items.Tags.Matrix;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixItemCollection {

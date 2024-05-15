@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class SolidItemInventory : AbstractSolidItemInventory, ILoadableInventory
     {
         public void initalize(List<ItemSlot> items)

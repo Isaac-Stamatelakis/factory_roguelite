@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ConduitModule.Systems;
-using TileMapModule.Type;
-using ConduitModule;
+using Chunks;
+using Conduits.Systems;
+using TileMaps.Type;
+using Conduits;
 using TileEntityModule;
-using ConduitModule.Ports;
-using ChunkModule.PartitionModule;
+using Conduits.Ports;
+using Chunks.Partitions;
 using TileEntityModule.Instances.CompactMachines;
-using ChunkModule.IO;
-using TileMapModule.Layer;
+using Chunks.IO;
+using TileMaps.Layer;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public class SoftLoadedClosedChunkSystem
     {
         private IntervalVector coveredArea;

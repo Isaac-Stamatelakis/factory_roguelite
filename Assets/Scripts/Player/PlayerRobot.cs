@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
-using ItemModule;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule;
-using TileMapModule;
+using Items;
+using Chunks.ClosedChunkSystemModule;
+using Chunks;
+using TileMaps;
 using TileEntityModule;
 using UnityEngine.EventSystems;
 

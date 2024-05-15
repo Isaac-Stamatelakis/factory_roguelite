@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class SolidDynamicInventory : AbstractSolidItemInventory
     {
         private Vector2Int size;

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public abstract class TypeRestrictedInventoryUI<T> : AbstractSolidItemInventory
     {
         public void initalize(List<ItemSlot> items)

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using ItemModule;
+using Items;
 using UnityEngine.EventSystems;
 using UI;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace UI.QuestBook {
     public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable

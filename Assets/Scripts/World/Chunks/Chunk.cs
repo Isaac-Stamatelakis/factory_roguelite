@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using ChunkModule.IO;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule.PartitionModule;
-using TileMapModule;
-using TileMapModule.Type;
+using Chunks.IO;
+using Chunks.ClosedChunkSystemModule;
+using Chunks.Partitions;
+using TileMaps;
+using TileMaps.Type;
 using TileEntityModule;
 using Dimensions;
 using Entities;
 using Entities.Mobs;
 using Newtonsoft.Json;
 
-namespace ChunkModule {
+namespace Chunks {
     public interface ILoadedChunk : IChunk {
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);

@@ -4,7 +4,7 @@ using UnityEngine;
 using WorldModule;
 using Dimensions;
 using WorldModule.Caves;
-using ConduitModule.Ports;
+using Conduits.Ports;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public static class CompactMachineHelper 

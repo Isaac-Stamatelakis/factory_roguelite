@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using TileEntityModule;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
 
     public interface IConduitSystemManager {
         public void setConduit(int x, int y, IConduit conduit);

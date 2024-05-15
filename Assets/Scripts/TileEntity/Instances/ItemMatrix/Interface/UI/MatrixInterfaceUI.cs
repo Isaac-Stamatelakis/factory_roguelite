@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
-using ItemModule.Inventory;
-using ItemModule.Tags;
+using Items;
+using Items.Inventory;
+using Items.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixInterfaceUI : MonoBehaviour

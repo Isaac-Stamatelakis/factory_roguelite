@@ -4,7 +4,7 @@ using UnityEngine;
 using TileEntityModule;
 
 
-namespace ItemModule.Transmutable {
+namespace Items.Transmutable {
     /// <summary>
     /// Creates ItemObjects for each transmutable object state
     /// </summary>

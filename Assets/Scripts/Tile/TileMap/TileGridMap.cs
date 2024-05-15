@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-using ChunkModule;
+using Chunks;
 using TileEntityModule;
-using TileMapModule.Layer;
-using TileMapModule.Type;
-using TileMapModule.Place;
-using ChunkModule.PartitionModule;
-using ChunkModule.ClosedChunkSystemModule;
+using TileMaps.Layer;
+using TileMaps.Type;
+using TileMaps.Place;
+using Chunks.Partitions;
+using Chunks.ClosedChunkSystemModule;
 using Tiles;
-using ItemModule;
+using Items;
 using Entities;
 
-namespace TileMapModule {
+namespace TileMaps {
     public interface ITileGridMap {
         public TileItem getTileItem(Vector2Int cellPosition);
     }
@@ -25,8 +25,12 @@ namespace TileMapModule {
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-
-            Vector2 spriteSize =  Global.getSpriteSize(itemObject.getSprite());
+            Sprite[] itemSprites = itemObject.getSprites();
+            if (itemSprites.Length == 0) {
+                Debug.LogError("Tried to spawn item with no sprite");
+                return;
+            }
+            Vector2 spriteSize =  Global.getSpriteSize(itemSprites[0]);
             if (PlaceTile.mod(spriteSize.x,2) == 0) {
                 realXPosition += 0.25f;
             }

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMapModule.Place;
-using TileMapModule.Layer;
-using TileMapModule.Type;
+using TileMaps.Place;
+using TileMaps.Layer;
+using TileMaps.Type;
 
 namespace Tiles {
     

@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ConduitModule.Ports;
+using Chunks;
+using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using ItemModule.Inventory;
+using Items.Inventory;
 using Entities;
 
 namespace TileEntityModule.Instances

@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Layer;
+using TileMaps.Layer;
 
-namespace TileMapModule.Type {
+namespace TileMaps.Type {
     public enum TileMapType {
         Block,
         Background,

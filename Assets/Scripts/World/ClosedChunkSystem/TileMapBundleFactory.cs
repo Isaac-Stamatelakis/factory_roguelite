@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
+using TileMaps.Type;
 using Fluids;
-using TileMapModule;
-using TileMapModule.Conduit;
+using TileMaps;
+using TileMaps.Conduit;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public static class TileMapBundleFactory 
     {
         public static List<TileMapType> getStandardTileTypes() {

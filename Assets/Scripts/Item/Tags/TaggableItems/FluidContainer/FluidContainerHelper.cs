@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule;
 
-namespace ItemModule.Tags.FluidContainers {
+namespace Items.Tags.FluidContainers {
     public static class FluidContainerHelper 
     {
         public static void handleClick(GrabbedItemProperties grabbedItemProperties,List<ItemSlot> fluidInventory, int index) {

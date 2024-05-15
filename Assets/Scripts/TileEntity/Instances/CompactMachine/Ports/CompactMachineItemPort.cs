@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Storage;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using Newtonsoft.Json;
 
 namespace TileEntityModule.Instances.CompactMachines {

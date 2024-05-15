@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags.Matrix;
-using ItemModule;
-using ItemModule.Inventory;
-using ItemModule.Tags;
-using ItemModule.Tags.FluidContainers;
+using Items.Tags.Matrix;
+using Items;
+using Items.Inventory;
+using Items.Tags;
+using Items.Tags.FluidContainers;
 using System.Linq;
 using PlayerModule;
 using Dimensions;
-using ChunkModule;
+using Chunks;
 using System.Threading.Tasks;
 
 namespace TileEntityModule.Instances.Matrix {

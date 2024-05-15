@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Transmutable;
-using ItemModule;
-using ItemModule.Tags;
+using Items.Transmutable;
+using Items;
+using Items.Tags;
 
 public enum ItemState {
     Solid,

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName ="I~New Signal Conduit Item",menuName="Item/Instances/Conduit/Signal")]
-public class SignalConduitItem : ConduitItem
-{
-    public int maxDistance;
-    public override ConduitType getType()
+namespace Items {
+    [CreateAssetMenu(fileName ="I~New Signal Conduit Item",menuName="Item/Instances/Conduit/Signal")]
+    public class SignalConduitItem : ConduitItem
     {
-        return ConduitType.Signal;
+        public int maxDistance;
+        public override ConduitType getConduitType()
+        {
+            return ConduitType.Signal;
+        }
     }
 }
+

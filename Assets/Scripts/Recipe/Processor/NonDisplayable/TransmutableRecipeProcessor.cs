@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Transmutable;
+using Items.Transmutable;
 using TileEntityModule;
-using ItemModule;
+using Items;
 
 namespace RecipeModule.Transmutation {
     [CreateAssetMenu(fileName ="RP~New Transmutable Recipe Processor",menuName="Crafting/Processor/Transmutable")]

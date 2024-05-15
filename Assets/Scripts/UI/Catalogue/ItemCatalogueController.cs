@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
 
 
 namespace UI.JEI

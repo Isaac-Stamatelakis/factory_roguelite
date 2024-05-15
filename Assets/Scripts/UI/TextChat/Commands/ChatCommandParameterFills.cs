@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Entities;
-using ItemModule;
+using Items;
 
 namespace UI.Chat {
     public static class ChatCommandParameterFillExtension

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using ItemModule;
+using Items;
 using UnityEngine.EventSystems;
 using UI;
 using UI.NodeNetwork;

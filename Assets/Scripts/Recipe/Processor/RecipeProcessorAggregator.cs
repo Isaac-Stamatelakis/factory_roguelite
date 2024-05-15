@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using ItemModule.Inventory;
+using Items.Inventory;
 using TileEntityModule;
 using UnityEngine;
 

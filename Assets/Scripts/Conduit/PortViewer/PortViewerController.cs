@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule;
-using ChunkModule.ClosedChunkSystemModule;
-using ItemModule;
+using Chunks.ClosedChunkSystemModule;
+using Items;
 
-namespace ConduitModule.PortViewer {
+namespace Conduits.PortViewer {
     public class PortViewerController : MonoBehaviour
     {
         private ConduitTileClosedChunkSystem closedChunkSystem;
@@ -30,9 +30,9 @@ namespace ConduitModule.PortViewer {
                 deactiveViewer();
                 return;
             }
-            if (portViewer == null || conduitItem.getType() != portViewer.Type) {
+            if (portViewer == null || conduitItem.getConduitType() != portViewer.Type) {
                 deactiveViewer();
-                activateViewer(conduitItem.getType());
+                activateViewer(conduitItem.getConduitType());
                 return;
             }
         }

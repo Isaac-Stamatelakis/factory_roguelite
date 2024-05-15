@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 using UI;
 using PlayerModule;
-using ItemModule;
+using Items;
 
 namespace UI.Chat {
 

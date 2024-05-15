@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WorldModule;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule;
-using ChunkModule.IO;
-using ChunkModule.PartitionModule;
+using Chunks.ClosedChunkSystemModule;
+using Chunks;
+using Chunks.IO;
+using Chunks.Partitions;
 
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController

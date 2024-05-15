@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine;
-using ConduitModule.Systems;
+using Conduits.Systems;
 using UnityEngine.Tilemaps;
-using ChunkModule;
-using ItemModule.Tags;
-using ItemModule.Tags.Matrix;
-using ItemModule;
+using Chunks;
+using Items.Tags;
+using Items.Tags.Matrix;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Controller")]

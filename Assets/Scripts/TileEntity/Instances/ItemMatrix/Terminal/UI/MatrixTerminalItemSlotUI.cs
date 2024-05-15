@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ItemModule.Inventory;
+using Items.Inventory;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     

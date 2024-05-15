@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.UI;
-using ItemModule.Tags.FluidContainers;
+using Items.Tags.FluidContainers;
 using RecipeModule;
 using TileEntityModule.Instances.Matrix;
-using ItemModule.Inventory;
+using Items.Inventory;
 using RobotModule;
 
-namespace ItemModule.Tags {
+namespace Items.Tags {
     public enum ItemTag {
         FluidContainer,
         EnergyContainer,

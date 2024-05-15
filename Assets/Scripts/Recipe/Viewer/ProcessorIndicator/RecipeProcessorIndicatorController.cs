@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using ItemModule;
+using Items;
 
 namespace RecipeModule.Viewer {
     public class RecipeProcessorIndicatorController : MonoBehaviour

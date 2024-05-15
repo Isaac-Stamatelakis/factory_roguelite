@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 using Entities;
 
 namespace Dimensions {

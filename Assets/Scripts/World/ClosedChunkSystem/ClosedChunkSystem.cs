@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ChunkModule.IO;
-using TileMapModule.Layer;
-using TileMapModule;
-using TileMapModule.Type;
-using ChunkModule.LoadController;
-using TileMapModule.Conduit;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.IO;
+using TileMaps.Layer;
+using TileMaps;
+using TileMaps.Type;
+using Chunks.LoadController;
+using TileMaps.Conduit;
+using Chunks.Partitions;
 using Tiles;
 using Fluids;
 using PlayerModule;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     /// <summary>
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 

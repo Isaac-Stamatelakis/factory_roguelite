@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Machines;
 using TileEntityModule;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName ="RP~New Energy Recipe Processor",menuName="Crafting/Processor/Energy")]

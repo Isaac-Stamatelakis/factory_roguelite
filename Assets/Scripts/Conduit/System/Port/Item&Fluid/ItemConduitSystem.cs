@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using ConduitModule;
-using ConduitModule.Ports;
+using Conduits;
+using Conduits.Ports;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
 
     public class SolidItemConduitSystem : ItemConduitSystem<SolidItemConduitPort, SolidItemConduitInputPort, SolidItemConduitOutputPort>
     {

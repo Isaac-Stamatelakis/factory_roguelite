@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.PartitionModule;
-using TileMapModule.Layer;
-using ConduitModule.Ports;
-using ConduitModule.Systems;
+using Chunks.Partitions;
+using TileMaps.Layer;
+using Conduits.Ports;
+using Conduits.Systems;
+using Items;
 
-namespace ConduitModule {
+namespace Conduits {
     public interface IConduit {
         public int getX();
         public int getY();

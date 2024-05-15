@@ -4,10 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Dimensions;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule;
+using Chunks.ClosedChunkSystemModule;
+using Chunks;
 using WorldModule;
-using ChunkModule.IO;
+using Chunks.IO;
 using System.IO;
 
 

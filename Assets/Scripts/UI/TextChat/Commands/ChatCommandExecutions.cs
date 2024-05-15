@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using ItemModule;
+using Items;
 using PlayerModule;
 using Entities;
 using Dimensions;

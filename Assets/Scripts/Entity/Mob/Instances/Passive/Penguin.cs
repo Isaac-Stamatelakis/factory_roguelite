@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using ItemModule;
+using Items;
 using UnityEngine;
 
 namespace Entities.Mobs {

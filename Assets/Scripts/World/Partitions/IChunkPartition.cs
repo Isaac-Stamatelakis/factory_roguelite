@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
-using TileMapModule;
-using TileMapModule.Layer;
+using TileMaps.Type;
+using TileMaps;
+using TileMaps.Layer;
 using TileEntityModule;
 using Tiles;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
     public interface IChunkPartition {
         public SeralizedWorldData getData();
         public UnityEngine.Vector2Int getRealPosition();

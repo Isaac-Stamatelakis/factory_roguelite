@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
+using Items;
 
 namespace RecipeModule.Viewer {
     public static class RecipeViewerHelper

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.IO;
+using Chunks.IO;
 using Entities;
 
 namespace WorldModule.Caves {

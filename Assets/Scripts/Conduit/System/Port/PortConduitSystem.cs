@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using ChunkModule.PartitionModule;
-using ConduitModule.Ports;
+using Chunks.Partitions;
+using Conduits.Ports;
 using System.Linq;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public interface IConduitSystem {
         public int getSize();
         public bool connectsTo(IConduitSystem conduitSystem);

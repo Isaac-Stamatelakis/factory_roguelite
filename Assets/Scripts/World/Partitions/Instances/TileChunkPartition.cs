@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
-using TileMapModule;
-using TileMapModule.Layer;
+using TileMaps.Type;
+using TileMaps;
+using TileMaps.Layer;
 using TileEntityModule;
 using Tiles;
 using UnityEngine.Tilemaps;
-using ItemModule;
-using ConduitModule.Ports;
+using Items;
+using Conduits.Ports;
 using Fluids;
 using Entities;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
 public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T : SeralizedWorldData
     {
         public TileChunkPartition(SeralizedWorldData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)

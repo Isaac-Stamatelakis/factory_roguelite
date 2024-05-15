@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using ChunkModule;
+using Chunks;
 
 namespace TileEntityModule.Instances {
     [CreateAssetMenu(fileName = "New Torch", menuName = "Tile Entity/Torch")]

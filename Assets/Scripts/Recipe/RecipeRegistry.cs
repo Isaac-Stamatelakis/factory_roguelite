@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEditor;
+using Items;
 
 namespace RecipeModule {
     public class RecipeRegistry 

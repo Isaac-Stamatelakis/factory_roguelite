@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
+using Conduits.Ports;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public class EnergyConduitSystem : PortConduitSystem<EnergyConduitInputPort, EnergyConduitOutputPort>
     {
         public EnergyConduitSystem(string id) : base(id)

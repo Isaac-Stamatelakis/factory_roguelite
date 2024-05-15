@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine Layout", menuName = "Tile Entity/Machine/Layout/Standard")]

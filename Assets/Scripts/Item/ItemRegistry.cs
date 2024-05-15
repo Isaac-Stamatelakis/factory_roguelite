@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using RobotModule;
-using ItemModule;
+using Items;
 using TileEntityModule;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using RecipeModule;
-using ItemModule.Transmutable;
+using Items.Transmutable;
 using System.Linq;
 
-namespace ItemModule {
+namespace Items {
     public class ItemRegistry {
         private static Dictionary<string,ItemObject> items;
         private static ItemRegistry instance;

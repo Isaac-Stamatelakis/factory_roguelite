@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.IO;
+using Chunks.IO;
 using Tiles;
 using UnityEngine.Tilemaps;
-using ItemModule;
+using Items;
 
 namespace WorldModule.Caves {
     public static class AreaGenerationHelper

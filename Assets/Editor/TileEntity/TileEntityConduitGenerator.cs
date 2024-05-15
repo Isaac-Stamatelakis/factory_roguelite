@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntityModule;
 using TileEntityModule.Instances.Machines;
-using ConduitModule.Ports;
+using Conduits.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {
     private TileEntity tileEntity;

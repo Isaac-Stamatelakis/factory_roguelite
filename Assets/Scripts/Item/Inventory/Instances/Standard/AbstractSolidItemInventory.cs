@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public interface ILoadableInventory {
         public void initalize(List<ItemSlot> items);
     }

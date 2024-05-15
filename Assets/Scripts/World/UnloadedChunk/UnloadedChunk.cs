@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.PartitionModule;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.Partitions;
+using Chunks.ClosedChunkSystemModule;
 
-namespace ChunkModule {
+namespace Chunks {
 
     public interface ISoftLoadedChunk {
         public SoftLoadedClosedChunkSystem getSystem();

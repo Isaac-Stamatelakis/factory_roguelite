@@ -5,8 +5,8 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.IO;
 using Newtonsoft.Json;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule;
+using Chunks.ClosedChunkSystemModule;
+using Chunks;
 using System.Threading.Tasks;
 
 namespace Entities.Mobs {

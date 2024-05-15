@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 using Entities.Mobs;
 using System.Threading.Tasks;
 

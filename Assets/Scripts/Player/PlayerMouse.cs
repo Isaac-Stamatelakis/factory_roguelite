@@ -2,19 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ChunkModule;
-using ChunkModule.ClosedChunkSystemModule;
-using TileMapModule.Layer;
-using TileMapModule;
-using TileMapModule.Place;
-using ChunkModule.PartitionModule;
-using TileMapModule.Type;
-using ConduitModule.Systems;
-using ConduitModule.Ports;
+using Chunks;
+using Chunks.ClosedChunkSystemModule;
+using TileMaps.Layer;
+using TileMaps;
+using TileMaps.Place;
+using Chunks.Partitions;
+using TileMaps.Type;
+using Conduits.Systems;
+using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using ConduitModule;
+using Conduits;
 using Dimensions;
-using ItemModule;
+using Items;
 using TileEntityModule;
 using Entities;
 
@@ -116,7 +116,7 @@ namespace PlayerModule.Mouse {
             if (conduitItem == null) {
                 return false;
             }
-            ConduitType conduitType = conduitItem.getType();
+            ConduitType conduitType = conduitItem.getConduitType();
             //ConduitType conduitType = devMode.breakType.toConduit();
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {

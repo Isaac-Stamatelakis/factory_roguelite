@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using ItemModule.Inventory;
+using Items.Inventory;
 using RecipeModule;
 using System;
 

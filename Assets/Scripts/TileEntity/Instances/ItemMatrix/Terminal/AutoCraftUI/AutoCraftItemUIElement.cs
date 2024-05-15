@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace TileEntityModule.Instances.Matrix {
     public enum AutoCraftElementMode {

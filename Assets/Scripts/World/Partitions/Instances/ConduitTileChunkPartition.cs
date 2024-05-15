@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using TileMapModule;
-using TileMapModule.Layer;
-using TileMapModule.Type;
-using ConduitModule;
-using ChunkModule.IO;
-using ConduitModule.Ports;
-using ItemModule;
+using TileMaps;
+using TileMaps.Layer;
+using TileMaps.Type;
+using Conduits;
+using Chunks.IO;
+using Conduits.Ports;
+using Items;
 using TileEntityModule.Instances.CompactMachines;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 using Tiles;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
     public interface IConduitTileChunkPartition {
         public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts);
         public bool getConduitLoaded();
@@ -330,7 +330,7 @@ namespace ChunkModule.PartitionModule {
             if (conduitItem == null) {
                 return;
             }
-            ITileMap tileGridMap = tileGridMaps[conduitItem.getType().toTileMapType()];
+            ITileMap tileGridMap = tileGridMaps[conduitItem.getConduitType().toTileMapType()];
             tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,

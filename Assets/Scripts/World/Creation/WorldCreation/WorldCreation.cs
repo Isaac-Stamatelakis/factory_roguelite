@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Tilemaps;
-using ChunkModule.IO;
-using TileMapModule.Layer;
+using Chunks.IO;
+using TileMaps.Layer;
 using PlayerModule.IO;
 using WorldModule.Caves;
-using ItemModule;
+using Items;
 using RobotModule;
 using Entities;
 

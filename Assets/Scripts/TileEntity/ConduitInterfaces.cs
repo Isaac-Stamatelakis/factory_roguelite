@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
 using TileEntityModule.Instances.Matrix;
-using ConduitModule.Systems;
+using Conduits.Systems;
 
 public interface IItemConduitInteractable : IConduitInteractable {
         

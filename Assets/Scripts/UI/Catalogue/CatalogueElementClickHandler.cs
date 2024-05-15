@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
+using Items;
 
 namespace UI.JEI {
     public class CatalogueElementClickHandler : MonoBehaviour, IPointerClickHandler

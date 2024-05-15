@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
 
 public class GrabbedItemProperties : MonoBehaviour
 {

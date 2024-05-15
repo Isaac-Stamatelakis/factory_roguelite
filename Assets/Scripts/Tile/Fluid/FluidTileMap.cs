@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule;
-using ChunkModule.PartitionModule;
+using TileMaps;
+using Chunks.Partitions;
 using UnityEngine.Tilemaps;
-using ItemModule;
+using Items;
 using System.Linq;
 
 namespace Fluids {

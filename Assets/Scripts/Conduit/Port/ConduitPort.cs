@@ -4,7 +4,7 @@ using UnityEngine;
 using TileEntityModule;
 using Newtonsoft.Json;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     public interface IConduitPort {
         public object getInputPort();
         public object GetOutputPort();

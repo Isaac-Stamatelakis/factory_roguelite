@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using RecipeModule;
 
 namespace TileEntityModule {

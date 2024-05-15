@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags;
-using ItemModule;
+using Items.Tags;
+using Items;
 
 public static class ItemSlotHelper
 {

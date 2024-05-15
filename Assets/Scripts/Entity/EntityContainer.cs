@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.ClosedChunkSystemModule;
+using Chunks.Partitions;
 using Dimensions;
 
 namespace Entities {

@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
-using ConduitModule;
-using ConduitModule.Systems;
+using Conduits.Ports;
+using Conduits;
+using Conduits.Systems;
 using UnityEngine.Tilemaps;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
 using TileEntityModule;
 
-namespace ConduitModule.PortViewer {
+namespace Conduits.PortViewer {
     public class ConduitPortViewer : MonoBehaviour
     {
         private IConduitSystemManager systemManager;

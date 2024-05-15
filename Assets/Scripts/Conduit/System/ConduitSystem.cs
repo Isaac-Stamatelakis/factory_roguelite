@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public abstract class ConduitSystem<SystemConduit> : IConduitSystem where SystemConduit : IConduit 
         {
         public ConduitSystem(string id) {

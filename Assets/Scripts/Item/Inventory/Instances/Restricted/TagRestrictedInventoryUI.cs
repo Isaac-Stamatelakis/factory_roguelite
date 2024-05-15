@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags;
+using Items.Tags;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class TagRestrictedInventoryUI : AbstractSolidItemInventory
     {
         [SerializeField] protected ItemTag validTag;

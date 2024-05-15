@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using System;
 using RecipeModule;
+using Items;
 
 public class RecipeReloadWindow : EditorWindow {
     [MenuItem("Tools/Recipe/Reload")]

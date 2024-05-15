@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     /// <summary>
     /// Creates a boundary around loaded partitions which prevents entities and players from passing through
     /// </summary>

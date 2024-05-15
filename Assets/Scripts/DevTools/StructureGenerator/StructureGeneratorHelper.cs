@@ -7,9 +7,9 @@ using WorldModule;
 using PlayerModule;
 using PlayerModule.IO;
 using RobotModule;
-using ChunkModule;
-using ChunkModule.IO;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.IO;
+using Chunks.Partitions;
 using System.Linq;
 #if UNITY_EDITOR
 

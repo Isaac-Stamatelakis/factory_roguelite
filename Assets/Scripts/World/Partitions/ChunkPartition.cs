@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using TileMapModule;
-using TileMapModule.Layer;
-using TileMapModule.Type;
+using TileMaps;
+using TileMaps.Layer;
+using TileMaps.Type;
 using Tiles;
-using ItemModule;
-using ConduitModule.Ports;
+using Items;
+using Conduits.Ports;
 using Entities;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
     
     public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {

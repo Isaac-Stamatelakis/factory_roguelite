@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.IO;
+using Chunks.IO;
 using System;
 using Entities;
-using ChunkModule.PartitionModule;
-using ChunkModule;
+using Chunks.Partitions;
+using Chunks;
 using WorldModule.Caves;
 
 namespace WorldModule {

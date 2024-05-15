@@ -6,10 +6,10 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using WorldModule.Caves;
 using DevTools.Structures;
-using ChunkModule;
+using Chunks;
 using WorldModule;
-using ChunkModule.PartitionModule;
-using ChunkModule.IO;
+using Chunks.Partitions;
+using Chunks.IO;
 
 public class StructureGenerator : EditorWindow {
     private static string[] structureNames = new string[]{"Restart this Editor"};

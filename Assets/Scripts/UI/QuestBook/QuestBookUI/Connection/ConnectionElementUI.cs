@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
+using Items;
 using UnityEngine.EventSystems;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace UI.QuestBook {
     public class ConnectionElementUI : MonoBehaviour, IPointerClickHandler

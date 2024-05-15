@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using ItemModule.Tags;
+using Items.Tags;
 using TMPro;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public static class ItemSlotUIFactory
     {
         private static string slotName = "slot";

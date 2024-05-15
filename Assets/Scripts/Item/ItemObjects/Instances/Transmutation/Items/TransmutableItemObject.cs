@@ -2,13 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Transmutable {
-    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem
+namespace Items.Transmutable {
+    public class TransmutableItemObject : PresetItemObject, ITransmutableItem, IStateItem
     {
         [SerializeField] private TransmutableItemState state;
         [SerializeField] private TransmutableItemMaterial material;
-        public Sprite sprite;
-
         public TransmutableItemMaterial getMaterial()
         {
             return material;
@@ -29,14 +27,12 @@ namespace ItemModule.Transmutable {
             this.material = material;
         }
 
-        public override Sprite getSprite()
-        {
-            return sprite;
-        }
-
         public ItemState getItemState()
         {
             return state.getMatterState();
+        }
+        public void setSprite(Sprite sprite) {
+            this.sprites = new Sprite[]{sprite};
         }
     }
 }

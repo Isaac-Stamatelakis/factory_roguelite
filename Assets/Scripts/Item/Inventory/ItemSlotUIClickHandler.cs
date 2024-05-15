@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
-using ItemModule.Inventory;
+using Items.Inventory;
+using Items;
 
 public interface IItemSlotUIElement {
     public ItemSlot getItemSlot();

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace ItemModule.Transmutable {
+namespace Items.Transmutable {
     [CreateAssetMenu(fileName ="New Metal Material",menuName="Item/Instances/Transmutable/Metal")]
     public class MetalTransmutableMaterial : TransmutableItemMaterial
     {

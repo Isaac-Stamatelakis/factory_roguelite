@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using ItemModule.Transmutable;
-using ItemModule;
+using Items.Transmutable;
+using Items;
 
 public class TransmutableItemGenerator : EditorWindow {
     private static string GeneratePath = "Assets/Resources/Items/TransmutableItems";

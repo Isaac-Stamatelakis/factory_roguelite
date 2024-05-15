@@ -4,10 +4,10 @@ using UnityEngine;
 using TMPro;
 using System;
 using PlayerModule.IO;
-using ItemModule.Inventory;
-using ItemModule;
+using Items.Inventory;
+using Items;
 using Dimensions;
-using ChunkModule;
+using Chunks;
 using UnityEngine.UI;
 using Entities;
 

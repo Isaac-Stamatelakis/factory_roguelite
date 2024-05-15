@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using ItemModule.Tags.FluidContainers;
+using Items.Tags.FluidContainers;
 using System.Linq;
-using ItemModule.Tags.Matrix;
+using Items.Tags.Matrix;
 
-namespace ItemModule.Tags{
+namespace Items.Tags{
     public static class ItemTagFactory
     {
         public static ItemTagCollection initalize(ItemObject itemObject) {
-            if (itemObject is ITaggable taggable) {
+            if (itemObject is ITaggableItem taggable) {
                 return initalizeFromTaggable(taggable);
             }
             return null; 
@@ -40,28 +40,37 @@ namespace ItemModule.Tags{
             return new ItemTagCollection(dict);
      
         }
-        private static ItemTagCollection initalizeFromTaggable(ITaggable taggable) {
-            Dictionary<ItemTag,object> tags = new Dictionary<ItemTag, object>();
+        private static ItemTagCollection initalizeFromTaggable(ITaggableItem taggable) {
+            List<ItemTag> tags = taggable.getTags();
+            if (tags.Count == 0) {
+                return null;
+            }
+            Dictionary<ItemTag,object> tagsDict = new Dictionary<ItemTag, object>();
+            foreach (ItemTag tag in taggable.getTags()) {
+                tagsDict[tag] = null;
+            }
+            /*
             if (taggable is IFluidContainer) {
-                tags[ItemTag.FluidContainer] = null;
+                tagsDict[ItemTag.FluidContainer] = null;
             }
             if (taggable is TileItem tileItem) {
 
             }
             if (taggable is EncodedRecipeItem encodedRecipeItem) {
-                tags[ItemTag.EncodedRecipe] = null;
+                tagsDict[ItemTag.EncodedRecipe] = null;
             }
             if (taggable is MatrixDriveItem matrixDriveItem) {
                 List<ItemSlot> inventory = new List<ItemSlot>();
                 for (int i = 0; i < matrixDriveItem.MaxItems; i++) {
                     inventory.Add(null);
                 }
-                tags[ItemTag.StorageDrive] = inventory;
+                tagsDict[ItemTag.StorageDrive] = inventory;
             }
-            if (tags.Count == 0) {
+            if (tagsDict.Count == 0) {
                 return null;
             }
-            return new ItemTagCollection(tags);
+            */
+            return new ItemTagCollection(tagsDict);
         }
 
         public static bool tagsEqual(ItemTagCollection first, ItemTagCollection second) {
