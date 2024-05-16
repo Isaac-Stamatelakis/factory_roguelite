@@ -67,13 +67,8 @@ namespace Items {
                 case ItemDisplayType.Stack:
                     Image[] images = itemSprite.GetComponentsInChildren<Image>();
                     Sprite[] stackSprites = itemObject.getSprites();
-                    /*
-                    if (images.Length+1 != stackSprites.Length) {
-                        Debug.LogWarning("Lengthes do not match");
-                    }
-                    */
-                    for (int i = 0; i < stackSprites.Length-1; i++) {
-                        int imageIndex = stackSprites.Length-i-1; // Sprites are orded by index with larger showing lower
+                    for (int i = 0; i < stackSprites.Length; i++) {
+                        int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
                         setImageSprite(images[imageIndex],stackSprites[i]);
                     }
                     break;
@@ -119,12 +114,17 @@ namespace Items {
                 }
             }
             if (itemSlot.itemObject.getDisplayType() == ItemDisplayType.Stack) {
-                int requiredImages = itemSlot.itemObject.getSprites().Length-1; // Subtract one because base image object is used
+                itemSprite.enabled = false;
+                int requiredImages = itemSlot.itemObject.getSprites().Length;
                 while (itemSprite.transform.childCount < requiredImages) {
                     GameObject imageObject = new GameObject();
                     imageObject.name = ItemDisplayUtils.StackSpriteImageName + itemSprite.transform.childCount;
                     imageObject.AddComponent<Image>();
                     imageObject.transform.SetParent(itemSprite.transform,false);
+                    RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
+                    rectTransform.sizeDelta = Vector2.zero;
+                    rectTransform.anchorMin = Vector2.zero;
+                    rectTransform.anchorMax = Vector2.one;
                 }
                 while (itemSprite.transform.childCount > requiredImages) {
                     Transform child = itemSprite.transform.GetChild(itemSprite.transform.childCount-1);

@@ -76,7 +76,6 @@ namespace Dimensions {
             await activateSystem(newSystem);
         }
         private async Task activateSystem(ClosedChunkSystem newSystem) {
-            
             await resetMobRegistry(newSystem);
             if (activeSystem != null) {
                 activeSystem.deactivateAllPartitions();

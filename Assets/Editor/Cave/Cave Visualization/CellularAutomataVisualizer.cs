@@ -45,8 +45,6 @@ public class CellularGenerationVisualizer : GenerationModelVisualizer
             case RandomType.Spheres:
                 showFrequency();
                 break;
-            case RandomType.Checker:
-                break;
         }
     }
 
