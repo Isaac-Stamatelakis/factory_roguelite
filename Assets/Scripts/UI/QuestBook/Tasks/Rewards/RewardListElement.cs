@@ -11,7 +11,7 @@ using Items.Inventory;
 namespace UI.QuestBook {
     public class RewardListElement : MonoBehaviour, IPointerClickHandler,  IItemListReloadable
     {
-        [SerializeField] private Image itemImage;
+        [SerializeField] private Transform itemContainer;
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI itemAmount;
         [SerializeField] private Image radioButtonImage;
@@ -51,16 +51,10 @@ namespace UI.QuestBook {
         }
 
         public void display() {
-            SerializedItemSlot serializedItemSlot = ItemSlot;
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(serializedItemSlot.id);
-            if (itemObject != null) {
-                itemImage.sprite = itemObject.getSprite();
-                if (itemImage.sprite != null) {
-                    itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
-                }
-                itemName.text = itemObject.name;
-            }
-            itemAmount.text = serializedItemSlot.amount.ToString();
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,null);
+            itemSlotUI.init(null,false);
+            itemAmount.text = itemSlot.amount.ToString();
             displayRadioButton();  
         }
 

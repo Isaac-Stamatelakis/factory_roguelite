@@ -15,8 +15,8 @@ namespace Items.Inventory {
         }
         public override void leftClick(int n)
         {
-            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot != null && grabbedSlot.itemObject != null && (grabbedSlot.tags == null || !grabbedSlot.tags.Dict.ContainsKey(validTag))) {
                 return;
             }

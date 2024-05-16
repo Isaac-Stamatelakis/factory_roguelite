@@ -39,11 +39,6 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public override void loadItem(int n)
-        {
-            base.loadItem(n);
-        }
-
         public override void middleClick(int n)
         {
             base.middleClick(n);

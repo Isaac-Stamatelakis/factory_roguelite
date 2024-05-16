@@ -98,7 +98,7 @@ namespace UI.QuestBook {
             return new SerializedQuestBookNode(
                 questBookNode.X,
                 questBookNode.Y,
-                questBookNode.ItemImageID,
+                questBookNode.ImageSeralizedItemSlot,
                 convertQuestBookNodeContent(questBookNode.Content),
                 questBookNode.Prerequisites,
                 questBookNode.Id,

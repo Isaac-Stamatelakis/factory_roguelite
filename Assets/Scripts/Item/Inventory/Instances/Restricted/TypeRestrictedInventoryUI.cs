@@ -16,7 +16,7 @@ namespace Items.Inventory {
                 Debug.LogError("Inventory " + name + " GrabbedItem is null");
             }
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot != null && grabbedSlot.itemObject != null && grabbedSlot.itemObject is not T) {
                 return;
             }

@@ -11,7 +11,7 @@ namespace UI {
         public Image placeHolder;
         public VideoPlayer videoPlayer;
         private int counter;
-        public int delay;
+        public int fadeDelay;
         void Start()
         {
             videoPlayer.Play();
@@ -23,9 +23,9 @@ namespace UI {
                 return;
             }
             counter++;
-            if (counter < delay + 255) {
+            if (counter < fadeDelay + 255) {
                 Color color = placeHolder.color;
-                color.a = (255-counter+delay)/255f;
+                color.a = (255-counter+fadeDelay)/255f;
                 placeHolder.color = color;
             } else {
                 GameObject.Destroy(placeHolder.gameObject);

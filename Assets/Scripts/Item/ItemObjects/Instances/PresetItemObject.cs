@@ -15,7 +15,7 @@ namespace Items {
 
         public override Sprite getSprite()
         {
-            if (sprites.Length < 1) {
+            if (sprites == null || sprites.Length < 1) {
                 return null;
             }
             return sprites[0];

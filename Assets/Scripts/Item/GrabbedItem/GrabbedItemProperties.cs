@@ -4,58 +4,66 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
-using Items;
 using Items.Inventory;
 
-public class GrabbedItemProperties : MonoBehaviour
-{
-    public ItemSlot itemSlot;
-    // Start is called before the first frame update
-
-    // Update is called once per frame
-    void Update()
+namespace Items {
+    public class GrabbedItemProperties : MonoBehaviour
     {
-        Vector3 position = Input.mousePosition;
-        position.z = 0;
-        transform.position = position;
-    }
+        private static GrabbedItemProperties instance;
+        public void Awake() {
+            instance = this;
+            itemSlotUI = gameObject.AddComponent<ItemSlotUI>();
+            itemSlotUI.init(null);
+        }
+        private ItemSlotUI itemSlotUI;
+        public ItemSlot ItemSlot {get => itemSlot;}
+        public static GrabbedItemProperties Instance { get => instance;}
 
-    public void updateSprite() {
-        ItemSlotUIFactory.unload(transform);
-        if (itemSlot != null && itemSlot.itemObject != null) {
-            ItemSlotUIFactory.load(itemSlot,transform);
-            return;
+        private ItemSlot itemSlot;
+        void Update()
+        {
+            Vector3 position = Input.mousePosition;
+            position.z = 0;
+            transform.position = position;
         }
-    }
-    
-    public bool setItemSlotFromInventory(List<ItemSlot> inventory, int n) {
-        if (itemSlot != null && itemSlot.itemObject != null) {
-            return false;
+        public void setItemSlot(ItemSlot itemSlot) {
+            this.itemSlot = itemSlot;
+            updateSprite();
         }
-        ItemSlot inventorySlot = inventory[n];
-        ItemSlot newSlot = ItemSlotFactory.createNewItemSlot(inventorySlot.itemObject,1);
-        inventorySlot.amount--;
-        if (inventorySlot.amount == 0) {
-            inventory[n] = null;
-        }
-        this.itemSlot = newSlot;
-        updateSprite();
-        return true;
-    }
 
-    public void addItemSlotFromInventory(List<ItemSlot> inventory, int n) {
-        ItemSlot inventorySlot = inventory[n];
-        if (!ItemSlotHelper.areEqual(itemSlot,inventorySlot)) {
-            return;
+        public void updateSprite() {
+            itemSlotUI.display(itemSlot);
         }
-        if (itemSlot.amount >= Global.MaxSize) {
-            return;
+        
+        public bool setItemSlotFromInventory(List<ItemSlot> inventory, int n) {
+            if (ItemSlot != null && ItemSlot.itemObject != null) {
+                return false;
+            }
+            ItemSlot inventorySlot = inventory[n];
+            ItemSlot newSlot = ItemSlotFactory.createNewItemSlot(inventorySlot.itemObject,1);
+            inventorySlot.amount--;
+            if (inventorySlot.amount == 0) {
+                inventory[n] = null;
+            }
+            setItemSlot(newSlot);
+            return true;
         }
-        inventorySlot.amount--;
-        if (inventorySlot.amount == 0) {
-            inventory[n] = null;
+
+        public void addItemSlotFromInventory(List<ItemSlot> inventory, int n) {
+            ItemSlot inventorySlot = inventory[n];
+            if (!ItemSlotHelper.areEqual(ItemSlot,inventorySlot)) {
+                return;
+            }
+            if (ItemSlot.amount >= Global.MaxSize) {
+                return;
+            }
+            inventorySlot.amount--;
+            if (inventorySlot.amount == 0) {
+                inventory[n] = null;
+            }
+            this.ItemSlot.amount += 1;
+            updateSprite();
         }
-        this.itemSlot.amount += 1;
-        updateSprite();
     }
 }
+

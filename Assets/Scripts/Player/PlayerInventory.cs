@@ -127,7 +127,7 @@ namespace PlayerModule {
                             if (itemEntityProperities.itemSlot.amount <= 0) {
                                 Destroy(itemEntityProperities.gameObject);
                             }
-                            playerInventoryGrid.reloadItem(n);
+                            playerInventoryGrid.displayItem(n);
                         }
                     }
                     if (!alreadyInInventory && firstOpenSlot >= 0) {
@@ -150,11 +150,8 @@ namespace PlayerModule {
             inventory[selectedSlot].amount--;
             if (inventory[selectedSlot].amount == 0) {
                 inventory[selectedSlot] = null;
-                
-                playerInventoryGrid.unloadItem(selectedSlot);
-            } else {
-                playerInventoryGrid.reloadItem(selectedSlot);
             }
+            playerInventoryGrid.displayItem(selectedSlot);
         }
 
         public void iterateSelectedTile(int iterator) {

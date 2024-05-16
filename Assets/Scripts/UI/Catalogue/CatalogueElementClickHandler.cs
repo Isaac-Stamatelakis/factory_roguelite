@@ -23,9 +23,8 @@ namespace UI.JEI {
                         break;
                     case CatalogueMode.Cheat:
                         ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,Global.MaxSize);
-                        GrabbedItemProperties grabbedItemProperties = GameObject.Find("GrabbedItem").GetComponent<GrabbedItemProperties>();
-                        grabbedItemProperties.itemSlot = itemSlot;
-                        grabbedItemProperties.updateSprite();
+                        GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+                        grabbedItemProperties.setItemSlot(itemSlot);
                         break;
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
@@ -36,13 +35,13 @@ namespace UI.JEI {
                     case CatalogueMode.Cheat:
                         ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,1);
                         GrabbedItemProperties grabbedItemProperties = GameObject.Find("GrabbedItem").GetComponent<GrabbedItemProperties>();
-                        if (grabbedItemProperties.itemSlot == null) {
-                            grabbedItemProperties.itemSlot = itemSlot;
+                        if (grabbedItemProperties.ItemSlot == null) {
+                            grabbedItemProperties.setItemSlot(itemSlot);
                         } else {
-                            if (grabbedItemProperties.itemSlot.itemObject.id == itemObject.id) {
-                                grabbedItemProperties.itemSlot.amount = Mathf.Min(Global.MaxSize,1+grabbedItemProperties.itemSlot.amount);
+                            if (grabbedItemProperties.ItemSlot.itemObject.id == itemObject.id) {
+                                grabbedItemProperties.ItemSlot.amount = Mathf.Min(Global.MaxSize,1+grabbedItemProperties.ItemSlot.amount);
                             } else {
-                                grabbedItemProperties.itemSlot = itemSlot;
+                                grabbedItemProperties.setItemSlot(itemSlot);
                             }
                         }
                         grabbedItemProperties.updateSprite();

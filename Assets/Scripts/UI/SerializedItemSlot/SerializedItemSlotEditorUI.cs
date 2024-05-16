@@ -19,14 +19,16 @@ namespace UI {
         [SerializeField] private GridLayoutGroup itemSearchResultContainer;
         [SerializeField] private TMP_InputField itemSearch;
         [SerializeField] private TMP_InputField tagInput;
-        [SerializeField] private Image selectedImage;
+        [SerializeField] private Transform itemContainer;
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private Button upButton;
         [SerializeField] private Button downButton;
         [SerializeField] private Button deleteButton;
         [SerializeField] private Image deleteButtonPanel;
         [SerializeField] private TMP_InputField amountField;
-        private int size = 7*5;
+        private static readonly int ROWS = 7;
+        private static readonly int INITAL_COLUMNS = 5;
+        private int size = ROWS*INITAL_COLUMNS;
         private float initalSize;
         private SerializedItemSlot SerializedItemSlot {get => itemSlots[index];}
         private IItemListReloadable container;
@@ -125,11 +127,8 @@ namespace UI {
         }
 
         private void setImage() {
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(SerializedItemSlot.id);
-            if (itemObject != null) {
-                selectedImage.sprite = itemObject.getSprite();
-                selectedImage.transform.localScale = ItemSlotUIFactory.getItemScale(selectedImage.sprite);
-            }
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,ItemDisplayUtils.SolidItemPanelColor,false);
         }
         public void selectItem(ItemObject itemObject) {
             SerializedItemSlot serializedItemSlot = new SerializedItemSlot(
@@ -143,17 +142,15 @@ namespace UI {
         }
 
         private void loadOneMoreRow() {
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < ROWS; i++) {
                 if (size + i >= currentItems.Count) {
                     break;
                 }
                 ItemObject itemObject = currentItems[size+i];
                 size ++;
-                GameObject panel = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
-                panel.transform.SetParent(itemSearchResultContainer.transform,false);
-                SerializedItemSlotEditItemPanel editItemPanel = panel.GetComponent<SerializedItemSlotEditItemPanel>();
+                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
+                SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
-                ItemSlotUIFactory.getItemImage(itemObject,panel.transform);
             }
         }
         private void loadItems(string value) {
@@ -165,11 +162,9 @@ namespace UI {
             scrollRect.content.sizeDelta = contentSize;
             for (int i = 0; i < Mathf.Min(currentItems.Count,size); i++) {
                 ItemObject itemObject = currentItems[i];
-                GameObject panel = GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotPanel");
-                panel.transform.SetParent(itemSearchResultContainer.transform,false);
-                SerializedItemSlotEditItemPanel editItemPanel = panel.GetComponent<SerializedItemSlotEditItemPanel>();
+                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemContainer,ItemDisplayUtils.SolidItemPanelColor,false);
+                SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
-                ItemSlotUIFactory.getItemImage(itemObject,panel.transform);
             }
         }
 

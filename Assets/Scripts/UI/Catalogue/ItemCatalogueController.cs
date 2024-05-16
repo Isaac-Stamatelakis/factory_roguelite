@@ -128,21 +128,8 @@ namespace UI.JEI
                 }
                 if (!displayedIDs.Contains(itemObject.id)) { // Only create image if was not previously displayed
                     displayedIDs.Add(itemObject.id);
-                    GameObject itemObjectImage = new GameObject();
-                    CatalogueElementClickHandler clickHandler = itemObjectImage.AddComponent<CatalogueElementClickHandler>();
-                    clickHandler.init(this,itemObject);
-                    itemObjectImage.transform.SetParent(resultContainer);
-                    itemObjectImage.name = itemObject.id;
-                    Image image = itemObjectImage.AddComponent<Image>();
-                    image.sprite = itemObject.getSprite();
-                    Vector2 size = ItemSlotUIFactory.getItemSize(image.sprite);
-                    if (size.x > size.y) {
-                        itemObjectImage.transform.localScale = new Vector3(1,size.y/size.x,1);
-                    } else if (size.y > size.x) {
-                        itemObjectImage.transform.localScale = new Vector3(size.x/size.y,1,1);
-                    } else {
-                        itemObjectImage.transform.localScale = new Vector3(size.x/64,size.y/64,1);
-                    }
+                    ItemSlotUI slotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,0,null),resultContainer,null,false);
+
                 }
             }
         }

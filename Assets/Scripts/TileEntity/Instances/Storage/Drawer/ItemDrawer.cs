@@ -74,7 +74,7 @@ namespace TileEntityModule.Instances.Storage {
             }
             
             visualElement.sprite = itemSlot.itemObject.getSprite();
-            visualElement.transform.localScale = ItemSlotUIFactory.getConstrainedItemScale(visualElement.sprite,new Vector2(0.5f,0.5f));
+            visualElement.transform.localScale = ItemDisplayUtils.getConstrainedItemScale(visualElement.sprite,new Vector2(0.5f,0.5f));
 
         }
 

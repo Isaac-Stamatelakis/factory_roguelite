@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Items;
 using UnityEngine.EventSystems;
 using UI;
-using UI.NodeNetwork;
+using UI.NodeNetwork; 
 
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
@@ -13,10 +13,8 @@ namespace UI.QuestBook {
         
         protected override void setImage()
         {
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(node.ItemImageID);
-            if (itemObject != null) {
-                image.sprite = itemObject.getSprite();
-            }
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(node.ImageSeralizedItemSlot);
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,transform,null,false);
         }
 
         protected override void openContent()

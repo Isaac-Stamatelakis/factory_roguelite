@@ -12,8 +12,7 @@ namespace Items.Inventory {
         public void middleClick(int n);
     }
     public abstract class InventoryUI : MonoBehaviour, IItemUIClickReciever {
-        [SerializeField] protected GameObject slotPrefab;
-        protected List<GameObject> slots = new List<GameObject>();
+        protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;
         public ItemSlot getItemSlot(int index) {
             if (index < 0 || index >= inventory.Count) {
@@ -24,7 +23,7 @@ namespace Items.Inventory {
         protected void initalizeSlots() {
             for (int n = 0; n < inventory.Count; n ++) {
                 initSlot(n);
-                loadItem(n);
+                displayItem(n);
             }
         }
 
@@ -37,21 +36,14 @@ namespace Items.Inventory {
                 return;
             }
             for (int n = 0; n < slots.Count; n ++) {
-                GameObject slot = slots[n];
-                if (inventory[n] == null || inventory[n].itemObject == null) {
-                    ItemSlotUIFactory.unload(slot.transform);
-                    continue;
-                }
-                ItemSlotUIFactory.reload(slot,inventory[n]);
+                displayItem(n);
             }
         }
-
-        public void unloadItem(int n) {
-            ItemSlotUIFactory.unload(slots[n].transform);
-        }
-
-        public void reloadItem(int n) {
-            ItemSlotUIFactory.reload(slots[n],inventory[n]);
+        public void displayItem(int n) {
+            if (n < 0 || n >= slots.Count || n >= inventory.Count) {
+                return;
+            }
+            slots[n].display(inventory[n]);
         }
         protected virtual void initSlot(int n) {
             Transform slotTransform = transform.Find("slot" + n);
@@ -60,7 +52,7 @@ namespace Items.Inventory {
                 slots.Add(null);
                 return;
             }
-            slots.Add(slotTransform.gameObject);
+            slots.Add(slotTransform.GetComponent<ItemSlotUI>());
             initClickHandler(slotTransform,n);
         }
 
@@ -73,22 +65,13 @@ namespace Items.Inventory {
             }
             clickHandler.init(this,n);
         }
-        public virtual void loadItem(int n) {
-            if (n >= slots.Count) {
-                return;
-            }
-            GameObject slot = slots[n];
-            ItemSlot itemSlot = inventory[n];
-            ItemSlotUIFactory.load(itemSlot,slot.transform);
-        }
-
+        
         public virtual void setItem(int n, ItemSlot data) {
             if (n < 0 || n >= slots.Count) {
                 return;
             }
-            GameObject slot = slots[n];
             inventory[n]=data;
-            loadItem(n);
+            displayItem(n);
         }
     
 

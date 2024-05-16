@@ -276,8 +276,8 @@ namespace PlayerModule.Mouse {
             if (eventSystem.IsPointerOverGameObject()) {
                 return false;
             }
-            GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.itemSlot == null) {
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            if (grabbedItemProperties.ItemSlot == null) {
                 return false;
             }
             ILoadedChunk chunk = getChunk(mousePosition);
@@ -286,19 +286,18 @@ namespace PlayerModule.Mouse {
             }
             Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
             if (
-                grabbedItemProperties.itemSlot != null && 
-                grabbedItemProperties.itemSlot.itemObject != null && 
-                grabbedItemProperties.itemSlot.itemObject.id != null
+                grabbedItemProperties.ItemSlot != null && 
+                grabbedItemProperties.ItemSlot.itemObject != null && 
+                grabbedItemProperties.ItemSlot.itemObject.id != null
             ) {
                 ItemEntityHelper.spawnItemEntityWithVelocity(
                     new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.itemSlot,
+                    grabbedItemProperties.ItemSlot,
                     chunk.getEntityContainer(),
                     calculateItemVelocity(mousePosition)
                 );
             }
-            grabbedItemProperties.itemSlot = null;
-            grabbedItemProperties.updateSprite();
+            grabbedItemProperties.setItemSlot(null);
             return true;
         }
         

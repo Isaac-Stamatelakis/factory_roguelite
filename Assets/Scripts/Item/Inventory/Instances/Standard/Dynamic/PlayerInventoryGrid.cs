@@ -13,7 +13,7 @@ namespace Items.Inventory {
             }
             
             if (selectedSlot >= 0) {
-                slots[selectedSlot].GetComponent<Image>().color = new Color(1,1,1,100/255f);
+                slots[selectedSlot].GetComponent<Image>().color = ItemDisplayUtils.SolidItemPanelColor;
             }
             
             selectedSlot = n;
