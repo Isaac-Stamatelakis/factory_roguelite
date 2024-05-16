@@ -60,8 +60,7 @@ namespace Items.Inventory {
             
             ItemSlotUIClickHandler clickHandler = slot.GetComponent<ItemSlotUIClickHandler>();
             if (clickHandler == null) {
-                Debug.LogError("Slot" + n + " doesn't have click handler");
-                return;
+                clickHandler = slot.gameObject.AddComponent<ItemSlotUIClickHandler>();
             }
             clickHandler.init(this,n);
         }

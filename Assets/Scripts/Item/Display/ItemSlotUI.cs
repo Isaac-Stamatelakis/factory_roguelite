@@ -18,6 +18,10 @@ namespace Items {
         private ItemSlot displayed;
         public void FixedUpdate() {
             counter ++;
+            // Semi work around
+            if (displayed != null && displayed.itemObject != null && displayed.itemObject.getDisplayType() == ItemDisplayType.Animated) {
+                displayItemSprite(displayed.itemObject);
+            }
         }
         public void init(Color? color,bool textEnabled = true) {
             if (color != null) {
