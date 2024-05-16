@@ -47,7 +47,7 @@ public static class Global
     public static float ChunkOffset {get {return chunkOffset;}}
     private static float tileItemEntityScalar = 0.5f;
     private static int maxSize = 999;
-    private static readonly bool showSystemParameter = false;
+    private static readonly bool showSystemParameter = true;
     public static int MaxSize {get{return maxSize;}}
     public static float TileItemEntityScalar {get {return tileItemEntityScalar;}}
 

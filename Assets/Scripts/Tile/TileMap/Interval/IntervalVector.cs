@@ -36,4 +36,8 @@ public class IntervalVector
     {
         return "X:[" + X.LowerBound + "," + X.UpperBound + "], Y:[" + Y.LowerBound + "," + Y.UpperBound + "]";
     }
+    public static IntervalVector operator *(IntervalVector vector, int scalar)
+    {
+        return new IntervalVector(new Interval<int>(vector.X.LowerBound*scalar,vector.X.UpperBound*scalar),new Interval<int>(vector.Y.LowerBound*scalar,vector.Y.UpperBound*scalar));
+    }
 }
