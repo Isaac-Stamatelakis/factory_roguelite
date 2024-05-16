@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMapModule.Place;
+using TileMaps.Place;
 using PlayerModule;
 using Tiles;
-using ItemModule;
+using Items;
 
-namespace TileMapModule.Previewer {
+namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
     {
         public Vector3Int previouslyPreviewed;

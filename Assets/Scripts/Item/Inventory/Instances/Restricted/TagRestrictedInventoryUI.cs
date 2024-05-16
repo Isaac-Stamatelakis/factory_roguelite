@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags;
+using Items.Tags;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class TagRestrictedInventoryUI : AbstractSolidItemInventory
     {
         [SerializeField] protected ItemTag validTag;
@@ -15,8 +15,8 @@ namespace ItemModule.Inventory {
         }
         public override void leftClick(int n)
         {
-            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot != null && grabbedSlot.itemObject != null && (grabbedSlot.tags == null || !grabbedSlot.tags.Dict.ContainsKey(validTag))) {
                 return;
             }

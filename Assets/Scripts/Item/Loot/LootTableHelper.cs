@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace ItemModule {
+namespace Items {
     public static class LootTableHelper {
         public static List<ItemSlot> open(LootTable lootTable) {
             int lowRange = lootTable.lootRange.x;

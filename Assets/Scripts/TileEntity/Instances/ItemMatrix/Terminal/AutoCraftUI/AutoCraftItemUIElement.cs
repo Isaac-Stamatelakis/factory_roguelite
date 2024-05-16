@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule.Inventory;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     public enum AutoCraftElementMode {
@@ -20,20 +20,21 @@ namespace TileEntityModule.Instances.Matrix {
             int missing = required-amount;
             switch (mode) {
                 case AutoCraftElementMode.Input:
-                    avaiableText.text = "Avaiable: " + ItemSlotUIFactory.formatAmountText(amount,oneInvisible:false);
+                    avaiableText.text = "Avaiable: " + ItemDisplayUtils.formatAmountText(amount,oneInvisible:false);
                     if (missing <= 0) {
                         missingText.gameObject.SetActive(false);
                     } else {
-                        missingText.text = "Missing: " + ItemSlotUIFactory.formatAmountText(missing,oneInvisible:false);
+                        missingText.text = "Missing: " + ItemDisplayUtils.formatAmountText(missing,oneInvisible:false);
                         panel.color = Color.red;
                     }
                     break;
                 case AutoCraftElementMode.Output:
-                    avaiableText.text = "To Craft: " + ItemSlotUIFactory.formatAmountText(amount,oneInvisible:false);
+                    avaiableText.text = "To Craft: " + ItemDisplayUtils.formatAmountText(amount,oneInvisible:false);
                     missingText.gameObject.SetActive(false);
                     break;
             }
-            ItemSlotUIFactory.load(itemSlot,itemContainer);
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,null);
+            itemSlotUI.display(itemSlot);
         }
         public static AutoCraftItemUIElement newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/AutoCrafting/AutoCraftElement").GetComponent<AutoCraftItemUIElement>();   

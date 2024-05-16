@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMapModule.Place;
+using TileMaps.Place;
 
 [CreateAssetMenu(fileName ="New Rotatable Tile",menuName="Tile/RotatableTile")]
 public class RotatableTile : Tile {

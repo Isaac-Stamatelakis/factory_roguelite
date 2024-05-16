@@ -17,10 +17,16 @@ public class IntervalVector
         return position.x >= X.LowerBound && position.x <= X.UpperBound && position.y >= Y.LowerBound && position.y <= Y.UpperBound;
     }
     public void add(Vector2Int position) {
-        X.LowerBound += position.x;
-        X.UpperBound += position.x;
-        Y.LowerBound += position.y;
-        Y.UpperBound += position.y;
+        if (position.x < x.LowerBound) {
+            x.LowerBound = position.x;
+        } else if (position.x > x.UpperBound) {
+            x.UpperBound = position.x;
+        }
+        if (position.y < y.LowerBound) {
+            y.LowerBound = position.y;
+        } else if (position.y > y.UpperBound) {
+            y.UpperBound = position.y;
+        }
     }
     public Vector2Int getSize() {
         return new Vector2Int(Mathf.Abs(X.LowerBound-X.UpperBound)+1,Mathf.Abs(Y.LowerBound-Y.UpperBound)+1);
@@ -29,5 +35,9 @@ public class IntervalVector
     public override string ToString()
     {
         return "X:[" + X.LowerBound + "," + X.UpperBound + "], Y:[" + Y.LowerBound + "," + Y.UpperBound + "]";
+    }
+    public static IntervalVector operator *(IntervalVector vector, int scalar)
+    {
+        return new IntervalVector(new Interval<int>(vector.X.LowerBound*scalar,vector.X.UpperBound*scalar),new Interval<int>(vector.Y.LowerBound*scalar,vector.Y.UpperBound*scalar));
     }
 }

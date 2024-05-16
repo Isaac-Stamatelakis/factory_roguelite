@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine;
-using ChunkModule;
+using Chunks;
 using PlayerModule;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
+using Entities;
 
 namespace TileEntityModule.Instances.Storage {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Storage/Drawer/Instance")]
@@ -73,7 +74,7 @@ namespace TileEntityModule.Instances.Storage {
             }
             
             visualElement.sprite = itemSlot.itemObject.getSprite();
-            visualElement.transform.localScale = ItemSlotUIFactory.getConstrainedItemScale(visualElement.sprite,new Vector2(0.5f,0.5f));
+            visualElement.transform.localScale = ItemDisplayUtils.getConstrainedItemScale(visualElement.sprite,new Vector2(0.5f,0.5f));
 
         }
 

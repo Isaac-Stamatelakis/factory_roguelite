@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.LoadController;
-using ChunkModule.IO;
+using Chunks.LoadController;
+using Chunks.IO;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     /// <summary>
     /// Chunks in this closed chunk system load and unload depending on player position
     /// </summary>

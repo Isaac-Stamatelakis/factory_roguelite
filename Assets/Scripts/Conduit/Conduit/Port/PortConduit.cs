@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
-using ConduitModule.Systems;
+using Conduits.Ports;
+using Conduits.Systems;
+using Items;
 
-namespace ConduitModule {
+namespace Conduits {
     public interface IPortConduit : IConduit {
         public IConduitPort getPort();
         public void setPort(IConduitPort port);

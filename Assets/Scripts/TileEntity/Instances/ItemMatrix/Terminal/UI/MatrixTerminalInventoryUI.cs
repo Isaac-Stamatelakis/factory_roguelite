@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags.Matrix;
-using ItemModule;
-using ItemModule.Inventory;
-using ItemModule.Tags;
-using ItemModule.Tags.FluidContainers;
+using Items.Tags.Matrix;
+using Items;
+using Items.Inventory;
+using Items.Tags;
+using Items.Tags.FluidContainers;
 using System.Linq;
 using PlayerModule;
 using Dimensions;
-using ChunkModule;
+using Chunks;
 using System.Threading.Tasks;
 
 namespace TileEntityModule.Instances.Matrix {
@@ -103,6 +103,10 @@ namespace TileEntityModule.Instances.Matrix {
                 }
                 toDisplay = itemSlot;
             }
+            /*
+            TODO FIX WHATEVER THE FUCK THIS IS
+            
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,ItemDisplayUtils.SolidItemPanelColor);
             MatrixTerminalItemSlotUI slot = MatrixTerminalItemSlotUI.newInstance(toDisplay, this);
             ItemSlotUIFactory.load(toDisplay, slot.transform);
             if (recipeOnly) {
@@ -111,6 +115,7 @@ namespace TileEntityModule.Instances.Matrix {
             var updatedValue = (tuple.Item1, slot,tuple.Item3);
             idTagItemSlotDict[id][tagKey] = updatedValue;
             slot.transform.SetParent(itemContainer, false);
+            */
         }
 
         public void buildDict() {
@@ -308,11 +313,11 @@ namespace TileEntityModule.Instances.Matrix {
             }
             
             ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
-            grabbedItemProperties.itemSlot = matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,amount);
-            if (grabbedItemProperties.itemSlot == null || grabbedItemProperties.itemSlot.itemObject == null) {
+            grabbedItemProperties.setItemSlot(matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,amount));
+            if (grabbedItemProperties.ItemSlot == null || grabbedItemProperties.ItemSlot.itemObject == null) {
                 return;
             }
-            inventorySlot.amount -= grabbedItemProperties.itemSlot.amount;
+            inventorySlot.amount -= grabbedItemProperties.ItemSlot.amount;
             updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
         }
 
@@ -340,7 +345,7 @@ namespace TileEntityModule.Instances.Matrix {
         private bool fluidCellClick(GrabbedItemProperties grabbedItemProperties, ItemSlot inventorySlot, IItemSlotUIElement slotUIElement) {
             
             
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot.itemObject is not IFluidContainer fluidContainer || grabbedSlot.tags == null || !grabbedSlot.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
                 return false;
             }
@@ -380,8 +385,8 @@ namespace TileEntityModule.Instances.Matrix {
         }
         public async void itemLeftClick(IItemSlotUIElement slotUIElement)
         {
-            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             ItemSlot inventorySlot = slotUIElement.getItemSlot();
             
             if (grabbedSlot == null || grabbedSlot.itemObject == null) {
@@ -408,8 +413,8 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void itemRightClick(IItemSlotUIElement slotUIElement)
         {
-            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             ItemSlot inventorySlot = slotUIElement.getItemSlot();
             if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
                 giveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,1);
@@ -417,11 +422,10 @@ namespace TileEntityModule.Instances.Matrix {
                 ItemSlot spliced = ItemSlotFactory.splice(grabbedSlot,1);
                 insertItemIntoSystemFromTerminal(spliced,grabbedItemProperties);
                 if (spliced.amount == 0) {
-                    grabbedItemProperties.itemSlot.amount--;
+                    grabbedItemProperties.ItemSlot.amount--;
                 }
-                if (grabbedItemProperties.itemSlot.amount == 0) {
-                    grabbedItemProperties.itemSlot = null;
-                    grabbedItemProperties.updateSprite();
+                if (grabbedItemProperties.ItemSlot.amount == 0) {
+                    grabbedItemProperties.setItemSlot(null);
                 }
             }
         }

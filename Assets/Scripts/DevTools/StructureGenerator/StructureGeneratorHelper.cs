@@ -7,8 +7,11 @@ using WorldModule;
 using PlayerModule;
 using PlayerModule.IO;
 using RobotModule;
-using ChunkModule;
-using ChunkModule.IO;
+using Chunks;
+using Chunks.IO;
+using Chunks.Partitions;
+using System.Linq;
+#if UNITY_EDITOR
 
 namespace DevTools.Structures {
     public static class StructureGeneratorHelper
@@ -17,7 +20,7 @@ namespace DevTools.Structures {
         private static string fillId = "structure_fill";
         private static string folder = "structureDev";
 
-        public static string ParameterId { get => parameterId; set => parameterId = value; }
+        public static string ParimeterId { get => parameterId; set => parameterId = value; }
         public static string FillId { get => fillId; set => fillId = value; }
         private static IntervalVector structDimBounds = new IntervalVector(new Interval<int>(-4,4), new Interval<int>(-4,4));
         public static string getPath(string structureName) {
@@ -31,13 +34,20 @@ namespace DevTools.Structures {
             }
             return folderPath;
         }
+
+        public static string[] getAllStructureFolders() {
+            string folderPath = getFolderPath();
+            string[] fullPaths = Directory.GetDirectories(folderPath);
+
+            string[] directoryNames = new string[fullPaths.Length];
+            for (int i = 0; i < fullPaths.Length; i++) {
+                directoryNames[i] = Path.GetFileName(fullPaths[i]);
+            }
+            return directoryNames;
+        }
       
         public static void newStructure(string name) {
-            
             string folderPath = getFolderPath();
-            if (!Directory.Exists(folderPath)) {
-                Directory.CreateDirectory(folderPath);
-            }
             string path = Path.Combine(folderPath,name);
             Directory.CreateDirectory(path);
             WorldManager.getInstance().setWorldPath(path);
@@ -49,7 +59,7 @@ namespace DevTools.Structures {
             Directory.CreateDirectory(structureDimPath);
             GameObject structDimPrefab = Resources.Load<GameObject>("TileMaps/StructDimTileMap");
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(structDimBounds.X.LowerBound-structDimBounds.X.UpperBound+1),Mathf.Abs(structDimBounds.Y.LowerBound-structDimBounds.Y.UpperBound+1));
-            WorldTileConduitData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
+            SeralizedWorldData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
             WorldGenerationFactory.saveToJson(dimData,caveSize,structDimBounds,0,structureDimPath);
 
 
@@ -80,22 +90,7 @@ namespace DevTools.Structures {
             File.WriteAllText(playerDataPath,json);
         }
 
-        public static void generateStructure(string structureName) {
-            Structure structure = ScriptableObject.CreateInstance<Structure>();
-            structure.name = structureName;
-            string creationPath = Path.Combine(Global.EditorCreationPath,structureName);
-            if (Directory.Exists(creationPath)) {
-                Directory.Delete(creationPath,true);
-            }
-            Directory.CreateDirectory(creationPath);
-            string path = getPath(structureName);
-            string dimPath = WorldLoadUtils.getDimPath(path, 0);
-
-            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
-            Debug.Log(chunks.Count);
-
-            
-        }
     }
 }
 
+#endif

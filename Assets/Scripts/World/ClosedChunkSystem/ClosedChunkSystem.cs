@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ChunkModule.IO;
-using TileMapModule.Layer;
-using TileMapModule;
-using TileMapModule.Type;
-using ChunkModule.LoadController;
-using TileMapModule.Conduit;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.IO;
+using TileMaps.Layer;
+using TileMaps;
+using TileMaps.Type;
+using Chunks.LoadController;
+using TileMaps.Conduit;
+using Chunks.Partitions;
 using Tiles;
 using Fluids;
 using PlayerModule;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     /// <summary>
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 
@@ -26,6 +26,7 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
+        public Dictionary<Vector2Int,ILoadedChunk> CachedChunk {get => cachedChunks;}
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
@@ -35,8 +36,8 @@ namespace ChunkModule.ClosedChunkSystemModule {
         protected int dim;
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
-
-        
+        private bool isQuitting = false;
+        private LoadedPartitionBoundary loadedPartitionBoundary;
         public virtual void Awake () {
             
         }
@@ -105,6 +106,12 @@ namespace ChunkModule.ClosedChunkSystemModule {
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
+
+            GameObject loadedPartitionBoundaryObject = new GameObject();
+            loadedPartitionBoundaryObject.name = "Boundary";
+            loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
+            loadedPartitionBoundaryObject.transform.SetParent(transform);
+            
         }
 
         public virtual void initLoaders() {
@@ -191,28 +198,37 @@ namespace ChunkModule.ClosedChunkSystemModule {
         }
 
         public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
+            loadedPartitionBoundary.partitionLoaded(chunkPartition.getRealPosition());
             yield return chunkPartition.load(tileGridMaps,angle);
             chunkPartition.setTileLoaded(true);
+            
         }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
+            chunkPartition.unloadEntities();
+            loadedPartitionBoundary.partitionUnloaded(chunkPartition.getRealPosition());
             yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
+            
         }
 
-        /// <summary> 
-        /// This is called when game ends. Saves all partitions
-        /// </summary>
+        public void OnApplicationQuit() {
+            isQuitting = true;
+            saveOnDestroy();
+        }
         public void OnDisable()
         {
+            if (isQuitting) {
+                return;
+            }
             saveOnDestroy();
         }
 
         public virtual void saveOnDestroy() {
             partitionUnloader.clearAll();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in  chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     if (partition.getLoaded()) {
                         partition.save();
                     }

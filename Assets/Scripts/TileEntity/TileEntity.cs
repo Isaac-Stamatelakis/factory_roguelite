@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
+using Chunks;
 using UnityEngine.Tilemaps;
-using ChunkModule.PartitionModule;
+using Chunks.Partitions;
 
 namespace TileEntityModule {
     public interface ITileEntity {

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using ItemModule;
+using Items;
 using UnityEngine.EventSystems;
 using UI;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace UI.QuestBook {
     public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable
     {
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
-        [SerializeField] private Image itemImage;
+        [SerializeField] private Transform itemUIContainer;
         private QuestBookPageUI questBookUI;
         private int gottenAmount;
         private ItemQuestTask itemQuestTask;
@@ -31,21 +31,15 @@ namespace UI.QuestBook {
         }
 
         private void load() {
-            SerializedItemSlot itemSlot = ItemSlot;
-            string id = itemSlot.id;
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
-            if (itemObject == null) {
-                GameObject.Destroy(gameObject);
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
+            if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
             if (this == null) {
                 return;
             }
-            itemImage.sprite = itemObject.getSprite();
-            if (itemImage.sprite != null) {
-                itemImage.transform.localScale = ItemSlotUIFactory.getItemScale(itemImage.sprite);
-            }
-            itemName.text = itemObject.name;
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemUIContainer,null,false);
+            itemName.text = itemSlot.itemObject.name;
             gottenAmount = Mathf.Clamp(gottenAmount,0,itemSlot.amount);
             if (gottenAmount == itemSlot.amount) {
                 amount.color = Color.green;

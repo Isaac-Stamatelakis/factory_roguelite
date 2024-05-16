@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule {
+namespace Items {
     [CreateAssetMenu(fileName ="New Loot Table",menuName="Item/Loot Table")]    
     public class LootTable : ScriptableObject
     {

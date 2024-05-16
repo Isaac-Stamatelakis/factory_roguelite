@@ -2,14 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using ChunkModule.IO;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule.PartitionModule;
-using TileMapModule;
-using TileMapModule.Type;
+using Chunks.IO;
+using Chunks.ClosedChunkSystemModule;
+using Chunks.Partitions;
+using TileMaps;
+using TileMaps.Type;
 using TileEntityModule;
+using Dimensions;
+using Entities;
+using Entities.Mobs;
+using Newtonsoft.Json;
 
-namespace ChunkModule {
+namespace Chunks {
     public interface ILoadedChunk : IChunk {
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
@@ -25,6 +29,7 @@ namespace ChunkModule {
         public Transform getTileEntityContainer();
         public ITileMap getTileMap(TileMapType type);
         public ClosedChunkSystem getSystem();
+        public HashSet<string> getEntityIds();
         
     }
 
@@ -34,6 +39,7 @@ namespace ChunkModule {
         public IChunkPartition getPartition(Vector2Int position);
         public int getDim();
         public List<IChunkPartitionData> getChunkPartitionData();
+        
     }
 
     public interface ISerizable {
@@ -53,12 +59,11 @@ namespace ChunkModule {
         /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
         /// </summary>
         [SerializeField] protected bool chunkLoaded = false;
+        protected Transform entityContainer;
         protected ClosedChunkSystem closedChunkSystem;
         protected Vector2Int position; 
         protected int dim;
-        protected Transform entityContainer;
         protected Transform tileEntityContainer;
-
         public float distanceFrom(Vector2Int target)
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
@@ -68,8 +73,6 @@ namespace ChunkModule {
             this.position = chunkPosition;
             this.partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
             this.closedChunkSystem = closedChunkSystem;
-
-            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
             initalizeContainers();
@@ -87,15 +90,13 @@ namespace ChunkModule {
         }
 
         protected void initalizeContainers() {
+            DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
+            entityContainer = dimController.EntityContainer;
+            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;
             tileEntityContainer.transform.SetParent(transform,false);
-
-            GameObject entityContainerObject = new GameObject();
-            entityContainerObject.name = "Entities";
-            entityContainer = entityContainerObject.transform;
-            entityContainer.transform.SetParent(transform,false);
         }
 
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
@@ -112,11 +113,11 @@ namespace ChunkModule {
         /// Generates a partition
         /// </summary>
         protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
-            if (data is SerializedTileData) {
-                if (data is SerializedTileConduitData) {
-                    return new ConduitChunkPartition<SerializedTileConduitData>((SerializedTileConduitData) data,position,this);
+            if (data is SeralizedWorldData) {
+                if (data is WorldTileConduitData) {
+                    return new ConduitChunkPartition<WorldTileConduitData>((WorldTileConduitData) data,position,this);
                 }
-                return new TileChunkPartition<SerializedTileData>((SerializedTileData) data,position,this);
+                return new TileChunkPartition<SeralizedWorldData>((SeralizedWorldData) data,position,this);
             } else 
             return null;
         }
@@ -185,6 +186,7 @@ namespace ChunkModule {
 
         public Transform getEntityContainer()
         {
+            
             return entityContainer;
         }
 
@@ -216,6 +218,30 @@ namespace ChunkModule {
         public ClosedChunkSystem getSystem()
         {
             return closedChunkSystem;
+        }
+
+        public HashSet<string> getEntityIds()
+        {
+            HashSet<string> entityIds = new HashSet<string>();
+            foreach (IChunkPartition partition in partitions) {
+                IChunkPartitionData data = partition.getData();
+                if (data is not SeralizedWorldData serializedTileData) {
+                    continue;
+                }
+                foreach (SeralizedEntityData seralizedEntityData in serializedTileData.entityData) {
+                    if (seralizedEntityData.type != EntityType.Mob) {
+                        continue;
+                    }
+                    try {
+                        SerializedMobData serializedMobData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMobData>(seralizedEntityData.data);
+                        entityIds.Add(serializedMobData.id);
+                    } catch (JsonSerializationException e) {
+                        Debug.LogError($"Chunk failed to get an id with data: {seralizedEntityData.data}\nerror: {e}");
+                    }
+                    
+                }
+            }
+            return entityIds;
         }
     }
 }

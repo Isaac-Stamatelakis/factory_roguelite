@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule;
 using Newtonsoft.Json;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public class PassiveProcessorInventory : StandardSolidAndFluidInventory {

@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Items;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public static class ConduitSystemFactory {
         public static IConduitSystem create(IConduit conduit) {
             ConduitItem conduitItem = conduit.getConduitItem();
-            ConduitType type = conduitItem.getType();
+            ConduitType type = conduitItem.getConduitType();
             IConduitSystem system = null;
             switch (type) {
                 case ConduitType.Item:

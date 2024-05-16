@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMapModule.Type;
+using TileMaps.Type;
 
 namespace Tiles {
     /// <summary>

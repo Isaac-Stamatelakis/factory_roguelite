@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using RobotModule;
-using ItemModule;
+using Items;
 using TileEntityModule;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using RecipeModule;
-using ItemModule.Transmutable;
+using Items.Transmutable;
 using System.Linq;
 
-namespace ItemModule {
+namespace Items {
     public class ItemRegistry {
         private static Dictionary<string,ItemObject> items;
         private static ItemRegistry instance;
@@ -44,6 +44,11 @@ namespace ItemModule {
 
         public List<ItemObject> getAllItems() {
             return items.Values.ToList();
+        }
+
+        public List<ItemObject> getAllItemsWithPrefix(string idPrefix) {
+            List<ItemObject> list = items.Values.ToList();
+            return list.Where(item => item.id.StartsWith(idPrefix)).ToList();
         }
         ///
         /// Returns tileItem if id maps to tile item, null otherwise
@@ -136,6 +141,21 @@ namespace ItemModule {
                     i ++;
                 }
                 
+            }
+            return queried;
+        }
+        public List<ItemSlot> querySlots(string serach, int limit) {
+            // TODO options to put certain tag items in here
+            List<ItemSlot> queried = new List<ItemSlot>();
+            int i = 0;
+            foreach (ItemObject itemObject in items.Values) {
+                if (i >= limit) {
+                    break;
+                }
+                if (itemObject.name.ToLower().Contains(serach.ToLower())) {
+                    queried.Add(ItemSlotFactory.createNewItemSlot(itemObject,1));
+                    i ++;
+                }
             }
             return queried;
         }

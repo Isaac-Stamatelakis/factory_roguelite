@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
-using ConduitModule.Systems;
+using Conduits.Ports;
+using Conduits.Systems;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {

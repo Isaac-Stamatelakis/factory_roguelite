@@ -13,13 +13,12 @@ namespace DevTools.Structures {
             return dimController;
         }
 
-        public override void Start()
+        public override async void Start()
         {
             Debug.Log("Loading Structure Creator: " + WorldManager.getInstance().getWorldPath());
-            DimensionManagerContainer.getInstance();
             dimController.getSystem();
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
-            setActiveSystemFromCellPosition(0,Vector2Int.zero);
+            await setActiveSystemFromCellPosition(0,Vector2Int.zero);
             setPlayerPosition(Vector2.zero);
         }
     }

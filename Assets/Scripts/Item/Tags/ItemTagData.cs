@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Tags {
+namespace Items.Tags {
     public class ItemTagCollection
     {
         private Dictionary<ItemTag, object> tagData;

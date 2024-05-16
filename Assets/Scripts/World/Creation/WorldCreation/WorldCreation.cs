@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Tilemaps;
-using ChunkModule.IO;
-using TileMapModule.Layer;
+using Chunks.IO;
+using TileMaps.Layer;
 using PlayerModule.IO;
 using WorldModule.Caves;
-using ItemModule;
+using Items;
 using RobotModule;
+using Entities;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -48,9 +49,7 @@ namespace WorldModule {
             WorldLoadUtils.createDimFolder(0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
             IntervalVector dim0Bounds = getDim0Bounds();
-
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(dim0Bounds.X.LowerBound-dim0Bounds.X.UpperBound+1),Mathf.Abs(dim0Bounds.Y.LowerBound-dim0Bounds.Y.UpperBound+1));
-            
             WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
             WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0,WorldLoadUtils.getDimPath(0));
         }
@@ -123,9 +122,9 @@ namespace WorldModule {
             SeralizedChunkConduitData signalData = tileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
             SeralizedChunkConduitData matrixData = tileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
             return new WorldTileConduitData(
-                new List<EntityData>(),
                 baseData,
                 backgroundData,
+                new List<SeralizedEntityData>(),
                 fluidTileData,
                 itemData,
                 fluidData,

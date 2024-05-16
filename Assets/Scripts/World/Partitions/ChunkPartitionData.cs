@@ -1,42 +1,52 @@
 using System.Collections.Generic;
-using ChunkModule.IO;
+using Chunks.IO;
+using Entities;
 
 
 public interface IChunkPartitionData {
 
 }
 
-public class WorldTileData {
-    public WorldTileData(List<EntityData> entityData, SerializedBaseTileData baseData, SerializedBackgroundTileData backgroundData, SeralizedFluidTileData fluidTileData) {
-        this.entityData = entityData;
-        this.baseData = baseData;
-        this.backgroundData = backgroundData;
-        this.fluidData = fluidTileData;
-    }
-    public List<EntityData> entityData;
+[System.Serializable]
+public class SeralizedWorldData : IChunkPartitionData
+{
+    public List<SeralizedEntityData> entityData;
     public SerializedBaseTileData baseData;
     public SerializedBackgroundTileData backgroundData;
     public SeralizedFluidTileData fluidData;
+
+    public SeralizedWorldData(
+        SerializedBaseTileData baseTileData, 
+        SerializedBackgroundTileData backgroundTileData, 
+        List<SeralizedEntityData> entityData, 
+        SeralizedFluidTileData fluidTileData
+    ) {
+        this.baseData = baseTileData;
+        this.backgroundData = backgroundTileData;
+        this.entityData = entityData;
+        this.fluidData = fluidTileData;
+    }
 }
 
-public class WorldTileConduitData : WorldTileData
-{
+[System.Serializable]
+public class WorldTileConduitData : SeralizedWorldData {
     public SeralizedChunkConduitData itemConduitData;
     public SeralizedChunkConduitData fluidConduitData;
     public SeralizedChunkConduitData energyConduitData;
     public SeralizedChunkConduitData signalConduitData;
     public SeralizedChunkConduitData matrixConduitData;
+
     public WorldTileConduitData(
-        List<EntityData> entityData, 
-        SerializedBaseTileData baseData, 
-        SerializedBackgroundTileData backgroundData,
+        SerializedBaseTileData baseTileData, 
+        SerializedBackgroundTileData backgroundTileData, 
+        List<SeralizedEntityData> entityData, 
         SeralizedFluidTileData fluidTileData,
         SeralizedChunkConduitData itemConduitData,
         SeralizedChunkConduitData fluidConduitData,
         SeralizedChunkConduitData energyConduitData,
         SeralizedChunkConduitData signalConduitData,
         SeralizedChunkConduitData matrixConduitData
-        ) : base(entityData, baseData, backgroundData,fluidTileData)
+    ) : base(baseTileData, backgroundTileData, entityData, fluidTileData)
     {
         this.itemConduitData = itemConduitData;
         this.fluidConduitData = fluidConduitData;
@@ -44,21 +54,4 @@ public class WorldTileConduitData : WorldTileData
         this.signalConduitData = signalConduitData;
         this.matrixConduitData = matrixConduitData;
     }
-}
-[System.Serializable]
-public class SerializedTileData : IChunkPartitionData
-{
-    public List<EntityData> entityData;
-    public SerializedBaseTileData baseData;
-    public SerializedBackgroundTileData backgroundData;
-    public SeralizedFluidTileData fluidData;
-}
-
-[System.Serializable]
-public class SerializedTileConduitData : SerializedTileData {
-    public SeralizedChunkConduitData itemConduitData;
-    public SeralizedChunkConduitData fluidConduitData;
-    public SeralizedChunkConduitData energyConduitData;
-    public SeralizedChunkConduitData signalConduitData;
-    public SeralizedChunkConduitData matrixConduitData;
 }

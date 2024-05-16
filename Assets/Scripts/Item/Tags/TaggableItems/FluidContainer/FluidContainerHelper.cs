@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule;
 
-namespace ItemModule.Tags.FluidContainers {
+namespace Items.Tags.FluidContainers {
     public static class FluidContainerHelper 
     {
         public static void handleClick(GrabbedItemProperties grabbedItemProperties,List<ItemSlot> fluidInventory, int index) {
-            ItemSlot container = grabbedItemProperties.itemSlot;
+            ItemSlot container = grabbedItemProperties.ItemSlot;
             if (container == null || container.itemObject == null) {
                 return;
             }
@@ -40,7 +40,7 @@ namespace ItemModule.Tags.FluidContainers {
                 container.amount--;
                 ItemSlot empty = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
                 if (container.amount == 0) {
-                    grabbedItemProperties.itemSlot = empty;
+                    grabbedItemProperties.setItemSlot(empty);
                 } else {
                     if (!ItemSlotHelper.canInsertIntoInventory(inventory,container,fluidContainer.getStorage())) {
                     // TODO spawn item
@@ -49,7 +49,6 @@ namespace ItemModule.Tags.FluidContainers {
                         ItemSlotHelper.insertIntoInventory(inventory,empty,fluidContainer.getStorage());
                     }
                 }
-                grabbedItemProperties.updateSprite();
                 return;
             }
             // Input fluid cell into player inventory
@@ -61,9 +60,8 @@ namespace ItemModule.Tags.FluidContainers {
             fluidInventory[index] = null;
             container.amount -= 1;
             if (container.amount == 0) {
-                grabbedItemProperties.itemSlot = newItemSlot;
+                grabbedItemProperties.setItemSlot(newItemSlot);
                 container.itemObject = null;
-                grabbedItemProperties.updateSprite();
                 return;
             }
             ItemSlotHelper.insertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage());

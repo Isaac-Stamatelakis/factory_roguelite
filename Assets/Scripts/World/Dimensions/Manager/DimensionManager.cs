@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
+using Entities.Mobs;
+using System.Threading.Tasks;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -11,6 +13,11 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        private static DimensionManager instance;
+        public static DimensionManager Instance {get => instance;}
+        public void Awake() {
+            instance = this;
+        }
         protected ClosedChunkSystem activeSystem;
         [SerializeField] public PlayerIO playerIO;
         private int playerXChunk;
@@ -26,9 +33,7 @@ namespace Dimensions {
         public int Dim {get => dim;}
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
         public ClosedChunkSystem ActiveSystem { get => activeSystem; set => activeSystem = value; }
-
         public abstract void Start();
-        
         public void Update()
         {
             if (ActiveSystem == null) {
@@ -56,7 +61,7 @@ namespace Dimensions {
             return ActiveSystem;
         }
 
-        public void setActiveSystemFromCellPosition(int dim, Vector2Int cellPosition) {
+        public async Task setActiveSystemFromCellPosition(int dim, Vector2Int cellPosition) {
             this.dim = dim;
             currentDimension = getCurrentController();
             ClosedChunkSystem newSystem = null;
@@ -68,16 +73,24 @@ namespace Dimensions {
             if (newSystem == null) {
                 return;
             }
-            activateSystem(newSystem);
+            await activateSystem(newSystem);
         }
-        private void activateSystem(ClosedChunkSystem newSystem) {
+        private async Task activateSystem(ClosedChunkSystem newSystem) {
+            
+            await resetMobRegistry(newSystem);
             if (activeSystem != null) {
                 activeSystem.deactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);
             }
             activeSystem = newSystem;
+            
         }
 
+        private async Task resetMobRegistry(ClosedChunkSystem system) {
+            EntityRegistry entityRegistry = EntityRegistry.getInstance();
+            entityRegistry.reset();
+            await entityRegistry.cacheFromSystem(system);
+        }
 
         public abstract DimController getCurrentController();
 

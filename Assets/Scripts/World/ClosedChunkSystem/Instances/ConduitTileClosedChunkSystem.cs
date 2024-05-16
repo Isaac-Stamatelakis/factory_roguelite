@@ -1,21 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
-using ConduitModule.Systems;
-using ChunkModule.PartitionModule;
-using ConduitModule;
-using TileMapModule.Layer;
-using ChunkModule.IO;
-using ConduitModule.Ports;
+using TileMaps.Type;
+using Conduits.Systems;
+using Chunks.Partitions;
+using Conduits;
+using TileMaps.Layer;
+using Chunks.IO;
+using Conduits.Ports;
 using Newtonsoft.Json;
-using ConduitModule.PortViewer;
+using Conduits.PortViewer;
 using PlayerModule;
-using TileMapModule;
-using TileMapModule.Conduit;
+using TileMaps;
+using TileMaps.Conduit;
 using TileEntityModule;
+using Items;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
     {
         private List<SoftLoadedConduitTileChunk> unloadedChunks;

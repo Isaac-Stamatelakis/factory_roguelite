@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.UI;
-using ItemModule.Tags.FluidContainers;
+using Items.Tags.FluidContainers;
 using RecipeModule;
 using TileEntityModule.Instances.Matrix;
-using ItemModule.Inventory;
+using Items.Inventory;
 using RobotModule;
 
-namespace ItemModule.Tags {
+namespace Items.Tags {
     public enum ItemTag {
         FluidContainer,
         EnergyContainer,
@@ -127,7 +127,7 @@ namespace ItemModule.Tags {
                 return null;
             }
             if (encodedRecipe.Outputs.Count > 0) {
-                return ItemSlotUIFactory.getItemImage(encodedRecipe.Outputs[0]);
+                return ItemSlotUIFactory.newItemSlotUI(encodedRecipe.Outputs[0],null,null,true,null).gameObject;
             }
             return null;
         }
@@ -147,11 +147,11 @@ namespace ItemModule.Tags {
             if (spriteSize.Equals(Vector2Int.zero)) {
                 return null;
             }
-            GameObject fluidObject = ItemSlotUIFactory.getItemImage(fluidItem);
-            if (fluidObject != null) {
-                RectTransform rectTransform = fluidObject.GetComponent<RectTransform>();
-                rectTransform.sizeDelta = spriteSize;
-            }
+            GameObject fluidObject = new GameObject();
+            Image image = fluidObject.AddComponent<Image>();
+            image.sprite = fluidItem.itemObject.getSprite();
+            RectTransform rectTransform = fluidObject.AddComponent<RectTransform>();
+            rectTransform.sizeDelta = spriteSize;
             return fluidObject;
         }
 

@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
-using TileMapModule;
-using TileMapModule.Layer;
+using TileMaps.Type;
+using TileMaps;
+using TileMaps.Layer;
 using TileEntityModule;
 using Tiles;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
     public interface IChunkPartition {
-        public IChunkPartitionData getData();
+        public SeralizedWorldData getData();
         public UnityEngine.Vector2Int getRealPosition();
         public bool getLoaded();
         public void setTileLoaded(bool val);
@@ -29,5 +29,6 @@ namespace ChunkModule.PartitionModule {
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
         public (string[,],string[,], int[,]) getFluidData();
+        public void unloadEntities();
     }
 }

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule;
-using TileMapModule.Type;
+using TileMaps;
+using TileMaps.Type;
 
 namespace PlayerModule {
     public class PlayerPlatformDetector : MonoBehaviour

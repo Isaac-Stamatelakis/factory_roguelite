@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
+using Chunks;
 using Newtonsoft.Json;
 using RecipeModule.Transmutation;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using ItemModule.Inventory;
+using Items.Inventory;
 using RecipeModule;
 
 namespace TileEntityModule.Instances.Machines

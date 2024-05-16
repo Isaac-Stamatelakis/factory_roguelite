@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ItemModule.Inventory;
+using Items.Inventory;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     
@@ -38,13 +39,10 @@ namespace TileEntityModule.Instances.Matrix {
             return itemSlot;
         }
 
-        public GameObject getGameObject()
-        {
-            return gameObject;
-        }
+    
 
         public void showCraftText() {
-            ItemSlotUIFactory.replaceAmountTextWithString(transform,"Craft");
+            GetComponent<ItemSlotUI>().displayText("Craft");
         }
 
         public void setItemSlot(ItemSlot itemSlot)
@@ -67,6 +65,11 @@ namespace TileEntityModule.Instances.Matrix {
         public ItemObject getDisplayItemObject()
         {
             return itemObject;
+        }
+
+        public ItemSlotUI getItemSlotUI()
+        {
+            return GetComponent<ItemSlotUI>();
         }
     }
 }

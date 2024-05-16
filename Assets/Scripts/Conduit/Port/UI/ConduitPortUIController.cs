@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ConduitModule.Ports.UI {
+namespace Conduits.Ports.UI {
     public abstract class ConduitPortUIController : MonoBehaviour, IConduitPortUIController
     {
         protected IPortConduit conduit;

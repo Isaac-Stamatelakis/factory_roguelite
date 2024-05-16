@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace ConduitModule.Ports.UI {
+namespace Conduits.Ports.UI {
     public class PortColorButton : MonoBehaviour, IPointerClickHandler
     {
         private IColorPort colorPort;

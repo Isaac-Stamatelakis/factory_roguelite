@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ItemModule;
+using Items;
 
 namespace UI {
     public class SerializedItemSlotEditItemPanel : MonoBehaviour, IPointerClickHandler

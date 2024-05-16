@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
+using TileMaps.Type;
 using Fluids;
-using TileMapModule;
-using TileMapModule.Conduit;
+using TileMaps;
+using TileMaps.Conduit;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public static class TileMapBundleFactory 
     {
         public static List<TileMapType> getStandardTileTypes() {
@@ -52,7 +52,9 @@ namespace ChunkModule.ClosedChunkSystemModule {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
             container.name = tileType.ToString();
-            container.layer = LayerMask.NameToLayer(tileType.ToString());
+            if (tileType.hasCollider()) {
+                container.layer = LayerMask.NameToLayer(tileType.ToString());
+            }
             container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);

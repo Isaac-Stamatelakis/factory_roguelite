@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule.PartitionModule;
+using Chunks;
+using Chunks.ClosedChunkSystemModule;
+using Chunks.Partitions;
 
-namespace ChunkModule.LoadController {
+namespace Chunks.LoadController {
     public class PartitionLoader : MonoBehaviour
     {
         [SerializeField]

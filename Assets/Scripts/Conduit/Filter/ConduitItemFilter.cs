@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     [System.Serializable]
     public class ItemFilter : IFilter
     {

@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
-using ConduitModule;
+using Conduits;
+using Items;
 
 public class ConduitTileGenerator : EditorWindow {
     private Texture2D texture;

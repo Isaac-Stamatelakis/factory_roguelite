@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Matrix;
-using ItemModule.Tags;
-using ItemModule.Tags.Matrix;
+using Items.Tags;
+using Items.Tags.Matrix;
 using TileEntityModule;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public class MatrixConduitSystem : ConduitSystem<MatrixConduit>
     {
         private List<IMatrixConduitInteractable> tileEntities;

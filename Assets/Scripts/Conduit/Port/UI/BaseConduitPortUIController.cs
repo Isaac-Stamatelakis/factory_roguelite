@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
+using Conduits.Ports;
 using UnityEngine.UI;
 
-namespace ConduitModule.Ports.UI {
+namespace Conduits.Ports.UI {
     public interface IConduitPortUIController {
         public void initalize(IPortConduit conduit);
     }

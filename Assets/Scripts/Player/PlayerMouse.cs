@@ -2,20 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ChunkModule;
-using ChunkModule.ClosedChunkSystemModule;
-using TileMapModule.Layer;
-using TileMapModule;
-using TileMapModule.Place;
-using ChunkModule.PartitionModule;
-using TileMapModule.Type;
-using ConduitModule.Systems;
-using ConduitModule.Ports;
+using Chunks;
+using Chunks.ClosedChunkSystemModule;
+using TileMaps.Layer;
+using TileMaps;
+using TileMaps.Place;
+using Chunks.Partitions;
+using TileMaps.Type;
+using Conduits.Systems;
+using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using ConduitModule;
+using Conduits;
 using Dimensions;
-using ItemModule;
+using Items;
 using TileEntityModule;
+using Entities;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -61,17 +62,12 @@ namespace PlayerModule.Mouse {
         }
 
         private ILoadedChunk getChunk(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
             if (closedChunkSystem == null) {
                 return null;
             }
             Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
             return closedChunkSystem.getChunk(chunkPosition);
-        }
-
-        private ClosedChunkSystem GetClosedChunkSystem(Vector2 mousePosition) {
-            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
-            return dimensionManager.ActiveSystem;
         }
 
         private void handleRightClick(Vector2 mousePosition) {
@@ -105,12 +101,12 @@ namespace PlayerModule.Mouse {
             }
 
             if (!somethingClicked) {
-                handlePlace(mousePosition,GetClosedChunkSystem(mousePosition));
+                handlePlace(mousePosition,DimensionManager.Instance.GetClosedChunkSystem());
             }
         }
 
         private bool handlePortClick(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = GetClosedChunkSystem(mousePosition);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
@@ -120,7 +116,7 @@ namespace PlayerModule.Mouse {
             if (conduitItem == null) {
                 return false;
             }
-            ConduitType conduitType = conduitItem.getType();
+            ConduitType conduitType = conduitItem.getConduitType();
             //ConduitType conduitType = devMode.breakType.toConduit();
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {
@@ -173,7 +169,7 @@ namespace PlayerModule.Mouse {
                 raycastHitBlock(mousePosition,layer);  
             } else {
                 foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                    ITileMap tileMap = GetClosedChunkSystem(mousePosition).getTileMap(tileMapType);
+                    ITileMap tileMap = DimensionManager.Instance.GetClosedChunkSystem().getTileMap(tileMapType);
                     if (tileMap is IHitableTileMap) {
                         IHitableTileMap hitableTileMap = ((IHitableTileMap) tileMap);
                         if (devMode.instantBreak) {
@@ -280,8 +276,8 @@ namespace PlayerModule.Mouse {
             if (eventSystem.IsPointerOverGameObject()) {
                 return false;
             }
-            GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
-            if (grabbedItemProperties.itemSlot == null) {
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            if (grabbedItemProperties.ItemSlot == null) {
                 return false;
             }
             ILoadedChunk chunk = getChunk(mousePosition);
@@ -290,19 +286,18 @@ namespace PlayerModule.Mouse {
             }
             Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
             if (
-                grabbedItemProperties.itemSlot != null && 
-                grabbedItemProperties.itemSlot.itemObject != null && 
-                grabbedItemProperties.itemSlot.itemObject.id != null
+                grabbedItemProperties.ItemSlot != null && 
+                grabbedItemProperties.ItemSlot.itemObject != null && 
+                grabbedItemProperties.ItemSlot.itemObject.id != null
             ) {
                 ItemEntityHelper.spawnItemEntityWithVelocity(
                     new Vector2(transform.position.x,transform.position.y) + spriteCenter,
-                    grabbedItemProperties.itemSlot,
+                    grabbedItemProperties.ItemSlot,
                     chunk.getEntityContainer(),
                     calculateItemVelocity(mousePosition)
                 );
             }
-            grabbedItemProperties.itemSlot = null;
-            grabbedItemProperties.updateSprite();
+            grabbedItemProperties.setItemSlot(null);
             return true;
         }
         

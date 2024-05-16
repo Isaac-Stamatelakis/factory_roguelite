@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
-using ItemModule.Inventory;
+using Items.Inventory;
+using Items;
 
 public interface IItemSlotUIElement {
     public ItemSlot getItemSlot();
     public void setItemSlot(ItemSlot itemSlot);
-    public GameObject getGameObject();
+    public ItemSlotUI getItemSlotUI();
     public int getDisplayAmount();
     public ItemObject getDisplayItemObject();
     public void reload(ItemSlot inventorySlot,bool force=false) {
@@ -20,21 +21,21 @@ public interface IItemSlotUIElement {
             return;
         }
         setItemSlot(inventorySlot);
-        ItemSlotUIFactory.reload(getGameObject(),inventorySlot);
+        getItemSlotUI().display(inventorySlot);
     }
     public void showRecipes() {
         ItemSlot itemSlot = getItemSlot();
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayCraftingOfItem(itemSlot.itemObject);
+        RecipeViewerHelper.displayCraftingOfItem(itemSlot);
     }
     public void showUses() {
         ItemSlot itemSlot = getItemSlot();
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayUsesOfItem(itemSlot.itemObject);
+        RecipeViewerHelper.displayUsesOfItem(itemSlot);
     }
 }
 public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItemSlotUIElement
@@ -65,11 +66,6 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItem
         return itemSlot;
     }
 
-    public GameObject getGameObject()
-    {
-        return gameObject;
-    }
-
     public void setItemSlot(ItemSlot itemSlot)
     {
         this.itemSlot = itemSlot;
@@ -90,5 +86,10 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItem
     public ItemObject getDisplayItemObject()
     {
         return itemObject;
+    }
+
+    public ItemSlotUI getItemSlotUI()
+    {
+        return gameObject.GetComponent<ItemSlotUI>();
     }
 }

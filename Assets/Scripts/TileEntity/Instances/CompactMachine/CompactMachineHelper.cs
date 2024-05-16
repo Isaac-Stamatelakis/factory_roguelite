@@ -4,7 +4,7 @@ using UnityEngine;
 using WorldModule;
 using Dimensions;
 using WorldModule.Caves;
-using ConduitModule.Ports;
+using Conduits.Ports;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public static class CompactMachineHelper 
@@ -93,7 +93,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         }
 
         public static bool isCreated(CompactMachine compactMachine) {
-            if (DimensionManagerContainer.getManager() is not ICompactMachineDimManager compactMachineDimManager) {
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 return false;
             }
             CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
@@ -150,23 +150,23 @@ namespace TileEntityModule.Instances.CompactMachines {
             return bounds;
         }
 
-        public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
+        public static async void teleportOutOfCompactMachine(CompactMachine compactMachine) {
             int depth = getDepth(compactMachine.getCellPosition());
-            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
+            DimensionManager dimensionManager = DimensionManager.Instance;
             if (depth == 0) {
-                dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
+                await dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
             } else {
                 Vector2Int parentPosition = compactMachine.getCellPosition()/24;
-                dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
+                await dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
             }
             
             
         }
-        public static void teleportIntoCompactMachine(CompactMachine compactMachine) {
-            DimensionManager dimensionManager = DimensionManagerContainer.getManager();
-            dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
+        public static async void teleportIntoCompactMachine(CompactMachine compactMachine) {
+            DimensionManager dimensionManager = DimensionManager.Instance;
+            await dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
             dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
         }
     }

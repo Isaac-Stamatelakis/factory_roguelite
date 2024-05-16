@@ -4,11 +4,12 @@ using UnityEngine;
 using TMPro;
 using System;
 using PlayerModule.IO;
-using ItemModule.Inventory;
-using ItemModule;
+using Items.Inventory;
+using Items;
 using Dimensions;
-using ChunkModule;
+using Chunks;
 using UnityEngine.UI;
+using Entities;
 
 namespace PlayerModule {
 
@@ -126,7 +127,7 @@ namespace PlayerModule {
                             if (itemEntityProperities.itemSlot.amount <= 0) {
                                 Destroy(itemEntityProperities.gameObject);
                             }
-                            playerInventoryGrid.reloadItem(n);
+                            playerInventoryGrid.displayItem(n);
                         }
                     }
                     if (!alreadyInInventory && firstOpenSlot >= 0) {
@@ -149,11 +150,8 @@ namespace PlayerModule {
             inventory[selectedSlot].amount--;
             if (inventory[selectedSlot].amount == 0) {
                 inventory[selectedSlot] = null;
-                
-                playerInventoryGrid.unloadItem(selectedSlot);
-            } else {
-                playerInventoryGrid.reloadItem(selectedSlot);
             }
+            playerInventoryGrid.displayItem(selectedSlot);
         }
 
         public void iterateSelectedTile(int iterator) {
@@ -164,8 +162,7 @@ namespace PlayerModule {
 
         public void give(ItemSlot itemSlot) {
             if (!ItemSlotHelper.canInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
-                DimensionManager dimensionManager = DimensionManagerContainer.getManager();
-                IChunk chunk = dimensionManager.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
+                IChunk chunk = DimensionManager.Instance.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {
                     return;
                 }

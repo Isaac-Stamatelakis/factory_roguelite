@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule {
+namespace Items {
     public interface IFormulaCraftingItem {
         public string getFormula();
     }
@@ -10,7 +10,6 @@ namespace ItemModule {
     public class FormulaCraftingItem : CraftingItem, IFormulaCraftingItem {
         [Header("Chemical Formula for the Item")]
         [SerializeField] private string formula;
-
         public string getFormula()
         {
             return formula;

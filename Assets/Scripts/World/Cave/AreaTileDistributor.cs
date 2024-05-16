@@ -2,20 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using ChunkModule.IO;
+using Chunks.IO;
 using System;
 
 namespace WorldModule.Caves {
 
     public interface IDistributor {
-        public void distribute(WorldTileData worldTileData, int seed, int width, int height);
+        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height);
     }
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
     public class AreaTileDistributor : ScriptableObject, IDistributor
     {
         public List<TileDistribution> tileDistributions;
 
-        public void distribute(WorldTileData worldTileData, int seed, int width, int height) {
+        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height) {
             UnityEngine.Random.InitState(seed);
             SerializedBaseTileData baseData = worldTileData.baseData;
 

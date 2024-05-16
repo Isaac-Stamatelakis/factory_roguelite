@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using TileEntityModule;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 public static class ProcessorUIFactory
 {

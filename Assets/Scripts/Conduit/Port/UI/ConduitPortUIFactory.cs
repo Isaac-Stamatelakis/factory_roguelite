@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports.UI;
+using Conduits.Ports.UI;
 using UnityEngine.UI;
 using TMPro;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     public class ConduitPortUIFactory
     {
         public static GameObject getUI(IPortConduit conduit, ConduitType conduitType, EntityPortType portType) {

@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using TileMapModule;
-using TileMapModule.Layer;
-using TileMapModule.Type;
+using TileMaps;
+using TileMaps.Layer;
+using TileMaps.Type;
 using Tiles;
-using ItemModule;
-using ConduitModule.Ports;
+using Items;
+using Conduits.Ports;
+using Entities;
 
-namespace ChunkModule.PartitionModule {
+namespace Chunks.Partitions {
     
-    public abstract class ChunkPartition<T> : IChunkPartition where T : IChunkPartitionData
+    public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {
         protected bool loaded;
         protected bool scheduledForUnloading = false;
@@ -33,7 +34,7 @@ namespace ChunkModule.PartitionModule {
             return Mathf.Pow(target.x-realPosition.x,2) + Mathf.Pow(target.y-realPosition.y,2);
         }
 
-        public IChunkPartitionData getData()
+        public SeralizedWorldData getData()
         {
             return data;
         }
@@ -117,15 +118,12 @@ namespace ChunkModule.PartitionModule {
                     yield return new WaitForEndOfFrame();
                 }
             }
-            
             yield return null;
         }
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition);
 
         public abstract void save();
-
-
 
         public void setScheduleForUnloading(bool val)
         {
@@ -134,28 +132,36 @@ namespace ChunkModule.PartitionModule {
 
         public virtual IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             save();
-            unloadEntities();
             Vector2Int realPosition = getRealPosition();
             foreach (ITileMap tileMap in tileGridMaps.Values) {
                 yield return tileMap.removePartition(realPosition);
             }
         }
-
-        protected void unloadEntities() {
-            Vector2 castPosition = (getRealPosition()) * Global.ChunkPartitionSize/2;
-            RaycastHit2D[] hits = Physics2D.BoxCastAll(castPosition, new Vector2(Global.ChunkPartitionSize,Global.ChunkPartitionSize), 0f, Vector2.zero, Mathf.Infinity, 1 << LayerMask.NameToLayer("Entity"));
-            List<EntityData> entityDatas = new List<EntityData>();
+        public void unloadEntities() {
+            int size = Global.ChunkPartitionSize/2;
+            Vector2 castPosition = (getRealPosition()+Vector2.one/2f) * size;
+            RaycastHit2D[] hits = Physics2D.BoxCastAll(
+                castPosition, 
+                new Vector2(size,size),
+                0f, 
+                Vector2.zero, 
+                Mathf.Infinity, 
+                1 << LayerMask.NameToLayer("Entity")
+            );
+            List<SeralizedEntityData> entityData = new List<SeralizedEntityData>();
             foreach (RaycastHit2D hit in hits) {
                 Entity entity = hit.collider.gameObject.GetComponent<Entity>();
-                entityDatas.Add(entity.GetData());
+                if (entity is ISerializableEntity serializableEntity) {
+                    entityData.Add(serializableEntity.serialize());
+                }
+                GameObject.Destroy(hit.collider.gameObject);
             }
+            data.entityData = entityData;
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
         }
-        public void loadEntities() {
 
-        }
         public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition)
         {
             if (layer == TileMapLayer.Base) {

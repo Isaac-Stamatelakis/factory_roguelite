@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class PlayerInventoryGrid : SolidDynamicInventory
     {
         private int selectedSlot = -1;
@@ -13,7 +13,7 @@ namespace ItemModule.Inventory {
             }
             
             if (selectedSlot >= 0) {
-                slots[selectedSlot].GetComponent<Image>().color = new Color(1,1,1,100/255f);
+                slots[selectedSlot].GetComponent<Image>().color = ItemDisplayUtils.SolidItemPanelColor;
             }
             
             selectedSlot = n;

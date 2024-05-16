@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using WorldModule.Caves;
+using System.IO;
 
 public static class Global
 {
@@ -10,21 +11,21 @@ public static class Global
     public static int Rotation {get{return rotation;} set{rotation = value;}}
     private static float inventoryScale = 1.2f;
     public static float InventoryScale {get{return inventoryScale;}}
-    private static float pixelsPerBlock = 16;
+    private static readonly float pixelsPerBlock = 16;
     public static float PixelsPerBlock {get {return pixelsPerBlock;}}
-    private static int partitionsPerChunk = 6;
+    private static readonly int partitionsPerChunk = 6;
     public static int PartitionsPerChunk {get{return partitionsPerChunk;}}
     public static int ChunkSize {get{return partitionsPerChunk*chunkPartitionSize;}}
-    private static int chunkPartitionSize = 4;
+    private static readonly int chunkPartitionSize = 4;
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
-    private static UnityEngine.Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
-    public static UnityEngine.Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
+    private static Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
+    public static Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
     //private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(11,8); // Required for large view
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5); // Required for medium view
-    private static int chunkPartitionExtraTileEntityLoadRange = 2;
+    private static readonly Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5); // Required for medium view
+    private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
-    public static int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
+    public static  int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
     public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
     private static float tileBlockZ = 1;
     public static float TileBlockZ {get {return tileBlockZ;}}
@@ -46,6 +47,7 @@ public static class Global
     public static float ChunkOffset {get {return chunkOffset;}}
     private static float tileItemEntityScalar = 0.5f;
     private static int maxSize = 999;
+    private static readonly bool showSystemParameter = true;
     public static int MaxSize {get{return maxSize;}}
     public static float TileItemEntityScalar {get {return tileItemEntityScalar;}}
 
@@ -53,10 +55,13 @@ public static class Global
     public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
 
     public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
-    public static string EditorCreationPath { get => editorCreationPath; set => editorCreationPath = value; }
+    public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
+
+    public static bool ShowSystemParameter => showSystemParameter;
 
     private static Cave currentCave;
-    private static string editorCreationPath = "EditorCreations";
+    private static readonly string editorCreationPath = "EditorCreations";
+    
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
             if (transform.GetChild(n).name == childName) {

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using ItemModule;
-using ItemModule.Inventory;
+using Items;
+using Items.Inventory;
 using UI;
 using System.Threading.Tasks;
 using System;
@@ -20,7 +20,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void init(ItemMatrixController controller, ItemSlot toCraft, EncodedRecipe encodedRecipe) {
             amountTextField.text = "1";
-            ItemSlotUIFactory.load(toCraft,itemContainer);
+            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(toCraft,itemContainer,null);
             AmountIteratorUI amountIteratorUI = AmountIteratorUI.newInstance();
             amountIteratorUI.init(amountIteratorContainer, amountTextField);
             cancelButton.onClick.AddListener(() => {

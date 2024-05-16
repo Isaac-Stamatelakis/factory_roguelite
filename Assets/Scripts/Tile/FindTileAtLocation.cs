@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule;
-using ChunkModule.PartitionModule;
-using TileMapModule.Layer;
+using Chunks.ClosedChunkSystemModule;
+using Chunks;
+using Chunks.Partitions;
+using TileMaps.Layer;
 
 public static class FindTileAtLocation
 {
@@ -60,13 +60,6 @@ public static class FindTileAtLocation
         Dictionary<Vector2Int,IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
         Dictionary<Vector2Int,IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
         TileItem originTileItem = system.getTileItem(hitPosition,chunkCache,partitionCache,TileMapLayer.Base);
-        /*
-        if (originTileItem != null) {
-            Debug.Log(originTileItem.name);
-            return hitPosition;
-        }   
-        return null;
-        */
         while (searchWidth < maxSearchWidth) {
             if (Global.modInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {

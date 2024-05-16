@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Items;
 
-namespace ConduitModule {
+namespace Conduits {
     public class MatrixConduitItem : ConduitItem
     {
-        public override ConduitType getType()
+        public override ConduitType getConduitType()
         {
             return ConduitType.Matrix;
         }

@@ -4,9 +4,9 @@ using UnityEngine;
 using System.IO;
 using WorldModule;
 using System;
-using ChunkModule.IO;
+using Chunks.IO;
 
-namespace ChunkModule.ClosedChunkSystemModule {
+namespace Chunks.ClosedChunkSystemModule {
     public static class InactiveClosedChunkFactory 
     {
         public static SoftLoadedClosedChunkSystem importFromFolder(Vector2Int positionInSystem,int dim) {

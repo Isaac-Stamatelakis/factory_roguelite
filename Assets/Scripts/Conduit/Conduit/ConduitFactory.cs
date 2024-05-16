@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ConduitModule.Ports;
-using TileMapModule.Layer;
-using ChunkModule.PartitionModule;
+using Conduits.Ports;
+using TileMaps.Layer;
+using Chunks.Partitions;
 using TileEntityModule;
-using ItemModule;
-using ChunkModule.ClosedChunkSystemModule;
+using Items;
+using Chunks.ClosedChunkSystemModule;
 
-namespace ConduitModule {
+namespace Conduits {
     public static class ConduitFactory {
 
         public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
-            ConduitType type = conduitItem.getType();
+            ConduitType type = conduitItem.getConduitType();
             cellPosition -= referencePosition;
             bool isPortConduit = type == ConduitType.Item || type == ConduitType.Fluid || type == ConduitType.Energy || type == ConduitType.Signal;
             if (isPortConduit) {
@@ -27,7 +27,7 @@ namespace ConduitModule {
         
         }
         private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
-            ConduitType conduitType = conduitItem.getType();
+            ConduitType conduitType = conduitItem.getConduitType();
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,conduitItem);
             if (tileEntity != null && portType != null) {
                 if (port == null) {
@@ -90,7 +90,7 @@ namespace ConduitModule {
         /// Sets the port of given conduit to default port
         /// </summary
         public static IConduit create(ConduitItem conduitItem, EntityPortType portType, int x, int y, TileEntity tileEntity) {
-            ConduitType conduitType = conduitItem.getType();
+            ConduitType conduitType = conduitItem.getConduitType();
             switch (conduitType) {
                 case ConduitType.Item:
                     SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);

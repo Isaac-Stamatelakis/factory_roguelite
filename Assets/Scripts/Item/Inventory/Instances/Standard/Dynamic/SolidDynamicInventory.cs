@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class SolidDynamicInventory : AbstractSolidItemInventory
     {
         private Vector2Int size;
@@ -16,34 +16,32 @@ namespace ItemModule.Inventory {
         }
         protected override void initSlot(int n)
         {
-            GameObject slot = Global.findChild(transform,"slot"+n);
-            if (slot == null) {
-                slot = addSlot();
+            Transform slotTransform = transform.Find("slot"+n);
+            if (slotTransform != null) {
+                slots.Add(slotTransform.GetComponent<ItemSlotUI>());
+                initClickHandler(slotTransform,n);
             } else {
-                slots.Add(slot);
-                initClickHandler(slot.transform,n);
+                addSlot();
             }
             
         }
-        public GameObject addSlot() {
+        public ItemSlotUI addSlot() {
             if (slots.Count >= size.x * size.y) {
                 return null;
             }
-            GameObject slot = Instantiate(slotPrefab);
-            slot.name = "slot" + (slots.Count).ToString();
-            slot.transform.SetParent(transform,false);
+            ItemSlotUI slot = ItemSlotUIFactory.newItemSlotUI(null,transform,ItemDisplayUtils.SolidItemPanelColor,suffix:slots.Count.ToString());
             slots.Add(slot);
+            slot.gameObject.AddComponent<ItemSlotUIClickHandler>();
             initClickHandler(slot.transform,slots.Count-1);
-            loadItem(slots.Count-1);
             return slot;
         }
         public bool popSlot() {
             if (slots.Count <= 0) {
                 return false;
             }
-            GameObject slot = slots[slots.Count-1];
+            ItemSlotUI slot = slots[slots.Count-1];
             slots.RemoveAt(slots.Count-1);
-            Destroy(slot);
+            GameObject.Destroy(slot.gameObject);
             return true;
         }
 
@@ -64,9 +62,7 @@ namespace ItemModule.Inventory {
                     Debug.LogWarning("Tried to change inventory to one larger than the current size");
                     break;
                 }
-                GameObject slot = slots[i];
-                ItemSlotUIFactory.unload(slot.transform);
-                ItemSlotUIFactory.load(itemSlots[i],slot.transform);
+                displayItem(i);
             }
         }
     }

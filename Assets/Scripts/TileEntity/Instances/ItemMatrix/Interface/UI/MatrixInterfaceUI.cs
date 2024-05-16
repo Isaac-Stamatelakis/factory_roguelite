@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
-using ItemModule.Inventory;
-using ItemModule.Tags;
+using Items;
+using Items.Inventory;
+using Items.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixInterfaceUI : MonoBehaviour
@@ -24,12 +24,12 @@ namespace TileEntityModule.Instances.Matrix {
 
             GlobalHelper.deleteAllChildren(upgradeContainer.transform);
             typeRestrictedInventory = upgradeContainer.gameObject.AddComponent<MatrixInterfaceUpgradeRestrictedInventoryUI>();
-            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Upgrades,upgradeContainer.transform);
+            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Upgrades,upgradeContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
             typeRestrictedInventory.initalize(matrixInterface.Upgrades);
 
             GlobalHelper.deleteAllChildren(recipeContainer.transform);
             recipeRestrictedInventory = recipeContainer.gameObject.AddComponent<EncodedRecipeTagInventoryUI>();
-            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Recipes,recipeContainer.transform);
+            ItemSlotUIFactory.getSlotsForInventory(matrixInterface.Recipes,recipeContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
             recipeRestrictedInventory.initalize(matrixInterface.Recipes,matrixInterface);
 
             priorityText.text = matrixInterface.Priority.ToString();

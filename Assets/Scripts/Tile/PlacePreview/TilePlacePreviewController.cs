@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace TileMapModule.Previewer {
+namespace TileMaps.Previewer {
     public class TilePlacePreviewController : MonoBehaviour
     {
         [SerializeField]

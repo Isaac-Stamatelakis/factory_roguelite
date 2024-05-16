@@ -60,8 +60,10 @@ namespace WorldModule {
             return pathExists(worldPath);
         }
         public static bool defaultWorldExists(string worldName) {
-            string worldPath = getFullWorldPath(Path.Combine(DefaultWorldFolder,worldName));
-            return pathExists(worldPath);
+            return pathExists(getDefaultWorldPath(worldName));
+        }
+        public static string getDefaultWorldPath(string worldName) {
+            return getFullWorldPath(Path.Combine(DefaultWorldFolder,worldName));
         }
         public static bool pathExists(string path) {
             return Directory.Exists(path) || File.Exists(path);

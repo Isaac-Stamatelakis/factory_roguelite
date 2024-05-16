@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     public class AutoCraftPopupUI : MonoBehaviour

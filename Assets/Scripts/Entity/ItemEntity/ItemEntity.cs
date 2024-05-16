@@ -1,22 +1,57 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
 
-public abstract class ItemEntity : Entity
-{
-    [SerializeField] public ItemSlot itemSlot;
-    [SerializeField] protected float lifeTime = 0f;
-    public float LifeTime {get{return lifeTime;}}
+namespace Entities {
+    public abstract class ItemEntity : Entity, ISerializableEntity
+    {
+        [SerializeField] public ItemSlot itemSlot;
+        [SerializeField] protected float lifeTime = 0f;
+        public float LifeTime {get{return lifeTime;}}
 
-    protected void iterateLifeTime() {
-        lifeTime += Time.deltaTime;
-        if (lifeTime > Global.ItemEntityLifeSpawn) {
-            Destroy(gameObject);
+        protected void iterateLifeTime() {
+            lifeTime += Time.deltaTime;
+            if (lifeTime > Global.ItemEntityLifeSpawn) {
+                Destroy(gameObject);
+            }
+        }
+
+        public virtual void FixedUpdate()
+        {
+            iterateLifeTime();
+        }
+
+        public SeralizedEntityData serialize()
+        {
+            SeralizedItemEntity serializedItemSlot = new SeralizedItemEntity(
+                ItemSlotFactory.seralizeItemSlot(itemSlot),
+                transform.position.x,
+                transform.position.y
+            );
+            return new SeralizedEntityData(
+                type: EntityType.Item,
+                transform.position,
+                Newtonsoft.Json.JsonConvert.SerializeObject(serializedItemSlot)
+            );
+        }
+
+        public void deseralize(string data)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private class SeralizedItemEntity {
+            public string itemData;
+            public float x;
+            public float y;
+            public SeralizedItemEntity(string itemData, float x, float y)
+            {
+                this.itemData = itemData;
+                this.x = x;
+                this.y = y;
+            }
         }
     }
-
-    public virtual void FixedUpdate()
-    {
-        iterateLifeTime();
-    }
 }
+

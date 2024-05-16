@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMapModule;
-using TileMapModule.Layer;
+using TileMaps;
+using TileMaps.Layer;
 using Tiles;
-using ChunkModule.PartitionModule;
-using TileMapModule.Type;
+using Chunks.Partitions;
+using TileMaps.Type;
 
 namespace TileEntityModule.Instances {
 

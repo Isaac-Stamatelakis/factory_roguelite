@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using ItemModule.Transmutable;
+using Items.Transmutable;
 
 public static class TransmutableItemFactory
 {
@@ -17,7 +17,7 @@ public static class TransmutableItemFactory
     private static TransmutableItemObject generateItemObject(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite sprite, string id, string path) {
         TransmutableItemObject transmutableItemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
         transmutableItemObject.name = name;
-        transmutableItemObject.sprite = sprite;
+        transmutableItemObject.setSprite(sprite);
         transmutableItemObject.setState(state);
         transmutableItemObject.setMaterial(material);
         transmutableItemObject.id = id;

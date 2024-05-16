@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using ItemModule;
-using ItemModule.Tags;
+using Items;
+using Items.Tags;
 using System;
 using System.Linq;
 
@@ -48,6 +48,15 @@ public static class ItemSlotFactory
     }
 
     public static ItemSlot createNewItemSlot(ItemObject itemObject, int amount) {
+        ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
+        return new ItemSlot(itemObject,amount,itemTagData);
+    }
+
+    public static ItemSlot createNewItemSlot(string id, int amount) {
+        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
+        if (itemObject == null) {
+            return null;
+        }
         ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
         return new ItemSlot(itemObject,amount,itemTagData);
     }

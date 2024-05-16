@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UI.Chat;
+using UI;
 
 
 /// <summary>
@@ -11,9 +12,8 @@ public class GlobalUIContainer
 {
     private static GlobalUIContainer instance;
     private GlobalUIController gUIController;
-
     private GlobalUIContainer() {
-        GameObject container = GameObject.Find("GlobalUIController");
+        GameObject container = GameObject.Find(UIUtils.GlobalUIContainerName);
         if (container == null) {
             Debug.LogError("GlobalUIContainer 'constructor' attempted to get component GlobalUIController from null gameobject. Ensure there is a GameObject called 'GlobalUIController' in the scene");
             return;
@@ -32,6 +32,7 @@ public class GlobalUIContainer
         }
         return gUIController;
     }
+
     public bool isActive() {
         return gUIController.isActive;
     }

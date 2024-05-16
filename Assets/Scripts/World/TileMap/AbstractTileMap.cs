@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-using ChunkModule;
-using TileMapModule.Type;
-using ChunkModule.ClosedChunkSystemModule;
-using TileMapModule.Place;
+using Chunks;
+using TileMaps.Type;
+using Chunks.ClosedChunkSystemModule;
+using TileMaps.Place;
 using Tiles;
-using ChunkModule.PartitionModule;
+using Chunks.Partitions;
+using Entities;
+using Items;
 
-namespace TileMapModule {
+namespace TileMaps {
     public interface IHitableTileMap {
         public void hitTile(Vector2 position);
         public void deleteTile(Vector2 position);

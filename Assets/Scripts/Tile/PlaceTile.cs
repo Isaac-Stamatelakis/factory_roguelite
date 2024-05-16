@@ -2,20 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using ChunkModule;
+using Chunks;
 using System;
-using TileMapModule.Layer;
-using TileMapModule.Type;
-using TileMapModule.Conduit;
-using ChunkModule.ClosedChunkSystemModule;
-using ChunkModule.PartitionModule;
-using ConduitModule;
-using ConduitModule.Ports;
-using ConduitModule.Systems;
+using TileMaps.Layer;
+using TileMaps.Type;
+using TileMaps.Conduit;
+using Chunks.ClosedChunkSystemModule;
+using Chunks.Partitions;
+using Conduits;
+using Conduits.Ports;
+using Conduits.Systems;
 using Tiles;
 using Fluids;
+using Items;
 
-namespace TileMapModule.Place {
+namespace TileMaps.Place {
     public static class PlaceTile {
         private enum GridLocation {
             UpLeft,
@@ -53,7 +54,7 @@ namespace TileMapModule.Place {
                 if (closedChunkSystem is not ConduitTileClosedChunkSystem) {
                     return false;
                 }
-                TileMapType tileMapType = conduitItem.getType().toTileMapType();
+                TileMapType tileMapType = conduitItem.getConduitType().toTileMapType();
                 ITileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
                 if (conduitMap == null || conduitMap is not ConduitTileMap) {
                     return false;
@@ -236,7 +237,7 @@ namespace TileMapModule.Place {
 
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
-            ConduitType conduitType = conduitItem.getType();
+            ConduitType conduitType = conduitItem.getConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
             TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);

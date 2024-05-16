@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public interface ILoadableInventory {
         public void initalize(List<ItemSlot> items);
     }
@@ -30,9 +30,7 @@ namespace ItemModule.Inventory {
         {
             SolidItemInventoryHelper.leftClick(inventory,n,allowInputs);
             updateAllListeners(n);
-            unloadItem(n);
-            loadItem(n);
-            
+            displayItem(n);
         }
 
         private void updateAllListeners(int n) {
@@ -66,7 +64,7 @@ namespace ItemModule.Inventory {
             }
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
             ItemSlot inventorySlot = inventory[n];
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (inventorySlot == null || inventorySlot.itemObject == null) {
                 return;
             }
@@ -84,10 +82,10 @@ namespace ItemModule.Inventory {
             }
             GrabbedItemProperties grabbedItemProperties = grabbedItem.GetComponent<GrabbedItemProperties>();
             ItemSlot inventorySlot = inventory[n];
-            ItemSlot grabbedSlot = grabbedItemProperties.itemSlot;
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (!allowInputs && grabbedSlot == null) {
                 inventory[n] = null;
-                grabbedItemProperties.itemSlot = inventorySlot;
+                grabbedItemProperties.setItemSlot(inventorySlot);
                 return;
             }
             if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
@@ -98,14 +96,13 @@ namespace ItemModule.Inventory {
                     inventorySlot.amount = Global.MaxSize;
                 } else { // Overflow
                     inventorySlot.amount = sum;
-                    grabbedItemProperties.itemSlot = null;
+                    grabbedItemProperties.setItemSlot(null);
                 }
             } else {    
                 // Swap
-                inventory[n] = grabbedItemProperties.itemSlot;
-                grabbedItemProperties.itemSlot = inventorySlot;
+                inventory[n] = grabbedItemProperties.ItemSlot;
+                grabbedItemProperties.setItemSlot(inventorySlot);
             }
-            grabbedItemProperties.updateSprite();
         }
     }
 }

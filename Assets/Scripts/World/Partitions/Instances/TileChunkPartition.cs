@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileMapModule.Type;
-using TileMapModule;
-using TileMapModule.Layer;
+using TileMaps.Type;
+using TileMaps;
+using TileMaps.Layer;
 using TileEntityModule;
 using Tiles;
 using UnityEngine.Tilemaps;
-using ItemModule;
-using ConduitModule.Ports;
+using Items;
+using Conduits.Ports;
 using Fluids;
+using Entities;
 
-namespace ChunkModule.PartitionModule {
-public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T : SerializedTileData
+namespace Chunks.Partitions {
+public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T : SeralizedWorldData
     {
-        public TileChunkPartition(SerializedTileData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)
+        public TileChunkPartition(SeralizedWorldData data, UnityEngine.Vector2Int position, IChunk parent) : base(data, position, parent)
         {
 
         }
@@ -25,14 +26,20 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             }
             fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.load(tileGridMaps,angle);
+            if (parent is ILoadedChunk loadedChunk) {
+                foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
+                    EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
+                }
+            }
+            data.entityData = new List<SeralizedEntityData>(); // Prevents duplication
+            
         }
         private FluidTileMap fluidTileMap;
 
         public override void save()
         {
             Vector2Int position = getRealPosition();
-            SerializedTileData data = (SerializedTileData) getData();
-
+            SeralizedWorldData data = (SeralizedWorldData) getData();
             if (tileOptionsArray != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -52,7 +59,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
                             data.baseData.sTileEntityOptions[x,y] = saveTileEntity(tileEntity);
                         }
                     }
-                }
+                }   
             }
         }
 
@@ -102,7 +109,6 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
             array[x,y] = null;
             return true;
         }
-
 
         protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);
@@ -239,7 +245,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         public override void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem)
         {
-            SerializedTileData tileData = (SerializedTileData) getData();
+            SeralizedWorldData tileData = (SeralizedWorldData) getData();
             string id = null;
             if (tileItem != null) {
                 id = tileItem.id;
@@ -271,7 +277,7 @@ public class TileChunkPartition<T> : ChunkPartition<SerializedTileData> where T 
 
         public override (string[,], string[,], int[,]) getFluidData()
         {
-            SerializedTileData serializedTileData = (SerializedTileData) getData();
+            SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
             return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
     }

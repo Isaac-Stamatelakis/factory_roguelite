@@ -2,22 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-abstract public class ItemObject : ScriptableObject
-{
-    [Header("Unique identifier for this item")]
-    public string id;
-    public abstract Sprite getSprite();
-}
-
-public interface ISingleSpriteObject {
-    public Sprite getSprite();
-}
-
-public interface IMultipleSpriteObject {
-    public Sprite[] getSprites();
-}
-
-public interface IAnimatedSpriteObject {
-    public Sprite[] getSprites();
+namespace Items {
+    public enum ItemDisplayType {
+        Single,
+        Stack,
+        Animated
+    }
+    public abstract class ItemObject : ScriptableObject {
+        [Header("Unique identifier for this item")]
+        public string id;
+        public abstract Sprite[] getSprites();
+        public abstract Sprite getSprite();
+        public abstract ItemDisplayType? getDisplayType();
+    }
 }

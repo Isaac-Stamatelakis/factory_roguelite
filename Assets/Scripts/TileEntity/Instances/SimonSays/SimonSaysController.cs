@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Newtonsoft.Json;
-using ChunkModule;
-using ItemModule;
+using Chunks;
+using Items;
 using Tiles;
-using TileMapModule.Place;
-using ChunkModule.ClosedChunkSystemModule;
+using TileMaps.Place;
+using Chunks.ClosedChunkSystemModule;
 
 namespace TileEntityModule.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/Controller")]

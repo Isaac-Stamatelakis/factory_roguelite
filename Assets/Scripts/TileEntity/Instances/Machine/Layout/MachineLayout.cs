@@ -4,7 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using TileEntityModule;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
 
     public enum InventoryUIMode {
         Recipe,

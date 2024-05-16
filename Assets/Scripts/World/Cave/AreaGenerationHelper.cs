@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.IO;
+using Chunks.IO;
 using Tiles;
 using UnityEngine.Tilemaps;
-using ItemModule;
+using Items;
 
 namespace WorldModule.Caves {
     public static class AreaGenerationHelper
@@ -15,7 +15,7 @@ namespace WorldModule.Caves {
             Other,
             Slant,
         }
-        public static void SetNatureTileStates(WorldTileData worldTileData, int width, int height) {
+        public static void SetNatureTileStates(SeralizedWorldData worldTileData, int width, int height) {
 
             BlockState?[,] states = new BlockState?[width,height];
             SerializedBaseTileData serializedTileData = worldTileData.baseData;

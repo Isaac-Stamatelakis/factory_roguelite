@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace TileEntityModule {
     public abstract class TileEntityInventory

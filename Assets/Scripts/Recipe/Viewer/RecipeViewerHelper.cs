@@ -2,18 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
+using Items;
 
 namespace RecipeModule.Viewer {
     public static class RecipeViewerHelper
     {
         private static string path = "Assets/UI/Recipe/RecipeViewer.prefab";
-        public static void displayUsesOfItem(ItemObject itemObject) {
-            
-            
+        public static void displayUsesOfItem(ItemSlot itemSlot) {
             RecipeRegistry recipeRegistry = RecipeRegistry.getInstance();
-            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemObject);
+            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemSlot);
             // If is processor, show recipes it makes
-            if (itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
+            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
                 RecipeProcessor processor = tileEntityProcessor.getRecipeProcessor();
                 recipesWithItemInInput[processor] = recipeRegistry.getRecipeProcessorRecipes(processor);
             }
@@ -28,9 +27,9 @@ namespace RecipeModule.Viewer {
             viewer.show(recipesWithItemInInput);
             globalUIController.setGUI(viewer.gameObject);
         }
-        public static void displayCraftingOfItem(ItemObject itemObject) {
+        public static void displayCraftingOfItem(ItemSlot itemSlot) {
             
-            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemObject);
+            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemSlot);
             if (recipesWithItemInOutput.Count == 0) {
                 return;
             }

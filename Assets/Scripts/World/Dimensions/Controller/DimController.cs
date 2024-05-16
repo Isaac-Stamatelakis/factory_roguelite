@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.ClosedChunkSystemModule;
+using Entities;
 
 namespace Dimensions {
 
@@ -15,7 +16,16 @@ namespace Dimensions {
     }
     public abstract class DimController : MonoBehaviour
     {
-        
+        private Transform entityContainer;
+        public Transform EntityContainer { get => entityContainer;}
+
+        public void Awake() {
+            GameObject entityContainerObject = new GameObject();
+            entityContainerObject.name = "Entities";
+            entityContainerObject.transform.SetParent(transform);
+            EntityContainer component = entityContainerObject.AddComponent<EntityContainer>();
+            entityContainer = entityContainerObject.transform;
+        }
     }
 }
 

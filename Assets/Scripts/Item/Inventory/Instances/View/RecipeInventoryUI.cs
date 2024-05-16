@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule.Viewer;
 
-namespace ItemModule.Inventory {
+namespace Items.Inventory {
     public class RecipeInventoryUI : InventoryUI, ILoadableInventory
     {
         public void initalize(List<ItemSlot> items)
@@ -18,7 +18,7 @@ namespace ItemModule.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayCraftingOfItem(itemSlot.itemObject);
+            RecipeViewerHelper.displayCraftingOfItem(itemSlot);
         }
 
         public override void middleClick(int n)
@@ -32,7 +32,7 @@ namespace ItemModule.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayUsesOfItem(itemSlot.itemObject);
+            RecipeViewerHelper.displayUsesOfItem(itemSlot);
         }
     }
 }

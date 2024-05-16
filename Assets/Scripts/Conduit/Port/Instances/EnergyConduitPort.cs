@@ -4,7 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using TileEntityModule;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     public class EnergyConduitInputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitInputPort<int>, IColorPort, IPriorityPort, IConduitIOPort
     {
         public bool enabled;

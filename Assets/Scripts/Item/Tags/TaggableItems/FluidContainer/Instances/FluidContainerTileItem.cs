@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Storage;
 
-namespace ItemModule.Tags.FluidContainers {
+namespace Items.Tags.FluidContainers {
     [CreateAssetMenu(fileName ="I~New Fluid Container Tile Item",menuName="Item/Tagged Items/Fluid Container/Tile Item")]
     public class FluidContainerTileItem : TileItem, IFluidContainer
     {
@@ -26,6 +26,11 @@ namespace ItemModule.Tags.FluidContainers {
                 return 0;
             }
             return fluidTank.getStorage();
+        }
+
+        public List<ItemTag> getTags()
+        {
+            return new List<ItemTag>{ItemTag.FluidContainer};
         }
     }
 }

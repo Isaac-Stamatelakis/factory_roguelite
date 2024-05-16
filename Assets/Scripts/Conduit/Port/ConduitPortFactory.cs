@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using TileEntityModule;
+using Items;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     public static class ConduitPortFactory
     {
         public static IConduitPort deseralize(string data, ConduitType conduitType, ConduitItem conduitItem) {

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule.Transmutable {
+namespace Items.Transmutable {
     public interface ITransmutableItem
     {
         public TransmutableItemMaterial getMaterial();

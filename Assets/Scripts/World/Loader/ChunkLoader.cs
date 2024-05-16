@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ChunkModule.IO;
-using ChunkModule.ClosedChunkSystemModule;
+using Chunks.IO;
+using Chunks.ClosedChunkSystemModule;
 
-namespace ChunkModule.LoadController {
+namespace Chunks.LoadController {
     public class ChunkLoader : MonoBehaviour
     {
         [SerializeField]

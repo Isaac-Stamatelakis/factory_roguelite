@@ -16,7 +16,6 @@ namespace DevTools.Structures {
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private TextMeshProUGUI date;
         [SerializeField] private Button editButton;
-        [SerializeField] private Button downloadButton;
         [SerializeField] private EditStructurePopUpUI editStructurePopUpUIPrefab;
         private StructureDevControllerUI structureDevControllerUI;
         public void init(StructureDevControllerUI structureDevControllerUI, string title, string date) {
@@ -27,9 +26,6 @@ namespace DevTools.Structures {
                 EditStructurePopUpUI editStructurePopUpUI = GameObject.Instantiate(editStructurePopUpUIPrefab);
                 editStructurePopUpUI.transform.SetParent(transform.parent.parent.parent.parent,false); // Don't ask it works
                 editStructurePopUpUI.init(this);
-            });
-            downloadButton.onClick.AddListener(() => {
-                StructureGeneratorHelper.generateStructure(this.title.text);
             });
             GetComponent<Button>().onClick.AddListener(() => {
                 string path = StructureGeneratorHelper.getPath(this.title.text);

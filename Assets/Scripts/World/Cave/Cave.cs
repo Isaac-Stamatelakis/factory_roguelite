@@ -19,10 +19,10 @@ namespace WorldModule.Caves {
         public AreaTileDistributor tileDistributor;
         [Header("Distrubutes structures around the area")]
         public AreaStructureDistributor structureDistributor;
-        public WorldTileData generate(int seed) {
-            WorldTileData worldTileData = generationModel.generateBase(seed);
+        public SeralizedWorldData generate(int seed) {
+            SeralizedWorldData worldTileData = generationModel.generateBase(seed);
             Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
-            tileDistributor.distribute(worldTileData,seed,size.x,size.y);
+            //tileDistributor.distribute(worldTileData,seed,size.x,size.y);
             AreaGenerationHelper.SetNatureTileStates(worldTileData,size.x,size.y);
             //structureDistributor.distribute(worldTileData,seed);
             return worldTileData;

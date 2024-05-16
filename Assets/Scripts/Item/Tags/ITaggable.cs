@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ItemModule {
-    public interface ITaggable
+namespace Items.Tags {
+    public interface ITaggableItem
     {
-        
+        public List<ItemTag> getTags();
     }
 
     public interface ICloneableTag {

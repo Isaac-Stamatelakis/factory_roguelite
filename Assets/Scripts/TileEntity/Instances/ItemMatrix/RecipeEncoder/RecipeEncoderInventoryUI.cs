@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Inventory;
+using Items.Inventory;
+using Items;
 
 namespace TileEntityModule.Instances.Matrix {
     public class RecipeEncoderInventoryUI : InventoryUI
@@ -12,11 +13,11 @@ namespace TileEntityModule.Instances.Matrix {
         }
         public override void leftClick(int n)
         {
-            GrabbedItemProperties grabbedItemProperties = GrabbedItemContainer.getGrabbedItem();
-            if (grabbedItemProperties.itemSlot == null) {
+            GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
+            if (grabbedItemProperties.ItemSlot == null) {
                 inventory[n] = null;
             } else {
-                inventory[n] = ItemSlotFactory.copy(grabbedItemProperties.itemSlot);
+                inventory[n] = ItemSlotFactory.copy(grabbedItemProperties.ItemSlot);
             }
         }
 

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Inventory;
-using ItemModule.Tags;
+using Items.Inventory;
+using Items.Tags;
 
 
 namespace TileEntityModule.Instances.Matrix {
@@ -37,11 +37,6 @@ namespace TileEntityModule.Instances.Matrix {
             if (inital != null && post == null) {
                 matrixInterface.Controller.Recipes.removeRecipe(inital,matrixInterface);
             }
-        }
-
-        public override void loadItem(int n)
-        {
-            base.loadItem(n);
         }
 
         public override void middleClick(int n)

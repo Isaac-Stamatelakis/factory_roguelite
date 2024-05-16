@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using ConduitModule.Ports;
-using ConduitModule.Systems;
+using Conduits.Ports;
+using Conduits.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
-using ItemModule.Tags;
+using Items.Tags;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Interface")]

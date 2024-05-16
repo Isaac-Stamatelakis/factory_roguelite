@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEditor;
+using Items;
 
 namespace RecipeModule {
     public class RecipeRegistry 
@@ -35,19 +36,21 @@ namespace RecipeModule {
             return instance;
         }
 
-        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInOutput(ItemObject itemObject) {
+        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInOutput(ItemSlot itemSlot) {
             Dictionary<RecipeProcessor, List<IRecipe>> processorRecipesWithItemInOutput = new Dictionary<RecipeProcessor, List<IRecipe>>();
+            ItemTagKey itemTagKey = new ItemTagKey(itemSlot.tags);
             foreach (RecipeProcessor recipeProcessor in processors) {
                 List<IRecipe> haveInOutput = new List<IRecipe>();
                 List<IRecipe> recipes = recipeProcessor.getRecipes();
-
+                
                 foreach (IRecipe recipe in recipes) {
                     List<ItemSlot> outputs = recipe.getOutputs();
                     foreach (ItemSlot outputItemSlot in outputs) {
                         if (outputItemSlot == null || outputItemSlot.itemObject == null) {
                             continue;
                         }
-                        if (outputItemSlot.itemObject.id == itemObject.id) {
+                        ItemTagKey outputItemTag = new ItemTagKey(outputItemSlot.tags);
+                        if (outputItemSlot.itemObject.id == itemSlot.itemObject.id && itemTagKey.Equals(outputItemTag)) {
                             haveInOutput.Add(recipe);
                             break;
                         }
@@ -62,8 +65,9 @@ namespace RecipeModule {
             return processorRecipesWithItemInOutput;
         }
 
-        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInInput(ItemObject itemObject) {
+        public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInInput(ItemSlot itemSlot) {
             Dictionary<RecipeProcessor, List<IRecipe>> processorRecipesWithItemInInput = new Dictionary<RecipeProcessor, List<IRecipe>>();
+            ItemTagKey itemTagKey = new ItemTagKey(itemSlot.tags);
             foreach (RecipeProcessor recipeProcessor in processors) {
                 List<IRecipe> haveInInput = new List<IRecipe>();
                 List<IRecipe> recipes = recipeProcessor.getRecipes();
@@ -74,7 +78,8 @@ namespace RecipeModule {
                         if (inputItemSlot == null || inputItemSlot.itemObject == null) {
                             continue;
                         }
-                        if (inputItemSlot.itemObject.id == itemObject.id) {
+                        ItemTagKey inputTagKey = new ItemTagKey(inputItemSlot.tags);
+                        if (inputItemSlot.itemObject.id == itemSlot.itemObject.id && itemTagKey.Equals(inputTagKey)) {
                             haveInInput.Add(recipe);
                             break;
                         }

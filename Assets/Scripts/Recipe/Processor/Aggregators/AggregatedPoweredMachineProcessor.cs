@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule.Transmutation;
 using TileEntityModule.Instances.Machines;
-using ItemModule.Inventory;
+using Items.Inventory;
 using TileEntityModule;
 using System;
 

@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Tags;
+using Items.Tags;
 using System.Linq;
 
-namespace ItemModule {
+namespace Items {
     public class ItemSlotKey
     {
         public Dictionary<string, Dictionary<int, GameObject>> idTagItemSlotDict;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace ConduitModule.Ports.UI {
+namespace Conduits.Ports.UI {
     public class EnergyConduitPortUIController : ConduitPortUIController
     {
         [SerializeField] public Button plusPriorityButton;

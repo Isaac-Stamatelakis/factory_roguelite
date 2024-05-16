@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemModule.Inventory;
+using Items.Inventory;
 
 namespace TileEntityModule.Instances.Machines {
     public interface IMachineInventory {

@@ -4,7 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using TileEntityModule;
 
-namespace ConduitModule.Ports {
+namespace Conduits.Ports {
     public interface IItemConduitInputPort : IColorPort, IPriorityPort {
         public void insert(ItemSlot itemSlot);
         public IItemConduitInteractable getTileEntity();

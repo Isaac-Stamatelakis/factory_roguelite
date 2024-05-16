@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ItemModule.Inventory;
-using ItemModule;
-using ItemModule.Tags;
+using Items.Inventory;
+using Items;
+using Items.Tags;
 using PlayerModule;
 
 namespace TileEntityModule.Instances.Matrix {
@@ -34,22 +34,22 @@ namespace TileEntityModule.Instances.Matrix {
             encodeButton.onClick.AddListener(encodeButtonClick);
 
             GlobalHelper.deleteAllChildren(recipeInputs.transform);
-            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.RecipeInputs,recipeInputs.transform);
+            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.RecipeInputs,recipeInputs.transform,ItemDisplayUtils.SolidItemPanelColor);
             RecipeEncoderInventoryUI recipeInputUI = recipeInputs.gameObject.AddComponent<RecipeEncoderInventoryUI>();
             recipeInputUI.initalize(recipeEncoder.RecipeInputs);
             
             GlobalHelper.deleteAllChildren(recipeOutputs.transform);
-            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.RecipeOutputs,recipeOutputs.transform);
+            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.RecipeOutputs,recipeOutputs.transform,ItemDisplayUtils.SolidItemPanelColor);
             RecipeEncoderInventoryUI recipeOutputUI = recipeOutputs.gameObject.AddComponent<RecipeEncoderInventoryUI>();
             recipeOutputUI.initalize(recipeEncoder.RecipeOutputs);
 
             GlobalHelper.deleteAllChildren(patternInput.transform);
-            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.BlankRecipes,patternInput.transform);
+            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.BlankRecipes,patternInput.transform,ItemDisplayUtils.SolidItemPanelColor);
             TagRestrictedInventoryUI patternInputsInventoryUI = patternInput.gameObject.AddComponent<TagRestrictedInventoryUI>();
             patternInputsInventoryUI.initalize(recipeEncoder.BlankRecipes,ItemTag.EncodedRecipe);
 
             GlobalHelper.deleteAllChildren(patternOutput.transform);
-            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.EncodedRecipes,patternOutput.transform);
+            ItemSlotUIFactory.getSlotsForInventory(recipeEncoder.EncodedRecipes,patternOutput.transform,ItemDisplayUtils.SolidItemPanelColor);
             TagRestrictedInventoryUI patternOutputsInventoryUI = patternOutput.gameObject.AddComponent<TagRestrictedInventoryUI>();
             patternOutputsInventoryUI.initalize(recipeEncoder.EncodedRecipes,ItemTag.EncodedRecipe);
             patternInputsInventoryUI.AllowInputs=false;

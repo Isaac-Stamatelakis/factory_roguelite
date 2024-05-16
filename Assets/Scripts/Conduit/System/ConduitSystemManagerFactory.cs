@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
-using ConduitModule.Ports;
+using Conduits.Ports;
 
-namespace ConduitModule.Systems {
+namespace Conduits.Systems {
     public static class ConduitSystemManagerFactory
     {
         public static IConduitSystemManager createManager(

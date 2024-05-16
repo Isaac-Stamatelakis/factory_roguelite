@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using ConduitModule.Systems;
-using ChunkModule.PartitionModule;
-using TileMapModule.Type;
+using Conduits.Systems;
+using Chunks.Partitions;
+using TileMaps.Type;
+using Items;
 
-namespace TileMapModule.Conduit {
+namespace TileMaps.Conduit {
     public class ConduitTileMap : AbstractTileMap<ConduitItem>
     {
         private IConduitSystemManager conduitSystemManager;
