@@ -15,6 +15,7 @@ namespace Items {
         private Transform tagFrontContainer;
         private int counter;
         private bool textEnabled;
+        private ItemSlot displayed;
         public void FixedUpdate() {
             counter ++;
         }
@@ -33,6 +34,7 @@ namespace Items {
         }
 
         public void display(ItemSlot itemSlot) {
+            this.displayed = itemSlot;
             if (itemSlot == null || itemSlot.itemObject == null) {
                 if (transform.childCount != 0) {
                     unload();
@@ -44,6 +46,9 @@ namespace Items {
                 amountText.text = ItemDisplayUtils.formatAmountText(itemSlot.amount);
             }
             displayItemSprite(itemSlot.itemObject);
+        }
+        public ItemSlot getDisplayedSlot() {
+            return displayed;
         }
 
         public void unload() {
@@ -58,9 +63,11 @@ namespace Items {
                 case ItemDisplayType.Stack:
                     Image[] images = itemSprite.GetComponentsInChildren<Image>();
                     Sprite[] stackSprites = itemObject.getSprites();
+                    /*
                     if (images.Length+1 != stackSprites.Length) {
                         Debug.LogWarning("Lengthes do not match");
                     }
+                    */
                     for (int i = 0; i < stackSprites.Length-1; i++) {
                         int imageIndex = stackSprites.Length-i-1; // Sprites are orded by index with larger showing lower
                         setImageSprite(images[imageIndex],stackSprites[i]);
@@ -70,7 +77,6 @@ namespace Items {
                     Sprite[] animationSprites = itemObject.getSprites();
                     int adjustedCounter = Mathf.FloorToInt(counter/(float) ItemDisplayUtils.AnimationSpeed);
                     int animationIndex = adjustedCounter % animationSprites.Length;
-                    Debug.Log(animationIndex);
                     setImageSprite(itemSprite,animationSprites[animationIndex]);
                     break;
             }

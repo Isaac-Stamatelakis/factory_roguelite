@@ -28,14 +28,14 @@ public interface IItemSlotUIElement {
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayCraftingOfItem(itemSlot.itemObject);
+        RecipeViewerHelper.displayCraftingOfItem(itemSlot);
     }
     public void showUses() {
         ItemSlot itemSlot = getItemSlot();
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayUsesOfItem(itemSlot.itemObject);
+        RecipeViewerHelper.displayUsesOfItem(itemSlot);
     }
 }
 public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItemSlotUIElement

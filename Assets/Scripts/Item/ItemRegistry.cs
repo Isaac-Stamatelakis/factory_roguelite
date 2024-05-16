@@ -144,6 +144,21 @@ namespace Items {
             }
             return queried;
         }
+        public List<ItemSlot> querySlots(string serach, int limit) {
+            // TODO options to put certain tag items in here
+            List<ItemSlot> queried = new List<ItemSlot>();
+            int i = 0;
+            foreach (ItemObject itemObject in items.Values) {
+                if (i >= limit) {
+                    break;
+                }
+                if (itemObject.name.ToLower().Contains(serach.ToLower())) {
+                    queried.Add(ItemSlotFactory.createNewItemSlot(itemObject,1));
+                    i ++;
+                }
+            }
+            return queried;
+        }
 
         public List<TileItem> getTileEntitiesOfProcessor(RecipeProcessor processor) {
             List<TileItem> tileItems = new List<TileItem>();

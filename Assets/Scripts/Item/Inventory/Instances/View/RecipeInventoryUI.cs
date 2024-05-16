@@ -18,7 +18,7 @@ namespace Items.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayCraftingOfItem(itemSlot.itemObject);
+            RecipeViewerHelper.displayCraftingOfItem(itemSlot);
         }
 
         public override void middleClick(int n)
@@ -32,7 +32,7 @@ namespace Items.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayUsesOfItem(itemSlot.itemObject);
+            RecipeViewerHelper.displayUsesOfItem(itemSlot);
         }
     }
 }

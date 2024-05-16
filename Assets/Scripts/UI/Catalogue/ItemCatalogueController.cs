@@ -17,14 +17,16 @@ namespace UI.JEI
     {
         private int page = 1;
         private int maxPages = 1;
-        private int limit = 6*12;
+        private static int COLUMNS = 6;
+        private static int ROWS = 12;
+        private int limit = ROWS*COLUMNS;
         private CatalogueMode mode = CatalogueMode.Recipe;
         private string lastSearch;
-        private HashSet<string> displayedIDs;
+        private ItemHashTable displayed;
         private Transform resultContainer;
         private Image editButtonImage;
         private string currentSearch;
-        private List<ItemObject> queriedItems;
+        private List<ItemSlot> queriedItems;
         private TextMeshProUGUI pageDisplay;
 
         internal CatalogueMode Mode { get => mode; set => mode = value; }
@@ -32,7 +34,7 @@ namespace UI.JEI
         // Start is called before the first frame update
         void Start()
         {
-            displayedIDs = new HashSet<string>();
+            displayed = new ItemHashTable();
             GameObject searchContainer = Global.findChild(transform,"SearchContainer");
             GameObject searchObject = Global.findChild(searchContainer.transform,"Search");
 
@@ -57,7 +59,7 @@ namespace UI.JEI
 
         private void onSearchChange(string search) {
             page = 1;
-            queriedItems = ItemRegistry.getInstance().query(search,int.MaxValue);
+            queriedItems = ItemRegistry.getInstance().querySlots(search,int.MaxValue);
             maxPages = Mathf.CeilToInt(queriedItems.Count/limit)+1;
             lastSearch = currentSearch;
             currentSearch = search;
@@ -98,39 +100,43 @@ namespace UI.JEI
 
         private void populateResults() {
             setPageDisplay();
-            List<ItemObject> toDisplay;
+            List<ItemSlot> toDisplay;
             if (queriedItems.Count < page*limit) {
                 toDisplay = queriedItems.GetRange((page-1)*limit,queriedItems.Count-(page-1)*limit);
             } else {
                 toDisplay = queriedItems.GetRange((page-1)*limit,limit);
             }
             if (lastSearch == null || lastSearch.Length < currentSearch.Length) { // When appending to a search, order is always perserved
-                HashSet<string> newDisplay = new HashSet<string>();
-                foreach (ItemObject itemObject1 in toDisplay) {
-                    newDisplay.Add(itemObject1.id);
+                ItemHashTable newDisplayHash = new ItemHashTable();
+                foreach (ItemSlot itemSlot in toDisplay) {
+                    newDisplayHash.addItem(itemSlot);
                 }
                 foreach (Transform previouslyDisplayed in resultContainer.transform) { 
-                    if (!newDisplay.Contains(previouslyDisplayed.name)) { // name is id
+                    ItemSlotUI itemSlotUI = previouslyDisplayed.GetComponent<ItemSlotUI>();
+                    ItemSlot itemSlot = itemSlotUI.getDisplayedSlot();
+                    if (!newDisplayHash.containsItem(itemSlot)) {
                         GameObject.Destroy(previouslyDisplayed.gameObject);
                     }
                 }   
-                displayedIDs.IntersectWith(newDisplay); // Displayed objects is now only objects which were previously displayed and were still in query
+                displayed = displayed.intersect(newDisplayHash);// Displayed objects is now only objects which were previously displayed and were still in query
             } else {  // When decreasing a search, order is not always perserved, so must clear.
                 foreach (Transform previouslyDisplayed in resultContainer.transform) { 
                     GameObject.Destroy(previouslyDisplayed.gameObject);
                 } 
-                displayedIDs.Clear();
+                displayed = new ItemHashTable();
             } 
 
-            foreach (ItemObject itemObject in toDisplay) {
-                if (displayedIDs.Count >= limit) {
+            foreach (ItemSlot itemSlot in toDisplay) {
+                if (displayed.getCount() >= limit) {
                     break;
                 }
-                if (!displayedIDs.Contains(itemObject.id)) { // Only create image if was not previously displayed
-                    displayedIDs.Add(itemObject.id);
-                    ItemSlotUI slotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,0,null),resultContainer,null,false);
-
+                if (displayed.containsItem(itemSlot)) { // Only create image if was not previously displayed
+                    continue;
                 }
+                displayed.addItem(itemSlot);
+                ItemSlotUI slotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,resultContainer,null,false);
+                CatalogueElementClickHandler clickHandler = slotUI.gameObject.AddComponent<CatalogueElementClickHandler>();
+                clickHandler.init(this,itemSlot);
             }
         }
 

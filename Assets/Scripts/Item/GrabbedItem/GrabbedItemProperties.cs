@@ -15,11 +15,14 @@ namespace Items {
             itemSlotUI = gameObject.AddComponent<ItemSlotUI>();
             itemSlotUI.init(null);
         }
+        
         private ItemSlotUI itemSlotUI;
         public ItemSlot ItemSlot {get => itemSlot;}
         public static GrabbedItemProperties Instance { get => instance;}
-
         private ItemSlot itemSlot;
+        public void FixedUpdate() {
+            itemSlotUI.display(itemSlot);
+        }
         void Update()
         {
             Vector3 position = Input.mousePosition;
