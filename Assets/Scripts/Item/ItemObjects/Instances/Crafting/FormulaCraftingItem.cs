@@ -10,7 +10,6 @@ namespace Items {
     public class FormulaCraftingItem : CraftingItem, IFormulaCraftingItem {
         [Header("Chemical Formula for the Item")]
         [SerializeField] private string formula;
-
         public string getFormula()
         {
             return formula;

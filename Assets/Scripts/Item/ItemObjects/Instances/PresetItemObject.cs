@@ -6,8 +6,13 @@ using Items.Tags;
 namespace Items {
     public abstract class PresetItemObject : ItemObject
     {
-        [SerializeField] protected Sprite[] sprites;
-        [SerializeField] protected ItemDisplayType displayType;
+
+        [SerializeField] [HideInInspector] protected Sprite[] sprites;
+        #if UNITY_EDITOR
+        public Sprite[] Sprites {get => sprites; set => sprites = value;}
+        #endif
+        [Header("Changing this modifies the format of sprite you can input")]
+        [SerializeField]  protected ItemDisplayType displayType;
         public override ItemDisplayType? getDisplayType()
         {
             return displayType;
