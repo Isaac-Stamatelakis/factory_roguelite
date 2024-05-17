@@ -8,67 +8,67 @@ namespace Items.Transmutable {
         public List<TransmutableStateOptions> metalStates = new List<TransmutableStateOptions>{
             new TransmutableStateOptions(
                 state: TransmutableItemState.Ingot,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Dust,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Plate,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Wire,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Fine_Wire,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Double_Plate,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Small_Dust,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Screw,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Small_Dust,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Rod,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Bolt,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),

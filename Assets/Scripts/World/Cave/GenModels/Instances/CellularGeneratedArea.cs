@@ -20,12 +20,11 @@ namespace WorldModule.Caves {
     
     public class CellularGeneratedArea : GenerationModel
     {
-        [Header("Base Tile")]
         public TileItem tileItem;
-        public int cellRadius;
-        public int cellNeighboorCount;
-        public int smoothIterations;
-        [HideInInspector] public float fillPercent;
+        public int cellRadius = 2;
+        public int cellNeighboorCount = 14;
+        public int smoothIterations = 5;
+        [HideInInspector] public float fillPercent = 0.42f;
         [HideInInspector] public float frequency = 1f;
         [HideInInspector] public float lacunarity = 2f;
         [HideInInspector] public float persistence = 0.5f;
