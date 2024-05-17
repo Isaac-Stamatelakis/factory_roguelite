@@ -33,7 +33,6 @@ namespace WorldModule.Caves {
         public RandomType randomType;
 
         public override SeralizedWorldData generateBase(int seed) {
-            Debug.Log(randomType);
             int[,] grid = generateGrid(seed,getChunkSize()*Global.ChunkSize);
             grid = cellular_automaton(grid,getChunkSize()*Global.ChunkSize);
             return generateWorld(grid);

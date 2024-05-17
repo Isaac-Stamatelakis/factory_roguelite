@@ -167,14 +167,22 @@ namespace TileMaps {
             tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
             if (tileItem.tileOptions != null && tileItem.tileOptions.StaticOptions != null && tileItem.tileOptions.StaticOptions.rotatable) {
                 TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
-                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
                 
-                if (tileOptions.SerializedTileOptions.mirror) {
-                    transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 180f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                if (tileBase is IStateRotationTile stateRotationTile) {
+                    tilemap.SetTile(
+                        new Vector3Int(x,y,0), 
+                        stateRotationTile.getTile(tileOptions.SerializedTileOptions.rotation,tileOptions.SerializedTileOptions.mirror)
+                    );
                 } else {
-                    transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 0f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                    Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
+                    if (tileOptions.SerializedTileOptions.mirror) {
+                        transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 180f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                    } else {
+                        transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 0f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                    }
+                    tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
                 }
-                tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
+                
             }
             
         }

@@ -15,9 +15,9 @@ namespace WorldModule.Caves {
         public abstract SeralizedWorldData generateBase(int seed);
         public abstract int[,] generateGrid(int seed,Vector2Int size);
         [Header("X Interval in Chunks")]
-        [SerializeField] public Vector2Int xInterval;
+        [SerializeField] public Vector2Int xInterval = new Vector2Int(-10,10);
         [Header("Y Interval in Chunks")]
-        [SerializeField] public  Vector2Int yInterval;
+        [SerializeField] public  Vector2Int yInterval = new Vector2Int(-10,10);
         public Vector2Int getChunkSize() {
             return new UnityEngine.Vector2Int(Mathf.Abs(xInterval.y - xInterval.x+1), Mathf.Abs(yInterval.y - yInterval.x+1));
         }
