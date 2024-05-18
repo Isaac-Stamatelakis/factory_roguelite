@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Misc.RandomFrequency;
 
 namespace WorldModule.Caves {
     public class Structure : ScriptableObject
@@ -9,7 +10,7 @@ namespace WorldModule.Caves {
     }
 
     [System.Serializable]
-    public class StructureVariant {
+    public class StructureVariant : IFrequencyListElement {
         [SerializeField] private string data;
         [SerializeField] private Vector2Int size;
         [SerializeField] private int frequency;
@@ -24,6 +25,11 @@ namespace WorldModule.Caves {
         public string Data { get => data; }
         public Vector2Int Size { get => size;  }
         public int Frequency { get => frequency; set => frequency = value;}
+
+        public int getFrequency()
+        {
+            return frequency;
+        }
     }
 
 }

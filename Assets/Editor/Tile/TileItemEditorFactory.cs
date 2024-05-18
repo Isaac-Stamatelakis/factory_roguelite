@@ -32,6 +32,7 @@ public static class ItemEditorFactory
         }
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
         Debug.Log("Tile Created at Path: " + path);
+        AssetDatabase.Refresh();
     }
 
     public static string formatId(string tileName) {

@@ -7,6 +7,7 @@ using System.IO;
 using System;
 using UnityEngine.SceneManagement;
 using WorldModule;
+using WorldModule.Caves;
 
 #if UNITY_EDITOR
     

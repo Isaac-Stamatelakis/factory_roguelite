@@ -24,7 +24,7 @@ namespace WorldModule.Caves {
             Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
             //tileDistributor.distribute(worldTileData,seed,size.x,size.y);
             AreaGenerationHelper.SetNatureTileStates(worldTileData,size.x,size.y);
-            //structureDistributor.distribute(worldTileData,seed);
+            structureDistributor.distribute(worldTileData,seed,size.x,size.y);
             return worldTileData;
         }
         public UnityEngine.Vector2Int getChunkCaveSize() {

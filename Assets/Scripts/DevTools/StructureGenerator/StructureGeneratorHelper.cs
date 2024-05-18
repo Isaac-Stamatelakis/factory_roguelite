@@ -11,17 +11,20 @@ using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
 using System.Linq;
-#if UNITY_EDITOR
+#if UNITY_EDITOR 
+using DevTools;
+#endif
 
-namespace DevTools.Structures {
+namespace WorldModule.Caves {
     public static class StructureGeneratorHelper
     {
         private static string parameterId = "structure_parameter";
         private static string fillId = "structure_fill";
         private static string folder = "structureDev";
-
+        
         public static string ParimeterId { get => parameterId; set => parameterId = value; }
         public static string FillId { get => fillId; set => fillId = value; }
+        #if UNITY_EDITOR 
         private static IntervalVector structDimBounds = new IntervalVector(new Interval<int>(-4,4), new Interval<int>(-4,4));
         public static string getPath(string structureName) {
             string folderPath = getFolderPath();
@@ -89,8 +92,6 @@ namespace DevTools.Structures {
             string playerDataPath = Path.Combine(path,"player_data.json");
             File.WriteAllText(playerDataPath,json);
         }
-
+        #endif
     }
 }
-
-#endif

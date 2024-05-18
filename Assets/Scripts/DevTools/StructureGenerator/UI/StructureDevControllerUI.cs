@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.IO;
 using System;
 using System.Linq;
+using WorldModule.Caves;
 
 namespace DevTools.Structures {
     public class StructureDevControllerUI : MonoBehaviour

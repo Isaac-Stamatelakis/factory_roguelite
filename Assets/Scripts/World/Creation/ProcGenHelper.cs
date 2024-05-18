@@ -93,15 +93,7 @@ namespace WorldModule {
         }
 
         public static void mapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
-            copyTo.baseData.ids[positionTo.x,positionTo.y] = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
-            copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
-            copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
-
-            copyTo.backgroundData.ids[positionTo.x,positionTo.y] = copyFrom.backgroundData.ids[positionFrom.x,positionFrom.y];
-
-            copyTo.fluidData.ids[positionTo.x,positionTo.y] = copyFrom.fluidData.ids[positionFrom.x,positionFrom.y];
-            copyTo.fluidData.fill[positionTo.x,positionTo.y] = copyFrom.fluidData.fill[positionFrom.x,positionFrom.y];
-
+            mapWorldTileData(copyTo,copyFrom,positionTo,positionFrom);
             copyTo.itemConduitData.ids[positionTo.x,positionTo.y] = copyFrom.itemConduitData.ids[positionFrom.x,positionFrom.y];
             copyTo.itemConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.itemConduitData.conduitOptions[positionFrom.x,positionFrom.y];
 
@@ -117,6 +109,17 @@ namespace WorldModule {
             copyTo.matrixConduitData.ids[positionTo.x,positionTo.y] = copyFrom.matrixConduitData.ids[positionFrom.x,positionFrom.y];
             copyTo.matrixConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.matrixConduitData.conduitOptions[positionFrom.x,positionFrom.y];
             
+        }
+
+        public static void mapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
+            copyTo.baseData.ids[positionTo.x,positionTo.y] = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
+            copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
+            copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
+
+            copyTo.backgroundData.ids[positionTo.x,positionTo.y] = copyFrom.backgroundData.ids[positionFrom.x,positionFrom.y];
+
+            copyTo.fluidData.ids[positionTo.x,positionTo.y] = copyFrom.fluidData.ids[positionFrom.x,positionFrom.y];
+            copyTo.fluidData.fill[positionTo.x,positionTo.y] = copyFrom.fluidData.fill[positionFrom.x,positionFrom.y];
         }
 
         private static IChunkPartitionData convertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
