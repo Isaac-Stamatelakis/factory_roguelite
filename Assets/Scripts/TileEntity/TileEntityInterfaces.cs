@@ -56,4 +56,8 @@ namespace TileEntityModule {
         public void assembleMultiBlock();
     }
 
+    public interface IStaticTileEntity {
+        
+    }
+
 }
