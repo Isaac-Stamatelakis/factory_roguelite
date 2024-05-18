@@ -10,16 +10,15 @@ using WorldModule;
 
 namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Structure Distributor",menuName="Generation/Structure/Distributor")]
-    public class AreaStructureDistributor : ScriptableObject, IDistributor
+    public class AreaStructureDistributor : CaveTileGenerator
     {
         public List<StructureFrequency> structures;
-        public void distribute(SeralizedWorldData worldTileData, int seed, int width, int height) {
+        public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
-            System.Random rand = new System.Random();
             Dictionary<StructureVariant,WorldTileConduitData> structureDataDict = new Dictionary<StructureVariant, WorldTileConduitData>();
             foreach (StructureFrequency structureFrequency in structures) {
-                double u1 = 1.0 - rand.NextDouble();
-                double u2 = 1.0 - rand.NextDouble();
+                double u1 = 1.0 - UnityEngine.Random.Range(0,1);
+                double u2 = 1.0 - UnityEngine.Random.Range(0,1);
                 double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
                 int amount = Mathf.RoundToInt((float)(structureFrequency.mean + structureFrequency.standardDeviation * randStdNormal));
                 //Debug.Log($"Generating {amount} of {structureFrequency.generatedStructure.name}");
@@ -143,7 +142,6 @@ namespace WorldModule.Caves {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        Debug.Log(vector);
                         WorldGenerationFactory.mapWorldTileData(caveData,variantData,position+vector,vector);
                     }
                 }

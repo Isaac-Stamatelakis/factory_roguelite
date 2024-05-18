@@ -13,18 +13,21 @@ namespace WorldModule.Caves {
         public string Id {get => id;}
         [SerializeField] private string description;
         public string Description {get => description;}
-        [Header("Defines the base structure of the area")]
         public GenerationModel generationModel;
-        [Header("Distrubutes tiles around the area")]
-        public AreaTileDistributor tileDistributor;
-        [Header("Distrubutes structures around the area")]
-        public AreaStructureDistributor structureDistributor;
+        public CaveTileGenerator[] tileGenerators;
+        public CaveEntityDistributor entityDistributor;
+        
         public SeralizedWorldData generate(int seed) {
+            UnityEngine.Random.InitState(seed);
             SeralizedWorldData worldTileData = generationModel.generateBase(seed);
             Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
-            //tileDistributor.distribute(worldTileData,seed,size.x,size.y);
-            AreaGenerationHelper.SetNatureTileStates(worldTileData,size.x,size.y);
-            structureDistributor.distribute(worldTileData,seed,size.x,size.y);
+            IntervalVector coveredArea = getChunkCoveredArea();
+            Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.ChunkSize;
+            foreach (CaveTileGenerator generator in tileGenerators) {
+                generator.distribute(worldTileData,size.x,size.y,bottomLeft);
+            }
+            entityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+            AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
             return worldTileData;
         }
         public UnityEngine.Vector2Int getChunkCaveSize() {
