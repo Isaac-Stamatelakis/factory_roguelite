@@ -6,6 +6,7 @@ using Misc.RandomFrequency;
 using Newtonsoft.Json;
 using WorldModule.Caves;
 using WorldModule;
+using Misc;
 
 
 namespace WorldModule.Caves {
@@ -17,11 +18,7 @@ namespace WorldModule.Caves {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
             Dictionary<StructureVariant,WorldTileConduitData> structureDataDict = new Dictionary<StructureVariant, WorldTileConduitData>();
             foreach (StructureFrequency structureFrequency in structures) {
-                double u1 = 1.0 - UnityEngine.Random.Range(0,1);
-                double u2 = 1.0 - UnityEngine.Random.Range(0,1);
-                double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-                int amount = Mathf.RoundToInt((float)(structureFrequency.mean + structureFrequency.standardDeviation * randStdNormal));
-                //Debug.Log($"Generating {amount} of {structureFrequency.generatedStructure.name}");
+                int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
                 while (amount > 0) {
                     StructureVariant variant = RandomFrequencyListUtils.getRandomFromList<StructureVariant>(
                         elements: structureFrequency.generatedStructure.variants
@@ -62,7 +59,6 @@ namespace WorldModule.Caves {
                                     break;
                                 }
                             }
-                            Debug.Log(randomPosition);
                             placedStructures[(Vector2Int)randomPosition] = variant;
                             AreaStructureDistributorUtils.placeStructure(worldTileData,(Vector2Int)randomPosition,structureDataDict[variant],variant.Size);
                             break;

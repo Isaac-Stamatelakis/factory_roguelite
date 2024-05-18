@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Misc.Audio;
 
 namespace WorldModule.Caves {
     public interface IGeneratedArea {
@@ -16,7 +17,7 @@ namespace WorldModule.Caves {
         public GenerationModel generationModel;
         public CaveTileGenerator[] tileGenerators;
         public CaveEntityDistributor entityDistributor;
-        
+        public List<AudioClip> songs;
         public SeralizedWorldData generate(int seed) {
             UnityEngine.Random.InitState(seed);
             SeralizedWorldData worldTileData = generationModel.generateBase(seed);
@@ -26,8 +27,12 @@ namespace WorldModule.Caves {
             foreach (CaveTileGenerator generator in tileGenerators) {
                 generator.distribute(worldTileData,size.x,size.y,bottomLeft);
             }
-            entityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+            if (entityDistributor != null) {
+                entityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+            }
+            
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
+            MusicTrackController.Instance.setSong(songs);
             return worldTileData;
         }
         public UnityEngine.Vector2Int getChunkCaveSize() {
