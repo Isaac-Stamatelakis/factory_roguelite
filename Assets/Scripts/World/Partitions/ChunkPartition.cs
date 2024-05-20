@@ -20,6 +20,7 @@ namespace Chunks.Partitions {
         protected T data;
         public TileEntity[,] tileEntities;
         public TileOptions[,] tileOptionsArray;
+        public List<ITickableTileEntity> tickableTileEntities;
         protected IChunk parent;
 
         public ChunkPartition(T data, Vector2Int position, IChunk parent) {
@@ -41,13 +42,11 @@ namespace Chunks.Partitions {
 
 
         public void tick() {
-            if (tileEntities == null) {
+            if (tickableTileEntities == null) {
                 return;
             }
-            foreach (TileEntity tileEntity in tileEntities) {
-                if (tileEntity is ITickableTileEntity) {
-                    ((ITickableTileEntity) tileEntity).tickUpdate();
-                }
+            foreach (ITickableTileEntity tileEntity in tickableTileEntities) {
+                tileEntity.tickUpdate();
             }
         }
 
@@ -71,6 +70,7 @@ namespace Chunks.Partitions {
         /// </summary>
         public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
             tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
@@ -169,6 +169,9 @@ namespace Chunks.Partitions {
                     ((ILoadableTileEntity) tileEntity).load();
                 }
                 tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
+                if (tileEntity is ITickableTileEntity tickableTileEntity) {
+                    tickableTileEntities.Add(tickableTileEntity);
+                }
             }
         }
 
@@ -185,6 +188,9 @@ namespace Chunks.Partitions {
                 ((ILoadableTileEntity) tileEntity).unload();
             }
             tileEntities[position.x,position.y] = null;
+            if (tileEntity is ITickableTileEntity tickableTileEntity) {
+                tickableTileEntities.Remove(tickableTileEntity);
+            }
             
         }
 

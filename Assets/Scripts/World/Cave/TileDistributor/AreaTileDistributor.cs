@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Chunks.IO;
-using System;
 using Misc.RandomFrequency;
+using Misc;
+using System;
 
 namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
@@ -25,39 +26,32 @@ namespace WorldModule.Caves {
             }
             Debug.Log("Base ID loaded as " + baseID);
             string[,] ids = baseData.ids;
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
+            foreach (TileDistribution tileDistribution in tileDistributions) {
+                double givenDensity = StatUtils.getAmount(tileDistribution.density,tileDistribution.densityStandardDeviation);
+                double chanceToFileTile = 1/(givenDensity*(tileDistribution.minimumSize+tileDistribution.maximumSize)/2);
+                int numberOfVeins = (int)(chanceToFileTile * width * height);
+                while (numberOfVeins > 0) {
+                    numberOfVeins--;
+                    int x = UnityEngine.Random.Range(0,width);
+                    int y = UnityEngine.Random.Range(0,height);
                     string id = ids[x,y];
                     if (id == null) { // don't fill into empty space
                         continue;
                     }
-                    float ran = UnityEngine.Random.Range(0f,1f);
-                    float cumulativeFrequency = 0f;
-                    foreach (TileDistribution tileDistribution in tileDistributions) {
-                        cumulativeFrequency += tileDistribution.Frequency;
-                        if (cumulativeFrequency < ran) {
-                            continue;
-                        }
-                        // tile is not base block at position
-                        if (!tileDistribution.writeAll && id != baseID) {
-                            continue;
-                        }
-                        
-                        checkPlacementRestrictions(tileDistribution,new Vector2Int(x,y) + bottomLeftCorner);
-                        // Passed all checks
-                        int tilesToPlace = UnityEngine.Random.Range(tileDistribution.minimumSize,tileDistribution.maximumSize+1);
-                        switch (tileDistribution.placementMode) {
-                            case TilePlacementMode.BreadthFirstSearch:
-                                BFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
-                                break;
-                            case TilePlacementMode.DepthFirstSearch:
-                                DFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
-                                break;
-                        }
+                    if (!tileDistribution.writeAll && id != baseID) {
+                        continue;
+                    } 
+                    checkPlacementRestrictions(tileDistribution,new Vector2Int(x,y) + bottomLeftCorner);
+                    int tilesToPlace = UnityEngine.Random.Range(tileDistribution.minimumSize,tileDistribution.maximumSize+1);
+                    switch (tileDistribution.placementMode) {
+                        case TilePlacementMode.BreadthFirstSearch:
+                            BFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                            break;
+                        case TilePlacementMode.DepthFirstSearch:
+                            DFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                            break;
                     }
-                }
-                
-                
+                }  
             }
         }
 

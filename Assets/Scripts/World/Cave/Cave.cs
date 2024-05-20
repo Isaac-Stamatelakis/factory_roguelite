@@ -30,7 +30,6 @@ namespace WorldModule.Caves {
             if (entityDistributor != null) {
                 entityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
             }
-            
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
             MusicTrackController.Instance.setSong(songs);
             return worldTileData;

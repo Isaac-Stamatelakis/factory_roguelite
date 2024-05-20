@@ -29,7 +29,7 @@ public static class TileSpriteShapeFactory
                     }
                 }
                 string savePath = Path.Combine(spritePath,$"{name}[{sectionX},{sectionY}]");
-                sprites[sectionX+height*sectionY] = pixelsToSprite(pixels,savePath);
+                sprites[sectionX+height*sectionY] = pixelsToSprite(pixels,savePath,16,16);
             }
         }
         return sprites;
@@ -130,7 +130,7 @@ public static class TileSpriteShapeFactory
             for (int sectionY = 0; sectionY < height; sectionY++) {
                 Color[] pixels = texture.GetPixels((sectionX)*16,(sectionY)*16,16,16);
                 
-                sprites[sectionX+height*sectionY] = pixelsToSprite(pixels,path + $"{name}[{sectionX},{sectionY}]");
+                sprites[sectionX+height*sectionY] = pixelsToSprite(pixels,path + $"{name}[{sectionX},{sectionY}]",16,16);
             }
         }
         return sprites;
@@ -157,14 +157,14 @@ public static class TileSpriteShapeFactory
                 }
             }
             string spritePath = path + i;
-            sprites[i] = pixelsToSprite(pixels,spritePath);
+            sprites[i] = pixelsToSprite(pixels,spritePath,16,16);
         }
         return sprites;
     }
 
-    private static Sprite pixelsToSprite(Color[] pixels, string spritePath) {
-        Texture2D newTexture = new Texture2D(16,16);
-        newTexture.SetPixels(0,0,16,16,pixels);
+    public static Sprite pixelsToSprite(Color[] pixels, string spritePath, int width, int height) {
+        Texture2D newTexture = new Texture2D(width,height);
+        newTexture.SetPixels(0,0,width,height,pixels);
         byte[] pngBytes = newTexture.EncodeToPNG();
         File.WriteAllBytes(spritePath+".png", pngBytes);
         AssetDatabase.Refresh();

@@ -12,9 +12,8 @@ namespace WorldModule.Caves {
     }
     [System.Serializable]
     public class TileDistribution {
-        private float Cover {get => 1/((float)density);}
-        public float Frequency {get =>Cover/((minimumSize+maximumSize)/2f);}
-        public uint density;
+        public int density;
+        public int densityStandardDeviation;
         public bool writeAll;
         public TilePlacementMode placementMode;
         [Range(0,4096)]

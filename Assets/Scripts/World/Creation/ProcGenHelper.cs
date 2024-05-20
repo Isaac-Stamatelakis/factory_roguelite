@@ -125,10 +125,23 @@ namespace WorldModule {
         private static IChunkPartitionData convertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.ChunkPartitionSize + Global.ChunkSize * (chunkX-minX);
             int yStart = partitionY*Global.ChunkPartitionSize + Global.ChunkSize * (chunkY-minY);
-            
-            // TODO ENTITIES
-            List<SeralizedEntityData> entityData = new List<SeralizedEntityData>(); 
-            
+        
+            List<SeralizedEntityData> entityDataList = new List<SeralizedEntityData>(); 
+            foreach (SeralizedEntityData entityData in worldTileData.entityData) {
+                if (
+                    entityData.x >= xStart && 
+                    entityData.y >= yStart && 
+                    entityData.x < xStart + Global.ChunkPartitionSize && 
+                    entityData.y < yStart + Global.ChunkPartitionSize
+                ) {
+                    Debug.Log($"{entityData.x},{entityData.y}");
+                    entityDataList.Add(entityData);
+                    
+                }
+            }
+            if (entityDataList.Count > 0) {
+                Debug.Log(entityDataList.Count);
+            }
             SerializedBaseTileData baseData = new SerializedBaseTileData();
             baseData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             baseData.sTileOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
@@ -178,7 +191,7 @@ namespace WorldModule {
                 return new WorldTileConduitData(
                     baseTileData: baseData,
                     backgroundTileData: backgroundData,
-                    entityData: entityData,
+                    entityData: entityDataList,
                     fluidTileData: fluidData,
                     itemConduitData: itemConduitData,
                     fluidConduitData: fluidConduitData,
@@ -190,7 +203,7 @@ namespace WorldModule {
             return new SeralizedWorldData(
                 baseTileData: baseData,
                 backgroundTileData: backgroundData,
-                entityData: entityData,
+                entityData: entityDataList,
                 fluidTileData: fluidData
             );
         }

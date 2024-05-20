@@ -13,22 +13,22 @@ namespace WorldModule.Caves {
         public List<EntityDistribution> entities;
         public void distribute(SeralizedWorldData seralizedWorldData, int width, int height, Vector2Int bottomLeftCorner)
         {
-            Dictionary<string,Vector2Int> sizeDict = EntityRegistry.getInstance().getAllSizes();
+            //Dictionary<string,Vector2Int> sizeDict = EntityRegistry.getInstance().getAllSizes();
+            Dictionary<string,Vector2Int> sizeDict = new Dictionary<string, Vector2Int>();
             foreach (EntityDistribution entityDistribution in entities) {
                 int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
-                Debug.Log(amount);
                 if (!sizeDict.ContainsKey(entityDistribution.entityId)) {
                     Debug.LogWarning($"Id {entityDistribution.entityId} was not found");
                     continue;
                 }
                 while (amount > 0) {
                     int spawnAttempts = 25;
-                    Vector2Int size = sizeDict[entityDistribution.entityId];
+                    Vector2Int entitySize = sizeDict[entityDistribution.entityId];
                     while (spawnAttempts > 0) {
-                        int ranX = Random.Range(0,width-size.x);
-                        int ranY = Random.Range(0,height-size.y);
-                        for (int x = 0; x < size.x; x++) {
-                            for (int y = 0; y < size.y; y++) {
+                        int ranX = Random.Range(0,width-entitySize.x);
+                        int ranY = Random.Range(0,height-entitySize.y);
+                        for (int x = 0; x < entitySize.x; x++) {
+                            for (int y = 0; y < entitySize.y; y++) {
                                 if (seralizedWorldData.baseData.ids[x+ranX,y+ranY] != null) {
                                     spawnAttempts--;
                                     continue;
@@ -36,14 +36,14 @@ namespace WorldModule.Caves {
                             }
                         }
                         string mobData = JsonConvert.SerializeObject(new SerializedMobData(entityDistribution.entityId,null));
+                        Vector2 spawnPosition = ((new Vector2(ranX,ranY))+bottomLeftCorner)/2f;
                         seralizedWorldData.entityData.Add(
                             new SeralizedEntityData(
                                 type: EntityType.Mob,
-                                position: new Vector2(ranX/2f,ranY/2f),
+                                position: spawnPosition,
                                 data: mobData
                             )
                         );
-                        Debug.Log($"Spawned at {ranX}, {ranY}");
                         break;
                     }
                     amount--;
