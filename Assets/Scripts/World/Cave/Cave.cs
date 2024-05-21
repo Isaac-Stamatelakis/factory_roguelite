@@ -18,6 +18,7 @@ namespace WorldModule.Caves {
         public CaveTileGenerator[] tileGenerators;
         public CaveEntityDistributor entityDistributor;
         public List<AudioClip> songs;
+        public Sprite background;
         public SeralizedWorldData generate(int seed) {
             UnityEngine.Random.InitState(seed);
             SeralizedWorldData worldTileData = generationModel.generateBase(seed);
