@@ -151,6 +151,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         }
 
         public static async void teleportOutOfCompactMachine(CompactMachine compactMachine) {
+            /*
             int depth = getDepth(compactMachine.getCellPosition());
             DimensionManager dimensionManager = DimensionManager.Instance;
             if (depth == 0) {
@@ -161,13 +162,16 @@ namespace TileEntityModule.Instances.CompactMachines {
                 await dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
                 dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
             }
+            */
             
             
         }
         public static async void teleportIntoCompactMachine(CompactMachine compactMachine) {
+            /*
             DimensionManager dimensionManager = DimensionManager.Instance;
             await dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
             dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
+            */
         }
     }
 }

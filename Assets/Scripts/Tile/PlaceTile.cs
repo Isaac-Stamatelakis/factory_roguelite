@@ -25,12 +25,6 @@ namespace TileMaps.Place {
             DownLeft,
             Center
         }
-    
-        public static bool PlaceFromCellPosition(ItemObject itemObject, Vector2Int cellPosition, ClosedChunkSystem closedChunkSystem, bool checkConditions = true) {
-            // TODO: refactor this to be the base function rather than place from world. Lots of work though
-            Vector2 worldPosition = new Vector2(cellPosition.x/2f,cellPosition.y/2f)+Vector2.one/4f;
-            return PlaceFromWorldPosition(itemObject,worldPosition,closedChunkSystem,checkConditions);
-        }
 
         public static void tilePlaceUpdate(Vector2Int position, TileMapType tileMapType) {
 
@@ -197,12 +191,15 @@ namespace TileMaps.Place {
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
             }
-            UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            Vector2Int offset = closedChunkSystem.DimPositionOffset;
+            Vector2 offsetWorld = new Vector2(offset.x/2f,offset.y/2f);
+            Vector2 offsetPosition = worldPosition+offsetWorld;
+            UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y)+offset;
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
-                Vector2Int chunkPosition = Global.getChunkFromWorld(worldPosition);
-                Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
+                Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
+                Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
                 Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
                 Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
                 ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);

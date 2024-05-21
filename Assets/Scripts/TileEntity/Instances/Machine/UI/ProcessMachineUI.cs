@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Items.Inventory;
 using RecipeModule;
 using System;
+using Items;
 
 namespace TileEntityModule.Instances.Machines {
     public class ProcessMachineUI : MonoBehaviour
@@ -49,7 +50,7 @@ namespace TileEntityModule.Instances.Machines {
     }
 
     public static class MachineUIFactory {
-        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener, GameObject slotPrefab) {
+        public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener) {
             if (items == null) {
                 return;
             }
@@ -87,9 +88,7 @@ namespace TileEntityModule.Instances.Machines {
             
             int index = 0;
             foreach (Vector2Int vector in layoutVectors) {
-                GameObject slot = GameObject.Instantiate(slotPrefab);
-                slot.name = "slot" + index;
-                slot.transform.SetParent(inventoryContainer.transform);
+                ItemSlotUI slot = ItemSlotUIFactory.newItemSlotUI(null,inventoryContainer.transform,itemState.getSlotColor(),suffix:index.ToString());
                 RectTransform rectTransform = slot.GetComponent<RectTransform>();
                 rectTransform.sizeDelta = new Vector2(64,64);
                 rectTransform.transform.position = new Vector3(vector.x,vector.y,0);

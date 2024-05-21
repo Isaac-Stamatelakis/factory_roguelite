@@ -17,6 +17,7 @@ using Dimensions;
 using Items;
 using TileEntityModule;
 using Entities;
+using PlayerModule.IO;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -34,6 +35,7 @@ namespace PlayerModule.Mouse {
         private GameObject grabbedItem;
         private LayerMask UILayer;
         private EventSystem eventSystem;
+        private PlayerIO playerIO;
 
         // Start is called before the first frame update
         void Start()
@@ -43,6 +45,7 @@ namespace PlayerModule.Mouse {
             grabbedItem = GameObject.Find("GrabbedItem");
             UILayer = 1 << LayerMask.NameToLayer("UI");
             eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
+            playerIO = GameObject.Find("Player").GetComponent<PlayerIO>();
         }
 
         // Update is called once per frame
@@ -52,17 +55,20 @@ namespace PlayerModule.Mouse {
             if (eventSystem.IsPointerOverGameObject()) {
             return;
             }
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
+            Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
+            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             if (Input.GetMouseButton(0)) {
-                handleRightClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                handleLeftClick(mousePosition,systemOffset);
             }
             if (Input.GetMouseButton(1)) {
-                handleLeftClick(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                handleRightClick(mousePosition,systemOffset);
             }
             
         }
 
         private ILoadedChunk getChunk(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
             if (closedChunkSystem == null) {
                 return null;
             }
@@ -70,8 +76,7 @@ namespace PlayerModule.Mouse {
             return closedChunkSystem.getChunk(chunkPosition);
         }
 
-        private void handleRightClick(Vector2 mousePosition) {
-            handleDrop(mousePosition);
+        private void handleLeftClick(Vector2 mousePosition, Vector2 offset) {
             if (devMode.spawnItem) {
                 ILoadedChunk chunk = getChunk(mousePosition);
                 if (chunk != null) {
@@ -88,7 +93,7 @@ namespace PlayerModule.Mouse {
             }
             breakMouseHover(mousePosition);
         }
-        private void handleLeftClick(Vector2 mousePosition) {
+        private void handleRightClick(Vector2 mousePosition,Vector2 offset) {
             ItemObject itemObject = ItemRegistry.getInstance().getItemObject(playerInventory.getSelectedId());
 
             bool somethingClicked = false;
@@ -96,17 +101,17 @@ namespace PlayerModule.Mouse {
                 if (itemObject is ConduitItem) {
                     somethingClicked = handlePortClick(mousePosition);
                 } else {
-                    somethingClicked = handleTileEntityClick(mousePosition);
+                    somethingClicked = handleTileEntityClick(mousePosition,offset);
                 }
             }
 
             if (!somethingClicked) {
-                handlePlace(mousePosition,DimensionManager.Instance.GetClosedChunkSystem());
+                handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerIO));
             }
         }
 
         private bool handlePortClick(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetClosedChunkSystem();
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
@@ -169,7 +174,7 @@ namespace PlayerModule.Mouse {
                 raycastHitBlock(mousePosition,layer);  
             } else {
                 foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                    ITileMap tileMap = DimensionManager.Instance.GetClosedChunkSystem().getTileMap(tileMapType);
+                    ITileMap tileMap = DimensionManager.Instance.getPlayerSystem(playerIO).getTileMap(tileMapType);
                     if (tileMap is IHitableTileMap) {
                         IHitableTileMap hitableTileMap = ((IHitableTileMap) tileMap);
                         if (devMode.instantBreak) {
@@ -221,13 +226,12 @@ namespace PlayerModule.Mouse {
             return hit.collider.gameObject;
         }
 
-        private bool handleTileEntityClick(Vector2 mousePosition) {
+        private bool handleTileEntityClick(Vector2 mousePosition,Vector2 offset) {
             int layers = TileMapLayer.Base.toRaycastLayers();
             GameObject tilemapObject = raycastTileMap(mousePosition,layers);
             if (tilemapObject != null) {
                 Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
-                
-                Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
+                Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt((mousePosition.x+offset.x)*2), Mathf.FloorToInt((mousePosition.y+offset.y)*2));
                 Vector2Int? tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
                 if (tilePosition == null) {
                     return false;
@@ -251,7 +255,7 @@ namespace PlayerModule.Mouse {
             
         }
 
-        private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
+        private bool handlePlace(Vector2 mousePosition, Vector2 offset, ClosedChunkSystem closedChunkSystem) {
             if (closedChunkSystem == null) {
                 return false;
             }

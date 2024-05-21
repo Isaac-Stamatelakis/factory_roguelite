@@ -17,17 +17,19 @@ namespace Dimensions {
         [SerializeField] public Dim0Controller overworldDimController;
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
-
+        /*
         public override async void Start() {
             Debug.Log("Loading world: " + WorldLoadUtils.getFullWorldPath());
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
+            setPlayerSystem(playerIO,0,Vector2Int.zero);
             //setActiveSystemFromCellPosition(playerIO.playerData.dim,playerCellPosition);
             //setPlayerPosition(playerIO.getPlayerPosition());
-            await setActiveSystemFromCellPosition(0,Vector2Int.zero);
-            setPlayerPosition(Vector2.zero);
+            //await setActiveSystemFromCellPosition(0,Vector2Int.zero);
+            //setPlayerPosition(Vector2.zero);
         }
+        */
 
-        public override DimController getCurrentController() {
+        public override DimController getDimController(int dim) {
             switch (dim) {
                 case 0:
                     return overworldDimController;

@@ -19,13 +19,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle)
+        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle,Vector2Int systemOffset)
         {
             if (tileEntities == null) {
                 tileEntities = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
             fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
-            yield return base.load(tileGridMaps,angle);
+            yield return base.load(tileGridMaps,angle,systemOffset);
             if (parent is ILoadedChunk loadedChunk) {
                 foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
                     EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());

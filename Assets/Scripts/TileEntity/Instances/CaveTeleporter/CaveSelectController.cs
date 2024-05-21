@@ -33,12 +33,15 @@ namespace TileEntityModule.Instances {
                 Debug.LogError("Tried to teleport to null cave");
                 return;
             }
+            // TODO FIX
+            /*
             Debug.Log("Teleporting to " + currentCave);
             Global.CurrentCave = currentCave; 
             CaveGenerator.generateCave();
             GameObject player = GameObject.Find("Player");
             player.transform.position = new Vector3(0,0,player.transform.position.z);
             await DimensionManager.Instance.setActiveSystemFromCellPosition(-1,Vector2Int.zero);
+            */
         }
     }
 }
