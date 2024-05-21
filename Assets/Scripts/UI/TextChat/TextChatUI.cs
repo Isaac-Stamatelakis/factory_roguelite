@@ -36,7 +36,7 @@ namespace UI.Chat {
             sentMessages = new List<string>();
             string title = "<color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
             string message = $"Welcome to {title} This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
-            sendMessage(message); 
+            sendMessage(message);
         }
         public void Update() {
             if (Input.GetKeyDown(KeyCode.Return) ) {

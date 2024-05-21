@@ -8,49 +8,49 @@ namespace Items.Transmutable {
         public List<TransmutableStateOptions> gemStates = new List<TransmutableStateOptions>{
             new TransmutableStateOptions(
                 state: TransmutableItemState.Plate,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Dust,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Magnificent_Gem,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Exceptional_Gem,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Gem,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Mediocre_Gem,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Gem,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),
             new TransmutableStateOptions(
                 state: TransmutableItemState.Screw,
-                sprite: null,
+                sprites: null,
                 prefix: "",
                 suffix: ""
             ),

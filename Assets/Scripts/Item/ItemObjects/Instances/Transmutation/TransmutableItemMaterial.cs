@@ -12,17 +12,20 @@ namespace Items.Transmutable {
     public class TransmutableItemMaterial : ScriptableObject
     {
         public string id;
-        [Header("Color of default sprite")]
+        public Tier tier;
         public Color color;
+        
+        //[HideInInspector]
         public List<TransmutableStateOptions> states;
-        public bool test = false;
         public virtual List<TransmutableStateOptions> getStates() {
             return this.states;
         }
-        public Tier tier;
-        [Header("Auto Generated")]
-        public List<KVP<TransmutableItemState,string>> statesToID;
+        
+        private List<KVP<TransmutableItemState,string>> statesToID;
         private Dictionary<TransmutableItemState, string> stateToIDDict;
+        #if UNITY_EDITOR 
+        public List<KVP<TransmutableItemState, string>> StatesToID { get => statesToID; set => statesToID = value; }
+        #endif
         public TransmutableItemObject transmute(TransmutableItemState output) {
             if (!canTransmute(output)) {
                 return null;
@@ -58,20 +61,15 @@ namespace Items.Transmutable {
 
     [System.Serializable]
     public class TransmutableStateOptions {
-        public TransmutableStateOptions(TransmutableItemState state, Sprite sprite, string prefix, string suffix) {
+        public TransmutableStateOptions(TransmutableItemState state, Sprite[] sprites, string prefix, string suffix) {
             this.state = state;
-            this.sprite = sprite;
+            this.sprites = sprites;
             this.prefix = prefix;
             this.suffix = suffix;
         }
         public TransmutableItemState state;
-        
-        [Header("Custom sprite\nIf left blank then\ncolor will be used on a default")]
-        public Sprite sprite;
-        
-        [Header("Custom prefix\nIf left blank then\nstate name will be used")]
+        public Sprite[] sprites;
         public string prefix;
-        [Header("Custom suffix\nIf left blank then\nstate name will be used")]
         public string suffix;
         
     }

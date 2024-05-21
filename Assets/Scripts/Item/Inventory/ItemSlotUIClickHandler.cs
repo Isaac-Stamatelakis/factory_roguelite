@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
 using Items.Inventory;
 using Items;
+using UI.ToolTip;
 
 public interface IItemSlotUIElement {
     public ItemSlot getItemSlot();
@@ -38,7 +39,7 @@ public interface IItemSlotUIElement {
         RecipeViewerHelper.displayUsesOfItem(itemSlot);
     }
 }
-public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItemSlotUIElement
+public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItemSlotUIElement, IPointerEnterHandler, IPointerExitHandler
 {
     private InventoryUI inventoryUI;
     private int index;
@@ -91,5 +92,18 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItem
     public ItemSlotUI getItemSlotUI()
     {
         return gameObject.GetComponent<ItemSlotUI>();
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (itemObject == null) {
+            return;
+        }
+        ToolTipController.Instance.showToolTip(transform.position+new Vector3(40,0),itemObject.name);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        ToolTipController.Instance.hideToolTip();
     }
 }

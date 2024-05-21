@@ -6,18 +6,18 @@ using Items.Transmutable;
 
 public static class TransmutableItemFactory
 {
-    public static ITransmutableItem generateItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite sprite, string id, string path) {
+    public static ITransmutableItem generateItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite[] sprites, string id, string path) {
         if (state == TransmutableItemState.Block) {
-            return generateTileItem(state,material,name,sprite,id,path);
+            return generateTileItem(state,material,name,sprites,id,path);
         } else {
-            return generateItemObject(state,material,name,sprite,id,path);
+            return generateItemObject(state,material,name,sprites,id,path);
         }
     }
 
-    private static TransmutableItemObject generateItemObject(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite sprite, string id, string path) {
+    private static TransmutableItemObject generateItemObject(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite[] sprites, string id, string path) {
         TransmutableItemObject transmutableItemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
         transmutableItemObject.name = name;
-        transmutableItemObject.setSprite(sprite);
+        transmutableItemObject.setSprites(sprites);
         transmutableItemObject.setState(state);
         transmutableItemObject.setMaterial(material);
         transmutableItemObject.id = id;
@@ -25,10 +25,10 @@ public static class TransmutableItemFactory
         return transmutableItemObject;
     }
 
-    private static TransmutableTileItem generateTileItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite sprite, string id, string path) {
+    private static TransmutableTileItem generateTileItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite[] sprites, string id, string path) {
         TransmutableTileItem transmutableItemObject = ScriptableObject.CreateInstance<TransmutableTileItem>();
         transmutableItemObject.name = name;
-        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+        StandardTile tile = ItemEditorFactory.standardTileCreator(sprites[0],TileColliderType.Tile);
         tile.name = "T~" + name;
         tile.id = id;
         transmutableItemObject.setState(state);

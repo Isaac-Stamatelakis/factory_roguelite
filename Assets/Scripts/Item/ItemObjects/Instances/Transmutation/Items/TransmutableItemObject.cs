@@ -31,8 +31,8 @@ namespace Items.Transmutable {
         {
             return state.getMatterState();
         }
-        public void setSprite(Sprite sprite) {
-            this.sprites = new Sprite[]{sprite};
+        public void setSprites(Sprite[] sprites) {
+            this.sprites = sprites;
         }
     }
 }

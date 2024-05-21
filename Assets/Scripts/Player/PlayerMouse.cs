@@ -190,6 +190,9 @@ namespace PlayerModule.Mouse {
             if (hit.collider != null) {
                 GameObject container = hit.collider.gameObject;
                 IHitableTileMap hitableTileMap = container.GetComponent<IHitableTileMap>();
+                if (hitableTileMap == null) {
+                    return false;
+                }
                 if (hitableTileMap is TileGridMap tileGridMap) {
                     Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
                     TileEntity tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);

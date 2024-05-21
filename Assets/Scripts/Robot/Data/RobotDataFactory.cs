@@ -26,7 +26,6 @@ namespace RobotModule {
         }
         public static ItemSlot getDefaultRobot(bool creative) {
             string id = creative ? "happy_inf" : "happy_mk1";
-            Debug.Log(id);
             ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem(id);
             if (robotItem == null) {
                 Debug.LogWarning("Tried to get default robot which was null");

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TileEntityModule.Instances {
     [CreateAssetMenu(fileName = "New Door", menuName = "Tile Entity/Ladder")]
-    public class Ladder : TileEntity, IClimableTileEntity
+    public class Ladder : TileEntity, IClimableTileEntity, IStaticTileEntity
     {
         [SerializeField] private int speed;
 

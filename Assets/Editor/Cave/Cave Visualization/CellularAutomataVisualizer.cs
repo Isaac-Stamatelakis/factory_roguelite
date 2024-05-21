@@ -26,12 +26,14 @@ public class CellularGenerationVisualizer : GenerationModelVisualizer
                 showFrequency();
                 showLacunarity();
                 showPersistence();
+                showQuality();
                 break;
             case RandomType.Billow:
                 showOctaves();
                 showFrequency();
                 showLacunarity();
                 showPersistence();
+                showQuality();
                 break;
             case RandomType.Voronoi:
                 showFrequency();
@@ -41,11 +43,10 @@ public class CellularGenerationVisualizer : GenerationModelVisualizer
                 showFrequency();
                 showLacunarity();
                 showPersistence();
+                showQuality();
                 break;
             case RandomType.Spheres:
                 showFrequency();
-                break;
-            case RandomType.Checker:
                 break;
         }
     }

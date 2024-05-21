@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UI;
+using WorldModule.Caves;
 
 namespace DevTools.Structures {
     public class NewStructurePopUpUI : MonoBehaviour

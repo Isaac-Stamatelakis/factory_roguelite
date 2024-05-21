@@ -10,7 +10,7 @@ namespace UI.Chat {
         [SerializeField] private TextMeshProUGUI textUI;
         [SerializeField] private Image background;
         private TextChatUI textChatUI;
-        private bool fade;
+        private bool fade = true;
         private float displayTime;
         private readonly float startToFadeTime = 1.5f;
         private float baseBackgroundAlpha;

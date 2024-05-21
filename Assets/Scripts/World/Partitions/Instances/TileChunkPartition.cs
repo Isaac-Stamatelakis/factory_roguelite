@@ -216,6 +216,9 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
 
         protected TileEntity placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition, bool load) {
+            if (tileItem.tileEntity is IStaticTileEntity) {
+                return tileItem.tileEntity;
+            }
             TileEntity tileEntity = GameObject.Instantiate(tileItem.tileEntity);
             tileEntity.initalize(this.position * Global.ChunkPartitionSize+ positionInPartition,tileItem.tile, this.parent);
             if (tileEntity is ISerializableTileEntity serializableTileEntity) {

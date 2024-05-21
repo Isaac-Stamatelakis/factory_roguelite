@@ -46,16 +46,6 @@ public class EmptyCaveGenerator : EditorWindow {
             Directory.Delete(path,true);
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", caveName);
-        
-        AreaStructureDistributor areaStructureDistributor = ScriptableObject.CreateInstance<AreaStructureDistributor>();
-        areaStructureDistributor.name = caveName + " Structures";
-        AssetDatabase.CreateAsset(areaStructureDistributor,path + areaStructureDistributor.name + ".asset");
-        AssetDatabase.Refresh();
-
-        AreaTileDistributor areaTileDistributor = ScriptableObject.CreateInstance<AreaTileDistributor>();
-        areaTileDistributor.name = caveName + " Tiles";
-        AssetDatabase.CreateAsset(areaTileDistributor,path + areaTileDistributor.name + ".asset");
-        AssetDatabase.Refresh();
 
         GenerationModel generationModel = null;
         switch (generationModelType) {
@@ -83,8 +73,6 @@ public class EmptyCaveGenerator : EditorWindow {
         Cave newArea = ScriptableObject.CreateInstance<Cave>();
         newArea.name = caveName;
         newArea.generationModel = generationModel;
-        newArea.tileDistributor = areaTileDistributor;
-        newArea.structureDistributor = areaStructureDistributor;
         AssetDatabase.CreateAsset(newArea,path + caveName + ".asset");
         AssetDatabase.Refresh();
 

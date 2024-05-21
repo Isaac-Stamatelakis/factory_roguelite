@@ -15,7 +15,7 @@ namespace WorldModule.Caves {
             Other,
             Slant,
         }
-        public static void SetNatureTileStates(SeralizedWorldData worldTileData, int width, int height) {
+        public static void smoothNatureTiles(SeralizedWorldData worldTileData, int width, int height) {
 
             BlockState?[,] states = new BlockState?[width,height];
             SerializedBaseTileData serializedTileData = worldTileData.baseData;
@@ -64,20 +64,32 @@ namespace WorldModule.Caves {
                         if (upID == null && leftID == null) {
                             state = natureTile.getRandomSlantState();
                             rotation = 0;
+                            /*
+                            rotation = 0;
+                            */
                         }
                         else if (upID == null && rightID == null) {
                             state = natureTile.getRandomSlantState();
+                            rotation = 3;
+                            /*
                             mirror = true;
+                            */
                         }
                         else if (downID == null && rightID == null) {
                             state = natureTile.getRandomSlantState();
+                            rotation = 2;
+                            /*
                             rotation = 90;
                             mirror = true;
+                            */
                         }
                         else if (downID == null && leftID == null) {
                             state = natureTile.getRandomSlantState();
+                            rotation = 1;
+                            /*
                             rotation = 180;
                             mirror = true;
+                            */
                         }
                     }
                     if (nullCount == 3) {

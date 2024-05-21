@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Chunks.ClosedChunkSystemModule;
 using Chunks;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Entities.Mobs {
     public class EntityRegistry
@@ -55,6 +56,30 @@ namespace Entities.Mobs {
             //Debug.Log($"Spawned entity {entity.name} at position {position}");
         }
 
+        public Dictionary<string, Vector2Int> getAllSizes() {
+            List<string> ids = EntityUtils.getAllIds();
+            Dictionary<string, Task> loadTask = new Dictionary<string, Task>();
+            foreach (string id in ids) {
+                if (cache.ContainsKey(id)) {
+                    continue;
+                }
+                loadTask[id] = loadEntityIntoMemeory(id);
+            }
+            Task.WaitAll(loadTask.Values.ToArray());
+            Dictionary<string,Vector2Int> sizeDict = new Dictionary<string, Vector2Int>();
+            foreach (KeyValuePair<string,GameObject> kvp in cache) {
+                SpriteRenderer spriteRenderer = kvp.Value.GetComponent<SpriteRenderer>();
+                if (spriteRenderer == null) {
+                    continue;
+                }
+                Vector3 size = spriteRenderer.bounds.size;
+                Vector2Int vector = new Vector2Int(Mathf.FloorToInt(size.x/32),Mathf.FloorToInt(size.y/32));
+                sizeDict[kvp.Key] = vector;
+            }
+            reset();
+            return sizeDict;
+        }
+
         public void reset() {
             foreach (GameObject prefab in cache.Values) {
                 Addressables.Release(prefab);
@@ -99,6 +124,7 @@ namespace Entities.Mobs {
             string prefabFile = prefabFiles[0];
             AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(prefabFile);
             cachingTasks[id] = handle.Task;
+            cachingTasks.Remove(id);
             await handle.Task;
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
