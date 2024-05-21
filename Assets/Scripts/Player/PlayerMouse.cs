@@ -78,10 +78,10 @@ namespace PlayerModule.Mouse {
 
         private void handleLeftClick(Vector2 mousePosition, Vector2 offset) {
             if (devMode.spawnItem) {
-                ILoadedChunk chunk = getChunk(mousePosition);
+                ILoadedChunk chunk = getChunk(mousePosition+offset);
                 if (chunk != null) {
                         ItemEntityHelper.spawnItemEntity(
-                        mousePosition,
+                        mousePosition+offset,
                         ItemSlotFactory.createNewItemSlot(
                             ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),
                             1
@@ -89,6 +89,10 @@ namespace PlayerModule.Mouse {
                         chunk.getEntityContainer()
                     );
                 }
+                return;
+            }
+            bool drop = handleDrop(mousePosition,offset);
+            if (drop) {
                 return;
             }
             breakMouseHover(mousePosition);
@@ -104,7 +108,6 @@ namespace PlayerModule.Mouse {
                     somethingClicked = handleTileEntityClick(mousePosition,offset);
                 }
             }
-
             if (!somethingClicked) {
                 handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
             }
@@ -278,7 +281,7 @@ namespace PlayerModule.Mouse {
         }
 
         
-        private bool handleDrop(Vector2 mousePosition) {
+        private bool handleDrop(Vector2 mousePosition,Vector2 offset) {
             if (eventSystem.IsPointerOverGameObject()) {
                 return false;
             }
@@ -286,7 +289,7 @@ namespace PlayerModule.Mouse {
             if (grabbedItemProperties.ItemSlot == null) {
                 return false;
             }
-            ILoadedChunk chunk = getChunk(mousePosition);
+            ILoadedChunk chunk = getChunk(mousePosition+offset);
             if (chunk == null) {
                 return false;
             }

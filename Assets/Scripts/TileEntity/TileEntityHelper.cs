@@ -7,11 +7,23 @@ using Tiles;
 using TileMaps.Type;
 using UnityEngine.Tilemaps;
 using Chunks.ClosedChunkSystemModule;
+using Entities;
 
 namespace TileEntityModule {
     public static class TileEntityHelper {
         public static void setParentOfSpawnedObject(GameObject spawned, ILoadedChunk loadedChunk) {
             spawned.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+        }
+        public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
+            Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
+            Debug.Log(offsetPosition);
+            foreach (ItemSlot itemSlot in items) {
+                ItemEntityHelper.spawnItemEntityFromBreak(
+                    offsetPosition,
+                    itemSlot,
+                    loadedChunk.getEntityContainer()
+                );
+            }
         }
         public static void stateIterate(ITileEntity tileEntity, int iterationAmount) {
             TileBase tile = tileEntity.getTile();

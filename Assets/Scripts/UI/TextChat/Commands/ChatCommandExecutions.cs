@@ -34,6 +34,9 @@ namespace UI.Chat {
                 case ChatCommand.setlight:
                     executeLightMode(parameters);
                     break;
+                case ChatCommand.setdim:
+                    executeSetDim(parameters);
+                    break;
                 default:
                     Debug.LogWarning("No execute behavior for command :" + command);
                     break;
@@ -110,7 +113,10 @@ namespace UI.Chat {
             try {
                 Vector3 playerPosition = PlayerContainer.getInstance().getTransform().position;
                 string id = parameters[0];
-                EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,DimensionManager.Instance.CurrentDimension.EntityContainer);
+                Transform player = PlayerContainer.getInstance().getTransform();
+                int dim = DimensionManager.Instance.getPlayerDimension(player);
+                DimController dimController = DimensionManager.Instance.getDimController(dim);
+                EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,dimController.EntityContainer);
                 
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
@@ -209,6 +215,35 @@ namespace UI.Chat {
                 chatUI.sendMessage($"{parameterName} is not a number");
             }
             return -1;
+        }
+
+        private static void executeSetDim(string[] parameters) {
+            TextChatUI chatUI = TextChatUI.Instance;
+            int? dim = null; 
+            int x = 0;
+            int y = 0;
+            try {
+                dim = Convert.ToInt32(parameters[0]);
+            } catch (IndexOutOfRangeException) {
+                chatUI.sendMessage($"Dimension not provided");
+            } catch (FormatException) {
+                chatUI.sendMessage($"Dimension is not a number");
+            }
+            if (dim == null) {
+                return;
+            }
+            if (parameters.Length > 1) {
+                try {
+                    x = Convert.ToInt32(parameters[1]);
+                    y = Convert.ToInt32(parameters[2]);
+                }  catch (IndexOutOfRangeException) {
+                    chatUI.sendMessage($"X and Y are not both provided");
+                } catch (FormatException) {
+                    chatUI.sendMessage($"One of X,Y is not a number");
+                }
+            }
+            Transform player = PlayerContainer.getInstance().getTransform();
+            DimensionManager.Instance.setPlayerSystem(player,(int)dim,new Vector2Int(x,y));
         }
     }
 }

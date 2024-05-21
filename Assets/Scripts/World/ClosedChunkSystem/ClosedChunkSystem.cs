@@ -76,6 +76,10 @@ namespace Chunks.ClosedChunkSystemModule {
             return cachedChunks.ContainsKey(position);
         }
 
+        public Vector2 getWorldDimOffset() {
+            return new Vector2(dimPositionOffset.x/2f,dimPositionOffset.y/2f);
+        }
+
         public bool containsTileMap(TileMapType tileMapType) {
             return tileGridMaps.ContainsKey(tileMapType);
         }
@@ -87,11 +91,14 @@ namespace Chunks.ClosedChunkSystemModule {
             return null;
         }
         
-        public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim) {
+        public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {
+            this.dimPositionOffset = offset;
+            transform.position = new Vector3(-dimPositionOffset.x/2f,-dimPositionOffset.y/2f,0);
+
             transform.SetParent(dimTransform,false);
             GameObject chunkContainer = new GameObject();
             chunkContainer.name = "Chunks";
-            chunkContainer.transform.SetParent(transform);
+            chunkContainer.transform.SetParent(transform,false);
             chunkContainerTransform = chunkContainer.transform;
             playerTransform = GameObject.Find("Player").GetComponent<Transform>();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
@@ -114,7 +121,7 @@ namespace Chunks.ClosedChunkSystemModule {
             GameObject loadedPartitionBoundaryObject = new GameObject();
             loadedPartitionBoundaryObject.name = "Boundary";
             loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
-            loadedPartitionBoundaryObject.transform.SetParent(transform);
+            loadedPartitionBoundaryObject.transform.SetParent(transform,false);
             
         }
 

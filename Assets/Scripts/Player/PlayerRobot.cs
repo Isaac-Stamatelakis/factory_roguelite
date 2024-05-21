@@ -83,26 +83,21 @@ namespace PlayerModule {
         private IClimableTileEntity getClimbable() {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
             RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
-            Debug.Log("1");
             if (objHit.collider == null) {
                 return null;
             }
-            Debug.Log("2");
             TileGridMap tileGridMap = objHit.collider.GetComponent<TileGridMap>();
             if (tileGridMap == null) {
                 return null;
             }
-            Debug.Log("3");
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
             TileItem tileItem = tileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
             if (tileItem == null || tileItem.tileEntity == null) {
                 return null;
             }
-            Debug.Log("4");
             if (tileItem.tileEntity is not IClimableTileEntity climableTileEntity) {
                 return null;
             }
-            Debug.Log("5");
             return climableTileEntity;
         }
 

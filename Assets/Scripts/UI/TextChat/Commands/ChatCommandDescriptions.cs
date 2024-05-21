@@ -15,6 +15,7 @@ namespace UI.Chat {
                 ChatCommand.gamemode => "/gamemode x\n0: Surival mode\n1:Creative mode",
                 ChatCommand.setrobot => "/setrobot id\nSets player robot to id",
                 ChatCommand.setlight => "/lightmode intensity r g b \nSets light to intensity in range [0,inf)\nOptionally provide r,g,b in range [0,255]",
+                ChatCommand.setdim => "/setdim dim position\nTeleports player to dimension at position",
                 _ => ""
             };
         }

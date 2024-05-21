@@ -43,9 +43,7 @@ namespace Chunks.ClosedChunkSystemModule {
         }
         
         public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
-            this.dimPositionOffset = dimPositionOffset;
-            transform.position = new Vector3(-dimPositionOffset.x/2f,-dimPositionOffset.y/2f,0);
-            initalizeObject(dimTransform,coveredArea,dim);
+            initalizeObject(dimTransform,coveredArea,dim,dimPositionOffset);
             initalLoadChunks(inactiveClosedChunkSystem.UnloadedChunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.UnloadedChunks) {

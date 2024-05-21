@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using WorldModule.Caves;
 using Dimensions;
+using PlayerModule;
 
 namespace TileEntityModule.Instances {
     public class CaveSelectController : MonoBehaviour
@@ -33,15 +34,11 @@ namespace TileEntityModule.Instances {
                 Debug.LogError("Tried to teleport to null cave");
                 return;
             }
-            // TODO FIX
-            /*
-            Debug.Log("Teleporting to " + currentCave);
+            Debug.Log("Teleporting to " + currentCave.name);
             Global.CurrentCave = currentCave; 
             CaveGenerator.generateCave();
-            GameObject player = GameObject.Find("Player");
-            player.transform.position = new Vector3(0,0,player.transform.position.z);
-            await DimensionManager.Instance.setActiveSystemFromCellPosition(-1,Vector2Int.zero);
-            */
+            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+            DimensionManager.Instance.setPlayerSystem(playerTransform, -1,Vector2Int.zero);
         }
     }
 }

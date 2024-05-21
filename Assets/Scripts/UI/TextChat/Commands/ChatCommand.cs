@@ -16,7 +16,8 @@ namespace UI.Chat {
         give,
         setrobot,
         gamemode,
-        setlight
+        setlight,
+        setdim
     }
 
     public static class ChatCommandUtils {

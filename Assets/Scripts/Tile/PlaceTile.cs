@@ -35,13 +35,13 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null) {
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null, bool useOffset = true) {
             if (itemObject is TileItem tileItem) {
                 if (checkConditions && !tilePlacable(tileItem,worldPlaceLocation)) {
                     return false;
                 }
                 TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity);
+                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity,useOffset:useOffset);
                 return true;
                 
             } else if (itemObject is ConduitItem conduitItem) {
@@ -185,7 +185,7 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null) {
+        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null, bool useOffset = true) {
             if (tileMap == null) {
                 return;
             }
@@ -194,8 +194,14 @@ namespace TileMaps.Place {
             }
             Vector2Int offset = closedChunkSystem.DimPositionOffset;
             Vector2 offsetWorld = new Vector2(offset.x/2f,offset.y/2f);
-            Vector2 offsetPosition = worldPosition+offsetWorld;
-            UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y)+offset;
+            Vector2 offsetPosition = worldPosition;
+            if (useOffset) {
+                offsetPosition += offsetWorld;
+            }
+            UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            if (useOffset) {
+                placePosition += offset;
+            }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
                 Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);

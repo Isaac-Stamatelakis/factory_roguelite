@@ -84,7 +84,6 @@ namespace Chunks {
             this.position = chunkPosition;
             this.partitions = partitions;
             this.closedChunkSystem = closedChunkSystem;
-            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
             transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
             initalizeContainers();
         }
@@ -92,7 +91,7 @@ namespace Chunks {
         protected void initalizeContainers() {
             DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
             entityContainer = dimController.EntityContainer;
-            transform.SetParent(closedChunkSystem.ChunkContainerTransform);
+            transform.SetParent(closedChunkSystem.ChunkContainerTransform,false);
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;

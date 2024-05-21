@@ -187,7 +187,10 @@ namespace Chunks.Partitions {
             if (tileEntity is ILoadableTileEntity) {
                 ((ILoadableTileEntity) tileEntity).unload();
             }
-            GameObject.Destroy(tileEntity);
+            if (tileEntity is not IStaticTileEntity) {
+                GameObject.Destroy(tileEntity);
+            }
+            
             tileEntities[position.x,position.y] = null;
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
                 tickableTileEntities.Remove(tickableTileEntity);

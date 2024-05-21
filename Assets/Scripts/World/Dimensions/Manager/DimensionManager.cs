@@ -110,14 +110,18 @@ namespace Dimensions {
                         }
                     }
                     if (systemEmpty) {
-                        activeSystem.deactivateAllPartitions();
-                        GameObject.Destroy(activeSystem.gameObject);
+                        previousSystem.deactivateAllPartitions();
+                        GameObject.Destroy(previousSystem.gameObject);
                     }
                 }
             }
             Vector2Int systemOffset = activeSystems[activeSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
             playerWorldData[player].chunkPos = null;
             playerWorldData[player].partitionPos = null;
+            BackgroundImageController.Instance.setOffset(new Vector2(
+                -systemOffset.x/2f,
+                -systemOffset.y/2f
+            ));
             Vector2Int tpPosition = (cellPosition-systemOffset);
             Vector3 playerPosition = player.transform.position;
             playerPosition.x = tpPosition.x/2f;
