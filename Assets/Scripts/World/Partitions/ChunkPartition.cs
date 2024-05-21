@@ -68,7 +68,7 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle) {
+        public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle,Vector2Int systemOffset) {
             tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
@@ -187,6 +187,10 @@ namespace Chunks.Partitions {
             if (tileEntity is ILoadableTileEntity) {
                 ((ILoadableTileEntity) tileEntity).unload();
             }
+            if (tileEntity is not IStaticTileEntity) {
+                GameObject.Destroy(tileEntity);
+            }
+            
             tileEntities[position.x,position.y] = null;
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
                 tickableTileEntities.Remove(tickableTileEntity);
@@ -228,6 +232,9 @@ namespace Chunks.Partitions {
 
         public TileEntity GetTileEntity(Vector2Int position)
         {
+            if (tileEntities == null) {
+                return null;
+            }
             return tileEntities[position.x,position.y];
         }
 

@@ -31,13 +31,7 @@ namespace TileEntityModule.Instances
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            foreach (ItemSlot itemSlot in items) {
-                ItemEntityHelper.spawnItemEntityFromBreak(
-                    getWorldPosition(),
-                    itemSlot,
-                    loadedChunk.getEntityContainer()
-                );
-            }
+            TileEntityHelper.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk,loadedChunk.getSystem());
         }
 
         public void onRightClick()

@@ -196,9 +196,9 @@ namespace Chunks.Partitions {
         }
 
 
-        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle)
+        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle,Vector2Int systemOffset)
         {
-            yield return base.load(tileGridMaps,angle);
+            yield return base.load(tileGridMaps,angle,systemOffset);
         }
 
         public override void save()

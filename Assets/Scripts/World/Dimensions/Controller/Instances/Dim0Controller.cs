@@ -11,10 +11,11 @@ namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
         private SoftLoadedClosedChunkSystem dim0System;
+        private ConduitTileClosedChunkSystem mainArea;
         public void FixedUpdate() {
             dim0System.tickUpdate();
         }
-        public ClosedChunkSystem getSystem()
+        public ClosedChunkSystem activateSystem(Vector2Int dimOffset)
         {
             if (dim0System == null) {
                 string path = WorldLoadUtils.getDimPath(0);
@@ -25,18 +26,32 @@ namespace Dimensions {
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.getDim0Bounds();
             closedChunkSystemObject.name="Dim0System";
-            ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
+            mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             mainArea.initalize(
                 transform,
                 coveredArea: bounds,
                 dim: 0,
-                dim0System
+                dim0System,
+                dimOffset
             );
             return mainArea;
+        }
+        public void deactivateSystem()
+        {
+            GameObject.Destroy(mainArea.gameObject);
+        }
+
+        public bool isActive()
+        {
+            return mainArea != null;
         }
 
         public void OnDestroy() {
             dim0System.save();
+        }
+        public ClosedChunkSystem getActiveSystem()
+        {
+            return mainArea;
         }
     }
 }

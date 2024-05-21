@@ -36,8 +36,12 @@ namespace Chunks.ClosedChunkSystemModule {
         protected int dim;
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
+
+        public Vector2Int DimPositionOffset { get => dimPositionOffset;}
+
         private bool isQuitting = false;
         private LoadedPartitionBoundary loadedPartitionBoundary;
+        protected Vector2Int dimPositionOffset;
         public virtual void Awake () {
             
         }
@@ -72,6 +76,10 @@ namespace Chunks.ClosedChunkSystemModule {
             return cachedChunks.ContainsKey(position);
         }
 
+        public Vector2 getWorldDimOffset() {
+            return new Vector2(dimPositionOffset.x/2f,dimPositionOffset.y/2f);
+        }
+
         public bool containsTileMap(TileMapType tileMapType) {
             return tileGridMaps.ContainsKey(tileMapType);
         }
@@ -83,11 +91,14 @@ namespace Chunks.ClosedChunkSystemModule {
             return null;
         }
         
-        public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim) {
+        public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {
+            this.dimPositionOffset = offset;
+            transform.position = new Vector3(-dimPositionOffset.x/2f,-dimPositionOffset.y/2f,0);
+
             transform.SetParent(dimTransform,false);
             GameObject chunkContainer = new GameObject();
             chunkContainer.name = "Chunks";
-            chunkContainer.transform.SetParent(transform);
+            chunkContainer.transform.SetParent(transform,false);
             chunkContainerTransform = chunkContainer.transform;
             playerTransform = GameObject.Find("Player").GetComponent<Transform>();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
@@ -110,7 +121,7 @@ namespace Chunks.ClosedChunkSystemModule {
             GameObject loadedPartitionBoundaryObject = new GameObject();
             loadedPartitionBoundaryObject.name = "Boundary";
             loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
-            loadedPartitionBoundaryObject.transform.SetParent(transform);
+            loadedPartitionBoundaryObject.transform.SetParent(transform,false);
             
         }
 
@@ -131,7 +142,6 @@ namespace Chunks.ClosedChunkSystemModule {
                 partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition));
             }
             partitionLoader.addToQueue(partitionsToLoad);
-
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition));
@@ -190,16 +200,18 @@ namespace Chunks.ClosedChunkSystemModule {
             return chunksToUnload;
         }
         public Vector2Int getPlayerChunk() {
-            return new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(playerTransform.position.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(playerTransform.position.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+            return pos + DimPositionOffset/Global.ChunkSize;
         }
 
         public Vector2Int getPlayerChunkPartition() {
-            return new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / (Global.ChunkPartitionSize >> 1)),Mathf.FloorToInt(playerTransform.position.y / (Global.ChunkPartitionSize>>1)));
+            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / (Global.ChunkPartitionSize >> 1)),Mathf.FloorToInt(playerTransform.position.y / (Global.ChunkPartitionSize>>1)));
+            return pos + DimPositionOffset/Global.ChunkPartitionSize;
         }
 
         public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
             loadedPartitionBoundary.partitionLoaded(chunkPartition.getRealPosition());
-            yield return chunkPartition.load(tileGridMaps,angle);
+            yield return chunkPartition.load(tileGridMaps,angle,DimPositionOffset);
             chunkPartition.setTileLoaded(true);
             
         }

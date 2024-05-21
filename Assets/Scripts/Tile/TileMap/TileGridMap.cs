@@ -158,7 +158,6 @@ namespace TileMaps {
             if (tileBase == null) {
                 return;
             }
-            
             if (tileBase is IStateTile stateTile) {
                 TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
                 Vector2 pos = new Vector2(x/2f+0.25f,y/2f+0.25f);

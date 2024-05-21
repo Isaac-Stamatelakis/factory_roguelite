@@ -36,7 +36,7 @@ namespace UI.JEI {
                     case CatalogueMode.Cheat:
                         ItemSlot copy = ItemSlotFactory.splice(itemSlot,1);
                         GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
-                        if (grabbedItemProperties.ItemSlot == null) {
+                        if (grabbedItemProperties.ItemSlot == null || grabbedItemProperties.ItemSlot.itemObject == null) {
                             grabbedItemProperties.setItemSlot(copy);
                         } else {
                             if (grabbedItemProperties.ItemSlot.itemObject.id == itemSlot.itemObject.id) {

@@ -42,8 +42,8 @@ namespace Chunks.ClosedChunkSystemModule {
             }
         }
         
-        public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            initalizeObject(dimTransform,coveredArea,dim);
+        public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
+            initalizeObject(dimTransform,coveredArea,dim,dimPositionOffset);
             initalLoadChunks(inactiveClosedChunkSystem.UnloadedChunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.UnloadedChunks) {
@@ -54,7 +54,7 @@ namespace Chunks.ClosedChunkSystemModule {
             }
             GameObject portViewerController = new GameObject();
             portViewerController.name = "Conduit Port View Controller";
-            portViewerController.transform.SetParent(transform);
+            portViewerController.transform.SetParent(transform,false);
             viewerController = portViewerController.AddComponent<PortViewerController>();
 
             syncConduitTileMap(TileMapType.ItemConduit);

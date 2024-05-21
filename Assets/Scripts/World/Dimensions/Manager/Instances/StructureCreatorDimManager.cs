@@ -8,19 +8,21 @@ namespace DevTools.Structures {
     public class StructureCreatorDimManager : DimensionManager
     {
         [SerializeField] public StructureDimController dimController;
-        public override DimController getCurrentController()
+        public override DimController getDimController(int dim)
         {
             return dimController;
         }
 
+        /*
         public override async void Start()
         {
             Debug.Log("Loading Structure Creator: " + WorldManager.getInstance().getWorldPath());
-            dimController.getSystem();
+            dimController.activateSystem(Vector2Int.zero);
             Vector2Int playerCellPosition = Global.getCellPositionFromWorld(playerIO.getPlayerPosition());
             await setActiveSystemFromCellPosition(0,Vector2Int.zero);
-            setPlayerPosition(Vector2.zero);
+            //setPlayerPosition(Vector2.zero);
         }
+        */
     }
 }
 

@@ -25,12 +25,6 @@ namespace TileMaps.Place {
             DownLeft,
             Center
         }
-    
-        public static bool PlaceFromCellPosition(ItemObject itemObject, Vector2Int cellPosition, ClosedChunkSystem closedChunkSystem, bool checkConditions = true) {
-            // TODO: refactor this to be the base function rather than place from world. Lots of work though
-            Vector2 worldPosition = new Vector2(cellPosition.x/2f,cellPosition.y/2f)+Vector2.one/4f;
-            return PlaceFromWorldPosition(itemObject,worldPosition,closedChunkSystem,checkConditions);
-        }
 
         public static void tilePlaceUpdate(Vector2Int position, TileMapType tileMapType) {
 
@@ -41,13 +35,13 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null) {
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null, bool useOffset = true) {
             if (itemObject is TileItem tileItem) {
                 if (checkConditions && !tilePlacable(tileItem,worldPlaceLocation)) {
                     return false;
                 }
                 TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity);
+                placeTile((TileItem) itemObject,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity,useOffset:useOffset);
                 return true;
                 
             } else if (itemObject is ConduitItem conduitItem) {
@@ -70,7 +64,8 @@ namespace TileMaps.Place {
                 if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
                     return false;
                 }
-                return placeFluid(fluidTileItem,worldPlaceLocation,fluidMap);
+                Vector2 offset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
+                return placeFluid(fluidTileItem,worldPlaceLocation+offset,fluidMap);
             }
             return false;
         }
@@ -190,19 +185,28 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null) {
+        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null, bool useOffset = true) {
             if (tileMap == null) {
                 return;
             }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
             }
+            Vector2Int offset = closedChunkSystem.DimPositionOffset;
+            Vector2 offsetWorld = new Vector2(offset.x/2f,offset.y/2f);
+            Vector2 offsetPosition = worldPosition;
+            if (useOffset) {
+                offsetPosition += offsetWorld;
+            }
             UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            if (useOffset) {
+                placePosition += offset;
+            }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
-                Vector2Int chunkPosition = Global.getChunkFromWorld(worldPosition);
-                Vector2Int tileMapPosition = tileMap.worldToTileMapPosition(worldPosition);
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPosition)-chunkPosition*Global.PartitionsPerChunk;
+                Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
+                Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
                 Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
                 Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
                 ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);

@@ -8,6 +8,7 @@ using Chunks;
 using TileMaps;
 using TileEntityModule;
 using UnityEngine.EventSystems;
+using Dimensions;
 
 namespace PlayerModule {
     public class PlayerRobot : MonoBehaviour
@@ -89,7 +90,8 @@ namespace PlayerModule {
             if (tileGridMap == null) {
                 return null;
             }
-            TileItem tileItem = tileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position));
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
+            TileItem tileItem = tileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
             if (tileItem == null || tileItem.tileEntity == null) {
                 return null;
             }

@@ -162,7 +162,7 @@ namespace PlayerModule {
 
         public void give(ItemSlot itemSlot) {
             if (!ItemSlotHelper.canInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
-                IChunk chunk = DimensionManager.Instance.ActiveSystem.getChunk(Global.getCellPositionFromWorld(transform.position));
+                IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {
                     return;
                 }

@@ -109,7 +109,7 @@ namespace TileEntityModule.Instances.SimonSays {
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             foreach (Vector2Int position in brickPlacePositions) {
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
-                PlaceTile.PlaceFromWorldPosition(bricks,worldPlacePosition,closedChunkSystem,false);
+                PlaceTile.PlaceFromWorldPosition(bricks,worldPlacePosition,closedChunkSystem,checkConditions: false,useOffset:false);
             }
             List<Vector2Int> chestPlacePositions = new List<Vector2Int>{
                 new Vector2Int(-1,0),
@@ -137,7 +137,7 @@ namespace TileEntityModule.Instances.SimonSays {
                 chestTileEntity.initalize(chestPositionInChunk, chestTile.tile, chunk);
                 chest.giveItems(loot);
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
-                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,false,chestTileEntity);
+                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,checkConditions:false,chestTileEntity,useOffset:false);
                 count ++;
             }
             unload();

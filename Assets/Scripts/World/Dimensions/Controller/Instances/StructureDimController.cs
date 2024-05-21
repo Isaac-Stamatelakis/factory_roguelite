@@ -16,7 +16,14 @@ namespace DevTools.Structures {
     public class StructureDimController : DimController, ISingleSystemController
     {
         private SoftLoadedClosedChunkSystem system;
-        public ClosedChunkSystem getSystem()
+        private ConduitTileClosedChunkSystem activeSystem;
+
+        public void deactivateSystem()
+        {
+            GameObject.Destroy(activeSystem.gameObject);
+        }
+
+        public ClosedChunkSystem activateSystem(Vector2Int dimPositionOffset)
         {
             if (system == null) {
                 string path = WorldLoadUtils.getDimPath(0);
@@ -27,18 +34,29 @@ namespace DevTools.Structures {
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.getDim0Bounds();
             closedChunkSystemObject.name="Structure";
-            ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
-            mainArea.initalize(
+            activeSystem = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
+            activeSystem.initalize(
                 transform,
                 coveredArea: bounds,
                 dim: 0,
-                system
+                system,
+                dimPositionOffset
             );
-            return mainArea;
+            return activeSystem;
+        }
+
+        public bool isActive()
+        {
+            return system != null;
         }
 
         public void OnDestroy() {
             system.save();
+        }
+
+        public ClosedChunkSystem getActiveSystem()
+        {
+            return activeSystem;
         }
     }
 }

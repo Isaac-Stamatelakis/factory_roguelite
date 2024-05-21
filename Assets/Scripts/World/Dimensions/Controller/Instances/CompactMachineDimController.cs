@@ -74,7 +74,8 @@ namespace Dimensions {
                     transform,
                     coveredArea: coveredArea,
                     dim: 1,
-                    softLoadedClosedChunkSystem
+                    softLoadedClosedChunkSystem,
+                    Vector2Int.zero // TODO UDPATE THIS
                 );
                 return area;
             }
