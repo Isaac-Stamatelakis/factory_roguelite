@@ -4,6 +4,7 @@ using UnityEngine;
 using RecipeModule;
 using Newtonsoft.Json;
 using Items.Inventory;
+using System;
 
 namespace TileEntityModule.Instances.Machines {
     public class PassiveProcessorInventory : StandardSolidAndFluidInventory {
@@ -61,16 +62,21 @@ namespace TileEntityModule.Instances.Machines {
         }
 
         public static string serialize(PassiveProcessorInventory processingMachineInventory) {
-            SerializedPassiveMachineData serializedMachineData = new SerializedPassiveMachineData(
-                itemInputs: InventoryFactory.serialize(processingMachineInventory.ItemInputs),
-                itemOutputs: InventoryFactory.serialize(processingMachineInventory.ItemOutputs),
-                fluidInputs: InventoryFactory.serialize(processingMachineInventory.FluidInputs),
-                fluidOutputs: InventoryFactory.serialize(processingMachineInventory.FluidOutputs),
-                mode: processingMachineInventory.Mode,
-                remainingTicks: processingMachineInventory.RemainingTicks,
-                recipeID: null
-            );
-            return JsonConvert.SerializeObject(serializedMachineData);
+            try {
+                SerializedPassiveMachineData serializedMachineData = new SerializedPassiveMachineData(
+                    itemInputs: InventoryFactory.serialize(processingMachineInventory.ItemInputs),
+                    itemOutputs: InventoryFactory.serialize(processingMachineInventory.ItemOutputs),
+                    fluidInputs: InventoryFactory.serialize(processingMachineInventory.FluidInputs),
+                    fluidOutputs: InventoryFactory.serialize(processingMachineInventory.FluidOutputs),
+                    mode: processingMachineInventory.Mode,
+                    remainingTicks: processingMachineInventory.RemainingTicks,
+                    recipeID: null
+                );
+                return JsonConvert.SerializeObject(serializedMachineData);
+            } catch (NullReferenceException e) {
+                Debug.LogWarning($"Could not seralize processing machine {e}");
+            }
+            return null;    
         }
         
 

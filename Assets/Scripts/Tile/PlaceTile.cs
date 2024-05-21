@@ -64,7 +64,8 @@ namespace TileMaps.Place {
                 if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
                     return false;
                 }
-                return placeFluid(fluidTileItem,worldPlaceLocation,fluidMap);
+                Vector2 offset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
+                return placeFluid(fluidTileItem,worldPlaceLocation+offset,fluidMap);
             }
             return false;
         }
