@@ -48,7 +48,7 @@ namespace Conduits.PortViewer {
         private void activateViewer(ConduitType conduitType) {
             GameObject viewer = new GameObject();
             viewer.name = conduitType.ToString() + " Port Viewer";
-            viewer.transform.SetParent(transform);
+            viewer.transform.SetParent(transform,false);
             portViewer = viewer.AddComponent<ConduitPortViewer>();
             Vector3Int referenceFrame = (Vector3Int)closedChunkSystem.getBottomLeftCorner();
             portViewer.initalize(closedChunkSystem.getManager(conduitType),referenceFrame);

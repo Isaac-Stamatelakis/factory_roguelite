@@ -56,7 +56,7 @@ namespace Chunks.ClosedChunkSystemModule {
             }
             GameObject portViewerController = new GameObject();
             portViewerController.name = "Conduit Port View Controller";
-            portViewerController.transform.SetParent(transform);
+            portViewerController.transform.SetParent(transform,false);
             viewerController = portViewerController.AddComponent<PortViewerController>();
 
             syncConduitTileMap(TileMapType.ItemConduit);

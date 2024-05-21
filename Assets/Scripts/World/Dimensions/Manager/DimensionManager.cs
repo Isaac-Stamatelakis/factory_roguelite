@@ -20,20 +20,22 @@ namespace Dimensions {
         }
         protected DimController currentDimension;
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
-        private Dictionary<PlayerIO, PlayerWorldData> playerWorldData = new Dictionary<PlayerIO, PlayerWorldData>(); 
+        private Dictionary<Transform, PlayerWorldData> playerWorldData = new Dictionary<Transform, PlayerWorldData>(); 
         private Dictionary<ClosedChunkSystem, Vector2Int> activeSystems = new Dictionary<ClosedChunkSystem, Vector2Int>();
         public void Start() {
             PlayerIO[] players = GameObject.FindObjectsOfType<PlayerIO>();
             foreach (PlayerIO player in players) {
                 DimController dimController = getDimController(0);
-                playerWorldData[player] = new PlayerWorldData(null,null,null);
-                setPlayerSystem(player,0,Vector2Int.right);
+                playerWorldData[player.transform] = new PlayerWorldData(null,null,null);
+                int dim = player.playerData.dim;
+                Vector2 position = new Vector2(player.playerData.x,player.playerData.y);
+                setPlayerSystem(player.transform,0,Vector2Int.zero);
             }
         }
 
         public void Update()
         {
-            foreach (KeyValuePair<PlayerIO,PlayerWorldData> kvp in playerWorldData) {
+            foreach (KeyValuePair<Transform,PlayerWorldData> kvp in playerWorldData) {
                 PlayerWorldData worldData = playerWorldData[kvp.Key];
                 Transform playerTransform = kvp.Key.transform;
 
@@ -48,8 +50,6 @@ namespace Dimensions {
                 
                 worldData.closedChunkSystem.playerPartitionUpdate();
                 worldData.partitionPos = new Vector2Int(playerXPartition,playerYPartition);
-                
-
                 int playerXChunk = (int) Mathf.Floor(playerTransform.position.x / (Global.PartitionsPerChunk/2));
                 int playerYChunk = (int) Mathf.Floor(playerTransform.position.y / (Global.PartitionsPerChunk/2));
                 
@@ -65,20 +65,20 @@ namespace Dimensions {
                 
             }
         }
-        public ClosedChunkSystem getPlayerSystem(PlayerIO playerIO) {
-            if (!playerWorldData.ContainsKey(playerIO)) {
+        public ClosedChunkSystem getPlayerSystem(Transform player) {
+            if (!playerWorldData.ContainsKey(player)) {
                 return null;
             }
-            return playerWorldData[playerIO].closedChunkSystem;
+            return playerWorldData[player].closedChunkSystem;
         }
-        public int getPlayerDimension(PlayerIO playerIO) {
-            if (playerWorldData.ContainsKey(playerIO)) {
-                return playerWorldData[playerIO].closedChunkSystem.Dim;
+        public int getPlayerDimension(Transform transform) {
+            if (playerWorldData.ContainsKey(transform)) {
+                return playerWorldData[transform].closedChunkSystem.Dim;
             }
-            Debug.LogError($"Player {playerIO.name} was not in playerDimension Dict");
+            Debug.LogError($"Player {transform.name} was not in playerDimension Dict");
             return 0;
         }
-        public void setPlayerSystem(PlayerIO player, int dim, Vector2Int cellPosition) {
+        public void setPlayerSystem(Transform player, int dim, Vector2Int cellPosition) {
             DimController controller = getDimController(dim);
             ClosedChunkSystem activeSystem = null;
             if (controller is ISingleSystemController singleSystemController) {
@@ -103,7 +103,7 @@ namespace Dimensions {
                 playerWorldData[player].closedChunkSystem = activeSystem;
                 bool systemEmpty = true;
                 if (previousSystem != null) {
-                    foreach (KeyValuePair<PlayerIO,PlayerWorldData> kvp in playerWorldData) {
+                    foreach (KeyValuePair<Transform,PlayerWorldData> kvp in playerWorldData) {
                         if (previousSystem.Equals(kvp.Value.closedChunkSystem)) {
                             systemEmpty = false;
                             break;

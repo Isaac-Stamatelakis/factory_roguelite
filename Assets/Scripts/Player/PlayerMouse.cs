@@ -35,7 +35,7 @@ namespace PlayerModule.Mouse {
         private GameObject grabbedItem;
         private LayerMask UILayer;
         private EventSystem eventSystem;
-        private PlayerIO playerIO;
+        private Transform playerTransform;
 
         // Start is called before the first frame update
         void Start()
@@ -45,7 +45,7 @@ namespace PlayerModule.Mouse {
             grabbedItem = GameObject.Find("GrabbedItem");
             UILayer = 1 << LayerMask.NameToLayer("UI");
             eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
-            playerIO = GameObject.Find("Player").GetComponent<PlayerIO>();
+            playerTransform = GameObject.Find("Player").transform;
         }
 
         // Update is called once per frame
@@ -55,7 +55,7 @@ namespace PlayerModule.Mouse {
             if (eventSystem.IsPointerOverGameObject()) {
             return;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             if (Input.GetMouseButton(0)) {
@@ -68,7 +68,7 @@ namespace PlayerModule.Mouse {
         }
 
         private ILoadedChunk getChunk(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             if (closedChunkSystem == null) {
                 return null;
             }
@@ -99,19 +99,19 @@ namespace PlayerModule.Mouse {
             bool somethingClicked = false;
             if (Input.GetMouseButtonDown(1)) {
                 if (itemObject is ConduitItem) {
-                    somethingClicked = handlePortClick(mousePosition);
+                    somethingClicked = handlePortClick(mousePosition+offset);
                 } else {
                     somethingClicked = handleTileEntityClick(mousePosition,offset);
                 }
             }
 
             if (!somethingClicked) {
-                handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerIO));
+                handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
             }
         }
 
         private bool handlePortClick(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerIO);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
@@ -122,7 +122,6 @@ namespace PlayerModule.Mouse {
                 return false;
             }
             ConduitType conduitType = conduitItem.getConduitType();
-            //ConduitType conduitType = devMode.breakType.toConduit();
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
@@ -174,7 +173,7 @@ namespace PlayerModule.Mouse {
                 raycastHitBlock(mousePosition,layer);  
             } else {
                 foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                    ITileMap tileMap = DimensionManager.Instance.getPlayerSystem(playerIO).getTileMap(tileMapType);
+                    ITileMap tileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(tileMapType);
                     if (tileMap is IHitableTileMap) {
                         IHitableTileMap hitableTileMap = ((IHitableTileMap) tileMap);
                         if (devMode.instantBreak) {
