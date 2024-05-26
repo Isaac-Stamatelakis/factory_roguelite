@@ -5,7 +5,7 @@ using Conduits.Ports;
 using Conduits;
 using Conduits.Systems;
 using UnityEngine.Tilemaps;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using TileEntityModule;
 
 namespace Conduits.PortViewer {

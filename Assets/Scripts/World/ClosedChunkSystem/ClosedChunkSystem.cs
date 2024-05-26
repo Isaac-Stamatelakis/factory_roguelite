@@ -13,7 +13,7 @@ using Tiles;
 using Fluids;
 using PlayerModule;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     /// <summary>
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 

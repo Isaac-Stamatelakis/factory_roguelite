@@ -4,7 +4,7 @@ using UnityEngine;
 using Chunks.LoadController;
 using Chunks.IO;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     /// <summary>
     /// Chunks in this closed chunk system load and unload depending on player position
     /// </summary>

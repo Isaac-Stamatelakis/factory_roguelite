@@ -49,9 +49,8 @@ namespace WorldModule {
             WorldLoadUtils.createDimFolder(0);
             GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
             IntervalVector dim0Bounds = getDim0Bounds();
-            Vector2Int caveSize = new Vector2Int(Mathf.Abs(dim0Bounds.X.LowerBound-dim0Bounds.X.UpperBound+1),Mathf.Abs(dim0Bounds.Y.LowerBound-dim0Bounds.Y.UpperBound+1));
             WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
-            WorldGenerationFactory.saveToJson(dim0Data,caveSize,dim0Bounds,0,WorldLoadUtils.getDimPath(0));
+            WorldGenerationFactory.saveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
         }
 
         public static IntervalVector getDim0Bounds() {
@@ -76,8 +75,9 @@ namespace WorldModule {
             
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
-            int width = (Mathf.Abs(bounds.X.LowerBound-bounds.X.UpperBound)+1) * Global.ChunkSize;
-            int height = (Mathf.Abs(bounds.Y.LowerBound-bounds.Y.UpperBound)+1) * Global.ChunkSize;
+            Vector2Int size = bounds.getSize();
+            int width = size.x * Global.ChunkSize;
+            int height = size.y * Global.ChunkSize;
 
 
             Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();

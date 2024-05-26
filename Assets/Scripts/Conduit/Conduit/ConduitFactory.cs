@@ -6,7 +6,7 @@ using TileMaps.Layer;
 using Chunks.Partitions;
 using TileEntityModule;
 using Items;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 
 namespace Conduits {
     public static class ConduitFactory {

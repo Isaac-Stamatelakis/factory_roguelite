@@ -9,7 +9,7 @@ using TileMaps.Layer;
 using TileMaps.Type;
 using TileMaps.Place;
 using Chunks.Partitions;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Tiles;
 using Items;
 using Entities;

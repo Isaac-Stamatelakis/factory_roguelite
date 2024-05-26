@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Chunks;
 using UI.Title;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using WorldModule;
 using System;
 using Chunks.Partitions;
@@ -87,10 +87,16 @@ namespace Chunks.IO {
             
         }
 
-        public static void writeChunk(IChunk chunk) {
-
-            File.WriteAllText(ChunkIO.getPath(chunk),Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
+        public static void writeChunk(IChunk chunk, string path = null, bool directory = false) {
+            if (path == null) {
+                path = ChunkIO.getPath(chunk);
+            }
+            if (directory) {
+                path = Path.Combine(path,getName(chunk.getPosition()));
+            }
+            File.WriteAllText(path,Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
         }
+        
         public static string getPath(Vector2Int chunkPosition, int dim) {
             return Path.Combine(WorldLoadUtils.getDimPath(dim),getName(chunkPosition));
         }

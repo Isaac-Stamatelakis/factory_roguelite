@@ -6,7 +6,7 @@ using Chunks.Partitions;
 using Tiles;
 using TileMaps.Type;
 using UnityEngine.Tilemaps;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Entities;
 
 namespace TileEntityModule {

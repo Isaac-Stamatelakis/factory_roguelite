@@ -12,24 +12,26 @@ using TileEntityModule.Instances.CompactMachines;
 using Chunks.IO;
 using TileMaps.Layer;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     public class SoftLoadedClosedChunkSystem
     {
         private IntervalVector coveredArea;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
         private List<SoftLoadedConduitTileChunk> softLoadedChunks;
-        public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks) {
+        private string savePath;
+        public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath) {
             this.softLoadedChunks = unloadedChunks;
+            this.savePath = savePath;
             if (unloadedChunks.Count == 0) {
                 return;
             }
             for (int i = 0; i < unloadedChunks.Count; i++) {
                 updateCoveredArea(unloadedChunks[i]);
-                UnloadedChunks[i].System = this;
+                Chunks[i].System = this;
             } 
         }
 
-        public List<SoftLoadedConduitTileChunk> UnloadedChunks { get => softLoadedChunks; set => softLoadedChunks = value; }
+        public List<SoftLoadedConduitTileChunk> Chunks { get => softLoadedChunks; set => softLoadedChunks = value; }
         public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
 
@@ -43,7 +45,7 @@ namespace Chunks.ClosedChunkSystemModule {
             return false;
         }
         public bool systemIsNeighbor(SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            foreach (SoftLoadedConduitTileChunk neighborChunk in inactiveClosedChunkSystem.UnloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk neighborChunk in inactiveClosedChunkSystem.Chunks) {
                 if (chunkIsNeighbor(neighborChunk)) {
                     return true;
                 }
@@ -51,7 +53,7 @@ namespace Chunks.ClosedChunkSystemModule {
             return false;
         }
         public void merge(SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            this.softLoadedChunks.AddRange(inactiveClosedChunkSystem.UnloadedChunks);
+            this.softLoadedChunks.AddRange(inactiveClosedChunkSystem.Chunks);
             IntervalVector toMergeArea = inactiveClosedChunkSystem.coveredArea;
             if (toMergeArea.X.UpperBound > coveredArea.X.UpperBound) {
                 coveredArea.X.UpperBound = toMergeArea.X.UpperBound;
@@ -67,7 +69,7 @@ namespace Chunks.ClosedChunkSystemModule {
         }
 
         public void addChunk(SoftLoadedConduitTileChunk chunk) {
-            this.UnloadedChunks.Add(chunk);
+            this.Chunks.Add(chunk);
             chunk.System = this;
             updateCoveredArea(chunk);
         }
@@ -93,7 +95,6 @@ namespace Chunks.ClosedChunkSystemModule {
             }
         }
 
-       
         public void softLoad() {
             softLoadTileEntities();
             assembleMultiBlocks();
@@ -201,7 +202,7 @@ namespace Chunks.ClosedChunkSystemModule {
         }
 
         public SoftLoadedConduitTileChunk getChunk(Vector2Int cellPosition) {
-            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 if (chunk.getPosition().Equals(cellPosition)) {
                     return chunk;
                 }
@@ -258,7 +259,7 @@ namespace Chunks.ClosedChunkSystemModule {
         }
 
         public void save() {
-            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
@@ -275,7 +276,7 @@ namespace Chunks.ClosedChunkSystemModule {
                     conduitTileChunkPartition.setConduits(partitionConduits);
                     partition.save();
                 }
-                ChunkIO.writeChunk(chunk);
+                ChunkIO.writeChunk(chunk,path:savePath,directory:true);
             }
         }
 
@@ -285,7 +286,7 @@ namespace Chunks.ClosedChunkSystemModule {
                     tickableConduitSystem.tickUpdate();
                 }
             }
-            foreach (SoftLoadedConduitTileChunk chunk in UnloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     partition.tick();
                 }

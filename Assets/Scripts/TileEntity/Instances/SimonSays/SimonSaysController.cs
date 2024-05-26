@@ -7,7 +7,7 @@ using Chunks;
 using Items;
 using Tiles;
 using TileMaps.Place;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 
 namespace TileEntityModule.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/Controller")]

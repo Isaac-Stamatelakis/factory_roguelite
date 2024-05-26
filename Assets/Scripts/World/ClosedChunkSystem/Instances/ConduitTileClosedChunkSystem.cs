@@ -16,7 +16,7 @@ using TileMaps.Conduit;
 using TileEntityModule;
 using Items;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
     {
         private List<SoftLoadedConduitTileChunk> unloadedChunks;
@@ -44,9 +44,9 @@ namespace Chunks.ClosedChunkSystemModule {
         
         public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
             initalizeObject(dimTransform,coveredArea,dim,dimPositionOffset);
-            initalLoadChunks(inactiveClosedChunkSystem.UnloadedChunks);
+            initalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
-            foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.UnloadedChunks) {
+            foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
                 foreach (IConduitTileChunkPartition partition in loadedChunk.getChunkPartitions()) {
                     partition.activate(loadedChunk);

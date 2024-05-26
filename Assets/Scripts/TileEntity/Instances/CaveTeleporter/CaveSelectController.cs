@@ -29,7 +29,7 @@ namespace TileEntityModule.Instances {
             teleportButton.gameObject.SetActive(false);
         }
 
-        private async void teleportButtonPress() {
+        private void teleportButtonPress() {
             if (currentCave == null) {
                 Debug.LogError("Tried to teleport to null cave");
                 return;

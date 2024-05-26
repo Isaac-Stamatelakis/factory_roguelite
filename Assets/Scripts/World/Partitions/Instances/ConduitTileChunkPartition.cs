@@ -10,7 +10,7 @@ using Chunks.IO;
 using Conduits.Ports;
 using Items;
 using TileEntityModule.Instances.CompactMachines;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Tiles;
 
 namespace Chunks.Partitions {

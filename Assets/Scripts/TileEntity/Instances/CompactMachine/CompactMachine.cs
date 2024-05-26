@@ -5,6 +5,7 @@ using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Chunks;
 using Dimensions;
+using Chunks.Systems;
 
 namespace TileEntityModule.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
@@ -13,12 +14,13 @@ namespace TileEntityModule.Instances.CompactMachines {
         [SerializeField] public ConduitPortLayout conduitPortLayout;
         [SerializeField] public GameObject tilemapContainer;
         [SerializeField] public GameObject uiPrefab;
+        private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
         private CompactMachineTeleporter teleporter;
 
         public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporter Teleporter { get => teleporter; set => teleporter = value; }
-
+        public Vector2Int PositionInSystem { get => positionInSystem; set => positionInSystem = value; }
 
         public ConduitPortLayout getConduitPortLayout()
         {
@@ -30,7 +32,6 @@ namespace TileEntityModule.Instances.CompactMachines {
             throw new System.NotImplementedException();
         }
 
-
         public override void initalize(Vector2Int tilePosition, TileBase tileBase, IChunk chunk)
         {
             base.initalize(tilePosition, tileBase, chunk);
@@ -40,7 +41,23 @@ namespace TileEntityModule.Instances.CompactMachines {
                 return;
             }
             CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
-            dimController.activateSystem(this);
+            if (chunk is not ILoadedChunk loadedChunk) {
+                return;
+            }
+            List<Vector2Int> path = new List<Vector2Int>();
+            if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
+                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
+                foreach (Vector2Int vector in key.Path) {
+                    path.Add(vector);
+                }
+            }
+            path.Add(getCellPosition());
+            CompactMachineTeleportKey thisKey = new CompactMachineTeleportKey(path);
+            if (!dimController.hasSystem(thisKey)) {
+                dimController.addNewSystem(thisKey,this);
+            }
+            
+            
         }
 
         public int insertEnergy(int energy,Vector2Int portPosition)
