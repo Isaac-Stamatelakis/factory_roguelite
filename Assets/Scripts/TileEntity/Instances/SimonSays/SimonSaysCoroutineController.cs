@@ -5,8 +5,8 @@ using UnityEngine;
 namespace TileEntityModule.Instances.SimonSays {
     public class SimonSaysCoroutineController : MonoBehaviour
     {
-        private SimonSaysController controller;
-        public void init(SimonSaysController controller) {
+        private SimonSaysControllerInstance controller;
+        public void init(SimonSaysControllerInstance controller) {
             this.controller = controller;
         }
 
@@ -24,21 +24,21 @@ namespace TileEntityModule.Instances.SimonSays {
 
        
 
-        public void showTileClick(SimonSaysColoredTileEntity coloredTile) {
+        public void showTileClick(SimonSaysColoredTileEntityInstance coloredTile) {
             if (!controller.AllowPlayerPlace) {
                 return;
             }
             
             StartCoroutine(showTileOnPlayerPress(coloredTile));
         }
-        private IEnumerator showTile(SimonSaysColoredTileEntity coloredTileEntity) {
+        private IEnumerator showTile(SimonSaysColoredTileEntityInstance coloredTileEntity) {
             coloredTileEntity.setColor(1);
             yield return new WaitForSeconds(0.8f);
             coloredTileEntity.setColor(0);
             yield return new WaitForSeconds(0.2f);
         }
 
-        private IEnumerator showTileOnPlayerPress(SimonSaysColoredTileEntity coloredTileEntity) {
+        private IEnumerator showTileOnPlayerPress(SimonSaysColoredTileEntityInstance coloredTileEntity) {
             coloredTileEntity.setColor(1);
             yield return new WaitForSeconds(0.8f);
             coloredTileEntity.setColor(0);

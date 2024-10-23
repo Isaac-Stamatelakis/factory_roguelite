@@ -9,7 +9,7 @@ namespace TileEntityModule.Instances.WorkBenchs {
     {
         public void display(WorkBench workBench) {
             List<ItemSlot> playerInventory = PlayerContainer.getInstance().getInventory().Inventory;
-            List<WorkbenchRecipe> workbenchRecipes = workBench.workBenchRecipeProcessor.getCraftableRecipes(0,playerInventory,playerInventory);
+            List<WorkbenchRecipe> workbenchRecipes = workBench.WorkBenchRecipeProcessor.getCraftableRecipes(0,playerInventory,playerInventory);
             foreach (Recipe recipe in workbenchRecipes) {
                 Debug.Log("Hi");
             }

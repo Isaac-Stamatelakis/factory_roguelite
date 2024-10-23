@@ -204,33 +204,7 @@ namespace TileMaps.Place {
             }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
-                Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
-                Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
-                Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
-                Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
-                ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
-                if (chunk == null) {
-                    Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
-                    return;
-                }
-                IChunkPartition partition = chunk.getPartition(partitionPosition);
-                if (partition == null) {
-                    Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
-                    return;
-                }
-                TileEntity tileEntity = presetTileEntity;
-                if (tileEntity == null) {
-                    tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-                    tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
-                } 
-                TileMapLayer layer = tileMap.getType().toLayer();
-                partition.addTileEntity(layer,tileEntity,positionInPartition);
-                if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                    if (tileEntity is IConduitInteractable) {
-                        conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
-                    }
-                }
+                placeTileEntity(tileItem,closedChunkSystem,tileMap,offsetPosition);
             }
             if (tileMap is not TileGridMap tileGridMap) {
                 return;
@@ -239,12 +213,43 @@ namespace TileMaps.Place {
             
         }
 
+        public static void placeTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,ITileMap tileMap, Vector2 offsetPosition) {
+            Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
+            Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
+            Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
+            Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
+            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            if (chunk == null) {
+                Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
+                return;
+            }
+            IChunkPartition partition = chunk.getPartition(partitionPosition);
+            if (partition == null) {
+                Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
+                return;
+            }
+            ITileEntityInstance tileEntityInstance = null;
+            // TODO change to registry
+            TileEntity tileEntity = tileItem.tileEntity;
+            if (tileEntity == null) {
+                tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
+            } 
+            TileMapLayer layer = tileMap.getType().toLayer();
+            partition.addTileEntity(layer,tileEntityInstance,positionInPartition);
+            if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+                if (tileEntity is IConduitInteractable) {
+                    conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
+                }
+            }
+        }
+
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.getConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
-            TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
+            ITileEntityInstance tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
             conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
 

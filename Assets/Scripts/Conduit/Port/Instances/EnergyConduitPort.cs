@@ -50,7 +50,7 @@ namespace Conduits.Ports {
             priority = val;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
                 return;
@@ -94,7 +94,7 @@ namespace Conduits.Ports {
             this.enabled = val;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
                 return;

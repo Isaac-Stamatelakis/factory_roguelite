@@ -48,17 +48,17 @@ namespace Dimensions {
             }
             return null;
         }
-        private void loadCompactMachineSystem(CompactMachine compactMachine, CompactMachineTree tree, string path) {
+        private void loadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
             Vector2Int positionInSystem = compactMachine.getCellPosition();
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            TileEntity tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
+                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
                                 compactMachineInteractable.syncToCompactMachine(compactMachine);
-                            } else if (tileEntity is CompactMachine nestedCompactMachine) {
+                            } else if (tileEntity is CompactMachineInstance nestedCompactMachine) {
                                 Vector2Int newPosition = nestedCompactMachine.getCellPosition();
                                 string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                 string contentPath = Path.Combine(nestedPath,CompactMachineHelper.CONTENT_PATH);
@@ -86,7 +86,7 @@ namespace Dimensions {
         /// Creates a new system for a compact machine. Path should be ordered with depth 0 at 0, depth n at n.
         /// Null path means that 
         /// </summary>
-        public void addNewSystem(CompactMachineTeleportKey key, CompactMachine compactMachine) {
+        public void addNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
             List<Vector2Int> systemPath = key.Path;
             List<Vector2Int> parentPath = new List<Vector2Int>();
             for (int i = 0; i < systemPath.Count-1; i++) {
@@ -105,7 +105,7 @@ namespace Dimensions {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            TileEntity tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
+                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
                                 compactMachineInteractable.syncToCompactMachine(compactMachine);
                             }
@@ -155,8 +155,8 @@ namespace Dimensions {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            TileEntity tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is not CompactMachine compactMachine) {
+                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
+                            if (tileEntity is not CompactMachineInstance compactMachine) {
                                 continue;
                             }
                             loadCompactMachineSystem(compactMachine,systemTree,WorldLoadUtils.getDimPath(1));

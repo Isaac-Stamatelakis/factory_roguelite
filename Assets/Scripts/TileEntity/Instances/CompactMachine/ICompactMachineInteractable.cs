@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TileEntityModule.Instances.CompactMachines {
     public interface ICompactMachineInteractable
     {
-        public void syncToCompactMachine(CompactMachine compactMachine);
+        public void syncToCompactMachine(CompactMachineInstance compactMachine);
     }
 
     public interface ICompactMachine {

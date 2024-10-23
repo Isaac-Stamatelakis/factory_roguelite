@@ -30,7 +30,7 @@ namespace Chunks.Systems {
         }
 
 
-        public void tileEntityPlaceUpdate(TileEntity tileEntity) {
+        public void tileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.addTileEntity(tileEntity);
             }

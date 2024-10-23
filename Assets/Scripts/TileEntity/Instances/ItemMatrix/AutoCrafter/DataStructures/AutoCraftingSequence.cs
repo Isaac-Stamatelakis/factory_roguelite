@@ -14,9 +14,9 @@ namespace TileEntityModule.Instances.Matrix {
 
     public static class AutoCraftingSequenceFactory {
 
-        public static Tree<PreparedRecipePreview> createRecipeTree(ItemMatrixController controller, ItemSlot toCraft, int amount) {
+        public static Tree<PreparedRecipePreview> createRecipeTree(ItemMatrixControllerInstance controller, ItemSlot toCraft, int amount) {
             MatrixRecipeCollection recipeCollection = controller.Recipes;
-            (EncodedRecipe, MatrixInterface) primaryTuple = recipeCollection.getRecipeAndInterface(toCraft);
+            (EncodedRecipe, MatrixInterfaceInstance) primaryTuple = recipeCollection.getRecipeAndInterface(toCraft);
             EncodedRecipe rootRecipe = primaryTuple.Item1;
             if (rootRecipe == null || primaryTuple.Item2 == null) {
                 return null;
@@ -52,7 +52,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return preparedOutputs;
         }
-        private static void buildTreeNode(TreeNode<PreparedRecipePreview> node, ItemMatrixController controller) {
+        private static void buildTreeNode(TreeNode<PreparedRecipePreview> node, ItemMatrixControllerInstance controller) {
             PreparedRecipePreview preparedRecipe = node.Value;
             for (int i = 0; i < preparedRecipe.AvailableInputs.Count; i++) {
                 ItemSlot input = preparedRecipe.AvailableInputs[i].Item1;

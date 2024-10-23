@@ -1,46 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using Conduits.Ports;
 using Conduits.Systems;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Terminal")]
-    public class MatrixTerminal : TileEntity, IMatrixConduitInteractable, IRightClickableTileEntity
+    public class MatrixTerminal : TileEntity
     {
-        private ItemMatrixController controller;
-        [SerializeField] private ConduitPortLayout layout;
-
-        public ItemMatrixController Controller { get => controller; }
-
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout Layout;
+        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
-            return layout;
-        }
-
-        public void onRightClick()
-        {
-            if (controller == null) {
-                return;
-            }
-            MatrixTerminalUI matrixTerminalUI = MatrixTerminalUI.newInstance();
-            matrixTerminalUI.init(this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(matrixTerminalUI.gameObject);
-        }
-
-        public void removeFromSystem()
-        {
-            
-        }
-
-        public void syncToController(ItemMatrixController matrixController)
-        {
-            this.controller = matrixController;
-        }
-
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
-        {
-            
+            return new MatrixTerminalInstance(this,tilePosition,tileItem,chunk);
         }
     }
 }

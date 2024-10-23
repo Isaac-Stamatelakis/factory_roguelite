@@ -82,14 +82,14 @@ namespace TileEntityModule.Instances.Matrix {
     }
     public class MatrixDriveCollection
     {
-        private Dictionary<MatrixDrive, List<MatrixDriveInventory>> driveInventories;
+        private Dictionary<MatrixDriveInstance, List<MatrixDriveInventory>> driveInventories;
         private Dictionary<string, Dictionary<ItemTagKey, MatrixItemCollection>> idTagItemDict;
         public MatrixDriveCollection() {
-            driveInventories = new Dictionary<MatrixDrive, List<MatrixDriveInventory>>();
+            driveInventories = new Dictionary<MatrixDriveInstance, List<MatrixDriveInventory>>();
             idTagItemDict = new Dictionary<string, Dictionary<ItemTagKey, MatrixItemCollection>>();
         }
         
-        public Dictionary<MatrixDrive, List<MatrixDriveInventory>> DriveInventories {get => driveInventories;}
+        public Dictionary<MatrixDriveInstance, List<MatrixDriveInventory>> DriveInventories {get => driveInventories;}
         public void send(ItemSlot toInsert) {
             if (toInsert == null || toInsert.itemObject == null) {
                 return;
@@ -146,15 +146,15 @@ namespace TileEntityModule.Instances.Matrix {
         }
         
         public void merge(MatrixDriveCollection matrixDriveCollection) {
-            foreach (KeyValuePair<MatrixDrive, List<MatrixDriveInventory>> kvp in matrixDriveCollection.DriveInventories) {
+            foreach (KeyValuePair<MatrixDriveInstance, List<MatrixDriveInventory>> kvp in matrixDriveCollection.DriveInventories) {
                 driveInventories[kvp.Key] = kvp.Value;
             }
             rebuildDict();
         }
         
-        public Queue<(MatrixDrive,Queue<MatrixDriveInventory>)> getQueueOfDrives() {
-            Queue<(MatrixDrive,Queue<MatrixDriveInventory>)> matrixDrives = new Queue<(MatrixDrive,Queue<MatrixDriveInventory>)>();
-            foreach (KeyValuePair<MatrixDrive,List<MatrixDriveInventory>> kvp in driveInventories) {
+        public Queue<(MatrixDriveInstance,Queue<MatrixDriveInventory>)> getQueueOfDrives() {
+            Queue<(MatrixDriveInstance,Queue<MatrixDriveInventory>)> matrixDrives = new Queue<(MatrixDriveInstance,Queue<MatrixDriveInventory>)>();
+            foreach (KeyValuePair<MatrixDriveInstance,List<MatrixDriveInventory>> kvp in driveInventories) {
                 Queue<MatrixDriveInventory> queue = new Queue<MatrixDriveInventory>();
                 foreach (MatrixDriveInventory driveInventory in kvp.Value) {
                     queue.Enqueue(driveInventory);
@@ -163,7 +163,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return matrixDrives;
         }
-        public void setDrive(MatrixDrive matrixDrive) {
+        public void setDrive(MatrixDriveInstance matrixDrive) {
             List<MatrixDriveInventory> inventories = new List<MatrixDriveInventory>();
             foreach (ItemSlot drive in matrixDrive.StorageDrives) {
                 if (
@@ -185,7 +185,7 @@ namespace TileEntityModule.Instances.Matrix {
             driveInventories[matrixDrive] = inventories;
         }
 
-        public void removeDrive(MatrixDrive matrixDrive) {
+        public void removeDrive(MatrixDriveInstance matrixDrive) {
             if (driveInventories.ContainsKey(matrixDrive)) {
                 driveInventories.Remove(matrixDrive);
                 rebuildDict();

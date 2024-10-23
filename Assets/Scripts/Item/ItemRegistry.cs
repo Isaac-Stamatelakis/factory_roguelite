@@ -38,7 +38,7 @@ namespace Items {
             {
                 Debug.LogError("Failed to load assets from group: " + handle.OperationException);
             }
-            Addressables.Release(handle);
+            //Addressables.Release(handle);
             onItemLoaded();
         }
 

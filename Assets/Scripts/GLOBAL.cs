@@ -127,8 +127,6 @@ public static class Global
     public static Vector2Int getCellPositionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
     }
-
-
 }
 
 public struct Dim2Bounds {

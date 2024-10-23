@@ -101,7 +101,7 @@ namespace Chunks.Systems {
             initConduitSystemManagers();
         }
 
-        public void syncToCompactMachine(CompactMachine compactMachine) {
+        public void syncToCompactMachine(CompactMachineInstance compactMachine) {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
@@ -122,7 +122,7 @@ namespace Chunks.Systems {
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
-            Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts = getTileEntityPorts(conduitType);
+            Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts = getTileEntityPorts(conduitType);
             IConduitSystemManager manager = ConduitSystemManagerFactory.createManager(
                 conduitType: conduitType,
                 conduits: getConduits(conduitType,tileEntityPorts),
@@ -135,18 +135,18 @@ namespace Chunks.Systems {
         /// <summary>
         /// Returns a list of spots conduits can connect to tile entities of each chunk
         /// </summary>
-        private Dictionary<TileEntity, List<TileEntityPort>> getTileEntityPorts(ConduitType conduitType) {
+        private Dictionary<ITileEntityInstance, List<TileEntityPort>> getTileEntityPorts(ConduitType conduitType) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
-            Dictionary<TileEntity, List<TileEntityPort>> tileEntityPortData = new Dictionary<TileEntity, List<TileEntityPort>>();
+            Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPortData = new Dictionary<ITileEntityInstance, List<TileEntityPort>>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    Dictionary<TileEntity, List<TileEntityPort>> partitionPorts = ((IConduitTileChunkPartition) partition).getEntityPorts(conduitType,chunkFrameOfReference);
-                    foreach (KeyValuePair<TileEntity, List<TileEntityPort>> kvp in partitionPorts) {
+                    Dictionary<ITileEntityInstance, List<TileEntityPort>> partitionPorts = ((IConduitTileChunkPartition) partition).getEntityPorts(conduitType,chunkFrameOfReference);
+                    foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in partitionPorts) {
                         tileEntityPortData[kvp.Key] = kvp.Value;
                     }
                 }
@@ -158,7 +158,7 @@ namespace Chunks.Systems {
         /// <summary>
         /// Returns the tileEntity at a given cellPosition
         /// </summary>
-        public TileEntity getSoftLoadedTileEntity(Vector2Int cellPosition) {
+        public ITileEntityInstance getSoftLoadedTileEntity(Vector2Int cellPosition) {
             Vector2Int? tilePosition = FindTileAtLocation.find(cellPosition,this);
             if (tilePosition == null) {
                 return null;
@@ -188,7 +188,7 @@ namespace Chunks.Systems {
             return tileItem;
         }
 
-        public TileEntity GetTileEntity(Vector2Int currentCellPosition) {
+        public ITileEntityInstance GetTileEntity(Vector2Int currentCellPosition) {
             Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
             Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
             IChunk chunk = getChunk(chunkPosition);
@@ -209,7 +209,7 @@ namespace Chunks.Systems {
             }
             return null;
         }
-        private IConduit[,] getConduits(ConduitType conduitType,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts) {
+        private IConduit[,] getConduits(ConduitType conduitType,Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts) {
             Vector2Int size = getSize();
             Vector2Int chunkFrameOfReference = getBottomLeftCorner();
             IConduit[,] conduits = new IConduit[size.x,size.y];

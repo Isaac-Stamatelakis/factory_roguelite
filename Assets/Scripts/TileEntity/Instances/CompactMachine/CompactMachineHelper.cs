@@ -73,7 +73,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             return Global.ChunkSize;
         }
 
-        public static Vector2Int getParentPosition(CompactMachine compactMachine) {
+        public static Vector2Int getParentPosition(CompactMachineInstance compactMachine) {
             Vector2Int position = compactMachine.getCellPosition();
             return new Vector2Int(Mathf.FloorToInt(position.x/seperationPerTile()),Mathf.FloorToInt(position.y/seperationPerTile()));
         }
@@ -116,13 +116,13 @@ namespace TileEntityModule.Instances.CompactMachines {
             return closestPort.position;
         }
 
-        public static void initalizeCompactMachineSystem(CompactMachine compactMachine, List<Vector2Int> path) {
+        public static void initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             IntervalVector bounds = getCompactMachineBounds(compactMachine);
             string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
-            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.tilemapContainer,bounds);
+            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.TileEntity.TilemapContainer,bounds);
             WorldGenerationFactory.saveToJson(systemData,bounds.getSize(),1,savePath);
-            Debug.Log($"{compactMachine.name} Closed Chunk System Generated at {savePath}");
+            Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }
 
         public static string getPositionFolderPath(List<Vector2Int> path) {
@@ -133,12 +133,12 @@ namespace TileEntityModule.Instances.CompactMachines {
             return systemPath;
         }
 
-        public static IntervalVector getCompactMachineBounds(CompactMachine compactMachine) {
-            IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.tilemapContainer);
+        public static IntervalVector getCompactMachineBounds(CompactMachineInstance compactMachine) {
+            IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.TileEntity.TilemapContainer);
             return bounds;
         }
 
-        public static void teleportOutOfCompactMachine(CompactMachine compactMachine) {
+        public static void teleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
             IChunk chunk = compactMachine.getChunk();
             if (chunk is not ILoadedChunk loadedChunk) {
@@ -160,7 +160,7 @@ namespace TileEntityModule.Instances.CompactMachines {
                 key:parentKey
             );
         }
-        public static void teleportIntoCompactMachine(CompactMachine compactMachine) {
+        public static void teleportIntoCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
             IChunk chunk = compactMachine.getChunk();
             if (chunk is not ILoadedChunk loadedChunk) {

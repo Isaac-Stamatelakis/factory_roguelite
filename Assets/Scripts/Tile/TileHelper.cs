@@ -40,7 +40,7 @@ public class TileHelper
             callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.right),item);
         }
 
-    public static void callTileEntityPlaceListener(TileEntity tileEntity, TileItem tileItem) {
+    public static void callTileEntityPlaceListener(ITileEntityInstance tileEntity, TileItem tileItem) {
         if (tileEntity == null) {
             return;
         }

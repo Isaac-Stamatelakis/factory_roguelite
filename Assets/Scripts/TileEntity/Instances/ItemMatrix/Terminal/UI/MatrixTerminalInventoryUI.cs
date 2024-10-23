@@ -20,15 +20,15 @@ namespace TileEntityModule.Instances.Matrix {
     } 
     public class MatrixTerminalInventoryUI : MonoBehaviour, IMatrixTerminalItemClickReciever
     {
-        private ItemMatrixController controller;
+        private ItemMatrixControllerInstance controller;
         private Transform itemContainer;
         private MatrixDriveCollection matrixDriveCollection;
-        private Queue<(MatrixDrive, Queue<MatrixDriveInventory>)> toRebuild;
+        private Queue<(MatrixDriveInstance, Queue<MatrixDriveInventory>)> toRebuild;
         private Queue<MatrixDriveInventory> driveInventoryToRebuild;
         private int driveRebuildIndex;
         private Dictionary<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idTagItemSlotDict;
         private MatrixTerminalUI matrixTerminalUI;
-        public void init(ItemMatrixController controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
+        public void init(ItemMatrixControllerInstance controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
             this.controller = controller;
             this.itemContainer = itemContainer;
             this.matrixTerminalUI = matrixTerminalUI;
@@ -119,7 +119,7 @@ namespace TileEntityModule.Instances.Matrix {
         }
 
         public void buildDict() {
-            foreach (KeyValuePair<MatrixDrive,List<MatrixDriveInventory>> kvp in matrixDriveCollection.DriveInventories) {
+            foreach (KeyValuePair<MatrixDriveInstance,List<MatrixDriveInventory>> kvp in matrixDriveCollection.DriveInventories) {
                 for (int driveIndex = 0; driveIndex < kvp.Value.Count; driveIndex++) {
                     List<ItemSlot> matrixDriveInventory = kvp.Value[driveIndex].inventories;
                     for (int i = 0; i < matrixDriveInventory.Count; i++) {
@@ -199,7 +199,7 @@ namespace TileEntityModule.Instances.Matrix {
                 return;
             }
             if (driveInventoryToRebuild.Count == 0) {
-                (MatrixDrive,Queue<MatrixDriveInventory>) drive = toRebuild.Dequeue();
+                (MatrixDriveInstance,Queue<MatrixDriveInventory>) drive = toRebuild.Dequeue();
                 driveInventoryToRebuild = drive.Item2;
                 return;
             }
@@ -343,8 +343,6 @@ namespace TileEntityModule.Instances.Matrix {
             return true;
         }
         private bool fluidCellClick(GrabbedItemProperties grabbedItemProperties, ItemSlot inventorySlot, IItemSlotUIElement slotUIElement) {
-            
-            
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot.itemObject is not IFluidContainer fluidContainer || grabbedSlot.tags == null || !grabbedSlot.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
                 return false;

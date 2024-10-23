@@ -18,7 +18,7 @@ namespace Chunks.Partitions {
         protected bool scheduledForUnloading = false;
         protected Vector2Int position;
         protected T data;
-        public TileEntity[,] tileEntities;
+        public ITileEntityInstance[,] tileEntities;
         public TileOptions[,] tileOptionsArray;
         public List<ITickableTileEntity> tickableTileEntities;
         protected IChunk parent;
@@ -162,7 +162,7 @@ namespace Chunks.Partitions {
             yield return unloadTiles(tileGridMaps);
         }
 
-        public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition)
+        public void addTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
             if (layer == TileMapLayer.Base) {
                 if (tileEntity is ILoadableTileEntity) {
@@ -180,15 +180,12 @@ namespace Chunks.Partitions {
             if (layer != TileMapLayer.Base) {
                 return;
             }
-            TileEntity tileEntity = tileEntities[position.x,position.y];
+            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
             if (tileEntity is IBreakActionTileEntity) {
                 ((IBreakActionTileEntity) tileEntity).onBreak();
             }
             if (tileEntity is ILoadableTileEntity) {
                 ((ILoadableTileEntity) tileEntity).unload();
-            }
-            if (tileEntity is not IStaticTileEntity) {
-                GameObject.Destroy(tileEntity);
             }
             
             tileEntities[position.x,position.y] = null;
@@ -200,7 +197,7 @@ namespace Chunks.Partitions {
 
         public bool clickTileEntity(Vector2Int position)
         {
-            TileEntity tileEntity = tileEntities[position.x,position.y];
+            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
             if (tileEntity == null) {
                 return false;
             }
@@ -230,7 +227,7 @@ namespace Chunks.Partitions {
         }
 
 
-        public TileEntity GetTileEntity(Vector2Int position)
+        public ITileEntityInstance GetTileEntity(Vector2Int position)
         {
             if (tileEntities == null) {
                 return null;

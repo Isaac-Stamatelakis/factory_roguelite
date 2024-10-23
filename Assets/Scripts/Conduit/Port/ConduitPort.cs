@@ -9,11 +9,11 @@ namespace Conduits.Ports {
         public object getInputPort();
         public object GetOutputPort();
         public void setPosition(Vector2Int position);
-        public void setTileEntity(TileEntity tileEntity);
+        public void setTileEntity(ITileEntityInstance tileEntity);
     }
 
     public interface IConduitIOPort {
-        public void setTileEntity(TileEntity tileEntity);
+        public void setTileEntity(ITileEntityInstance tileEntity);
     }
 
     public interface IConduitInputPort<T> : ITogglablePort {
@@ -57,7 +57,7 @@ namespace Conduits.Ports {
 
         public abstract void setPosition(Vector2Int position);
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (inputPort != null) {
                 inputPort.setTileEntity(tileEntity);

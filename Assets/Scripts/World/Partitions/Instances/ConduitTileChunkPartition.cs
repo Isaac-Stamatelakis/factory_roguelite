@@ -15,16 +15,16 @@ using Tiles;
 
 namespace Chunks.Partitions {
     public interface IConduitTileChunkPartition {
-        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts);
+        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts);
         public bool getConduitLoaded();
         public void setConduitLoaded(bool val);
         public void softLoadTileEntities();
-        public Dictionary<TileEntity, List<TileEntityPort>> getEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
         public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits);
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void activate(ILoadedChunk loadedChunk);
-        public void syncToCompactMachine(CompactMachine compactMachine);
+        public void syncToCompactMachine(CompactMachineInstance compactMachine);
         public void assembleMultiBlocks();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
@@ -36,7 +36,7 @@ namespace Chunks.Partitions {
         {
         }
 
-        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts)
+        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts)
         {
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {
@@ -67,7 +67,7 @@ namespace Chunks.Partitions {
                 return;
             }
             if (tileEntities == null) {
-                tileEntities = new TileEntity[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+                tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
             
             loadTickableTileEntityLayer(data.baseData);
@@ -76,11 +76,11 @@ namespace Chunks.Partitions {
 
         
 
-        public Dictionary<TileEntity, List<TileEntityPort>> getEntityPorts(ConduitType type, Vector2Int referenceFrame) {
-            Dictionary<TileEntity, List<TileEntityPort>> ports = new Dictionary<TileEntity, List<TileEntityPort>>();
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getEntityPorts(ConduitType type, Vector2Int referenceFrame) {
+            Dictionary<ITileEntityInstance, List<TileEntityPort>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPort>>();
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                    TileEntity tileEntity = tileEntities[x,y];
+                    ITileEntityInstance tileEntity = tileEntities[x,y];
                     if (tileEntity == null) {
                         continue;
                     }
@@ -136,20 +136,19 @@ namespace Chunks.Partitions {
                 }
             }
         }
-        protected TileEntity placeSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
+        protected ITileEntityInstance placeSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
             
             if (tileItem.tileEntity is not ISoftLoadable) {
                 return null;
             }
             return placeTileEntity(tileItem,options,positionInPartition,false);
         }
-        protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, TileEntity[,] tileEntityArray, int x, int y)
+        protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y)
         {
-            
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 
-        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, Dictionary<TileEntity, List<TileEntityPort>> tileEntityPorts) {
+        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts) {
             IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
@@ -167,9 +166,9 @@ namespace Chunks.Partitions {
                         continue;
                     }
                     Vector2Int cellPosition = new Vector2Int(x,y)+partitionOffset;
-                    TileEntity tileEntity = null;
+                    ITileEntityInstance tileEntity = null;
                     EntityPortType? port = null;
-                    foreach (KeyValuePair<TileEntity, List<TileEntityPort>> kvp in tileEntityPorts) {
+                    foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in tileEntityPorts) {
                         if (tileEntity != null) {
                             break;
                         }
@@ -391,7 +390,7 @@ namespace Chunks.Partitions {
         public void activate(ILoadedChunk loadedChunk)
         {
             this.parent = loadedChunk;
-            foreach (TileEntity tileEntity in tileEntities) {
+            foreach (CompactMachineInstance tileEntity in tileEntities) {
                 if (tileEntity == null) {
                     continue;
                 }
@@ -399,7 +398,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void syncToCompactMachine(CompactMachine compactMachine)
+        public void syncToCompactMachine(CompactMachineInstance compactMachine)
         {
             foreach (TileEntity tileEntity in tileEntities) {
                 if (tileEntity == null) {

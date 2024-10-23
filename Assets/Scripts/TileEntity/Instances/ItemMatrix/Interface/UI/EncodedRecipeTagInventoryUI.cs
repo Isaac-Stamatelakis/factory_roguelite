@@ -8,13 +8,13 @@ using Items.Tags;
 namespace TileEntityModule.Instances.Matrix {
     public class EncodedRecipeTagInventoryUI : TagRestrictedInventoryUI
     {
-        private MatrixInterface matrixInterface;
+        private MatrixInterfaceInstance matrixInterface;
         public override void initalize(List<ItemSlot> items, ItemTag validTag)
         {
             Debug.LogError("Wrong initalizaiton used. Fix this later");
         }
 
-        public void initalize(List<ItemSlot> items, MatrixInterface matrixInterface) {
+        public void initalize(List<ItemSlot> items, MatrixInterfaceInstance matrixInterface) {
             this.inventory = items;
             this.matrixInterface = matrixInterface;
             validTag = ItemTag.EncodedRecipe;

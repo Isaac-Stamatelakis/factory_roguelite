@@ -6,6 +6,9 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets;
 using Items;
 using RecipeModule;
+using System.IO;
+using TileEntityModule;
+using System.Linq;
 
 
 public enum AddressableTypeRestriction {
@@ -72,10 +75,6 @@ public class AssignFolderAddressableUtil : EditorWindow {
         {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             var asset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
-
-            if (asset == null) {
-                continue;
-            }
             List<string> labels = new List<string>();
             switch (typeRestriction) {
                 case AddressableTypeRestriction.None:
@@ -85,8 +84,9 @@ public class AssignFolderAddressableUtil : EditorWindow {
                         continue;
                     }
                     labels.Add("item");
-                    if (asset is TileItem) {
+                    if (asset is TileItem tileItem) {
                         labels.Add("tile_item");
+                        loadTileItem(tileItem, assetPath, settings);
                     }
                     break;
                 case AddressableTypeRestriction.Recipe:
@@ -112,6 +112,54 @@ public class AssignFolderAddressableUtil : EditorWindow {
         EditorUtility.SetDirty(settings);
         AssetDatabase.SaveAssets();
         Debug.Log($"Added {counter} inside {folderPath} as addressable");
+    }
+
+    void loadTileItem(TileItem tileItem, string assetPath, AddressableAssetSettings settings) {
+        int lastSlashIndex = assetPath.LastIndexOf('/');
+        string parentPath = assetPath.Substring(0,lastSlashIndex);
+        string[] allAssetPaths = AssetDatabase.FindAssets("", new[] { parentPath })
+            .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+            .ToArray();
+
+        // Filter out only the immediate children
+        List<string> guids = new List<string>();
+        foreach (string path in allAssetPaths)
+        {
+            
+            int lastSlashIndex1 = path.LastIndexOf('/');
+            string parent = path.Substring(0,lastSlashIndex1);
+            if (parent.Equals(parentPath)) {
+                guids.Add(AssetDatabase.AssetPathToGUID(path));
+            }
+        }
+        
+        List<(string,TileEntity)> tileEntities = new List<(string,TileEntity)>();
+        foreach (string guid in guids) {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var asset = AssetDatabase.LoadAssetAtPath<TileEntity>(path);
+            if (asset == null) {
+                continue;   
+            }
+            var tuple = (guid,asset);
+            tileEntities.Add(tuple);
+        }
+        
+        if (tileEntities.Count == 0) {
+            tileItem.tileEntityReference = null;
+            return;
+        }
+        var tileEntityGroup = settings.FindGroup("TileEntities");
+
+        string tileEntityGuid = tileEntities[0].Item1;
+        TileEntity tileEntity1 = tileEntities[0].Item2;
+        if (tileEntities.Count > 1) {
+            Debug.LogWarning($"{tileItem.name} at {assetPath} has {tileEntities.Count} tile enitites within its folder. Assigned reference to {tileEntity1.name}.");
+        }
+        string tileEntityPath = AssetDatabase.GUIDToAssetPath(tileEntityGuid);
+        var entry = settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(tileEntityPath), tileEntityGroup);
+        entry.SetAddress(tileEntity1.name);
+        entry.labels.Add("tile_entity");
+        tileItem.tileEntityReference = new UnityEngine.AddressableAssets.AssetReference(tileEntityGuid);
     }
 
     void resetAddressables() {

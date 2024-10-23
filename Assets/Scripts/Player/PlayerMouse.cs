@@ -202,7 +202,7 @@ namespace PlayerModule.Mouse {
                 }
                 if (hitableTileMap is TileGridMap tileGridMap) {
                     Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
-                    TileEntity tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
+                    ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
                     if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
                         leftClickableTileEntity.onLeftClick();
                         if (!leftClickableTileEntity.canBreak()) {

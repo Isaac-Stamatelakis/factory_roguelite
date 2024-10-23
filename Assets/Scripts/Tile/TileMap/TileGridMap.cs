@@ -103,7 +103,7 @@ namespace TileMaps {
                 return;
             }
             Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
-            TileEntity tileEntity = getTileEntityAtPosition(position);
+            ITileEntityInstance tileEntity = getTileEntityAtPosition(position);
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
                 partition.breakTileEntity(layer,tilePositionInPartition);
@@ -115,7 +115,7 @@ namespace TileMaps {
             callListeners(position);
         }
 
-        public TileEntity getTileEntityAtPosition(Vector2Int position) {
+        public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = getPartitionAtPosition(position);
             if (partition == null) {
                 return null;
