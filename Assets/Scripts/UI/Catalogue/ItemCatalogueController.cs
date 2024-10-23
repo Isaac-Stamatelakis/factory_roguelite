@@ -57,6 +57,11 @@ namespace UI.JEI
             
         }
 
+        public void showAll() {
+            currentSearch = "";
+            onSearchChange("");
+        }
+
         private void onSearchChange(string search) {
             page = 1;
             queriedItems = ItemRegistry.getInstance().querySlots(search,int.MaxValue);

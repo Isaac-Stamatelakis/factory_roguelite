@@ -84,6 +84,9 @@ namespace Items.Tags {
         }
 
         private static string seralizeRobot(object tagData) {
+            if (tagData == null) {
+                return null;
+            }
             if (tagData is not RobotItemData robotItemData) {
                 logInvalidType(ItemTag.RobotData);
                 return null;

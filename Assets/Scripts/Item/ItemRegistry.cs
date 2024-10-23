@@ -10,6 +10,10 @@ using Conduits.Ports;
 using RecipeModule;
 using Items.Transmutable;
 using System.Linq;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using PlayerModule;
+using UI.JEI;
 
 namespace Items {
     public class ItemRegistry {
@@ -17,12 +21,35 @@ namespace Items {
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
-            ItemObject[] itemObjects = Resources.LoadAll<ItemObject>("");
-            foreach (ItemObject itemObject in itemObjects) {
-                addToDict(itemObject);
+            Addressables.LoadAssetsAsync<ItemObject>("item", null).Completed += OnAssetsLoaded;
+        }
+
+        private void OnAssetsLoaded(AsyncOperationHandle<IList<ItemObject>> handle) {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                IList<ItemObject> loadedAssets = handle.Result;
+
+                foreach (ItemObject asset in loadedAssets)
+                {
+                    addToDict(asset);
+                }
             }
-            Debug.Log("Item registry loaded  " + items.Count + " items");
+            else
+            {
+                Debug.LogError("Failed to load assets from group: " + handle.OperationException);
+            }
+            Addressables.Release(handle);
+            onItemLoaded();
+        }
+
+        private void onItemLoaded() {
             RecipeRegistry.getInstance();
+            PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
+            foreach (PlayerInventory inventory in playerInventories) {
+                inventory.initalize();
+            }
+            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            catalogueControllers.showAll();
         }
 
         private bool addToDict(ItemObject itemObject) {
