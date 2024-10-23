@@ -7,6 +7,7 @@ using Chunks.Systems;
 using Entities.Mobs;
 using System.Threading.Tasks;
 using System.IO;
+using Tiles;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -14,6 +15,7 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        [SerializeField] private DimensionObjects miscObjects;
         private static DimensionManager instance;
         public static DimensionManager Instance {get => instance;}
         public void Awake() {
@@ -84,11 +86,12 @@ namespace Dimensions {
             Debug.LogError($"Player {transform.name} was not in playerDimension Dict");
             return 0;
         }
-        public async void setPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
+        public void setPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
             DimController controller = getDimController(dim);
             ClosedChunkSystem newSystem = null;
             Vector2Int systemPosition = getNextSystemPosition();
             Vector2Int offset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
+
             if (controller is ISingleSystemController singleSystemController) {
                 newSystem = singleSystemController.getActiveSystem();
                 if (newSystem == null) {
@@ -104,6 +107,9 @@ namespace Dimensions {
                 Debug.LogError("Could not switch player system");
                 return;
             }
+
+            newSystem.initalizeMiscObjects(miscObjects);
+
             activeSystems[newSystem] = systemPosition;
             if (playerWorldData.ContainsKey(player)) {
                 ClosedChunkSystem previousSystem = playerWorldData[player].closedChunkSystem;
@@ -124,7 +130,12 @@ namespace Dimensions {
                     }
                 }
             }
-            //await unloadUnusedAssets(newSystem);
+            StartCoroutine(setPlayerSystemCoroutine(newSystem, player,dim,teleportPosition,key));
+        }
+
+        protected IEnumerator setPlayerSystemCoroutine(ClosedChunkSystem newSystem, Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key) {
+            yield return Resources.UnloadUnusedAssets();
+            Debug.Log("Unloaded Unused Assets");
             Vector2Int systemOffset = activeSystems[newSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
             Debug.Log($"{player.name} system set to {newSystem.name}");
             playerWorldData[player].chunkPos = null;
@@ -138,6 +149,8 @@ namespace Dimensions {
             playerPosition.x = tpPosition.x/2f;
             playerPosition.y = tpPosition.y/2f;
             player.transform.position = playerPosition;
+            newSystem.instantCacheChunksNearPlayer();
+            newSystem.playerPartitionUpdate();
         }
         
         protected Vector2Int getNextSystemPosition() {
@@ -174,4 +187,3 @@ namespace Dimensions {
         }
     }
 }
-

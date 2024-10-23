@@ -14,6 +14,7 @@ using Fluids;
 using PlayerModule;
 
 namespace Chunks.Systems {
+    
     /// <summary>
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 
@@ -90,6 +91,15 @@ namespace Chunks.Systems {
             }
             return null;
         }
+
+        public void initalizeMiscObjects(DimensionObjects dimensionObjects) {
+            this.loadedPartitionBoundary = dimensionObjects.loadedPartitionBoundary;
+            dimensionObjects.loadedPartitionBoundary.transform.SetParent(transform,false);
+            loadedPartitionBoundary.reset();
+
+            this.breakIndicator = dimensionObjects.tileBreakIndicator;
+            dimensionObjects.tileBreakIndicator.transform.SetParent(transform,false);
+        }
         
         public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {
             this.dimPositionOffset = offset;
@@ -106,23 +116,10 @@ namespace Chunks.Systems {
             this.coveredArea = coveredArea;
             initLoaders();
 
-            GameObject breakIndicatorObject = new GameObject();
-            breakIndicator = breakIndicatorObject.AddComponent<TileBreakIndicator>();
-            breakIndicator.init(this);
-            breakIndicatorObject.transform.SetParent(transform,false);
-            breakIndicator.name = "TileBreakIndicator";
-            breakIndicator.transform.position = new Vector3(0,0,-1);
-
             CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
-
-            GameObject loadedPartitionBoundaryObject = new GameObject();
-            loadedPartitionBoundaryObject.name = "Boundary";
-            loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
-            loadedPartitionBoundaryObject.transform.SetParent(transform,false);
-            
         }
 
         public virtual void initLoaders() {
@@ -215,6 +212,18 @@ namespace Chunks.Systems {
             chunkPartition.setTileLoaded(true);
             
         }
+
+        public void cacheChunk(Vector2Int chunkPosition) {
+            ILoadedChunk chunk = ChunkIO.getChunkFromJson(chunkPosition, this);
+            addChunk(chunk);
+        }
+
+        public void instantCacheChunksNearPlayer() {
+            List<Vector2Int> unloadedChunksNearPlayer = getUnCachedChunkPositionsNearPlayer();
+            foreach (Vector2Int pos in unloadedChunksNearPlayer) {
+                cacheChunk(pos);
+            }
+        }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.unloadEntities();
             loadedPartitionBoundary.partitionUnloaded(chunkPartition.getRealPosition());
@@ -256,6 +265,18 @@ namespace Chunks.Systems {
         }
 
         
+    }
+
+    [System.Serializable]
+    public struct DimensionObjects {
+        public TileBreakIndicator tileBreakIndicator;
+        public LoadedPartitionBoundary loadedPartitionBoundary;
+
+        public DimensionObjects(TileBreakIndicator tileBreakIndicator, LoadedPartitionBoundary loadedPartitionBoundary)
+        {
+            this.tileBreakIndicator = tileBreakIndicator;
+            this.loadedPartitionBoundary = loadedPartitionBoundary;
+        }
     }
 }
 

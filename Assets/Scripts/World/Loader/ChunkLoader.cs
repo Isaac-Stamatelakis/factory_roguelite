@@ -48,15 +48,10 @@ namespace Chunks.LoadController {
                     activeCoroutines--;
                     continue;
                 }
-                cacheChunk(closestPosition);
+                closedChunkSystem.cacheChunk(closestPosition);
+                activeCoroutines--;
                 yield return new WaitForSeconds(delay);
             }
-        }
-
-        private void cacheChunk(Vector2Int closestPosition) {
-            ILoadedChunk chunk = ChunkIO.getChunkFromJson(closestPosition, closedChunkSystem);
-            closedChunkSystem.addChunk(chunk);
-            activeCoroutines--;
         }
     }
 }

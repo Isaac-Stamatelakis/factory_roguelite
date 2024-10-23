@@ -33,7 +33,6 @@ namespace Dimensions {
             }
         }
         public void OnDestroy() {
-            Debug.Log(systems.Count);
             foreach (SoftLoadedClosedChunkSystem system in systems) {
                 system.save();
             }

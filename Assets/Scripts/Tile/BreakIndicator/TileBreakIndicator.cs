@@ -7,18 +7,10 @@ using UnityEngine.Tilemaps;
 namespace Tiles {
     public class TileBreakIndicator : MonoBehaviour
     {
-        private ClosedChunkSystem closedChunkSystem;
+        [SerializeField] private Tile[] breakTiles;
         private Tilemap tilemap;
-        private TilemapRenderer tilemapRenderer;
-        private Grid grid;
-        private Tile[] breakTiles;
-        public void init(ClosedChunkSystem closedChunkSystem) {
-            this.closedChunkSystem = closedChunkSystem;
-            tilemap = gameObject.AddComponent<Tilemap>();
-            tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
-            grid = gameObject.AddComponent<Grid>();
-            grid.cellSize = new Vector3(0.5f,0.5f,1);
-            breakTiles = Resources.LoadAll<Tile>("Tiles/BreakTiles");
+        public void Start() {
+            tilemap = GetComponent<Tilemap>();
         }
 
 
