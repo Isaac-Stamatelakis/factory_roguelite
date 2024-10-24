@@ -133,17 +133,27 @@ namespace Chunks.Systems {
 
         public virtual void playerPartitionUpdate() {
             List<ILoadedChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
-            List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             Vector2Int playerPartition = getPlayerChunkPartition();
+
+            List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition));
+                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange));
             }
-            partitionLoader.addToQueue(partitionsToLoad);
+            partitionLoader.addToQueue(partitionsToLoad,PartitionQueue.Standard);
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition));
+                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
             }
             partitionUnloader.addToQueue(partitionsToUnload);
+
+            List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
+            foreach (ILoadedChunk chunk in chunksNearPlayer) {
+                partitionsToFarLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(
+                    playerPartition,
+                    Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
+                ));
+            }
+            partitionLoader.addToQueue(partitionsToFarLoad,PartitionQueue.Far);
         }
 
         public List<Vector2Int> getUnCachedChunkPositionsNearPlayer() {
@@ -230,6 +240,7 @@ namespace Chunks.Systems {
             yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
+            chunkPartition.setFarLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
             
         }

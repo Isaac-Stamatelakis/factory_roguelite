@@ -99,6 +99,9 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.unload();
             }
+            if (tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
+                data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.serialize();
+            }
             array[x,y] = null;
             return true;
         }
@@ -262,6 +265,65 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
             SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
             return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
+        }
+
+        public override bool getFarLoaded()
+        {
+            return farLoaded;
+        }
+
+        public override void loadFarLoadTileEntities()
+        {
+            if (tileEntities == null || farLoaded) {
+                return;
+            }
+            farLoaded = true;
+            SeralizedWorldData data = (SeralizedWorldData) getData();
+            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            string[,] tileIds = data.baseData.ids;
+            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    if (tileEntities[x,y] != null) {
+                        continue;
+                    }
+                    string id = data.baseData.ids[x,y];
+                    if (id == null) {
+                        continue;
+                    }
+                    TileItem tileItem = itemRegistry.getTileItem(id);
+                    if (tileItem == null) {
+                        continue;
+                    }
+                    TileEntity tileEntity = tileItem.tileEntity;
+                    if (tileEntity == null || !tileEntity.ExtraLoadRange) {
+                        continue;
+                    }
+                    Debug.Log("Far Loaded " + tileEntity.name);
+                    string tileEntityData = data.baseData.sTileEntityOptions[x,y];
+                    Vector2Int position = this.position * Global.ChunkPartitionSize + new Vector2Int(x,y);
+                    tileEntities[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
+                }
+            }
+        }
+
+        public override void unloadFarLoadTileEntities()
+        {
+            if (tileEntities == null || !farLoaded) {
+                return;
+            }
+            farLoaded = false;
+            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    ITileEntityInstance tileEntityInstance = tileEntities[x,y];
+                    if (tileEntityInstance == null) {
+                        continue;
+                    }
+                    TileEntity tileEntity = tileEntityInstance.GetTileEntity();
+                    if (tileEntity.ExtraLoadRange) {
+                        unloadTileEntity(tileEntities,x,y);
+                    }
+                }
+            }
         }
     }
 }

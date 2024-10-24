@@ -58,8 +58,8 @@ public static class Global
     public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
 
     public static bool ShowSystemParameter => showSystemParameter;
-
     private static Cave currentCave;
+    public static int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
     private static readonly string editorCreationPath = "EditorCreations";
     
     public static GameObject findChild(Transform transform, string childName) {

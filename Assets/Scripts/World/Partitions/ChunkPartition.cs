@@ -15,6 +15,7 @@ namespace Chunks.Partitions {
     public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {
         protected bool loaded;
+        protected bool farLoaded;
         protected bool scheduledForUnloading = false;
         protected Vector2Int position;
         protected T data;
@@ -240,5 +241,13 @@ namespace Chunks.Partitions {
         public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
         public abstract (string[,], string[,], int[,]) getFluidData();
+        public abstract bool getFarLoaded();
+        public abstract void loadFarLoadTileEntities();
+        public abstract void unloadFarLoadTileEntities();
+
+        public void setFarLoaded(bool state)
+        {
+            this.farLoaded = state;
+        }
     }
 }
