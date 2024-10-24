@@ -14,6 +14,11 @@ namespace TileEntityModule.Instances {
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
         private Cave currentCave;
+        public void display(CaveTeleporterInstance tileEntityInstance)
+        {
+            
+        }
+
         public void showCave(Cave cave) {
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(teleportButtonPress);

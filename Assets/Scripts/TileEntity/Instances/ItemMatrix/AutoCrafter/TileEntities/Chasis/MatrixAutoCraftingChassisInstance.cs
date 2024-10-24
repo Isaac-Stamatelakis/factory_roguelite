@@ -4,7 +4,7 @@ using Chunks;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Matrix {
-    public class MatrixAutoCraftingChassisInstance<T> : TileEntityInstance<T>, IMatrixCraftTile, ISoftLoadable, ILoadableTileEntity 
+    public class MatrixAutoCraftingChassisInstance<T> : TileEntityInstance<T>, IMatrixCraftTile, ILoadableTileEntity 
         where T : MatrixAutoCraftingChassis
     {
         protected MatrixAutoCraftingCoreInstance core;

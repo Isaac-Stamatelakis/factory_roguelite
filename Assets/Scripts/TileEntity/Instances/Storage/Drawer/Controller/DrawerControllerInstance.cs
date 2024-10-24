@@ -5,7 +5,6 @@ using Conduits.Ports;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.Storage {
-    [CreateAssetMenu(fileName ="New Drawer Controller",menuName="Tile Entity/Storage/Drawer/Controller")]
     public class DrawerControllerInstance : TileEntityInstance<DrawerController>, ISolidItemConduitInteractable, IMultiBlockTileEntity
     {
         private List<ItemDrawerInstance> drawers;

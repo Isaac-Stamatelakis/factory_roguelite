@@ -30,7 +30,6 @@ namespace WorldModule {
             int maxX = (caveSize.x)/2;
             int minY = -(caveSize.y-1)/2;
             int maxY = (caveSize.y)/2;
-            Debug.Log($"{minX},{maxX},{minY},{maxY}");
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                     saveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);

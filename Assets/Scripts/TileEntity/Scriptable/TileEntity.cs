@@ -7,6 +7,7 @@ using Chunks.Partitions;
 
 namespace TileEntityModule {
     public interface ITileEntityInstance {
+        public TileEntity GetTileEntity();
         public Vector2Int getPositionInChunk();
         public Vector2 getWorldPosition();
         public Vector2Int getCellPosition();
@@ -20,6 +21,7 @@ namespace TileEntityModule {
     }
     public abstract class TileEntity : ScriptableObject
     {
+        public bool SoftLoadable;
         public abstract ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk);
     }
 }

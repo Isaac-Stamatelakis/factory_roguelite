@@ -9,7 +9,6 @@ using Items;
 
 
 namespace TileEntityModule.Instances.Storage {
-    [CreateAssetMenu(fileName ="New Fluid Tank",menuName="Tile Entity/Storage/Fluid/Standard")]
     public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ILoadableTileEntity, IFluidConduitInteractable
     {
         private ItemSlot itemSlot;

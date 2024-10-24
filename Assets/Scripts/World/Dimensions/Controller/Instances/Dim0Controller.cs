@@ -20,6 +20,9 @@ namespace Dimensions {
             base.Awake();
         }
         public void FixedUpdate() {
+            if (dim0System == null) {
+                return;
+            }
             dim0System.tickUpdate();
         }
 
@@ -28,6 +31,7 @@ namespace Dimensions {
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
             dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
             dim0System.softLoad();
+            Debug.Log("Soft loaded Dim0System");
         }
         public ClosedChunkSystem activateSystem(Vector2Int dimOffset)
         {

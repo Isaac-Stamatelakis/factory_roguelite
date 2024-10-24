@@ -8,6 +8,10 @@ using Entities.Mobs;
 using System.Threading.Tasks;
 using System.IO;
 using Tiles;
+using Items;
+using RecipeModule;
+using PlayerModule;
+using UI.JEI;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -25,10 +29,25 @@ namespace Dimensions {
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
         private Dictionary<Transform, PlayerWorldData> playerWorldData = new Dictionary<Transform, PlayerWorldData>(); 
         private Dictionary<ClosedChunkSystem, Vector2Int> activeSystems = new Dictionary<ClosedChunkSystem, Vector2Int>();
+
         public void Start() {
-            softLoadSystems();
+            StartCoroutine(initalLoad());
+        }
+        public IEnumerator initalLoad() {
+            Coroutine itemLoad = StartCoroutine(ItemRegistry.loadItems());
+            yield return itemLoad;
+            RecipeRegistry.getInstance();
+            PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
+            foreach (PlayerInventory inventory in playerInventories) {
+                inventory.initalize();
+            }
+            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            catalogueControllers.showAll();
+            yield return itemLoad;
             string path = Path.Combine(Application.persistentDataPath,WorldManager.getInstance().getWorldPath());
             Debug.Log($"Loading world from path {path}");
+
+            softLoadSystems();
             PlayerIO[] players = GameObject.FindObjectsOfType<PlayerIO>();
             foreach (PlayerIO player in players) {
                 DimController dimController = getDimController(0);
@@ -38,6 +57,7 @@ namespace Dimensions {
                 setPlayerSystem(player.transform,0,Vector2Int.zero);
             }
         }
+    
 
         public abstract void softLoadSystems();
 
@@ -130,12 +150,6 @@ namespace Dimensions {
                     }
                 }
             }
-            StartCoroutine(setPlayerSystemCoroutine(newSystem, player,dim,teleportPosition,key));
-        }
-
-        protected IEnumerator setPlayerSystemCoroutine(ClosedChunkSystem newSystem, Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key) {
-            yield return Resources.UnloadUnusedAssets();
-            Debug.Log("Unloaded Unused Assets");
             Vector2Int systemOffset = activeSystems[newSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
             Debug.Log($"{player.name} system set to {newSystem.name}");
             playerWorldData[player].chunkPos = null;

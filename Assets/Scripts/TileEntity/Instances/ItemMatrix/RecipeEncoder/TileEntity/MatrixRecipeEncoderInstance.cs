@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Chunks;
 
 namespace TileEntityModule.Instances.Matrix {
-    [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Recipe Encoder")]
     public class MatrixRecipeEncoderInstance : TileEntityInstance<MatrixRecipeEncoder>, 
         IRightClickableTileEntity, IMatrixConduitInteractable, ISerializableTileEntity, ILoadableTileEntity
     {

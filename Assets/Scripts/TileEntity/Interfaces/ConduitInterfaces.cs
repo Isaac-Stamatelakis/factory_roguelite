@@ -6,7 +6,7 @@ using TileEntityModule.Instances.Matrix;
 using Conduits.Systems;
 using Conduits.Ports;
 
-public interface IConduitInteractable : ISoftLoadable {
+public interface IConduitInteractable : ISoftLoadableTileEntity {
     public ConduitPortLayout getConduitPortLayout();
 }
 public interface IItemConduitInteractable : IConduitInteractable {

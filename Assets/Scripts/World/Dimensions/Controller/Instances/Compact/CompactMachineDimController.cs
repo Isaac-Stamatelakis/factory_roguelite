@@ -164,6 +164,7 @@ namespace Dimensions {
                     }
                 }
             }
+            Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 
         private class CompactMachineTree {

@@ -4,8 +4,7 @@ using Chunks;
 using UnityEngine;
 
 namespace TileEntityModule.Instances.CompactMachines {
-    [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Teleporter")]
-    public class CompactMachineTeleporterInstance : TileEntityInstance<CompactMachineTeleporter>, IRightClickableTileEntity, ICompactMachineInteractable, ISoftLoadable
+    public class CompactMachineTeleporterInstance : TileEntityInstance<CompactMachineTeleporter>, IRightClickableTileEntity, ICompactMachineInteractable
     {
         private CompactMachineInstance compactMachine;
         public CompactMachineTeleporterInstance(CompactMachineTeleporter tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -36,18 +35,6 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             this.compactMachine = compactMachine;
             compactMachine.Teleporter = this;
-        }
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
         }
     }
 }

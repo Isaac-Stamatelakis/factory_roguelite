@@ -53,15 +53,23 @@ namespace PlayerModule.Mouse {
         {   
             handleInventoryControls();
             if (eventSystem.IsPointerOverGameObject()) {
-            return;
+                return;
+            }
+            bool leftClick = Input.GetMouseButton(0);
+            bool rightClick = Input.GetMouseButton(1);
+            if (!leftClick && !rightClick) {
+                return;
             }
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            if (closedChunkSystem == null) {
+                return;
+            }
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (Input.GetMouseButton(0)) {
+            if (leftClick) {
                 handleLeftClick(mousePosition,systemOffset);
             }
-            if (Input.GetMouseButton(1)) {
+            if (rightClick) {
                 handleRightClick(mousePosition,systemOffset);
             }
             

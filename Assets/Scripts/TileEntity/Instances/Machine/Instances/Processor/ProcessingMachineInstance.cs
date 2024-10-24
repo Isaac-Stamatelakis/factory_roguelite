@@ -12,8 +12,6 @@ using Items.Inventory;
 
 namespace TileEntityModule.Instances.Machines
 {
-    
-    [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
     public class ProcessingMachineInstance : TileEntityInstance<ProcessingMachine>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
     {
         private StandardMachineInventory inventory;

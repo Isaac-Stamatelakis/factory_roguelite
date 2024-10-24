@@ -14,7 +14,8 @@ using Entities;
 namespace WorldModule {
     public static class WorldCreation
     {
-        public static void createWorld(string name) {
+        public static IEnumerator createWorld(string name) {
+            yield return ItemRegistry.loadItems();
             WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
             string path = WorldLoadUtils.getFullWorldPath();
             Directory.CreateDirectory(path);
@@ -135,7 +136,7 @@ namespace WorldModule {
         }
         private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            Debug.Log("Generating SerializedChunkTileData for Base");
+            //Debug.Log("Generating SerializedChunkTileData for Base");
             SerializedBaseTileData data = new SerializedBaseTileData();
             string[,] ids = new string[width,height];
             string[,] sTileEntityOptions = new string[width,height];
@@ -169,7 +170,7 @@ namespace WorldModule {
 
     private static SerializedBackgroundTileData tileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
-        Debug.Log("Generating SerializedBackgroundTileData");
+        //Debug.Log("Generating SerializedBackgroundTileData");
         SerializedBackgroundTileData data = new SerializedBackgroundTileData();
         string[,] ids = new string[width,height];
         if (tilemap != null) {
@@ -238,7 +239,7 @@ namespace WorldModule {
     }
     private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
+            //Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
             string[,] ids = new string[width,height];
             string[,] conduitOptions = new string[width,height];

@@ -21,7 +21,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         {
             this.inventory = new CompactMachinePortInventory(this);
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
-                Debug.LogError("Tried to create compact machine in with dimension manager");
+                Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
             }
             CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();

@@ -239,10 +239,11 @@ namespace Chunks.Systems {
         private void softLoadTileEntities() {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
-                    if (partition is not IConduitTileChunkPartition) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
+                        continue;
                     }
-                    ((IConduitTileChunkPartition) partition).softLoadTileEntities();
+                    conduitTileChunkPartition.softLoadTileEntities();
                 }
             }
         }
@@ -250,10 +251,11 @@ namespace Chunks.Systems {
         private void assembleMultiBlocks() {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
-                    if (partition is not IConduitTileChunkPartition) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
+                        continue;
                     }
-                    ((IConduitTileChunkPartition) partition).assembleMultiBlocks();
+                    conduitTileChunkPartition.assembleMultiBlocks();
                 }
             }
         }

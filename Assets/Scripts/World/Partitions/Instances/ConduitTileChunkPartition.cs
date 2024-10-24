@@ -116,7 +116,7 @@ namespace Chunks.Partitions {
                 }
             }
             return ports;
-        }  
+        }
         private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
@@ -137,11 +137,11 @@ namespace Chunks.Partitions {
             }
         }
         protected ITileEntityInstance placeSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
-            
-            if (tileItem.tileEntity is not ISoftLoadable) {
+            if (!tileItem.tileEntity.SoftLoadable) {
                 return null;
             }
-            return placeTileEntity(tileItem,options,positionInPartition,false);
+            Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
+            return TileEntityHelper.placeTileEntity(tileItem,position,parent,false);
         }
         protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y)
         {
@@ -390,7 +390,7 @@ namespace Chunks.Partitions {
         public void activate(ILoadedChunk loadedChunk)
         {
             this.parent = loadedChunk;
-            foreach (CompactMachineInstance tileEntity in tileEntities) {
+            foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null) {
                     continue;
                 }
@@ -400,7 +400,7 @@ namespace Chunks.Partitions {
 
         public void syncToCompactMachine(CompactMachineInstance compactMachine)
         {
-            foreach (TileEntity tileEntity in tileEntities) {
+            foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null) {
                     continue;
                 }
@@ -413,7 +413,7 @@ namespace Chunks.Partitions {
 
         public void assembleMultiBlocks()
         {
-            foreach (TileEntity tileEntity in tileEntities) {
+            foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {
                     continue;
                 }

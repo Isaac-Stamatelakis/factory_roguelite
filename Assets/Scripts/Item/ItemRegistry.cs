@@ -14,6 +14,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
+using Dimensions;
 
 namespace Items {
     public class ItemRegistry {
@@ -21,38 +22,32 @@ namespace Items {
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
-            Addressables.LoadAssetsAsync<ItemObject>("item", null).Completed += OnAssetsLoaded;
         }
 
-        private void OnAssetsLoaded(AsyncOperationHandle<IList<ItemObject>> handle) {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
+        public static IEnumerator loadItems() {
+            if (instance != null) {
+                yield break;
+            }
+            instance = new ItemRegistry();
+            
+            var handle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
+            yield return handle;
+            if (handle.Status == AsyncOperationStatus.Succeeded) {
                 IList<ItemObject> loadedAssets = handle.Result;
-
                 foreach (ItemObject asset in loadedAssets)
                 {
                     addToDict(asset);
                 }
             }
-            else
-            {
+            else {
                 Debug.LogError("Failed to load assets from group: " + handle.OperationException);
             }
-            //Addressables.Release(handle);
-            onItemLoaded();
+            Addressables.Release(handle);
+            Debug.Log($"Loaded {items.Count} Items");
+            yield return null;
         }
 
-        private void onItemLoaded() {
-            RecipeRegistry.getInstance();
-            PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
-            foreach (PlayerInventory inventory in playerInventories) {
-                inventory.initalize();
-            }
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.showAll();
-        }
-
-        private bool addToDict(ItemObject itemObject) {
+        private static bool addToDict(ItemObject itemObject) {
             if (!items.ContainsKey(itemObject.id)) {
                 items[itemObject.id] = itemObject;
                 return true;
@@ -64,7 +59,8 @@ namespace Items {
         }
         public static ItemRegistry getInstance() {
             if (instance == null) {
-                instance = new ItemRegistry();
+                Debug.LogError("Accessed unitalized item registry");
+                return null;
             }
             return instance;
         }

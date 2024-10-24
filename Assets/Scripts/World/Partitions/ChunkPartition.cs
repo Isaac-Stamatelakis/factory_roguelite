@@ -181,11 +181,11 @@ namespace Chunks.Partitions {
                 return;
             }
             ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
-            if (tileEntity is IBreakActionTileEntity) {
-                ((IBreakActionTileEntity) tileEntity).onBreak();
+            if (tileEntity is IBreakActionTileEntity breakActionTileEntity) {
+                breakActionTileEntity.onBreak();
             }
-            if (tileEntity is ILoadableTileEntity) {
-                ((ILoadableTileEntity) tileEntity).unload();
+            if (tileEntity is ILoadableTileEntity loadableTileEntity) {
+                loadableTileEntity.unload();
             }
             
             tileEntities[position.x,position.y] = null;
@@ -201,8 +201,8 @@ namespace Chunks.Partitions {
             if (tileEntity == null) {
                 return false;
             }
-            if (tileEntity is IRightClickableTileEntity) {
-                ((IRightClickableTileEntity) tileEntity).onRightClick();
+            if (tileEntity is IRightClickableTileEntity rightClickableTileEntity) {
+                rightClickableTileEntity.onRightClick();
                 return true;
             }
             return false;

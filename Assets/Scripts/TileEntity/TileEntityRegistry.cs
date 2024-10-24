@@ -46,7 +46,7 @@ namespace TileEntityModule {
                 case LoadType.Hard:
                     break;
                 case LoadType.Soft:
-                    if (tileEntity is ISoftLoadable) {
+                    if (tileEntity.SoftLoadable) {
                         return;
                     }
                     break;

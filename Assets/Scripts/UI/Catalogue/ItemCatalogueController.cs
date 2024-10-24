@@ -53,8 +53,6 @@ namespace UI.JEI
 
             pageDisplay = Global.findChild(transform,"PageCounter").GetComponent<TextMeshProUGUI>();
             resultContainer = Global.findChild(transform,"Results").transform;
-            onSearchChange("");
-            
         }
 
         public void showAll() {

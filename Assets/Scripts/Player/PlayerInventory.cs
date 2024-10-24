@@ -170,6 +170,9 @@ namespace PlayerModule {
         }
 
         public string getSelectedId() {
+            if (inventory == null) {
+                return null;
+            }
             if (inventory[selectedSlot] == null || inventory[selectedSlot].itemObject == null) {
                 return null;
             }

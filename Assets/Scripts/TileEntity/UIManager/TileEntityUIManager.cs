@@ -8,9 +8,17 @@ namespace TileEntityModule {
     [System.Serializable]
     public class TileEntityUIManager
     {
+        private bool loading;
+        public bool Loading => loading;
+        public bool Loaded => uiElementPrefab != null;
         public AssetReference AssetReference;
         private GameObject uiElementPrefab;
         public void loadUIIntoMemory() {
+            if (AssetReference == null) {
+                return;
+            }
+            Debug.Log($"Loading {AssetReference}");
+            this.loading = true;
             AsyncOperationHandle<GameObject> handle = AssetReference.LoadAssetAsync<GameObject>();
             handle.Completed += onLoad;
         }
@@ -23,6 +31,7 @@ namespace TileEntityModule {
             {
                 Debug.LogError("Failed to load asset: " + handle.Status);
             }
+            loading = false;
         }
         public void unloadUIFromMemory() {
             if (uiElementPrefab == null) {

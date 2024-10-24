@@ -33,6 +33,9 @@ namespace PlayerModule {
         }
 
         public void FixedUpdate() {
+            if (currentRobot == null) {
+                return;
+            }
             if (EventSystem.current.currentSelectedGameObject != null) {
                 return;
             }

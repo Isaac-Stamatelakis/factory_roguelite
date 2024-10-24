@@ -65,6 +65,15 @@ namespace TileEntityModule {
         {
             return tileEntity.name;
         }
+
+        public TileEntity GetTileEntity()
+        {
+            return tileEntity;
+        }
+
+        public bool SoftLoadable() {
+            return tileEntity.SoftLoadable;
+        }
     }
 
     public class StandardTileEntityInstance : TileEntityInstance<TileEntity>

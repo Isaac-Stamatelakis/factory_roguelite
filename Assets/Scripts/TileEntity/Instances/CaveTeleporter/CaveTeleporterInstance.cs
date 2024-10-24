@@ -12,9 +12,7 @@ namespace TileEntityModule.Instances {
 
         public void onRightClick()
         {
-            GameObject prefab = tileEntity.uIManager.getUIElement();
-            GameObject instantiated = GameObject.Instantiate(prefab);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiated);
+            tileEntity.uIManager.display<CaveTeleporterInstance,CaveTeleporterUIController>(this);
         }
     }
 }

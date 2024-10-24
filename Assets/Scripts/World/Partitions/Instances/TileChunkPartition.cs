@@ -92,11 +92,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
 
         protected virtual bool unloadTileEntity(ITileEntityInstance[,] array, int x, int y) {
-            ITileEntityInstance tileEntity = array[x,y];
-            if (tileEntity is ISoftLoadable) {
+            ITileEntityInstance tileEntityInstance = array[x,y];
+            if (tileEntityInstance == null || tileEntityInstance.GetTileEntity().SoftLoadable) {
                 return false;
             }
-            if (tileEntity is ILoadableTileEntity loadableTileEntity) {
+            if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.unload();
             }
             array[x,y] = null;
@@ -198,25 +198,16 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
 
         protected virtual void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y) {
+            
             ITileEntityInstance tileEntityInstance = tileEntityArray[x,y];
             if (tileEntityInstance != null) {
                 if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
                     loadableTileEntity.load();
                 }
+                return;
             }
-            tileEntityArray[x,y] = placeTileEntity(tileItem,options,positionInPartition,true);
-        }
-
-        protected ITileEntityInstance placeTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition, bool load) {
-            Vector2Int position = this.position * Global.ChunkPartitionSize+ positionInPartition;
-            ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(position,tileItem,parent);
-            if (tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
-                serializableTileEntity.unserialize(options);
-            }
-            if (load && tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                loadableTileEntity.load();
-            }
-            return tileEntityInstance;
+            Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
+            tileEntityArray[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,options);
         }
 
         public override TileItem GetTileItem(Vector2Int position, TileMapLayer layer)
