@@ -16,7 +16,6 @@ using System.IO;
             WorldGenerationFactory.saveToJson(
                 worldTileData,
                 Global.CurrentCave.getChunkCaveSize(),
-                Global.CurrentCave.getChunkCoveredArea(),
                 -1,
                 WorldLoadUtils.getDimPath(-1)
             );

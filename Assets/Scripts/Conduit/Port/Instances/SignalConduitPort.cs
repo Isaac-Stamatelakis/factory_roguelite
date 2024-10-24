@@ -38,7 +38,7 @@ namespace Conduits.Ports {
             this.enabled = val;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
                 return;
@@ -79,7 +79,7 @@ namespace Conduits.Ports {
             this.enabled = val;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
                 return;

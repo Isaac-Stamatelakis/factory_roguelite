@@ -11,7 +11,7 @@ namespace Conduits.Systems {
             ConduitType conduitType, 
             IConduit[,] conduits,
             Vector2Int size,
-            Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts,
+            Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts,
             Vector2Int referencePosition
         ) {
             bool isPort = conduitType == ConduitType.Item || conduitType == ConduitType.Fluid || conduitType == ConduitType.Energy || conduitType == ConduitType.Signal;

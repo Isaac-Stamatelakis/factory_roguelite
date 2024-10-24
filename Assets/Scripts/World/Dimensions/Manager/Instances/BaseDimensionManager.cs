@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 
 namespace Dimensions {
     public enum Dimension {
@@ -13,7 +13,6 @@ namespace Dimensions {
     }
     public class BaseDimensionManager : DimensionManager, ICompactMachineDimManager
     {
-        
         [SerializeField] public Dim0Controller overworldDimController;
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
@@ -40,6 +39,12 @@ namespace Dimensions {
 
         public CompactMachineDimController GetCompactMachineDimController() {
             return compactMachineDimController;
+        }
+
+        public override void softLoadSystems()
+        {
+            overworldDimController.softLoadSystem();
+            compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);
         }
     }
 }

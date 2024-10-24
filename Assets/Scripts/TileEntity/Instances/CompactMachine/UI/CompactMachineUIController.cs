@@ -12,7 +12,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         [SerializeField] public Button teleportButton;
         [SerializeField] public Button toggleButton;
         [SerializeField] public TMP_InputField nameTextField;
-        private CompactMachine compactMachine;
+        private CompactMachineInstance compactMachine;
 
         public void Start() {
             toggleButton.onClick.AddListener(toggle);
@@ -25,7 +25,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         }
         
-        public void display(CompactMachine compactMachine) {
+        public void display(CompactMachineInstance compactMachine) {
             this.compactMachine = compactMachine;
         }
 

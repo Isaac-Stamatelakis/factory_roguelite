@@ -11,9 +11,8 @@ namespace TileEntityModule.Instances.Matrix {
     {
         [SerializeField] private GridLayoutGroup inventoryList;
         [SerializeField] private TagRestrictedInventoryUI tagRestrictedInventoryUI;
-        private MatrixDrive matrixDrive;
-
-        public void init(int rows, int columns, List<ItemSlot> inventory, MatrixDrive matrixDrive) {
+        private MatrixDriveInstance matrixDrive;
+        public void init(int rows, int columns, List<ItemSlot> inventory, MatrixDriveInstance matrixDrive) {
             this.matrixDrive = matrixDrive;
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < columns; x++) {

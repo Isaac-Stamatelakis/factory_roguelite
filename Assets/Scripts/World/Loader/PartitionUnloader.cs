@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks.Partitions;
 
 namespace Chunks.LoadController {
@@ -31,7 +31,7 @@ namespace Chunks.LoadController {
 
         public void addToQueue(List<IChunkPartition> partitionsToUnload) {
             activeCoroutines += partitionsToUnload.Count;
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
+            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunkPartition();
             // Sort by distance from player
             partitionsToUnload.Sort((a, b) => a.distanceFrom(playerChunkPosition).CompareTo(b.distanceFrom(playerChunkPosition))); 
 
@@ -73,14 +73,6 @@ namespace Chunks.LoadController {
                     unloadAmount --;
                 }
                 yield return new WaitForEndOfFrame();
-                /*
-                if (unloadQueue.Count >= rapidDeleteThreshold) { // Instant removal after threshhold reached
-                    yield return new WaitForEndOfFrame();
-                } else {
-                    yield return new WaitForSeconds(this.delay);
-                }
-                */
-                
             }
         }
     }

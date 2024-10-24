@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Dimensions;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks;
 using WorldModule;
 using Chunks.IO;
@@ -28,7 +28,7 @@ namespace DevTools.Structures {
             if (system == null) {
                 string path = WorldLoadUtils.getDimPath(0);
                 List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
-                system = new SoftLoadedClosedChunkSystem(unloadedChunks);
+                system = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
                 system.softLoad();
             }
             GameObject closedChunkSystemObject = new GameObject();

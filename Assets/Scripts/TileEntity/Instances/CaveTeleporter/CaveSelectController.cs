@@ -14,6 +14,11 @@ namespace TileEntityModule.Instances {
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
         private Cave currentCave;
+        public void display(CaveTeleporterInstance tileEntityInstance)
+        {
+            
+        }
+
         public void showCave(Cave cave) {
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(teleportButtonPress);
@@ -29,7 +34,7 @@ namespace TileEntityModule.Instances {
             teleportButton.gameObject.SetActive(false);
         }
 
-        private async void teleportButtonPress() {
+        private void teleportButtonPress() {
             if (currentCave == null) {
                 Debug.LogError("Tried to teleport to null cave");
                 return;

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 
 namespace Chunks.LoadController {
     public class ChunkUnloader : MonoBehaviour

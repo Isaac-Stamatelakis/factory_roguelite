@@ -1,1 +1,0 @@
-Any item objects placed inside this folder will be loaded into the item registry

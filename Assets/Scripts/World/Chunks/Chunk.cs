@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Chunks.IO;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks.Partitions;
 using TileMaps;
 using TileMaps.Type;
@@ -15,8 +15,8 @@ using Newtonsoft.Json;
 
 namespace Chunks {
     public interface ILoadedChunk : IChunk {
-        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target);
-        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target);
+        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range);
+        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target, Vector2Int range);
         public bool partionsAreAllUnloaded();
         /// <summary>
         /// Deletes all chunk partitions
@@ -141,11 +141,21 @@ namespace Chunks {
             return this.partitions;
         }
 
-        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target)
+        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range)
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (!partition.getLoaded() && partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                if (!partition.getLoaded() && partition.inRange(target,range.x,range.y)) {
+                    close.Add(partition);
+                } 
+            }
+            return close;
+        }
+        public List<IChunkPartition> getFarUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range)
+        {
+            List<IChunkPartition> close = new List<IChunkPartition>();
+            foreach (IChunkPartition partition in partitions) {
+                if (!partition.getFarLoaded() && partition.inRange(target,range.x,range.y)) {
                     close.Add(partition);
                 } 
             }
@@ -162,11 +172,22 @@ namespace Chunks {
             return this.chunkLoaded;
         }
 
-        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target)
+        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target, Vector2Int range)
         {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (partition.getLoaded() && !partition.inRange(target,Global.ChunkPartitionLoadRange.x,Global.ChunkPartitionLoadRange.y)) {
+                if (partition.getLoaded() && !partition.inRange(target,range.x,range.y)) {
+                    far.Add(partition);
+                } 
+            }
+            return far;
+        }
+
+        public List<IChunkPartition> getFarLoadedPartitionsFar(Vector2Int target, Vector2Int range)
+        {
+            List<IChunkPartition> far = new List<IChunkPartition>();
+            foreach (IChunkPartition partition in partitions) {
+                if (partition.getFarLoaded() && !partition.inRange(target,range.x,range.y)) {
                     far.Add(partition);
                 } 
             }

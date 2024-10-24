@@ -6,11 +6,29 @@ using Chunks.Partitions;
 using Tiles;
 using TileMaps.Type;
 using UnityEngine.Tilemaps;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Entities;
 
 namespace TileEntityModule {
     public static class TileEntityHelper {
+
+        public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, string data = null) {
+            ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
+            if (load && tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
+                loadableTileEntity.load();
+            }
+            if (load && tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
+                TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
+                if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
+                    tileEntityUIManager.loadUIIntoMemory();
+                }
+            }
+            if (unserialize && tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
+                serializableTileEntity.unserialize(data);
+            }
+
+            return tileEntityInstance;
+        }
         public static void setParentOfSpawnedObject(GameObject spawned, ILoadedChunk loadedChunk) {
             spawned.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
         }
@@ -25,7 +43,7 @@ namespace TileEntityModule {
                 );
             }
         }
-        public static void stateIterate(ITileEntity tileEntity, int iterationAmount) {
+        public static void stateIterate(ITileEntityInstance tileEntity, int iterationAmount) {
             TileBase tile = tileEntity.getTile();
             IChunk chunk = tileEntity.getChunk();
             if (tile is not ITypeSwitchType switchType) {
@@ -63,7 +81,7 @@ namespace TileEntityModule {
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
 
-        public static void stateSwitch(ITileEntity tileEntity, int state) {
+        public static void stateSwitch(ITileEntityInstance tileEntity, int state) {
             TileBase tile = tileEntity.getTile();
             IChunk chunk = tileEntity.getChunk();
             if (tile is not ITypeSwitchType switchType) {
@@ -99,7 +117,7 @@ namespace TileEntityModule {
         /// <summary>
         /// Returns the tileEntity at offset position relative to tileEntity position
         /// </summary>
-        public static TileEntity getAdjacentTileEntity(TileEntity tileEntity, Vector2Int offset) {
+        public static ITileEntityInstance getAdjacentTileEntity(ITileEntityInstance tileEntity, Vector2Int offset) {
             
             IChunk chunk = tileEntity.getChunk();
             Vector2Int offsetCellPosition = tileEntity.getCellPosition()+offset;
@@ -132,7 +150,7 @@ namespace TileEntityModule {
             
         }
 
-        public static void dfsTileEntity<T>(TileEntity tileEntity, HashSet<T> visited) {
+        public static void dfsTileEntity<T>(ITileEntityInstance tileEntity, HashSet<T> visited) {
             if (tileEntity == null || tileEntity is not T typedTileEntity) {
                 return;
             }
@@ -147,7 +165,7 @@ namespace TileEntityModule {
             dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
         }
 
-        public static void dfsTileEntity<T>(TileEntity tileEntity, List<T> visited) {
+        public static void dfsTileEntity<T>(ITileEntityInstance tileEntity, List<T> visited) {
             if (tileEntity == null || tileEntity is not T typedTileEntity) {
                 return;
             }

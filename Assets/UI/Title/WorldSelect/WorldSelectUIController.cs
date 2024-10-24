@@ -53,12 +53,18 @@ namespace UI.Title {
         }
         
         private void slotPressed(int n) {
-            string name = "world" + n;
-            if (!WorldLoadUtils.defaultWorldExists(name)) {
-                WorldCreation.createWorld(name);
+            string worldName = "world" + n;
+            if (!WorldLoadUtils.defaultWorldExists(worldName)) {
+                StartCoroutine(createAndLoadWorld(worldName));
                  //slotButtons[n].name = "Slot " + n;
+            } else {
+                OpenWorld.loadWorld(worldName);
             }
-            OpenWorld.loadWorld(name);
+        }
+
+        private IEnumerator createAndLoadWorld(string worldName) {
+            yield return StartCoroutine(WorldCreation.createWorld(worldName));
+            OpenWorld.loadWorld(worldName);
         }
 
         private void editPressed(int n) {

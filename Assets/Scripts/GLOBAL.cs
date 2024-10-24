@@ -47,7 +47,7 @@ public static class Global
     public static float ChunkOffset {get {return chunkOffset;}}
     private static float tileItemEntityScalar = 0.5f;
     private static int maxSize = 999;
-    private static readonly bool showSystemParameter = true;
+    private static readonly bool showSystemParameter = false;
     public static int MaxSize {get{return maxSize;}}
     public static float TileItemEntityScalar {get {return tileItemEntityScalar;}}
 
@@ -58,8 +58,8 @@ public static class Global
     public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
 
     public static bool ShowSystemParameter => showSystemParameter;
-
     private static Cave currentCave;
+    public static int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
     private static readonly string editorCreationPath = "EditorCreations";
     
     public static GameObject findChild(Transform transform, string childName) {
@@ -127,8 +127,6 @@ public static class Global
     public static Vector2Int getCellPositionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
     }
-
-
 }
 
 public struct Dim2Bounds {

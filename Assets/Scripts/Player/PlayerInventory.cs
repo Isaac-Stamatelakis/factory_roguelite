@@ -12,8 +12,6 @@ using UnityEngine.UI;
 using Entities;
 
 namespace PlayerModule {
-
-
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
         [SerializeField] private PlayerRobot playerRobot;
@@ -36,10 +34,9 @@ namespace PlayerModule {
         void Start()
         {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
-            initInventory();
         }
 
-        private void initInventory() {
+        public void initalize() {
             GetComponent<PlayerIO>().initRead();
             inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
             playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
@@ -173,6 +170,9 @@ namespace PlayerModule {
         }
 
         public string getSelectedId() {
+            if (inventory == null) {
+                return null;
+            }
             if (inventory[selectedSlot] == null || inventory[selectedSlot].itemObject == null) {
                 return null;
             }

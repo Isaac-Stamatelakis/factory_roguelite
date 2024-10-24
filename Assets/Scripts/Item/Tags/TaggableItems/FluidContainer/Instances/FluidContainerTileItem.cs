@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Storage;
+using TileEntityModule;
 
 namespace Items.Tags.FluidContainers {
     [CreateAssetMenu(fileName ="I~New Fluid Container Tile Item",menuName="Item/Tagged Items/Fluid Container/Tile Item")]
@@ -25,7 +26,7 @@ namespace Items.Tags.FluidContainers {
                 Debug.LogError("Cannot get storage from FluidContainerTileItem " + name + " as tileEntity is not FluidTank");
                 return 0;
             }
-            return fluidTank.getStorage();
+            return fluidTank.Tier.getFluidStorage();
         }
 
         public List<ItemTag> getTags()

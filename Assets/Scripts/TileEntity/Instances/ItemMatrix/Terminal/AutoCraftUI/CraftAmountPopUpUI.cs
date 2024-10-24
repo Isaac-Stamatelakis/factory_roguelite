@@ -18,7 +18,7 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private Button continueButton;
         [SerializeField] private TMP_InputField amountTextField;
 
-        public void init(ItemMatrixController controller, ItemSlot toCraft, EncodedRecipe encodedRecipe) {
+        public void init(ItemMatrixControllerInstance controller, ItemSlot toCraft, EncodedRecipe encodedRecipe) {
             amountTextField.text = "1";
             ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(toCraft,itemContainer,null);
             AmountIteratorUI amountIteratorUI = AmountIteratorUI.newInstance();

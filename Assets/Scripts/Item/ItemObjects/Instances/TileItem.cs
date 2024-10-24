@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using TileEntityModule;
 using TileMaps.Type;
 using Tiles;
+using UnityEngine.AddressableAssets;
 using Items;
 
 public enum TileType {
@@ -55,6 +56,7 @@ public class TileItem : ItemObject, IPlacableItem
     public TileBase tile;
     public TileEntity tileEntity;
     public TileOptions tileOptions;
+    public AssetReference tileEntityReference;
     public override ItemDisplayType? getDisplayType()
     {
         if (tile is StandardTile standardTile) {

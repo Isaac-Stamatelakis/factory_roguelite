@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileMaps.Type;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     public class TileClosedChunkSystem : ChunkLoadingClosedChunkSystem
     {
         public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {

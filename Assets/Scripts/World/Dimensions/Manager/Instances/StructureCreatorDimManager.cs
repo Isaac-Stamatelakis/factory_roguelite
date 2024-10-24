@@ -13,6 +13,11 @@ namespace DevTools.Structures {
             return dimController;
         }
 
+        public override void softLoadSystems()
+        {
+            
+        }
+
         /*
         public override async void Start()
         {

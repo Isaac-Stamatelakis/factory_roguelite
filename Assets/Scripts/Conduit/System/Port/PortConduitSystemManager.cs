@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class PortConduitSystemManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystem
     {
-        public PortConduitSystemManager(ConduitType conduitType, IPortConduit[,] conduits, Vector2Int size, Dictionary<TileEntity, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public PortConduitSystemManager(ConduitType conduitType, IPortConduit[,] conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
         {
 
         }
@@ -42,7 +42,7 @@ namespace Conduits.Systems {
             // No action
         }
 
-        public override void onTileEntityAdd(IPortConduit conduit, TileEntity tileEntity,TileEntityPort port)
+        public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
             conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
             conduit.getConduitSystem().rebuild();

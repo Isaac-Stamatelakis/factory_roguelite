@@ -2,26 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WorldModule;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
 
 namespace Dimensions {
-    public class Dim0Controller : DimController, ISingleSystemController
+    public interface ISoftLoadableDimension {
+        public void softLoadSystem();
+        public SoftLoadedClosedChunkSystem getSystem();
+    }
+    public class Dim0Controller : DimController, ISingleSystemController, ISoftLoadableDimension
     {
         private SoftLoadedClosedChunkSystem dim0System;
         private ConduitTileClosedChunkSystem mainArea;
+        public override void Awake() {
+            base.Awake();
+        }
         public void FixedUpdate() {
+            if (dim0System == null) {
+                return;
+            }
             dim0System.tickUpdate();
+        }
+
+        public void softLoadSystem() {
+            string path = WorldLoadUtils.getDimPath(0);
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
+            dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
+            dim0System.softLoad();
+            Debug.Log("Soft loaded Dim0System");
         }
         public ClosedChunkSystem activateSystem(Vector2Int dimOffset)
         {
             if (dim0System == null) {
-                string path = WorldLoadUtils.getDimPath(0);
-                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
-                dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks);
-                dim0System.softLoad();
+                softLoadSystem();
             }
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.getDim0Bounds();
@@ -52,6 +67,11 @@ namespace Dimensions {
         public ClosedChunkSystem getActiveSystem()
         {
             return mainArea;
+        }
+
+        public SoftLoadedClosedChunkSystem getSystem()
+        {
+            return dim0System;
         }
     }
 }

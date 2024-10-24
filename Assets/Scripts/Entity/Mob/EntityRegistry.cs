@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.IO;
 using Newtonsoft.Json;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks;
 using System.Threading.Tasks;
 using System.Linq;

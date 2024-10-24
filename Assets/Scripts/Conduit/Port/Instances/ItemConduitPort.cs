@@ -93,7 +93,7 @@ namespace Conduits.Ports {
             return tileEntity;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not Interactable interactable) {
                 return;
@@ -185,7 +185,7 @@ namespace Conduits.Ports {
             return tileEntity;
         }
 
-        public void setTileEntity(TileEntity tileEntity)
+        public void setTileEntity(ITileEntityInstance tileEntity)
         {
             if (tileEntity is not Interactable interactable) {
                 return;

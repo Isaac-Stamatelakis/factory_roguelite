@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     /// <summary>
     /// Creates a boundary around loaded partitions which prevents entities and players from passing through
     /// </summary>
     public class LoadedPartitionBoundary : MonoBehaviour
     {
         private Tilemap mTileMap;
-        private TileBase tile;
+        [SerializeField] private TileBase tile;
         List<Vector3Int> directions;
         private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>();
         public void Start() {
@@ -24,7 +24,6 @@ namespace Chunks.ClosedChunkSystemModule {
             Grid grid = gameObject.AddComponent<Grid>();
             int realPartitionSize = Global.ChunkPartitionSize/2;
             grid.cellSize = new Vector3(realPartitionSize,realPartitionSize,1);
-            tile = Resources.Load<Tile>("Tiles/Boundary/T~Boundary");
             directions = new List<Vector3Int>{
                 Vector3Int.down,
                 Vector3Int.left,
@@ -77,7 +76,11 @@ namespace Chunks.ClosedChunkSystemModule {
             if (!hasAdjacentPartition(position)) {
                 mTileMap.SetTile(position,null); 
             }
-            
+        }
+
+        public void reset() {
+            partitions.Clear();
+            mTileMap.ClearAllTiles();
         }
         
     }

@@ -7,7 +7,7 @@ using System;
 using TileMaps.Layer;
 using TileMaps.Type;
 using TileMaps.Conduit;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks.Partitions;
 using Conduits;
 using Conduits.Ports;
@@ -191,6 +191,10 @@ namespace TileMaps.Place {
             }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
+                bool placeable = state != -1;
+                if (!placeable) {
+                    return;
+                }
             }
             Vector2Int offset = closedChunkSystem.DimPositionOffset;
             Vector2 offsetWorld = new Vector2(offset.x/2f,offset.y/2f);
@@ -204,33 +208,7 @@ namespace TileMaps.Place {
             }
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (tileItem.tileEntity != null) {
-                Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
-                Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
-                Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
-                Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
-                ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
-                if (chunk == null) {
-                    Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
-                    return;
-                }
-                IChunkPartition partition = chunk.getPartition(partitionPosition);
-                if (partition == null) {
-                    Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
-                    return;
-                }
-                TileEntity tileEntity = presetTileEntity;
-                if (tileEntity == null) {
-                    tileEntity = GameObject.Instantiate(tileItem.tileEntity);
-                    tileEntity.initalize(positionInChunk, tileItem.tile, chunk);
-                } 
-                TileMapLayer layer = tileMap.getType().toLayer();
-                partition.addTileEntity(layer,tileEntity,positionInPartition);
-                if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                    if (tileEntity is IConduitInteractable) {
-                        conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntity);
-                    }
-                }
+                placeTileEntity(tileItem,closedChunkSystem,tileMap,offsetPosition);
             }
             if (tileMap is not TileGridMap tileGridMap) {
                 return;
@@ -239,12 +217,46 @@ namespace TileMaps.Place {
             
         }
 
+        public static void placeTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,ITileMap tileMap, Vector2 offsetPosition) {
+            Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
+            Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
+            Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
+            Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
+            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            if (chunk == null) {
+                Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
+                return;
+            }
+            IChunkPartition partition = chunk.getPartition(partitionPosition);
+            if (partition == null) {
+                Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
+                return;
+            }
+            
+            // TODO change to registry
+            TileEntity tileEntity = tileItem.tileEntity;
+            if (tileEntity == null) {
+                return;
+            }
+            ITileEntityInstance tileEntityInstance = TileEntityHelper.placeTileEntity(tileItem,positionInChunk,chunk,true);
+            TileMapLayer layer = tileMap.getType().toLayer();
+            partition.addTileEntity(layer,tileEntityInstance,positionInPartition);
+            if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
+                if (tileEntity is IConduitInteractable) {
+                    conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
+                }
+            }
+        }
+
+        
+
         private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.getConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
-            TileEntity tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
+            ITileEntityInstance tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
             IConduit conduit = ConduitFactory.create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
             conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
 
@@ -277,19 +289,36 @@ namespace TileMaps.Place {
             return new UnityEngine.Vector2Int(snap(x), snap(y));
         }
 
-        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer) {
+        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer, bool requireFlat = true) {
             float centeredX = (float)Math.Floor(position.x / 0.5f) * 0.5f + 0.25f;
             float centeredY = (float)Math.Floor(position.y / 0.5f) * 0.5f + 0.25f;
             Vector2 centered = new Vector2(centeredX,centeredY);
             switch (direction) {
                 case Direction.Down:
-                    return raycastTileInBox(centered+Vector2.down*0.5f,layer.toRaycastLayers());
+                    if (requireFlat) {
+                        return raycastTileInLine(Direction.Down,centered,layer.toRaycastLayers());
+                    } else {
+                        return raycastTileInBox(centered+Vector2.down*0.5f,layer.toRaycastLayers());
+                    }
+                    
                 case Direction.Up:
-                    return raycastTileInBox(centered+Vector2.up*0.5f,layer.toRaycastLayers());
+                    if (requireFlat) {
+                        return raycastTileInLine(Direction.Up,centered,layer.toRaycastLayers());
+                    } else {
+                        return raycastTileInBox(centered+Vector2.up*0.5f,layer.toRaycastLayers());
+                    }
                 case Direction.Left:
-                    return raycastTileInBox(centered+Vector2.left*0.5f,layer.toRaycastLayers());
+                    if (requireFlat) {
+                        return raycastTileInLine(Direction.Left,centered,layer.toRaycastLayers());
+                    } else {
+                        return raycastTileInBox(centered+Vector2.left*0.5f,layer.toRaycastLayers());
+                    }  
                 case Direction.Right:
-                    return raycastTileInBox(centered+Vector2.right*0.5f,layer.toRaycastLayers());
+                    if (requireFlat) {
+                        return raycastTileInLine(Direction.Right,centered,layer.toRaycastLayers());
+                    } else {
+                        return raycastTileInBox(centered+Vector2.right*0.5f,layer.toRaycastLayers());
+                    }  
                 case Direction.Center:
                     return raycastTileInBox(centered,layer.toRaycastLayers());  
             }
@@ -324,6 +353,24 @@ namespace TileMaps.Place {
         /// </summary>
         private static bool raycastTileInBox(Vector2 position, int layers) {
             return Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+        }
+
+        public static bool raycastTileInLine(Direction direction, Vector2 position, int layers) {
+            float width = 0.48f;
+            float directionDif = 0.24f;
+            float directionSize = width/8f; // Direciton size is about 2 pixels
+            switch (direction) {
+                case Direction.Left:
+                    return Physics2D.BoxCast(position+Vector2.left*directionDif,new Vector2(directionSize,width),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+                case Direction.Right:
+                    return Physics2D.BoxCast(position+Vector2.right*directionDif,new Vector2(directionSize,width),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+                case Direction.Up:
+                    return Physics2D.BoxCast(position+Vector2.up*directionDif,new Vector2(width,directionSize),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+                case Direction.Down:
+                    return Physics2D.BoxCast(position+Vector2.down*directionDif,new Vector2(width,directionSize),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+                
+            }
+            return false;
         }
 
 

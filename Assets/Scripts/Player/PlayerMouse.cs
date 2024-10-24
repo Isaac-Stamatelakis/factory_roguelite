@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Chunks;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using TileMaps.Layer;
 using TileMaps;
 using TileMaps.Place;
@@ -53,15 +53,23 @@ namespace PlayerModule.Mouse {
         {   
             handleInventoryControls();
             if (eventSystem.IsPointerOverGameObject()) {
-            return;
+                return;
+            }
+            bool leftClick = Input.GetMouseButton(0);
+            bool rightClick = Input.GetMouseButton(1);
+            if (!leftClick && !rightClick) {
+                return;
             }
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            if (closedChunkSystem == null) {
+                return;
+            }
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (Input.GetMouseButton(0)) {
+            if (leftClick) {
                 handleLeftClick(mousePosition,systemOffset);
             }
-            if (Input.GetMouseButton(1)) {
+            if (rightClick) {
                 handleRightClick(mousePosition,systemOffset);
             }
             
@@ -202,7 +210,7 @@ namespace PlayerModule.Mouse {
                 }
                 if (hitableTileMap is TileGridMap tileGridMap) {
                     Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
-                    TileEntity tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
+                    ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
                     if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
                         leftClickableTileEntity.onLeftClick();
                         if (!leftClickableTileEntity.canBreak()) {

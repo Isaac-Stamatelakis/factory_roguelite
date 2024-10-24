@@ -21,14 +21,18 @@ namespace Chunks.Partitions {
         public void save();
         public bool inRange(Vector2Int target, int xRange, int yRange);
         public void tick();
-        public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition);
+        public void addTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition);
         public void breakTileEntity(TileMapLayer layer, Vector2Int position);
         public bool clickTileEntity(Vector2Int position);
         public TileOptions getTileOptions(Vector2Int position);
-        public TileEntity GetTileEntity(Vector2Int position);
+        public ITileEntityInstance GetTileEntity(Vector2Int position);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
         public (string[,],string[,], int[,]) getFluidData();
         public void unloadEntities();
+        public bool getFarLoaded();
+        public void setFarLoaded(bool state);
+        public void loadFarLoadTileEntities();
+        public void unloadFarLoadTileEntities();
     }
 }

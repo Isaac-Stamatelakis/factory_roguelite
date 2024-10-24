@@ -24,18 +24,18 @@ namespace WorldModule {
             }
         }
 
-        public static void saveToJson(SeralizedWorldData worldTileData, Vector2Int caveSize, IntervalVector caveCoveredArea, int dim, string dimPath) {
-            int tileMaxX = Global.ChunkSize*caveSize.x;
-            int tileMaxY = Global.ChunkSize*caveSize.y;
-            int minX = caveCoveredArea.X.LowerBound; int maxX = caveCoveredArea.X.UpperBound;
-            int minY = caveCoveredArea.Y.LowerBound; int maxY = caveCoveredArea.Y.UpperBound;
+        public static void saveToJson(SeralizedWorldData worldTileData, Vector2Int caveSize, int dim, string dimPath) {
+            // Normalize coordinates so center is at 0,0
+            int minX = -(caveSize.x-1)/2;
+            int maxX = (caveSize.x)/2;
+            int minY = -(caveSize.y-1)/2;
+            int maxY = (caveSize.y)/2;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
-                    saveChunk(chunkX, chunkY,minX,minY,dim,worldTileData,dimPath);
+                    saveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
                 }
             }
         }
-
         private static void saveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             for (int partitionX = 0; partitionX < Global.PartitionsPerChunk; partitionX ++) {

@@ -5,7 +5,7 @@ using Conduits.Ports;
 using Conduits;
 using Conduits.Systems;
 using UnityEngine.Tilemaps;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using TileEntityModule;
 
 namespace Conduits.PortViewer {
@@ -25,7 +25,7 @@ namespace Conduits.PortViewer {
             mGrid = gameObject.AddComponent<Grid>();
             mGrid.cellSize = new Vector3(0.5f,0.5f,1f);
             initTiles();
-            foreach (KeyValuePair<TileEntity,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
+            foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
                     mTilemap.SetTile(position,portTypeToTile[portData.portType]);

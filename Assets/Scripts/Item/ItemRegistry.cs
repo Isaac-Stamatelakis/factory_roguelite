@@ -10,6 +10,11 @@ using Conduits.Ports;
 using RecipeModule;
 using Items.Transmutable;
 using System.Linq;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using PlayerModule;
+using UI.JEI;
+using Dimensions;
 
 namespace Items {
     public class ItemRegistry {
@@ -17,15 +22,32 @@ namespace Items {
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
-            ItemObject[] itemObjects = Resources.LoadAll<ItemObject>("");
-            foreach (ItemObject itemObject in itemObjects) {
-                addToDict(itemObject);
-            }
-            Debug.Log("Item registry loaded  " + items.Count + " items");
-            RecipeRegistry.getInstance();
         }
 
-        private bool addToDict(ItemObject itemObject) {
+        public static IEnumerator loadItems() {
+            if (instance != null) {
+                yield break;
+            }
+            instance = new ItemRegistry();
+            
+            var handle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
+            yield return handle;
+            if (handle.Status == AsyncOperationStatus.Succeeded) {
+                IList<ItemObject> loadedAssets = handle.Result;
+                foreach (ItemObject asset in loadedAssets)
+                {
+                    addToDict(asset);
+                }
+            }
+            else {
+                Debug.LogError("Failed to load assets from group: " + handle.OperationException);
+            }
+            Addressables.Release(handle);
+            Debug.Log($"Loaded {items.Count} Items");
+            yield return null;
+        }
+
+        private static bool addToDict(ItemObject itemObject) {
             if (!items.ContainsKey(itemObject.id)) {
                 items[itemObject.id] = itemObject;
                 return true;
@@ -37,7 +59,8 @@ namespace Items {
         }
         public static ItemRegistry getInstance() {
             if (instance == null) {
-                instance = new ItemRegistry();
+                Debug.LogError("Accessed unitalized item registry");
+                return null;
             }
             return instance;
         }

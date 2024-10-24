@@ -15,10 +15,11 @@ namespace Chunks.Partitions {
     public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {
         protected bool loaded;
+        protected bool farLoaded;
         protected bool scheduledForUnloading = false;
         protected Vector2Int position;
         protected T data;
-        public TileEntity[,] tileEntities;
+        public ITileEntityInstance[,] tileEntities;
         public TileOptions[,] tileOptionsArray;
         public List<ITickableTileEntity> tickableTileEntities;
         protected IChunk parent;
@@ -162,7 +163,7 @@ namespace Chunks.Partitions {
             yield return unloadTiles(tileGridMaps);
         }
 
-        public void addTileEntity(TileMapLayer layer,TileEntity tileEntity,Vector2Int positionInPartition)
+        public void addTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
             if (layer == TileMapLayer.Base) {
                 if (tileEntity is ILoadableTileEntity) {
@@ -180,15 +181,12 @@ namespace Chunks.Partitions {
             if (layer != TileMapLayer.Base) {
                 return;
             }
-            TileEntity tileEntity = tileEntities[position.x,position.y];
-            if (tileEntity is IBreakActionTileEntity) {
-                ((IBreakActionTileEntity) tileEntity).onBreak();
+            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
+            if (tileEntity is IBreakActionTileEntity breakActionTileEntity) {
+                breakActionTileEntity.onBreak();
             }
-            if (tileEntity is ILoadableTileEntity) {
-                ((ILoadableTileEntity) tileEntity).unload();
-            }
-            if (tileEntity is not IStaticTileEntity) {
-                GameObject.Destroy(tileEntity);
+            if (tileEntity is ILoadableTileEntity loadableTileEntity) {
+                loadableTileEntity.unload();
             }
             
             tileEntities[position.x,position.y] = null;
@@ -200,12 +198,12 @@ namespace Chunks.Partitions {
 
         public bool clickTileEntity(Vector2Int position)
         {
-            TileEntity tileEntity = tileEntities[position.x,position.y];
+            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
             if (tileEntity == null) {
                 return false;
             }
-            if (tileEntity is IRightClickableTileEntity) {
-                ((IRightClickableTileEntity) tileEntity).onRightClick();
+            if (tileEntity is IRightClickableTileEntity rightClickableTileEntity) {
+                rightClickableTileEntity.onRightClick();
                 return true;
             }
             return false;
@@ -230,7 +228,7 @@ namespace Chunks.Partitions {
         }
 
 
-        public TileEntity GetTileEntity(Vector2Int position)
+        public ITileEntityInstance GetTileEntity(Vector2Int position)
         {
             if (tileEntities == null) {
                 return null;
@@ -243,5 +241,13 @@ namespace Chunks.Partitions {
         public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
         public abstract (string[,], string[,], int[,]) getFluidData();
+        public abstract bool getFarLoaded();
+        public abstract void loadFarLoadTileEntities();
+        public abstract void unloadFarLoadTileEntities();
+
+        public void setFarLoaded(bool state)
+        {
+            this.farLoaded = state;
+        }
     }
 }

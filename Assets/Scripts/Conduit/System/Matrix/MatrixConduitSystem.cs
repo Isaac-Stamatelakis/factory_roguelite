@@ -11,15 +11,14 @@ namespace Conduits.Systems {
     {
         private List<IMatrixConduitInteractable> tileEntities;
         
-        private HashSet<MatrixInterface> interfaces;
+        private HashSet<MatrixInterfaceInstance> interfaces;
         private MatrixDriveCollection driveCollection;
-
-        public HashSet<MatrixInterface> Interfaces { get => interfaces;}
+        public HashSet<MatrixInterfaceInstance> Interfaces { get => interfaces;}
         public MatrixDriveCollection DriveCollection { get => driveCollection; }
-        public HashSet<MatrixAutoCraftCore> AutoCraftingCores { get => autoCraftingCores; }
+        public HashSet<MatrixAutoCraftingCoreInstance> AutoCraftingCores { get => autoCraftingCores; }
 
-        private HashSet<MatrixAutoCraftCore> autoCraftingCores;
-        private ItemMatrixController controller;
+        private HashSet<MatrixAutoCraftingCoreInstance> autoCraftingCores;
+        private ItemMatrixControllerInstance controller;
         public MatrixConduitSystem(string id) : base(id)
         {
             tileEntities = new List<IMatrixConduitInteractable>();
@@ -58,7 +57,7 @@ namespace Conduits.Systems {
         public void syncToController() {
             controller = null;
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
-                if (matrixConduitInteractable is ItemMatrixController controller1) {
+                if (matrixConduitInteractable is ItemMatrixControllerInstance controller1) {
                     if (controller != null && !controller.Equals(controller1)) { // Hard Enforcement of only one controller per system
                         return;
                     }
@@ -71,16 +70,16 @@ namespace Conduits.Systems {
                 }
                 return;
             }
-            interfaces = new HashSet<MatrixInterface>();
+            interfaces = new HashSet<MatrixInterfaceInstance>();
             driveCollection = new MatrixDriveCollection();
-            autoCraftingCores = new HashSet<MatrixAutoCraftCore>();
+            autoCraftingCores = new HashSet<MatrixAutoCraftingCoreInstance>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
                 matrixConduitInteractable.syncToSystem(this);
                 matrixConduitInteractable.syncToController(controller);
             }
         }
 
-        public void addInterface(MatrixInterface matrixInterface) {
+        public void addInterface(MatrixInterfaceInstance matrixInterface) {
             interfaces.Add(matrixInterface);
             if (controller != null) {
                 controller.Recipes.addInterface(matrixInterface);
@@ -88,24 +87,24 @@ namespace Conduits.Systems {
 
         }
 
-        public void removeInterface(MatrixInterface matrixInterface) {
+        public void removeInterface(MatrixInterfaceInstance matrixInterface) {
             interfaces.Remove(matrixInterface);
             if (controller != null) {
                 controller.Recipes.removeInterface(matrixInterface);
             }
             
         }
-        public void setDrive(MatrixDrive matrixDrive) {
+        public void setDrive(MatrixDriveInstance matrixDrive) {
             driveCollection.setDrive(matrixDrive);
         }
-        public void removeDrive(MatrixDrive matrixDrive) {
+        public void removeDrive(MatrixDriveInstance matrixDrive) {
             driveCollection.removeDrive(matrixDrive);
         }
 
-        public void addAutoCrafter(MatrixAutoCraftCore core) {
+        public void addAutoCrafter(MatrixAutoCraftingCoreInstance core) {
             autoCraftingCores.Add(core);
         }
-        public void removeAutoCrafter(MatrixAutoCraftCore core) {
+        public void removeAutoCrafter(MatrixAutoCraftingCoreInstance core) {
             if (autoCraftingCores.Contains(core)) {
                 autoCraftingCores.Remove(core);
             }

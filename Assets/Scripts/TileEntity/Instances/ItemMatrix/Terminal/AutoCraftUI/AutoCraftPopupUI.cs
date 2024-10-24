@@ -19,9 +19,8 @@ namespace TileEntityModule.Instances.Matrix {
 
         private ItemSlot toCraft;
         private int amount;
-        private ItemMatrixController controller;
-
-        public void init(ItemMatrixController controller,  ItemSlot toCraft, int amount) {
+        private ItemMatrixControllerInstance controller;
+        public void init(ItemMatrixControllerInstance controller,  ItemSlot toCraft, int amount) {
             this.controller = controller;
             this.toCraft = toCraft;
             this.amount = amount;

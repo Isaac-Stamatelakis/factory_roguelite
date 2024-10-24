@@ -5,6 +5,12 @@ using WorldModule;
 using Dimensions;
 using WorldModule.Caves;
 using Conduits.Ports;
+using Chunks.Systems;
+using System.IO;
+using Chunks.IO;
+using Chunks;
+using PlayerModule;
+using System.Linq;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public static class CompactMachineHelper 
@@ -12,16 +18,17 @@ namespace TileEntityModule.Instances.CompactMachines {
         /// 4*24^6 < |2^31-1| < |-2^31|
         private static int maxDepth = 4;
         public static int MaxDepth {get => maxDepth; }
-
-        /// </summary>
-        /// The map from position to depth+1 position is a bijection 
-        /// <summary>
-        public static Vector2Int getPositionInDim(Vector2Int position) {
-            return getRingBoundaryFromPosition(position)+position*seperationPerTile();
-        }
+        public static readonly string CONTENT_PATH = "_content";
 
         public static Vector2Int getPositionInNextRing(Vector2Int position) {
             return position*seperationPerTile();
+        }
+        public static SoftLoadedClosedChunkSystem loadSystemFromPath(List<Vector2Int> path) {
+            string systemPath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(1,systemPath);
+            SoftLoadedClosedChunkSystem system = new SoftLoadedClosedChunkSystem(chunks,systemPath);
+            system.softLoad();
+            return system;
         }
 
         /// </summary>
@@ -29,76 +36,48 @@ namespace TileEntityModule.Instances.CompactMachines {
         /// <summary>
         public static Vector2Int getRingSizeInChunks() {
             IntervalVector dim0Area = WorldCreation.getDim0Bounds();
-            return new Vector2Int(
-                Mathf.Abs(dim0Area.X.LowerBound-dim0Area.X.UpperBound)+1,
-                Mathf.Abs(dim0Area.Y.LowerBound-dim0Area.Y.UpperBound)+1
-            ); 
+            return dim0Area.getSize();
         }
 
-        public static Vector2Int getRingBoundaryFromPosition(Vector2Int position) {
+        public static List<Vector2Int> getTreePath(Vector2Int position) {
+            List<Vector2Int> path = new List<Vector2Int>();
+            Vector2Int size = getRingSizeInChunks();
             int depth = getDepth(position);
-            int val = 1;
-            for (int i = 0; i < depth; i++) { // ring boundary increases expontentially with depth
-                val *= seperationPerTile();
+            double divider = size.x * Mathf.Pow(seperationPerTile(),depth); 
+            Vector2Int temp = position;
+            while (depth > 0) {
+                double x = position.x/divider;
+                double y = position.y/divider;
+                depth --;   
+                Vector2Int depthPosition = new Vector2Int((int)x,(int)y);
+                temp -= depthPosition;
+                position -= depthPosition;
+                path.Add(depthPosition);
+                divider /= seperationPerTile();
             }
-            int signX = position.x >= 0 ? 1 : -1;
-            int signY = position.y >= 0 ? 1 : -1;
-
-            Vector2Int boundary = getBaseBoundary(signX,signY);
-            Vector2Int dir = new Vector2Int(signX,signY);
-            return dir * boundary * val;
+            path.Add(temp);
+            return path;
         }
 
         public static int getDepth(Vector2Int position) {
-
-            int signX = position.x >= 0 ? 1 : -1;
-            int signY = position.y >= 0 ? 1 : -1;
-            Vector2Int boundary = getBaseBoundary(signX,signY);
-            int xBoundary = boundary.x;
-            int xDepth = 0;
-            for (int depth = 0; depth < Global.MaxSize; depth++) {
-                if (position.x < xBoundary) {
-                    xDepth = depth;
-                    break;
-                }
-                xBoundary *= seperationPerTile();
-            }
-            int yBoundary = boundary.y;
-            int yDepth = 0;
-            for (int depth = 0; depth < Global.MaxSize; depth++) {
-                if (position.x < xBoundary) {
-                    yDepth = depth;
-                    break;
-                }
-                xBoundary *= seperationPerTile();
-            }
-            return Mathf.Max(xDepth,yDepth);
-        }
-
-        public static Vector2Int getBaseBoundary(int signX, int signY) {
             Vector2Int size = getRingSizeInChunks();
-            int x = signX == 1 ? (size.x + 1) / 2 : size.x/2;
-            int y = signY == 1 ? (size.y + 1) / 2 : size.y/2;
-            Vector2Int dir = new Vector2Int(signX, signY);
-            Vector2Int boundary = new Vector2Int(x,y) * seperationPerTile();
-            return boundary;
+            int depth = 0;
+            int val = size.x*seperationPerTile();
+            while (position.x >= val) {
+                depth++;
+                val *= seperationPerTile();
+            }
+            return depth;   
         }
         public static int seperationPerTile() {
             return Global.ChunkSize;
         }
 
-        public static Vector2Int getParentPosition(CompactMachine compactMachine) {
+        public static Vector2Int getParentPosition(CompactMachineInstance compactMachine) {
             Vector2Int position = compactMachine.getCellPosition();
             return new Vector2Int(Mathf.FloorToInt(position.x/seperationPerTile()),Mathf.FloorToInt(position.y/seperationPerTile()));
         }
 
-        public static bool isCreated(CompactMachine compactMachine) {
-            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
-                return false;
-            }
-            CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
-            return dimController.hasSystemOfCompactMachine(compactMachine);
-        }
 
         /// </summary>
         /// Maps a port inside a compact machine to its port on the compact machine tile entity
@@ -137,41 +116,71 @@ namespace TileEntityModule.Instances.CompactMachines {
             return closestPort.position;
         }
 
-        public static void initalizeCompactMachineSystem(CompactMachine compactMachine) {
+        public static void initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             IntervalVector bounds = getCompactMachineBounds(compactMachine);
-            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.tilemapContainer,bounds);
-            WorldGenerationFactory.saveToJson(systemData,bounds.getSize(),bounds,1,WorldLoadUtils.getDimPath(1));
-            Debug.Log(compactMachine.name + " Closed Chunk System Generated");
+            string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
+            Directory.CreateDirectory(savePath);
+            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.TileEntity.TilemapContainer,bounds);
+            WorldGenerationFactory.saveToJson(systemData,bounds.getSize(),1,savePath);
+            Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }
 
-        public static IntervalVector getCompactMachineBounds(CompactMachine compactMachine) {
-            IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.tilemapContainer);
-            bounds.add(compactMachine.getCellPosition());
+        public static string getPositionFolderPath(List<Vector2Int> path) {
+            string systemPath = WorldLoadUtils.getDimPath(1);
+            foreach (Vector2Int position in path) {
+                systemPath = Path.Combine(systemPath,$"{position.x},{position.y}");
+            }
+            return systemPath;
+        }
+
+        public static IntervalVector getCompactMachineBounds(CompactMachineInstance compactMachine) {
+            IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.TileEntity.TilemapContainer);
             return bounds;
         }
 
-        public static async void teleportOutOfCompactMachine(CompactMachine compactMachine) {
-            /*
-            int depth = getDepth(compactMachine.getCellPosition());
+        public static void teleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            if (depth == 0) {
-                await dimensionManager.setActiveSystemFromCellPosition(0,compactMachine.getCellPosition());
-                dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
-            } else {
-                Vector2Int parentPosition = compactMachine.getCellPosition()/24;
-                await dimensionManager.setActiveSystemFromCellPosition(1,parentPosition);
-                dimensionManager.setPlayerPositionFromCell(compactMachine.getCellPosition());
+            IChunk chunk = compactMachine.getChunk();
+            if (chunk is not ILoadedChunk loadedChunk) {
+                return;
             }
-            */
-            
-            
+            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            List<Vector2Int> parentPath = new List<Vector2Int>();
+            if (closedChunkSystem is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
+                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
+                for (int i = 0; i < key.Path.Count; i++) {
+                    parentPath.Add(key.Path[i]);
+                }   
+            }
+            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath);
+            dimensionManager.setPlayerSystem(
+                PlayerContainer.getInstance().getTransform(),
+                1,
+                compactMachine.getCellPosition(),
+                key:parentKey
+            );
         }
-        public static async void teleportIntoCompactMachine(CompactMachine compactMachine) {
-            /*
+        public static void teleportIntoCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            await dimensionManager.setActiveSystemFromCellPosition(1,compactMachine.getCellPosition());
-            dimensionManager.setPlayerPositionFromCell(compactMachine.getTeleporterPosition());
-            */
+            IChunk chunk = compactMachine.getChunk();
+            if (chunk is not ILoadedChunk loadedChunk) {
+                return;
+            }
+            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            List<Vector2Int> path = new List<Vector2Int>();
+            if (closedChunkSystem is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
+                foreach (Vector2Int vector in compactMachineClosedChunkSystem.getCompactMachineKey().Path) {
+                    path.Add(vector);
+                }
+            }
+            path.Add(compactMachine.getCellPosition());
+            CompactMachineTeleportKey key = new CompactMachineTeleportKey(path);
+            dimensionManager.setPlayerSystem(
+                PlayerContainer.getInstance().getTransform(),
+                1,
+                compactMachine.Teleporter.getCellPosition() + Vector2Int.one,
+                key:key
+            );
         }
     }
 }

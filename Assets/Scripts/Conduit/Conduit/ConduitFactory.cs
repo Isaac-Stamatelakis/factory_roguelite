@@ -6,12 +6,12 @@ using TileMaps.Layer;
 using Chunks.Partitions;
 using TileEntityModule;
 using Items;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 
 namespace Conduits {
     public static class ConduitFactory {
 
-        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
+        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
             ConduitType type = conduitItem.getConduitType();
             cellPosition -= referencePosition;
             bool isPortConduit = type == ConduitType.Item || type == ConduitType.Fluid || type == ConduitType.Energy || type == ConduitType.Signal;
@@ -26,7 +26,7 @@ namespace Conduits {
             return null;
         
         }
-        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity, EntityPortType? portType) {
+        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
             ConduitType conduitType = conduitItem.getConduitType();
             IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,conduitItem);
             if (tileEntity != null && portType != null) {
@@ -71,7 +71,7 @@ namespace Conduits {
             
         }
 
-        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, TileEntity tileEntity) {
+        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity) {
             IMatrixConduitInteractable matrixConduitInteractable = null;
             if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
                 matrixConduitInteractable = matrixConduitInteractable1;
@@ -89,7 +89,7 @@ namespace Conduits {
         /// <summary>
         /// Sets the port of given conduit to default port
         /// </summary
-        public static IConduit create(ConduitItem conduitItem, EntityPortType portType, int x, int y, TileEntity tileEntity) {
+        public static IConduit create(ConduitItem conduitItem, EntityPortType portType, int x, int y, ITileEntityInstance tileEntity) {
             ConduitType conduitType = conduitItem.getConduitType();
             switch (conduitType) {
                 case ConduitType.Item:

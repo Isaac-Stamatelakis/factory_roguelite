@@ -36,7 +36,7 @@ namespace Conduits.Ports {
             return JsonConvert.SerializeObject(portConduit.getPort());
         }
 
-        public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, TileEntity tileEntity, ConduitItem conduitItem) {
+        public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntity, ConduitItem conduitItem) {
             switch (conduitType) {
                 case ConduitType.Item:
                     if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {

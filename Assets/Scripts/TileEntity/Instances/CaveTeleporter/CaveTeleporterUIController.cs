@@ -5,14 +5,17 @@ using UnityEngine.UI;
 using WorldModule.Caves;
 
 namespace TileEntityModule.Instances {
-    public class CaveTeleporterUIController : MonoBehaviour
+    public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI<CaveTeleporterInstance>
     {
         public CaveSelectController caveSelectController;
         public GameObject mListView;
         private Button[] mCaveButtons;
         public GameObject buttonPrefab;
-        // Start is called before the first frame update
-        void Start()
+        private void buttonPress(Cave cave) {
+            caveSelectController.showCave(cave);
+        }
+
+        public void display(CaveTeleporterInstance tileEntityInstance)
         {
             caveSelectController.showDefault();
             Cave[] caves = CaveRegistry.getAll();
@@ -23,11 +26,6 @@ namespace TileEntityModule.Instances {
                 mCaveButtons[index] = button;
                 button.onClick.AddListener(() => buttonPress(cave));
             }
-            
-
-        }
-        private void buttonPress(Cave cave) {
-            caveSelectController.showCave(cave);
         }
     }
 }

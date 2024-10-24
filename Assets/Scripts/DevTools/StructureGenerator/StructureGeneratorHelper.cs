@@ -63,7 +63,7 @@ namespace WorldModule.Caves {
             GameObject structDimPrefab = Resources.Load<GameObject>("TileMaps/StructDimTileMap");
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(structDimBounds.X.LowerBound-structDimBounds.X.UpperBound+1),Mathf.Abs(structDimBounds.Y.LowerBound-structDimBounds.Y.UpperBound+1));
             SeralizedWorldData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
-            WorldGenerationFactory.saveToJson(dimData,caveSize,structDimBounds,0,structureDimPath);
+            WorldGenerationFactory.saveToJson(dimData,caveSize,0,structureDimPath);
 
 
             List<SerializedItemSlot> inventory = new List<SerializedItemSlot>();

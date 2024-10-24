@@ -18,9 +18,9 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup patternInput;
         [SerializeField] private GridLayoutGroup patternOutput;
         [SerializeField] private GridLayoutGroup playerInventoryContainer;
-        private MatrixRecipeEncoder recipeEncoder;
+        private MatrixRecipeEncoderInstance recipeEncoder;
 
-        public void init(MatrixRecipeEncoder recipeEncoder) {
+        public void init(MatrixRecipeEncoderInstance recipeEncoder) {
             this.recipeEncoder = recipeEncoder;
             clearButton.onClick.AddListener(() => {
                 for (int i = 0; i < recipeEncoder.RecipeInputs.Count; i++) {

@@ -2,50 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using Chunks;
 
 namespace TileEntityModule.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]
-    public class Sign : TileEntity, IRightClickableTileEntity, ISerializableTileEntity
+    public class Sign : TileEntity, IManagedUITileEntity
     {
-        public GameObject signUIPrefab;
-        private SignData signData;
-        public void onRightClick()
-        {
-            if (signData == null) {
-                signData = new SignData("","","");
-            }
-            if (signUIPrefab == null) {
-                Debug.LogError("Sign '"+ name + "' has null ui prefab");
-                return;
-            }
-            
-            GameObject instantiated = GameObject.Instantiate(signUIPrefab);
-            SignUIController signUIController = instantiated.GetComponent<SignUIController>();
-            if (signUIController == null) {
-                Debug.LogError("Sign '" + name + "' ui prefab doesn't have SignUIController MonoBehavior Attached");
-                GameObject.Destroy(instantiated);
-                return;
-            }
-            signUIController.init(signData);
-            
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
-            globalUIController.setGUI(instantiated);
+        public TileEntityUIManager UIManager;
 
+        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        {
+            return new SignInstance(this,tilePosition,tileItem,chunk);
         }
 
-        public string serialize()
+        public TileEntityUIManager getUIManager()
         {
-            return JsonConvert.SerializeObject(signData);
+            return UIManager;
         }
-
-        public void unserialize(string data)
-        {
-            if (data != null) {
-                signData = JsonConvert.DeserializeObject<SignData>(data);
-            }
-        }
-
-        
     }
     [System.Serializable]
     public class SignData {

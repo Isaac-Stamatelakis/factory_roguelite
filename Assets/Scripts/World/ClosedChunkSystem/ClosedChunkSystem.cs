@@ -13,7 +13,8 @@ using Tiles;
 using Fluids;
 using PlayerModule;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
+    
     /// <summary>
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 
@@ -90,6 +91,15 @@ namespace Chunks.ClosedChunkSystemModule {
             }
             return null;
         }
+
+        public void initalizeMiscObjects(DimensionObjects dimensionObjects) {
+            this.loadedPartitionBoundary = dimensionObjects.loadedPartitionBoundary;
+            dimensionObjects.loadedPartitionBoundary.transform.SetParent(transform,false);
+            loadedPartitionBoundary.reset();
+
+            this.breakIndicator = dimensionObjects.tileBreakIndicator;
+            dimensionObjects.tileBreakIndicator.transform.SetParent(transform,false);
+        }
         
         public void initalizeObject(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {
             this.dimPositionOffset = offset;
@@ -106,23 +116,10 @@ namespace Chunks.ClosedChunkSystemModule {
             this.coveredArea = coveredArea;
             initLoaders();
 
-            GameObject breakIndicatorObject = new GameObject();
-            breakIndicator = breakIndicatorObject.AddComponent<TileBreakIndicator>();
-            breakIndicator.init(this);
-            breakIndicatorObject.transform.SetParent(transform,false);
-            breakIndicator.name = "TileBreakIndicator";
-            breakIndicator.transform.position = new Vector3(0,0,-1);
-
             CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
             cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
-
-            GameObject loadedPartitionBoundaryObject = new GameObject();
-            loadedPartitionBoundaryObject.name = "Boundary";
-            loadedPartitionBoundary = loadedPartitionBoundaryObject.AddComponent<LoadedPartitionBoundary>();
-            loadedPartitionBoundaryObject.transform.SetParent(transform,false);
-            
         }
 
         public virtual void initLoaders() {
@@ -136,17 +133,27 @@ namespace Chunks.ClosedChunkSystemModule {
 
         public virtual void playerPartitionUpdate() {
             List<ILoadedChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
-            List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             Vector2Int playerPartition = getPlayerChunkPartition();
+
+            List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition));
+                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange));
             }
-            partitionLoader.addToQueue(partitionsToLoad);
+            partitionLoader.addToQueue(partitionsToLoad,PartitionQueue.Standard);
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition));
+                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
             }
             partitionUnloader.addToQueue(partitionsToUnload);
+
+            List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
+            foreach (ILoadedChunk chunk in chunksNearPlayer) {
+                partitionsToFarLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(
+                    playerPartition,
+                    Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
+                ));
+            }
+            partitionLoader.addToQueue(partitionsToFarLoad,PartitionQueue.Far);
         }
 
         public List<Vector2Int> getUnCachedChunkPositionsNearPlayer() {
@@ -215,12 +222,25 @@ namespace Chunks.ClosedChunkSystemModule {
             chunkPartition.setTileLoaded(true);
             
         }
+
+        public void cacheChunk(Vector2Int chunkPosition) {
+            ILoadedChunk chunk = ChunkIO.getChunkFromJson(chunkPosition, this);
+            addChunk(chunk);
+        }
+
+        public void instantCacheChunksNearPlayer() {
+            List<Vector2Int> unloadedChunksNearPlayer = getUnCachedChunkPositionsNearPlayer();
+            foreach (Vector2Int pos in unloadedChunksNearPlayer) {
+                cacheChunk(pos);
+            }
+        }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.unloadEntities();
             loadedPartitionBoundary.partitionUnloaded(chunkPartition.getRealPosition());
             yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
+            chunkPartition.setFarLoaded(false);
             chunkPartition.setScheduleForUnloading(false);
             
         }
@@ -256,6 +276,18 @@ namespace Chunks.ClosedChunkSystemModule {
         }
 
         
+    }
+
+    [System.Serializable]
+    public struct DimensionObjects {
+        public TileBreakIndicator tileBreakIndicator;
+        public LoadedPartitionBoundary loadedPartitionBoundary;
+
+        public DimensionObjects(TileBreakIndicator tileBreakIndicator, LoadedPartitionBoundary loadedPartitionBoundary)
+        {
+            this.tileBreakIndicator = tileBreakIndicator;
+            this.loadedPartitionBoundary = loadedPartitionBoundary;
+        }
     }
 }
 

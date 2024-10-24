@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks;
 using Chunks.Partitions;
 using TileMaps.Layer;

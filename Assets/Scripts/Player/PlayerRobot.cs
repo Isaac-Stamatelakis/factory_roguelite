@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
 using Items;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using Chunks;
 using TileMaps;
 using TileEntityModule;
@@ -33,6 +33,9 @@ namespace PlayerModule {
         }
 
         public void FixedUpdate() {
+            if (currentRobot == null) {
+                return;
+            }
             if (EventSystem.current.currentSelectedGameObject != null) {
                 return;
             }

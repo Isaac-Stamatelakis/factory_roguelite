@@ -6,7 +6,7 @@ using Fluids;
 using TileMaps;
 using TileMaps.Conduit;
 
-namespace Chunks.ClosedChunkSystemModule {
+namespace Chunks.Systems {
     public static class TileMapBundleFactory 
     {
         public static List<TileMapType> getStandardTileTypes() {

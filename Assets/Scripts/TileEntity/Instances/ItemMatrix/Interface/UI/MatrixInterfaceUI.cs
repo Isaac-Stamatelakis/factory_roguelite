@@ -17,9 +17,9 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private GridLayoutGroup upgradeContainer;
         private MatrixInterfaceUpgradeRestrictedInventoryUI typeRestrictedInventory;
         private EncodedRecipeTagInventoryUI recipeRestrictedInventory;
-        private MatrixInterface matrixInterface;
+        private MatrixInterfaceInstance matrixInterface;
 
-        public void init(MatrixInterface matrixInterface) {
+        public void init(MatrixInterfaceInstance matrixInterface) {
             this.matrixInterface = matrixInterface;
 
             GlobalHelper.deleteAllChildren(upgradeContainer.transform);

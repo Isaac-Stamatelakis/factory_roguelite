@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixCraftTile : ITileItemUpdateReciever, ILoadableTileEntity
     {
-        public void sync(MatrixAutoCraftCore core);
+        public void sync(MatrixAutoCraftingCoreInstance core);
         public void deactivate();
     }
 }

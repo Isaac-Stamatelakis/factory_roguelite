@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 using System;
 using Chunks;
 using TileMaps.Type;
-using Chunks.ClosedChunkSystemModule;
+using Chunks.Systems;
 using TileMaps.Place;
 using Tiles;
 using Chunks.Partitions;
