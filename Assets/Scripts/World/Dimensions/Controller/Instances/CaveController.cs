@@ -7,16 +7,19 @@ using WorldModule.Caves;
 namespace Dimensions {
     public class CaveController : DimController, ISingleSystemController
     {
-        [SerializeField] public Cave cave;
+        private CaveInstance currentCave;
         private TileClosedChunkSystem activeSystem;
         public ClosedChunkSystem activateSystem(Vector2Int dimOffsetPosition)
         {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
-            IntervalVector coveredArea = cave.getChunkCoveredArea();
+            IntervalVector coveredArea = currentCave.getChunkCoveredArea();
             activeSystem.initalize(transform,coveredArea,-1,dimOffsetPosition);
             return activeSystem;
+        }
+        public void setCurrentCave(CaveInstance caveInstance) {
+            this.currentCave = caveInstance;
         }
         public void deactivateSystem()
         {

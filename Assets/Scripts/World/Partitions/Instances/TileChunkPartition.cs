@@ -298,7 +298,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     if (tileEntity == null || !tileEntity.ExtraLoadRange) {
                         continue;
                     }
-                    Debug.Log("Far Loaded " + tileEntity.name);
                     string tileEntityData = data.baseData.sTileEntityOptions[x,y];
                     Vector2Int position = this.position * Global.ChunkPartitionSize + new Vector2Int(x,y);
                     tileEntities[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);

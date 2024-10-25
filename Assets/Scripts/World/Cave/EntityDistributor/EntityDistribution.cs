@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Entities.Mobs;
+using UnityEngine.AddressableAssets;
 
 namespace WorldModule.Caves {
     [System.Serializable]

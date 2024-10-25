@@ -10,7 +10,7 @@ using WorldModule.Caves;
 
 namespace WorldModule {
     public static class WorldGenerationFactory {
-        public static void saveToJson(SeralizedWorldData worldTileData, Cave cave, int dim, string dimPath) {
+        public static void saveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
             int tileMaxX = Global.ChunkSize*caveSize.x;

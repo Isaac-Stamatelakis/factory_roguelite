@@ -6,6 +6,10 @@ using TMPro;
 using WorldModule.Caves;
 using Dimensions;
 using PlayerModule;
+using WorldModule;
+using System.IO;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace TileEntityModule.Instances {
     public class CaveSelectController : MonoBehaviour
@@ -14,6 +18,7 @@ namespace TileEntityModule.Instances {
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
         private Cave currentCave;
+        private CaveInstance caveInstance;
         public void display(CaveTeleporterInstance tileEntityInstance)
         {
             
@@ -21,7 +26,9 @@ namespace TileEntityModule.Instances {
 
         public void showCave(Cave cave) {
             teleportButton.onClick.RemoveAllListeners();
-            teleportButton.onClick.AddListener(teleportButtonPress);
+            teleportButton.onClick.AddListener(() => {
+                StartCoroutine(teleportButtonPress());
+            });
             teleportButton.gameObject.SetActive(true);
             currentCave = cave;
             nameText.text = cave.name;
@@ -34,15 +41,74 @@ namespace TileEntityModule.Instances {
             teleportButton.gameObject.SetActive(false);
         }
 
-        private void teleportButtonPress() {
+        private IEnumerator teleportButtonPress() {
             if (currentCave == null) {
                 Debug.LogError("Tried to teleport to null cave");
-                return;
+                yield break;
             }
+            yield return StartCoroutine(loadCave(currentCave,generateAndTeleportToCave));
+        }
+
+        public IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
+            CaveElements caveElements = new CaveElements();
+            AsyncOperationHandle<Object> genModelHandle = cave.generationModel.LoadAssetAsync<Object>();
+            AsyncOperationHandle<Object> entityDistributorHandle = cave.entityDistributor.LoadAssetAsync<Object>();
+
+            List<AsyncOperationHandle<Object>> tileDistributorHandles = new List<AsyncOperationHandle<Object>>();
+            foreach (AssetReference assetReference in cave.tileGenerators) {
+                tileDistributorHandles.Add(assetReference.LoadAssetAsync<Object>());
+            }
+
+            List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
+            foreach (AssetReference assetReference in cave.songs) {
+                songHandles.Add(assetReference.LoadAssetAsync<Object>());
+            }
+
+            yield return genModelHandle;
+            yield return entityDistributorHandle;
+            foreach (var handle in tileDistributorHandles) {
+                yield return handle;
+            }
+            foreach (var handle in songHandles) {
+                yield return handle;
+            }
+            caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(entityDistributorHandle);
+            caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(genModelHandle);
+            caveElements.Songs = AddressableUtils.validateHandles<AudioClip>(songHandles);
+            caveElements.TileGenerators = AddressableUtils.validateHandles<CaveTileGenerator>(tileDistributorHandles);
+
+            CaveInstance caveInstance = new CaveInstance(cave,caveElements);
+            caveCallback(caveInstance);
+            Addressables.Release(genModelHandle);
+            Addressables.Release(entityDistributorHandle);
+            foreach (var handle in tileDistributorHandles) {
+                Addressables.Release(handle);
+            }
+            foreach (var handle in songHandles) {
+                Addressables.Release(handle);
+            }
+
+        }
+        public delegate void CaveCallback(CaveInstance caveInstance);
+
+        public void generateAndTeleportToCave(CaveInstance caveInstance) {
+            if (WorldLoadUtils.dimExists(-1)) {
+                string path = WorldLoadUtils.getDimPath(-1);
+                Directory.Delete(path, true);
+            }
+            WorldLoadUtils.createDimFolder(-1);
+            SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(-2147483648,2147483647));
+            WorldGenerationFactory.saveToJson(
+                worldTileData,
+                caveInstance.getChunkCaveSize(),
+                -1,
+                WorldLoadUtils.getDimPath(-1)
+            );
             Debug.Log("Teleporting to " + currentCave.name);
-            Global.CurrentCave = currentCave; 
-            CaveGenerator.generateCave();
             Transform playerTransform = PlayerContainer.getInstance().getTransform();
+            DimensionManager dimensionManager = DimensionManager.Instance;
+            CaveController caveController = (CaveController)dimensionManager.getDimController(-1);
+            caveController.setCurrentCave(caveInstance);
             DimensionManager.Instance.setPlayerSystem(playerTransform, -1,Vector2Int.zero);
         }
     }

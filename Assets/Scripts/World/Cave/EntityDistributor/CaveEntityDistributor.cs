@@ -4,6 +4,7 @@ using UnityEngine;
 using Misc;
 using Entities.Mobs;
 using Entities;
+using UnityEngine.AddressableAssets;
 using Newtonsoft.Json;
 
 namespace WorldModule.Caves {

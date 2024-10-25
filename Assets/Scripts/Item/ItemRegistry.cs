@@ -29,7 +29,6 @@ namespace Items {
                 yield break;
             }
             instance = new ItemRegistry();
-            
             var handle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
             yield return handle;
             if (handle.Status == AsyncOperationStatus.Succeeded) {
