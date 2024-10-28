@@ -6,7 +6,7 @@ using Chunks.IO;
 using TileMaps.Layer;
 using TileMaps;
 using TileMaps.Type;
-using Chunks.LoadController;
+using Chunks.Loaders;
 using TileMaps.Conduit;
 using Chunks.Partitions;
 using Tiles;
@@ -31,7 +31,8 @@ namespace Chunks.Systems {
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
-        protected PartitionUnloader partitionUnloader;    
+        protected PartitionUnloader partitionUnloader;
+        protected PartitionFarLoader partitionFarLoader;
         protected Transform chunkContainerTransform;
         public Transform ChunkContainerTransform {get{return chunkContainerTransform;}}
         protected int dim;
@@ -124,9 +125,15 @@ namespace Chunks.Systems {
 
         public virtual void initLoaders() {
             partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
-            partitionLoader.init(this);
+            partitionLoader.initalize(this,LoadUtils.getPartitionLoaderVariables());
+
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
-            partitionUnloader.init(this,partitionLoader);
+            partitionUnloader.initalize(this,LoadUtils.getPartitionUnloaderVariables());
+            partitionUnloader.setLoader(partitionLoader);
+
+            partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
+            partitionFarLoader.initalize(this,LoadUtils.getPartitionFarLoaderVariables());
+            
         }
         
         public abstract void playerChunkUpdate(); 
@@ -139,7 +146,8 @@ namespace Chunks.Systems {
             foreach (ILoadedChunk chunk in chunksNearPlayer) {
                 partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange));
             }
-            partitionLoader.addToQueue(partitionsToLoad,PartitionQueue.Standard);
+
+            partitionLoader.addToQueue(partitionsToLoad);
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
@@ -148,12 +156,12 @@ namespace Chunks.Systems {
 
             List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
             foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToFarLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(
+                partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
                     playerPartition,
                     Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
                 ));
             }
-            partitionLoader.addToQueue(partitionsToFarLoad,PartitionQueue.Far);
+            partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 
         public List<Vector2Int> getUnCachedChunkPositionsNearPlayer() {
@@ -200,7 +208,8 @@ namespace Chunks.Systems {
             Vector2Int playerPosition = getPlayerChunk();
             List<Chunk> chunksToUnload = new List<Chunk>();
             foreach (Chunk chunk in cachedChunks.Values) {
-                if (!chunk.isChunkLoaded() && !chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY) && chunk.partionsAreAllUnloaded()) {
+                if (!chunk.ScheduleForUnloading && !chunk.isChunkLoaded() && !chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY) && chunk.partionsAreAllUnloaded()) {
+                    chunk.ScheduleForUnloading = true;
                     chunksToUnload.Add(chunk);
                 }
             }
@@ -241,7 +250,6 @@ namespace Chunks.Systems {
             breakIndicator.unloadPartition(chunkPartition.getRealPosition());
             chunkPartition.setTileLoaded(false);
             chunkPartition.setFarLoaded(false);
-            chunkPartition.setScheduleForUnloading(false);
             
         }
 
@@ -258,7 +266,7 @@ namespace Chunks.Systems {
         }
 
         public virtual void saveOnDestroy() {
-            partitionUnloader.clearAll();
+            partitionUnloader.clearQueue();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
                     if (partition.getLoaded()) {

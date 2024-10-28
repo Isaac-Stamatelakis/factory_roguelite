@@ -8,20 +8,40 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items.Inventory;
 using Entities;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntityModule.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
-    public class MatrixDrive : TileEntity
+    public class MatrixDrive : TileEntity, IAssetManagerTileEntity
     {
         public ConduitPortLayout Layout;
         public int rows;
         public int columns;
-        [Header("Position for active/inactive pixels\nOrdered BottomLeft to TopRight")]
-        public GameObject VisualPrefab;
+        public AssetReference PixelPrefabReference;
+        private TileEntityAssetManager assetManager;
 
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MatrixDriveInstance(this,tilePosition,tileItem,chunk);
+        }
+
+        public void free()
+        {
+            
+        }
+
+        public TileEntityAssetManager getAssetManager()
+        {
+            return assetManager;
+        }
+
+        public void load()
+        {
+            Dictionary<string, AssetReference> dict = new Dictionary<string, AssetReference>
+            {
+                { "Pixels", PixelPrefabReference }
+            };
+            assetManager = new TileEntityAssetManager(dict);
         }
     }
 }

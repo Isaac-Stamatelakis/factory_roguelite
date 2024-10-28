@@ -54,4 +54,19 @@ public class WorldTileConduitData : SeralizedWorldData {
         this.signalConduitData = signalConduitData;
         this.matrixConduitData = matrixConduitData;
     }
+
+    
+}
+
+public struct PartitionFluidData {
+    public string[,] ids;
+    public string[,] baseIds;
+    public float[,] fill;
+
+    public PartitionFluidData(string[,] ids, string[,] baseIds, float[,] fill)
+    {
+        this.ids = ids;
+        this.baseIds = baseIds;
+        this.fill = fill;
+    }
 }

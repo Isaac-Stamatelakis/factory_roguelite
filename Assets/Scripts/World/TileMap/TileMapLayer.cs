@@ -22,7 +22,6 @@ namespace TileMaps.Layer {
                         TileMapType.Block,
                         TileMapType.Platform,
                         TileMapType.Object,
-                        TileMapType.SlipperyBlock,
                         TileMapType.ColladableObject
                     };
                 case TileMapLayer.Background:

@@ -44,7 +44,6 @@ namespace TileMaps {
         protected TilemapRenderer tilemapRenderer;
         protected TilemapCollider2D tilemapCollider;
         protected HashSet<Vector2Int> partitions;
-        protected DevMode devMode;
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
 
@@ -58,8 +57,7 @@ namespace TileMaps {
                 // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
                 tilemapCollider.maximumTileChangeCount=100000000; 
             }
-            closedChunkSystem = transform.parent.GetComponent<ClosedChunkSystem>();
-            devMode = GameObject.Find("Player").GetComponent<DevMode>();
+            closedChunkSystem = transform.parent.GetComponentInParent<ClosedChunkSystem>();
         }
         
         public virtual void addPartition(IChunkPartition partition) {
@@ -94,10 +92,13 @@ namespace TileMaps {
         /// Writes to partition on place
         /// </summary>
         public virtual void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
+            if (itemObject is not Item item) {
+                Debug.LogWarning($"Tried to place invalid item in {name}");
+                return;
+            }
             Vector2Int vect = new Vector2Int(x,y);
             Vector2Int tilePosition = getTilePositionInPartition(vect);
             IChunkPartition partition = getPartitionAtPosition(vect);
-            Item item = (Item) itemObject;
             writeTile(partition, tilePosition, item);
             setTile(x, y, (Item) item);
         }

@@ -240,7 +240,7 @@ namespace Chunks.Partitions {
 
         public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
-        public abstract (string[,], string[,], int[,]) getFluidData();
+        public abstract PartitionFluidData getFluidData();
         public abstract bool getFarLoaded();
         public abstract void loadFarLoadTileEntities();
         public abstract void unloadFarLoadTileEntities();

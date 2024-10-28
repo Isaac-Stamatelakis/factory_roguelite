@@ -17,6 +17,7 @@ namespace Chunks {
     public interface ILoadedChunk : IChunk {
         public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range);
         public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target, Vector2Int range);
+        public List<IChunkPartition> getUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range);
         public bool partionsAreAllUnloaded();
         /// <summary>
         /// Deletes all chunk partitions
@@ -59,6 +60,7 @@ namespace Chunks {
         /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
         /// </summary>
         [SerializeField] protected bool chunkLoaded = false;
+        public bool ScheduleForUnloading;
         protected Transform entityContainer;
         protected ClosedChunkSystem closedChunkSystem;
         protected Vector2Int position; 
@@ -151,6 +153,17 @@ namespace Chunks {
             }
             return close;
         }
+
+        public List<IChunkPartition> getUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range)
+        {
+            List<IChunkPartition> close = new List<IChunkPartition>();
+            foreach (IChunkPartition partition in partitions) {
+                if (!partition.getFarLoaded() && partition.inRange(target,range.x,range.y)) {
+                    close.Add(partition);
+                } 
+            }
+            return close;
+        }
         public List<IChunkPartition> getFarUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range)
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
@@ -176,7 +189,8 @@ namespace Chunks {
         {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (partition.getLoaded() && !partition.inRange(target,range.x,range.y)) {
+                if (partition.getLoaded() && !partition.getScheduledForUnloading() && !partition.inRange(target,range.x,range.y)) {
+                    partition.setScheduleForUnloading(true);
                     far.Add(partition);
                 } 
             }

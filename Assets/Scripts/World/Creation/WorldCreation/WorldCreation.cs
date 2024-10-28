@@ -202,7 +202,7 @@ namespace WorldModule {
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
         Debug.Log("Generating SeralizedFluidTileData");
         SeralizedFluidTileData data = new SeralizedFluidTileData();
-        int[,] fill = new int[width,height];
+        float[,] fill = new float[width,height];
         string[,] ids = new string[width,height];
         if (tilemap != null) {
             BoundsInt bounds = tilemap.cellBounds;
@@ -219,7 +219,7 @@ namespace WorldModule {
                             if (id == null || id == "") {
                                 continue;
                             }
-                            fill[x,y] = 8;
+                            fill[x,y] = 1;
                             ids[x,y]= id;
                         }
                     }
@@ -234,7 +234,7 @@ namespace WorldModule {
     private static SeralizedFluidTileData emptyTileFluidData(int width, int height) {
         SeralizedFluidTileData data = new SeralizedFluidTileData();
         data.ids = new string[width,height];
-        data.fill = new int[width,height];
+        data.fill = new float[width,height];
         return data;
     }
     private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {

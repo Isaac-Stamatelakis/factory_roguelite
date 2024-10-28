@@ -28,7 +28,7 @@ namespace Chunks.Partitions {
         public ITileEntityInstance GetTileEntity(Vector2Int position);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
-        public (string[,],string[,], int[,]) getFluidData();
+        public PartitionFluidData getFluidData();
         public void unloadEntities();
         public bool getFarLoaded();
         public void setFarLoaded(bool state);

@@ -4,59 +4,33 @@ using UnityEngine;
 using Chunks;
 using Chunks.Systems;
 
-namespace Chunks.LoadController {
-    public class ChunkUnloader : MonoBehaviour
+namespace Chunks.Loaders {
+    public class ChunkUnloader : QueueUpdater<Chunk>
     {
-        [SerializeField]
-        public bool active = false;
-        private ClosedChunkSystem closedChunkSystem;
-        [SerializeField]
-        public float delay = 1F; // 1
-        [SerializeField]
-        public int rapidUploadThreshold = 10000;
-        [SerializeField]
-        public int uploadAmountThreshold = 1000;
-        [SerializeField]
-        public int activeCoroutines = 0;
-        public bool Activated {get{return activeCoroutines != 0;}}
-        public Queue<Chunk> unloadQueue;
-        public void init(ClosedChunkSystem closedChunkSystem) {
-            this.closedChunkSystem = closedChunkSystem;
-            unloadQueue = new Queue<Chunk>();
-            StartCoroutine(unload());
+        public override bool canUpdate(Chunk value, Vector2Int playerPosition)
+        {
+            value.ScheduleForUnloading = false;
+            return value != null && closedChunkSystem.chunkIsCached(value.getPosition()) && value.partionsAreAllUnloaded();
         }
 
-        public void addToQueue(List<Chunk> chunksToUnLoad) {
-            activeCoroutines += chunksToUnLoad.Count;
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            
-            
-            chunksToUnLoad.Sort((a, b) => b.distanceFrom(playerChunkPosition).CompareTo(a.distanceFrom(playerChunkPosition)));
-            for (int j =0 ;j < chunksToUnLoad.Count; j++) {
-                unloadQueue.Enqueue(chunksToUnLoad[j]);
-            }
-            chunksToUnLoad.Clear();
-            
+        public override Vector2Int getPlayerPosition()
+        {
+            return closedChunkSystem.getPlayerChunk();
         }
-        public IEnumerator unload() {
-            while (true) {
-                if (unloadQueue.Count == 0) {
-                    yield return new WaitForSeconds(this.delay);
-                    continue;
-                }
-                int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-                Chunk farthestChunk = unloadQueue.Dequeue();
-                activeCoroutines--;
-                if (farthestChunk != null && closedChunkSystem.chunkIsCached(farthestChunk.getPosition()) && farthestChunk.partionsAreAllUnloaded()) {
-                    closedChunkSystem.removeChunk(farthestChunk);
-                    farthestChunk.unload();
-                    yield return new WaitForSeconds(delay);
-                } else {
-                    yield return new WaitForEndOfFrame();
-                }
-                
-                
-            }
+
+
+        /*
+public float delay = 1F; // 1
+[SerializeField]
+public int rapidUploadThreshold = 10000;
+[SerializeField]
+public int uploadAmountThreshold = 1000;
+*/
+
+        public override void update(Chunk value)
+        {
+            closedChunkSystem.removeChunk(value);
+            value.unload();
         }
     }
 

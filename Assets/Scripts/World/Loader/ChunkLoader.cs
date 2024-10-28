@@ -4,54 +4,22 @@ using UnityEngine;
 using Chunks.IO;
 using Chunks.Systems;
 
-namespace Chunks.LoadController {
-    public class ChunkLoader : MonoBehaviour
+namespace Chunks.Loaders {
+    public class ChunkLoader : QueueUpdater<Vector2Int>
     {
-        [SerializeField]
-        public bool active = false;
-        private ClosedChunkSystem closedChunkSystem;
-        [SerializeField]
-        public float delay = 0.05F;
-        [SerializeField]
-        public int rapidUploadThreshold = 6;
-        [SerializeField]
-        public int uploadAmountThreshold = 2;
-        [SerializeField]
-        public int activeCoroutines = 0;
-        public bool Activated {get{return activeCoroutines != 0;}}
-        public Queue<Vector2Int> loadQueue;
+        public override bool canUpdate(Vector2Int position,Vector2Int playerPosition)
+        {
+            return !closedChunkSystem.chunkIsCached(position);
+        }
 
-        public void init(ClosedChunkSystem closedChunkSystem) {
-            this.closedChunkSystem = closedChunkSystem;
-            loadQueue = new Queue<Vector2Int>();
-            StartCoroutine(load());
+        public override Vector2Int getPlayerPosition()
+        {
+            return closedChunkSystem.getPlayerChunk();
         }
-        public void addToQueue(List<Vector2Int> chunkPositionToLoad) {
-            activeCoroutines += chunkPositionToLoad.Count;
-            Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-            foreach (Vector2Int vect in chunkPositionToLoad) {
-                loadQueue.Enqueue(vect);
-            }
-            chunkPositionToLoad.Clear();
-            
-        }
-        public IEnumerator load() {
-            while (true) {
-                if (loadQueue.Count == 0) {
-                    yield return new WaitForSeconds(this.delay);
-                    continue;
-                }
-                int loadAmount = activeCoroutines/uploadAmountThreshold+1;
-                Vector2Int playerChunkPosition = closedChunkSystem.getPlayerChunk();
-                Vector2Int closestPosition = loadQueue.Dequeue();
-                if (closedChunkSystem.chunkIsCached(closestPosition)) {
-                    activeCoroutines--;
-                    continue;
-                }
-                closedChunkSystem.cacheChunk(closestPosition);
-                activeCoroutines--;
-                yield return new WaitForSeconds(delay);
-            }
+
+        public override void update(Vector2Int position)
+        {
+            closedChunkSystem.cacheChunk(position);
         }
     }
 }

@@ -154,10 +154,13 @@ namespace Dimensions {
             Debug.Log($"{player.name} system set to {newSystem.name}");
             playerWorldData[player].chunkPos = null;
             playerWorldData[player].partitionPos = null;
-            BackgroundImageController.Instance.setOffset(new Vector2(
-                -systemOffset.x/2f,
-                -systemOffset.y/2f
-            ));
+            if (BackgroundImageController.Instance != null) {
+                BackgroundImageController.Instance.setOffset(new Vector2(
+                    -systemOffset.x/2f,
+                    -systemOffset.y/2f
+                ));
+            }
+            
             Vector2Int tpPosition = (teleportPosition-systemOffset);
             Vector3 playerPosition = player.transform.position;
             playerPosition.x = tpPosition.x/2f;

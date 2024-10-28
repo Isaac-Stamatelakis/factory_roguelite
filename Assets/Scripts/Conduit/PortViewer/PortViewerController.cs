@@ -4,6 +4,7 @@ using UnityEngine;
 using PlayerModule;
 using Chunks.Systems;
 using Items;
+using UnityEngine.Tilemaps;
 
 namespace Conduits.PortViewer {
     public class PortViewerController : MonoBehaviour
@@ -53,6 +54,13 @@ namespace Conduits.PortViewer {
             Vector3Int referenceFrame = (Vector3Int)closedChunkSystem.getBottomLeftCorner();
             portViewer.initalize(closedChunkSystem.getManager(conduitType),referenceFrame);
         }
+    }
+
+    [System.Serializable]
+    public struct ConduitPortTiles {
+        public TileBase InputTile;
+        public TileBase OutputTile;
+        public TileBase AnyTile;
     }
 }
 

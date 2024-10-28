@@ -261,10 +261,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             tileOptionsArray[position.x,position.y] = tileOptions;
         }
 
-        public override (string[,], string[,], int[,]) getFluidData()
+        public override PartitionFluidData getFluidData()
         {
             SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
-            return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
+            return new PartitionFluidData(serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
 
         public override bool getFarLoaded()

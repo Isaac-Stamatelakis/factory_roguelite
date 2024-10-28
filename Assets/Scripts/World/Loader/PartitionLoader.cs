@@ -5,12 +5,31 @@ using Chunks;
 using Chunks.Systems;
 using Chunks.Partitions;
 
-namespace Chunks.LoadController {
+namespace Chunks.Loaders {
     public enum PartitionQueue {
         Standard,
         Far
     }
-    public class PartitionLoader : MonoBehaviour
+    public class PartitionLoader : QueueUpdater<IChunkPartition>
+    {
+        public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
+        {
+            return !value.getLoaded();
+        }
+
+        public override Vector2Int getPlayerPosition()
+        {
+            return closedChunkSystem.getPlayerChunkPartition();
+        }
+
+        public override void update(IChunkPartition value)
+        {
+            value.setTileLoaded(true);
+            StartCoroutine(closedChunkSystem.loadChunkPartition(value,0));
+        }
+    }
+
+    /*
     {
         [SerializeField]
         public bool active = false;
@@ -27,14 +46,9 @@ namespace Chunks.LoadController {
         public Queue<IChunkPartition> loadQueue;
         public Queue<IChunkPartition> farQueue;
 
-        public void init(ClosedChunkSystem closedChunkSystem) {
-            this.closedChunkSystem = closedChunkSystem;
-            loadQueue = new Queue<IChunkPartition>();
-            farQueue = new Queue<IChunkPartition>();
-            StartCoroutine(load());
-            StartCoroutine(loadFar());
-        }
+        */
 
+        /*
         public void addToQueue(List<IChunkPartition> partitionsToLoad, PartitionQueue partitionQueue) {
             if (partitionQueue == PartitionQueue.Standard) {
                 activeCoroutines += partitionsToLoad.Count;
@@ -97,13 +111,8 @@ namespace Chunks.LoadController {
                 yield return new WaitForEndOfFrame();
             }
         }
-
-        private IEnumerator loadChunkPartition(IChunkPartition partition, int loadAmount, double angle) {
-            yield return closedChunkSystem.loadChunkPartition(partition,angle);
-            activeCoroutines--;
-        }
-
-    }
+        */
 }
+
 
 
