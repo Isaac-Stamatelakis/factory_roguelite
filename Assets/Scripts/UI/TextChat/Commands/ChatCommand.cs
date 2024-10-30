@@ -8,43 +8,28 @@ using PlayerModule;
 using Items;
 
 namespace UI.Chat {
-
-    public enum ChatCommand {
-        help,
-        teleport,
-        spawn,
-        give,
-        setrobot,
-        gamemode,
-        setlight,
-        setdim
-    }
-
-    public static class ChatCommandUtils {
-        private static readonly int commandsPerHelpPage = 10;
-
-        public static int CommandsPerHelpPage => commandsPerHelpPage;
-        public static int getHelpPages() {
-            var commands = Enum.GetValues(typeof(ChatCommand));
-            return Mathf.CeilToInt(commands.Length/(float) ChatCommandUtils.CommandsPerHelpPage);
-        }
-        public static List<string> getAllCommandStrings() {
-            var commands = Enum.GetValues(typeof(ChatCommand));
-            List<string> commandStrings = new List<string>();
-            foreach (ChatCommand command in commands) {
-                commandStrings.Add(command.ToString());
-            }
-            return commandStrings;
-        }
-    }
-
     public static class ChatCommandFactory {
-        public static ChatCommand? getCommand(string text) {
-            var commands = Enum.GetValues(typeof(ChatCommand));
-            foreach (ChatCommand command in commands) {
-                if (text.ToString().Equals(command.ToString())) {
-                    return command;
-                }
+        private static readonly Dictionary<string, Func<string[], TextChatUI, ChatCommand>> commandMap = 
+            new Dictionary<string, Func<string[], TextChatUI, ChatCommand>>
+        {
+            { "help", (parameters, ui) => new HelpCommand(parameters, ui) },
+            { "setdim", (parameters, ui) => new SetDimCommand(parameters, ui) },
+            { "setlight", (parameters, ui) => new SetLightCommand(parameters, ui) },
+            { "setoutline", (parameters, ui) => new ModifyOutlineCommand(parameters, ui) },
+            { "give", (parameters, ui) => new GiveCommand(parameters, ui) },
+            { "spawn", (parameters, ui) => new SpawnCommand(parameters, ui) },
+            { "tp", (parameters, ui) => new TeleportCommand(parameters, ui) },
+            { "setrobot", (parameters, ui) => new SetRobotCommand(parameters, ui) },
+            
+        };
+
+        public static List<string> getAllCommands() {
+            return new List<string>(commandMap.Keys);
+        }
+        public static ChatCommand getCommand(ChatCommandToken token, TextChatUI textChatUI) {
+            if (commandMap.TryGetValue(token.Command, out var commandConstructor))
+            {
+                return commandConstructor(token.Parameters, textChatUI);
             }
             return null;
         }

@@ -145,7 +145,6 @@ public class AssignFolderAddressableUtil : EditorWindow {
         }
         
         if (tileEntities.Count == 0) {
-            tileItem.tileEntityReference = null;
             return;
         }
         var tileEntityGroup = settings.FindGroup("TileEntities");
@@ -159,7 +158,6 @@ public class AssignFolderAddressableUtil : EditorWindow {
         var entry = settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(tileEntityPath), tileEntityGroup);
         entry.SetAddress(tileEntity1.name);
         entry.labels.Add("tile_entity");
-        tileItem.tileEntityReference = new UnityEngine.AddressableAssets.AssetReference(tileEntityGuid);
     }
 
     void resetAddressables() {

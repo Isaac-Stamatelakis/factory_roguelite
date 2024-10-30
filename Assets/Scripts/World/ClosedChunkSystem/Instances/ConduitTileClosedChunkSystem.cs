@@ -72,13 +72,6 @@ namespace Chunks.Systems {
             ConduitTileMap conduitTileMap = (ConduitTileMap) tileMap;
             conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
         }
-
-
-        public override IEnumerator loadChunkPartition(IChunkPartition chunkPartition, double angle)
-        {
-            yield return base.loadChunkPartition(chunkPartition, angle);
-        }
-
         public override IEnumerator unloadChunkPartition(IChunkPartition chunkPartition)
         {
             yield return base.unloadChunkPartition(chunkPartition);

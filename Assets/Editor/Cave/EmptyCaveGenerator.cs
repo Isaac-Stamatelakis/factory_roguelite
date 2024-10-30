@@ -39,6 +39,7 @@ public class EmptyCaveGenerator : EditorWindow {
 
     void createTileItem()
     {
+        /*
         string path = "Assets/EditorCreations/" + caveName + "/";
         
         if (AssetDatabase.IsValidFolder(path)) {
@@ -75,6 +76,7 @@ public class EmptyCaveGenerator : EditorWindow {
         newArea.generationModel = generationModel;
         AssetDatabase.CreateAsset(newArea,path + caveName + ".asset");
         AssetDatabase.Refresh();
+        */
 
 
     }

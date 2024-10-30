@@ -11,7 +11,7 @@ using TileEntityModule;
 }
 public static class ItemEditorFactory
 {
-    public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntity tileEntity = null) {
+    public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntity tileEntity = null, TileBase outline = null) {
         string path = savePath + tileName + "/";
         if (createFolder) {
             createDirectory(tileName,savePath);
@@ -21,6 +21,7 @@ public static class ItemEditorFactory
         tileItem.id = formatId(tileName);
         tileItem.name = tileName;
         tileItem.tile = tile;
+        tileItem.outline = outline;
         if (tileEntity != null) {
             tileItem.tileEntity = tileEntity;
         }
@@ -46,10 +47,29 @@ public static class ItemEditorFactory
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
     }
-    public static void saveTile(TileBase tileBase, string tileName, string addition = "",string path = "Assets/EditorCreations/") {
+    public static void saveTileWithName(TileBase tileBase, string tileName, string addition = "",string path = "Assets/EditorCreations/") {
+        if (!path.EndsWith("/")) {
+            path = path + '/';
+        }
         string savePath = Path.Combine(path+tileName,$"T~{tileName}{addition}.asset");
+        Debug.Log(savePath);
         AssetDatabase.CreateAsset(tileBase,savePath);
         AssetDatabase.Refresh();
+    }
+
+    public static void saveTile(TileBase tileBase, string path = "Assets/EditorCreations/") {
+        AssetDatabase.CreateAsset(tileBase,path + tileBase.name + ".asset");
+        AssetDatabase.Refresh();
+    }
+
+    
+
+    public static Tile createTile(Sprite sprite, string tileName, string path) {
+        Tile tile = ScriptableObject.CreateInstance<Tile>();
+        tile.sprite = sprite;
+        tile.name = tileName;
+        saveTile(tile,path);
+        return tile;
     }
 
 

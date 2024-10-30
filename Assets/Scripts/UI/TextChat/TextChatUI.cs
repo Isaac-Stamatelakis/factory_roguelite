@@ -92,17 +92,26 @@ namespace UI.Chat {
             if (!inputField.text.StartsWith("/")) {
                 return;
             }
-            CommandData commandData = getCommand(inputField.text);
-            int paramIndex = commandData.Parameters.Length-1;
+            ChatCommandToken token = ChatTokenizer.tokenize(inputField.text);
+            int paramIndex = token.Parameters.Length-1;
             if (paramIndex < 0) {
-                List<string> commands = ChatCommandUtils.getAllCommandStrings();
+                List<string> commands = ChatCommandFactory.getAllCommands();
                 string currentCommand = inputField.text.Replace("/","");
                 commands = commands.Where(s => s.StartsWith(currentCommand)).ToList();
                 fillSuggested(commands,"/");
                 return;
             }
-            string paramPrefix = commandData.Parameters[paramIndex];
-            List<string> suggested = ((ChatCommand)commandData.Command).getAutoFill(paramIndex);
+            
+            ChatCommand chatCommand = ChatCommandFactory.getCommand(token,this);
+            if (chatCommand == null) {
+                return;
+            }
+
+            if (chatCommand is not IAutoFillChatCommand autoFillChatCommand) {
+                return;
+            }
+            string paramPrefix = token.Parameters[paramIndex];
+            List<string> suggested = autoFillChatCommand.getAutoFill(paramIndex);
             suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
             fillSuggested(suggested,"");
         }
@@ -131,35 +140,17 @@ namespace UI.Chat {
             return val;
         }
 
-        private CommandData getCommand(string text) {
-            if (!text.StartsWith("/")) {
-                return null;
-            }
-            string[] split = text.Split(" ");
-            string textCommand = split[0];
-            textCommand = textCommand.Replace("/","");
-            ChatCommand? command = ChatCommandFactory.getCommand(textCommand);
-            
-            string[] parameters = new string[split.Length-1];
-            for (int i = 0; i < split.Length-1; i++) {
-                parameters[i] = split[i+1];
-            }
-            return new CommandData(command,parameters,textCommand);
-            
-            
-        }
-
         public void sendMessage(string text) {
             if (text.Length == 0) {
                 return;
             }
             if (text.StartsWith("/")) {
-                CommandData commandData = getCommand(text);
-                if (commandData.Command == null) {
-                    sendMessage("Command '" + commandData.StringCommand + "' does not exist");
+                ChatCommandToken commandToken = ChatTokenizer.tokenize(text);
+                ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
+                if (chatCommand == null) {
                     return;
                 }
-                ((ChatCommand)commandData.Command).execute(commandData.Parameters);
+                chatCommand.execute();
                 return;
             }
             if (recordedMessages.Count > 50) {
@@ -202,21 +193,6 @@ namespace UI.Chat {
                 TextChatMessageUI textChatMessageUI = messageTransform.GetComponent<TextChatMessageUI>();
                 textChatMessageUI.setFade(fade);
             }
-        }
-
-        private class CommandData {
-            private ChatCommand? command;
-            private string[] parameters;
-            private string stringCommand;
-            public CommandData(ChatCommand? command, string[] parameters, string stringCommand) {
-                this.command = command;
-                this.parameters = parameters;
-                this.stringCommand = stringCommand;
-            }
-
-            public ChatCommand? Command { get => command; set => command = value; }
-            public string[] Parameters { get => parameters; set => parameters = value; }
-            public string StringCommand { get => stringCommand; set => stringCommand = value; }
         }
     }
 }

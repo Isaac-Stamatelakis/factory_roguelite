@@ -140,7 +140,7 @@ namespace Chunks.IO {
 
     public class SeralizedFluidTileData {
         public string[,] ids;
-        public int[,] fill;
+        public float[,] fill;
     }
 
     [System.Serializable]

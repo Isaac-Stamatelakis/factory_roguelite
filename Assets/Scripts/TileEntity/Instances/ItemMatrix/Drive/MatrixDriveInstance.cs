@@ -38,11 +38,10 @@ namespace TileEntityModule.Instances.Matrix {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            GameObject container = GlobalHelper.instantiateFromResourcePath("Prefabs/TileEntities/Matrix/DrivePixels");
-            container.name = "DrivePixels" + getPositionInChunk();
-            container.transform.position = getWorldPosition();
-            container.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-            pixelContainer = container.GetComponent<MatrixDriverPixelContainer>();
+            MatrixDriverPixelContainer pixelContainer = GameObject.Instantiate(tileEntity.getAssetManager().getElement<MatrixDriverPixelContainer>("Pixels"));
+            pixelContainer.name = "DrivePixels" + getPositionInChunk();
+            pixelContainer.transform.position = getWorldPosition();
+            pixelContainer.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
             if (storageDrives == null) {
                 storageDrives = new List<ItemSlot>();
                 for (int i = 0; i < TileEntity.rows*TileEntity.columns; i++) {
@@ -97,8 +96,6 @@ namespace TileEntityModule.Instances.Matrix {
                 } else {
                     spriteRenderer.color = Color.red;
                 }
-                
-                
             }
         }
         public Queue<ItemSlot> getQueueOfDrives() {

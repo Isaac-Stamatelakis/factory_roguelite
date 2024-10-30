@@ -19,13 +19,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, double angle,Vector2Int systemOffset)
+        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int direction,Vector2Int systemOffset)
         {
             if (tileEntities == null) {
                 tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
             fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
-            yield return base.load(tileGridMaps,angle,systemOffset);
+            yield return base.load(tileGridMaps,direction,systemOffset);
             if (parent is ILoadedChunk loadedChunk) {
                 foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
                     EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
@@ -261,10 +261,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             tileOptionsArray[position.x,position.y] = tileOptions;
         }
 
-        public override (string[,], string[,], int[,]) getFluidData()
+        public override PartitionFluidData getFluidData()
         {
             SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
-            return (serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
+            return new PartitionFluidData(serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
 
         public override bool getFarLoaded()
@@ -298,7 +298,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     if (tileEntity == null || !tileEntity.ExtraLoadRange) {
                         continue;
                     }
-                    Debug.Log("Far Loaded " + tileEntity.name);
                     string tileEntityData = data.baseData.sTileEntityOptions[x,y];
                     Vector2Int position = this.position * Global.ChunkPartitionSize + new Vector2Int(x,y);
                     tileEntities[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);

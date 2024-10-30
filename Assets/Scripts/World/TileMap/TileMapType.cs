@@ -9,7 +9,6 @@ namespace TileMaps.Type {
         Background,
         Object,
         Platform,
-        SlipperyBlock,
         ColladableObject,
         ItemConduit,
         FluidConduit,
@@ -29,8 +28,6 @@ namespace TileMaps.Type {
                 case TileMapType.Object:
                     return TileMapLayer.Base;
                 case TileMapType.Platform:
-                    return TileMapLayer.Base;
-                case TileMapType.SlipperyBlock:
                     return TileMapLayer.Base;
                 case TileMapType.ColladableObject:
                     return TileMapLayer.Base;
@@ -57,8 +54,6 @@ namespace TileMaps.Type {
                     return true;
                 case TileMapType.Platform:
                     return true;
-                case TileMapType.SlipperyBlock:
-                    return true;
                 case TileMapType.ColladableObject:
                     return true;
                 case TileMapType.ItemConduit:
@@ -83,8 +78,6 @@ namespace TileMaps.Type {
                     return true;
                 case TileMapType.Platform:
                     return true;
-                case TileMapType.SlipperyBlock:
-                    return true;
                 case TileMapType.ColladableObject:
                     return true;
                 case TileMapType.ItemConduit:
@@ -108,8 +101,6 @@ namespace TileMaps.Type {
                 case TileMapType.Object:
                     return false;
                 case TileMapType.Platform:
-                    return false;
-                case TileMapType.SlipperyBlock:
                     return false;
                 case TileMapType.ColladableObject:
                     return false;
@@ -158,8 +149,6 @@ namespace TileMaps.Type {
                 case TileMapType.Object:
                     return 1.5f;
                 case TileMapType.Platform:
-                    return 1;
-                case TileMapType.SlipperyBlock:
                     return 1;
                 case TileMapType.ColladableObject:
                     return 1;

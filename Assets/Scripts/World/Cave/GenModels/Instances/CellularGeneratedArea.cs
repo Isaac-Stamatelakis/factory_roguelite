@@ -167,7 +167,7 @@ namespace WorldModule.Caves {
 
             SeralizedFluidTileData fluidTileData = new SeralizedFluidTileData();
             fluidTileData.ids = new string[width,height];
-            fluidTileData.fill = new int[width,height];
+            fluidTileData.fill = new float[width,height];
             for (int x = 0; x < width; x ++) {
                 for (int y = 0; y < height; y ++) {
                     if (grid[x,y] == 1) {

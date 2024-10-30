@@ -69,7 +69,7 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,double angle,Vector2Int systemOffset) {
+        public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int direction,Vector2Int systemOffset) {
             tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
@@ -81,15 +81,14 @@ namespace Chunks.Partitions {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int realPosition = getRealPosition();
 
-            /*
+
             for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                     iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                 }
                 yield return new WaitForEndOfFrame();
             }
-            */
-
+            /*
             if (angle > 45 && angle <= 135) { // up
                 for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
@@ -119,6 +118,7 @@ namespace Chunks.Partitions {
                     yield return new WaitForEndOfFrame();
                 }
             }
+            */
             yield return null;
         }
 
@@ -240,7 +240,7 @@ namespace Chunks.Partitions {
 
         public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
-        public abstract (string[,], string[,], int[,]) getFluidData();
+        public abstract PartitionFluidData getFluidData();
         public abstract bool getFarLoaded();
         public abstract void loadFarLoadTileEntities();
         public abstract void unloadFarLoadTileEntities();

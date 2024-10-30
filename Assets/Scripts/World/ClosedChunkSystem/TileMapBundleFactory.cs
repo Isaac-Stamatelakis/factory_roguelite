@@ -15,7 +15,6 @@ namespace Chunks.Systems {
                 TileMapType.Background,
                 TileMapType.Object,
                 TileMapType.Platform,
-                TileMapType.SlipperyBlock,
                 TileMapType.ColladableObject,
             };
         }
@@ -30,21 +29,26 @@ namespace Chunks.Systems {
         }
 
         public static void loadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, ITileMap> tileGridMaps) {
+            GameObject container = new GameObject();
+            container.name = "Tiles";
+            container.transform.SetParent(systemTransform);
             List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();
             foreach (TileMapType tileMapType in standardMaps) {
-                initTileMapContainer(tileMapType,systemTransform,tileGridMaps);
+                initTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
             initTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
-            tileGridMaps[TileMapType.SlipperyBlock].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
             
         }
 
         public static void loadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, ITileMap> tileGridMaps) {
+            GameObject container = new GameObject();
+            container.name = "Conduits";
+            container.transform.SetParent(systemTransform);
             loadTileSystemMaps(systemTransform,tileGridMaps);
             List<TileMapType> conduitMaps = TileMapBundleFactory.getConduitTileTypes();
             foreach (TileMapType tileMapType in conduitMaps) {
-                initTileMapContainer(tileMapType,systemTransform,tileGridMaps);
+                initTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
         }
 
@@ -59,7 +63,13 @@ namespace Chunks.Systems {
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);
             if (tileType.isTile()) {
-                TileGridMap tileGridMap = container.AddComponent<TileGridMap>();
+                TileGridMap tileGridMap;
+                if (tileType == TileMapType.Block) {
+                    tileGridMap = container.AddComponent<OutlineTileGridMap>();
+                } else {
+                    tileGridMap = container.AddComponent<TileGridMap>();
+                }
+                
                 tileGridMap.type = tileType;
                 tileGridMaps[tileType] = tileGridMap;
             } else if (tileType.isConduit()) {

@@ -10,6 +10,7 @@ using TileEntityModule.Instances.SimonSays;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~New Simon Says Tile",menuName="Tile/State/Hammer")]
+    
     public class HammerTile : TileBase, IIDTile, IStateTile
     {
         [SerializeField] public string id;

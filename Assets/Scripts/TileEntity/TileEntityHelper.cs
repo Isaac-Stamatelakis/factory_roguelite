@@ -14,13 +14,18 @@ namespace TileEntityModule {
 
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, string data = null) {
             ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
-            if (load && tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                loadableTileEntity.load();
-            }
-            if (load && tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
-                TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
-                if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
-                    tileEntityUIManager.loadUIIntoMemory();
+            if (load) {
+                if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
+                    loadableTileEntity.load();
+                }
+                if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
+                    TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
+                    if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
+                        tileEntityUIManager.loadUIIntoMemory();
+                    }
+                }
+                if (tileItem.tileEntity is IAssetManagerTileEntity assetManagerTileEntity) {
+                    
                 }
             }
             if (unserialize && tileEntityInstance is ISerializableTileEntity serializableTileEntity) {

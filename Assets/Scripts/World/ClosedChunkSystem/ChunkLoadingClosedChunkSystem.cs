@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Chunks.LoadController;
+using Chunks.Loaders;
 using Chunks.IO;
 
 namespace Chunks.Systems {
@@ -35,10 +35,10 @@ namespace Chunks.Systems {
         public override void initLoaders()
         {
             chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
-            chunkLoader.init(this);
+            chunkLoader.initalize(this,LoadUtils.getChunkLoaderVariables());
 
             chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
-            chunkUnloader.init(this);
+            chunkUnloader.initalize(this,LoadUtils.getChunkUnloaderVariables());
             base.initLoaders();
         }
 

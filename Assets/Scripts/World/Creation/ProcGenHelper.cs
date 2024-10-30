@@ -10,7 +10,7 @@ using WorldModule.Caves;
 
 namespace WorldModule {
     public static class WorldGenerationFactory {
-        public static void saveToJson(SeralizedWorldData worldTileData, Cave cave, int dim, string dimPath) {
+        public static void saveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
             int tileMaxX = Global.ChunkSize*caveSize.x;
@@ -57,7 +57,7 @@ namespace WorldModule {
 
             SeralizedFluidTileData seralizedFluidTileData = new SeralizedFluidTileData();
             seralizedFluidTileData.ids = new string[size.x,size.y];
-            seralizedFluidTileData.fill = new int[size.x,size.y];
+            seralizedFluidTileData.fill = new float[size.x,size.y];
 
             SeralizedChunkConduitData itemConduitData = new SeralizedChunkConduitData();
             itemConduitData.ids = new string[size.x,size.y];
@@ -152,7 +152,7 @@ namespace WorldModule {
 
             SeralizedFluidTileData fluidData = new SeralizedFluidTileData();
             fluidData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            fluidData.fill = new int[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            fluidData.fill = new float[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
 
             for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
                 for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
