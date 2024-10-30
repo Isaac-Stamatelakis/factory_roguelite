@@ -189,6 +189,9 @@ namespace TileMaps.Place {
             if (tileMap == null) {
                 return;
             }
+            if (!closedChunkSystem.localWorldPositionInSystem(worldPosition)) {
+                return;
+            }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
                 int state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
                 bool placeable = state != -1;

@@ -66,6 +66,11 @@ namespace Chunks.Systems {
             return null;
         }
 
+        public bool localWorldPositionInSystem(Vector2 worldPosition) {
+            Vector2Int playerChunkPosition = getChunkPositionFromWorld(worldPosition);
+            return cachedChunks.ContainsKey(playerChunkPosition);
+        }
+
         public void deactivateAllPartitions() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
@@ -216,8 +221,12 @@ namespace Chunks.Systems {
             return chunksToUnload;
         }
         public Vector2Int getPlayerChunk() {
-            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(playerTransform.position.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+            Vector2Int pos = getChunkPositionFromWorld(playerTransform.position);
             return pos + DimPositionOffset/Global.ChunkSize;
+        }
+
+        public Vector2Int getChunkPositionFromWorld(Vector2 world) {
+            return new Vector2Int(Mathf.FloorToInt(world.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(world.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
         }
 
         public Vector2Int getPlayerChunkPartition() {
