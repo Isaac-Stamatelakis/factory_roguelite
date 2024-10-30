@@ -53,7 +53,6 @@ public class TileItem : ItemObject, IPlacableItem
     public TileBase outline;
     public TileEntity tileEntity;
     public TileOptions tileOptions;
-    public AssetReference tileEntityReference;
     public override ItemDisplayType? getDisplayType()
     {
         if (tile is StandardTile standardTile) {

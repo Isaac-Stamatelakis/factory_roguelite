@@ -49,6 +49,22 @@ namespace TileEntityModule {
             }
             return null;
         }
+
+        public C cloneElement<C>(string key) where C : Component {
+            GameObject element = cloneGameObject(key);
+            if (element == null) {
+                return null;
+            }
+            return element.GetComponent<C>();
+        }
+
+        public GameObject cloneGameObject(string key) {
+            GameObject element = getElement<GameObject>(key);
+            if (element == null) {
+                return null;
+            }
+            return GameObject.Instantiate(element);
+        }
     }
 }
 

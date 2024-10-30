@@ -25,17 +25,7 @@ namespace TileEntityModule {
             return instance;
         }
 
-        public void loadTileEntity(TileItem tileItem) {
-            AssetReference assetReference = tileItem.tileEntityReference;
-            if (assetReference == null) {
-                return;
-            }
-            if (idDict.ContainsKey(tileItem.id)) {
-                return;
-            }
-            AsyncOperationHandle<TileEntity> handle = assetReference.LoadAssetAsync<TileEntity>();
-            handle.Completed += handle => OnAssetLoaded(handle, tileItem.id);
-        }
+        
 
         public void unloadTileEntity(TileItem tileItem, LoadType loadType) {
             if (tileItem == null || !idDict.ContainsKey(tileItem.id)) {

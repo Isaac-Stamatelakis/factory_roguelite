@@ -21,8 +21,7 @@ namespace Tiles {
     public interface IStateTile {
         public TileBase getTileAtState(int state);
         public Sprite getDefaultSprite();
-        public int getStateAmount();
-        
+        public int getStateAmount();   
     }
 }
 

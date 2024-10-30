@@ -68,6 +68,20 @@ namespace Tiles {
             }
             return null;
         }
+
+        private int getStateType(int state) {
+            if (state < 3) {
+                return state;
+            }
+            if (state < natureSlants.Length) {
+                return 3;
+            }
+            if (state < natureSlabs.Length) {
+                return 4;
+            }
+            return -1;
+            
+        }
         public int getStateAmount()
         {
             return 3+natureSlants.Length+natureSlabs.Length;

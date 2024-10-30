@@ -22,8 +22,8 @@ public static class TileSpriteShapeFactory
                 Color[] pixels = texture.GetPixels((sectionX)*16,(sectionY)*16,16,16);
                 for (int x = 0; x < 16; x++) {
                     for (int y = 0; y < 16; y++) {
-                        int index = getIndexFromRotation(x, y, rotation);
-                        if (shape[index].a != 0) {
+                        int index = getIndexFromRotation(x,y,rotation);
+                        if (shape[index].a == 0) {
                             pixels[y*16+x] = transparentColor;
                         }
                     }
@@ -38,13 +38,13 @@ public static class TileSpriteShapeFactory
     private static int getIndexFromRotation(int x, int y, int rotation) {
     switch (rotation) {
         case 0: // 0
-    return (15 - y) * 16 + (15 - x);
-        case 1: // 90
-            return x * 16 + (15 - y);
-        case 2: // 180
             return y * 16 + x;
-        case 3: // 270
+        case 1: // 90
             return (15 - x) * 16 + y;
+        case 2: // 180
+            return (15 - y) * 16 + (15 - x);
+        case 3: // 270
+             return x * 16 + (15 - y);
         default:
             throw new Exception($"Rotation {rotation} is not valid");
     }
@@ -162,6 +162,16 @@ public static class TileSpriteShapeFactory
         return sprites;
     }
 
+    public static Sprite pixelsToSprite(Color[,] pixels, string spritePath) {
+        Color[] pixelArray = new Color[pixels.GetLength(0)*pixels.GetLength(1)];
+        for (int x = 0; x < pixels.GetLength(0); x++) {
+            for (int y = 0; y < pixels.GetLength(1); y++) {
+                pixelArray[x+y*pixelArray.GetLength(0)] = pixels[x,y];
+            }
+        }
+        return pixelsToSprite(pixelArray,spritePath,pixels.GetLength(0),pixels.GetLength(1));
+        
+    }
     public static Sprite pixelsToSprite(Color[] pixels, string spritePath, int width, int height) {
         Texture2D newTexture = new Texture2D(width,height);
         newTexture.SetPixels(0,0,width,height,pixels);

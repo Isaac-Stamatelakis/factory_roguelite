@@ -188,7 +188,6 @@ public class EditorFactory
                 Texture2D spliteTexture = new Texture2D(width,height);
                 spliteTexture.SetPixels(0,0,width,height,pixels);
                 
-
                 string spriteSavePath = spritePath + "S~" + name +"-" + index.ToString();
                 byte[] pngBytes = spliteTexture.EncodeToPNG();
                 File.WriteAllBytes(spriteSavePath+".png", pngBytes);
@@ -205,6 +204,48 @@ public class EditorFactory
             }
         }
         return sprites;
+    }
+    public static Color[] pixels2DTo1D(Color[,] pixels, int width, int height) {
+        Color[] pixelArray = new Color[width*height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                pixelArray[x+y*width] = pixels[x,y];
+            }
+        }
+        return pixelArray;
+    }
+    public static Color[,] pixels1DTo2D(Color[] pixels, int width, int height) {
+        Color[,] pixel2d = new Color[width,height];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                pixel2d[x,y] = pixels[x+y*width];
+            }
+        }
+
+        return pixel2d;
+    }
+
+
+    public static Sprite saveSprite(Color[,] pixels, string folder, string name) {
+        Vector2Int size = new Vector2Int(pixels.GetLength(0),pixels.GetLength(1));
+        Color[] pixelArray = pixels2DTo1D(pixels,size.x,size.y);
+        
+        Texture2D texture = new Texture2D(size.x,size.y);
+        texture.SetPixels(0,0,size.x,size.y,pixelArray);
+        string spriteSavePath = folder + name + ".png";
+        byte[] pngBytes = texture.EncodeToPNG();
+        File.WriteAllBytes(spriteSavePath, pngBytes);
+        AssetDatabase.Refresh();
+
+        TextureImporter textureImporter = AssetImporter.GetAtPath(spriteSavePath) as TextureImporter;
+        textureImporter.textureType = TextureImporterType.Sprite;
+        textureImporter.spritePixelsPerUnit = 32;
+        textureImporter.filterMode = FilterMode.Point;
+        AssetDatabase.ImportAsset(spriteSavePath, ImportAssetOptions.ForceUpdate);
+        AssetDatabase.Refresh();
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath);
     }
 
     public static BackgroundRuleTile backgroundRuleTileFrom24x24Texture(Texture2D texture, string spritePath, string name) {

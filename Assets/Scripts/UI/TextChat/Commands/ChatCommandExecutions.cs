@@ -8,6 +8,7 @@ using Entities;
 using Dimensions;
 using Entities.Mobs;
 using UnityEngine.Rendering.Universal;
+using TileMaps;
 
 namespace UI.Chat {
     public static class ChatCommendExecutionExtension {
@@ -244,6 +245,16 @@ namespace UI.Chat {
             }
             Transform player = PlayerContainer.getInstance().getTransform();
             DimensionManager.Instance.setPlayerSystem(player,(int)dim,new Vector2Int(x,y));
+        }
+
+        private static void executeOutline(string[] parameters) {
+            TextChatUI chatUI = TextChatUI.Instance;
+            DimensionManager dimensionManager = DimensionManager.Instance;
+            bool wireFrame = true;
+            OutlineTileGridMap[] outlineTileGridMaps = dimensionManager.GetComponentsInChildren<OutlineTileGridMap>();
+            foreach (OutlineTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+                
+            }
         }
     }
 }

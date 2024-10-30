@@ -102,6 +102,9 @@ namespace UI.Chat {
                 return;
             }
             string paramPrefix = commandData.Parameters[paramIndex];
+            if (commandData.Command == null) {
+                return;
+            }
             List<string> suggested = ((ChatCommand)commandData.Command).getAutoFill(paramIndex);
             suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
             fillSuggested(suggested,"");

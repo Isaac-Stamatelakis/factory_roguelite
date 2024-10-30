@@ -225,9 +225,9 @@ namespace Chunks.Systems {
             return pos + DimPositionOffset/Global.ChunkPartitionSize;
         }
 
-        public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition,double angle) {
+        public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition, Vector2Int direction) {
             loadedPartitionBoundary.partitionLoaded(chunkPartition.getRealPosition());
-            yield return chunkPartition.load(tileGridMaps,angle,DimPositionOffset);
+            yield return chunkPartition.load(tileGridMaps,direction,DimPositionOffset);
             chunkPartition.setTileLoaded(true);
             
         }

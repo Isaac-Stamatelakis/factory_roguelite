@@ -51,8 +51,17 @@ namespace TileEntityModule.Instances {
 
         public IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
             CaveElements caveElements = new CaveElements();
-            AsyncOperationHandle<Object> genModelHandle = cave.generationModel.LoadAssetAsync<Object>();
-            AsyncOperationHandle<Object> entityDistributorHandle = cave.entityDistributor.LoadAssetAsync<Object>();
+            Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
+            if (cave.generationModel == null) {
+                Debug.LogError($"Cannot teleport to cave {cave.name}: does not have a generation model");
+                yield break;
+            }
+
+            handles["Model"] = cave.generationModel.LoadAssetAsync<Object>();
+            if (cave.entityDistributor != null) {
+                handles["Entity"] = cave.entityDistributor.LoadAssetAsync<Object>();
+            }
+            
 
             List<AsyncOperationHandle<Object>> tileDistributorHandles = new List<AsyncOperationHandle<Object>>();
             foreach (AssetReference assetReference in cave.tileGenerators) {
@@ -64,23 +73,29 @@ namespace TileEntityModule.Instances {
                 songHandles.Add(assetReference.LoadAssetAsync<Object>());
             }
 
-            yield return genModelHandle;
-            yield return entityDistributorHandle;
+            foreach (var kvp in handles) {
+                yield return kvp.Value;
+            }
+            
             foreach (var handle in tileDistributorHandles) {
                 yield return handle;
             }
             foreach (var handle in songHandles) {
                 yield return handle;
             }
-            caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(entityDistributorHandle);
-            caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(genModelHandle);
+            if (handles.ContainsKey("Entity")) {
+                caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(handles["Entity"]);
+            }
+            
+            caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(handles["Model"]);
             caveElements.Songs = AddressableUtils.validateHandles<AudioClip>(songHandles);
             caveElements.TileGenerators = AddressableUtils.validateHandles<CaveTileGenerator>(tileDistributorHandles);
 
             CaveInstance caveInstance = new CaveInstance(cave,caveElements);
             caveCallback(caveInstance);
-            Addressables.Release(genModelHandle);
-            Addressables.Release(entityDistributorHandle);
+            foreach (var kvp in handles) {
+                Addressables.Release(kvp.Value);
+            }
             foreach (var handle in tileDistributorHandles) {
                 Addressables.Release(handle);
             }

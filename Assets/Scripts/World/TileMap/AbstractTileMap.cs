@@ -81,7 +81,7 @@ namespace TileMaps {
         public void addListener(ITileMapListener listener) {
             listeners.Add(listener);
         }
-        protected void removeTile(int x, int y) {
+        protected virtual void removeTile(int x, int y) {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
         public bool containsPartition(Vector2Int partitionPosition) {
