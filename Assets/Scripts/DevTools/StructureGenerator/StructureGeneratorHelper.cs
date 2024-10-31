@@ -11,6 +11,8 @@ using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
 using System.Linq;
+using UnityEngine.AddressableAssets;
+
 #if UNITY_EDITOR 
 using DevTools;
 #endif
@@ -49,7 +51,7 @@ namespace WorldModule.Caves {
             return directoryNames;
         }
       
-        public static void newStructure(string name) {
+        public async static void newStructure(string name, string base_id) {
             string folderPath = getFolderPath();
             string path = Path.Combine(folderPath,name);
             Directory.CreateDirectory(path);
@@ -60,7 +62,7 @@ namespace WorldModule.Caves {
             Debug.Log("Dimension Folder Created at " + dimensionPath);
             string structureDimPath = WorldLoadUtils.getDimPath(0);
             Directory.CreateDirectory(structureDimPath);
-            GameObject structDimPrefab = Resources.Load<GameObject>("TileMaps/StructDimTileMap");
+            GameObject structDimPrefab = await Addressables.LoadAssetAsync<GameObject>("Prefabs/TileMaps/StructDimTileMap").Task;
             Vector2Int caveSize = new Vector2Int(Mathf.Abs(structDimBounds.X.LowerBound-structDimBounds.X.UpperBound+1),Mathf.Abs(structDimBounds.Y.LowerBound-structDimBounds.Y.UpperBound+1));
             SeralizedWorldData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
             WorldGenerationFactory.saveToJson(dimData,caveSize,0,structureDimPath);

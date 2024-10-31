@@ -144,28 +144,33 @@ namespace Chunks.Systems {
         public abstract void playerChunkUpdate(); 
 
         public virtual void playerPartitionUpdate() {
-            List<ILoadedChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
+            Vector2Int playerChunkPosition = getPlayerChunk();
             Vector2Int playerPartition = getPlayerChunkPartition();
 
+            int unloadRangeX = Global.ChunkLoadRangeX;
+            int unloadRangeY = Global.ChunkLoadRangeY;
+            int rangeX = Global.ChunkLoadRangeX-1;
+            int rangeY = Global.ChunkLoadRangeY-1;
             List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange));
-            }
-
-            partitionLoader.addToQueue(partitionsToLoad);
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
-            }
-            partitionUnloader.addToQueue(partitionsToUnload);
-
             List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
-                    playerPartition,
-                    Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
-                ));
+            for (int x = -unloadRangeX; x <= unloadRangeX; x++) {
+                for (int y = -unloadRangeY; y <= unloadRangeY; y++) {
+                    Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
+                    if (!cachedChunks.ContainsKey(chunkPosition)) {
+                        continue;
+                    }
+                    ILoadedChunk chunk = cachedChunks[chunkPosition];
+                    partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
+                    partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange,2));
+                    partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
+                        playerPartition,
+                        Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
+                    ));
+                }
             }
+            partitionLoader.addToQueue(partitionsToLoad);
+            partitionUnloader.addToQueue(partitionsToUnload);
             partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 

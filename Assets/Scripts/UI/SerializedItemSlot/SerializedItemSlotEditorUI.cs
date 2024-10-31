@@ -34,7 +34,6 @@ namespace UI {
         private IItemListReloadable container;
         private List<SerializedItemSlot> itemSlots;
         private int index;
-
         private List<ItemObject> currentItems = new List<ItemObject>();
         private IItemListReloadable reloadable;
         private float timeSinceLastDeletePress = 2f;
@@ -151,6 +150,7 @@ namespace UI {
                 ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
+                itemSlotUI.transform.SetParent(itemContainer,false);
             }
         }
         private void loadItems(string value) {
@@ -165,6 +165,7 @@ namespace UI {
                 ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemContainer,ItemDisplayUtils.SolidItemPanelColor,false);
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
+                itemSlotUI.transform.SetParent(itemContainer,false);
             }
         }
 
