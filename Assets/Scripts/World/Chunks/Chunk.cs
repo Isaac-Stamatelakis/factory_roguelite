@@ -170,17 +170,8 @@ namespace Chunks {
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (!partition.getFarLoaded() && partition.inRange(target,range.x,range.y)) {
-                    close.Add(partition);
-                } 
-            }
-            return close;
-        }
-        public List<IChunkPartition> getFarUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range)
-        {
-            List<IChunkPartition> close = new List<IChunkPartition>();
-            foreach (IChunkPartition partition in partitions) {
-                if (!partition.getFarLoaded() && partition.inRange(target,range.x,range.y)) {
+                if (!partition.getFarLoaded() && !partition.getScheduledForFarLoading() && partition.inRange(target,range.x,range.y)) {
+                    partition.setScheduledForFarLoading(true);
                     close.Add(partition);
                 } 
             }

@@ -34,5 +34,7 @@ namespace Chunks.Partitions {
         public void setFarLoaded(bool state);
         public void loadFarLoadTileEntities();
         public void unloadFarLoadTileEntities();
+        public bool getScheduledForFarLoading();
+        public void setScheduledForFarLoading(bool state);
     }
 }
