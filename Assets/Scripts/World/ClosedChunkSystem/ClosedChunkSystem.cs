@@ -161,11 +161,11 @@ namespace Chunks.Systems {
                         continue;
                     }
                     ILoadedChunk chunk = cachedChunks[chunkPosition];
-                    partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
-                    partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange,2));
+                    partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,CameraView.ChunkPartitionLoadRange));
+                    partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,CameraView.ChunkPartitionLoadRange,2));
                     partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
                         playerPartition,
-                        Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
+                        CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
                     ));
                 }
             }

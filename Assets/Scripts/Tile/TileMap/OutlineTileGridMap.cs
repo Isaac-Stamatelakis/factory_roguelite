@@ -21,10 +21,13 @@ namespace TileMaps {
             setView(false,Color.black);
         }
 
-        public void setView(bool wireFrame, Color color) {
+        public void setView(bool wireFrame, Color? color) {
             float z = wireFrame ? -0.1f : 0.1f;
             outlineTileMap.transform.localPosition = new Vector3(0,0,z);
-            outlineTileMap.color = color;
+            if (color != null) {
+                outlineTileMap.color = (Color)color;
+            }
+            
         }
 
 

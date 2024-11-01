@@ -14,12 +14,13 @@ namespace UI.Chat {
         {
             { "help", (parameters, ui) => new HelpCommand(parameters, ui) },
             { "setdim", (parameters, ui) => new SetDimCommand(parameters, ui) },
-            { "setlight", (parameters, ui) => new SetLightCommand(parameters, ui) },
-            { "setoutline", (parameters, ui) => new ModifyOutlineCommand(parameters, ui) },
+            { "light", (parameters, ui) => new SetLightCommand(parameters, ui) },
+            { "outline", (parameters, ui) => new ModifyOutlineCommand(parameters, ui) },
             { "give", (parameters, ui) => new GiveCommand(parameters, ui) },
             { "spawn", (parameters, ui) => new SpawnCommand(parameters, ui) },
             { "tp", (parameters, ui) => new TeleportCommand(parameters, ui) },
             { "setrobot", (parameters, ui) => new SetRobotCommand(parameters, ui) },
+            { "camera", (parameters, ui) => new CameraViewCommand(parameters, ui) },
             
         };
 

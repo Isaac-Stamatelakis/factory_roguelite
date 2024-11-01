@@ -19,9 +19,6 @@ public static class Global
     private static readonly int chunkPartitionSize = 4;
     public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
     private static Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
-    public static Vector2Int ChunkPartitionLoadRange {get{return chunkPartitionLoadRange;}}
-    private static UnityEngine.Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(8,6); // Required for large view
-    //private static readonly Vector2Int chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5); // Required for medium view
     private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
