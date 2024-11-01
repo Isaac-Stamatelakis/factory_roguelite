@@ -17,6 +17,7 @@ namespace Chunks.Partitions {
         protected bool loaded;
         protected bool farLoaded;
         protected bool scheduledForUnloading = false;
+        protected bool scheduledForFarLoading = false;
         protected Vector2Int position;
         protected T data;
         public ITileEntityInstance[,] tileEntities;
@@ -248,6 +249,16 @@ namespace Chunks.Partitions {
         public void setFarLoaded(bool state)
         {
             this.farLoaded = state;
+        }
+
+        public bool getScheduledForFarLoading()
+        {
+            return scheduledForFarLoading;
+        }
+
+        public void setScheduledForFarLoading(bool state)
+        {
+            this.scheduledForFarLoading = state;
         }
     }
 }

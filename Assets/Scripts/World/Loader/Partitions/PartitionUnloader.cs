@@ -15,7 +15,7 @@ namespace Chunks.Loaders {
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
             value.setScheduleForUnloading(false);
-            return value.getLoaded() && !value.inRange(playerPosition,Global.ChunkPartitionLoadRange.x+2,Global.ChunkPartitionLoadRange.y+2);
+            return value.getLoaded() && !value.inRange(playerPosition,CameraView.ChunkPartitionLoadRange.x,CameraView.ChunkPartitionLoadRange.y);
         }
 
         public override void update(IChunkPartition value)

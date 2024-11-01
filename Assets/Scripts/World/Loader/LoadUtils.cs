@@ -18,14 +18,14 @@ namespace Chunks.Loaders {
             return new QueueUpdateVariables(
                 delay: 1f,
                 rapidUpdateSpeed: 1,
-                rapidUpdateThreshold: 100,
+                rapidUpdateThreshold: 50,
                 baseBatchSize: 1,
                 sortingMode: QueueSortingMode.Farthest
             );
         }
         public static QueueUpdateVariables getPartitionLoaderVariables() {
             return new QueueUpdateVariables(
-                delay: 0.01f,
+                delay: 0.0f,
                 rapidUpdateSpeed: 3,
                 rapidUpdateThreshold: 6,
                 baseBatchSize: 5,
@@ -37,7 +37,7 @@ namespace Chunks.Loaders {
             return new QueueUpdateVariables(
                 delay: 0f,
                 rapidUpdateSpeed: 2,
-                rapidUpdateThreshold: int.MaxValue,
+                rapidUpdateThreshold: 100,
                 baseBatchSize: 2,
                 sortingMode: QueueSortingMode.Farthest
             );
@@ -45,7 +45,7 @@ namespace Chunks.Loaders {
 
         public static QueueUpdateVariables getPartitionFarLoaderVariables() {
             return new QueueUpdateVariables(
-                delay: 0.05f,
+                delay: 0.0f,
                 rapidUpdateSpeed: 3,
                 rapidUpdateThreshold: 6,
                 baseBatchSize: 2,

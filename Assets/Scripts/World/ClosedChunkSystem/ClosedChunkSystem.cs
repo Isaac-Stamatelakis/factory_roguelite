@@ -38,7 +38,6 @@ namespace Chunks.Systems {
         protected int dim;
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
-
         public Vector2Int DimPositionOffset { get => dimPositionOffset;}
 
         private bool isQuitting = false;
@@ -64,6 +63,11 @@ namespace Chunks.Systems {
                 return cachedChunks[position];
             }
             return null;
+        }
+
+        public bool localWorldPositionInSystem(Vector2 worldPosition) {
+            Vector2Int playerChunkPosition = getChunkPositionFromWorld(worldPosition);
+            return cachedChunks.ContainsKey(playerChunkPosition);
         }
 
         public void deactivateAllPartitions() {
@@ -117,8 +121,6 @@ namespace Chunks.Systems {
             this.coveredArea = coveredArea;
             initLoaders();
 
-            CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
-            cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
@@ -135,32 +137,41 @@ namespace Chunks.Systems {
             partitionFarLoader.initalize(this,LoadUtils.getPartitionFarLoaderVariables());
             
         }
+
+        public IntervalVector getBounds() {
+            return coveredArea * (Global.ChunkSize/2);
+        }
         
         public abstract void playerChunkUpdate(); 
 
         public virtual void playerPartitionUpdate() {
-            List<ILoadedChunk> chunksNearPlayer = getLoadedChunksNearPlayer();
+            Vector2Int playerChunkPosition = getPlayerChunk();
             Vector2Int playerPartition = getPlayerChunkPartition();
 
+            int unloadRangeX = Global.ChunkLoadRangeX;
+            int unloadRangeY = Global.ChunkLoadRangeY;
+            int rangeX = Global.ChunkLoadRangeX-1;
+            int rangeY = Global.ChunkLoadRangeY-1;
             List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,Global.ChunkPartitionLoadRange));
-            }
-
-            partitionLoader.addToQueue(partitionsToLoad);
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,Global.ChunkPartitionLoadRange));
-            }
-            partitionUnloader.addToQueue(partitionsToUnload);
-
             List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
-            foreach (ILoadedChunk chunk in chunksNearPlayer) {
-                partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
-                    playerPartition,
-                    Global.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
-                ));
+            for (int x = -unloadRangeX; x <= unloadRangeX; x++) {
+                for (int y = -unloadRangeY; y <= unloadRangeY; y++) {
+                    Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
+                    if (!cachedChunks.ContainsKey(chunkPosition)) {
+                        continue;
+                    }
+                    ILoadedChunk chunk = cachedChunks[chunkPosition];
+                    partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(playerPartition,CameraView.ChunkPartitionLoadRange));
+                    partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(playerPartition,CameraView.ChunkPartitionLoadRange,2));
+                    partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
+                        playerPartition,
+                        CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
+                    ));
+                }
             }
+            partitionLoader.addToQueue(partitionsToLoad);
+            partitionUnloader.addToQueue(partitionsToUnload);
             partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 
@@ -216,12 +227,20 @@ namespace Chunks.Systems {
             return chunksToUnload;
         }
         public Vector2Int getPlayerChunk() {
-            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(playerTransform.position.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+            Vector2Int pos = getChunkPositionFromWorld(playerTransform.position);
             return pos + DimPositionOffset/Global.ChunkSize;
         }
 
+        public Vector2Int getChunkPositionFromWorld(Vector2 world) {
+            return new Vector2Int(Mathf.FloorToInt(world.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(world.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+        }
+
         public Vector2Int getPlayerChunkPartition() {
-            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / (Global.ChunkPartitionSize >> 1)),Mathf.FloorToInt(playerTransform.position.y / (Global.ChunkPartitionSize>>1)));
+            Camera camera = Camera.main;
+            Vector2Int pos = new Vector2Int(
+                Mathf.FloorToInt(camera.transform.position.x / (Global.ChunkPartitionSize >> 1)),
+                Mathf.FloorToInt(camera.transform.position.y / (Global.ChunkPartitionSize>>1))
+            );
             return pos + DimPositionOffset/Global.ChunkPartitionSize;
         }
 

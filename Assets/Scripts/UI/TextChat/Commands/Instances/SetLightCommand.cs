@@ -6,9 +6,10 @@ using Dimensions;
 using PlayerModule;
 using Items;
 using UnityEngine.Rendering.Universal;
+using System.Linq;
 
 namespace UI.Chat {
-    public class SetLightCommand : ChatCommand
+    public class SetLightCommand : ChatCommand, IAutoFillChatCommand
     {
         public SetLightCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
         {
@@ -41,6 +42,14 @@ namespace UI.Chat {
                 chatUI.sendMessage(e.Message);
             }
             
+        }
+
+        public List<string> getAutoFill(int paramIndex)
+        {
+            if (paramIndex == 1) {
+                return ChatCommandParameterParser.PresetColors.Keys.ToList();
+            }
+            return null;
         }
 
         public override string getDescription()

@@ -8,7 +8,11 @@ namespace Chunks.Loaders {
     {
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
-            return !value.getFarLoaded();
+            if (value.getFarLoaded()) {
+                value.setScheduledForFarLoading(false);
+                return false;
+            }
+            return true;
         }
 
         public override Vector2Int getPlayerPosition()

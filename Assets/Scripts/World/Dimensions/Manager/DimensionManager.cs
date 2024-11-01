@@ -61,38 +61,6 @@ namespace Dimensions {
 
         public abstract void softLoadSystems();
 
-        public void Update()
-        {
-            foreach (KeyValuePair<Transform,PlayerWorldData> kvp in playerWorldData) {
-                PlayerWorldData worldData = playerWorldData[kvp.Key];
-                Transform playerTransform = kvp.Key.transform;
-
-                int playerXPartition = (int) Mathf.Floor(playerTransform.position.x) / (Global.ChunkPartitionSize/2) % Global.PartitionsPerChunk;
-                int playerYPartition = (int) Mathf.Floor(playerTransform.position.y) / (Global.ChunkPartitionSize/2) % Global.PartitionsPerChunk;
-                if (worldData.partitionPos != null) {
-                    Vector2Int partition = (Vector2Int)worldData.partitionPos;
-                    if (playerXPartition == partition.x && playerYPartition == partition.y) {
-                        return;
-                    }
-                }
-                
-                worldData.closedChunkSystem.playerPartitionUpdate();
-                worldData.partitionPos = new Vector2Int(playerXPartition,playerYPartition);
-                int playerXChunk = (int) Mathf.Floor(playerTransform.position.x / (Global.PartitionsPerChunk/2));
-                int playerYChunk = (int) Mathf.Floor(playerTransform.position.y / (Global.PartitionsPerChunk/2));
-                
-                if (worldData.chunkPos != null) {
-                    Vector2Int chunk = (Vector2Int)worldData.chunkPos;
-                    if (playerXChunk == chunk.x && playerYChunk == chunk.y) {
-                        return;
-                    }
-                }
-                
-                worldData.closedChunkSystem.playerChunkUpdate();
-                worldData.chunkPos = new Vector2Int(playerXChunk,playerYChunk);
-                
-            }
-        }
         public ClosedChunkSystem getPlayerSystem(Transform player) {
             if (!playerWorldData.ContainsKey(player)) {
                 return null;
@@ -129,6 +97,8 @@ namespace Dimensions {
             }
 
             newSystem.initalizeMiscObjects(miscObjects);
+            CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
+            cameraBounds.setSystem(newSystem);
 
             activeSystems[newSystem] = systemPosition;
             if (playerWorldData.ContainsKey(player)) {
