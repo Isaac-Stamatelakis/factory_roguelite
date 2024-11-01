@@ -38,7 +38,6 @@ namespace Chunks.Systems {
         protected int dim;
         public TileBreakIndicator BreakIndicator {get => breakIndicator;}
         public int Dim {get{return dim;}}
-
         public Vector2Int DimPositionOffset { get => dimPositionOffset;}
 
         private bool isQuitting = false;
@@ -122,8 +121,6 @@ namespace Chunks.Systems {
             this.coveredArea = coveredArea;
             initLoaders();
 
-            CameraBounds cameraBounds = GameObject.Find("Main Camera").GetComponent<CameraBounds>();
-            cameraBounds.ClosedChunkSystem = this;
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
@@ -139,6 +136,10 @@ namespace Chunks.Systems {
             partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
             partitionFarLoader.initalize(this,LoadUtils.getPartitionFarLoaderVariables());
             
+        }
+
+        public IntervalVector getBounds() {
+            return coveredArea * (Global.ChunkSize/2);
         }
         
         public abstract void playerChunkUpdate(); 
@@ -235,7 +236,11 @@ namespace Chunks.Systems {
         }
 
         public Vector2Int getPlayerChunkPartition() {
-            Vector2Int pos = new Vector2Int(Mathf.FloorToInt(playerTransform.position.x / (Global.ChunkPartitionSize >> 1)),Mathf.FloorToInt(playerTransform.position.y / (Global.ChunkPartitionSize>>1)));
+            Camera camera = Camera.main;
+            Vector2Int pos = new Vector2Int(
+                Mathf.FloorToInt(camera.transform.position.x / (Global.ChunkPartitionSize >> 1)),
+                Mathf.FloorToInt(camera.transform.position.y / (Global.ChunkPartitionSize>>1))
+            );
             return pos + DimPositionOffset/Global.ChunkPartitionSize;
         }
 

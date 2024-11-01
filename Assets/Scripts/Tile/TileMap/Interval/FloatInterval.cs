@@ -12,4 +12,9 @@ public class FloatIntervalVector
         this.x = x;
         this.y = y;
     }
+
+    public override string ToString()
+    {
+        return "X:[" + X.LowerBound + "," + X.UpperBound + "], Y:[" + Y.LowerBound + "," + Y.UpperBound + "]";
+    }
 }

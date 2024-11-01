@@ -26,23 +26,30 @@ public class CameraView : MonoBehaviour
 
     public void setLoadRange(CameraViewSize cameraViewSize) {
         PixelPerfectCamera pixelPerfectCamera = GetComponent<PixelPerfectCamera>();
+        pixelPerfectCamera.enabled = true;
         switch (cameraViewSize) {
             case CameraViewSize.Small:
                 pixelPerfectCamera.refResolutionX = 400;
                 pixelPerfectCamera.refResolutionY = 100;
                 chunkPartitionLoadRange = new Vector2Int(5,4);
-                return;
+                break;
             case CameraViewSize.Medium:
                 chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5);
                 pixelPerfectCamera.refResolutionX = 614;
                 pixelPerfectCamera.refResolutionY = 200;
-                return;
+                break;
             case CameraViewSize.Large:
                 chunkPartitionLoadRange = new Vector2Int(8,6);
                 pixelPerfectCamera.refResolutionX = 614;
                 pixelPerfectCamera.refResolutionY = 400;
-                return;      
+                break;    
         }
+        StartCoroutine(setCameraSizeDelayed());
+    }
+
+    private IEnumerator setCameraSizeDelayed() {
+        yield return new WaitForEndOfFrame();
+        GetComponent<CameraBounds>().setSize();
     }
 
     public void setDebugRange(float cameraSize) {
