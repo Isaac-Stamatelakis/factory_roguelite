@@ -17,7 +17,12 @@ using UnityEngine.AddressableAssets;
 using DevTools;
 #endif
 
-namespace WorldModule.Caves {
+namespace DevTools.Structures {
+    public enum StructureGenOptionType {
+        Empty,
+        Fill,
+        Border
+    }
     public static class StructureGeneratorHelper
     {
         private static string parameterId = "structure_parameter";
@@ -26,8 +31,6 @@ namespace WorldModule.Caves {
         
         public static string ParimeterId { get => parameterId; set => parameterId = value; }
         public static string FillId { get => fillId; set => fillId = value; }
-        #if UNITY_EDITOR 
-        private static IntervalVector structDimBounds = new IntervalVector(new Interval<int>(-4,4), new Interval<int>(-4,4));
         public static string getPath(string structureName) {
             string folderPath = getFolderPath();
             return Path.Combine(folderPath,structureName);
@@ -51,7 +54,7 @@ namespace WorldModule.Caves {
             return directoryNames;
         }
       
-        public async static void newStructure(string name, string base_id) {
+        public static void newStructure(string name, StructureGenerationOption generationOption, IntervalVector bounds) {
             string folderPath = getFolderPath();
             string path = Path.Combine(folderPath,name);
             Directory.CreateDirectory(path);
@@ -62,9 +65,11 @@ namespace WorldModule.Caves {
             Debug.Log("Dimension Folder Created at " + dimensionPath);
             string structureDimPath = WorldLoadUtils.getDimPath(0);
             Directory.CreateDirectory(structureDimPath);
-            GameObject structDimPrefab = await Addressables.LoadAssetAsync<GameObject>("Prefabs/TileMaps/StructDimTileMap").Task;
-            Vector2Int caveSize = new Vector2Int(Mathf.Abs(structDimBounds.X.LowerBound-structDimBounds.X.UpperBound+1),Mathf.Abs(structDimBounds.Y.LowerBound-structDimBounds.Y.UpperBound+1));
-            SeralizedWorldData dimData = WorldCreation.prefabToWorldTileConduitData(structDimPrefab,structDimBounds);
+            Vector2Int caveSize = bounds.getSize();
+            WorldTileConduitData dimData = WorldCreation.createEmptyWorldData(bounds);
+            if (generationOption != null) {
+                generationOption.apply(dimData);
+            }
             WorldGenerationFactory.saveToJson(dimData,caveSize,0,structureDimPath);
 
 
@@ -94,6 +99,5 @@ namespace WorldModule.Caves {
             string playerDataPath = Path.Combine(path,"player_data.json");
             File.WriteAllText(playerDataPath,json);
         }
-        #endif
     }
 }

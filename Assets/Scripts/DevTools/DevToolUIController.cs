@@ -3,13 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UI;
+using DevTools.Structures;
+using UI.QuestBook;
 
 namespace DevTools {
     public class DevToolUIController : MonoBehaviour
     {
+        public UIAssetManager AssetManager;
+        private static DevToolUIController instance;
+        public static DevToolUIController Instance => instance;
+        public void Awake() {
+            instance = this;
+        }
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private GameObject home;
         [SerializeField] private Button homeButton;
+        [SerializeField] private Button structureButton;
+        [SerializeField] private Button questButton;
         private Transform currentUI;
         private string baseText;
         public void setTitleText(string text) {
@@ -28,6 +39,7 @@ namespace DevTools {
         }
 
         public void Start() {
+            AssetManager.load();
             baseText = title.text;
             homeButton.onClick.AddListener(() => {
                 setHomeVisibility(true);
@@ -35,23 +47,18 @@ namespace DevTools {
                 resetTitleText();
             });
             homeButton.gameObject.SetActive(false);
-        }
-    }
 
-    public class DevToolUIControllerContainer {
-        private static DevToolUIControllerContainer instance;
-        private static DevToolUIController devToolUIController;
-        private DevToolUIControllerContainer() {
-            devToolUIController = GameObject.Find("UICanvas").GetComponent<DevToolUIController>();
-        }
-        public static DevToolUIController GetController() {
-            if (instance == null) {
-                instance = new DevToolUIControllerContainer();
-            }
-            return devToolUIController;
-        }
-        public static void reset() {
-            instance = null;
+            structureButton.onClick.AddListener(() => {
+                setHomeVisibility(false);
+                StructureDevControllerUI structureDevControllerUI = AssetManager.cloneElement<StructureDevControllerUI>("STRUCTURE");
+                structureDevControllerUI.init();
+                addUI(structureDevControllerUI.transform);
+                setTitleText("Structure Creator");
+            });
+
+            questButton.onClick.AddListener(() => {
+                QuestBookCreationSceneController questBookCreationSceneController = AssetManager.cloneElement<QuestBookCreationSceneController>("QUEST");
+            });
         }
     }
 }

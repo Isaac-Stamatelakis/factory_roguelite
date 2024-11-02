@@ -19,10 +19,10 @@ namespace UI.QuestBook {
 
         protected override void openContent()
         {
-            GameObject instantiated = GameObject.Instantiate(Resources.Load<GameObject>(QuestBookHelper.TaskContentPrefabPath));
-            QuestBookTaskPageUI pageUI = instantiated.GetComponent<QuestBookTaskPageUI>();
-            instantiated.transform.SetParent(nodeNetwork.QuestBookUI.transform,false);
+            UIAssetManager assetManager = nodeNetwork.QuestBookUI.AssetManager;
+            QuestBookTaskPageUI pageUI = assetManager.cloneElement<QuestBookTaskPageUI>("TASK_PAGE");
             pageUI.init(node,nodeNetwork);
+            pageUI.transform.SetParent(nodeNetwork.QuestBookUI.transform,false);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace DevTools.Structures {
             SceneManager.LoadScene("DevTools");
             GlobalUIContainer.reset();
             PlayerContainer.reset();
-            DevToolUIControllerContainer.reset();
         }
     }
 }

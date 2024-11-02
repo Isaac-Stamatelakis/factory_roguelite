@@ -9,11 +9,12 @@ namespace UI.QuestBook {
     {
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private Button addButton;
-        private QuestBookPageUI questBookUI;
+        [SerializeField] private ItemQuestItemElement itemQuestItemPrefab;
+        public QuestBookTaskPageUI QuestBookTaskPageUI;
         private ItemQuestTask task;
-        public override void init(ItemQuestTask task, QuestBookPageUI questBookUI)
+        public override void init(ItemQuestTask task, QuestBookTaskPageUI questBookTaskPageUI)
         {
-            this.questBookUI = questBookUI;
+            this.QuestBookTaskPageUI = questBookTaskPageUI;
             this.task = task;
             
             addButton.onClick.AddListener(addItem);
@@ -26,13 +27,12 @@ namespace UI.QuestBook {
                 GameObject.Destroy(itemContainer.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < task.Items.Count; i++) {
-                GameObject element = GlobalHelper.instantiateFromResourcePath("UI/Quest/Tasks/Item/ItemElement");
-                ItemQuestItemElement itemQuestItemElement = element.GetComponent<ItemQuestItemElement>();
+                ItemQuestItemElement itemQuestItemElement = GameObject.Instantiate(itemQuestItemPrefab);
                 itemQuestItemElement.init(
                     task,
                     i,
                     this,
-                    questBookUI
+                    QuestBookTaskPageUI.QuestBookPageUI
                 );
                 itemQuestItemElement.transform.SetParent(itemContainer.transform,false);
             }

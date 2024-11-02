@@ -10,6 +10,10 @@ using WorldModule.Caves;
 using Items;
 using RobotModule;
 using Entities;
+using DevTools.Structures;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Newtonsoft.Json;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -24,7 +28,7 @@ namespace WorldModule {
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
             initPlayerData(WorldLoadUtils.getPlayerDataPath());
-            initDim0();
+            yield return initDim0();
             WorldLoadUtils.createDimFolder(1);
         }
         
@@ -42,15 +46,40 @@ namespace WorldModule {
         }
 
         
-        public static void initDim0() {
+        public static IEnumerator initDim0() {
             if (WorldLoadUtils.dimExists(0)) {
                 Debug.LogError("Attempted to init dim 0 when already exists");
-                return;
+                yield break;
             }
             WorldLoadUtils.createDimFolder(0);
-            GameObject dim0Prefab = Resources.Load<GameObject>("TileMaps/Dim0");
+            List<string> labels = new List<string>{"dim0","structure"};
+            AsyncOperationHandle<IList<Object>> handle = Addressables.LoadAssetsAsync<Object>(labels,null,Addressables.MergeMode.Intersection);
+            yield return handle;
+            List<Structure> structures = AddressableUtils.validateHandle<Structure>(handle);
+            if (structures.Count == 0) {
+                Debug.LogError("Could not init dim 0. No structure with tags 'dim0' and 'structure'");
+                yield break;
+            }
+            if (structures.Count > 1) {
+                Debug.LogWarning("Multiple structures with tags 'dim0' and 'structure");
+            }
+            Structure structure = structures[0];
+    
+            if (structure.variants.Count == 0) {
+                Debug.LogWarning("Dim0 structure contains no structure variants");
+                yield break;
+            }
+
+            StructureVariant variant = structure.variants[0];
+            Vector2Int dimSize = getDim0Bounds().getSize()*Global.ChunkSize;
+            if (variant.Size != dimSize) {
+                Debug.LogError($"Structure for dim0 size {variant.Size} does not match dim0 size {dimSize}");
+                yield break;
+            }
+
+            WorldTileConduitData dim0Data = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
             IntervalVector dim0Bounds = getDim0Bounds();
-            WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
+            //WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
             WorldGenerationFactory.saveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
         }
 
@@ -73,7 +102,6 @@ namespace WorldModule {
             return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
         }
         public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
-            
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             Vector2Int size = bounds.getSize();
@@ -133,6 +161,21 @@ namespace WorldModule {
                 signalData,
                 matrixData
             );
+        }
+
+        public static WorldTileConduitData createEmptyWorldData(IntervalVector bounds) {
+            Vector2Int size = bounds.getSize()*Global.ChunkSize;
+            int width = size.x;
+            int height = size.y;
+            SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width,height);
+            SerializedBackgroundTileData backgroundData = SerializedTileDataFactory.createEmptyBackgroundData(width,height);
+            SeralizedFluidTileData fluidTileData = SerializedTileDataFactory.createEmptyFluidData(width,height);
+            SeralizedChunkConduitData itemData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData fluidData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData energyData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData signalData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
         }
         private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();

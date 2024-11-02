@@ -24,6 +24,8 @@ namespace Items {
             items = new Dictionary<string, ItemObject>();
         }
 
+        public static bool IsLoaded => instance!=null;
+
         public static IEnumerator loadItems() {
             if (instance != null) {
                 yield break;
@@ -63,6 +65,8 @@ namespace Items {
             }
             return instance;
         }
+
+        
 
         public List<ItemObject> getAllItems() {
             return items.Values.ToList();
@@ -151,14 +155,14 @@ namespace Items {
             }
         }
 
-        public List<ItemObject> query(string serach, int limit) {
+        public List<ItemObject> query(string search, int limit) {
             List<ItemObject> queried = new List<ItemObject>();
             int i = 0;
             foreach (ItemObject itemObject in items.Values) {
                 if (i >= limit) {
                     break;
                 }
-                if (itemObject.name.ToLower().Contains(serach.ToLower())) {
+                if (itemObject.name.ToLower().Contains(search.ToLower())) {
                     queried.Add(itemObject);
                     i ++;
                 }
@@ -166,7 +170,26 @@ namespace Items {
             }
             return queried;
         }
-        public List<ItemSlot> querySlots(string serach, int limit) {
+
+        public List<T> query<T>(string search, int limit) where T : ItemObject {
+            List<T> queried = new List<T>();
+            int i = 0;
+            foreach (ItemObject itemObject in items.Values) {
+                if (i >= limit) {
+                    break;
+                }
+                if (itemObject is not T value) {
+                    continue;
+                }
+                if (itemObject.name.ToLower().Contains(search.ToLower())) {
+                    queried.Add(value);
+                    i ++;
+                }
+                
+            }
+            return queried;
+        }
+        public List<ItemSlot> querySlots(string search, int limit) {
             // TODO options to put certain tag items in here
             List<ItemSlot> queried = new List<ItemSlot>();
             int i = 0;
@@ -174,7 +197,7 @@ namespace Items {
                 if (i >= limit) {
                     break;
                 }
-                if (itemObject.name.ToLower().Contains(serach.ToLower())) {
+                if (itemObject.name.ToLower().Contains(search.ToLower())) {
                     queried.Add(ItemSlotFactory.createNewItemSlot(itemObject,1));
                     i ++;
                 }

@@ -7,7 +7,7 @@ namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage, QuestEditModeController>
     {
         [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
-        [SerializeField] private QuestEditModeController questEditModeControllerPrefab;
+        [SerializeField] private QuestEditModeController questEditModeController;
         [SerializeField] private GameObject linePrefab;
         private QuestBookLibrary library;
         public QuestBookLibrary Library {get => library;}
@@ -52,9 +52,8 @@ namespace UI.QuestBook {
 
         protected override void initEditMode()
         {
-            QuestEditModeController editModeController = GameObject.Instantiate(questEditModeControllerPrefab);
-            editModeController.transform.SetParent(questBookUI.transform,false);
-            editModeController.init(this);
+            questEditModeController.gameObject.SetActive(true);
+            questEditModeController.init(this);
         }
 
         protected override bool nodeDiscovered(QuestBookNode node)

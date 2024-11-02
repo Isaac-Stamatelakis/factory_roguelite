@@ -29,10 +29,7 @@ namespace UI.QuestBook {
             idText.text = "#" + node.Id.ToString();
             setColor();
         }
-        public static ConnectionElementUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/Quest/Connections/ConnectionListElement").GetComponent<ConnectionElementUI>();
-        }
-
+       
         private void setColor() {
             panel.color = nodeConnections.Contains(node.Id) ? Color.green : Color.white;
         }

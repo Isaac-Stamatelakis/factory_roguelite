@@ -56,6 +56,23 @@ public static class AddressableUtils
         return default(T);
     }
 
+    public static List<T> validateHandle<T>(AsyncOperationHandle<IList<Object>> handle) {
+        if (handle.Status == AsyncOperationStatus.Succeeded) {
+            List<T> values = new List<T>();
+            foreach (Object element in handle.Result) {
+                if (element is T val) {
+                    values.Add(val);
+                } else {
+                    Debug.LogWarning($"{element.name} is not {typeof(T).Name} is of type {element.GetType().Name}");
+                }
+            }
+            return values;
+        } else {
+            Debug.LogWarning($"Failed to load {handle.OperationException}");
+        }
+        return new List<T>();
+    }
+
     public static List<T> validateHandles<T>(List<AsyncOperationHandle<Object>> handles) {
         List<T> values = new List<T>();
         foreach (var handle in handles) {

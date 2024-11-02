@@ -13,7 +13,7 @@ namespace Items {
         public static ItemSlotUI newItemSlotUI(ItemSlot itemSlot, Transform parent, Color? color, bool enableText = true,  string suffix = null) {
             GameObject slot = new GameObject();
             ItemSlotUI itemSlotUI = slot.AddComponent<ItemSlotUI>();
-            slot.transform.SetParent(parent);
+            slot.transform.SetParent(parent,false);
             itemSlotUI.init(color,enableText);
             if (suffix == null) {
                 slot.name = ItemDisplayUtils.SlotName;

@@ -60,7 +60,8 @@ namespace UI.QuestBook {
             }
         }
         private void navigateToEditMode() {
-            SerializedItemSlotEditorUI serializedItemSlotEditorUI = SerializedItemSlotEditorUI.createNewInstance();
+            UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
+            SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
             serializedItemSlotEditorUI.init(itemQuestTask.Items,index,this,gameObject);
             serializedItemSlotEditorUI.transform.SetParent(questBookUI.transform,false);
         }

@@ -5,6 +5,7 @@ using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Chunks;
 using Dimensions;
+using UnityEngine.AddressableAssets;
 using Chunks.Systems;
 
 namespace TileEntityModule.Instances.CompactMachines {
@@ -12,7 +13,7 @@ namespace TileEntityModule.Instances.CompactMachines {
     public class CompactMachine : TileEntity, IManagedUITileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
-        public GameObject TilemapContainer;
+        public AssetReference StructurePreset;
         public TileEntityUIManager UIManager;
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

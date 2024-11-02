@@ -13,46 +13,17 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            List<string> stringCommands = ChatCommandFactory.getAllCommands();
-            stringCommands.Sort();
             if (parameters.Length == 0) {
-                string output = "";
-                foreach (string stringCommand in stringCommands) {
-                    output += stringCommand + ", ";
-                }
-                TextChatUI.Instance.sendMessage(output);
-            } else {
-                try {
-                    int page = Convert.ToInt32(parameters[0]);
-                    int helpPages = getPages();
-                    page --; // Page 1 -> 0, 2 -> 1, ...
-                    if (page < 0 || page * helpPages >= stringCommands.Count) {
-                        chatUI.sendMessage("Page is not between 1 and " + helpPages);
-                        return;
-                    }
-                    string output = "";
-                    for (int i = 0; i < helpPages; i++) {
-                        int index = page * helpPages + i;
-                        if (index >= stringCommands.Count) {
-                            break;
-                        }
-                        output += stringCommands[index].ToString() +  ", ";
-                    }
-                    chatUI.sendMessage(output);
-                    
-                } catch (FormatException) {
-                    /*
-                    ChatCommand? paramCommand = ChatCommandFactory.getCommand(parameters[0]);
-                    if (paramCommand == null) {
-                        chatUI.sendMessage("Could not find command '" + parameters[0] + "'");
-                        return;
-                    }
-                    chatUI.sendMessage(((ChatCommand)paramCommand).getDescription());
-                    */
-                } catch (OverflowException) {
-                    chatUI.sendMessage("Page is too large");
-                }
+                chatUI.sendMessage("Error running 'help': No command provided");
+                return;
             }
+            ChatCommand chatCommand = ChatCommandFactory.getEmptyCommand(parameters[0],chatUI);
+            if (chatCommand == null) {
+                chatUI.sendMessage($"Error running 'help': {parameters[0]} is not a valid command");
+                return;
+            }
+            chatUI.sendMessage($"Usage of {parameters[0]}:\n{chatCommand.getDescription()}");
+
         }
 
         public List<string> getAutoFill(int paramIndex)

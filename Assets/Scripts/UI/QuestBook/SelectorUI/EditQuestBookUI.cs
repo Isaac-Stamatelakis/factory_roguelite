@@ -7,6 +7,7 @@ using TMPro;
 namespace UI.QuestBook {
     public class EditQuestBookUI : MonoBehaviour
     {
+        [SerializeField] private SpriteKey[] spriteKeys;
         [SerializeField] private Button deleteButton;
         [SerializeField] private Button leftButton;
         [SerializeField] private Button rightButton;
@@ -16,6 +17,7 @@ namespace UI.QuestBook {
         [SerializeField] private GridLayoutGroup spriteList;
         [SerializeField] private TextMeshProUGUI confirmDeleteText;
         [SerializeField] private TextMeshProUGUI confirmDeleteHint;
+        [SerializeField] private EditQuestBookSpriteElementUI editQuestBookSpriteElementUIPrefab;
         private EditQuestBookSpriteElementUI[] listElements;
         private QuestBook questBook {get => library.QuestBooks[index];}
         private int index;
@@ -79,13 +81,13 @@ namespace UI.QuestBook {
         }
 
         public void displaySprites() {
-            Sprite[] sprites = Resources.LoadAll<Sprite>(QuestBookHelper.QuestBookSpritePath);
-            listElements = new EditQuestBookSpriteElementUI[sprites.Length];
-            for (int i = 0; i < sprites.Length; i++) {
-                string path = QuestBookHelper.QuestBookSpritePath + "/" + sprites[i].name;
-                EditQuestBookSpriteElementUI spriteElement = EditQuestBookSpriteElementUI.newInstance();
+            SpriteKey[] spriteKeys = selectorUI.SpriteKeys;
+            listElements = new EditQuestBookSpriteElementUI[spriteKeys.Length];
+            for (int i = 0; i < spriteKeys.Length; i++) {
+                SpriteKey spriteKey = spriteKeys[i];
+                EditQuestBookSpriteElementUI spriteElement = GameObject.Instantiate(editQuestBookSpriteElementUIPrefab);
                 spriteElement.transform.SetParent(spriteList.transform);
-                spriteElement.init(questBook,this,sprites[i],path);
+                spriteElement.init(questBook,this,spriteKey.Sprite,spriteKey.Key);
                 listElements[i] = spriteElement;
             }
         }
@@ -95,12 +97,6 @@ namespace UI.QuestBook {
                 element.setPanelColor();
             }
         }
-
-        public static EditQuestBookUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/Quest/EditQuestBook/EditQuestBook").GetComponent<EditQuestBookUI>();
-        }
-
-        
     }
 }
 

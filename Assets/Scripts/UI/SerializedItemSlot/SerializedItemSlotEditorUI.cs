@@ -26,6 +26,7 @@ namespace UI {
         [SerializeField] private Button deleteButton;
         [SerializeField] private Image deleteButtonPanel;
         [SerializeField] private TMP_InputField amountField;
+        [SerializeField] private Image selectedItemImage;
         private static readonly int ROWS = 7;
         private static readonly int INITAL_COLUMNS = 5;
         private int size = ROWS*INITAL_COLUMNS;
@@ -37,11 +38,21 @@ namespace UI {
         private List<ItemObject> currentItems = new List<ItemObject>();
         private IItemListReloadable reloadable;
         private float timeSinceLastDeletePress = 2f;
-        public void init(List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo) {
+        private Type itemType;
+        public void init(
+            List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo, 
+            Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true
+        ) {
             this.itemSlots = serializedItemSlots;
             this.initalSize = scrollRect.content.sizeDelta.y;
             this.index = index;
             this.reloadable = reloadable;
+            this.itemType = itemType;
+
+            upButton.gameObject.SetActive(displayArrows);
+            downButton.gameObject.SetActive(displayArrows);
+            tagInput.gameObject.SetActive(displayTags);
+            amountField.gameObject.SetActive(displayAmount);
             setImage();
             
             backButton.onClick.AddListener(() => {
@@ -65,7 +76,6 @@ namespace UI {
                     scrollRect.verticalNormalizedPosition += 100f/contentSize.y;
                 }
             });
-            
             itemSearch.onValueChanged.AddListener((string value) => {
                 loadItems(value);
             });
@@ -127,13 +137,18 @@ namespace UI {
 
         private void setImage() {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
-            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,ItemDisplayUtils.SolidItemPanelColor,false);
+            if (itemSlot.itemObject != null) {
+                selectedItemImage.sprite = itemSlot.itemObject.getSprite();
+            } else {
+                selectedItemImage.sprite = null;
+            }
+            
         }
         public void selectItem(ItemObject itemObject) {
             SerializedItemSlot serializedItemSlot = new SerializedItemSlot(
                 itemObject.id,
-                1,
-                null
+                itemSlots[index].amount,
+                itemSlots[index].tags
             );
             itemSlots[index] = serializedItemSlot;
             reloadable.reload();
@@ -150,11 +165,15 @@ namespace UI {
                 ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
-                itemSlotUI.transform.SetParent(itemContainer,false);
             }
         }
         private void loadItems(string value) {
-            currentItems = ItemRegistry.getInstance().query(value,int.MaxValue);
+            if (itemType != null) {
+                
+            } else {
+                currentItems = ItemRegistry.getInstance().query(value,int.MaxValue);
+            }
+            
             GlobalHelper.deleteAllChildren(itemSearchResultContainer.transform);
             Vector2 contentSize = scrollRect.content.sizeDelta;
             contentSize.y = initalSize;
@@ -162,10 +181,9 @@ namespace UI {
             scrollRect.content.sizeDelta = contentSize;
             for (int i = 0; i < Mathf.Min(currentItems.Count,size); i++) {
                 ItemObject itemObject = currentItems[i];
-                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemContainer,ItemDisplayUtils.SolidItemPanelColor,false);
+                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor,false);
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
-                itemSlotUI.transform.SetParent(itemContainer,false);
             }
         }
 
@@ -176,10 +194,6 @@ namespace UI {
             } else {
                 deleteButtonPanel.color = Color.white;
             }
-        }
-
-        public static SerializedItemSlotEditorUI createNewInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/SerializedItemSlot/SerializedItemSlotEditor").GetComponent<SerializedItemSlotEditorUI>();
         }
     }
     

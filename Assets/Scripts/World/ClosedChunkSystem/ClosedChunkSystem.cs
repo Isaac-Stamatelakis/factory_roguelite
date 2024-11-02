@@ -48,6 +48,9 @@ namespace Chunks.Systems {
         }
 
         public void addChunk(ILoadedChunk chunk) {
+            if (chunk == null) {
+                return;
+            }
             Vector2Int chunkPosition = chunk.getPosition();
             cachedChunks[chunkPosition] = chunk;
         }

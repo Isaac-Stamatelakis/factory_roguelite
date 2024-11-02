@@ -12,6 +12,7 @@ namespace UI.QuestBook {
     }
     public class QuestBookUI : MonoBehaviour
     {
+        [SerializeField] public UIAssetManager AssetManager;
         [SerializeField] private QuestBookPageUI pageUI;
         [SerializeField] private GridLayoutGroup chapterGridGroup;
         [SerializeField] private Button addChapter;
@@ -29,6 +30,8 @@ namespace UI.QuestBook {
             this.selectorObject = selectorObject;
             this.library = library;
             this.backButton.onClick.AddListener(backButtonPress);
+
+            AssetManager.load();
             
             if (!QuestBookHelper.EditMode) {
                 addChapter.gameObject.SetActive(false);
@@ -54,7 +57,9 @@ namespace UI.QuestBook {
         }
 
         private void backButtonPress() {
-            selectorObject.SetActive(true);
+            QuestBookSelectorUI selectorUI = AssetManager.cloneElement<QuestBookSelectorUI>("TITLE");
+            selectorUI.transform.SetParent(transform.parent,false);
+            selectorUI.init(library);
             GameObject.Destroy(gameObject);
         }
         

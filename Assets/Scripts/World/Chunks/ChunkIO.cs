@@ -153,6 +153,36 @@ namespace Chunks.IO {
         public string[,] ids;
         public string[,] conduitOptions;
     }
+
+    public static class SerializedTileDataFactory {
+        public static SeralizedFluidTileData createEmptyFluidData(int width, int height) {
+            SeralizedFluidTileData seralizedFluidTileData = new SeralizedFluidTileData();
+            seralizedFluidTileData.ids = new string[width,height];
+            seralizedFluidTileData.fill = new float[width,height];
+            return seralizedFluidTileData;
+        }
+
+        public static SeralizedChunkConduitData createEmptyConduitData(int width, int height) {
+            SeralizedChunkConduitData seralizedChunkConduitData = new SeralizedChunkConduitData();
+            seralizedChunkConduitData.ids = new string[width,height];
+            seralizedChunkConduitData.conduitOptions = new string[width,height];
+            return seralizedChunkConduitData;
+        }
+
+        public static SerializedBackgroundTileData createEmptyBackgroundData(int width, int height) {
+            SerializedBackgroundTileData serializedBackgroundTileData = new SerializedBackgroundTileData();
+            serializedBackgroundTileData.ids = new string[width,height];
+            return serializedBackgroundTileData;
+        }
+
+        public static SerializedBaseTileData createEmptyBaseData(int width, int height) {
+            SerializedBaseTileData serializedBaseTileData = new SerializedBaseTileData();
+            serializedBaseTileData.ids = new string[width,height];
+            serializedBaseTileData.sTileEntityOptions = new string[width,height];
+            serializedBaseTileData.sTileOptions = new string[width,height];
+            return serializedBaseTileData;
+        }
+    }
 }
 
 

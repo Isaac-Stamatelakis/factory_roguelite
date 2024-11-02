@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using WorldModule.Caves;
 using WorldModule;
 using Misc;
+using DevTools.Structures;
 
 
 namespace WorldModule.Caves {

@@ -34,6 +34,14 @@ namespace UI.Chat {
             }
             return null;
         }
+
+        public static ChatCommand getEmptyCommand(string command, TextChatUI textChatUI) {
+            if (commandMap.TryGetValue(command, out var commandConstructor))
+            {
+                return commandConstructor(null, textChatUI);
+            }
+            return null;
+        }
     }
 }
 
