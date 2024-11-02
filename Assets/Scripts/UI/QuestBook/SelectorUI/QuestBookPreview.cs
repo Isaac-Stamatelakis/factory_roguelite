@@ -11,9 +11,6 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private Button button;
-
-        [SerializeField] private QuestBookUI questBookUiPrefab;
-        [SerializeField] private EditQuestBookUI editQuestBookUIPrefab;
         private QuestBookLibrary library;
         private QuestBook questBook {get => library.QuestBooks[index];}
         private QuestBookSelectorUI questBookSelectorUI;
@@ -23,7 +20,7 @@ namespace UI.QuestBook {
             this.questBookSelectorUI = questBookSelectorUI;
             this.library = library;
             this.index = index;
-            this.image.sprite = Resources.Load<Sprite>(questBook.SpritePath);
+            this.image.sprite = questBookSelectorUI.getSprite(questBook.SpriteKey);
             this.title.text = questBook.Title;
             button.onClick.AddListener(navigatePress);
         }
@@ -32,7 +29,7 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (QuestBookHelper.EditMode) {
-                    EditQuestBookUI editQuestBookUI = GameObject.Instantiate(editQuestBookUIPrefab);
+                    EditQuestBookUI editQuestBookUI = questBookSelectorUI.AssetManager.cloneElement<EditQuestBookUI>("EDIT");
                     editQuestBookUI.init(questBookSelectorUI,library,index);
                     editQuestBookUI.transform.SetParent(questBookSelectorUI.transform,false);
                 }
@@ -41,8 +38,8 @@ namespace UI.QuestBook {
         }
 
         private void navigatePress() {
-            questBookSelectorUI.gameObject.SetActive(false);
-            QuestBookUI questBookUI = GameObject.Instantiate(questBookUiPrefab);
+            GameObject.Destroy(questBookSelectorUI.gameObject);
+            QuestBookUI questBookUI = questBookSelectorUI.AssetManager.cloneElement<QuestBookUI>("QUEST_BOOK");
             questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
             questBookUI.init(questBook,library,questBookSelectorUI.gameObject);
         }

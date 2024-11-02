@@ -16,7 +16,7 @@ namespace UI.QuestBook {
 
         public List<QuestBookPage> Pages { get => pages; set => pages = value; }
         public string Title { get => title; set => title = value; }
-        public string SpritePath { get => spritePath; set => spritePath = value; }
+        public string SpriteKey { get => spritePath; set => spritePath = value; }
     }
 }
 

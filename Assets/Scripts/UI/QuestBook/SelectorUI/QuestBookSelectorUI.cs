@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Items;
 
 namespace UI.QuestBook {
     public class QuestBookSelectorUI : MonoBehaviour
     {
+        [SerializeField] public UIAssetManager AssetManager;
+        [SerializeField] private SpriteKey[] spriteKeys;
+        public SpriteKey[] SpriteKeys => spriteKeys;
         [SerializeField] private Button leftButton;
         [SerializeField] private Button rightButton;
         [SerializeField] private TextMeshProUGUI title;
@@ -17,12 +21,21 @@ namespace UI.QuestBook {
         private QuestBookLibrary library;
         private int PageCount {get => Mathf.CeilToInt(library.QuestBooks.Count/((float)BooksPerPage));}
         public QuestBookLibrary Library { get => library; set => library = value; }
+        private Dictionary<string, Sprite> spriteDict;
 
         private int BooksPerPage = 3;
 
         private int page = 0;
         public void init(QuestBookLibrary library) {
+            if (!ItemRegistry.IsLoaded) {
+                StartCoroutine(ItemRegistry.loadItems());
+            }
             this.library = library;
+            spriteDict = new Dictionary<string, Sprite>();
+            foreach (SpriteKey spriteKey in spriteKeys) {
+                spriteDict[spriteKey.Key] = spriteKey.Sprite;
+            }
+            AssetManager.load();
             leftButton.onClick.AddListener(leftButtonClick);
             rightButton.onClick.AddListener(rightButtonClick);
             display();
@@ -35,6 +48,7 @@ namespace UI.QuestBook {
                 display();
             });
             addButton.gameObject.SetActive(QuestBookHelper.EditMode);
+            
         }
 
         private void leftButtonClick() {
@@ -52,6 +66,13 @@ namespace UI.QuestBook {
             page ++;
             display();
 
+        }
+
+        public Sprite getSprite(string key) {
+            if (spriteDict.ContainsKey(key)) {
+                return spriteDict[key];
+            }
+            return null;
         }
 
         public void display() {
@@ -78,6 +99,13 @@ namespace UI.QuestBook {
                 bookPreview.init(index,this,library);
             }
         }
+
+        
+    }
+    [System.Serializable]
+    public struct SpriteKey {
+        public string Key;
+        public Sprite Sprite;
     }
 }
 

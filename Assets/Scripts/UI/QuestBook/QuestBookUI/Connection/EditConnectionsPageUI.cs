@@ -12,6 +12,7 @@ namespace UI.QuestBook {
         [SerializeField] private ScrollRect scrollView;
         [SerializeField] private Button backButton;
         [SerializeField] private Toggle requireAllToggle;
+        [SerializeField] private ConnectionElementUI connectionElementUIPrefab;
         private QuestBookNode node;
         private QuestBookPageUI questBookPageUI;
         private HashSet<int> displayed;
@@ -81,16 +82,10 @@ namespace UI.QuestBook {
         }
 
         private void displayConnection(int id) {
-            ConnectionElementUI connectionElementUI = ConnectionElementUI.newInstance();
+            ConnectionElementUI connectionElementUI = GameObject.Instantiate(connectionElementUIPrefab);
             connectionElementUI.init(node.Prerequisites,questBookPageUI.Library.getNode(id));
             connectionElementUI.transform.SetParent(connectionList.transform,false);
         }
-
-        public static EditConnectionsPageUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/Quest/Connections/EditConnections").GetComponent<EditConnectionsPageUI>();
-        }
-
-        
     }
 }
 

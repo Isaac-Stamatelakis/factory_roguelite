@@ -8,12 +8,11 @@ namespace UI.QuestBook {
     {
         [SerializeField] private Button button;
         [SerializeField] private Image buttonImage;
-        private Sprite[] checkMarkSprites;
+        [SerializeField] private Sprite[] checkMarkSprites;
         private CheckMarkQuestTask checkMarkQuestTask;
-        public override void init(CheckMarkQuestTask checkMarkQuestTask, QuestBookPageUI questBookUI) {
+        public override void init(CheckMarkQuestTask checkMarkQuestTask, QuestBookTaskPageUI questBookUI) {
             this.checkMarkQuestTask = checkMarkQuestTask;
             button.onClick.AddListener(checkClick);
-            checkMarkSprites = Resources.LoadAll<Sprite>("Sprites/QuestBook/checkmark_sprites");
             setImage();
         }
 

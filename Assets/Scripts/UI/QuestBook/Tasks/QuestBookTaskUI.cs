@@ -6,28 +6,26 @@ using UnityEngine;
 namespace UI.QuestBook {
     public abstract class QuestBookTaskUI<Task> : MonoBehaviour where Task : QuestBookTask
     {
-        public abstract void init(Task task, QuestBookPageUI questBookUI);
+        public abstract void init(Task task, QuestBookTaskPageUI taskPageUI);
     }
 
     public static class QuestBookTaskUIFactory {
-        public static GameObject getContent(QuestBookTask task, QuestBookPageUI questBookUI) {
+        public static GameObject getContent(QuestBookTask task, QuestBookTaskPageUI taskPageUI) {
             QuestTaskType taskType = task.getTaskType();
+            UIAssetManager assetManager = taskPageUI.QuestBookPageUI.QuestBookUI.AssetManager;
             switch (taskType) {
                 case QuestTaskType.Item:
-                    GameObject itemObject = GameObject.Instantiate(Resources.Load<GameObject>("UI/Quest/Tasks/Item/ItemQuestTask"));
-                    ItemQuestTaskUI itemQuestTaskUI = itemObject.GetComponent<ItemQuestTaskUI>();
-                    itemQuestTaskUI.init((ItemQuestTask)task,questBookUI);
-                    return itemObject;
+                    ItemQuestTaskUI itemQuestTaskUI = assetManager.cloneElement<ItemQuestTaskUI>("ITEM_TASK");
+                    itemQuestTaskUI.init((ItemQuestTask)task,taskPageUI);
+                    return itemQuestTaskUI.gameObject;
                 case QuestTaskType.Checkmark:
-                    GameObject checkObject = GameObject.Instantiate(Resources.Load<GameObject>("UI/Quest/Tasks/CheckMarkTaskUI"));
-                    CheckMarkTaskUI checkMarkTaskUI = checkObject.GetComponent<CheckMarkTaskUI>();
-                    checkMarkTaskUI.init((CheckMarkQuestTask)task,questBookUI);
-                    return checkObject;
+                    CheckMarkTaskUI checkMarkTaskUI = assetManager.cloneElement<CheckMarkTaskUI>("CHECKMARK_TASK");
+                    checkMarkTaskUI.init((CheckMarkQuestTask)task,taskPageUI);
+                    return checkMarkTaskUI.gameObject;
                 case QuestTaskType.Dimension:
-                    GameObject dimObject = GameObject.Instantiate(Resources.Load<GameObject>("UI/Quest/Tasks/VisitDimensionTask"));
-                    VisitDimensionTaskUI visitDimensionTaskUI = dimObject.GetComponent<VisitDimensionTaskUI>();
-                    visitDimensionTaskUI.init((VisitDimensionQuestTask)task,questBookUI);
-                    return dimObject;
+                    VisitDimensionTaskUI visitDimensionTaskUI = assetManager.cloneElement<VisitDimensionTaskUI>("CHECKMARK_TASK");
+                    visitDimensionTaskUI.init((VisitDimensionQuestTask)task,taskPageUI);
+                    return visitDimensionTaskUI.gameObject;
             }
             return null;
         }

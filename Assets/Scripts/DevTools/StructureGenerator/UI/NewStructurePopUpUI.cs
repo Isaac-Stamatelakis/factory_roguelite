@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UI;
 using WorldModule.Caves;
 using Items;
+using System;
 
 namespace DevTools.Structures {
     public class NewStructurePopUpUI : MonoBehaviour, IItemListReloadable
@@ -17,11 +18,26 @@ namespace DevTools.Structures {
         [SerializeField] private DynamicColorTextUI dynamicColorTextPrefab;
         [SerializeField] private Button tileSelector;
         [SerializeField] private SerializedItemSlotEditorUI itemSelectorUIPrefab;
+        [SerializeField] private Image itemImage;
+        [SerializeField] private TMP_Dropdown optionDropdown;
+        [SerializeField] private TextMeshProUGUI boundsText;
+        [SerializeField] private IntervalVectorUI intervalVectorUIPrefab;
+        [SerializeField] private Button editIntervalVectorButton;
         private StructureDevControllerUI controllerUI;
-        private SerializedItemSlot serializedItemSlot;
+        // This only has one but is required to be a list to use the editor
+        private List<SerializedItemSlot> itemSlots;
+        private IntervalVector bounds;
+        private StructureGenOptionType genOption = StructureGenOptionType.Empty;
 
         public void init(StructureDevControllerUI controllerUI) {
+            if (!ItemRegistry.IsLoaded) {
+                StartCoroutine(ItemRegistry.loadItems());
+            }
+            
             this.controllerUI = controllerUI;
+            this.bounds = new IntervalVector(new Interval<int>(-4,4),new Interval<int>(-4,4));
+            boundsText.text = bounds.ToString();
+
             DynamicColorTextUI dynamicColorTextUI = GameObject.Instantiate(dynamicColorTextPrefab);
             dynamicColorTextUI.init(
                 colors: DynamicTextColorFactory.getRainbow(),
@@ -29,7 +45,18 @@ namespace DevTools.Structures {
                 "CREATE",
                 10
             );
-            
+            tileSelector.gameObject.SetActive(false);
+
+            StructureGenOptionType[] options = (StructureGenOptionType[])Enum.GetValues(typeof(StructureGenOptionType));
+            List<TMP_Dropdown.OptionData> dropDownOptions = new List<TMP_Dropdown.OptionData>();
+            foreach (StructureGenOptionType option in options) {
+                dropDownOptions.Add(new TMP_Dropdown.OptionData(option.ToString()));
+            }
+            optionDropdown.options = dropDownOptions;
+            optionDropdown.onValueChanged.AddListener((int index) => {
+                genOption = (StructureGenOptionType) index;
+                tileSelector.gameObject.SetActive(index!=0);
+            });
             
             dynamicTextContainer.localScale = new Vector3(1.5f,1.5f,1f);
             dynamicColorTextUI.transform.SetParent(dynamicTextContainer.transform,false);
@@ -41,39 +68,40 @@ namespace DevTools.Structures {
                     nameField.placeholder.color = Color.red;
                     return;
                 }
-                
-                StructureGeneratorHelper.newStructure(nameField.text,serializedItemSlot.id);
+                StructureGenerationOption generationOption = StructureGeneratorOptionFactory.createOption(genOption,itemSlots[0].id);
+                StructureGeneratorHelper.newStructure(nameField.text,generationOption,bounds);
                 controllerUI.displayList();
                 GameObject.Destroy(gameObject);
             });
-
-            serializedItemSlot = new SerializedItemSlot(null,0,null);
-
+            itemSlots = new List<SerializedItemSlot>{new SerializedItemSlot("stone",0,null)};
+            
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
                 itemSlotEditorUI.transform.SetParent(transform.parent,false);
-                List<SerializedItemSlot> itemSlots = new List<SerializedItemSlot>{serializedItemSlot};
-                itemSlotEditorUI.init(itemSlots,0,this,gameObject);
+                itemSlotEditorUI.init(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
             });
-            StartCoroutine(ItemRegistry.loadItems());
+
+            editIntervalVectorButton.onClick.AddListener(() => {
+                IntervalVectorUI intervalVectorUI = GameObject.Instantiate(intervalVectorUIPrefab);
+                intervalVectorUI.transform.SetParent(transform.parent,false);
+                intervalVectorUI.display(bounds,reloadIntervalVector);
+            });
+            
         }
 
-        public static NewStructurePopUpUI newInstance() {
-            return AddressableLoader.getPrefabComponentInstantly<NewStructurePopUpUI>("Assets/UI/DevTools/Structure/NewStructurePopUp.prefab");
+        public void reloadIntervalVector() {
+            boundsText.text = bounds.ToString();
         }
 
         public void reload()
         {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            ItemObject itemObject = itemRegistry.getItemObject(serializedItemSlot.id);
-            Image image = tileSelector.GetComponentInChildren<Image>();
-            TextMeshProUGUI text = tileSelector.GetComponentInChildren<TextMeshProUGUI>();
+            ItemObject itemObject = itemRegistry.getItemObject(itemSlots[0].id);
             if (itemObject == null) {
-                image.sprite = null;
-                text.text = "Default Tile:\nNull";
+                itemImage.gameObject.SetActive(false);
             } else {
-                image.sprite = itemObject.getSprite();
-                text.text = $"Default Tile:\n{itemObject.name}";
+                itemImage.gameObject.SetActive(true);
+                itemImage.sprite = itemObject.getSprite();
             }
             
         }

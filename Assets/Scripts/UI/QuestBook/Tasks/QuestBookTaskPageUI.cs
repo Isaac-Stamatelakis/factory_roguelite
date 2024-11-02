@@ -9,7 +9,9 @@ using System;
 namespace UI.QuestBook {
     public class QuestBookTaskPageUI : MonoBehaviour
     {
+        public UIAssetManager AssetManager;
         [SerializeField] private GridLayoutGroup rewardsGroup;
+        public Transform RewardItemContainer => rewardsGroup.transform;
         [SerializeField] private Button acceptRewardsButton;
         [SerializeField] private Button backButton;
         [SerializeField] private Transform taskContainer;
@@ -19,10 +21,10 @@ namespace UI.QuestBook {
         [SerializeField] private TMP_InputField descriptionField;
         [SerializeField] private TMP_Dropdown changeTaskDropDown;
         [SerializeField] private Button addRewardButton;
+        [SerializeField] private RewardListElement rewardListElementPrefab;
 
         private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
         private QuestBookPageUI questBookPageUI;
-
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
         public List<int> SelectedRewards { get => selectedRewards; set => selectedRewards = value; }
@@ -37,6 +39,8 @@ namespace UI.QuestBook {
             this.descriptionField.text = Content.Description;
             this.questBookPageUI = questBookPageUI;
             this.node = node;
+
+            AssetManager.load();
 
             if (Content.Task == null) {
                 this.titleField.text = "No Task";
@@ -71,9 +75,10 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             editButton.onClick.AddListener(() => {
-                EditConnectionsPageUI connectionsPageUI = EditConnectionsPageUI.newInstance();
+                EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
                 connectionsPageUI.init(node,questBookPageUI);
-                connectionsPageUI.transform.SetParent(questBookPageUI.transform,false);
+                Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
+                connectionsPageUI.transform.SetParent(canvas.transform,false);
             });
             editContainer.gameObject.SetActive(QuestBookHelper.EditMode);
 
@@ -84,7 +89,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(taskContainer.GetChild(i).gameObject);
             }
             this.titleField.text = Content.Task.getTaskType().ToString().Replace("_"," ");
-            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, questBookPageUI);
+            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
             questContent.transform.SetParent(taskContainer,false);
         }
 
@@ -126,7 +131,7 @@ namespace UI.QuestBook {
                 Content.Rewards = new List<SerializedItemSlot>();
             }
             for (int i = 0; i < Content.Rewards.Count; i++) {
-                RewardListElement rewardListElement = RewardListElement.newInstance();
+                RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab);
                 rewardListElement.init(Content.Rewards,i,this);
                 rewardListElement.transform.SetParent(rewardsGroup.transform,false);
             }

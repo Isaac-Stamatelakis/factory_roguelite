@@ -8,6 +8,7 @@ using System;
 namespace UI.QuestBook {
     public class QuestBookCreationSceneController : MonoBehaviour
     {
+        [SerializeField] private UIAssetManager assetManager;
         [SerializeField] public Transform canvasTransform;
         [SerializeField] private bool editMode;
         [SerializeField] private QuestBookSelectorUI questBookSelectorUIPrefab;
@@ -17,8 +18,8 @@ namespace UI.QuestBook {
         {
             Debug.Log(Application.persistentDataPath);
             string json = "null";
-            if (File.Exists(QuestBookHelper.DefaultQuestBookPath)) {
-                json = File.ReadAllText(QuestBookHelper.DefaultQuestBookPath);
+            if (File.Exists(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH)) {
+                json = File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
             }
             try {
                 library = QuestBookLibraryFactory.deseralize(json);
@@ -67,7 +68,7 @@ namespace UI.QuestBook {
 
         void OnDestroy() {
             string json = QuestBookLibraryFactory.seralize(library);
-            File.WriteAllText(QuestBookHelper.DefaultQuestBookPath,json);
+            File.WriteAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH,json);
         }
         void Awake()
         {

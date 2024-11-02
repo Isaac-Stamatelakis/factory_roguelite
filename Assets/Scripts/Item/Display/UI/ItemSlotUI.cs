@@ -59,7 +59,7 @@ namespace Items {
             GlobalHelper.deleteAllChildren(transform);
         }
 
-        private void displayItemSprite(ItemObject itemObject) {
+        public void displayItemSprite(ItemObject itemObject) {
             switch (itemObject.getDisplayType()) {
                 case ItemDisplayType.Single:
                     setImageSprite(itemSprite,itemObject.getSprite());

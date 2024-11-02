@@ -79,7 +79,7 @@ namespace UI.QuestBook {
             return new SerializedQuestBook(
                 pages,
                 questBook.Title,
-                questBook.SpritePath
+                questBook.SpriteKey
             );
         }
 

@@ -73,7 +73,6 @@ namespace WorldModule {
             return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
         }
         public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
-            
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             Vector2Int size = bounds.getSize();
@@ -133,6 +132,21 @@ namespace WorldModule {
                 signalData,
                 matrixData
             );
+        }
+
+        public static WorldTileConduitData createEmptyWorldData(IntervalVector bounds) {
+            Vector2Int size = bounds.getSize()*Global.ChunkSize;
+            int width = size.x;
+            int height = size.y;
+            SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width,height);
+            SerializedBackgroundTileData backgroundData = SerializedTileDataFactory.createEmptyBackgroundData(width,height);
+            SeralizedFluidTileData fluidTileData = SerializedTileDataFactory.createEmptyFluidData(width,height);
+            SeralizedChunkConduitData itemData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData fluidData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData energyData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData signalData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width,height);
+            return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
         }
         private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
