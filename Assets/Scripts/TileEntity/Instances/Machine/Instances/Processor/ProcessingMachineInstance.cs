@@ -22,6 +22,10 @@ namespace TileEntityModule.Instances.Machines
         public ProcessingMachineInstance(ProcessingMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
             if (inventory == null) {
+                if (tileEntity.Processor == null) {
+                    Debug.LogWarning($"Tile entity {tileEntity.name} has no processor");
+                    return;
+                }
                 inventory = StandardMachineInventoryFactory.initalize((StandardMachineInventoryLayout) tileEntity.Processor.getInventoryLayout());
             }
         }

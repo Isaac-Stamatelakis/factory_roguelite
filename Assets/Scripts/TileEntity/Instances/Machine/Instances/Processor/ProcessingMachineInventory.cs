@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Items.Inventory;
+using System;
 
 namespace TileEntityModule.Instances.Machines {
     /// <summary>
@@ -68,7 +69,8 @@ namespace TileEntityModule.Instances.Machines {
         }
 
         public static string serialize(StandardMachineInventory processingMachineInventory) {
-            SerializedMachineData serializedMachineData = new SerializedMachineData(
+            try {
+                SerializedMachineData serializedMachineData = new SerializedMachineData(
                 itemInputs: InventoryFactory.serialize(processingMachineInventory.ItemInputs),
                 itemOutputs: InventoryFactory.serialize(processingMachineInventory.ItemOutputs),
                 fluidInputs: InventoryFactory.serialize(processingMachineInventory.FluidInputs),
@@ -78,6 +80,9 @@ namespace TileEntityModule.Instances.Machines {
                 mode: processingMachineInventory.Mode
             );
             return JsonConvert.SerializeObject(serializedMachineData);
+            } catch (NullReferenceException) {
+                return null;
+            }
         }
         
 

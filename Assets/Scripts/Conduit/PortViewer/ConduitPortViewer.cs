@@ -12,47 +12,29 @@ namespace Conduits.PortViewer {
     public class ConduitPortViewer : MonoBehaviour
     {
         private IConduitSystemManager systemManager;
-        private Tilemap mTilemap;
-        private TilemapRenderer mTilemapRender;
         private Dictionary<EntityPortType,TileBase> portTypeToTile;
-        private Grid mGrid;
         public ConduitType Type {get => systemManager.getConduitType();}
-        public void initalize(IConduitSystemManager systemManager, Vector3Int referenceFrame) {
+        public bool Active {get => systemManager != null;}
+        public void initalize(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color) {
             this.systemManager = systemManager;
-            mTilemap = gameObject.AddComponent<Tilemap>();
-            mTilemapRender = gameObject.AddComponent<TilemapRenderer>();
-            mTilemapRender.material = Resources.Load<Material>("Material/ShadedMaterial");
-            mGrid = gameObject.AddComponent<Grid>();
-            mGrid.cellSize = new Vector3(0.5f,0.5f,1f);
-            initTiles();
+            Tilemap tilemap = GetComponent<Tilemap>();
+            tilemap.color = color;
+            Debug.Log(systemManager.getTileEntityPorts().Count);
             foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
-                    mTilemap.SetTile(position,portTypeToTile[portData.portType]);
+                    tilemap.SetTile(position,portTypeToTile[portData.portType]);
                 }
             }
         }
 
-        private void initTiles() {
-            portTypeToTile = new Dictionary<EntityPortType, TileBase>();
-            string path = "PortTiles/" + Type.ToString();
-            TileBase[] tiles = Resources.LoadAll<TileBase>(path);
-            foreach (TileBase tileBase in tiles) {
-                if (tileBase is IIDTile) {
-                    string id = ((IIDTile) tileBase).getId();
-                    switch (id) {
-                        case "All":
-                            portTypeToTile[EntityPortType.All] = tileBase;
-                            break;
-                        case "Input":
-                            portTypeToTile[EntityPortType.Input] = tileBase;
-                            break;
-                        case "Output":
-                            portTypeToTile[EntityPortType.Output] = tileBase;
-                            break;
-                    }
-                }
+        public void deactive() {
+            if (!gameObject.activeInHierarchy) {
+                return;
             }
+            GetComponent<Tilemap>().ClearAllTiles();
+            gameObject.SetActive(false);
+            systemManager = null;
         }
     }
 }

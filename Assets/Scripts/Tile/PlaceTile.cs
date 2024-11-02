@@ -246,9 +246,7 @@ namespace TileMaps.Place {
             TileMapLayer layer = tileMap.getType().toLayer();
             partition.addTileEntity(layer,tileEntityInstance,positionInPartition);
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                if (tileEntity is IConduitInteractable) {
-                    conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
-                }
+                conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
             }
         }
 

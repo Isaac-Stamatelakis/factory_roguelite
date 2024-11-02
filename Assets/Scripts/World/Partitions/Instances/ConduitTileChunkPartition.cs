@@ -84,10 +84,10 @@ namespace Chunks.Partitions {
                     if (tileEntity == null) {
                         continue;
                     }
-                    if (tileEntity is not IConduitInteractable) {
+                    if (tileEntity is not IConduitInteractable conduitInteractable) {
                         continue;
                     }
-                    ConduitPortLayout layout = ((IConduitInteractable) tileEntity).getConduitPortLayout();
+                    ConduitPortLayout layout = conduitInteractable.getConduitPortLayout();
                     if (layout == null) {
                         continue;
                     }
