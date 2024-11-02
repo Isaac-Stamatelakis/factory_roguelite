@@ -10,7 +10,9 @@ using System.IO;
 using Chunks.IO;
 using Chunks;
 using PlayerModule;
+using UnityEngine.AddressableAssets;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public static class CompactMachineHelper 
@@ -116,12 +118,24 @@ namespace TileEntityModule.Instances.CompactMachines {
             return closestPort.position;
         }
 
-        public static void initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
-            IntervalVector bounds = getCompactMachineBounds(compactMachine);
+        public static IEnumerator initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
-            WorldTileConduitData systemData = WorldCreation.prefabToWorldTileConduitData(compactMachine.TileEntity.TilemapContainer,bounds);
-            WorldGenerationFactory.saveToJson(systemData,bounds.getSize(),1,savePath);
+            var handle = Addressables.LoadAssetAsync<Object>(compactMachine.TileEntity.StructurePreset);
+            yield return handle;
+            Structure structure = AddressableUtils.validateHandle<Structure>(handle);
+            if (structure == null) {
+                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntity.name}: Could not load structure");
+                yield break;
+            }
+            if (structure.variants.Count == 0) {
+                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntity.name} as structure has no variant");
+                yield break;
+            }
+            StructureVariant variant = structure.variants[0];
+            WorldTileConduitData systemData = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
+            Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.ChunkSize,variant.Size.y/Global.ChunkSize);
+            WorldGenerationFactory.saveToJson(systemData,chunkSize,1,savePath);
             Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }
 
@@ -133,10 +147,6 @@ namespace TileEntityModule.Instances.CompactMachines {
             return systemPath;
         }
 
-        public static IntervalVector getCompactMachineBounds(CompactMachineInstance compactMachine) {
-            IntervalVector bounds = WorldCreation.getTileMapChunkBounds(compactMachine.TileEntity.TilemapContainer);
-            return bounds;
-        }
 
         public static void teleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;

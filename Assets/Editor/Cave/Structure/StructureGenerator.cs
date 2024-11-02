@@ -10,10 +10,24 @@ using Chunks;
 using WorldModule;
 using Chunks.Partitions;
 using Chunks.IO;
+using UnityEngine.AddressableAssets;
+using UnityEditor.AddressableAssets.GUI;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets;
 
+public enum PresetStructure {
+    None,
+    Dim0
+}
 public class StructureGenerator : EditorWindow {
+    private static string dim0path = "Assets/ScriptableObjects/Structures/Dim0/Dim0.asset";
+    private static readonly HashSet<PresetStructure> openStructurePresets = new HashSet<PresetStructure>();
     private static string[] structureNames = new string[]{"Restart this Editor"};
     private int index;
+    private bool enforceEnclosure = true;
+    private bool updateExisting = false;
+    private PresetStructure preset;
+    private string assetPath;
     [MenuItem("Tools/Caves/Structure")]
     public static void ShowWindow()
     {
@@ -22,17 +36,78 @@ public class StructureGenerator : EditorWindow {
         window.titleContent = new GUIContent("Structure Generator");
     }
 
+    private void OnEnable()
+    {
+        structureNames = StructureGeneratorHelper.getAllStructureFolders();
+    }
+
     void OnGUI()
     {
-        
+        EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        index = EditorGUILayout.Popup(index, structureNames);
+        EditorGUILayout.LabelField("Update Existing Structure", GUILayout.Width(200));
+        updateExisting = EditorGUILayout.Toggle(updateExisting);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-        if (GUILayout.Button("Generate"))
+
+        if (updateExisting) {
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Preset", GUILayout.Width(100));
+            preset = (PresetStructure)EditorGUILayout.EnumPopup(preset);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+        }
+
+        if (!updateExisting) {
+            
+        }
+        
+
+        if (preset == PresetStructure.None) {
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Structures", GUILayout.Width(100));
+            index = EditorGUILayout.Popup(index, structureNames);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Enforce Enclosure", GUILayout.Width(200));
+            enforceEnclosure = EditorGUILayout.Toggle(enforceEnclosure);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+        }
+
+        if (updateExisting && preset == PresetStructure.None) {
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Asset Path", GUILayout.Width(200));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+
+            assetPath = EditorGUILayout.TextField(assetPath,GUILayout.Width(200));
+        }
+        
+        string buttonText = updateExisting ? "Update" : "Generate";
+        if (GUILayout.Button(buttonText))
         {
-            generateStructure(structureNames[index]);
+            string structureName = structureNames[index];
+            switch (preset) {
+                case PresetStructure.Dim0:
+                    structureName = "Dim0";
+                    break;
+            }
+            if (preset != PresetStructure.None) {
+                enforceEnclosure = openStructurePresets.Contains(preset);
+            }
+            generateStructure(structureName);
         }
     }
 
@@ -40,6 +115,7 @@ public class StructureGenerator : EditorWindow {
     /// This generates all structures inside a structure dev tool system.
     /// </summary>
     private void generateStructure(string structureName) {
+        
         Structure structure = ScriptableObject.CreateInstance<Structure>();
         structure.name = structureName;
         
@@ -59,7 +135,6 @@ public class StructureGenerator : EditorWindow {
         }   
         
         Vector2Int size = coveredArea.getSize()*Global.ChunkSize;
-        //Debug.Log($"Generating structures from system of size {coveredArea}");
         Vector2Int offset = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
         bool[,] perimeter = new bool[size.x,size.y];
         foreach (SoftLoadedConduitTileChunk softLoadedConduitTileChunk in chunks) {
@@ -124,7 +199,6 @@ public class StructureGenerator : EditorWindow {
                 WorldTileConduitData partitionData = (WorldTileConduitData) partition.getData();
                 Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
                 Vector2Int posInArea = vector-areaOffset;
-                Debug.Log($"Vector {adjustedVector}, Chunk: {chunkPosition}, Partition {partitionPosition}, Position {posInPartition}");
                 WorldGenerationFactory.mapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
             }
             Debug.Log($"Added structure variant of size {areaSize} with {area.Count} points");
@@ -138,17 +212,41 @@ public class StructureGenerator : EditorWindow {
             Debug.LogWarning("Structure has no enclosed areas. Creation aborted");
             return;
         }
-        string creationPath = Path.Combine(Global.EditorCreationPath,structureName);
-        if (Directory.Exists(creationPath)) {
-            Directory.Delete(creationPath,true);
+
+        if (!updateExisting) {
+            string creationPath = Path.Combine(Global.EditorCreationPath,structureName);
+            if (Directory.Exists(creationPath)) {
+                Directory.Delete(creationPath,true);
+            }
+            AssetDatabase.CreateFolder(Global.EditorCreationPath,structureName);
+            AssetDatabase.Refresh();
+            Debug.Log($"Folder for structure created at {creationPath}");
+            string savePath = Path.Combine(creationPath,structureName) + ".asset";
+            AssetDatabase.CreateAsset(structure,savePath);
+            Debug.Log($"Successfully created structure with {structure.variants.Count} variants at path {savePath}");
+            AssetDatabase.Refresh();
+        } else {
+            updateExistingStructure(structure);
         }
-        AssetDatabase.CreateFolder(Global.EditorCreationPath,structureName);
-        AssetDatabase.Refresh();
-        Debug.Log($"Folder for structure created at {creationPath}");
-        string savePath = Path.Combine(creationPath,structureName) + ".asset";
-        AssetDatabase.CreateAsset(structure,savePath);
-        Debug.Log($"Successfully created structure with {structure.variants.Count} variants at path {savePath}");
-        AssetDatabase.Refresh();
+        
+    }
+
+    private async void updateExistingStructure(Structure updatedStructure) {
+        Structure structure = null;
+        switch (preset) {
+            case PresetStructure.None:
+                structure = await Addressables.LoadAssetAsync<Structure>(assetPath).Task;
+                break;
+            case PresetStructure.Dim0:
+                structure = await Addressables.LoadAssetAsync<Structure>(dim0path).Task;
+                break;
+        }
+        if (structure == null) {
+            Debug.LogError("Could not load structure at asset reference");
+            return;
+        }
+        structure.variants = updatedStructure.variants;
+        Debug.Log($"Updated structure {structure.name}");
     }
 
     private List<Vector2Int> dfsEnclosedArea(Vector2Int position, bool[,] perimeter, bool[,] visited, List<Vector2Int> directions, Vector2Int size) {
@@ -165,8 +263,11 @@ public class StructureGenerator : EditorWindow {
                 Vector2Int directedPosition = next + direction;
                 bool outOfBounds = directedPosition.x < 0 || directedPosition.y < 0 || directedPosition.x >= size.x || directedPosition.y >= size.y;
                 if (outOfBounds) {
-                    enclosed = false;
-                    points = null;
+                    if (enforceEnclosure) {
+                        enclosed = false;
+                        points = null;
+                    }
+                    
                     continue;
                 }
                 if (perimeter[directedPosition.x,directedPosition.y] || visited[directedPosition.x,directedPosition.y]) {
