@@ -58,19 +58,25 @@ namespace TileEntityModule.Instances {
             }
 
             handles["Model"] = cave.generationModel.LoadAssetAsync<Object>();
-            if (cave.entityDistributor != null) {
-                handles["Entity"] = cave.entityDistributor.LoadAssetAsync<Object>();
+            if (cave.entityDistributor.RuntimeKeyIsValid()) {
+                handles["Entity"] = Addressables.LoadAssetAsync<Object>(cave.entityDistributor);
             }
             
 
             List<AsyncOperationHandle<Object>> tileDistributorHandles = new List<AsyncOperationHandle<Object>>();
             foreach (AssetReference assetReference in cave.tileGenerators) {
-                tileDistributorHandles.Add(assetReference.LoadAssetAsync<Object>());
+                if (assetReference.RuntimeKeyIsValid()) {
+                    tileDistributorHandles.Add(assetReference.LoadAssetAsync<Object>());
+                }
+                
             }
 
             List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
             foreach (AssetReference assetReference in cave.songs) {
-                songHandles.Add(assetReference.LoadAssetAsync<Object>());
+                if (assetReference.RuntimeKeyIsValid()) {
+                    songHandles.Add(assetReference.LoadAssetAsync<Object>());
+                }
+                
             }
 
             foreach (var kvp in handles) {

@@ -91,12 +91,12 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public int extractSignal(Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            return 0;
         }
 
         public void insertSignal(int signal, Vector2Int portPosition)
         {
-            throw new System.NotImplementedException();
+            
         }
 
         public ItemSlot extractSolidItem(Vector2Int portPosition)

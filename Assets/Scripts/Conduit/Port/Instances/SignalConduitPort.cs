@@ -16,6 +16,9 @@ namespace Conduits.Ports {
         }
 
         public void insert(int signal) {
+            if (tileEntity == null) {
+                return;
+            }
             tileEntity.insertSignal(signal,relativePosition);
         }
         public int getColor()

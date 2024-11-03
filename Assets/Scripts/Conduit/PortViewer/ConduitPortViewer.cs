@@ -19,7 +19,6 @@ namespace Conduits.PortViewer {
             this.systemManager = systemManager;
             Tilemap tilemap = GetComponent<Tilemap>();
             tilemap.color = color;
-            Debug.Log(systemManager.getTileEntityPorts().Count);
             foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);

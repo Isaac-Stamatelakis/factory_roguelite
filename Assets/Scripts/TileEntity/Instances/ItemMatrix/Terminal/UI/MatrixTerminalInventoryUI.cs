@@ -11,6 +11,7 @@ using PlayerModule;
 using Dimensions;
 using Chunks;
 using System.Threading.Tasks;
+using UI;
 
 namespace TileEntityModule.Instances.Matrix {
     public interface IMatrixTerminalItemClickReciever {
@@ -20,6 +21,7 @@ namespace TileEntityModule.Instances.Matrix {
     } 
     public class MatrixTerminalInventoryUI : MonoBehaviour, IMatrixTerminalItemClickReciever
     {
+        public UIAssetManager AssetManager;
         private ItemMatrixControllerInstance controller;
         private Transform itemContainer;
         private MatrixDriveCollection matrixDriveCollection;
@@ -85,7 +87,7 @@ namespace TileEntityModule.Instances.Matrix {
                 return;
             }
             ItemSlot toDisplay = null;
-            bool recipeOnly = false;
+            //bool recipeOnly = false;
             if (itemSlot == null || itemSlot.itemObject == null) {
                 if (encodedRecipe == null) {
                     return;
@@ -94,7 +96,7 @@ namespace TileEntityModule.Instances.Matrix {
                 if (outputItem == null) {
                     return;
                 }
-                recipeOnly = true;
+                //recipeOnly = true;
                 outputItem.amount = 1;
                 toDisplay = outputItem;
             } else {
@@ -321,7 +323,7 @@ namespace TileEntityModule.Instances.Matrix {
             updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
         }
 
-        private async Task<bool> handleCraftClick(ItemSlot inventorySlot) {
+        private bool handleCraftClick(ItemSlot inventorySlot) {
             string id = inventorySlot.itemObject.id;
             ItemTagKey tagKey = new ItemTagKey(inventorySlot.tags);
             if (!itemInDict(id,tagKey)) {
@@ -337,7 +339,7 @@ namespace TileEntityModule.Instances.Matrix {
             if (!canNavigateToCraft) {
                 return false;
             }
-            CraftAmountPopUpUI craftAmountPopUpUI = await CraftAmountPopUpUI.newInstance();
+            CraftAmountPopUpUI craftAmountPopUpUI = AssetManager.cloneElement<CraftAmountPopUpUI>("CRAFT_POPUP");
             craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
             GlobalUIContainer.getInstance().getUiController().addGUI(craftAmountPopUpUI.gameObject);
             return true;
@@ -381,7 +383,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return true;
         }
-        public async void itemLeftClick(IItemSlotUIElement slotUIElement)
+        public void itemLeftClick(IItemSlotUIElement slotUIElement)
         {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
@@ -389,7 +391,7 @@ namespace TileEntityModule.Instances.Matrix {
             
             if (grabbedSlot == null || grabbedSlot.itemObject == null) {
                 if (inventorySlot != null && inventorySlot.itemObject != null) {
-                    bool inCraftMenu = await handleCraftClick(inventorySlot);
+                    bool inCraftMenu = handleCraftClick(inventorySlot);
                     if (inCraftMenu) {
                         return;
                     }
