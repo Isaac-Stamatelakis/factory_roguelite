@@ -7,6 +7,10 @@ using UnityEngine.EventSystems;
 using System;
 
 namespace UI {
+
+    public interface IAmountIteratorListener {
+        public void iterate(int amount);
+    }
     public class AmountIteratorUI : MonoBehaviour, IHoldButtonListener
     {
         private enum Mode {
@@ -20,24 +24,17 @@ namespace UI {
         [SerializeField] private HoldableButton downHold;
         private float timeHeld = 0f;
         private int updateCount = 0;
-        
-        private TMP_InputField inputField;
-        
-        public void init(Transform parent, TMP_InputField inputField) {
-            this.inputField = inputField;
-            transform.SetParent(parent,false);
+        private IAmountIteratorListener listener;
+        public void setListener(IAmountIteratorListener listener) {
+            this.listener = listener;
             up.onClick.AddListener(() => {
-                iterateAmount(1);
+                listener.iterate(1);
             });
             down.onClick.AddListener(() => {
-                iterateAmount(-1);
+                listener.iterate(-1);
             });
             upHold.init(this);
             downHold.init(this);
-        }
-
-        public static AmountIteratorUI newInstance() {
-            return GlobalHelper.instantiateFromResourcePath("UI/General/AmountIterator").GetComponent<AmountIteratorUI>();
         }
         public void callbackDown(Transform caller)
         {
@@ -70,24 +67,11 @@ namespace UI {
             }
             float adjustedTime = timeHeld+0.75f;
             int toChange = Mathf.FloorToInt((Mathf.Pow(adjustedTime,3)));
-            switch (mode) {
-                case Mode.Up:
-                    iterateAmount(toChange);
-                    break;    
-                case Mode.Down:
-                    iterateAmount(-toChange);
-                    break;
+            if (mode == Mode.Down) {
+                toChange *= -1;
             }
+            listener.iterate(toChange);
         }
-
-        private void iterateAmount(int iterator) {
-            int amount = Convert.ToInt32(inputField.text);
-            amount += iterator;
-            amount = Mathf.Max(1,amount);
-            inputField.text = amount.ToString();
-        }
-
-        
     }
 }
 

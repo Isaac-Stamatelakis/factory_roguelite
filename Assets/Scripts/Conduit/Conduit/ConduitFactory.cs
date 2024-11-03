@@ -33,6 +33,9 @@ namespace Conduits {
                 if (port == null) {
                     port = ConduitPortFactory.createDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
                 }
+                if (port == null) {
+                    return null;
+                }
                 port.setTileEntity(tileEntity);
                 Vector2Int relativePosition = cellPosition + referencePosition - tileEntity.getCellPosition();
                 port.setPosition(relativePosition);

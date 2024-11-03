@@ -246,6 +246,8 @@ public class StructureGenerator : EditorWindow {
             return;
         }
         structure.variants = updatedStructure.variants;
+        EditorUtility.SetDirty(structure); 
+        AssetDatabase.SaveAssets();
         Debug.Log($"Updated structure {structure.name}");
     }
 

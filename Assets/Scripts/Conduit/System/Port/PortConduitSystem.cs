@@ -52,7 +52,7 @@ namespace Conduits.Systems {
         public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
         public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
 
-        public void tickUpdate()
+        public virtual void tickUpdate()
         {
             foreach (KeyValuePair<int,List<OutPort>> colorOutputPortList in ColoredOutputPorts) {
                 if (ColoredInputPorts.ContainsKey(colorOutputPortList.Key)) {

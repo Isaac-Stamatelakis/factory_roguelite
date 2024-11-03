@@ -15,6 +15,7 @@ using TileMaps;
 using TileMaps.Conduit;
 using TileEntityModule;
 using Items;
+using UnityEngine.AddressableAssets;
 
 namespace Chunks.Systems {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
@@ -52,16 +53,23 @@ namespace Chunks.Systems {
                     partition.activate(loadedChunk);
                 }
             }
-            GameObject portViewerController = new GameObject();
-            portViewerController.name = "Conduit Port View Controller";
-            portViewerController.transform.SetParent(transform,false);
-            viewerController = portViewerController.AddComponent<PortViewerController>();
+            StartCoroutine(createViewer());
 
             syncConduitTileMap(TileMapType.ItemConduit);
             syncConduitTileMap(TileMapType.FluidConduit);
             syncConduitTileMap(TileMapType.EnergyConduit);
             syncConduitTileMap(TileMapType.SignalConduit);
             syncConduitTileMap(TileMapType.MatrixConduit);
+        }
+
+        private IEnumerator createViewer() {
+            var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/MainScene/ConduitPortViewerController.prefab");
+            yield return handle;
+            GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
+            GameObject clone = GameObject.Instantiate(portViewerControllerPrefab);
+            clone.transform.SetParent(transform,false);
+            viewerController = clone.GetComponent<PortViewerController>();
+            viewerController.initalize(this);
         }
 
         private void syncConduitTileMap(TileMapType tileMapType) {

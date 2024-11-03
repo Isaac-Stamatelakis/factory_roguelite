@@ -5,54 +5,80 @@ using PlayerModule;
 using Chunks.Systems;
 using Items;
 using UnityEngine.Tilemaps;
+using TileEntityModule;
+using Conduits.Ports;
 
 namespace Conduits.PortViewer {
     public class PortViewerController : MonoBehaviour
     {
+        [SerializeField] private ConduitPortTiles portConduitTiles;
         private ConduitTileClosedChunkSystem closedChunkSystem;
         private ConduitPortViewer portViewer;
         private PlayerInventory playerInventory;
         private ItemRegistry itemRegistry;
         
-        public void Start() {
+        public void initalize(ConduitTileClosedChunkSystem closedChunkSystem) {
+            this.closedChunkSystem = closedChunkSystem;
             playerInventory = GameObject.Find("Player").GetComponent<PlayerInventory>();
             itemRegistry = ItemRegistry.getInstance();
-            closedChunkSystem = transform.parent.GetComponent<ConduitTileClosedChunkSystem>();
+            portViewer = GetComponentInChildren<ConduitPortViewer>();
+            if (portViewer == null) {
+                Debug.LogWarning("Conduit Port Controller has no viewer child");
+            }
         }
 
         public void Update() {
             string id = playerInventory.getSelectedId();
             if (id == null) {
-                deactiveViewer();
+                portViewer.deactive();
                 return;
             }
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (conduitItem == null) {
-                deactiveViewer();
+                portViewer.deactive();
                 return;
             }
-            if (portViewer == null || conduitItem.getConduitType() != portViewer.Type) {
-                deactiveViewer();
+            if (!portViewer.Active) {
+                activateViewer(conduitItem.getConduitType());
+                return;
+            }
+            if (conduitItem.getConduitType() != portViewer.Type) {
+                portViewer.deactive();
                 activateViewer(conduitItem.getConduitType());
                 return;
             }
         }
 
-        private void deactiveViewer() {
-            if (portViewer == null) {
-                return;
-            }
-            GameObject.Destroy(portViewer.gameObject);
-            portViewer = null;
-        }
 
         private void activateViewer(ConduitType conduitType) {
-            GameObject viewer = new GameObject();
-            viewer.name = conduitType.ToString() + " Port Viewer";
-            viewer.transform.SetParent(transform,false);
-            portViewer = viewer.AddComponent<ConduitPortViewer>();
+            portViewer.name = $"{conduitType} Port Viewer";
+            portViewer.gameObject.SetActive(true);
+
             Vector3Int referenceFrame = (Vector3Int)closedChunkSystem.getBottomLeftCorner();
-            portViewer.initalize(closedChunkSystem.getManager(conduitType),referenceFrame);
+            Color color = getConduitPortColor(conduitType);
+
+            Dictionary<EntityPortType,TileBase> portTypeToTile = new Dictionary<EntityPortType, TileBase>();
+            portTypeToTile[EntityPortType.All] = portConduitTiles.AnyTile;
+            portTypeToTile[EntityPortType.Input] = portConduitTiles.InputTile;
+            portTypeToTile[EntityPortType.Output] = portConduitTiles.OutputTile;
+
+            portViewer.initalize(closedChunkSystem.getManager(conduitType),referenceFrame,portTypeToTile,color);
+        }
+
+        private Color getConduitPortColor(ConduitType conduitType) {
+            switch (conduitType) {
+                case ConduitType.Item:
+                    return Color.green;
+                case ConduitType.Fluid:
+                    return Color.blue;
+                case ConduitType.Energy:
+                    return Color.yellow;
+                case ConduitType.Signal:
+                    return Color.red;
+                case ConduitType.Matrix:
+                    return Color.magenta;
+            }
+            throw new System.Exception($"Did not cover case for ConduitType {conduitType}");
         }
     }
 

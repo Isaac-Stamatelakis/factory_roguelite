@@ -6,6 +6,7 @@ using Conduits.Ports;
 namespace Conduits.Systems {
     public class SignalConduitSystem : PortConduitSystem<SignalConduitInputPort, SignalConduitOutputPort>
     {
+        private HashSet<SignalConduitInputPort> visited;
         public SignalConduitSystem(string id) : base(id)
         {
         }
@@ -30,36 +31,37 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPort)
+        public override void tickUpdate()
         {
-            /*
-            int toInsert = outputPort.extract();
-            if (toInsert == 0) {
-                return true;
+            visited = new HashSet<SignalConduitInputPort>();
+            base.tickUpdate();
+            // Deliver negative signal to each input port which was not visited
+            foreach (List<SignalConduitInputPort> inputPorts in ColoredInputPorts.Values) {
+                foreach (SignalConduitInputPort inputPort in inputPorts) {
+                    if (!visited.Contains(inputPort)) {
+                        inputPort.insert(-1);
+                    }
+                }
             }
-            int amount = Mathf.Min(toInsert,outputPort);
-            ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,nbt: toInsert.nbt);
-            foreach (ItemConduitInputPort<Interactable,Filter> itemConduitInputPort in inputPorts) {
-                if (itemConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
+        }
+
+        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPorts)
+        {
+            int signal = outputPort.extract();
+            if (signal <= 0) {
+                return;
+            }
+  
+            foreach (SignalConduitInputPort signalConduitInputPort in inputPorts) {
+                if (signalConduitInputPort.TileEntity == null) {
                     continue;
                 }
-                itemConduitInputPort.insert(tempItemSlot);
-                if (tempItemSlot.amount == 0) {
-                    break;
-                } else if (toInsert.amount < 0) {
-                    Debug.LogError("Something went wrong when inserting items. Got negative amount '" + tempItemSlot.amount + "'");
-                    break;
+                if (signalConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
+                    continue;
                 }
+                visited.Add(signalConduitInputPort);
+                signalConduitInputPort.insert(signal);
             }
-            toInsert.amount -= amount-tempItemSlot.amount;
-            if (toInsert.amount <= 0) {
-                toInsert.itemObject = null;
-                if (toInsert.amount < 0) {
-                    Debug.LogError("Negative amount something went wrong inserting item conduit system");
-                }
-            }
-            */
-    
         }
 
         protected override void addInputPortPostProcessing(SignalConduitInputPort inputPort)
