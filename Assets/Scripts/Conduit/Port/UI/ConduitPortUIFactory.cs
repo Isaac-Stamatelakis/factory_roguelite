@@ -4,16 +4,15 @@ using UnityEngine;
 using Conduits.Ports.UI;
 using UnityEngine.UI;
 using TMPro;
+using UI;
 
 namespace Conduits.Ports {
     public class ConduitPortUIFactory
     {
-        public static GameObject getUI(IPortConduit conduit, ConduitType conduitType, EntityPortType portType) {
-
+        public static GameObject getUI(UIAssetManager assetManager, IPortConduit conduit, ConduitType conduitType, EntityPortType portType) {
             // Base prefab which is used on all ports
-            GameObject prefab = Resources.Load<GameObject>("Prefabs/Ports/BasePort");
-            GameObject instantiated = GameObject.Instantiate(prefab);
-            BaseConduitPortUIController baseConduitPortUIController = instantiated.GetComponent<BaseConduitPortUIController>();
+            BaseConduitPortUIController baseConduitPortUIController = assetManager.cloneElement<BaseConduitPortUIController>("CONDUIT_PORT");
+            GameObject instantiated = baseConduitPortUIController.gameObject;
             baseConduitPortUIController.initalize(conduit);
             if (portType != EntityPortType.All) {
                 if (portType != EntityPortType.Input) {
@@ -29,19 +28,21 @@ namespace Conduits.Ports {
             }
             // Decorate ui
             if (conduitType == ConduitType.Item || conduitType == ConduitType.Fluid) {
+                /*
                 if (conduitType == ConduitType.Item) {
                     baseConduitPortUIController.setBackground(Resources.Load<Sprite>("Sprites/Port/green_grad"));
                 } else if (conduitType == ConduitType.Fluid) {
                     baseConduitPortUIController.setBackground(Resources.Load<Sprite>("Sprites/Port/fluid_conduit"));
                 }
+                */
                 
                 ItemConduitPortUIController itemConduitPortUIController = instantiated.AddComponent<ItemConduitPortUIController>();
 
-                GameObject roundRobin = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/Ports/ExtractRoundContainer"));
+                GameObject roundRobin = assetManager.cloneGameObject("ROUND_ROBIN");
                 roundRobin.transform.SetParent(instantiated.transform);
                 itemConduitPortUIController.roundRobinButton = roundRobin.transform.Find("Button").GetComponent<Button>();
 
-                GameObject priority = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/Ports/Priority"));
+                GameObject priority = assetManager.cloneGameObject("PRIORITY");
                 priority.transform.SetParent(instantiated.transform);
                 itemConduitPortUIController.priorityText = priority.transform.Find("Number").GetComponent<TextMeshProUGUI>();
                 itemConduitPortUIController.plusPriorityButton = priority.transform.Find("Plus").Find("Button").GetComponent<Button>();
@@ -51,9 +52,9 @@ namespace Conduits.Ports {
             else if (conduitType == ConduitType.Energy) {
                 EnergyConduitPortUIController energyConduitPortUIController = instantiated.AddComponent<EnergyConduitPortUIController>();
 
-                baseConduitPortUIController.setBackground(Resources.Load<Sprite>("Sprites/Port/energy_back"));
+                //baseConduitPortUIController.setBackground(Resources.Load<Sprite>("Sprites/Port/energy_back"));
 
-                GameObject priority = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/Ports/Priority"));
+                GameObject priority = assetManager.cloneGameObject("PRIORITY");
                 priority.transform.SetParent(instantiated.transform);
                 energyConduitPortUIController.priorityText = priority.transform.Find("Number").GetComponent<TextMeshProUGUI>();
                 energyConduitPortUIController.plusPriorityButton = priority.transform.Find("Plus").Find("Button").GetComponent<Button>();

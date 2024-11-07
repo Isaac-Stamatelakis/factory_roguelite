@@ -15,7 +15,7 @@ namespace Dimensions {
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
             IntervalVector coveredArea = currentCave.getChunkCoveredArea();
-            activeSystem.initalize(transform,coveredArea,-1,dimOffsetPosition);
+            activeSystem.initalize(this,coveredArea,-1,dimOffsetPosition);
             return activeSystem;
         }
         public void setCurrentCave(CaveInstance caveInstance) {

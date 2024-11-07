@@ -49,7 +49,12 @@ namespace Dimensions {
             return null;
         }
         private void loadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
-            Vector2Int positionInSystem = compactMachine.getCellPosition();
+            Vector2Int positionInSystem;
+            if (compactMachine == null) {
+                positionInSystem = Vector2Int.zero;
+            } else {
+                positionInSystem = compactMachine.getCellPosition();
+            }
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
@@ -142,7 +147,7 @@ namespace Dimensions {
             area.setCompactMachineKey(compactMachineTeleportKey);
             area.transform.SetParent(transform,false);
             area.initalize(
-                transform,
+                this,
                 system.CoveredArea,
                 1,
                 system,
@@ -155,19 +160,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem);
-            foreach (IChunk chunk in baseSystem.Chunks) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is not CompactMachineInstance compactMachine) {
-                                continue;
-                            }
-                            loadCompactMachineSystem(compactMachine,systemTree,WorldLoadUtils.getDimPath(1));
-                        }
-                    }
-                }
-            }
+            loadCompactMachineSystem(null,systemTree,WorldLoadUtils.getDimPath(1));
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 

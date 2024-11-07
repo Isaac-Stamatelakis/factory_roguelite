@@ -7,10 +7,12 @@ using Items;
 using UnityEngine.Tilemaps;
 using TileEntityModule;
 using Conduits.Ports;
+using UI;
 
 namespace Conduits.PortViewer {
     public class PortViewerController : MonoBehaviour
     {
+        public UIAssetManager AssetManager;
         [SerializeField] private ConduitPortTiles portConduitTiles;
         private ConduitTileClosedChunkSystem closedChunkSystem;
         private ConduitPortViewer portViewer;
@@ -25,6 +27,7 @@ namespace Conduits.PortViewer {
             if (portViewer == null) {
                 Debug.LogWarning("Conduit Port Controller has no viewer child");
             }
+            AssetManager.load();
         }
 
         public void Update() {

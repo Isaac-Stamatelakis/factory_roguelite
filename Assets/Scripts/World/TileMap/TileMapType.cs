@@ -49,7 +49,7 @@ namespace TileMaps.Type {
                 case TileMapType.Block:
                     return true;
                 case TileMapType.Background:
-                    return true;
+                    return false;
                 case TileMapType.Object:
                     return true;
                 case TileMapType.Platform:

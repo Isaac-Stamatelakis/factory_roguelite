@@ -18,6 +18,7 @@ namespace WorldModule.Caves {
         public AssetReference generationModel;
         public AssetReference[] tileGenerators;
         public AssetReference entityDistributor;
+        public AssetReference structureDistributor;
         public List<AssetReference> songs;
         
     }

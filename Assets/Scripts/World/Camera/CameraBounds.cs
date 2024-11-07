@@ -9,8 +9,12 @@ public class CameraBounds : MonoBehaviour
     [SerializeField] private float yOffset;
     private FloatIntervalVector bounds;
     private ClosedChunkSystem closedChunkSystem;
-    public void setSystem(ClosedChunkSystem closedChunkSystem) {
+    public void setSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
         this.closedChunkSystem = closedChunkSystem;
+        if (!bound) {
+            bounds = null;
+            return;
+        }
         IntervalVector intervalVector = closedChunkSystem.getBounds();
         int worldChunkSize = Global.ChunkSize/2; // Chunks size is in tile size which is 1/2 world size
         this.bounds = new FloatIntervalVector(

@@ -19,6 +19,7 @@ namespace Dimensions {
     {
         private Transform entityContainer;
         public Transform EntityContainer { get => entityContainer;}
+        public bool BoundCamera = false;
 
         public virtual void Awake() {
             GameObject entityContainerObject = new GameObject();

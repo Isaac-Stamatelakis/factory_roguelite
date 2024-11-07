@@ -54,14 +54,6 @@ namespace Chunks.Loaders {
         }
 
         public void FixedUpdate() {
-            /*
-            timeSinceLastBatch += Time.fixedDeltaTime;
-            int bonus = QueueSize/variables.RapidUpdateThreshold;
-            float delay = variables.Delay-bonus*variables.DelayDecrease;
-            if (delay < 0) {
-                delay = 0;
-            }
-            */
             timeSinceLastBatch += Time.fixedDeltaTime;
             if (timeSinceLastBatch < variables.Delay) {
                 return;
@@ -69,6 +61,7 @@ namespace Chunks.Loaders {
             timeSinceLastBatch = 0;
             int updates = getBatchSize();
             Vector2Int playerPosition = getPlayerPosition();
+            
             while (updateQueue.Count > 0 && updates > 0) {
                 T updateElement = updateQueue.Dequeue();
                 QueueSize--;
@@ -79,6 +72,7 @@ namespace Chunks.Loaders {
                 updates--;
             }
         }
+      
         public abstract bool canUpdate(T value, Vector2Int playerPosition);
         public abstract void update(T value);
         public abstract Vector2Int getPlayerPosition();

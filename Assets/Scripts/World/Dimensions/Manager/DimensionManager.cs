@@ -95,10 +95,7 @@ namespace Dimensions {
                 Debug.LogError("Could not switch player system");
                 return;
             }
-
             newSystem.initalizeMiscObjects(miscObjects);
-            CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
-            cameraBounds.setSystem(newSystem);
 
             activeSystems[newSystem] = systemPosition;
             if (playerWorldData.ContainsKey(player)) {

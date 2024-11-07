@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileMaps.Type;
+using Dimensions;
 
 namespace Chunks.Systems {
     public class TileClosedChunkSystem : ChunkLoadingClosedChunkSystem
     {
-        public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, Vector2Int offset) {
-            initalizeObject(dimTransform,coveredArea,dim,offset);
+        public void initalize(DimController dimController, IntervalVector coveredArea, int dim, Vector2Int offset) {
+            initalizeObject(dimController,coveredArea,dim,offset);
         }
         public override void Awake()
         {

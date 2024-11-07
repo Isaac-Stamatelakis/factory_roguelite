@@ -43,7 +43,7 @@ namespace Dimensions {
             closedChunkSystemObject.name="Dim0System";
             mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             mainArea.initalize(
-                transform,
+                this,
                 coveredArea: bounds,
                 dim: 0,
                 dim0System,

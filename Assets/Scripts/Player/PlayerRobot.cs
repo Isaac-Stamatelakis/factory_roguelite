@@ -67,6 +67,9 @@ namespace PlayerModule {
         }
 
         private void canStartClimbing() {
+            if (rb.bodyType == RigidbodyType2D.Static) {
+                return;
+            }
             bool climbKeyInput = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
             if (climbing || !climbKeyInput) {
                 return;

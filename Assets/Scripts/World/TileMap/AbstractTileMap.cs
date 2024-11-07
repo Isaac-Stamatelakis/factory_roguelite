@@ -55,7 +55,7 @@ namespace TileMaps {
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
                 // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
-                tilemapCollider.maximumTileChangeCount=100000000; 
+                tilemapCollider.maximumTileChangeCount=int.MaxValue; 
             }
             closedChunkSystem = transform.parent.GetComponentInParent<ClosedChunkSystem>();
         }
