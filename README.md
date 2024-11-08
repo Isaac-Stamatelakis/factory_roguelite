@@ -16,3 +16,13 @@ The game is developed in Unity and includes many features:
 
 ### Early Production Image of the Abyssal Caverns 
 ![nov6-1](https://github.com/user-attachments/assets/4751dd1b-c036-43d9-833c-98bda154ea60)
+
+![2024-11-0609-12-52-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/5b69922e-3f67-421e-86a9-296427da24ef)
+
+
+### Early Production Gif of Processing Machine
+![march10-2](https://github.com/user-attachments/assets/0283105f-fc68-4bec-a3d0-ef112b87e98c)
+
+### Early Production Gif of Compact Machines
+
+### Early Production Gif of 
