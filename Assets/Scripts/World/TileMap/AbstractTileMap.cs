@@ -30,6 +30,7 @@ namespace TileMaps {
         public void removeForSwitch(Vector2Int position);
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
         public void addListener(ITileMapListener listener);
+        public void setHighlight(bool on);
     }
 
     public interface ITileMapListener {
@@ -46,10 +47,11 @@ namespace TileMaps {
         protected HashSet<Vector2Int> partitions;
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
-
+        private float baseZValue;
 
         public virtual void Start() {
             tilemap = gameObject.AddComponent<Tilemap>();
+            baseZValue = transform.position.z;
             partitions = new HashSet<Vector2Int>();
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
@@ -202,6 +204,22 @@ namespace TileMaps {
         /// </summary>
         public void removeForSwitch(Vector2Int position) {
             tilemap.SetTile((Vector3Int)position,null);
+        }
+
+        /// <summary>
+        /// Brings this tilemap to the foreground
+        /// </summary>
+        public void setHighlight(bool on)
+        {
+            if (on) {
+                Vector3 position = transform.position;
+                position.z = 1;
+                transform.position = position;
+            } else {
+                Vector3 position = transform.position;
+                position.z = baseZValue;
+                transform.position = position;
+            }
         }
     }
 }

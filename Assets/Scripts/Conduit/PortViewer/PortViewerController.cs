@@ -8,6 +8,9 @@ using UnityEngine.Tilemaps;
 using TileEntityModule;
 using Conduits.Ports;
 using UI;
+using Conduits.Systems;
+using TileMaps.Type;
+using TileMaps;
 
 namespace Conduits.PortViewer {
     public class PortViewerController : MonoBehaviour
@@ -65,7 +68,11 @@ namespace Conduits.PortViewer {
             portTypeToTile[EntityPortType.Input] = portConduitTiles.InputTile;
             portTypeToTile[EntityPortType.Output] = portConduitTiles.OutputTile;
 
-            portViewer.initalize(closedChunkSystem.getManager(conduitType),referenceFrame,portTypeToTile,color);
+            IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
+            TileMapType tileMapType = conduitType.toTileMapType();
+            TileMaps.ITileMap tilemap = closedChunkSystem.getTileMap(tileMapType);
+            
+            portViewer.display(conduitSystemManager,referenceFrame,portTypeToTile,color,tilemap);
         }
 
         private Color getConduitPortColor(ConduitType conduitType) {
