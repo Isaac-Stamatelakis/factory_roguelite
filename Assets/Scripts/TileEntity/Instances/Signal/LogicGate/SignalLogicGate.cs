@@ -23,25 +23,25 @@ namespace TileEntityModule.Instances.Signal {
 
     public class SignalLogicGateInstance : TileEntityInstance<SignalLogicGate>, ISignalConduitInteractable
     {
-        private int topSignal;
-        private int botSignal;
+        private bool topSignal;
+        private bool botSignal;
         public SignalLogicGateInstance(SignalLogicGate tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
-            return isOpen() ? 16 : 0;
+            return isOpen();
         }
 
         private bool isOpen() {
             switch (tileEntity.LogicGateType) {
                 case LogicGateType.Xor:
-                    return (topSignal > 0 && botSignal <= 0) || (topSignal <= 0 && botSignal < 0);
+                    return (!topSignal && botSignal) || (topSignal && !botSignal);
                 case LogicGateType.And:
-                    return topSignal > 0 && botSignal > 0;
+                    return topSignal && botSignal;
                 case LogicGateType.Or:
-                    return topSignal > 0 || botSignal > 0;
+                    return topSignal || botSignal;
             }
             return false;
         }
@@ -51,7 +51,7 @@ namespace TileEntityModule.Instances.Signal {
             return tileEntity.ConduitLayout;
         }
 
-        public void insertSignal(int signal, Vector2Int portPosition)
+        public void insertSignal(bool signal, Vector2Int portPosition)
         {
             if (portPosition.y > 0) {
                 topSignal = signal;

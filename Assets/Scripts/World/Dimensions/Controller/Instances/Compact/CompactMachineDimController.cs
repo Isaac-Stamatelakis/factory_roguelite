@@ -62,7 +62,10 @@ namespace Dimensions {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                compactMachineInteractable.syncToCompactMachine(compactMachine);
+                                if (compactMachine != null) {
+                                    compactMachineInteractable.syncToCompactMachine(compactMachine);
+                                }
+                                
                             } else if (tileEntity is CompactMachineInstance nestedCompactMachine) {
                                 Vector2Int newPosition = nestedCompactMachine.getCellPosition();
                                 string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
@@ -192,6 +195,22 @@ namespace Dimensions {
                     return Children[key].getTree(path,depth+1);
                 }
                 return null;
+            }
+            public override string ToString() {
+                return ToString(0);
+            }
+
+            private string ToString(int depth) {
+                var indent = new string(' ', depth * 2);
+                var result = $"{indent}System\n";
+
+                foreach (var child in Children)
+                {
+                    result += $"{indent}Child Position: {child.Key}\n";
+                    result += child.Value.ToString(depth + 1);
+                }
+
+                return result;
             }
         }
     }

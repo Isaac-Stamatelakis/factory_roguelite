@@ -22,8 +22,8 @@ public interface IEnergyConduitInteractable : IConduitInteractable {
     public ref int getEnergy(Vector2Int portPosition);
 }
 public interface ISignalConduitInteractable : IConduitInteractable {
-    public int extractSignal(Vector2Int portPosition);
-    public void insertSignal(int signal,Vector2Int portPosition);
+    public bool extractSignal(Vector2Int portPosition);
+    public void insertSignal(bool active,Vector2Int portPosition);
 }
 public interface IFluidConduitInteractable : IItemConduitInteractable {
     public ItemSlot extractFluidItem(Vector2Int portPosition);

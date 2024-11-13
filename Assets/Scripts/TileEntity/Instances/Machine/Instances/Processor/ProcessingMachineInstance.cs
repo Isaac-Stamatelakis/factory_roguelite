@@ -152,12 +152,12 @@ namespace TileEntityModule.Instances.Machines
             return insertEnergy;
         }
 
-        public void insertSignal(int signal,Vector2Int portPosition)
+        public void insertSignal(bool signal,Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }

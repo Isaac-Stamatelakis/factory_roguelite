@@ -103,6 +103,8 @@ namespace Conduits.Ports {
                     return Color.gray;
             }
         }
+
+        public static readonly int PORT_COLORS = 16;
     }
 }
 

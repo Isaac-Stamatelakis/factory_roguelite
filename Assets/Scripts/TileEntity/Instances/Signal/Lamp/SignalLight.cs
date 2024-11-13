@@ -21,17 +21,16 @@ namespace TileEntityModule.Instances.Signal {
 
     public class SignalLampInstance : TileEntityInstance<SignalLight>, ILoadableTileEntity, ISignalConduitInteractable
     {
-        private int signal;
-        private int counter;
+        private bool active;
         private GameObject lightObject;
         public SignalLampInstance(SignalLight tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
             
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
-            return 0;
+            return false;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -39,24 +38,18 @@ namespace TileEntityModule.Instances.Signal {
             return tileEntity.ConduitLayout;
         }
 
-        public void insertSignal(int newSignal, Vector2Int portPosition)
+        public void insertSignal(bool signal, Vector2Int portPosition)
         {
-            if (newSignal > 0) {
-                counter = tileEntity.ActiveTicks;
-                if (lightObject == null) {
-                    load();
-                }
+            active = signal;
+            if (signal) {
+                load();
             } else {
-                counter--;
-                if (counter < 0 && lightObject != null) {
-                    unload();
-                }
+                unload();
             }
-            this.signal = newSignal;
         }
 
         public void load() {
-            if (signal <= 0) {
+            if (!active) {
                 return;
             }
             if (chunk is not ILoadedChunk loadedChunk) {

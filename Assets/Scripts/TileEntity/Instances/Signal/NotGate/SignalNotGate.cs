@@ -17,17 +17,14 @@ namespace TileEntityModule.Instances.Signal {
 
     public class SignalNotGateInstance : TileEntityInstance<SignalNotGate>, ISignalConduitInteractable
     {
-        private int signal;
+        bool signal;
         public SignalNotGateInstance(SignalNotGate tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
-            if (signal > 0) {
-                return 16;
-            }
-            return 0;
+            return !signal;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -35,7 +32,7 @@ namespace TileEntityModule.Instances.Signal {
             return tileEntity.ConduitLayout;
         }
 
-        public void insertSignal(int signal, Vector2Int portPosition)
+        public void insertSignal(bool signal, Vector2Int portPosition)
         {
             this.signal = signal;
         }
