@@ -57,7 +57,7 @@ namespace TileMaps.Layer {
                 case TileMapLayer.Base:
                     return true;
                 case TileMapLayer.Background:
-                    return true;
+                    return false;
                 case TileMapLayer.Item:
                     return false;
                 case TileMapLayer.Fluid:

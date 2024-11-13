@@ -22,9 +22,9 @@ namespace TileEntityModule.Instances.Signal {
         {
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
-            return 16;
+            return true;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -32,7 +32,7 @@ namespace TileEntityModule.Instances.Signal {
             return tileEntity.ConduitLayout;
         }
 
-        public void insertSignal(int signal, Vector2Int portPosition)
+        public void insertSignal(bool signal, Vector2Int portPosition)
         {
             
         }

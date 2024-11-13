@@ -39,7 +39,7 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void iterateTickUpdate(OutputPort outputPort, List<InputPort> inputPorts)
+        public override void iterateTickUpdate(OutputPort outputPort, List<InputPort> inputPorts, int color)
         {
             ItemSlot toInsert = outputPort.extract();
             if (toInsert == null) {

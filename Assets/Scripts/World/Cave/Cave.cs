@@ -18,6 +18,7 @@ namespace WorldModule.Caves {
         public AssetReference generationModel;
         public AssetReference[] tileGenerators;
         public AssetReference entityDistributor;
+        public AssetReference structureDistributor;
         public List<AssetReference> songs;
         
     }
@@ -56,16 +57,6 @@ namespace WorldModule.Caves {
         }
     }
 
-    public static class CaveUtils {
-        public static IEnumerable LoadCaveElements(Cave cave) {
-            var entityHandle = cave.entityDistributor.LoadAssetAsync<Object>();
-            var generationModelHandle = cave.generationModel.LoadAssetAsync<Object>();
-            
-            yield return entityHandle;
-            yield return generationModelHandle;
-            
-        }
-    }
 
     [System.Serializable] 
     public struct CaveElements {

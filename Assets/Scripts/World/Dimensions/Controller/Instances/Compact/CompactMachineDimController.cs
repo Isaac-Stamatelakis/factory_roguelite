@@ -49,7 +49,12 @@ namespace Dimensions {
             return null;
         }
         private void loadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
-            Vector2Int positionInSystem = compactMachine.getCellPosition();
+            Vector2Int positionInSystem;
+            if (compactMachine == null) {
+                positionInSystem = Vector2Int.zero;
+            } else {
+                positionInSystem = compactMachine.getCellPosition();
+            }
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
@@ -57,7 +62,10 @@ namespace Dimensions {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                compactMachineInteractable.syncToCompactMachine(compactMachine);
+                                if (compactMachine != null) {
+                                    compactMachineInteractable.syncToCompactMachine(compactMachine);
+                                }
+                                
                             } else if (tileEntity is CompactMachineInstance nestedCompactMachine) {
                                 Vector2Int newPosition = nestedCompactMachine.getCellPosition();
                                 string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
@@ -142,7 +150,7 @@ namespace Dimensions {
             area.setCompactMachineKey(compactMachineTeleportKey);
             area.transform.SetParent(transform,false);
             area.initalize(
-                transform,
+                this,
                 system.CoveredArea,
                 1,
                 system,
@@ -155,19 +163,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem);
-            foreach (IChunk chunk in baseSystem.Chunks) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is not CompactMachineInstance compactMachine) {
-                                continue;
-                            }
-                            loadCompactMachineSystem(compactMachine,systemTree,WorldLoadUtils.getDimPath(1));
-                        }
-                    }
-                }
-            }
+            loadCompactMachineSystem(null,systemTree,WorldLoadUtils.getDimPath(1));
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 
@@ -199,6 +195,22 @@ namespace Dimensions {
                     return Children[key].getTree(path,depth+1);
                 }
                 return null;
+            }
+            public override string ToString() {
+                return ToString(0);
+            }
+
+            private string ToString(int depth) {
+                var indent = new string(' ', depth * 2);
+                var result = $"{indent}System\n";
+
+                foreach (var child in Children)
+                {
+                    result += $"{indent}Child Position: {child.Key}\n";
+                    result += child.Value.ToString(depth + 1);
+                }
+
+                return result;
             }
         }
     }

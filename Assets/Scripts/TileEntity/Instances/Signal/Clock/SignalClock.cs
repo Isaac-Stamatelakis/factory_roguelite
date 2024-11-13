@@ -10,7 +10,6 @@ namespace TileEntityModule.Instances.Signal {
     public class SignalClock : TileEntity, IManagedUITileEntity
     {
         public TileEntityUIManager UIManager;
-        public int ActiveStrength = 16;
         public int ActiveDuration = 5;
         public int DefaultTime = 25;
         public int MinTime = 5;
@@ -37,12 +36,9 @@ namespace TileEntityModule.Instances.Signal {
             }
         }
 
-        public int extractSignal(Vector2Int portPosition)
+        public bool extractSignal(Vector2Int portPosition)
         {
-            if (ClockData.Counter < tileEntity.ActiveDuration) {
-                return tileEntity.ActiveStrength;
-            }
-            return 0;
+            return ClockData.Counter < tileEntity.ActiveDuration;
         }
 
         public ConduitPortLayout getConduitPortLayout()
@@ -50,7 +46,7 @@ namespace TileEntityModule.Instances.Signal {
             return tileEntity.ConduitLayout;
         }
 
-        public void insertSignal(int signal, Vector2Int portPosition)
+        public void insertSignal(bool signal, Vector2Int portPosition)
         {
             
         }

@@ -125,12 +125,17 @@ namespace TileEntityModule.Instances {
                 -1,
                 WorldLoadUtils.getDimPath(-1)
             );
+            IntervalVector coveredArea = caveInstance.getChunkCoveredArea();
+            Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,10000);
+            Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             Debug.Log("Teleporting to " + currentCave.name);
             Transform playerTransform = PlayerContainer.getInstance().getTransform();
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.getDimController(-1);
             caveController.setCurrentCave(caveInstance);
-            DimensionManager.Instance.setPlayerSystem(playerTransform, -1,Vector2Int.zero);
+            
+            DimensionManager.Instance.setPlayerSystem(playerTransform, -1,spawnPosition);
         }
     }
 }

@@ -30,6 +30,7 @@ namespace TileMaps {
         public void removeForSwitch(Vector2Int position);
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
         public void addListener(ITileMapListener listener);
+        public void setHighlight(bool on);
     }
 
     public interface ITileMapListener {
@@ -46,16 +47,17 @@ namespace TileMaps {
         protected HashSet<Vector2Int> partitions;
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
-
+        private float baseZValue;
 
         public virtual void Start() {
             tilemap = gameObject.AddComponent<Tilemap>();
+            baseZValue = transform.position.z;
             partitions = new HashSet<Vector2Int>();
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
                 // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
-                tilemapCollider.maximumTileChangeCount=100000000; 
+                tilemapCollider.maximumTileChangeCount=int.MaxValue; 
             }
             closedChunkSystem = transform.parent.GetComponentInParent<ClosedChunkSystem>();
         }
@@ -202,6 +204,22 @@ namespace TileMaps {
         /// </summary>
         public void removeForSwitch(Vector2Int position) {
             tilemap.SetTile((Vector3Int)position,null);
+        }
+
+        /// <summary>
+        /// Brings this tilemap to the foreground
+        /// </summary>
+        public void setHighlight(bool on)
+        {
+            if (on) {
+                Vector3 position = transform.position;
+                position.z = 1;
+                transform.position = position;
+            } else {
+                Vector3 position = transform.position;
+                position.z = baseZValue;
+                transform.position = position;
+            }
         }
     }
 }

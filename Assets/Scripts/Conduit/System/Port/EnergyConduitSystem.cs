@@ -30,7 +30,7 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void iterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts)
+        public override void iterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts, int color)
         {
 
             ref int totalEnergy = ref outputPort.extract();

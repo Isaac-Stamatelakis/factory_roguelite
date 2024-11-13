@@ -16,6 +16,7 @@ using TileMaps.Conduit;
 using TileEntityModule;
 using Items;
 using UnityEngine.AddressableAssets;
+using Dimensions;
 
 namespace Chunks.Systems {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
@@ -23,6 +24,7 @@ namespace Chunks.Systems {
         private List<SoftLoadedConduitTileChunk> unloadedChunks;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict;
         private PortViewerController viewerController;
+        public PortViewerController PortViewerController => viewerController;
         
         public override void Awake()
         {
@@ -43,8 +45,8 @@ namespace Chunks.Systems {
             }
         }
         
-        public void initalize(Transform dimTransform, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
-            initalizeObject(dimTransform,coveredArea,dim,dimPositionOffset);
+        public void initalize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
+            initalizeObject(dimController,coveredArea,dim,dimPositionOffset);
             initalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
@@ -63,7 +65,7 @@ namespace Chunks.Systems {
         }
 
         private IEnumerator createViewer() {
-            var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/MainScene/ConduitPortViewerController.prefab");
+            var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/ConduitPortViewer/ConduitPortViewerController.prefab");
             yield return handle;
             GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
             GameObject clone = GameObject.Instantiate(portViewerControllerPrefab);

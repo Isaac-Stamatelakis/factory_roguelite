@@ -66,6 +66,8 @@ namespace Chunks.Systems {
                 TileGridMap tileGridMap;
                 if (tileType == TileMapType.Block) {
                     tileGridMap = container.AddComponent<OutlineTileGridMap>();
+                } else if (tileType == TileMapType.Background) {
+                    tileGridMap = container.AddComponent<BackgroundTileMap>();
                 } else {
                     tileGridMap = container.AddComponent<TileGridMap>();
                 }

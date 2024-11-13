@@ -6,7 +6,7 @@ namespace Tiles {
     public enum VerticalMousePosition {
         Bottom,
         Top
-        }
+    }
     public enum HorizontalMousePosition {
         Left,
         Right

@@ -14,7 +14,7 @@ namespace TileEntityModule {
         public AssetReference AssetReference;
         private GameObject uiElementPrefab;
         public void loadUIIntoMemory() {
-            if (AssetReference == null) {
+            if (!AssetReference.RuntimeKeyIsValid()) {
                 return;
             }
             this.loading = true;

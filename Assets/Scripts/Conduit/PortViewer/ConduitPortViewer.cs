@@ -14,10 +14,16 @@ namespace Conduits.PortViewer {
         private IConduitSystemManager systemManager;
         private Dictionary<EntityPortType,TileBase> portTypeToTile;
         public ConduitType Type {get => systemManager.getConduitType();}
+        private Tilemap tilemap;
+        public void Start() {
+            this.tilemap = GetComponent<Tilemap>();
+        }
         public bool Active {get => systemManager != null;}
-        public void initalize(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color) {
+        private TileMaps.ITileMap conduitTileMap;
+        public void display(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.ITileMap conduitTileMap) {
             this.systemManager = systemManager;
-            Tilemap tilemap = GetComponent<Tilemap>();
+            this.conduitTileMap = conduitTileMap;
+            conduitTileMap.setHighlight(true);
             tilemap.color = color;
             foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
@@ -28,11 +34,13 @@ namespace Conduits.PortViewer {
         }
 
         public void deactive() {
-            if (!gameObject.activeInHierarchy) {
+            if (!gameObject.activeInHierarchy || systemManager == null) {
                 return;
             }
-            GetComponent<Tilemap>().ClearAllTiles();
+            conduitTileMap.setHighlight(false);
+            tilemap.ClearAllTiles();
             gameObject.SetActive(false);
+            
             systemManager = null;
         }
     }

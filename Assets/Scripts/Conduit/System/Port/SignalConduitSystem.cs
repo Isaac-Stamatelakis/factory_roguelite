@@ -6,9 +6,10 @@ using Conduits.Ports;
 namespace Conduits.Systems {
     public class SignalConduitSystem : PortConduitSystem<SignalConduitInputPort, SignalConduitOutputPort>
     {
-        private HashSet<SignalConduitInputPort> visited;
+        private bool[] colorActivations;
         public SignalConduitSystem(string id) : base(id)
         {
+            colorActivations = new bool[ConduitPortUIFactory.PORT_COLORS];
         }
 
         public override void addPort(IPortConduit conduit)
@@ -31,36 +32,37 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void tickUpdate()
+        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPort, int color)
         {
-            visited = new HashSet<SignalConduitInputPort>();
-            base.tickUpdate();
-            // Deliver negative signal to each input port which was not visited
-            foreach (List<SignalConduitInputPort> inputPorts in ColoredInputPorts.Values) {
-                foreach (SignalConduitInputPort inputPort in inputPorts) {
-                    if (!visited.Contains(inputPort)) {
-                        inputPort.insert(-1);
-                    }
-                }
-            }
+            
         }
 
-        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPorts)
+        public override void tickUpdate()
         {
-            int signal = outputPort.extract();
-            if (signal <= 0) {
-                return;
-            }
-  
-            foreach (SignalConduitInputPort signalConduitInputPort in inputPorts) {
-                if (signalConduitInputPort.TileEntity == null) {
-                    continue;
+            for (int color = 0; color < colorActivations.Length; color ++) {
+                if (!coloredPriorityInputs.ContainsKey(color)) {
+                    break;
                 }
-                if (signalConduitInputPort.TileEntity.Equals(outputPort.TileEntity)) {
-                    continue;
+                bool systemActive = false;
+                if (coloredOutputPorts.ContainsKey(color)) {
+                    var outputPorts = coloredOutputPorts[color];
+                    foreach (SignalConduitOutputPort outputPort in outputPorts) {
+                        systemActive = outputPort.extract();
+                        if (systemActive) {
+                            break;
+                        }
+                    }
                 }
-                visited.Add(signalConduitInputPort);
-                signalConduitInputPort.insert(signal);
+                bool currentActivationStatus = colorActivations[color];
+                bool signalChange = currentActivationStatus != systemActive;
+                if (signalChange) {
+                    colorActivations[color] = systemActive;
+                    var inputPorts = coloredPriorityInputs[color];
+                    foreach (SignalConduitInputPort inputPort in inputPorts) {
+                        inputPort.insert(systemActive);
+                    }
+                }
+
             }
         }
 

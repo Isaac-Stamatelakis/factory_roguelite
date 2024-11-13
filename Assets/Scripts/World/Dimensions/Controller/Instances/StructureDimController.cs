@@ -36,7 +36,7 @@ namespace DevTools.Structures {
             closedChunkSystemObject.name="Structure";
             activeSystem = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             activeSystem.initalize(
-                transform,
+                this,
                 coveredArea: bounds,
                 dim: 0,
                 system,

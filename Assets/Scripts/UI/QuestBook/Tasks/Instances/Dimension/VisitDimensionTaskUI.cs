@@ -21,11 +21,13 @@ namespace UI.QuestBook {
                 statusText.color = Color.red;
             }
             string caveId = task.CaveId;
+            /*
             Cave cave = CaveRegistry.getCave(caveId);
             if (cave == null) {
                 return;
             }
-            dimensionTitle.text = cave.name;
+            */
+            //dimensionTitle.text = cave.name;
         }
     }
 }

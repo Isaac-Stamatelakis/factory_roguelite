@@ -18,6 +18,7 @@ using Items;
 using TileEntityModule;
 using Entities;
 using PlayerModule.IO;
+using UI;
 
 namespace PlayerModule.Mouse {
     /// <summary>
@@ -147,8 +148,9 @@ namespace PlayerModule.Mouse {
                 if (conduit is not IPortConduit portConduit) {
                     return false;
                 }
+                UIAssetManager assetManager = conduitTileClosedChunkSystem.PortViewerController.AssetManager;
                 EntityPortType portType = portConduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
-                GameObject ui = ConduitPortUIFactory.getUI(portConduit,conduitType,portType);
+                GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
                 GlobalUIContainer.getInstance().getUiController().setGUI(ui);
                 return true;
             }

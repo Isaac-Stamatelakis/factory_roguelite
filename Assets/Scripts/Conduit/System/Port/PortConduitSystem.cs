@@ -46,25 +46,26 @@ namespace Conduits.Systems {
         }
 
         public abstract void addPort(IPortConduit conduit);
-        private Dictionary<int, List<OutPort>> coloredOutputPorts;
-        private Dictionary<int, List<InPort>> coloredPriorityInputs;
-
+        protected Dictionary<int, List<OutPort>> coloredOutputPorts;
+        protected Dictionary<int, List<InPort>> coloredPriorityInputs;
         public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
         public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
 
         public virtual void tickUpdate()
         {
-            foreach (KeyValuePair<int,List<OutPort>> colorOutputPortList in ColoredOutputPorts) {
-                if (ColoredInputPorts.ContainsKey(colorOutputPortList.Key)) {
-                    List<InPort> priorityOrderInputs = ColoredInputPorts[colorOutputPortList.Key];
-                    foreach (OutPort itemConduitOutputPort in colorOutputPortList.Value) {
-                        iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs);
+            foreach (var colorOutputKVP in ColoredOutputPorts) {
+                int color = colorOutputKVP.Key;
+                var list = colorOutputKVP.Value;
+                if (ColoredInputPorts.ContainsKey(color)) {
+                    List<InPort> priorityOrderInputs = ColoredInputPorts[color];
+                    foreach (OutPort itemConduitOutputPort in list) {
+                        iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs,color);
                     }
                 }
             }
         }
 
-        public abstract void iterateTickUpdate(OutPort outputPort, List<InPort> inputPort);
+        public abstract void iterateTickUpdate(OutPort outputPort, List<InPort> inputPort, int color);
 
         protected void addOutputPort(OutPort outputPort) {
             if (outputPort == null) {
