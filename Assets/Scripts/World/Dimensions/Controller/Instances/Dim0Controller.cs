@@ -39,7 +39,7 @@ namespace Dimensions {
                 softLoadSystem();
             }
             GameObject closedChunkSystemObject = new GameObject();
-            IntervalVector bounds = WorldCreation.getDim0Bounds();
+            IntervalVector bounds = WorldCreation.GetDim0Bounds();
             closedChunkSystemObject.name="Dim0System";
             mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             mainArea.initalize(

@@ -133,8 +133,8 @@ namespace PlayerModule.Mouse {
             if (conduitItem == null) {
                 return false;
             }
-            ConduitType conduitType = conduitItem.getConduitType();
-            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
+            ConduitType conduitType = conduitItem.GetConduitType();
+            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;

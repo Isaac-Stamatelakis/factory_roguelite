@@ -45,12 +45,12 @@ namespace Conduits.PortViewer {
                 return;
             }
             if (!portViewer.Active) {
-                activateViewer(conduitItem.getConduitType());
+                activateViewer(conduitItem.GetConduitType());
                 return;
             }
-            if (conduitItem.getConduitType() != portViewer.Type) {
+            if (conduitItem.GetConduitType() != portViewer.Type) {
                 portViewer.deactive();
-                activateViewer(conduitItem.getConduitType());
+                activateViewer(conduitItem.GetConduitType());
                 return;
             }
         }
@@ -60,7 +60,7 @@ namespace Conduits.PortViewer {
             portViewer.name = $"{conduitType} Port Viewer";
             portViewer.gameObject.SetActive(true);
 
-            Vector3Int referenceFrame = (Vector3Int)closedChunkSystem.getBottomLeftCorner();
+            Vector3Int referenceFrame = (Vector3Int)closedChunkSystem.GetBottomLeftCorner();
             Color color = getConduitPortColor(conduitType);
 
             Dictionary<EntityPortType,TileBase> portTypeToTile = new Dictionary<EntityPortType, TileBase>();
@@ -68,8 +68,8 @@ namespace Conduits.PortViewer {
             portTypeToTile[EntityPortType.Input] = portConduitTiles.InputTile;
             portTypeToTile[EntityPortType.Output] = portConduitTiles.OutputTile;
 
-            IConduitSystemManager conduitSystemManager = closedChunkSystem.getManager(conduitType);
-            TileMapType tileMapType = conduitType.toTileMapType();
+            IConduitSystemManager conduitSystemManager = closedChunkSystem.GetManager(conduitType);
+            TileMapType tileMapType = conduitType.ToTileMapType();
             TileMaps.ITileMap tilemap = closedChunkSystem.getTileMap(tileMapType);
             
             portViewer.display(conduitSystemManager,referenceFrame,portTypeToTile,color,tilemap);

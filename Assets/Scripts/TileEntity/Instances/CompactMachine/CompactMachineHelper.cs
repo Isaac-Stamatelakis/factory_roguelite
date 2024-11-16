@@ -37,7 +37,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         /// 
         /// <summary>
         public static Vector2Int getRingSizeInChunks() {
-            IntervalVector dim0Area = WorldCreation.getDim0Bounds();
+            IntervalVector dim0Area = WorldCreation.GetDim0Bounds();
             return dim0Area.getSize();
         }
 
@@ -135,7 +135,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             StructureVariant variant = structure.variants[0];
             WorldTileConduitData systemData = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
             Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.ChunkSize,variant.Size.y/Global.ChunkSize);
-            WorldGenerationFactory.saveToJson(systemData,chunkSize,1,savePath);
+            WorldGenerationFactory.SaveToJson(systemData,chunkSize,1,savePath);
             Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }
 

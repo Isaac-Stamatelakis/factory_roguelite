@@ -70,7 +70,7 @@ namespace Dimensions {
                                 Vector2Int newPosition = nestedCompactMachine.getCellPosition();
                                 string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                 string contentPath = Path.Combine(nestedPath,CompactMachineHelper.CONTENT_PATH);
-                                SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.import(contentPath);
+                                SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
                                 if (newSystem == null) {
                                     Debug.LogError($"No system at path {nestedPath}");
                                     continue;

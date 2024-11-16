@@ -10,21 +10,21 @@ namespace Conduits {
         public IConduitPort getPort();
         public void setPort(IConduitPort port);
     }
-    public abstract class PortConduit<Port> : IPortConduit where Port : IConduitPort
+    public abstract class PortConduit<TPort> : IPortConduit where TPort : IConduitPort
     {
         private int x;
         private int y;
         private ConduitItem conduitItem;
-        private Port port;
+        private TPort port;
         private IConduitSystem conduitSystem;
-        public PortConduit(int x, int y,  ConduitItem conduitItem, Port port) {
+        protected PortConduit(int x, int y,  ConduitItem conduitItem, TPort port) {
             this.x = x;
             this.y = y;
             this.conduitItem = conduitItem;
             this.port = port;
         }
 
-        public ConduitItem getConduitItem()
+        public ConduitItem GetConduitItem()
         {
             return conduitItem;
         }
@@ -34,41 +34,41 @@ namespace Conduits {
             return port;
         }
 
-        public string getId()
+        public string GetId()
         {
             return conduitItem.id;
         }
-        public int getX()
+        public int GetX()
         {
             return x;
         }
 
-        public int getY()
+        public int GetY()
         {
             return y;
         }
 
         public void setPort(IConduitPort port)
         {
-            this.port = (Port) port;
+            this.port = (TPort) port;
         }
 
-        public void setConduitSystem(IConduitSystem conduitSystem)
+        public void SetConduitSystem(IConduitSystem conduitSystem)
         {
             this.conduitSystem = conduitSystem;
         }
 
-        public IConduitSystem getConduitSystem()
+        public IConduitSystem GetConduitSystem()
         {
             return this.conduitSystem;
         }
 
-        public void setX(int val)
+        public void SetX(int val)
         {
             x = val;
         }
 
-        public void setY(int val)
+        public void SetY(int val)
         {
             y = val;
         }

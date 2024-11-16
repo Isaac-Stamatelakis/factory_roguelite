@@ -10,28 +10,27 @@ using Chunks.Systems;
 
 namespace Conduits {
     public static class ConduitFactory {
-
-        public static IConduit deseralizeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
-            ConduitType type = conduitItem.getConduitType();
+        public static IConduit DeserializeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
+            ConduitType type = conduitItem.GetConduitType();
             cellPosition -= referencePosition;
             bool isPortConduit = type == ConduitType.Item || type == ConduitType.Fluid || type == ConduitType.Energy || type == ConduitType.Signal;
             if (isPortConduit) {
-                return deseralizePortConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity,portType);
+                return DeserializePortConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity,portType);
             }
             bool isMatrixConduit = type == ConduitType.Matrix;
             if (isMatrixConduit) {
-                return deseralizeMatrixConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity);
+                return DeserializeMatrixConduit(cellPosition,referencePosition,conduitItem,conduitOptionData,tileEntity);
             }
             Debug.LogError("Did not handle deseralizaiton case for " + type);
             return null;
         
         }
-        private static IConduit deseralizePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
-            ConduitType conduitType = conduitItem.getConduitType();
-            IConduitPort port = ConduitPortFactory.deseralize(conduitOptionData,conduitType,conduitItem);
+        private static IConduit DeserializePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
+            ConduitType conduitType = conduitItem.GetConduitType();
+            IConduitPort port = ConduitPortFactory.Deserialize(conduitOptionData,conduitType,conduitItem);
             if (tileEntity != null && portType != null) {
                 if (port == null) {
-                    port = ConduitPortFactory.createDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
+                    port = ConduitPortFactory.CreateDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
                 }
                 if (port == null) {
                     return null;
@@ -74,7 +73,7 @@ namespace Conduits {
             
         }
 
-        private static IConduit deseralizeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity) {
+        private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity) {
             IMatrixConduitInteractable matrixConduitInteractable = null;
             if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
                 matrixConduitInteractable = matrixConduitInteractable1;
@@ -92,11 +91,11 @@ namespace Conduits {
         /// <summary>
         /// Sets the port of given conduit to default port
         /// </summary
-        public static IConduit create(ConduitItem conduitItem, EntityPortType portType, int x, int y, ITileEntityInstance tileEntity) {
-            ConduitType conduitType = conduitItem.getConduitType();
+        public static IConduit Create(ConduitItem conduitItem, EntityPortType portType, int x, int y, ITileEntityInstance tileEntity) {
+            ConduitType conduitType = conduitItem.GetConduitType();
             switch (conduitType) {
                 case ConduitType.Item:
-                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
                     return new ItemConduit(
                         x: x,
                         y: y,
@@ -104,7 +103,7 @@ namespace Conduits {
                         port: itemConduitPort
                     );
                 case ConduitType.Fluid:
-                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
                     return new FluidConduit(
                         x: x,
                         y: y,
@@ -112,7 +111,7 @@ namespace Conduits {
                         port: fluidConduitPort
                     );
                 case ConduitType.Energy:
-                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
                     return new EnergyConduit(
                         x: x,
                         y: y,
@@ -120,7 +119,7 @@ namespace Conduits {
                         port: energyConduitPort
                     );
                 case ConduitType.Signal:
-                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.createDefault(conduitType,portType,tileEntity,conduitItem);
+                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
                     return new SignalConduit(
                         x: x,
                         y: y,

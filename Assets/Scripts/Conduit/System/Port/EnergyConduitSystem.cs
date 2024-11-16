@@ -46,7 +46,7 @@ namespace Conduits.Systems {
                 if (toInsert == 0) {
                     return;
                 }
-                int taken = inputPort.insert(toInsert);
+                int taken = inputPort.Insert(toInsert);
                 toInsert -= taken;
             }
             totalEnergy += toInsert;

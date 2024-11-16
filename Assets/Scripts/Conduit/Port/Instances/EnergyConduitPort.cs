@@ -16,7 +16,7 @@ namespace Conduits.Ports {
         {
         }
 
-        public int insert(int energy) {
+        public int Insert(int energy) {
             return tileEntity.insertEnergy(energy,relativePosition);
         }
 

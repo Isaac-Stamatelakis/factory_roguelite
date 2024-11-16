@@ -58,13 +58,13 @@ namespace UI.Title {
                 StartCoroutine(createAndLoadWorld(worldName));
                  //slotButtons[n].name = "Slot " + n;
             } else {
-                OpenWorld.loadWorld(worldName);
+                OpenWorld.LoadWorld(worldName);
             }
         }
 
         private IEnumerator createAndLoadWorld(string worldName) {
-            yield return StartCoroutine(WorldCreation.createWorld(worldName));
-            OpenWorld.loadWorld(worldName);
+            yield return StartCoroutine(WorldCreation.CreateWorld(worldName));
+            OpenWorld.LoadWorld(worldName);
         }
 
         private void editPressed(int n) {

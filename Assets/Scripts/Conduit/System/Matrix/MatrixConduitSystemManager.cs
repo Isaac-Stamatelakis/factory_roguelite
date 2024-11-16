@@ -20,7 +20,7 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(MatrixConduit conduit, ITileEntityInstance tileEntity, TileEntityPort port)
         {
-            IConduitSystem system = conduit.getConduitSystem();
+            IConduitSystem system = conduit.GetConduitSystem();
             if (system is not MatrixConduitSystem matrixConduitSystem) {
                 Debug.LogError("Matrix conduit did not belong to matrix conduit system");
                 return;

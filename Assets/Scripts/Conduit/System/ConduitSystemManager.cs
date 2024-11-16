@@ -129,8 +129,8 @@ namespace Conduits.Systems {
                 Debug.LogError("Tried to add invalid conduit type to conduit system");
                 return;
             }
-            conduit.setX(x);
-            conduit.setY(y);
+            conduit.SetX(x);
+            conduit.SetY(y);
             conduits[x,y] = typeConduit;
             updateSystemsOnPlace(conduit,x,y);
         }
@@ -140,25 +140,25 @@ namespace Conduits.Systems {
             if (x + 1 < size.x) {
                 IConduit right = conduits[x+1,y];
                 if (right != null) {
-                    systemsToMerge.Add((TSystem)right.getConduitSystem());
+                    systemsToMerge.Add((TSystem)right.GetConduitSystem());
                 }
             }
             if (x - 1 >= 0) {
                 IConduit left = conduits[x-1,y];
                 if (left != null) {
-                    systemsToMerge.Add((TSystem)left.getConduitSystem());
+                    systemsToMerge.Add((TSystem)left.GetConduitSystem());
                 }
             }
             if (y + 1 < size.y) {
                 IConduit up = conduits[x,y+1];
                 if (up != null) {
-                    systemsToMerge.Add((TSystem)up.getConduitSystem());
+                    systemsToMerge.Add((TSystem)up.GetConduitSystem());
                 }
             }
             if (y - 1 >= 0) {
                 IConduit down = conduits[x,y-1];
                 if (down != null) {
-                    systemsToMerge.Add((TSystem)down.getConduitSystem());
+                    systemsToMerge.Add((TSystem)down.GetConduitSystem());
                 }
             }
             IConduitSystem newSystem = ConduitSystemFactory.create(conduit);
@@ -186,13 +186,13 @@ namespace Conduits.Systems {
 
         private void removeConduitFromSystem(IConduit conduit, int x, int y) {
             // Step 1, delete conduit system
-            TSystem conduitSystem = (TSystem) conduit.getConduitSystem();
+            TSystem conduitSystem = (TSystem) conduit.GetConduitSystem();
             if (conduitSystem == null) {
                 Debug.LogError("Conduit somehow didn't belong to a conduit system");
             }
             conduitSystems.Remove(conduitSystem);
             // Step 2, Run DFS on conduit to remove setting the conduit system of all connecting conduits to null
-            DFSNull(conduit,conduit.getConduitItem().id);
+            DFSNull(conduit,conduit.GetConduitItem().id);
 
             // Step 3, delete the conduit from the conduit array
             conduits[x,y] = default(TConduit);
@@ -200,7 +200,7 @@ namespace Conduits.Systems {
             // Step 4, Regenerate systems by running DFSConduit on up, left, down, right
             if (x + 1 < size.x) {
                 IConduit right = conduits[x+1,y];
-                if (right != null && right.getConduitSystem() == null) {
+                if (right != null && right.GetConduitSystem() == null) {
                     TSystem system = (TSystem)ConduitSystemFactory.create(right);
                     conduitSystems.Add(system);
                     DFSConduit(right,system);
@@ -209,7 +209,7 @@ namespace Conduits.Systems {
             }
             if (x - 1 >= 0) {
                 IConduit left = conduits[x-1,y];
-                if (left != null && left.getConduitSystem() == null) {
+                if (left != null && left.GetConduitSystem() == null) {
                     TSystem system = (TSystem)ConduitSystemFactory.create(left);
                     conduitSystems.Add(system);
                     DFSConduit(left,system);
@@ -217,7 +217,7 @@ namespace Conduits.Systems {
             }
             if (y + 1 < size.y) {
                 IConduit up = conduits[x,y+1];
-                if (up != null && up.getConduitSystem() == null) {
+                if (up != null && up.GetConduitSystem() == null) {
                     TSystem system = (TSystem)ConduitSystemFactory.create(up);
                     conduitSystems.Add(system);
                     DFSConduit(up,system);
@@ -225,7 +225,7 @@ namespace Conduits.Systems {
             }
             if (y - 1 >= 0) {
                 IConduit down = conduits[x,y-1];
-                if (down != null && down.getConduitSystem() == null) {
+                if (down != null && down.GetConduitSystem() == null) {
                     TSystem system = (TSystem)ConduitSystemFactory.create(down);
                     conduitSystems.Add(system);
                     DFSConduit(down,system);
@@ -280,28 +280,28 @@ namespace Conduits.Systems {
         /// Sets the conduit system of each conduit seen to null
         /// </summary>
         private void DFSNull(IConduit conduit,string id) {
-            if (conduit == null || conduit.getConduitSystem() == null || conduit.getConduitItem().id != id) {
+            if (conduit == null || conduit.GetConduitSystem() == null || conduit.GetConduitItem().id != id) {
                 return;
             }
-            conduit.setConduitSystem(null);
-            int left = conduit.getX()-1;
+            conduit.SetConduitSystem(null);
+            int left = conduit.GetX()-1;
             if (left >= 0) {
-                IConduit leftConduit = conduits[left,conduit.getY()];
+                IConduit leftConduit = conduits[left,conduit.GetY()];
                 DFSNull(leftConduit,id);
             }
-            int right = conduit.getX()+1;
+            int right = conduit.GetX()+1;
             if (right < size.x) {
-                IConduit rightConduit = conduits[right,conduit.getY()];
+                IConduit rightConduit = conduits[right,conduit.GetY()];
                 DFSNull(rightConduit,id);
             }
-            int down = conduit.getY()-1;
+            int down = conduit.GetY()-1;
             if (down >= 0) {
-                IConduit downConduit = conduits[conduit.getX(),down];
+                IConduit downConduit = conduits[conduit.GetX(),down];
                 DFSNull(downConduit,id);
             }
-            int up = conduit.getY()+1;
+            int up = conduit.GetY()+1;
             if (up < size.y) {
-                IConduit upConduit = conduits[conduit.getX(),up];
+                IConduit upConduit = conduits[conduit.GetX(),up];
                 DFSNull(upConduit,id);
             }
         }
@@ -310,7 +310,7 @@ namespace Conduits.Systems {
             for (int x = 0; x < size.x; x++) {
                 for (int y = 0; y < size.y; y++) {
                     IConduit conduit = conduits[x,y];
-                    if (conduit == null || conduit.getConduitItem() == null) {
+                    if (conduit == null || conduit.GetConduitItem() == null) {
                         continue;
                     }
                     conduitsNotSeen.Add(conduit);
@@ -319,7 +319,7 @@ namespace Conduits.Systems {
             while (conduitsNotSeen.Count > 0) {
                 IConduit conduit = conduitsNotSeen.First();
                 conduitsNotSeen.Remove(conduit);
-                if (conduit.getConduitSystem() != null) {
+                if (conduit.GetConduitSystem() != null) {
                     continue;
                 }
                 TSystem conduitSystem = (TSystem)ConduitSystemFactory.create(conduit);
@@ -335,31 +335,31 @@ namespace Conduits.Systems {
             if (conduit == null) {
                 return;
             }
-            if (conduit.getConduitSystem() != null) {
+            if (conduit.GetConduitSystem() != null) {
                 return;
             }
-            if (conduit.getConduitItem().id != conduitSystem.getId()) {
+            if (conduit.GetConduitItem().id != conduitSystem.getId()) {
                 return;
             }
             conduitSystem.addConduit(conduit);
-            int left = conduit.getX()-1;
+            int left = conduit.GetX()-1;
             if (left >= 0) {
-                IConduit leftConduit = conduits[left,conduit.getY()];
+                IConduit leftConduit = conduits[left,conduit.GetY()];
                 DFSConduit(leftConduit,conduitSystem);
             }
-            int right = conduit.getX()+1;
+            int right = conduit.GetX()+1;
             if (right < size.x) {
-                IConduit rightConduit = conduits[right,conduit.getY()];
+                IConduit rightConduit = conduits[right,conduit.GetY()];
                 DFSConduit(rightConduit,conduitSystem);
             }
-            int down = conduit.getY()-1;
+            int down = conduit.GetY()-1;
             if (down >= 0) {
-                IConduit downConduit = conduits[conduit.getX(),down];
+                IConduit downConduit = conduits[conduit.GetX(),down];
                 DFSConduit(downConduit,conduitSystem);
             }
-            int up = conduit.getY()+1;
+            int up = conduit.GetY()+1;
             if (up < size.y) {
-                IConduit upConduit = conduits[conduit.getX(),up];
+                IConduit upConduit = conduits[conduit.GetX(),up];
                 DFSConduit(upConduit,conduitSystem);
             }
         }

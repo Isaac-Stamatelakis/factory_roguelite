@@ -180,7 +180,7 @@ namespace Chunks.Partitions {
                             }
                         }
                     }
-                    systemConduits[systemX,systemY] = ConduitFactory.deseralizeConduit(
+                    systemConduits[systemX,systemY] = ConduitFactory.DeserializeConduit(
                         cellPosition: cellPosition,
                         referencePosition: referenceChunk,
                         conduitItem: conduitItem,
@@ -207,16 +207,16 @@ namespace Chunks.Partitions {
                             IConduit conduit = kvp.Value[x,y];
                             switch (kvp.Key) {
                                 case ConduitType.Item:
-                                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
                                     break;
                                 case ConduitType.Fluid:
-                                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
                                     break;
                                 case ConduitType.Energy:
-                                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
                                     break;
                                 case ConduitType.Signal:
-                                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
+                                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
                                     break;
                                 case ConduitType.Matrix:
                                     if (conduit is not MatrixConduit matrixConduit) {
@@ -323,7 +323,7 @@ namespace Chunks.Partitions {
             if (conduitItem == null) {
                 return;
             }
-            ITileMap tileGridMap = tileGridMaps[conduitItem.getConduitType().toTileMapType()];
+            ITileMap tileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
             tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
@@ -351,7 +351,7 @@ namespace Chunks.Partitions {
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
         {
             IConduit[,] conduitArray = conduits[type];
-            return conduitArray[positionInPartition.x,positionInPartition.y].getConduitItem();
+            return conduitArray[positionInPartition.x,positionInPartition.y].GetConduitItem();
         }
 
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item)

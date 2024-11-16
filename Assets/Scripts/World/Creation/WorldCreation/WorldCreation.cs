@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 namespace WorldModule {
     public static class WorldCreation
     {
-        public static IEnumerator createWorld(string name) {
+        public static IEnumerator CreateWorld(string name) {
             yield return ItemRegistry.loadItems();
             WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
             string path = WorldLoadUtils.getFullWorldPath();
@@ -27,13 +27,13 @@ namespace WorldModule {
             string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
-            initPlayerData(WorldLoadUtils.getPlayerDataPath());
-            yield return initDim0();
+            InitPlayerData(WorldLoadUtils.getPlayerDataPath());
+            yield return InitDim0();
             WorldLoadUtils.createDimFolder(1);
         }
-        
 
-        public static void initPlayerData(string path) {
+
+        private static void InitPlayerData(string path) {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
@@ -46,7 +46,7 @@ namespace WorldModule {
         }
 
         
-        public static IEnumerator initDim0() {
+        public static IEnumerator InitDim0() {
             if (WorldLoadUtils.dimExists(0)) {
                 Debug.LogError("Attempted to init dim 0 when already exists");
                 yield break;
@@ -71,26 +71,26 @@ namespace WorldModule {
             }
 
             StructureVariant variant = structure.variants[0];
-            Vector2Int dimSize = getDim0Bounds().getSize()*Global.ChunkSize;
+            Vector2Int dimSize = GetDim0Bounds().getSize()*Global.ChunkSize;
             if (variant.Size != dimSize) {
                 Debug.LogError($"Structure for dim0 size {variant.Size} does not match dim0 size {dimSize}");
                 yield break;
             }
 
             WorldTileConduitData dim0Data = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
-            IntervalVector dim0Bounds = getDim0Bounds();
+            IntervalVector dim0Bounds = GetDim0Bounds();
             //WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
-            WorldGenerationFactory.saveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
+            WorldGenerationFactory.SaveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
         }
 
-        public static IntervalVector getDim0Bounds() {
+        public static IntervalVector GetDim0Bounds() {
             return new IntervalVector(
                 new Interval<int>(-4,4),
                 new Interval<int>(-3,3)
             );
         }
         
-        public static IntervalVector getTileMapChunkBounds(GameObject prefab) {
+        public static IntervalVector GetTileMapChunkBounds(GameObject prefab) {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             int xSize = (baseBounds.xMax-baseBounds.xMin)/Global.ChunkSize;
@@ -101,7 +101,7 @@ namespace WorldModule {
             int yUpper = ySize / 2;
             return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
         }
-        public static WorldTileConduitData prefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
+        public static WorldTileConduitData PrefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             Vector2Int size = bounds.getSize();
@@ -142,14 +142,14 @@ namespace WorldModule {
 
 
 
-            SerializedBaseTileData baseData = tileMapToSerializedChunkTileData(baseTileMap,width,height);
-            SerializedBackgroundTileData backgroundData = tileMapToBackgroundTileData(backgroundTileMap,width,height);
-            SeralizedFluidTileData fluidTileData = emptyTileFluidData(width,height);
-            SeralizedChunkConduitData itemData = tileMapToSerializedChunkConduitData(itemConduitTileMap,TileMapLayer.Item,width,height);
-            SeralizedChunkConduitData fluidData = tileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
-            SeralizedChunkConduitData energyData = tileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
-            SeralizedChunkConduitData signalData = tileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
-            SeralizedChunkConduitData matrixData = tileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
+            SerializedBaseTileData baseData = TileMapToSerializedChunkTileData(baseTileMap,width,height);
+            SerializedBackgroundTileData backgroundData = TileMapToBackgroundTileData(backgroundTileMap,width,height);
+            SeralizedFluidTileData fluidTileData = EmptyTileFluidData(width,height);
+            SeralizedChunkConduitData itemData = TileMapToSerializedChunkConduitData(itemConduitTileMap,TileMapLayer.Item,width,height);
+            SeralizedChunkConduitData fluidData = TileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
+            SeralizedChunkConduitData energyData = TileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
+            SeralizedChunkConduitData signalData = TileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
+            SeralizedChunkConduitData matrixData = TileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
             return new WorldTileConduitData(
                 baseData,
                 backgroundData,
@@ -163,7 +163,7 @@ namespace WorldModule {
             );
         }
 
-        public static WorldTileConduitData createEmptyWorldData(IntervalVector bounds) {
+        public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds) {
             Vector2Int size = bounds.getSize()*Global.ChunkSize;
             int width = size.x;
             int height = size.y;
@@ -177,7 +177,7 @@ namespace WorldModule {
             SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width,height);
             return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
         }
-        private static SerializedBaseTileData tileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
+        private static SerializedBaseTileData TileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             //Debug.Log("Generating SerializedChunkTileData for Base");
             SerializedBaseTileData data = new SerializedBaseTileData();
@@ -196,7 +196,7 @@ namespace WorldModule {
                         TileBase tile = tilemap.GetTile(tilePosition);
                         if (tile is IIDTile) {
                             string id = ((IIDTile) tile).getId();
-                            if (id == null || id == "") {
+                            if (string.IsNullOrEmpty(id)) {
                                 continue;
                             }
                             ids[x,y]= id;
@@ -211,7 +211,7 @@ namespace WorldModule {
         return data;
     }
 
-    private static SerializedBackgroundTileData tileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
+    private static SerializedBackgroundTileData TileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
         //Debug.Log("Generating SerializedBackgroundTileData");
         SerializedBackgroundTileData data = new SerializedBackgroundTileData();
@@ -228,7 +228,7 @@ namespace WorldModule {
                         TileBase tile = tilemap.GetTile(tilePosition);
                         if (tile is IIDTile) {
                             string id = ((IIDTile) tile).getId();
-                            if (id == null || id == "") {
+                            if (id is null or "") {
                                 continue;
                             }
                             ids[x,y]= id;
@@ -241,7 +241,7 @@ namespace WorldModule {
         return data;
     }
 
-    private static SeralizedFluidTileData tileMapToFluidTileData(Tilemap tilemap, int width, int height) {
+    private static SeralizedFluidTileData TileMapToFluidTileData(Tilemap tilemap, int width, int height) {
         ItemRegistry itemRegistry = ItemRegistry.getInstance();
         Debug.Log("Generating SeralizedFluidTileData");
         SeralizedFluidTileData data = new SeralizedFluidTileData();
@@ -259,7 +259,7 @@ namespace WorldModule {
                         TileBase tile = tilemap.GetTile(tilePosition);
                         if (tile is IIDTile) {
                             string id = ((IIDTile) tile).getId();
-                            if (id == null || id == "") {
+                            if (id is null or "") {
                                 continue;
                             }
                             fill[x,y] = 1;
@@ -274,13 +274,13 @@ namespace WorldModule {
         return data;
     }
 
-    private static SeralizedFluidTileData emptyTileFluidData(int width, int height) {
+    private static SeralizedFluidTileData EmptyTileFluidData(int width, int height) {
         SeralizedFluidTileData data = new SeralizedFluidTileData();
         data.ids = new string[width,height];
         data.fill = new float[width,height];
         return data;
     }
-    private static SeralizedChunkConduitData tileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
+    private static SeralizedChunkConduitData TileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             //Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
@@ -298,7 +298,7 @@ namespace WorldModule {
                         TileBase tile = tilemap.GetTile(tilePosition);
                         if (tile is StandardTile) {
                             string id = ((StandardTile) tile).id;
-                            if (id == null || id == "") {
+                            if (id is null or "") {
                                 continue;
                             }
                             ids[x,y]= id;

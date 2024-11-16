@@ -113,6 +113,7 @@ namespace TileEntityModule {
             TileMapType tileMapType = switchType.getStateType(oldState);
             TileMaps.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
+            
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             TileMaps.ITileMap newMap = loadedChunk.getTileMap(newType);

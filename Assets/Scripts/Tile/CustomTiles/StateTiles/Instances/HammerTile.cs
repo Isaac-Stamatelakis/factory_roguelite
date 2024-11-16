@@ -9,7 +9,7 @@ using TileEntityModule.Instances.SimonSays;
 
 namespace Tiles {
     
-    [CreateAssetMenu(fileName ="T~New Simon Says Tile",menuName="Tile/State/Hammer")]
+    [CreateAssetMenu(fileName ="T~New Hammer Tile",menuName="Tile/State/Hammer")]
     
     public class HammerTile : TileBase, IIDTile, IStateTile
     {
@@ -21,11 +21,6 @@ namespace Tiles {
         public Sprite getDefaultSprite()
         {
             return baseTile.sprite;
-        }
-
-        public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-        {
-            base.GetTileData(position, tilemap, ref tileData);
         }
 
         public string getId()

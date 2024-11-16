@@ -132,14 +132,14 @@ namespace WorldModule.Caves {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.mapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector);
+                        WorldGenerationFactory.MapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector);
                     }
                 }
             } else {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.mapWorldTileData(caveData,variantData,position+vector,vector);
+                        WorldGenerationFactory.MapWorldTileData(caveData,variantData,position+vector,vector);
                     }
                 }
             }

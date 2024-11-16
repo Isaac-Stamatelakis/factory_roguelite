@@ -8,7 +8,7 @@ namespace Items {
     public class SignalConduitItem : ConduitItem
     {
         public int maxDistance;
-        public override ConduitType getConduitType()
+        public override ConduitType GetConduitType()
         {
             return ConduitType.Signal;
         }

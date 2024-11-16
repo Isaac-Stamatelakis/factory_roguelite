@@ -44,8 +44,8 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
-            conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
-            conduit.getConduitSystem().rebuild();
+            conduit.setPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
+            conduit.GetConduitSystem().rebuild();
         }
 
         public override void onTileEntityRemoved(IPortConduit conduit)
@@ -55,7 +55,7 @@ namespace Conduits.Systems {
                 return;
             }
             conduit.setPort(null);
-            conduit.getConduitSystem().rebuild();
+            conduit.GetConduitSystem().rebuild();
         }
     }
 }

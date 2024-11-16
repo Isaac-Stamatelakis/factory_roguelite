@@ -12,54 +12,53 @@ namespace Conduits {
         private int y;
         private MatrixConduitItem matrixConduitItem;
         private IConduitSystem conduitSystem;
-        private IMatrixConduitInteractable matrixConduitInteractable;
-        public bool HasTileEntity {get => matrixConduitInteractable != null;}
-        public IMatrixConduitInteractable MatrixConduitInteractable { get => matrixConduitInteractable; set => matrixConduitInteractable = value; }
+        public bool HasTileEntity => MatrixConduitInteractable != null;
+        public IMatrixConduitInteractable MatrixConduitInteractable { get; set; }
 
         public MatrixConduit(int x, int y, MatrixConduitItem item, IMatrixConduitInteractable matrixConduitInteractable) {
             this.x = x;
             this.y = y;
             this.matrixConduitItem = item;
-            this.matrixConduitInteractable = matrixConduitInteractable;
+            this.MatrixConduitInteractable = matrixConduitInteractable;
         }
-        public ConduitItem getConduitItem()
+        public ConduitItem GetConduitItem()
         {
             return matrixConduitItem;
         }
 
-        public IConduitSystem getConduitSystem()
+        public IConduitSystem GetConduitSystem()
         {
             return conduitSystem;
         }
 
-        public string getId()
+        public string GetId()
         {
             return matrixConduitItem.id;
         }
 
 
-        public int getX()
+        public int GetX()
         {
             return x;
         }
 
-        public int getY()
+        public int GetY()
         {
             return y;
         }
 
-        public void setConduitSystem(IConduitSystem conduitSystem)
+        public void SetConduitSystem(IConduitSystem newSystem)
         {
-            this.conduitSystem = conduitSystem;
+            this.conduitSystem = newSystem;
         }
 
 
-        public void setX(int val)
+        public void SetX(int val)
         {
             this.x = val;
         }
 
-        public void setY(int val)
+        public void SetY(int val)
         {
             this.y = val;
         }

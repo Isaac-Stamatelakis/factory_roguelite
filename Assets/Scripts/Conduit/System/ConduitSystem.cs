@@ -19,7 +19,7 @@ namespace Conduits.Systems {
                 return;
             }
             Conduits.Add(systemConduit);
-            conduit.setConduitSystem(this);
+            conduit.SetConduitSystem(this);
         }
 
         public bool connectsTo(IConduitSystem otherConduitSystem) {
@@ -38,7 +38,7 @@ namespace Conduits.Systems {
         public virtual void merge(IConduitSystem otherConduitSystem) {
             foreach (SystemConduit conduit in otherConduitSystem.getConduits()) {
                 addConduit(conduit);
-                conduit.setConduitSystem(this);
+                conduit.SetConduitSystem(this);
             }
         }
 

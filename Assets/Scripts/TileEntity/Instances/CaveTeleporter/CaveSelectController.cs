@@ -119,7 +119,7 @@ namespace TileEntityModule.Instances {
             }
             WorldLoadUtils.createDimFolder(-1);
             SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(-2147483648,2147483647));
-            WorldGenerationFactory.saveToJson(
+            WorldGenerationFactory.SaveToJson(
                 worldTileData,
                 caveInstance.getChunkCaveSize(),
                 -1,

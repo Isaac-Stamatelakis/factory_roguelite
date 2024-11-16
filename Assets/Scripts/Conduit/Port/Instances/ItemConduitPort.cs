@@ -16,28 +16,28 @@ namespace Conduits.Ports {
     }
 
 
-    public abstract class ConduitTransferPort<Interactable> where Interactable : IConduitInteractable {
-        protected Interactable tileEntity;
+    public abstract class ConduitTransferPort<TInteractable> where TInteractable : IConduitInteractable {
+        protected TInteractable tileEntity;
         protected Vector2Int relativePosition;
         [JsonIgnore] public Vector2Int RelativePosition {get => relativePosition; set => relativePosition = value;}
-        [JsonIgnore] public Interactable TileEntity { get => tileEntity; set => tileEntity = value; }
-        public ConduitTransferPort(Interactable tileEntity) {
+        [JsonIgnore] public TInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
+        protected ConduitTransferPort(TInteractable tileEntity) {
             this.tileEntity = tileEntity;
         }
     }
 
-    public abstract class ItemConduitInputPort<Interactable,Filter> : 
-    ConduitTransferPort<Interactable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort, IItemConduitInputPort, IConduitIOPort 
+    public abstract class ItemConduitInputPort<TInteractable,TFilter> : 
+    ConduitTransferPort<TInteractable>, IConduitInputPort<ItemSlot>, IColorPort, IPriorityPort, IItemConduitInputPort, IConduitIOPort 
     
-    where Interactable : IItemConduitInteractable where Filter : IFilter
+    where TInteractable : IItemConduitInteractable where TFilter : IFilter
     {
         private bool enabled;
-        public Filter filter;
+        public TFilter filter;
         public int color;
         public int priority;
         private int inventory;
 
-        public ItemConduitInputPort(Interactable tileEntity) : base(tileEntity)
+        public ItemConduitInputPort(TInteractable tileEntity) : base(tileEntity)
         {
 
         }
@@ -48,7 +48,7 @@ namespace Conduits.Ports {
 
         public void insert(ItemSlot itemSlot) {
             if (filter != null) {
-                if (!filter.filter(itemSlot)) {
+                if (!filter.Filter(itemSlot)) {
                     return;
                 }
             }
@@ -95,7 +95,7 @@ namespace Conduits.Ports {
 
         public void setTileEntity(ITileEntityInstance tileEntity)
         {
-            if (tileEntity is not Interactable interactable) {
+            if (tileEntity is not TInteractable interactable) {
                 return;
             }
             this.tileEntity = interactable;
@@ -127,24 +127,24 @@ namespace Conduits.Ports {
     }
 
     [System.Serializable]
-    public class ItemConduitOutputPort<Interactable,Filter> : 
-    ConduitTransferPort<Interactable>, IConduitOutputPort<ItemSlot>, IColorPort, IItemConduitOutputPort, IConduitIOPort 
-    where Interactable : IItemConduitInteractable where Filter : IFilter
+    public class ItemConduitOutputPort<TInteractable,TFilter> : 
+    ConduitTransferPort<TInteractable>, IConduitOutputPort<ItemSlot>, IColorPort, IItemConduitOutputPort, IConduitIOPort 
+    where TInteractable : IItemConduitInteractable where TFilter : IFilter
     { 
         private bool enabled;
         public int color;
         public int extractAmount = 4;
         public bool roundRobin;
         private int roundRobinIndex;
-        public Filter filter;
+        public TFilter filter;
         public bool Enabled { get => enabled; set => enabled = value; }
-        public ItemConduitOutputPort (Interactable tileEntity) : base(tileEntity) {
+        public ItemConduitOutputPort (TInteractable tileEntity) : base(tileEntity) {
             this.tileEntity = tileEntity;
         }
         public ItemSlot extract() {
             ItemSlot output = doExtraction();
             if (filter != null) {
-                if (!filter.filter(output)) {
+                if (!filter.Filter(output)) {
                     return null;
                 }
             }
@@ -187,7 +187,7 @@ namespace Conduits.Ports {
 
         public void setTileEntity(ITileEntityInstance tileEntity)
         {
-            if (tileEntity is not Interactable interactable) {
+            if (tileEntity is not TInteractable interactable) {
                 return;
             }
             this.tileEntity = interactable;

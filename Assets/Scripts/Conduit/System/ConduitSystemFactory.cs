@@ -6,8 +6,8 @@ using Items;
 namespace Conduits.Systems {
     public static class ConduitSystemFactory {
         public static IConduitSystem create(IConduit conduit) {
-            ConduitItem conduitItem = conduit.getConduitItem();
-            ConduitType type = conduitItem.getConduitType();
+            ConduitItem conduitItem = conduit.GetConduitItem();
+            ConduitType type = conduitItem.GetConduitType();
             IConduitSystem system = null;
             switch (type) {
                 case ConduitType.Item:

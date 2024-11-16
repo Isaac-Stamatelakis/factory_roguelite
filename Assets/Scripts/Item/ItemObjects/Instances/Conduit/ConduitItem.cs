@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMaps.Type;
+using Tiles;
+
 public enum ConduitType {
     Item,
     Fluid,
@@ -12,7 +14,7 @@ public enum ConduitType {
 }
 namespace Items {
     public static class ConduitTypeExtension {
-        public static TileMapType toTileMapType(this ConduitType conduitType) {
+        public static TileMapType ToTileMapType(this ConduitType conduitType) {
             switch (conduitType) {
                 case ConduitType.Item:
                     return TileMapType.ItemConduit;
@@ -39,10 +41,10 @@ namespace Items {
 
     public abstract class ConduitItem : ItemObject, IPlacableItem
     {
-        public RuleTile ruleTile;
+        public ConduitStateTile Tile;
         public override Sprite[] getSprites()
         {
-            return new Sprite[]{ruleTile.m_DefaultSprite};
+            return new Sprite[]{getSprite()};
         }
         public override ItemDisplayType? getDisplayType()
         {
@@ -51,13 +53,18 @@ namespace Items {
 
         public TileBase getTile()
         {
-            return ruleTile;
+            return Tile;
         }
 
-        public abstract ConduitType getConduitType();
+        public abstract ConduitType GetConduitType();
         public override Sprite getSprite()
         {
-            return ruleTile.m_DefaultSprite;
+            if (Tile)
+            {
+                return Tile.getDefaultSprite();
+            }
+
+            return null;
         }
     }
 }

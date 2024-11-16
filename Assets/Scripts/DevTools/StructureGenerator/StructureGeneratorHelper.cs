@@ -66,11 +66,11 @@ namespace DevTools.Structures {
             string structureDimPath = WorldLoadUtils.getDimPath(0);
             Directory.CreateDirectory(structureDimPath);
             Vector2Int caveSize = bounds.getSize();
-            WorldTileConduitData dimData = WorldCreation.createEmptyWorldData(bounds);
+            WorldTileConduitData dimData = WorldCreation.CreateEmptyWorldData(bounds);
             if (generationOption != null) {
                 generationOption.apply(dimData);
             }
-            WorldGenerationFactory.saveToJson(dimData,caveSize,0,structureDimPath);
+            WorldGenerationFactory.SaveToJson(dimData,caveSize,0,structureDimPath);
 
 
             List<SerializedItemSlot> inventory = new List<SerializedItemSlot>();

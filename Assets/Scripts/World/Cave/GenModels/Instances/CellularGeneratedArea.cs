@@ -32,15 +32,15 @@ namespace WorldModule.Caves {
         [HideInInspector] public QualityMode qualityMode = QualityMode.High;
         public RandomType randomType;
 
-        public override SeralizedWorldData generateBase(int seed) {
-            int[,] grid = generateGrid(seed,getChunkSize()*Global.ChunkSize);
-            grid = cellular_automaton(grid,getChunkSize()*Global.ChunkSize);
-            return generateWorld(grid);
+        public override SeralizedWorldData GenerateBase(int seed) {
+            int[,] grid = GenerateGrid(seed,GetChunkSize()*Global.ChunkSize);
+            grid = cellular_automaton(grid,GetChunkSize()*Global.ChunkSize);
+            return GenerateWorld(grid);
         }
 
-        private int[,] generateNoiseField(Vector2Int size, int seed) {
+        private int[,] GenerateNoiseField(Vector2Int size, int seed) {
             if (randomType == RandomType.Standard) {
-                return getStandard(size);
+                return GetStandard(size);
             }
             ModuleBase moduleBase = null;
             switch (randomType) {
@@ -101,11 +101,11 @@ namespace WorldModule.Caves {
             }
             return noiseField;
         }
-        private int[,] getStandard(Vector2Int size) {
+        private int[,] GetStandard(Vector2Int size) {
             int[,] noiseField = new int[size.x,size.y];
             for (int x = 0; x < size.x; x ++) {
                 for (int y = 0; y < size.y; y++) {
-                    float r = UnityEngine.Random.Range(0f,1f);    
+                    float r = UnityEngine.Random.Range(0f,1f);
                     if (r < fillPercent) {
                         noiseField[x, y] = 0;
                     } else {
@@ -117,10 +117,15 @@ namespace WorldModule.Caves {
         }
         private int[,] cellular_automaton(int[,] grid,Vector2Int size) {
             for (int n = 0; n < smoothIterations; n ++) {
-                int[,] tempGrid = new int[size.x, size.y];
+                int[][] tempGrid = new int[size.x][];
+                for (int index = 0; index < size.x; index++)
+                {
+                    tempGrid[index] = new int[size.y];
+                }
+
                 for (int x = 0; x < size.x; x ++) {
                     for (int y = 0; y < size.y; y ++) {
-                        tempGrid[x,y] = grid[x,y];
+                        tempGrid[x][y] = grid[x,y];
                     }
                 }  
                 for (int x = 0; x < size.x; x ++) {
@@ -137,7 +142,7 @@ namespace WorldModule.Caves {
                                     neighboors ++;
                                     continue;
                                 }
-                                if (tempGrid[xIndex,yIndex] == 1) {
+                                if (tempGrid[xIndex][yIndex] == 1) {
                                     neighboors ++;
                                 }
                             }
@@ -153,8 +158,8 @@ namespace WorldModule.Caves {
             return grid;
         }
 
-        private SeralizedWorldData generateWorld(int[,] grid) {
-            UnityEngine.Vector2Int caveSize = getChunkSize();
+        private SeralizedWorldData GenerateWorld(int[,] grid) {
+            UnityEngine.Vector2Int caveSize = GetChunkSize();
             int width = Global.ChunkSize *caveSize.x;
             int height = Global.ChunkSize*caveSize.y;
             SerializedBaseTileData baseTileData = new SerializedBaseTileData();
@@ -184,10 +189,10 @@ namespace WorldModule.Caves {
             return worldTileData;
         }
 
-        public override int[,] generateGrid(int seed, Vector2Int size)
+        public override int[,] GenerateGrid(int seed, Vector2Int size)
         {
             UnityEngine.Random.InitState(seed);
-            int[,] noiseField = generateNoiseField(size,seed);
+            int[,] noiseField = GenerateNoiseField(size,seed);
             int[,] grid = cellular_automaton(noiseField,size);
             return grid;
         }

@@ -36,7 +36,7 @@ namespace Conduits.Ports.UI {
                 }
             }
             colorPort.setColor(color);
-            conduit.getConduitSystem().rebuild();
+            conduit.GetConduitSystem().rebuild();
             colorImage.color = ConduitPortUIFactory.getColorFromInt(color);
         }
     }

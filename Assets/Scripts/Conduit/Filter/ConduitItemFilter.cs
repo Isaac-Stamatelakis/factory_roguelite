@@ -9,7 +9,7 @@ namespace Conduits.Ports {
         public List<ItemSlot> items;
         public bool whitelist;
         public bool matchNBT;
-        public bool filter(ItemSlot itemSlot) {
+        public bool Filter(ItemSlot itemSlot) {
             foreach (ItemSlot inFilter in items) {
                 if (inFilter == null || inFilter.itemObject == null) {
                     continue;

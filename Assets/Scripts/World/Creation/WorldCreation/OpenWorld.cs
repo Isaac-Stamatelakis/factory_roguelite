@@ -8,7 +8,7 @@ using System.IO;
 namespace WorldModule {
     public static class OpenWorld 
     {
-        public static void loadWorld(string worldName) {
+        public static void LoadWorld(string worldName) {
             if (!WorldLoadUtils.defaultWorldExists(worldName)) {
                 Debug.LogError("Attempted to open world which doesn't exist");
             }
@@ -16,7 +16,7 @@ namespace WorldModule {
             SceneManager.LoadScene("MainScene");
         }
 
-        public static void createDimController(int dim) {
+        public static void CreateDimController(int dim) {
             GameObject dimController = new GameObject();
             dimController.name = "DimController";
             if (dim == 0) {
@@ -26,9 +26,9 @@ namespace WorldModule {
         }
         
 
-        public static void loadWorldFromMain(string worldName) {
+        public static void LoadWorldFromMain(string worldName) {
             
-            createDimController(0);
+            CreateDimController(0);
         }
     }
 

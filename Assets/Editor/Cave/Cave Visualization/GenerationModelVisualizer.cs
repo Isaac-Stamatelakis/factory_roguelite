@@ -28,7 +28,7 @@ public class GenerationModelVisualizer : Editor
     }
     private Texture2D visualizeGrid(GenerationModel model)
     {
-        int[,] grid = model.generateGrid(Random.Range(0,100000),new Vector2Int(512,512));
+        int[,] grid = model.GenerateGrid(Random.Range(0,100000),new Vector2Int(512,512));
         int width = grid.GetLength(0);
         int height = grid.GetLength(1);
         gridTexture = new Texture2D(width, height);

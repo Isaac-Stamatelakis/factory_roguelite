@@ -6,6 +6,7 @@ using Conduits.Systems;
 using Chunks.Partitions;
 using TileMaps.Type;
 using Items;
+using UnityEngine.Tilemaps;
 
 namespace TileMaps.Conduit {
     public class ConduitTileMap : AbstractTileMap<ConduitItem>
@@ -26,8 +27,8 @@ namespace TileMaps.Conduit {
         }
         protected override void setTile(int x, int y, ConduitItem conduitItem)
         {
-            RuleTile ruleTile = conduitItem.ruleTile;
-            tilemap.SetTile(new Vector3Int(x,y,0),ruleTile);
+            var tile = conduitItem.Tile;
+            tilemap.SetTile(new Vector3Int(x,y,0),tile);
         }
 
         public override void hitTile(Vector2 position)

@@ -184,7 +184,7 @@ public class StructureGenerator : EditorWindow {
 
             Vector2Int areaOffset = new Vector2Int(boundingBox.X.LowerBound,boundingBox.Y.LowerBound);
             Vector2Int areaSize = boundingBox.getSize();
-            WorldTileConduitData areaData = WorldGenerationFactory.createEmpty(areaSize);
+            WorldTileConduitData areaData = WorldGenerationFactory.CreateEmpty(areaSize);
             for (int x = 0; x < areaSize.x; x++) {
                 for (int y = 0; y < areaSize.y; y++) {
                     areaData.baseData.ids[x,y] = StructureGeneratorHelper.FillId;
@@ -199,7 +199,7 @@ public class StructureGenerator : EditorWindow {
                 WorldTileConduitData partitionData = (WorldTileConduitData) partition.getData();
                 Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
                 Vector2Int posInArea = vector-areaOffset;
-                WorldGenerationFactory.mapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
+                WorldGenerationFactory.MapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
             }
             Debug.Log($"Added structure variant of size {areaSize} with {area.Count} points");
             structure.variants.Add(new StructureVariant(
