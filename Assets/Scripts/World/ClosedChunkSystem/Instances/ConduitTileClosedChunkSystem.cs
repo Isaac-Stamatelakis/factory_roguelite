@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,7 @@ using TileEntityModule;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;
+using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
@@ -80,6 +82,7 @@ namespace Chunks.Systems {
             }
             ConduitTileMap conduitTileMap = (ConduitTileMap) tileMap;
             conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
+            conduitSystemManagersDict[tileMapType].SetTileMap(conduitTileMap);
         }
         public override IEnumerator unloadChunkPartition(IChunkPartition chunkPartition)
         {
@@ -97,6 +100,14 @@ namespace Chunks.Systems {
                 addChunk(ChunkIO.getChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
             }
             //Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
+        }
+
+        public void OnDestroy()
+        {
+            foreach (var conduitSystemManager in conduitSystemManagersDict.Values)
+            {
+                conduitSystemManager.SetTileMap(null);
+            }
         }
 
         public IConduitSystemManager GetManager(ConduitType conduitType) {

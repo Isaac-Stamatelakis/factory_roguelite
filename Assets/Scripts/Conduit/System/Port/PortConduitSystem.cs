@@ -8,18 +8,18 @@ using System.Linq;
 
 namespace Conduits.Systems {
     public interface IConduitSystem {
-        public int getSize();
-        public bool connectsTo(IConduitSystem conduitSystem);
-        public bool contains(IConduit conduit);
-        public void merge(IConduitSystem conduitSystem);
-        public void addConduit(IConduit conduit);
-        public string getId();
-        public HashSet<IConduit> getConduits();
-        public void rebuild();
+        public int GetSize();
+        public bool ConnectsTo(IConduitSystem conduitSystem);
+        public bool Contains(IConduit conduit);
+        public void Merge(IConduitSystem conduitSystem);
+        public void AddConduit(IConduit conduit);
+        public string GetId();
+        public HashSet<IConduit> GetConduits();
+        public void Rebuild();
     }
 
     public interface IPortConduitSystem : IConduitSystem {
-        public void tickUpdate();
+        public void TickUpdate();
     }
 
     public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>, IPortConduitSystem
@@ -32,11 +32,11 @@ namespace Conduits.Systems {
             init();
         }
 
-        public override void addConduit(IConduit conduit) {
-            base.addConduit(conduit);
+        public override void AddConduit(IConduit conduit) {
+            base.AddConduit(conduit);
             addPort((IPortConduit)conduit);
         }
-        public override void rebuild()
+        public override void Rebuild()
         {
             ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
             ColoredInputPorts = new Dictionary<int, List<InPort>>();
@@ -51,7 +51,7 @@ namespace Conduits.Systems {
         public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
         public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
 
-        public virtual void tickUpdate()
+        public virtual void TickUpdate()
         {
             foreach (var colorOutputKVP in ColoredOutputPorts) {
                 int color = colorOutputKVP.Key;

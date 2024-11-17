@@ -56,7 +56,7 @@ namespace Conduits.Ports.UI {
             }
             ITogglablePort inputPort = (ITogglablePort)port.getInputPort();
             inputPort.setEnabled(!inputPort.isEnabled());
-            conduit.GetConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
         }
         private void extractToggle() {
             if (port.GetOutputPort() == null) {
@@ -64,7 +64,7 @@ namespace Conduits.Ports.UI {
             }
             ITogglablePort outputPort = (ITogglablePort)port.GetOutputPort();
             outputPort.setEnabled(!outputPort.isEnabled());
-            conduit.GetConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
         }
     }
 

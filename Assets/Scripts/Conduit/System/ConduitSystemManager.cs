@@ -5,8 +5,15 @@ using System.Linq;
 using Conduits.Ports;
 using TileEntityModule;
 using System;
+using TileMaps.Conduit;
+using Tiles;
 
 namespace Conduits.Systems {
+    public enum ConduitPlacementMode
+    {
+        Any,
+        New
+    }
 
     public interface IConduitSystemManager {
         public void SetConduit(int x, int y, IConduit conduit);
@@ -16,7 +23,13 @@ namespace Conduits.Systems {
         public EntityPortType GetPortTypeAtPosition(int x, int y);
         public void AddTileEntity(ITileEntityInstance tileEntity);
         public void DeleteTileEntity(Vector2Int position);
+        public IConduit GetIConduitAtCellPosition(Vector2Int position);
         public IConduit GetIConduitAtRelativeCellPosition(Vector2Int position);
+        public int GetNewState(Vector2Int position, ConduitPlacementMode placementMode, string id);
+        public void RefreshSystemTiles(IConduitSystem conduitSystem);
+        public void RefreshConduitTile(IConduit conduit);
+        public void SetTileMap(ConduitTileMap conduitTileMap);
+        public Vector2Int GetOffset();
     }
 
     public interface ITickableConduitSystem {
@@ -29,11 +42,19 @@ namespace Conduits.Systems {
         protected Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts;
         protected Vector2Int size;
         protected Vector2Int referencePosition;
+        protected ConduitTileMap conduitTileMap;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
 
-        protected ConduitSystemManager(ConduitType conduitType, Dictionary<Vector2Int, TConduit> conduits, Vector2Int size,Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) {
+        protected ConduitSystemManager(
+            ConduitType conduitType, 
+            Dictionary<Vector2Int, TConduit> conduits, 
+            Vector2Int size,
+            Dictionary<ITileEntityInstance,
+            List<TileEntityPort>> chunkConduitPorts, 
+            Vector2Int referencePosition
+            ) {
             this.type = conduitType;
             this.conduits = conduits;
             this.size = size;
@@ -119,6 +140,74 @@ namespace Conduits.Systems {
             return GetConduitAtRelativeCellPosition(position);
         }
 
+        /// <summary>
+        /// Returns the specific connection state that a conduit placed at position should be with given mode
+        /// </summary>
+        /// <param name="position">Position of new conduit in world cell space</param>
+        /// <param name="placementMode"></param>
+        /// <param name="id"></param>
+        /// <returns>State of new conduit</returns>
+        public int GetNewState(Vector2Int position, ConduitPlacementMode placementMode, string id)
+        {
+            Vector2Int relativePosition = position-referencePosition;
+            IConduit left = GetConduitAtCellPosition(relativePosition+Vector2Int.left);
+            int state = 0;
+            if (left != null && left.GetId() == id)
+            {
+                state += (int)ConduitDirectionState.Left;
+            }
+            IConduit right = GetConduitAtCellPosition(relativePosition+Vector2Int.right);
+            if (right != null && right.GetId() == id)
+            {
+                state += (int)ConduitDirectionState.Right;
+            }
+            IConduit up = GetConduitAtCellPosition(relativePosition+Vector2Int.up);
+            if (up != null && up.GetId() == id)
+            {
+                state += (int)ConduitDirectionState.Up;
+            }
+            IConduit down = GetConduitAtCellPosition(relativePosition+Vector2Int.down);
+            if (down != null && down.GetId() == id)
+            {
+                state += (int)ConduitDirectionState.Down;
+            }
+
+            return state;
+        }
+
+        public void RefreshSystemTiles(IConduitSystem conduitSystem)
+        {
+            bool noTileMapLoaded = !conduitTileMap;
+            if (noTileMapLoaded)
+            {
+                return;
+            }
+            foreach (var conduit in conduitSystem.GetConduits())
+            {
+                RefreshConduitTile(conduit);
+            }
+        }
+
+        public void RefreshConduitTile(IConduit conduit)
+        {
+            bool noTileMapLoaded = !conduitTileMap;
+            if (noTileMapLoaded)
+            {
+                return;
+            }
+            conduitTileMap.RefreshTile(conduit.GetX()+referencePosition.x,conduit.GetY()+referencePosition.y);
+        }
+
+        public void SetTileMap(ConduitTileMap conduitTileMap)
+        {
+            this.conduitTileMap = conduitTileMap;
+        }
+
+        public Vector2Int GetOffset()
+        {
+            return referencePosition;
+        }
+
         public void SetConduit(int x, int y, IConduit conduit) {
             
             x -= referencePosition.x;
@@ -145,56 +234,50 @@ namespace Conduits.Systems {
         }
 
         private void updateSystemsOnPlace(IConduit conduit, int x, int y) {
+            int conduitState = conduit.GetState();
             List<TSystem> systemsToMerge = new List<TSystem>();
-            if (x + 1 < size.x) {
-                Vector2Int rightPosition = new Vector2Int(x+1, y);
-                IConduit right = GetIConduitAtCellPosition(rightPosition);
-                if (right != null) {
-                    systemsToMerge.Add((TSystem)right.GetConduitSystem());
-                }
-            }
-            if (x - 1 >= 0) {
-                Vector2Int leftPosition = new Vector2Int(x-1, y);
-                IConduit left = GetIConduitAtCellPosition(leftPosition);
-                if (left != null) {
-                    systemsToMerge.Add((TSystem)left.GetConduitSystem());
-                }
-            }
-            if (y + 1 < size.y) {
-                Vector2Int upPosition = new Vector2Int(x, y+1);
-                IConduit up = GetIConduitAtCellPosition(upPosition);
-                if (up != null) {
-                    systemsToMerge.Add((TSystem)up.GetConduitSystem());
-                }
-            }
-            if (y - 1 >= 0) {
-                Vector2Int downPosition = new Vector2Int(x, y-1);
-                IConduit down = GetIConduitAtCellPosition(downPosition);
-                if (down != null) {
-                    systemsToMerge.Add((TSystem)down.GetConduitSystem());
-                }
-            }
+            Vector2Int position = new Vector2Int(x, y);
+            
+            PlaceUpdateDirection(position+Vector2Int.left,conduitState,ConduitDirectionState.Left,ConduitDirectionState.Right,systemsToMerge);
+            PlaceUpdateDirection(position+Vector2Int.right,conduitState,ConduitDirectionState.Right,ConduitDirectionState.Left,systemsToMerge);
+            PlaceUpdateDirection(position+Vector2Int.down,conduitState,ConduitDirectionState.Down,ConduitDirectionState.Up,systemsToMerge);
+            PlaceUpdateDirection(position+Vector2Int.up,conduitState,ConduitDirectionState.Up,ConduitDirectionState.Down,systemsToMerge);
+            
             IConduitSystem newSystem = ConduitSystemFactory.create(conduit);
             if (newSystem is not TSystem system) {
                 Debug.LogError("Tried to add invalid system to conduit manager");
                 return;
             }
-            newSystem.addConduit(conduit);
+            newSystem.AddConduit(conduit);
             if (systemsToMerge.Count == 0) { // No systems to merge, create new system
                 conduitSystems.Add(system);
                 return;
             }
             TSystem mergeInto = systemsToMerge[0];
-            mergeInto.merge(newSystem);
+            mergeInto.Merge(newSystem);
             for (int i = 1; i < systemsToMerge.Count; i++) {
                 TSystem toMerge = systemsToMerge[i];
                 if (toMerge == null || toMerge.Equals(mergeInto)) {
                     continue;
                 }
-                mergeInto.merge(toMerge);
+                mergeInto.Merge(toMerge);
                 conduitSystems.Remove(toMerge);
             }
-            mergeInto.rebuild();
+            mergeInto.Rebuild();
+        }
+
+        private void PlaceUpdateDirection(Vector2Int directionalPosition, int state, ConduitDirectionState directionState, ConduitDirectionState inverseDirectionState, List<TSystem> mergeSystems)
+        {
+            bool connects = (state & (int)directionState) != 0;
+            if (!connects)
+            {
+                return;
+            }
+            IConduit conduit = GetIConduitAtCellPosition(directionalPosition);
+            conduit.AddStateDirection(inverseDirectionState);
+            
+            mergeSystems.Add((TSystem)conduit.GetConduitSystem());
+            RefreshConduitTile(conduit);
         }
 
         private void removeConduitFromSystem(IConduit conduit, int x, int y) {
@@ -204,8 +287,9 @@ namespace Conduits.Systems {
                 Debug.LogError("Conduit somehow didn't belong to a conduit system");
             }
             conduitSystems.Remove(conduitSystem);
+            HashSet<IConduit> seen = new HashSet<IConduit>();
             // Step 2, Run DFS on conduit to remove setting the conduit system of all connecting conduits to null
-            DFSNull(conduit,conduit.GetConduitItem().id);
+            DFSConduit(conduit,null,seen);
 
             // Step 3, delete the conduit from the conduit array
             Vector2Int position = new Vector2Int(x, y);
@@ -214,45 +298,35 @@ namespace Conduits.Systems {
                 conduits.Remove(position);
             }
             
-            // Step 4, Regenerate systems by running DFSConduit on up, left, down, right
-            if (x + 1 < size.x) {
-                Vector2Int rightPosition = new Vector2Int(x+1, y);
-                IConduit right = GetIConduitAtCellPosition(rightPosition);
-                if (right != null && right.GetConduitSystem() == null) {
-                    TSystem system = (TSystem)ConduitSystemFactory.create(right);
-                    conduitSystems.Add(system);
-                    DFSConduit(right,system);
-                }
-                
-            }
-            if (x - 1 >= 0) {
-                Vector2Int leftPosition = new Vector2Int(x-1, y);
-                IConduit left = GetIConduitAtCellPosition(leftPosition);
-                if (left != null && left.GetConduitSystem() == null) {
-                    TSystem system = (TSystem)ConduitSystemFactory.create(left);
-                    conduitSystems.Add(system);
-                    DFSConduit(left,system);
-                }
-            }
-            if (y + 1 < size.y) {
-                Vector2Int upPosition = new Vector2Int(x, y+1);
-                IConduit up = GetIConduitAtCellPosition(upPosition);
-                if (up != null && up.GetConduitSystem() == null) {
-                    TSystem system = (TSystem)ConduitSystemFactory.create(up);
-                    conduitSystems.Add(system);
-                    DFSConduit(up,system);
-                }
-            }
-            if (y - 1 >= 0) {
-                Vector2Int downPosition = new Vector2Int(x, y-1);
-                IConduit down = GetIConduitAtCellPosition(downPosition);
-                if (down != null && down.GetConduitSystem() == null) {
-                    TSystem system = (TSystem)ConduitSystemFactory.create(down);
-                    conduitSystems.Add(system);
-                    DFSConduit(down,system);
-                }
-            }
+            // Step 4, Regenerate systems by running DFSConduit on up, left, down, right, and rebuild connections
+            IConduit right = GetIConduitAtCellPosition(position+Vector2Int.right);
+            RemoveConduitUpdate(right,ConduitDirectionState.Left);
+            
+            IConduit left = GetIConduitAtCellPosition(position+Vector2Int.left);
+            RemoveConduitUpdate(left,ConduitDirectionState.Right);
+            
+            IConduit up = GetIConduitAtCellPosition(position+Vector2Int.up);
+            RemoveConduitUpdate(up,ConduitDirectionState.Down);
+            
+            IConduit down = GetIConduitAtCellPosition(position+Vector2Int.down);
+            RemoveConduitUpdate(down,ConduitDirectionState.Up);
+            
         }
+
+        private void RemoveConduitUpdate(IConduit conduit,ConduitDirectionState connectingDirectionState)
+        {
+            if (conduit == null) return;
+            
+            conduit.RemoveStateDirection(connectingDirectionState);
+            RefreshConduitTile(conduit);
+
+            if (conduit.GetConduitSystem() != null) return;
+            HashSet<IConduit> seen = new HashSet<IConduit>();
+            TSystem system = (TSystem)ConduitSystemFactory.create(conduit);
+            conduitSystems.Add(system);
+            DFSConduit(conduit,system,seen);
+        }
+        
 
         public IConduit[,] GetConduitPartitionData(Vector2Int partitionPosition) {
             IConduit[,] partitionConduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
@@ -298,39 +372,7 @@ namespace Conduits.Systems {
             }
             return EntityPortType.None;
         }
-        /// <summary>
-        /// Sets the conduit system of each conduit seen to null
-        /// </summary>
-        private void DFSNull(IConduit conduit,string id) {
-            if (conduit == null || conduit.GetConduitSystem() == null || conduit.GetConduitItem().id != id) {
-                return;
-            }
-            conduit.SetConduitSystem(null);
-            int left = conduit.GetX()-1;
-            if (left >= 0) {
-                Vector2Int leftPosition = new Vector2Int(left,conduit.GetY());
-                IConduit leftConduit = GetIConduitAtCellPosition(leftPosition);
-                DFSNull(leftConduit,id);
-            }
-            int right = conduit.GetX()+1;
-            if (right < size.x) {
-                Vector2Int rightPosition = new Vector2Int(right,conduit.GetY());
-                IConduit rightConduit = GetIConduitAtCellPosition(rightPosition);
-                DFSNull(rightConduit,id);
-            }
-            int down = conduit.GetY()-1;
-            if (down >= 0) {
-                Vector2Int downPosition = new Vector2Int(conduit.GetX(),down);
-                IConduit downConduit = GetIConduitAtCellPosition(downPosition);
-                DFSNull(downConduit,id);
-            }
-            int up = conduit.GetY()+1;
-            if (up < size.y) {
-                Vector2Int upPosition = new Vector2Int(conduit.GetX(),up);
-                IConduit upConduit = GetIConduitAtCellPosition(upPosition);
-                DFSNull(upConduit,id);
-            }
-        }
+        
         private void generateSystemsFromArray() {
             HashSet<IConduit> conduitsNotSeen = new HashSet<IConduit>();
             for (int x = 0; x < size.x; x++) {
@@ -350,48 +392,45 @@ namespace Conduits.Systems {
                 }
                 TSystem conduitSystem = (TSystem)ConduitSystemFactory.create(conduit);
                 conduitSystems.Add(conduitSystem);
-                DFSConduit(conduit, conduitSystem); // Search Array for all connecting conduits
+                HashSet<IConduit> seen = new HashSet<IConduit>();
+                DFSConduit(conduit, conduitSystem, seen); // Search Array for all connecting conduits
             }
             onGenerationCompleted();
         }
 
         public abstract void onGenerationCompleted();
 
-        private void DFSConduit(IConduit conduit,IConduitSystem conduitSystem) {
-            if (conduit == null) {
+        private void DFSConduit(IConduit conduit,IConduitSystem conduitSystem,HashSet<IConduit> seen) {
+            if (conduit == null || seen.Contains(conduit)) {
                 return;
             }
-            if (conduit.GetConduitSystem() != null) {
-                return;
+
+            seen.Add(conduit);
+            if (conduitSystem == null)
+            {
+                conduit.SetConduitSystem(null);
             }
-            if (conduit.GetConduitItem().id != conduitSystem.getId()) {
-                return;
+            else
+            {
+                if (conduit.GetConduitItem().id != conduitSystem.GetId()) {
+                    return;
+                }
+                conduitSystem.AddConduit(conduit);
             }
-            conduitSystem.addConduit(conduit);
-            int left = conduit.GetX()-1;
-            if (left >= 0) {
-                Vector2Int leftPosition = new Vector2Int(left,conduit.GetY());
-                IConduit leftConduit = GetIConduitAtCellPosition(leftPosition);
-                DFSConduit(leftConduit,conduitSystem);
-            }
-            int right = conduit.GetX()+1;
-            if (right < size.x) {
-                Vector2Int rightPosition = new Vector2Int(right,conduit.GetY());
-                IConduit rightConduit = GetIConduitAtCellPosition(rightPosition);
-                DFSConduit(rightConduit,conduitSystem);
-            }
-            int down = conduit.GetY()-1;
-            if (down >= 0) {
-                Vector2Int downPosition = new Vector2Int(conduit.GetX(),down);
-                IConduit downConduit = GetIConduitAtCellPosition(downPosition);
-                DFSConduit(downConduit,conduitSystem);
-            }
-            int up = conduit.GetY()+1;
-            if (up < size.y) {
-                Vector2Int upPosition = new Vector2Int(conduit.GetX(),up);
-                IConduit upConduit = GetIConduitAtCellPosition(upPosition);
-                DFSConduit(upConduit,conduitSystem);
-            }
+
+            Vector2Int conduitPosition = conduit.GetPosition();
+            
+            IConduit leftConduit = GetIConduitAtCellPosition(conduitPosition+Vector2Int.left);
+            DFSConduit(leftConduit, conduitSystem, seen);
+            
+            IConduit rightConduit = GetIConduitAtCellPosition(conduitPosition+Vector2Int.right);
+            DFSConduit(rightConduit, conduitSystem, seen);
+            
+            IConduit upConduit = GetIConduitAtCellPosition(conduitPosition+Vector2Int.up);
+            DFSConduit(upConduit, conduitSystem, seen);
+            
+            IConduit downConduit = GetIConduitAtCellPosition(conduitPosition+Vector2Int.down);
+            DFSConduit(downConduit, conduitSystem, seen);
         }
 
         public ConduitType GetConduitType()

@@ -37,7 +37,7 @@ namespace Conduits.Systems {
             
         }
 
-        public override void tickUpdate()
+        public override void TickUpdate()
         {
             for (int color = 0; color < colorActivations.Length; color ++) {
                 if (!coloredPriorityInputs.ContainsKey(color)) {

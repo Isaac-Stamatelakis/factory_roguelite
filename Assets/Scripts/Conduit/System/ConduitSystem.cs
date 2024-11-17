@@ -13,7 +13,7 @@ namespace Conduits.Systems {
         private string id;
         protected HashSet<TSystemConduit> Conduits { get => conduits; set => conduits = value; }
 
-        public virtual void addConduit(IConduit conduit) {
+        public virtual void AddConduit(IConduit conduit) {
             if (conduit is not TSystemConduit systemConduit)  {
                 Debug.LogError("Tried to add invalid conduit to system");
                 return;
@@ -22,32 +22,32 @@ namespace Conduits.Systems {
             conduit.SetConduitSystem(this);
         }
 
-        public bool connectsTo(IConduitSystem otherConduitSystem) {
+        public bool ConnectsTo(IConduitSystem otherConduitSystem) {
             // If otherConduitSystem is smaller, check it instead
-            if (otherConduitSystem.getSize() < Conduits.Count) {
-                return otherConduitSystem.connectsTo(this);
+            if (otherConduitSystem.GetSize() < Conduits.Count) {
+                return otherConduitSystem.ConnectsTo(this);
             }
             // Check otherConduitSystem contains any conduit in this one. O(n)
             foreach (IConduit conduit in Conduits) {
-                if (otherConduitSystem.contains(conduit)) {
+                if (otherConduitSystem.Contains(conduit)) {
                     return true;
                 }
             }
             return false;
         }
-        public virtual void merge(IConduitSystem otherConduitSystem) {
-            foreach (TSystemConduit conduit in otherConduitSystem.getConduits()) {
-                addConduit(conduit);
+        public virtual void Merge(IConduitSystem otherConduitSystem) {
+            foreach (TSystemConduit conduit in otherConduitSystem.GetConduits()) {
+                AddConduit(conduit);
                 conduit.SetConduitSystem(this);
             }
         }
 
-        public int getSize()
+        public int GetSize()
         {
             return Conduits.Count;
         }
 
-        public bool contains(IConduit conduit)
+        public bool Contains(IConduit conduit)
         {
             if (conduit is not TSystemConduit systemConduit) {
                 return false;
@@ -55,12 +55,12 @@ namespace Conduits.Systems {
             return Conduits.Contains(systemConduit);
         }
 
-        public string getId()
+        public string GetId()
         {
             return id;
         }
 
-        public HashSet<IConduit> getConduits()
+        public HashSet<IConduit> GetConduits()
         {   
             HashSet<IConduit> result = new HashSet<IConduit>();
             foreach (TSystemConduit conduit in conduits) {
@@ -69,7 +69,7 @@ namespace Conduits.Systems {
             return result;
         }
 
-        public abstract void rebuild();
+        public abstract void Rebuild();
     }
 }
 

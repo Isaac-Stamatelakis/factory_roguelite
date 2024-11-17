@@ -1,5 +1,7 @@
 using Conduits.Systems;
 using Items;
+using Tiles;
+using UnityEngine;
 
 namespace Conduits
 {
@@ -24,6 +26,11 @@ namespace Conduits
         public int GetY()
         {
             return y;
+        }
+
+        public Vector2Int GetPosition()
+        {
+            return new Vector2Int(x, y);
         }
 
         public void SetX(int val)
@@ -72,6 +79,31 @@ namespace Conduits
         public void SetState(int state)
         {
             this.state = state;
+        }
+
+        public void AddStateDirection(ConduitDirectionState directionState)
+        {
+            if (ConnectsDirection(directionState))
+            {
+                return;
+            }
+
+            state += (int)directionState;
+        }
+
+        public void RemoveStateDirection(ConduitDirectionState directionState)
+        {
+            if (!ConnectsDirection(directionState))
+            {
+                return;
+            }
+
+            state -= (int)directionState;
+        }
+
+        public bool ConnectsDirection(ConduitDirectionState directionState)
+        {
+            return (state & (int) directionState) != 0;
         }
     }
 }

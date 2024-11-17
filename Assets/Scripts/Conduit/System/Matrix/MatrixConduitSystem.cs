@@ -23,16 +23,16 @@ namespace Conduits.Systems {
         {
             tileEntities = new List<IMatrixConduitInteractable>();
         }
-        public override void addConduit(IConduit conduit)
+        public override void AddConduit(IConduit conduit)
         {
-            base.addConduit(conduit);
+            base.AddConduit(conduit);
             if (conduit is not MatrixConduit matrixConduit) {
                 return;
             }
             addTileEntity(matrixConduit);
 
         }
-        public override void rebuild()
+        public override void Rebuild()
         {
             tileEntities = new List<IMatrixConduitInteractable>();
             foreach (MatrixConduit matrixConduit in conduits) {

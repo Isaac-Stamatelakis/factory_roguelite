@@ -33,7 +33,7 @@ namespace Conduits.Systems {
 
         public void tickUpdate() {
             foreach (IPortConduitSystem system in conduitSystems) {
-                system.tickUpdate();
+                system.TickUpdate();
             }
         }
 
@@ -45,7 +45,7 @@ namespace Conduits.Systems {
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
             conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
-            conduit.GetConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
         }
 
         public override void onTileEntityRemoved(IPortConduit conduit)
@@ -55,7 +55,7 @@ namespace Conduits.Systems {
                 return;
             }
             conduit.SetPort(null);
-            conduit.GetConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
         }
     }
 }

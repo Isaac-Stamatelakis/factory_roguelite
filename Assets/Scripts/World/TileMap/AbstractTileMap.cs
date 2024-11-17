@@ -37,7 +37,7 @@ namespace TileMaps {
         void tileUpdate(Vector2Int position);
     }
     
-    public abstract class AbstractTileMap<Item> : MonoBehaviour, IHitableTileMap, ITileMap where Item : ItemObject
+    public abstract class AbstractTileMap<TItem> : MonoBehaviour, IHitableTileMap, ITileMap where TItem : ItemObject
     {
         public TileMapType type;
         protected Tilemap tilemap;
@@ -94,7 +94,7 @@ namespace TileMaps {
         /// Writes to partition on place
         /// </summary>
         public virtual void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
-            if (itemObject is not Item item) {
+            if (itemObject is not TItem item) {
                 Debug.LogWarning($"Tried to place invalid item in {name}");
                 return;
             }
@@ -102,7 +102,7 @@ namespace TileMaps {
             Vector2Int tilePosition = getTilePositionInPartition(vect);
             IChunkPartition partition = getPartitionAtPosition(vect);
             writeTile(partition, tilePosition, item);
-            setTile(x, y, (Item) item);
+            setTile(x, y, (TItem) item);
         }
 
         public void callListeners(Vector2Int position) {
@@ -110,7 +110,7 @@ namespace TileMaps {
                 listener.tileUpdate(position);
             }
         }
-        protected abstract void writeTile(IChunkPartition partition, Vector2Int position, Item item);
+        protected abstract void writeTile(IChunkPartition partition, Vector2Int position, TItem item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
@@ -118,7 +118,7 @@ namespace TileMaps {
         {
             Vector2Int cellPosition = partitionPosition*Global.ChunkPartitionSize + tilePartitionPosition;
             callListeners(cellPosition);
-            setTile(cellPosition.x, cellPosition.y, (Item) item);
+            setTile(cellPosition.x, cellPosition.y, (TItem) item);
         }
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase) {
             callListeners(position);
@@ -135,7 +135,7 @@ namespace TileMaps {
             callListeners(hitTilePosition);
         }
 
-        protected abstract void setTile(int x, int y,Item item);
+        protected abstract void setTile(int x, int y,TItem item);
         protected Vector2Int getChunkPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
