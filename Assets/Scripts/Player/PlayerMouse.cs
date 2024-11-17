@@ -149,7 +149,7 @@ namespace PlayerModule.Mouse {
                     return false;
                 }
                 UIAssetManager assetManager = conduitTileClosedChunkSystem.PortViewerController.AssetManager;
-                EntityPortType portType = portConduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
+                EntityPortType portType = portConduitSystemManager.GetPortTypeAtPosition(cellPosition.x,cellPosition.y);
                 GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
                 GlobalUIContainer.getInstance().getUiController().setGUI(ui);
                 return true;

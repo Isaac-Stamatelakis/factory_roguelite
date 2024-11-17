@@ -197,7 +197,6 @@ namespace Chunks.Partitions {
         public override void save()
         {
             base.save();
-            Vector2Int position = getRealPosition();
             WorldTileConduitData data = (WorldTileConduitData) getData();
             
             if (conduits != null) {
@@ -223,7 +222,7 @@ namespace Chunks.Partitions {
                                         continue;
                                     }
                                     if (matrixConduit.HasTileEntity) {
-                                        MatrixConduitData matrixConduitData = new MatrixConduitData(true);
+                                        MatrixConduitData matrixConduitData = new MatrixConduitData(conduit.GetState(), true);
                                         data.matrixConduitData.conduitOptions[x,y] = Newtonsoft.Json.JsonConvert.SerializeObject(matrixConduitData);
                                     } else {
                                         data.matrixConduitData.conduitOptions[x,y] = null;

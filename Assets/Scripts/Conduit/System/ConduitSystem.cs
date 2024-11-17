@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Conduits.Systems {
-    public abstract class ConduitSystem<SystemConduit> : IConduitSystem where SystemConduit : IConduit 
+    public abstract class ConduitSystem<TSystemConduit> : IConduitSystem where TSystemConduit : IConduit 
         {
         public ConduitSystem(string id) {
             this.id = id;
-            Conduits = new HashSet<SystemConduit>();
+            Conduits = new HashSet<TSystemConduit>();
         }
-        protected HashSet<SystemConduit> conduits;
+        protected HashSet<TSystemConduit> conduits;
         private string id;
-        protected HashSet<SystemConduit> Conduits { get => conduits; set => conduits = value; }
+        protected HashSet<TSystemConduit> Conduits { get => conduits; set => conduits = value; }
 
         public virtual void addConduit(IConduit conduit) {
-            if (conduit is not SystemConduit systemConduit)  {
+            if (conduit is not TSystemConduit systemConduit)  {
                 Debug.LogError("Tried to add invalid conduit to system");
                 return;
             }
@@ -36,7 +36,7 @@ namespace Conduits.Systems {
             return false;
         }
         public virtual void merge(IConduitSystem otherConduitSystem) {
-            foreach (SystemConduit conduit in otherConduitSystem.getConduits()) {
+            foreach (TSystemConduit conduit in otherConduitSystem.getConduits()) {
                 addConduit(conduit);
                 conduit.SetConduitSystem(this);
             }
@@ -49,7 +49,7 @@ namespace Conduits.Systems {
 
         public bool contains(IConduit conduit)
         {
-            if (conduit is not SystemConduit systemConduit) {
+            if (conduit is not TSystemConduit systemConduit) {
                 return false;
             }
             return Conduits.Contains(systemConduit);
@@ -63,7 +63,7 @@ namespace Conduits.Systems {
         public HashSet<IConduit> getConduits()
         {   
             HashSet<IConduit> result = new HashSet<IConduit>();
-            foreach (SystemConduit conduit in conduits) {
+            foreach (TSystemConduit conduit in conduits) {
                 result.Add((IConduit) conduit);
             }
             return result;

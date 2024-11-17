@@ -252,14 +252,17 @@ namespace TileMaps.Place {
 
         
 
-        private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem) {
+        private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, ITileMap tileMap, ConduitTileClosedChunkSystem closedChunkSystem)
+        {
+            int state = 0;
             Vector2Int placePosition = tileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.GetConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.GetManager(conduitType);
-            EntityPortType entityPortType = conduitSystemManager.getPortTypeAtPosition(placePosition.x,placePosition.y);
-            ITileEntityInstance tileEntity = conduitSystemManager.getTileEntityAtPosition(placePosition.x,placePosition.y);
-            IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,tileEntity);
-            conduitSystemManager.setConduit(placePosition.x,placePosition.y,conduit);
+            EntityPortType entityPortType = conduitSystemManager.GetPortTypeAtPosition(placePosition.x,placePosition.y);
+            ITileEntityInstance tileEntity = conduitSystemManager.GetTileEntityAtPosition(placePosition.x,placePosition.y);
+            IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
+            conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
+            Debug.Log(state);
 
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             return true;

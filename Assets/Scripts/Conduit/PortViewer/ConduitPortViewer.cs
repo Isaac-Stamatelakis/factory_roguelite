@@ -13,7 +13,7 @@ namespace Conduits.PortViewer {
     {
         private IConduitSystemManager systemManager;
         private Dictionary<EntityPortType,TileBase> portTypeToTile;
-        public ConduitType Type {get => systemManager.getConduitType();}
+        public ConduitType Type {get => systemManager.GetConduitType();}
         private Tilemap tilemap;
         public void Start() {
             this.tilemap = GetComponent<Tilemap>();
@@ -25,7 +25,7 @@ namespace Conduits.PortViewer {
             this.conduitTileMap = conduitTileMap;
             conduitTileMap.setHighlight(true);
             tilemap.color = color;
-            foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.getTileEntityPorts()) {
+            foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPort>> kvp in systemManager.GetTileEntityPorts()) {
                 foreach (TileEntityPort portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
                     tilemap.SetTile(position,portTypeToTile[portData.portType]);

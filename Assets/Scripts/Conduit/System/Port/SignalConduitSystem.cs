@@ -14,7 +14,7 @@ namespace Conduits.Systems {
 
         public override void addPort(IPortConduit conduit)
         {
-            IConduitPort conduitPort = conduit.getPort();
+            IConduitPort conduitPort = conduit.GetPort();
             if (conduitPort == null) {
                 return;
             }

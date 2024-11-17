@@ -7,7 +7,7 @@ using Items;
 namespace Conduits {
     public class FluidConduit : PortConduit<FluidItemConduitPort>
     {
-        public FluidConduit(int x, int y, ConduitItem conduitItem, FluidItemConduitPort port) : base(x, y, conduitItem, port)
+        public FluidConduit(int x, int y, ConduitItem conduitItem, int state, FluidItemConduitPort port) : base(x, y, conduitItem, state,port)
         {
         }
     }

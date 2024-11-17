@@ -21,7 +21,11 @@ namespace Tiles
 
         public Sprite getDefaultSprite()
         {
-            return Tiles[0].sprite;
+            const int allDirectionState =   (int)ConduitDirectionState.Left
+                                          + (int)ConduitDirectionState.Right
+                                          + (int)ConduitDirectionState.Up
+                                          + (int)ConduitDirectionState.Down;
+            return Tiles[allDirectionState].sprite;
         }
 
         public int getStateAmount()

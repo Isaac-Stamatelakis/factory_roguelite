@@ -17,7 +17,7 @@ namespace Conduits.Systems {
             if (conduit == null) {
                 return null;
             }
-            return conduit.getPort();
+            return conduit.GetPort();
         }
 
         public IPortConduit getConduitWithPort(Vector2Int position) {
@@ -25,7 +25,7 @@ namespace Conduits.Systems {
             if (conduit == null) {
                 return null;
             }
-            if (conduit.getPort() == null) {
+            if (conduit.GetPort() == null) {
                 return null;
             }
             return conduit;
@@ -44,17 +44,17 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
-            conduit.setPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
+            conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
             conduit.GetConduitSystem().rebuild();
         }
 
         public override void onTileEntityRemoved(IPortConduit conduit)
         {
-            IConduitPort conduitPort = conduit.getPort();
+            IConduitPort conduitPort = conduit.GetPort();
             if (conduitPort == null) {
                 return;
             }
-            conduit.setPort(null);
+            conduit.SetPort(null);
             conduit.GetConduitSystem().rebuild();
         }
     }

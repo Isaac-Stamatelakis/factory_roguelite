@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Conduits {
     [System.Serializable]
-    public class MatrixConduitData 
+    public class MatrixConduitData : ConduitData
     {
         public bool attached = false;
-        public MatrixConduitData(bool attached) {
+        public MatrixConduitData(int state, bool attached) : base(state)
+        {
             this.attached = attached;
         }
     }

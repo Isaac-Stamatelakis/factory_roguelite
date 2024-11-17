@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Conduits.Systems;
 using Chunks.Partitions;
+using Conduits;
 using TileMaps.Type;
 using Items;
 using UnityEngine.Tilemaps;
@@ -23,12 +24,14 @@ namespace TileMaps.Conduit {
             }
             base.deleteTile(position);
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
-            conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
+            conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
         }
         protected override void setTile(int x, int y, ConduitItem conduitItem)
         {
             var tile = conduitItem.Tile;
-            tilemap.SetTile(new Vector3Int(x,y,0),tile);
+            IConduit conduit = conduitSystemManager.GetConduitAtPosition(x, y);
+            var stateTile = tile.getTileAtState(conduit.GetActivatedState());
+            tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }
 
         public override void hitTile(Vector2 position)
@@ -49,7 +52,7 @@ namespace TileMaps.Conduit {
                 ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
                 spawnItemEntity(conduitItem,1,vect);
                 breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
-                conduitSystemManager.setConduit(cellPosition.x,cellPosition.y,null);
+                conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
             }
         }
         protected override Vector2Int getHitTilePosition(Vector2 position)

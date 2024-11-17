@@ -4,17 +4,19 @@ using UnityEngine;
 using System.Linq;
 using Conduits.Ports;
 using TileEntityModule;
+using System;
 
 namespace Conduits.Systems {
 
     public interface IConduitSystemManager {
-        public void setConduit(int x, int y, IConduit conduit);
-        public ITileEntityInstance getTileEntityAtPosition(int x, int y);
-        public ConduitType getConduitType();
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getTileEntityPorts();
-        public EntityPortType getPortTypeAtPosition(int x, int y);
-        public void addTileEntity(ITileEntityInstance tileEntity);
-        public void deleteTileEntity(Vector2Int position);
+        public void SetConduit(int x, int y, IConduit conduit);
+        public ITileEntityInstance GetTileEntityAtPosition(int x, int y);
+        public ConduitType GetConduitType();
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetTileEntityPorts();
+        public EntityPortType GetPortTypeAtPosition(int x, int y);
+        public void AddTileEntity(ITileEntityInstance tileEntity);
+        public void DeleteTileEntity(Vector2Int position);
+        public IConduit GetConduitAtPosition(int x, int y);
     }
 
     public interface ITickableConduitSystem {
@@ -23,7 +25,7 @@ namespace Conduits.Systems {
     public abstract class ConduitSystemManager<TConduit, TSystem> : IConduitSystemManager where TConduit : IConduit where TSystem : IConduitSystem {
         protected List<TSystem> conduitSystems;
         protected ConduitType type;
-        protected TConduit[,] conduits;
+        protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts;
         protected Vector2Int size;
         protected Vector2Int referencePosition;
@@ -31,7 +33,7 @@ namespace Conduits.Systems {
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
 
-        public ConduitSystemManager(ConduitType conduitType, TConduit[,] conduits, Vector2Int size,Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) {
+        protected ConduitSystemManager(ConduitType conduitType, TConduit[,] conduits, Vector2Int size,Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) {
             this.type = conduitType;
             this.conduits = conduits;
             this.size = size;
@@ -48,7 +50,7 @@ namespace Conduits.Systems {
             }
             return conduits[relativePosition.x,relativePosition.y];
         }
-        public void addTileEntity(ITileEntityInstance tileEntity) {
+        public void AddTileEntity(ITileEntityInstance tileEntity) {
             if (tileEntity is not IConduitInteractable interactable) {
                 return;
             }
@@ -88,7 +90,7 @@ namespace Conduits.Systems {
 
         public abstract void onTileEntityAdd(TConduit conduit,ITileEntityInstance tileEntity, TileEntityPort port);
         public abstract void onTileEntityRemoved(TConduit conduit);
-        public void deleteTileEntity(Vector2Int position) {
+        public void DeleteTileEntity(Vector2Int position) {
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
                 if (kvp.Key.getCellPosition() == position) {
                     foreach (TileEntityPort port in chunkConduitPorts[kvp.Key]) {
@@ -108,10 +110,17 @@ namespace Conduits.Systems {
             }
         }
 
+        public IConduit GetConduitAtPosition(int x, int y)
+        {
+            x -= referencePosition.x;
+            y -= referencePosition.y;
+            return conduits[x, y];
+        }
+
         protected bool inBounds(Vector2Int position) {
             return position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y;
         }
-        public void setConduit(int x, int y, IConduit conduit) {
+        public void SetConduit(int x, int y, IConduit conduit) {
             
             x -= referencePosition.x;
             y -= referencePosition.y;
@@ -248,7 +257,7 @@ namespace Conduits.Systems {
             return partitionConduits;
         }
 
-        public ITileEntityInstance getTileEntityAtPosition(int x, int y) {
+        public ITileEntityInstance GetTileEntityAtPosition(int x, int y) {
             // TODO make this more efficent
             Vector2Int pos = new Vector2Int(x,y);
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
@@ -262,7 +271,7 @@ namespace Conduits.Systems {
             }
             return null;
         }
-        public EntityPortType getPortTypeAtPosition(int x, int y) {
+        public EntityPortType GetPortTypeAtPosition(int x, int y) {
             // TODO make this more efficent
             Vector2Int pos = new Vector2Int(x,y);
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
@@ -364,12 +373,12 @@ namespace Conduits.Systems {
             }
         }
 
-        public ConduitType getConduitType()
+        public ConduitType GetConduitType()
         {
             return type;
         }
 
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getTileEntityPorts()
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetTileEntityPorts()
         {
             return tileEntityConduitPorts;
         }

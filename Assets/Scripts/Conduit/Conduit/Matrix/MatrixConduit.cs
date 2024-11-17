@@ -6,7 +6,7 @@ using UnityEngine;
 using Items;
 
 namespace Conduits {
-    public class MatrixConduit : IConduit
+    public class MatrixConduit : Conduit<MatrixConduitItem>
     {
         private int x;
         private int y;
@@ -15,52 +15,12 @@ namespace Conduits {
         public bool HasTileEntity => MatrixConduitInteractable != null;
         public IMatrixConduitInteractable MatrixConduitInteractable { get; set; }
 
-        public MatrixConduit(int x, int y, MatrixConduitItem item, IMatrixConduitInteractable matrixConduitInteractable) {
+        public MatrixConduit(int x, int y, MatrixConduitItem item, int state, IMatrixConduitInteractable matrixConduitInteractable) : base(x,y,item, state)
+        {
             this.x = x;
             this.y = y;
             this.matrixConduitItem = item;
             this.MatrixConduitInteractable = matrixConduitInteractable;
-        }
-        public ConduitItem GetConduitItem()
-        {
-            return matrixConduitItem;
-        }
-
-        public IConduitSystem GetConduitSystem()
-        {
-            return conduitSystem;
-        }
-
-        public string GetId()
-        {
-            return matrixConduitItem.id;
-        }
-
-
-        public int GetX()
-        {
-            return x;
-        }
-
-        public int GetY()
-        {
-            return y;
-        }
-
-        public void SetConduitSystem(IConduitSystem newSystem)
-        {
-            this.conduitSystem = newSystem;
-        }
-
-
-        public void SetX(int val)
-        {
-            this.x = val;
-        }
-
-        public void SetY(int val)
-        {
-            this.y = val;
         }
     }
 }

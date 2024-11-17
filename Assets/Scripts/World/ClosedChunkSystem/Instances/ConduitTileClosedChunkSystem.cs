@@ -35,13 +35,13 @@ namespace Chunks.Systems {
 
         public void tileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
-                conduitSystemManager.addTileEntity(tileEntity);
+                conduitSystemManager.AddTileEntity(tileEntity);
             }
         }
 
         public void tileEntityDeleteUpdate(Vector2Int position) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
-                conduitSystemManager.deleteTileEntity(position);
+                conduitSystemManager.DeleteTileEntity(position);
             }
         }
         

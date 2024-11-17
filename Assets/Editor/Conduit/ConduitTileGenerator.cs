@@ -175,26 +175,26 @@ public class ConduitTileGenerator : EditorWindow {
         Tile[] tiles = new Tile[16];
         for (int i = 0; i < 16; i++)
         {
-            bool up = (i & (int)ConduitDirectionState.Up) == 0;
+            bool up = (i & (int)ConduitDirectionState.Up) != 0;
             Color[] slicedPixels = texture.GetPixels();
             if (!up)
             {
                 SlicePixels(new Vector2Int(0,max.y), new Vector2Int(SIZE,SIZE), slicedPixels);
             }
             
-            bool down = (i & (int)ConduitDirectionState.Down) == 0;
+            bool down = (i & (int)ConduitDirectionState.Down) != 0;
             if (!down)
             {
                 SlicePixels(new Vector2Int(0,0), new Vector2Int(SIZE,min.y), slicedPixels);
             }
     
-            bool left = (i & (int)ConduitDirectionState.Left) == 0;
+            bool left = (i & (int)ConduitDirectionState.Left) != 0;
             if (!left)
             {
                 SlicePixels(new Vector2Int(0,0), new Vector2Int(min.x,SIZE), slicedPixels);
             }
             
-            bool right = (i & (int)ConduitDirectionState.Right) == 0;
+            bool right = (i & (int)ConduitDirectionState.Right) != 0;
             if (!right)
             {
                 SlicePixels(new Vector2Int(max.x,0), new Vector2Int(SIZE,SIZE), slicedPixels);

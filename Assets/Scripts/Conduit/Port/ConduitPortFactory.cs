@@ -30,7 +30,9 @@ namespace Conduits.Ports {
             if (conduit is not IPortConduit portConduit) {
                 return null;
             }
-            return JsonConvert.SerializeObject(portConduit.getPort());
+            string portData = JsonConvert.SerializeObject(portConduit.GetPort());
+            int state = conduit.GetState();
+            return JsonConvert.SerializeObject(new PortConduitData(state, portData));
         }
 
         public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntity, ConduitItem conduitItem) {

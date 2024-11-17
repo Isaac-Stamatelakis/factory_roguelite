@@ -15,7 +15,10 @@ namespace Conduits {
         public void SetY(int val);
         public ConduitItem GetConduitItem();
         public string GetId();
-        public void SetConduitSystem(IConduitSystem conduitSystem);
+        public void SetConduitSystem(IConduitSystem newConduitSystem);
         public IConduitSystem GetConduitSystem();
+        public int GetActivatedState();
+        public int GetState();
+        public void SetState(int state);
     }
 }
