@@ -29,12 +29,12 @@ namespace Dimensions {
         private Dictionary<CompactMachineTeleportKey,CompactMachineClosedChunkSystem> activeSystems = new Dictionary<CompactMachineTeleportKey, CompactMachineClosedChunkSystem>();
         public void FixedUpdate() {
             foreach (SoftLoadedClosedChunkSystem system in systems) {
-                system.tickUpdate();
+                system.TickUpdate();
             }
         }
         public void OnDestroy() {
             foreach (SoftLoadedClosedChunkSystem system in systems) {
-                system.save();
+                system.Save();
             }
         }
 
@@ -144,7 +144,7 @@ namespace Dimensions {
                 Debug.LogError($"Tried to get compact machine at path {path}");
             }
             GameObject closedChunkSystemObject = new GameObject();
-            Vector2Int center = system.getCenter();
+            Vector2Int center = system.GetCenter();
             closedChunkSystemObject.name="Compact Machine [" + center.x + "," + center.y +"]";
             CompactMachineClosedChunkSystem area = closedChunkSystemObject.AddComponent<CompactMachineClosedChunkSystem>();
             area.setCompactMachineKey(compactMachineTeleportKey);

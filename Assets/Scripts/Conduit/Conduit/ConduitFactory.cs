@@ -29,7 +29,10 @@ namespace Conduits {
         }
         private static IConduit DeserializePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
             ConduitType conduitType = conduitItem.GetConduitType();
-            
+            if (conduitOptionData == null)
+            {
+                return null;
+            }
             PortConduitData conduitData = JsonConvert.DeserializeObject<PortConduitData>(conduitOptionData);
             int state = conduitData.State;
             IConduitPort port = ConduitPortFactory.Deserialize(conduitData.PortData,conduitType,conduitItem);

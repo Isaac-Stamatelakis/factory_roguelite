@@ -23,7 +23,7 @@ namespace Dimensions {
             if (dim0System == null) {
                 return;
             }
-            dim0System.tickUpdate();
+            dim0System.TickUpdate();
         }
 
         public void softLoadSystem() {
@@ -62,7 +62,7 @@ namespace Dimensions {
         }
 
         public void OnDestroy() {
-            dim0System.save();
+            dim0System.Save();
         }
         public ClosedChunkSystem getActiveSystem()
         {

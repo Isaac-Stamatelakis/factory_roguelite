@@ -51,7 +51,7 @@ namespace DevTools.Structures {
         }
 
         public void OnDestroy() {
-            system.save();
+            system.Save();
         }
 
         public ClosedChunkSystem getActiveSystem()

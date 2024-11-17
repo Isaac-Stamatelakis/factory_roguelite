@@ -262,8 +262,7 @@ namespace TileMaps.Place {
             ITileEntityInstance tileEntity = conduitSystemManager.GetTileEntityAtPosition(placePosition.x,placePosition.y);
             IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
-            Debug.Log(state);
-
+            
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             return true;
         }

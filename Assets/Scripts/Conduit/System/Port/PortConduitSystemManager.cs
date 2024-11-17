@@ -7,13 +7,13 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class PortConduitSystemManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystem
     {
-        public PortConduitSystemManager(ConduitType conduitType, IPortConduit[,] conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public PortConduitSystemManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
         {
 
         }
 
         public IConduitPort getPort(Vector2Int position) {
-            IPortConduit conduit = getConduitCellPosition(position);
+            IPortConduit conduit = GetConduitAtRelativeCellPosition(position);
             if (conduit == null) {
                 return null;
             }
@@ -21,7 +21,7 @@ namespace Conduits.Systems {
         }
 
         public IPortConduit getConduitWithPort(Vector2Int position) {
-            IPortConduit conduit = getConduitCellPosition(position);
+            IPortConduit conduit = GetConduitAtRelativeCellPosition(position);
             if (conduit == null) {
                 return null;
             }

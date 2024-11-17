@@ -7,9 +7,9 @@ using Conduits.Ports;
 namespace Conduits.Systems {
     public static class ConduitSystemManagerFactory
     {
-        public static IConduitSystemManager createManager(
+        public static IConduitSystemManager CreateManager(
             ConduitType conduitType, 
-            IConduit[,] conduits,
+            Dictionary<Vector2Int,IConduit> conduits,
             Vector2Int size,
             Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts,
             Vector2Int referencePosition
@@ -18,7 +18,7 @@ namespace Conduits.Systems {
             if (isPort) {
                 return new PortConduitSystemManager(
                     conduitType: conduitType,
-                    conduits: castConduitArray<IPortConduit>(conduits,size),
+                    conduits: CastConduitDict<IPortConduit>(conduits),
                     size: size,
                     chunkConduitPorts: chunkConduitPorts,
                     referencePosition: referencePosition
@@ -28,7 +28,7 @@ namespace Conduits.Systems {
             if (isMatrix) {
                 return new MatrixConduitSystemManager(
                     conduitType: conduitType,
-                    conduits: castConduitArray<MatrixConduit>(conduits,size),
+                    conduits: CastConduitDict<MatrixConduit>(conduits),
                     size: size,
                     chunkConduitPorts: chunkConduitPorts,
                     referencePosition: referencePosition
@@ -38,14 +38,14 @@ namespace Conduits.Systems {
             return null;
         }
 
-        private static T[,] castConduitArray<T>(IConduit[,] conduits, Vector2Int size) {
-            T[,] tConduits = new T[size.x,size.y];
-            for (int x = 0; x < size.x; x++) {
-                for (int y = 0; y < size.y; y++) {
-                    tConduits[x,y] = (T) conduits[x,y];
-                }
+        private static Dictionary<Vector2Int, T> CastConduitDict<T>(Dictionary<Vector2Int,IConduit> conduits)
+        {
+            Dictionary<Vector2Int, T> dict = new Dictionary<Vector2Int, T>();
+            foreach (KeyValuePair<Vector2Int, IConduit> kvp in conduits)
+            {
+                dict[kvp.Key] = (T)kvp.Value;
             }
-            return tConduits;
+            return dict;
         }
     }
 }

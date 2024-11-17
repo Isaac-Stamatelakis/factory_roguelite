@@ -29,7 +29,7 @@ namespace TileMaps.Conduit {
         protected override void setTile(int x, int y, ConduitItem conduitItem)
         {
             var tile = conduitItem.Tile;
-            IConduit conduit = conduitSystemManager.GetConduitAtPosition(x, y);
+            IConduit conduit = conduitSystemManager.GetIConduitAtRelativeCellPosition(new Vector2Int(x,y));
             var stateTile = tile.getTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }
