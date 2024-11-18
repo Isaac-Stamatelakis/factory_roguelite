@@ -176,13 +176,11 @@ public class ConduitTileGenerator : EditorWindow {
         Color shadedColor = pixels[min.x];
         Color highlightColor = pixels[max.x - 1];
         
-        Debug.Log($"Generating sprites for {conduitName} with min {min} and max {max}");
+        Debug.Log($"Generating sprites for {conduitName} with min {min} and max {max}\nShaded Color: {shadedColor}, Highlight Color: {highlightColor}");
         Tile[] tiles = new Tile[16];
         for (int i = 0; i < 16; i++)
         {
             Color[] slicedPixels = texture.GetPixels();
-            
-            
             
             bool right = (i & (int)ConduitDirectionState.Right) != 0;
             if (!right)
@@ -193,7 +191,6 @@ public class ConduitTileGenerator : EditorWindow {
                     slicedPixels[max.x-1+SIZE*y] = highlightColor;
                 }
             }
-            
             
             bool down = (i & (int)ConduitDirectionState.Down) != 0;
             if (!down)
@@ -224,9 +221,6 @@ public class ConduitTileGenerator : EditorWindow {
                 }
             }
             
-    
-            
-
             string spriteName = $"{conduitName.ToLower().Replace(" ","_")}{i}";
             string savePath = $"{spritePath}/{spriteName}";
             Sprite sprite = TileSpriteShapeFactory.pixelsToSprite(slicedPixels,savePath,SIZE,SIZE);

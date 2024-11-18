@@ -85,8 +85,15 @@ namespace Conduits {
             
         }
 
-        private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity) {
-            MatrixConduitData conduitData = JsonConvert.DeserializeObject<MatrixConduitData>(conduitOptionData);
+        private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity)
+        {
+            int state = 15;
+            if (conduitOptionData != null)
+            {
+                MatrixConduitData conduitData = JsonConvert.DeserializeObject<MatrixConduitData>(conduitOptionData);
+                state = conduitData.State % 16;
+            }
+            
             IMatrixConduitInteractable matrixConduitInteractable = null;
             if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
                 matrixConduitInteractable = matrixConduitInteractable1;
@@ -96,9 +103,35 @@ namespace Conduits {
                 x : cellPosition.x,
                 y : cellPosition.y,
                 item: (MatrixConduitItem)conduitItem,
-                state: conduitData.State % 16,
+                state: state,
                 matrixConduitInteractable: matrixConduitInteractable
             );
+        }
+
+        public static void SerializeConduit(IConduit conduit, ConduitType conduitType, WorldTileConduitData data, int x, int y)
+        {
+            switch (conduitType) {
+                case ConduitType.Item:
+                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
+                    break;
+                case ConduitType.Fluid:
+                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
+                    break;
+                case ConduitType.Energy:
+                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
+                    break;
+                case ConduitType.Signal:
+                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
+                    break;
+                case ConduitType.Matrix:
+                    if (conduit is not MatrixConduit matrixConduit) {
+                        return;
+                    }
+                    bool attached = matrixConduit.HasTileEntity;
+                    MatrixConduitData matrixConduitData = new MatrixConduitData(conduit.GetState(), true);
+                    data.matrixConduitData.conduitOptions[x,y] = JsonConvert.SerializeObject(matrixConduitData);
+                    break;
+            }
         }
 
 

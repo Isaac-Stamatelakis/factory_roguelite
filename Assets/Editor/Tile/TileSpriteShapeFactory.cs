@@ -173,7 +173,7 @@ public static class TileSpriteShapeFactory
         
     }
     public static Sprite pixelsToSprite(Color[] pixels, string spritePath, int width, int height) {
-        Texture2D newTexture = new Texture2D(width,height);
+        Texture2D newTexture = new Texture2D(width,height,TextureFormat.RGBA32,false);
         newTexture.SetPixels(0,0,width,height,pixels);
         byte[] pngBytes = newTexture.EncodeToPNG();
         File.WriteAllBytes(spritePath+".png", pngBytes);

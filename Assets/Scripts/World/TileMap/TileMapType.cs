@@ -155,13 +155,13 @@ namespace TileMaps.Type {
                 case TileMapType.MatrixConduit:
                     return 2f;
                 case TileMapType.ItemConduit:
-                    return 2.1f;
-                case TileMapType.FluidConduit:
-                    return 2.2f;
-                case TileMapType.EnergyConduit:
                     return 2.3f;
-                case TileMapType.SignalConduit:
+                case TileMapType.FluidConduit:
                     return 2.4f;
+                case TileMapType.EnergyConduit:
+                    return 2.1f;
+                case TileMapType.SignalConduit:
+                    return 2.2f;
                 case TileMapType.Fluid:
                     return 1.1f;
                 default:

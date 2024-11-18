@@ -202,32 +202,7 @@ namespace Chunks.Partitions {
                     for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                             IConduit conduit = kvp.Value[x,y];
-                            switch (kvp.Key) {
-                                case ConduitType.Item:
-                                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
-                                    break;
-                                case ConduitType.Fluid:
-                                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
-                                    break;
-                                case ConduitType.Energy:
-                                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
-                                    break;
-                                case ConduitType.Signal:
-                                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.Serialize(conduit);
-                                    break;
-                                case ConduitType.Matrix:
-                                    if (conduit is not MatrixConduit matrixConduit) {
-                                        continue;
-                                    }
-                                    if (matrixConduit.HasTileEntity) {
-                                        MatrixConduitData matrixConduitData = new MatrixConduitData(conduit.GetState(), true);
-                                        data.matrixConduitData.conduitOptions[x,y] = Newtonsoft.Json.JsonConvert.SerializeObject(matrixConduitData);
-                                    } else {
-                                        data.matrixConduitData.conduitOptions[x,y] = null;
-                                    }
-                                    
-                                    break;
-                            }
+                            ConduitFactory.SerializeConduit(conduit, kvp.Key,data,x,y);
                         }
                     }
                 }
