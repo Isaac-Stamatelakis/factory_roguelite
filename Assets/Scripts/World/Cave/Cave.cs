@@ -35,7 +35,7 @@ namespace WorldModule.Caves {
 
         public SeralizedWorldData generate(int seed) {
             UnityEngine.Random.InitState(seed);
-            SeralizedWorldData worldTileData = caveElements.GenerationModel.generateBase(seed);
+            SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed);
             Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
             IntervalVector coveredArea = getChunkCoveredArea();
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.ChunkSize;
@@ -50,10 +50,10 @@ namespace WorldModule.Caves {
             return worldTileData;
         }
         public UnityEngine.Vector2Int getChunkCaveSize() {
-            return caveElements.GenerationModel.getChunkSize();
+            return caveElements.GenerationModel.GetChunkSize();
         }
         public IntervalVector getChunkCoveredArea() {
-            return caveElements.GenerationModel.getCoveredChunkArea();
+            return caveElements.GenerationModel.GetCoveredChunkArea();
         }
     }
 

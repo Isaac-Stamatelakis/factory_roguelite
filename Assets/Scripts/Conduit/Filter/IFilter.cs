@@ -1,5 +1,5 @@
 namespace Conduits.Ports {
     public interface IFilter {
-        public bool filter(ItemSlot itemSlot);
+        public bool Filter(ItemSlot itemSlot);
     }
 }

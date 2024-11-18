@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,7 @@ using TileEntityModule;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;
+using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
@@ -35,19 +37,19 @@ namespace Chunks.Systems {
 
         public void tileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
-                conduitSystemManager.addTileEntity(tileEntity);
+                conduitSystemManager.AddTileEntity(tileEntity);
             }
         }
 
         public void tileEntityDeleteUpdate(Vector2Int position) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
-                conduitSystemManager.deleteTileEntity(position);
+                conduitSystemManager.DeleteTileEntity(position);
             }
         }
         
         public void initalize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
             initalizeObject(dimController,coveredArea,dim,dimPositionOffset);
-            initalLoadChunks(inactiveClosedChunkSystem.Chunks);
+            InitalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
@@ -68,8 +70,7 @@ namespace Chunks.Systems {
             var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/ConduitPortViewer/ConduitPortViewerController.prefab");
             yield return handle;
             GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
-            GameObject clone = GameObject.Instantiate(portViewerControllerPrefab);
-            clone.transform.SetParent(transform,false);
+            GameObject clone = GameObject.Instantiate(portViewerControllerPrefab, transform, false);
             viewerController = clone.GetComponent<PortViewerController>();
             viewerController.initalize(this);
         }
@@ -81,6 +82,7 @@ namespace Chunks.Systems {
             }
             ConduitTileMap conduitTileMap = (ConduitTileMap) tileMap;
             conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
+            conduitSystemManagersDict[tileMapType].SetTileMap(conduitTileMap);
         }
         public override IEnumerator unloadChunkPartition(IChunkPartition chunkPartition)
         {
@@ -92,7 +94,7 @@ namespace Chunks.Systems {
         {
             
         }
-        protected void initalLoadChunks(List<SoftLoadedConduitTileChunk> unloadedChunks)
+        protected void InitalLoadChunks(List<SoftLoadedConduitTileChunk> unloadedChunks)
         {
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in unloadedChunks) {
                 addChunk(ChunkIO.getChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
@@ -100,8 +102,16 @@ namespace Chunks.Systems {
             //Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
         }
 
-        public IConduitSystemManager getManager(ConduitType conduitType) {
-            TileMapType tileMapType = conduitType.toTileMapType();
+        public void OnDestroy()
+        {
+            foreach (var conduitSystemManager in conduitSystemManagersDict.Values)
+            {
+                conduitSystemManager.SetTileMap(null);
+            }
+        }
+
+        public IConduitSystemManager GetManager(ConduitType conduitType) {
+            TileMapType tileMapType = conduitType.ToTileMapType();
             if (!conduitSystemManagersDict.ContainsKey(tileMapType)) {
                 Debug.LogError("ConduitTileClosedChunkSystem did not have " + conduitType.ToString() + " inside managed conduit systems");
                 return null;
@@ -109,7 +119,7 @@ namespace Chunks.Systems {
             return conduitSystemManagersDict[tileMapType];
         }
 
-        public Vector2Int getBottomLeftCorner() {
+        public Vector2Int GetBottomLeftCorner() {
             return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
         }
 

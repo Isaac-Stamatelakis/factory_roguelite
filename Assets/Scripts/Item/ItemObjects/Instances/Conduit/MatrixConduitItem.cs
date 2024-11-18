@@ -6,7 +6,7 @@ using Items;
 namespace Conduits {
     public class MatrixConduitItem : ConduitItem
     {
-        public override ConduitType getConduitType()
+        public override ConduitType GetConduitType()
         {
             return ConduitType.Matrix;
         }

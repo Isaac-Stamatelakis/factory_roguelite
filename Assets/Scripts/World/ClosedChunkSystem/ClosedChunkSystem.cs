@@ -28,7 +28,7 @@ namespace Chunks.Systems {
         protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
-        public Dictionary<Vector2Int,ILoadedChunk> CachedChunk {get => cachedChunks;}
+        public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
         protected TileBreakIndicator breakIndicator;
         protected IntervalVector coveredArea;
         protected PartitionLoader partitionLoader;
@@ -37,13 +37,13 @@ namespace Chunks.Systems {
         protected Transform chunkContainerTransform;
         protected Vector2Int currentPlayerPartition;
         protected Vector2Int playerPartitionChangeDifference;
-        public Transform ChunkContainerTransform {get{return chunkContainerTransform;}}
+        public Transform ChunkContainerTransform => chunkContainerTransform;
         protected int dim;
-        public TileBreakIndicator BreakIndicator {get => breakIndicator;}
+        public TileBreakIndicator BreakIndicator => breakIndicator;
         public int Dim {get{return dim;}}
         public Vector2Int DimPositionOffset { get => dimPositionOffset;}
 
-        private bool isQuitting = false;
+        private bool isQuitting;
         private LoadedPartitionBoundary loadedPartitionBoundary;
         protected Vector2Int dimPositionOffset;
         public virtual void Awake () {

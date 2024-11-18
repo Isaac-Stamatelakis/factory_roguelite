@@ -30,16 +30,7 @@ public static class Global
     public static float EntityZ {get {return entityZ;}}
     private static float tileObjectZ = 0.5f;
     public static float TileObjectZ {get {return tileObjectZ;}}
-    private static float tileBackgroundZ = 3f;
-    public static float TileBackGroundZ {get {return tileBackgroundZ;}}
-    private static float energyConduitZ = 1f;
-    public static float EnergyConduitZ {get {return energyConduitZ;}}
-    private static float itemConduitZ = 1.5f;
-    public static float ItemConduitZ {get {return itemConduitZ;}}
-    private static float fluidConduitZ = 2f;
-    public static float FluidConduitZ {get {return fluidConduitZ;}}
-    private static float signalConduitZ = 2.5f;
-    public static float SignalConduitZ {get {return signalConduitZ;}}
+    public static float TileBackGroundZ { get; } = 3f;
     private static float chunkOffset = -0.25f;  
     public static float ChunkOffset {get {return chunkOffset;}}
     private static float tileItemEntityScalar = 0.5f;

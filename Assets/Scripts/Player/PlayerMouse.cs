@@ -33,18 +33,16 @@ namespace PlayerModule.Mouse {
         private GameObject testObject;
         private PlayerInventory playerInventory;
         private DevMode devMode;
-        private GameObject grabbedItem;
-        private LayerMask UILayer;
         private EventSystem eventSystem;
         private Transform playerTransform;
+        private Camera mainCamera;
 
         // Start is called before the first frame update
         void Start()
         {
+            mainCamera = Camera.main;
             devMode = GetComponent<DevMode>();
             playerInventory = GetComponent<PlayerInventory>();
-            grabbedItem = GameObject.Find("GrabbedItem");
-            UILayer = 1 << LayerMask.NameToLayer("UI");
             eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
             playerTransform = GameObject.Find("Player").transform;
         }
@@ -62,11 +60,11 @@ namespace PlayerModule.Mouse {
                 return;
             }
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
-            if (closedChunkSystem == null) {
+            if (!closedChunkSystem) {
                 return;
             }
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             if (leftClick) {
                 handleLeftClick(mousePosition,systemOffset);
             }
@@ -78,7 +76,7 @@ namespace PlayerModule.Mouse {
 
         private ILoadedChunk getChunk(Vector2 mousePosition) {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
-            if (closedChunkSystem == null) {
+            if (!closedChunkSystem) {
                 return null;
             }
             Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
@@ -133,8 +131,8 @@ namespace PlayerModule.Mouse {
             if (conduitItem == null) {
                 return false;
             }
-            ConduitType conduitType = conduitItem.getConduitType();
-            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.getManager(conduitType);
+            ConduitType conduitType = conduitItem.GetConduitType();
+            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType);
             if (conduitSystemManager == null) {
                 Debug.LogError("Attempted to click port of null conduit system manager");
                 return false;
@@ -149,7 +147,7 @@ namespace PlayerModule.Mouse {
                     return false;
                 }
                 UIAssetManager assetManager = conduitTileClosedChunkSystem.PortViewerController.AssetManager;
-                EntityPortType portType = portConduitSystemManager.getPortTypeAtPosition(cellPosition.x,cellPosition.y);
+                EntityPortType portType = portConduitSystemManager.GetPortTypeAtPosition(cellPosition.x,cellPosition.y);
                 GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
                 GlobalUIContainer.getInstance().getUiController().setGUI(ui);
                 return true;

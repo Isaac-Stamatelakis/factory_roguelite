@@ -32,7 +32,7 @@ namespace DevTools.Structures {
                 system.softLoad();
             }
             GameObject closedChunkSystemObject = new GameObject();
-            IntervalVector bounds = WorldCreation.getDim0Bounds();
+            IntervalVector bounds = WorldCreation.GetDim0Bounds();
             closedChunkSystemObject.name="Structure";
             activeSystem = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             activeSystem.initalize(
@@ -51,7 +51,7 @@ namespace DevTools.Structures {
         }
 
         public void OnDestroy() {
-            system.save();
+            system.Save();
         }
 
         public ClosedChunkSystem getActiveSystem()

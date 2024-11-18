@@ -10,7 +10,7 @@ namespace Conduits.Ports.UI {
         public virtual void initalize(IPortConduit conduit)
         {
             this.conduit = conduit;
-            this.port = conduit.getPort();
+            this.port = conduit.GetPort();
         }
     }
 }

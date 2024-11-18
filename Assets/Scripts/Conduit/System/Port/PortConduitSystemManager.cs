@@ -7,25 +7,25 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class PortConduitSystemManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystem
     {
-        public PortConduitSystemManager(ConduitType conduitType, IPortConduit[,] conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public PortConduitSystemManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
         {
 
         }
 
         public IConduitPort getPort(Vector2Int position) {
-            IPortConduit conduit = getConduitCellPosition(position);
+            IPortConduit conduit = GetConduitAtRelativeCellPosition(position);
             if (conduit == null) {
                 return null;
             }
-            return conduit.getPort();
+            return conduit.GetPort();
         }
 
         public IPortConduit getConduitWithPort(Vector2Int position) {
-            IPortConduit conduit = getConduitCellPosition(position);
+            IPortConduit conduit = GetConduitAtRelativeCellPosition(position);
             if (conduit == null) {
                 return null;
             }
-            if (conduit.getPort() == null) {
+            if (conduit.GetPort() == null) {
                 return null;
             }
             return conduit;
@@ -33,7 +33,7 @@ namespace Conduits.Systems {
 
         public void tickUpdate() {
             foreach (IPortConduitSystem system in conduitSystems) {
-                system.tickUpdate();
+                system.TickUpdate();
             }
         }
 
@@ -44,18 +44,18 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
-            conduit.setPort(ConduitPortFactory.createDefault(type,port.portType,tileEntity,conduit.getConduitItem()));
-            conduit.getConduitSystem().rebuild();
+            conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
+            conduit.GetConduitSystem().Rebuild();
         }
 
         public override void onTileEntityRemoved(IPortConduit conduit)
         {
-            IConduitPort conduitPort = conduit.getPort();
+            IConduitPort conduitPort = conduit.GetPort();
             if (conduitPort == null) {
                 return;
             }
-            conduit.setPort(null);
-            conduit.getConduitSystem().rebuild();
+            conduit.SetPort(null);
+            conduit.GetConduitSystem().Rebuild();
         }
     }
 }

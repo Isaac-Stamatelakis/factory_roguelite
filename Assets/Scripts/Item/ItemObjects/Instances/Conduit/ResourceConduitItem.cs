@@ -8,7 +8,7 @@ namespace Items {
         public ResourceConduitType type;
         public int maxSpeed;
 
-        public override ConduitType getConduitType()
+        public override ConduitType GetConduitType()
         {
             return (ConduitType) type;
         }

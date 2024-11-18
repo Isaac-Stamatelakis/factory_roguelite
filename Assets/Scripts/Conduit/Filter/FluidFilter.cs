@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Conduits.Ports {
 public class FluidFilter : IFilter
     {
-        public bool filter(ItemSlot itemSlot)
+        public bool Filter(ItemSlot itemSlot)
         {
             throw new System.NotImplementedException();
         }

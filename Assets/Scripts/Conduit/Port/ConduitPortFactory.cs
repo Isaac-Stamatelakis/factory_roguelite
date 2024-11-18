@@ -8,7 +8,7 @@ using Items;
 namespace Conduits.Ports {
     public static class ConduitPortFactory
     {
-        public static IConduitPort deseralize(string data, ConduitType conduitType, ConduitItem conduitItem) {
+        public static IConduitPort Deserialize(string data, ConduitType conduitType, ConduitItem conduitItem) {
             if (data == null) {
                 return null;
             }
@@ -26,17 +26,16 @@ namespace Conduits.Ports {
             return null;
         }
 
-        public static string serialize(IConduit conduit) {
-            if (conduit == null) {
-                return null;
-            }
+        public static string Serialize(IConduit conduit) {
             if (conduit is not IPortConduit portConduit) {
                 return null;
             }
-            return JsonConvert.SerializeObject(portConduit.getPort());
+            string portData = JsonConvert.SerializeObject(portConduit.GetPort());
+            int state = conduit.GetState();
+            return JsonConvert.SerializeObject(new PortConduitData(state, portData));
         }
 
-        public static IConduitPort createDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntity, ConduitItem conduitItem) {
+        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntity, ConduitItem conduitItem) {
             switch (conduitType) {
                 case ConduitType.Item:
                     if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
@@ -81,8 +80,10 @@ namespace Conduits.Ports {
                         energyInputPort = new EnergyConduitInputPort(energyConduitInteractable);
                     }
                     if (portType == EntityPortType.All || portType == EntityPortType.Output) {
-                        energyOutputPort = new EnergyConduitOutputPort(energyConduitInteractable);
-                        energyOutputPort.extractionRate = energyConduit.maxSpeed;
+                        energyOutputPort = new EnergyConduitOutputPort(energyConduitInteractable)
+                            {
+                                extractionRate = energyConduit.maxSpeed
+                            };
                     }   
                     EnergyConduitPort energyConduitPort = new EnergyConduitPort(energyInputPort,energyOutputPort);
                     return energyConduitPort;
@@ -92,10 +93,10 @@ namespace Conduits.Ports {
                     }
                     SignalConduitInputPort signalInputPort = null;
                     SignalConduitOutputPort signalOutputPort = null;
-                    if (portType == EntityPortType.All || portType == EntityPortType.Input) {
+                    if (portType is EntityPortType.All or EntityPortType.Input) {
                         signalInputPort = new SignalConduitInputPort(signalConduitInteractable);
                     }
-                    if (portType == EntityPortType.All || portType == EntityPortType.Output) {
+                    if (portType is EntityPortType.All or EntityPortType.Output) {
                         signalOutputPort = new SignalConduitOutputPort(signalConduitInteractable);
                     }   
                     SignalConduitPort signalConduitPort = new SignalConduitPort(signalInputPort,signalOutputPort);

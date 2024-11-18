@@ -10,7 +10,7 @@ using WorldModule.Caves;
 
 namespace WorldModule {
     public static class WorldGenerationFactory {
-        public static void saveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
+        public static void SaveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
             int tileMaxX = Global.ChunkSize*caveSize.x;
@@ -19,12 +19,12 @@ namespace WorldModule {
             int minY = caveCoveredArea.Y.LowerBound; int maxY = caveCoveredArea.Y.UpperBound;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
-                    saveChunk(chunkX, chunkY,minX,minY,dim,worldTileData,dimPath);
+                    SaveChunk(chunkX, chunkY,minX,minY,dim,worldTileData,dimPath);
                 }
             }
         }
 
-        public static void saveToJson(SeralizedWorldData worldTileData, Vector2Int caveSize, int dim, string dimPath) {
+        public static void SaveToJson(SeralizedWorldData worldTileData, Vector2Int caveSize, int dim, string dimPath) {
             // Normalize coordinates so center is at 0,0
             int minX = -(caveSize.x-1)/2;
             int maxX = (caveSize.x)/2;
@@ -32,21 +32,22 @@ namespace WorldModule {
             int maxY = (caveSize.y)/2;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
-                    saveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
+                    SaveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
                 }
             }
         }
-        private static void saveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
+
+        public static void SaveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             for (int partitionX = 0; partitionX < Global.PartitionsPerChunk; partitionX ++) {
                 for (int partitionY = 0; partitionY < Global.PartitionsPerChunk; partitionY ++) {
-                    chunkPartitionDataList.Add(convertPartition(chunkX,chunkY,minX,minY,partitionX,partitionY,worldTileData));
+                    chunkPartitionDataList.Add(ConvertPartition(chunkX,chunkY,minX,minY,partitionX,partitionY,worldTileData));
                 }
             }
             ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList,dimPath);
         }
 
-        public static WorldTileConduitData createEmpty(Vector2Int size) {
+        public static WorldTileConduitData CreateEmpty(Vector2Int size) {
             SerializedBaseTileData baseTileData = new SerializedBaseTileData();
             baseTileData.ids = new string[size.x,size.y];
             baseTileData.sTileEntityOptions = new string[size.x,size.y];
@@ -92,8 +93,8 @@ namespace WorldModule {
             );
         }
 
-        public static void mapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
-            mapWorldTileData(copyTo,copyFrom,positionTo,positionFrom);
+        public static void MapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
+            MapWorldTileData(copyTo,copyFrom,positionTo,positionFrom);
             copyTo.itemConduitData.ids[positionTo.x,positionTo.y] = copyFrom.itemConduitData.ids[positionFrom.x,positionFrom.y];
             copyTo.itemConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.itemConduitData.conduitOptions[positionFrom.x,positionFrom.y];
 
@@ -111,7 +112,7 @@ namespace WorldModule {
             
         }
 
-        public static void mapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
+        public static void MapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
             copyTo.baseData.ids[positionTo.x,positionTo.y] = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
             copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
             copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
@@ -122,7 +123,7 @@ namespace WorldModule {
             copyTo.fluidData.fill[positionTo.x,positionTo.y] = copyFrom.fluidData.fill[positionFrom.x,positionFrom.y];
         }
 
-        private static IChunkPartitionData convertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
+        private static IChunkPartitionData ConvertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.ChunkPartitionSize + Global.ChunkSize * (chunkX-minX);
             int yStart = partitionY*Global.ChunkPartitionSize + Global.ChunkSize * (chunkY-minY);
         

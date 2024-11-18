@@ -23,7 +23,7 @@ namespace Dimensions {
             if (dim0System == null) {
                 return;
             }
-            dim0System.tickUpdate();
+            dim0System.TickUpdate();
         }
 
         public void softLoadSystem() {
@@ -39,7 +39,7 @@ namespace Dimensions {
                 softLoadSystem();
             }
             GameObject closedChunkSystemObject = new GameObject();
-            IntervalVector bounds = WorldCreation.getDim0Bounds();
+            IntervalVector bounds = WorldCreation.GetDim0Bounds();
             closedChunkSystemObject.name="Dim0System";
             mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
             mainArea.initalize(
@@ -62,7 +62,7 @@ namespace Dimensions {
         }
 
         public void OnDestroy() {
-            dim0System.save();
+            dim0System.Save();
         }
         public ClosedChunkSystem getActiveSystem()
         {

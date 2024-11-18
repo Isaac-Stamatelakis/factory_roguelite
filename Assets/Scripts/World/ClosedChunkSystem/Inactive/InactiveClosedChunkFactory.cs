@@ -10,8 +10,8 @@ using Chunks.IO;
 namespace Chunks.Systems {
     public static class InactiveClosedChunkFactory 
     {
-        public static SoftLoadedClosedChunkSystem import(string path) {
-            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(1,path);
+        public static SoftLoadedClosedChunkSystem Import(string path) {
+            var chunks = ChunkIO.getUnloadedChunks(1,path);
             return new SoftLoadedClosedChunkSystem(chunks,path);
         }
     }

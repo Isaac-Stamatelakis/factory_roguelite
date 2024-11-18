@@ -15,12 +15,12 @@ using Tiles;
 
 namespace Chunks.Partitions {
     public interface IConduitTileChunkPartition {
-        public void getConduits(ConduitType conduitType,IConduit[,] systemConduits, Vector2Int referenceChunk,Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts);
-        public bool getConduitLoaded();
-        public void setConduitLoaded(bool val);
-        public void softLoadTileEntities();
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
-        public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits);
+        public void GetConduits(ConduitType conduitType,Dictionary<Vector2Int,IConduit> conduitDict, Vector2Int referenceChunk,Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts);
+        public bool GetConduitLoaded();
+        public void SetConduitLoaded(bool val);
+        public void SoftLoadTileEntities();
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
+        public void SetConduits(Dictionary<ConduitType, IConduit[,]> conduits);
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void activate(ILoadedChunk loadedChunk);
@@ -36,24 +36,24 @@ namespace Chunks.Partitions {
         {
         }
 
-        public void getConduits(ConduitType conduitType, IConduit[,] systemConduits, Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts)
+        public void GetConduits(ConduitType conduitType, Dictionary<Vector2Int,IConduit> conduitDict, Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts)
         {
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
-                    getConduitsFromData(serializedTileConduitData.itemConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    getConduitsFromData(serializedTileConduitData.itemConduitData,conduitDict,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Fluid:
-                    getConduitsFromData(serializedTileConduitData.fluidConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    getConduitsFromData(serializedTileConduitData.fluidConduitData,conduitDict,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Energy:
-                    getConduitsFromData(serializedTileConduitData.energyConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    getConduitsFromData(serializedTileConduitData.energyConduitData,conduitDict,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Signal:
-                    getConduitsFromData(serializedTileConduitData.signalConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    getConduitsFromData(serializedTileConduitData.signalConduitData,conduitDict,referenceChunk,tileEntityPorts);
                     return;
                 case ConduitType.Matrix:
-                    getConduitsFromData(serializedTileConduitData.matrixConduitData,systemConduits,referenceChunk,tileEntityPorts);
+                    getConduitsFromData(serializedTileConduitData.matrixConduitData,conduitDict,referenceChunk,tileEntityPorts);
                     return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
@@ -61,7 +61,7 @@ namespace Chunks.Partitions {
         /// <summary>
         /// Loads Tile Entities which are tickable. Note these are always active even if the partition is not in sight of the player
         /// </summary>
-        public void softLoadTileEntities() {
+        public void SoftLoadTileEntities() {
             if (tickLoaded) {
                 Debug.LogError("Attempted to tick load partition which is already ticked loaded");
                 return;
@@ -76,7 +76,7 @@ namespace Chunks.Partitions {
 
         
 
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> getEntityPorts(ConduitType type, Vector2Int referenceFrame) {
+        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetEntityPorts(ConduitType type, Vector2Int referenceFrame) {
             Dictionary<ITileEntityInstance, List<TileEntityPort>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPort>>();
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -148,8 +148,7 @@ namespace Chunks.Partitions {
             base.placeTileEntityFromLoad(tileItem, options, positionInPartition, tileEntityArray, x, y);
         }
 
-        private void getConduitsFromData(SeralizedChunkConduitData data,IConduit[,] systemConduits,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts) {
-            IConduit[,] conduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+        private void getConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts) {
             ItemRegistry itemRegistry = ItemRegistry.getInstance();
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
@@ -158,9 +157,6 @@ namespace Chunks.Partitions {
                     if (id == null) {
                         continue;
                     }
-                    string options = data.conduitOptions[x,y];
-                    int systemX = x+partitionOffset.x-referenceChunk.x;
-                    int systemY = y+partitionOffset.y-referenceChunk.y;
                     ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
                     if (conduitItem == null) {
                         continue;
@@ -180,7 +176,7 @@ namespace Chunks.Partitions {
                             }
                         }
                     }
-                    systemConduits[systemX,systemY] = ConduitFactory.deseralizeConduit(
+                    IConduit conduit = ConduitFactory.DeserializeConduit(
                         cellPosition: cellPosition,
                         referencePosition: referenceChunk,
                         conduitItem: conduitItem,
@@ -188,8 +184,10 @@ namespace Chunks.Partitions {
                         tileEntity : tileEntity,
                         portType: port
                     );
-                    
-                    
+                    int systemX = x+partitionOffset.x-referenceChunk.x;
+                    int systemY = y+partitionOffset.y-referenceChunk.y;
+                    Vector2Int systemPosition = new Vector2Int(systemX, systemY);
+                    conduitDict[systemPosition] = conduit;
                 }
             }
         }
@@ -197,57 +195,19 @@ namespace Chunks.Partitions {
         public override void save()
         {
             base.save();
-            Vector2Int position = getRealPosition();
             WorldTileConduitData data = (WorldTileConduitData) getData();
-            
-            if (conduits != null) {
-                foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            IConduit conduit = kvp.Value[x,y];
-                            switch (kvp.Key) {
-                                case ConduitType.Item:
-                                    data.itemConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
-                                    break;
-                                case ConduitType.Fluid:
-                                    data.fluidConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
-                                    break;
-                                case ConduitType.Energy:
-                                    data.energyConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
-                                    break;
-                                case ConduitType.Signal:
-                                    data.signalConduitData.conduitOptions[x,y] = ConduitPortFactory.serialize(conduit);
-                                    break;
-                                case ConduitType.Matrix:
-                                    if (conduit is not MatrixConduit matrixConduit) {
-                                        continue;
-                                    }
-                                    if (matrixConduit.HasTileEntity) {
-                                        MatrixConduitData matrixConduitData = new MatrixConduitData(true);
-                                        data.matrixConduitData.conduitOptions[x,y] = Newtonsoft.Json.JsonConvert.SerializeObject(matrixConduitData);
-                                    } else {
-                                        data.matrixConduitData.conduitOptions[x,y] = null;
-                                    }
-                                    
-                                    break;
-                            }
-                        }
+
+            if (conduits == null) return;
+            foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                        IConduit conduit = kvp.Value[x,y];
+                        ConduitFactory.SerializeConduit(conduit, kvp.Key,data,x,y);
                     }
                 }
-                
             }
         }
-
-        public void setConduits(TileMapLayer layer,IConduit[,] conduits)
-        {
-            conduitArrayDict[layer] = conduits;
-        }
         
-        public override IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps)
-        {
-            return base.unloadTiles(tileGridMaps);
-        }
-
         protected override void iterateLoad(int x, int y, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition)
         {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
@@ -323,7 +283,7 @@ namespace Chunks.Partitions {
             if (conduitItem == null) {
                 return;
             }
-            ITileMap tileGridMap = tileGridMaps[conduitItem.getConduitType().toTileMapType()];
+            ITileMap tileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
             tileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
@@ -331,19 +291,19 @@ namespace Chunks.Partitions {
             );
         }
 
-        public bool getConduitLoaded()
+        public bool GetConduitLoaded()
         {
             return tickLoaded;
         }
 
-        public void setConduitLoaded(bool val)
+        public void SetConduitLoaded(bool val)
         {
             tickLoaded = val;
         }
 
        
 
-        public void setConduits(Dictionary<ConduitType, IConduit[,]> conduits)
+        public void SetConduits(Dictionary<ConduitType, IConduit[,]> conduits)
         {
             this.conduits = conduits;
         }
@@ -351,7 +311,7 @@ namespace Chunks.Partitions {
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
         {
             IConduit[,] conduitArray = conduits[type];
-            return conduitArray[positionInPartition.x,positionInPartition.y].getConduitItem();
+            return conduitArray[positionInPartition.x,positionInPartition.y].GetConduitItem();
         }
 
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item)

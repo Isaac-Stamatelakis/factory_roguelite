@@ -7,70 +7,24 @@ using Items;
 
 namespace Conduits {
     public interface IPortConduit : IConduit {
-        public IConduitPort getPort();
-        public void setPort(IConduitPort port);
+        public IConduitPort GetPort();
+        public void SetPort(IConduitPort port);
     }
-    public abstract class PortConduit<Port> : IPortConduit where Port : IConduitPort
+    public abstract class PortConduit<TPort> : Conduit<ConduitItem>, IPortConduit where TPort : IConduitPort
     {
-        private int x;
-        private int y;
-        private ConduitItem conduitItem;
-        private Port port;
-        private IConduitSystem conduitSystem;
-        public PortConduit(int x, int y,  ConduitItem conduitItem, Port port) {
-            this.x = x;
-            this.y = y;
-            this.conduitItem = conduitItem;
+        private TPort port;
+        protected PortConduit(int x, int y, ConduitItem conduitItem, int state, TPort port) : base(x, y, conduitItem, state)
+        {
             this.port = port;
         }
-
-        public ConduitItem getConduitItem()
-        {
-            return conduitItem;
-        }
-
-        public IConduitPort getPort()
+        public IConduitPort GetPort()
         {
             return port;
         }
 
-        public string getId()
+        public void SetPort(IConduitPort port)
         {
-            return conduitItem.id;
-        }
-        public int getX()
-        {
-            return x;
-        }
-
-        public int getY()
-        {
-            return y;
-        }
-
-        public void setPort(IConduitPort port)
-        {
-            this.port = (Port) port;
-        }
-
-        public void setConduitSystem(IConduitSystem conduitSystem)
-        {
-            this.conduitSystem = conduitSystem;
-        }
-
-        public IConduitSystem getConduitSystem()
-        {
-            return this.conduitSystem;
-        }
-
-        public void setX(int val)
-        {
-            x = val;
-        }
-
-        public void setY(int val)
-        {
-            y = val;
+            this.port = (TPort)port;
         }
     }
 }

@@ -6,62 +6,21 @@ using UnityEngine;
 using Items;
 
 namespace Conduits {
-    public class MatrixConduit : IConduit
+    public class MatrixConduit : Conduit<MatrixConduitItem>
     {
         private int x;
         private int y;
         private MatrixConduitItem matrixConduitItem;
         private IConduitSystem conduitSystem;
-        private IMatrixConduitInteractable matrixConduitInteractable;
-        public bool HasTileEntity {get => matrixConduitInteractable != null;}
-        public IMatrixConduitInteractable MatrixConduitInteractable { get => matrixConduitInteractable; set => matrixConduitInteractable = value; }
+        public bool HasTileEntity => MatrixConduitInteractable != null;
+        public IMatrixConduitInteractable MatrixConduitInteractable { get; set; }
 
-        public MatrixConduit(int x, int y, MatrixConduitItem item, IMatrixConduitInteractable matrixConduitInteractable) {
+        public MatrixConduit(int x, int y, MatrixConduitItem item, int state, IMatrixConduitInteractable matrixConduitInteractable) : base(x,y,item, state)
+        {
             this.x = x;
             this.y = y;
             this.matrixConduitItem = item;
-            this.matrixConduitInteractable = matrixConduitInteractable;
-        }
-        public ConduitItem getConduitItem()
-        {
-            return matrixConduitItem;
-        }
-
-        public IConduitSystem getConduitSystem()
-        {
-            return conduitSystem;
-        }
-
-        public string getId()
-        {
-            return matrixConduitItem.id;
-        }
-
-
-        public int getX()
-        {
-            return x;
-        }
-
-        public int getY()
-        {
-            return y;
-        }
-
-        public void setConduitSystem(IConduitSystem conduitSystem)
-        {
-            this.conduitSystem = conduitSystem;
-        }
-
-
-        public void setX(int val)
-        {
-            this.x = val;
-        }
-
-        public void setY(int val)
-        {
-            this.y = val;
+            this.MatrixConduitInteractable = matrixConduitInteractable;
         }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class MatrixConduitSystemManager : ConduitSystemManager<MatrixConduit, MatrixConduitSystem>
     {
-        public MatrixConduitSystemManager(ConduitType conduitType, MatrixConduit[,] conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public MatrixConduitSystemManager(ConduitType conduitType, Dictionary<Vector2Int, MatrixConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
         {
         }
 
@@ -20,7 +20,7 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(MatrixConduit conduit, ITileEntityInstance tileEntity, TileEntityPort port)
         {
-            IConduitSystem system = conduit.getConduitSystem();
+            IConduitSystem system = conduit.GetConduitSystem();
             if (system is not MatrixConduitSystem matrixConduitSystem) {
                 Debug.LogError("Matrix conduit did not belong to matrix conduit system");
                 return;

@@ -8,33 +8,24 @@ namespace TileMaps.Previewer {
     {
         [SerializeField]
         public bool on;
-        // Start is called before the first frame update
-        void Start()
-        {
+
+        private GameObject placePreviewer;
         
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
-        public void toggle() {
+        public void Toggle() {
             if (on) {
-                turnOff();
+                TurnOff();
             } else {
                 turnOn();
             }
             on = !on;
         }
 
-        public void turnOff() {
-            GameObject.Destroy(Global.findChild(transform,"PlacePreviewer"));
+        public void TurnOff() {
+            GameObject.Destroy(placePreviewer);
         }
 
         public void turnOn() {
-            GameObject placePreviewer = new GameObject();
+            placePreviewer = new GameObject();
             placePreviewer.name = "PlacePreviewer";
             Grid grid = placePreviewer.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1);
@@ -50,7 +41,7 @@ namespace TileMaps.Previewer {
             if (on) {
                 turnOn();
             } else {
-                turnOff();
+                TurnOff();
             }
         }
     }

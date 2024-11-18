@@ -36,7 +36,7 @@ namespace Conduits.Ports.UI {
             int priority = itemPort.getPriority();
             priority--;
             itemPort.setPriority(priority);
-            conduit.getConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
             setPriorityText();
         }
         private void priorityPlus() {
@@ -48,7 +48,7 @@ namespace Conduits.Ports.UI {
             int priority = itemPort.getPriority();
             priority++;
             itemPort.setPriority(priority);
-            conduit.getConduitSystem().rebuild();
+            conduit.GetConduitSystem().Rebuild();
             setPriorityText();
         }
         private void setPriorityText() {
