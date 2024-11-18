@@ -32,7 +32,7 @@ namespace PlayerModule.IO {
             //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
             ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerData.playerRobot);
             GetComponent<PlayerRobot>().setRobot(playerRobotItem);
-            tilePlacePreviewController.toggle();
+            tilePlacePreviewController.Toggle();
         }
 
     
