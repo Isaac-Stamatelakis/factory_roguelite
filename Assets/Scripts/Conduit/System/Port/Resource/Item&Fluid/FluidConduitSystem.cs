@@ -7,7 +7,7 @@ namespace Conduits.Systems {
 
     public class FluidConduitSystem : ItemConduitSystem<FluidItemConduitPort, FluidItemConduitInputPort, FluidItemConduitOutputPort>
     {
-        public FluidConduitSystem(string id) : base(id)
+        public FluidConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
         }
     }

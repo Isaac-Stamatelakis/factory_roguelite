@@ -8,13 +8,13 @@ using TileEntityModule;
 
 namespace Conduits.Systems {
     
-    public abstract class ItemConduitSystem<Port, InputPort, OutputPort> : PortConduitSystem<InputPort,OutputPort>
-        where Port : IConduitPort
-        where InputPort : IItemConduitInputPort
-        where OutputPort : IItemConduitOutputPort
+    public abstract class ItemConduitSystem<TPort, TInputPort, TOutputPort> : ResourcePortConduitSystem<TInputPort,TOutputPort>
+        where TPort : IConduitPort
+        where TInputPort : IItemConduitInputPort
+        where TOutputPort : IItemConduitOutputPort
     {
         
-        public ItemConduitSystem(string id) : base(id)
+        public ItemConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
             
         }
@@ -25,26 +25,28 @@ namespace Conduits.Systems {
             if (conduitPort == null) {
                 return;
             }
-            if (conduitPort is not Port port) {
+            if (conduitPort is not TPort port) {
                 Debug.LogError("Item Conduit System recieved non item conduit port");
                 return;
             }
             object input = port.getInputPort();
             if (input != null) {
-                addInputPort((InputPort) port.getInputPort());
+                addInputPort((TInputPort) port.getInputPort());
             } 
             object output = port.GetOutputPort();
             if (output != null) {
-                addOutputPort((OutputPort) port.GetOutputPort());
+                addOutputPort((TOutputPort) port.GetOutputPort());
             }
         }
-
-        public override void iterateTickUpdate(OutputPort outputPort, List<InputPort> inputPorts, int color)
+        
+        protected override void IterateTickUpdate(TOutputPort outputPort, List<TInputPort> inputPorts, int color)
         {
             ItemSlot toInsert = outputPort.extract();
             if (toInsert == null) {
                 return;
             }
+
+            activeThisTick = true;
             int amount = Mathf.Min(toInsert.amount,outputPort.getExtractAmount());
             ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,tags: toInsert.tags);
             foreach (IItemConduitInputPort itemConduitInputPort in inputPorts) {
@@ -54,7 +56,8 @@ namespace Conduits.Systems {
                 itemConduitInputPort.insert(tempItemSlot);
                 if (tempItemSlot.amount == 0) {
                     break;
-                } else if (toInsert.amount < 0) {
+                }
+                if (toInsert.amount < 0) {
                     Debug.LogError("Something went wrong when inserting items. Got negative amount '" + tempItemSlot.amount + "'");
                     break;
                 }
@@ -68,10 +71,10 @@ namespace Conduits.Systems {
             }
         }
 
-        protected override void addInputPortPostProcessing(InputPort inputPort)
+        protected override void addInputPortPostProcessing(TInputPort inputPort)
         {
-            List<InputPort> prioritySortedPorts = ColoredInputPorts[inputPort.getColor()];
-            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<InputPort>.Create((p1, p2) => p2.getPriority().CompareTo(p1.getPriority())));
+            List<TInputPort> prioritySortedPorts = ColoredInputPorts[inputPort.getColor()];
+            int index = prioritySortedPorts.BinarySearch(inputPort, Comparer<TInputPort>.Create((p1, p2) => p2.getPriority().CompareTo(p1.getPriority())));
             if (index < 0) {
                 // If negative, binary search couldn't find place, use bitwise complement
                 index = ~index;

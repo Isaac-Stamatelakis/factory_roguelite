@@ -16,19 +16,21 @@ namespace Conduits.Systems {
         public string GetId();
         public HashSet<IConduit> GetConduits();
         public void Rebuild();
+        public bool IsActive();
     }
 
     public interface IPortConduitSystem : IConduitSystem {
         public void TickUpdate();
     }
 
-    public abstract class PortConduitSystem<InPort, OutPort> : ConduitSystem<IPortConduit>, IPortConduitSystem
+    public abstract class PortConduitSystem<TInPort, TOutPort> : ConduitSystem<IPortConduit>, IPortConduitSystem
     
-        where InPort : IColorPort 
-        where OutPort : IColorPort
-        
-        {
-        public PortConduitSystem(string id) : base(id) {
+        where TInPort : IColorPort 
+        where TOutPort : IColorPort
+
+    {
+        private bool active;
+        protected PortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager) {
             init();
         }
 
@@ -38,61 +40,62 @@ namespace Conduits.Systems {
         }
         public override void Rebuild()
         {
-            ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
-            ColoredInputPorts = new Dictionary<int, List<InPort>>();
+            ColoredOutputPorts = new Dictionary<int, List<TOutPort>>();
+            ColoredInputPorts = new Dictionary<int, List<TInPort>>();
             foreach (IPortConduit conduit in conduits) {
                 addPort(conduit);
             }
         }
 
         public abstract void addPort(IPortConduit conduit);
-        protected Dictionary<int, List<OutPort>> coloredOutputPorts;
-        protected Dictionary<int, List<InPort>> coloredPriorityInputs;
-        public Dictionary<int, List<OutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
-        public Dictionary<int, List<InPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
+        protected Dictionary<int, List<TOutPort>> coloredOutputPorts;
+        protected Dictionary<int, List<TInPort>> coloredPriorityInputs;
+        public Dictionary<int, List<TOutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
+        public Dictionary<int, List<TInPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
 
-        public virtual void TickUpdate()
-        {
-            foreach (var colorOutputKVP in ColoredOutputPorts) {
-                int color = colorOutputKVP.Key;
-                var list = colorOutputKVP.Value;
-                if (ColoredInputPorts.ContainsKey(color)) {
-                    List<InPort> priorityOrderInputs = ColoredInputPorts[color];
-                    foreach (OutPort itemConduitOutputPort in list) {
-                        iterateTickUpdate(itemConduitOutputPort,priorityOrderInputs,color);
-                    }
-                }
-            }
-        }
-
-        public abstract void iterateTickUpdate(OutPort outputPort, List<InPort> inputPort, int color);
-
-        protected void addOutputPort(OutPort outputPort) {
+        public abstract void TickUpdate();
+        protected void addOutputPort(TOutPort outputPort) {
             if (outputPort == null) {
                 return;
             }
             if (!ColoredOutputPorts.ContainsKey(outputPort.getColor())) {
-                ColoredOutputPorts[outputPort.getColor()] = new List<OutPort>();
+                ColoredOutputPorts[outputPort.getColor()] = new List<TOutPort>();
             }
             ColoredOutputPorts[outputPort.getColor()].Add(outputPort);
         }
-        protected void addInputPort(InPort inputPort) {
+        protected void addInputPort(TInPort inputPort) {
             if (inputPort == null) {
                 return;
             }
             if (!ColoredInputPorts.ContainsKey(inputPort.getColor())) {
-                ColoredInputPorts[inputPort.getColor()] = new List<InPort>();
+                ColoredInputPorts[inputPort.getColor()] = new List<TInPort>();
             }
             ColoredInputPorts[inputPort.getColor()].Add(inputPort);
             addInputPortPostProcessing(inputPort);
         }
 
-        protected abstract void addInputPortPostProcessing(InPort inputPort);
+        protected abstract void addInputPortPostProcessing(TInPort inputPort);
 
         protected void init()
         {
-            ColoredOutputPorts = new Dictionary<int, List<OutPort>>();
-            ColoredInputPorts = new Dictionary<int, List<InPort>>();
+            ColoredOutputPorts = new Dictionary<int, List<TOutPort>>();
+            ColoredInputPorts = new Dictionary<int, List<TInPort>>();
+        }
+
+        protected void SetActive(bool state)
+        {
+            if (active == state)
+            {
+                return;
+            }
+            active = state;
+            manager.RefreshSystemTiles(this);
+        }
+
+        public override bool IsActive()
+        {
+            return active;
         }
     }
+    
 }

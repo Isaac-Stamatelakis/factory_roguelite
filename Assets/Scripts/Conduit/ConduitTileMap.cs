@@ -36,12 +36,16 @@ namespace TileMaps.Conduit {
 
         public void RefreshTile(int x, int y)
         {
+            Vector3Int cellPosition = new Vector3Int(x,y,0);
+            bool tilePlaced = tilemap.GetTile(cellPosition);
+            if (!tilePlaced) return;
+            
             IConduit conduit = conduitSystemManager.GetIConduitAtRelativeCellPosition(new Vector2Int(x,y));
             if (conduit == null) return;
             
             var conduitItem = conduit.GetConduitItem();
             var stateTile = conduitItem.Tile.getTileAtState(conduit.GetActivatedState());
-            tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
+            tilemap.SetTile(cellPosition,stateTile);
         }
 
         public override void hitTile(Vector2 position)

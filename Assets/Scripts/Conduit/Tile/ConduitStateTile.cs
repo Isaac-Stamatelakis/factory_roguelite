@@ -12,11 +12,9 @@ namespace Tiles
         
         public TileBase getTileAtState(int state)
         {
-            if (state >= Tiles.Length || state < 0)
-            {
-                Debug.LogWarning($"Invalid state for conduit tile {state} {name}");
-            }
-            return Tiles[state];
+            if (state < Tiles.Length && state >= 0) return Tiles[state];
+            Debug.LogWarning($"Invalid state for conduit tile {state} {name}");
+            return null;
         }
 
         public Sprite getDefaultSprite()

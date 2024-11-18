@@ -7,7 +7,7 @@ namespace Conduits.Systems {
     public class SignalConduitSystem : PortConduitSystem<SignalConduitInputPort, SignalConduitOutputPort>
     {
         private bool[] colorActivations;
-        public SignalConduitSystem(string id) : base(id)
+        public SignalConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
             colorActivations = new bool[ConduitPortUIFactory.PORT_COLORS];
         }
@@ -32,20 +32,12 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void iterateTickUpdate(SignalConduitOutputPort outputPort, List<SignalConduitInputPort> inputPort, int color)
-        {
-            
-        }
-
         public override void TickUpdate()
         {
+            bool active = false;
             for (int color = 0; color < colorActivations.Length; color ++) {
-                if (!coloredPriorityInputs.ContainsKey(color)) {
-                    break;
-                }
                 bool systemActive = false;
-                if (coloredOutputPorts.ContainsKey(color)) {
-                    var outputPorts = coloredOutputPorts[color];
+                if (coloredOutputPorts.TryGetValue(color, out var outputPorts)) {
                     foreach (SignalConduitOutputPort outputPort in outputPorts) {
                         systemActive = outputPort.extract();
                         if (systemActive) {
@@ -53,17 +45,19 @@ namespace Conduits.Systems {
                         }
                     }
                 }
+                active = active || systemActive;
+                if (!coloredPriorityInputs.ContainsKey(color)) continue;
+                
                 bool currentActivationStatus = colorActivations[color];
                 bool signalChange = currentActivationStatus != systemActive;
-                if (signalChange) {
-                    colorActivations[color] = systemActive;
-                    var inputPorts = coloredPriorityInputs[color];
-                    foreach (SignalConduitInputPort inputPort in inputPorts) {
-                        inputPort.insert(systemActive);
-                    }
+                if (!signalChange) continue;
+                colorActivations[color] = systemActive;
+                var inputPorts = coloredPriorityInputs[color];
+                foreach (SignalConduitInputPort inputPort in inputPorts) {
+                    inputPort.insert(systemActive);
                 }
-
             }
+            SetActive(active);
         }
 
         protected override void addInputPortPostProcessing(SignalConduitInputPort inputPort)

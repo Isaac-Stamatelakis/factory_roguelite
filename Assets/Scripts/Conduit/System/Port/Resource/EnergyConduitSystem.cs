@@ -4,9 +4,9 @@ using UnityEngine;
 using Conduits.Ports;
 
 namespace Conduits.Systems {
-    public class EnergyConduitSystem : PortConduitSystem<EnergyConduitInputPort, EnergyConduitOutputPort>
+    public class EnergyConduitSystem : ResourcePortConduitSystem<EnergyConduitInputPort, EnergyConduitOutputPort>
     {
-        public EnergyConduitSystem(string id) : base(id)
+        public EnergyConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
         }
 
@@ -30,9 +30,8 @@ namespace Conduits.Systems {
             }
         }
 
-        public override void iterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts, int color)
+        protected override void IterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts, int color)
         {
-
             ref int totalEnergy = ref outputPort.extract();
             int toInsert;
             if (totalEnergy >= outputPort.extractionRate) {

@@ -65,10 +65,12 @@ namespace Conduits
 
         public int GetActivatedState()
         {
-            /*
-            if (conduitSystem != null && conduitSystem.)
-            */
-            return state;
+            int returnState = state;
+            if (conduitSystem != null && conduitSystem.IsActive())
+            {
+                returnState += (int)ConduitDirectionState.Active;
+            }
+            return returnState;
         }
 
         public int GetState()
@@ -83,21 +85,11 @@ namespace Conduits
 
         public void AddStateDirection(ConduitDirectionState directionState)
         {
-            if (ConnectsDirection(directionState))
-            {
-                return;
-            }
-
             state += (int)directionState;
         }
 
         public void RemoveStateDirection(ConduitDirectionState directionState)
         {
-            if (!ConnectsDirection(directionState))
-            {
-                return;
-            }
-
             state -= (int)directionState;
         }
 

@@ -5,11 +5,13 @@ using UnityEngine;
 namespace Conduits.Systems {
     public abstract class ConduitSystem<TSystemConduit> : IConduitSystem where TSystemConduit : IConduit 
         {
-        public ConduitSystem(string id) {
+        protected ConduitSystem(string id, IConduitSystemManager manager) {
             this.id = id;
+            this.manager = manager;
             Conduits = new HashSet<TSystemConduit>();
         }
         protected HashSet<TSystemConduit> conduits;
+        protected IConduitSystemManager manager;
         private string id;
         protected HashSet<TSystemConduit> Conduits { get => conduits; set => conduits = value; }
 
@@ -70,6 +72,7 @@ namespace Conduits.Systems {
         }
 
         public abstract void Rebuild();
-    }
+        public abstract bool IsActive();
+        }
 }
 

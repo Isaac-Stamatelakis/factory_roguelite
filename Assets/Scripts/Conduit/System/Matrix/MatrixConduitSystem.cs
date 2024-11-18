@@ -19,7 +19,7 @@ namespace Conduits.Systems {
 
         private HashSet<MatrixAutoCraftingCoreInstance> autoCraftingCores;
         private ItemMatrixControllerInstance controller;
-        public MatrixConduitSystem(string id) : base(id)
+        public MatrixConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
             tileEntities = new List<IMatrixConduitInteractable>();
         }
@@ -39,6 +39,11 @@ namespace Conduits.Systems {
                 addTileEntity(matrixConduit);
             }
             syncToController();
+        }
+
+        public override bool IsActive()
+        {
+            return controller != null;
         }
 
         /// <summary>

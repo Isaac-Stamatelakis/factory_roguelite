@@ -9,7 +9,7 @@ namespace Conduits.Systems {
 
     public class SolidItemConduitSystem : ItemConduitSystem<SolidItemConduitPort, SolidItemConduitInputPort, SolidItemConduitOutputPort>
     {
-        public SolidItemConduitSystem(string id) : base(id)
+        public SolidItemConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
         }
     }

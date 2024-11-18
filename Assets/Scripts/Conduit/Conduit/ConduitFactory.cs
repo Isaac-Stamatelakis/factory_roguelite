@@ -34,7 +34,7 @@ namespace Conduits {
                 return null;
             }
             PortConduitData conduitData = JsonConvert.DeserializeObject<PortConduitData>(conduitOptionData);
-            int state = conduitData.State;
+            int state = conduitData.State % 16;
             IConduitPort port = ConduitPortFactory.Deserialize(conduitData.PortData,conduitType,conduitItem);
             if (tileEntity != null && portType != null) {
                 if (port == null) {
@@ -96,7 +96,7 @@ namespace Conduits {
                 x : cellPosition.x,
                 y : cellPosition.y,
                 item: (MatrixConduitItem)conduitItem,
-                state: conduitData.State,
+                state: conduitData.State % 16,
                 matrixConduitInteractable: matrixConduitInteractable
             );
         }

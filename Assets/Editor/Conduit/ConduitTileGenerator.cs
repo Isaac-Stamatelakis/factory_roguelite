@@ -134,6 +134,7 @@ public class ConduitTileGenerator : EditorWindow {
 
     private Tile[] GenerateSpritesFromTexture(Texture2D texture, string spritePath)
     {
+        
         Color[] pixels = texture.GetPixels();
         Vector2Int min = Vector2Int.zero;
         Vector2Int max = Vector2Int.zero;
@@ -153,8 +154,8 @@ public class ConduitTileGenerator : EditorWindow {
             }
             width++;
         }
-
         max.x = min.x + width;
+        
         int height = 0;
         for (int y = 0; y < SIZE; y++)
         {
@@ -171,34 +172,60 @@ public class ConduitTileGenerator : EditorWindow {
         }
 
         max.y = min.y + height;
+        
+        Color shadedColor = pixels[min.x];
+        Color highlightColor = pixels[max.x - 1];
+        
         Debug.Log($"Generating sprites for {conduitName} with min {min} and max {max}");
         Tile[] tiles = new Tile[16];
         for (int i = 0; i < 16; i++)
         {
-            bool up = (i & (int)ConduitDirectionState.Up) != 0;
             Color[] slicedPixels = texture.GetPixels();
-            if (!up)
-            {
-                SlicePixels(new Vector2Int(0,max.y), new Vector2Int(SIZE,SIZE), slicedPixels);
-            }
             
-            bool down = (i & (int)ConduitDirectionState.Down) != 0;
-            if (!down)
-            {
-                SlicePixels(new Vector2Int(0,0), new Vector2Int(SIZE,min.y), slicedPixels);
-            }
-    
-            bool left = (i & (int)ConduitDirectionState.Left) != 0;
-            if (!left)
-            {
-                SlicePixels(new Vector2Int(0,0), new Vector2Int(min.x,SIZE), slicedPixels);
-            }
+            
             
             bool right = (i & (int)ConduitDirectionState.Right) != 0;
             if (!right)
             {
                 SlicePixels(new Vector2Int(max.x,0), new Vector2Int(SIZE,SIZE), slicedPixels);
+                for (int y = min.y; y < max.y; y++)
+                {
+                    slicedPixels[max.x-1+SIZE*y] = highlightColor;
+                }
             }
+            
+            
+            bool down = (i & (int)ConduitDirectionState.Down) != 0;
+            if (!down)
+            {
+                SlicePixels(new Vector2Int(0,0), new Vector2Int(SIZE,min.y), slicedPixels);
+                for (int x = min.x; x < max.x; x++)
+                {
+                    slicedPixels[x+SIZE*(min.y)] = shadedColor;
+                }
+            }
+            
+            bool up = (i & (int)ConduitDirectionState.Up) != 0;
+            if (!up)
+            {
+                SlicePixels(new Vector2Int(0,max.y), new Vector2Int(SIZE,SIZE), slicedPixels);
+                for (int x = min.x; x < max.x; x++)
+                {
+                    slicedPixels[x+SIZE*(max.y-1)] = highlightColor;
+                }
+            }
+            bool left = (i & (int)ConduitDirectionState.Left) != 0;
+            if (!left)
+            {
+                SlicePixels(new Vector2Int(0,0), new Vector2Int(min.x,SIZE), slicedPixels);
+                for (int y = min.y; y < max.y; y++)
+                {
+                    slicedPixels[min.x+SIZE*y] = shadedColor;
+                }
+            }
+            
+    
+            
 
             string spriteName = $"{conduitName.ToLower().Replace(" ","_")}{i}";
             string savePath = $"{spritePath}/{spriteName}";
