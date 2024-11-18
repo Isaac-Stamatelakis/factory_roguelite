@@ -29,6 +29,7 @@ namespace Conduits.Systems {
         public void RefreshSystemTiles(IConduitSystem conduitSystem);
         public void RefreshConduitTile(IConduit conduit);
         public void SetTileMap(ConduitTileMap conduitTileMap);
+        public IConduit[,] GetConduitPartitionData(Vector2Int partitionPosition);
         public Vector2Int GetOffset();
     }
 

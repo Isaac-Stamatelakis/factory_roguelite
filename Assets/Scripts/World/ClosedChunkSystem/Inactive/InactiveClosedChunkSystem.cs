@@ -269,9 +269,7 @@ namespace Chunks.Systems {
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
                     foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
                         IConduitSystemManager manager = kvp.Value;
-                        if (manager is PortConduitSystemManager portConduitSystemManager) {
-                            partitionConduits[kvp.Key.toConduitType()] = portConduitSystemManager.GetConduitPartitionData(partition.getRealPosition());
-                        }
+                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.getRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
                     partition.save();

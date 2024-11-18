@@ -196,30 +196,18 @@ namespace Chunks.Partitions {
         {
             base.save();
             WorldTileConduitData data = (WorldTileConduitData) getData();
-            
-            if (conduits != null) {
-                foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                            IConduit conduit = kvp.Value[x,y];
-                            ConduitFactory.SerializeConduit(conduit, kvp.Key,data,x,y);
-                        }
+
+            if (conduits == null) return;
+            foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
+                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                        IConduit conduit = kvp.Value[x,y];
+                        ConduitFactory.SerializeConduit(conduit, kvp.Key,data,x,y);
                     }
                 }
-                
             }
         }
-
-        public void setConduits(TileMapLayer layer,IConduit[,] conduits)
-        {
-            conduitArrayDict[layer] = conduits;
-        }
         
-        public override IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps)
-        {
-            return base.unloadTiles(tileGridMaps);
-        }
-
         protected override void iterateLoad(int x, int y, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition)
         {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
