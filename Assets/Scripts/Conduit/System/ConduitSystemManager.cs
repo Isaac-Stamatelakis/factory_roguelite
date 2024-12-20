@@ -52,8 +52,7 @@ namespace Conduits.Systems {
             ConduitType conduitType, 
             Dictionary<Vector2Int, TConduit> conduits, 
             Vector2Int size,
-            Dictionary<ITileEntityInstance,
-            List<TileEntityPort>> chunkConduitPorts, 
+            Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, 
             Vector2Int referencePosition
             ) {
             this.type = conduitType;
