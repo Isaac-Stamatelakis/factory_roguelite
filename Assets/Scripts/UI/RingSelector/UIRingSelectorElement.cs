@@ -25,7 +25,7 @@ namespace UI.RingSelector
             transform.localEulerAngles += new Vector3(0, 0, angle);
             image.transform.localEulerAngles -= new Vector3(0, 0, angle); // Image is child of component undo rotation
             float angleMidPoint =90-180f/ringSelector.DisplayCount;
-            image.transform.localPosition = -350*new Vector3(MathF.Cos(angleMidPoint*Mathf.Deg2Rad), MathF.Sin(angleMidPoint*Mathf.Deg2Rad), 0);
+            image.transform.localPosition = -375*new Vector3(MathF.Cos(angleMidPoint*Mathf.Deg2Rad), MathF.Sin(angleMidPoint*Mathf.Deg2Rad), 0);
         }
     }
 }
