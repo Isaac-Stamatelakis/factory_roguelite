@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +20,7 @@ namespace Player.Controls.UI
         {
             backButton.onClick.AddListener(() =>
             {
-                Destroy(gameObject);
+                MainCanvasController.Instance.PopStack();
             });
             restoreButton.onClick.AddListener(ControlUtils.SetDefault);
             Display();

@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using UI.PauseScreen;
 using UnityEngine;
 
 namespace UI
 {
     public class MainCanvasController : MonoBehaviour
     {
+        [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
         private static MainCanvasController instance;
         public static MainCanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
@@ -16,13 +18,17 @@ namespace UI
 
         public void Update()
         {
+            
             if (uiObjectStack.Count == 0)
             {
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject));
+                }
                 return;
             }
             DisplayedUIInfo top = uiObjectStack.Peek();
-            
-            if (Input.GetKey(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 PopStack();
                 return;
@@ -46,6 +52,7 @@ namespace UI
             }
             DisplayedUIInfo top = uiObjectStack.Pop();
             GameObject.Destroy(top.gameObject);
+            
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
@@ -63,7 +70,15 @@ namespace UI
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo current = uiObjectStack.Peek();
-                current.gameObject.SetActive(current.hideOnStack);
+                try
+                {
+                    current.gameObject.SetActive(!current.hideOnStack);
+                }
+                catch (MissingReferenceException e)
+                {
+                    Debug.LogWarning($"MainCanvasController tried to access already destroyed ui object\n{e.Message}");
+                    uiObjectStack.Pop();
+                }
             }
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
