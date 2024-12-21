@@ -5,6 +5,7 @@ using Conduits.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
 using Chunks;
+using UI;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixRecipeEncoderInstance : TileEntityInstance<MatrixRecipeEncoder>, 
@@ -33,8 +34,7 @@ namespace TileEntityModule.Instances.Matrix {
             GameObject instantiated = GameObject.Instantiate(uiPrefab);
             RecipeEncoderUI recipeEncoderUI = instantiated.GetComponent<RecipeEncoderUI>();
             recipeEncoderUI.init(this); 
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiated);
-
+            MainCanvasController.Instance.DisplayObject(instantiated);
         }
 
         private void initInventories() {

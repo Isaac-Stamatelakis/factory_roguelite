@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -56,8 +57,7 @@ namespace TileEntityModule {
                 return;
             }
             uiComponent.display(tileEntityInstance);
-            GlobalUIController tileEntityGUIController = GlobalUIContainer.getInstance().getUiController();
-            tileEntityGUIController.setGUI(instantiated);
+            MainCanvasController.Instance.DisplayObject(instantiated.gameObject);
         }
     }
 }

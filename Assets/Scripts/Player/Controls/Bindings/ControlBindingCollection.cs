@@ -28,12 +28,12 @@ namespace Player.Controls
             return keys;
         }
 
-        protected void SetKeyCode(string key, KeyCode keyCode, bool overrideValue)
+        protected void SetKeyCode(string key, List<KeyCode> keyCodes, bool overrideValue)
         {
             string prefKey = ControlUtils.GetPrefKey(key);
             if (overrideValue || PlayerPrefs.GetInt(prefKey) == 0)
             {
-                PlayerPrefs.SetInt(prefKey, (int)keyCode);
+                ControlUtils.SetKeyValue(key,keyCodes);
             }
         }
 
@@ -42,7 +42,7 @@ namespace Player.Controls
             public string Key;
             public List<KeyCode> DefaultKeyCode;
 
-            public ControlBinding(string key, KeyCode defaultKeyCode)
+            public ControlBinding(string key, List<KeyCode> defaultKeyCode)
             {
                 Key = key;
                 DefaultKeyCode = defaultKeyCode;

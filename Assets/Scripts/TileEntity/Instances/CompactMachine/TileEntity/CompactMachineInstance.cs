@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using Chunks;
 using Dimensions;
 using Chunks.Systems;
+using UI;
 
 namespace TileEntityModule.Instances.CompactMachines {
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
@@ -78,7 +79,7 @@ namespace TileEntityModule.Instances.CompactMachines {
                 return;
             }
             uIController.display(this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiated);
+            MainCanvasController.Instance.DisplayObject(instantiated);
         }
 
         public Vector2Int getTeleporterPosition() {

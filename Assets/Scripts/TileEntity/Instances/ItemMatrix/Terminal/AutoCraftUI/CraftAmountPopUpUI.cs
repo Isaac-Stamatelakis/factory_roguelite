@@ -26,13 +26,13 @@ namespace TileEntityModule.Instances.Matrix {
             amountIteratorUI.setListener(this);
 
             cancelButton.onClick.AddListener(() => {
-                GameObject.Destroy(gameObject);
+                MainCanvasController.Instance.PopStack();
             });
             continueButton.onClick.AddListener(() => {
                 AutoCraftPopupUI popupUI = AutoCraftPopupUI.newInstance();
                 popupUI.init(controller,toCraft,Convert.ToInt32(amountTextField.text));
-                GlobalUIContainer.getInstance().getUiController().addGUI(popupUI.gameObject);
-                GameObject.Destroy(gameObject);
+                MainCanvasController.Instance.PopStack();
+                MainCanvasController.Instance.DisplayObject(popupUI.gameObject);
             });
 
         }

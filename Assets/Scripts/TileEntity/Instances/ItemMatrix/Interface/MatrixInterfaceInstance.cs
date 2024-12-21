@@ -6,6 +6,7 @@ using Conduits.Systems;
 using Newtonsoft.Json;
 using Conduits.Ports;
 using Items.Tags;
+using UI;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixInterfaceInstance : TileEntityInstance<MatrixInterface>,
@@ -132,7 +133,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             MatrixInterfaceUI matrixInterfaceUI = MatrixInterfaceUI.newInstance();
             matrixInterfaceUI.init(this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(matrixInterfaceUI.gameObject);
+            MainCanvasController.Instance.DisplayObject(matrixInterfaceUI.gameObject);
         }
 
         public void removeFromSystem()

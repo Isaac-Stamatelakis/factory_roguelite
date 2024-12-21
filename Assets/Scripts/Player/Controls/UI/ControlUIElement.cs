@@ -12,12 +12,43 @@ namespace Player.Controls.UI
         [SerializeField] private Button button;
         private string key;
         private List<KeyCode> selectableKeys;
+        public int count;
+        private List<KeyCode> cachedKeys;
+        private ControlSettingUI controlSettingUI;
         public void Start()
         {
             button.onClick.AddListener(() =>
             {
+                if (cachedKeys != null)
+                {
+                    return;
+                }
+                count = 12;
+                cachedKeys = new List<KeyCode>();
                 selectableKeys = ControlUtils.GetAllSelectableKeys();
             });
+        }
+
+        public void FixedUpdate()
+        {
+            if (cachedKeys == null || cachedKeys.Count == 0)
+            {
+                return;
+            }
+            count--;
+            if (count < 0)
+            {
+                selectableKeys = null;
+                ControlUtils.SetKeyValue(key,cachedKeys);
+                controlSettingUI.CheckConflicts();
+                cachedKeys = null;
+                Display();
+            }
+        }
+
+        public void HighlightConflictState(bool conflict)
+        {
+            button.GetComponentInChildren<TextMeshProUGUI>().color = conflict ? Color.red : Color.white;
         }
 
         public void Update()
@@ -35,26 +66,25 @@ namespace Player.Controls.UI
             }
             foreach (KeyCode keyCode in selectableKeys)
             {
-                if (Input.GetKey(keyCode))
+                if (Input.GetKey(keyCode) && !cachedKeys.Contains(keyCode))
                 {
-                    pressedKeys.Add(keyCode);
+                    cachedKeys.Add(keyCode);
                 }
             }
-            
-            
-
-            if (pressedKeys.Count <= 0) return;
-            selectableKeys = null;
-            PlayerPrefs.SetInt(ControlUtils.GetPrefKey(key), (int) pressedKeys[0]);
-            Display(key);
         }
 
-        public void Display(string key)
+        public void Display()
         {
-            this.key = key;
             text.text = ControlUtils.FormatKeyText(key);
-            KeyCode keyCode = ControlUtils.GetPrefKeyCode(key);
-            button.transform.GetComponentInChildren<TextMeshProUGUI>().text = keyCode.ToString();
+            List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(key);
+            string formatString = ControlUtils.KeyCodeListAsString(keyCodes);
+            button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
+        }
+        public void Initalize(string key, ControlSettingUI controlSettingUI)
+        {
+            this.controlSettingUI = controlSettingUI;
+            this.key = key;
+            Display();
         }
     }
 }

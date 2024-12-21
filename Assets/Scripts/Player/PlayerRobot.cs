@@ -9,6 +9,7 @@ using TileMaps;
 using TileEntityModule;
 using UnityEngine.EventSystems;
 using Dimensions;
+using UI;
 
 namespace PlayerModule {
     public class PlayerRobot : MonoBehaviour
@@ -18,7 +19,6 @@ namespace PlayerModule {
         [SerializeField] private PlayerPlatformDetector playerFeet;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
-        private GlobalUIContainer globalUIContainer;
         private bool onGround;
         public bool OnGround { get => onGround; set => onGround = value; }
         public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
@@ -29,7 +29,6 @@ namespace PlayerModule {
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
-            globalUIContainer = GlobalUIContainer.getInstance();
         }
 
         public void FixedUpdate() {
@@ -49,7 +48,7 @@ namespace PlayerModule {
             int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
             onGround = raycastHit.collider != null;            
-            if (!globalUIContainer.isActive()) {
+            if (!MainCanvasController.Instance.IsActive) {
                 if (currentRobot == null) {
                     handleEngineerMovement();
                 } else {

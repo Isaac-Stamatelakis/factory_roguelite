@@ -6,6 +6,7 @@ using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Items.Inventory;
 using Entities;
+using UI;
 
 namespace TileEntityModule.Instances
 {
@@ -38,11 +39,10 @@ namespace TileEntityModule.Instances
             if (items == null) {
                 initInventory();
             }
-            GlobalUIController tileEntityGUIController = GlobalUIContainer.getInstance().getUiController();
             GameObject shownGui = GameObject.Instantiate(uiElement);
             SolidDynamicInventory inventoryGrid = shownGui.GetComponent<SolidDynamicInventory>();
             inventoryGrid.initalize(items, new Vector2Int((int) tileEntity.Rows, (int) tileEntity.Columns));
-            tileEntityGUIController.setGUI(shownGui);
+            MainCanvasController.Instance.DisplayObject(shownGui);
         }
 
         public string serialize()

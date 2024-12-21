@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Player.Controls.Bindings;
 using UnityEngine;
 
@@ -17,7 +18,8 @@ namespace Player.Controls
         {
             Dictionary<string, ControlBindingCollection> sections = new Dictionary<string, ControlBindingCollection>
             {
-                ["Movement"] = new MovementControlBindings()
+                ["Movement"] = new MovementControlBindings(),
+                ["Equips"] = new EquipmentControlBindings()
             };
             foreach (var kvp in sections)
             {
@@ -26,6 +28,81 @@ namespace Player.Controls
             return sections;
         }
 
+        public static HashSet<string> GetConflictingBindings()
+        {
+            var sections = GetKeyBindingSections();
+            HashSet<string> conflicts = new HashSet<string>();
+            Dictionary<int,string> serializedKeyCodes = new Dictionary<int,string>();
+            foreach (var kvp in sections)
+            {
+                List<string> sectionKeys = kvp.Value.GetBindingKeys();
+                foreach (var key in sectionKeys)
+                {
+                    int value = PlayerPrefs.GetInt(GetPrefKey(key));
+                    if (serializedKeyCodes.TryGetValue(value, out var code))
+                    {
+                        conflicts.Add(key);
+                        conflicts.Add(code);
+                        continue;
+                    }
+                    serializedKeyCodes.Add(value, key);
+                }
+            }
+            return conflicts;
+        }
+
+        public static int SerializeKeyCodes(List<KeyCode> keyCodes)
+        {
+            var sortedBySize = keyCodes.OrderByDescending(key => (int)key).ToList();
+            int sum = 0;
+            int mult = 1;
+            for (int i = 0; i < sortedBySize.Count; i++)
+            {
+                sum +=  mult*(int)sortedBySize[i];
+                mult *= 512;
+            }
+            return sum;
+        }
+
+        public static string KeyCodeListAsString(List<KeyCode> keyCodes)
+        {
+            string resultString = "";
+            for (int i = 0; i < keyCodes.Count; i++)
+            {
+                string keyCodeString =  keyCodes[i].ToString();
+                keyCodeString = keyCodeString.Replace("Left", "L").Replace("Right","R");
+                resultString += keyCodeString;
+                
+                if (i < keyCodes.Count - 1)
+                {
+                    resultString += "+";
+                }
+            }
+
+            return resultString;
+        }
+        
+        public static List<KeyCode> GetKeyCodes(string key)
+        {
+            string prefKey = GetPrefKey(key);
+            
+            int value = PlayerPrefs.GetInt(prefKey);
+            List<KeyCode> keyCodes = new List<KeyCode>();
+            while (value > 0)
+            {
+                keyCodes.Add((KeyCode)(value%512));
+                value /= 512;
+            }
+            
+            return keyCodes;
+        }
+
+        public static void SetKeyValue(string key, List<KeyCode> keyCodes)
+        {
+            string prefKey = GetPrefKey(key);
+            int sum = SerializeKeyCodes(keyCodes);
+            PlayerPrefs.SetInt(prefKey, sum);
+        }
         public static List<KeyCode> GetAllSelectableKeys()
         {
             KeyCode[] keys = Enum.GetValues(typeof(KeyCode)) as KeyCode[];
@@ -45,7 +122,7 @@ namespace Player.Controls
 
         public static string GetPrefKey(string name)
         {
-            return $"CONTROL_{name}";
+            return PREF_PREFIX + name;
         }
 
         public static KeyCode GetPrefKeyCode(string name)

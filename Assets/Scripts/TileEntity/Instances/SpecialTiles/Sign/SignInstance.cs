@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
+using UI;
 
 
 namespace TileEntityModule.Instances.Signs {
@@ -31,10 +32,7 @@ namespace TileEntityModule.Instances.Signs {
                 return;
             }
             signUIController.init(signData);
-            
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
-            globalUIController.setGUI(instantiated);
-
+            MainCanvasController.Instance.DisplayObject(instantiated);
         }
 
         public string serialize()

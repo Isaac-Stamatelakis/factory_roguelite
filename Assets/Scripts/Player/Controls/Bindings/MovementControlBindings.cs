@@ -9,11 +9,11 @@ namespace Player.Controls.Bindings
         {
             return new List<ControlBinding>
             {
-                new ControlBinding(ControlConsts.JUMP, KeyCode.Space),
-                new ControlBinding(ControlConsts.MOVE_LEFT, KeyCode.A),
-                new ControlBinding(ControlConsts.MOVE_RIGHT, KeyCode.D),
-                new ControlBinding(ControlConsts.MOVE_UP, KeyCode.W),
-                new ControlBinding(ControlConsts.MOVE_DOWN, KeyCode.S)
+                new ControlBinding(ControlConsts.JUMP, new List<KeyCode>{KeyCode.Space}),
+                new ControlBinding(ControlConsts.MOVE_LEFT, new List<KeyCode>{KeyCode.A}),
+                new ControlBinding(ControlConsts.MOVE_RIGHT, new List<KeyCode>{KeyCode.D}),
+                new ControlBinding(ControlConsts.MOVE_UP, new List<KeyCode>{KeyCode.W}),
+                new ControlBinding(ControlConsts.MOVE_DOWN, new List<KeyCode>{KeyCode.S})
             };
         }
     }

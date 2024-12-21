@@ -4,6 +4,7 @@ using UnityEngine;
 using TileEntityModule.Instances.Machines;
 using TileEntityModule;
 using Items.Inventory;
+using UI;
 
 namespace RecipeModule {
     [CreateAssetMenu(fileName ="RP~New Energy Recipe Processor",menuName="Crafting/Processor/Energy")]
@@ -12,7 +13,7 @@ namespace RecipeModule {
         public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName, IInventoryListener listener)
         {
             GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName,listener).gameObject;
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+            MainCanvasController.Instance.DisplayObject(ui);
         }
         public IEnergyProduceRecipe getEnergyRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
