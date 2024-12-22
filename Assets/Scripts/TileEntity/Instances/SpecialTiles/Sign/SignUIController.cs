@@ -16,10 +16,22 @@ namespace TileEntityModule.Instances.Signs {
             line1In.text = signData.line1;
             line2In.text = signData.line2;
             line3In.text = signData.line3;
+            
+            AddInputFieldListener(line1In, value => signData.line1 = value);
+            AddInputFieldListener(line2In, value => signData.line2 = value);
+            AddInputFieldListener(line3In, value => signData.line3 = value);
+        }
 
-            line1In.onValueChanged.AddListener( (string value) => signData.line1 = value);
-            line2In.onValueChanged.AddListener( (string value) => signData.line2 = value);
-            line3In.onValueChanged.AddListener( (string value) => signData.line3 = value);
+        private void AddInputFieldListener(TMP_InputField inputField, System.Action<string> onValueChanged)
+        {
+            inputField.onValueChanged.AddListener((string value) =>
+            {
+                if (Input.GetKey(KeyCode.Escape))
+                {
+                    return;
+                }
+                onValueChanged?.Invoke(value);
+            });
         }
         public void OnDestroy() {
             line1In.onValueChanged.RemoveAllListeners();
