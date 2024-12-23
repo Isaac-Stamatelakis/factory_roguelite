@@ -8,6 +8,7 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items.Inventory;
 using Entities;
+using UI;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixDriveInstance : TileEntityInstance<MatrixDrive>, IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, 
@@ -130,7 +131,7 @@ namespace TileEntityModule.Instances.Matrix {
             
             MatrixDriveUI ui = MatrixDriveUI.createInstance();
             ui.init(tileEntity.rows,tileEntity.columns,storageDrives,this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui.gameObject);
+            MainCanvasController.Instance.DisplayObject(ui.gameObject);
         }
 
         public string serialize()

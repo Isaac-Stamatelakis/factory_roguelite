@@ -8,6 +8,7 @@ using UnityEngine.Tilemaps;
 using Items.Tags;
 using Items.Tags.Matrix;
 using Items;
+using UI;
 
 namespace TileEntityModule.Instances.Matrix {
     public class MatrixTerminalInstance : TileEntityInstance<MatrixTerminal>, IMatrixConduitInteractable, IRightClickableTileEntity
@@ -30,7 +31,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             MatrixTerminalUI matrixTerminalUI = MatrixTerminalUI.newInstance();
             matrixTerminalUI.init(this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(matrixTerminalUI.gameObject);
+            MainCanvasController.Instance.DisplayObject(matrixTerminalUI.gameObject);
         }
 
         public void removeFromSystem()

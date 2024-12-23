@@ -136,7 +136,6 @@ namespace Chunks.Systems {
         /// Returns a list of spots conduits can connect to tile entities of each chunk
         /// </summary>
         private Dictionary<ITileEntityInstance, List<TileEntityPort>> getTileEntityPorts(ConduitType conduitType) {
-            Vector2Int size = GetSize();
             Vector2Int chunkFrameOfReference = GetBottomLeftCorner();
             Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPortData = new Dictionary<ITileEntityInstance, List<TileEntityPort>>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {

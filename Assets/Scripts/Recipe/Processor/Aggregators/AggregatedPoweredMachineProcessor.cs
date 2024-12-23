@@ -6,6 +6,7 @@ using TileEntityModule.Instances.Machines;
 using Items.Inventory;
 using TileEntityModule;
 using System;
+using UI;
 
 namespace RecipeModule.Processors {
     /// <summary>
@@ -21,7 +22,7 @@ namespace RecipeModule.Processors {
         public void displayTileEntity(StandardMachineInventory tileEntityInventory, Tier tier, string processorName, IInventoryListener listener)
         {
             GameObject ui = MachineUIFactory.getProcessMachineStandardUI(getUIPrefab(),layout,tileEntityInventory,tier,processorName,listener).gameObject;
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+            MainCanvasController.Instance.DisplayObject(ui);
         }
 
         public IMachineRecipe getRecipe(int mode, List<ItemSlot> solidInputs, List<ItemSlot> fluidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs) {

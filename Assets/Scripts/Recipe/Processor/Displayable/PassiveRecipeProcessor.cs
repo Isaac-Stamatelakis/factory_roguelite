@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule.Instances.Machines;
 using Items.Inventory;
+using UI;
 
 namespace RecipeModule {
     public interface IPassiveRecipeProcessor {
@@ -30,7 +31,7 @@ namespace RecipeModule {
 
         public void displayTileEntity(PassiveProcessorInventory passiveProcessorInventory, string processorName, IInventoryListener listener) {
             GameObject ui = PassiveProcessorUIFactory.getProcessMachineStandardUI(getUIPrefab(),getInventoryLayout(),passiveProcessorInventory,processorName,listener).gameObject;
-            GlobalUIContainer.getInstance().getUiController().setGUI(ui);
+            MainCanvasController.Instance.DisplayObject(ui);
         }
 
         public override GameObject getRecipeUI(IRecipe recipe, string processorName)

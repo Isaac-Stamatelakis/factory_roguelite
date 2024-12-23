@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TileEntityModule;
 using Items;
+using UI;
 
 namespace RecipeModule.Viewer {
     public static class RecipeViewerHelper
@@ -19,13 +20,12 @@ namespace RecipeModule.Viewer {
             if (recipesWithItemInInput.Count == 0) {
                 return;
             }
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
             RecipeViewer viewer = getViewer();
             if (viewer == null) {
                 return;
             }
             viewer.show(recipesWithItemInInput);
-            globalUIController.setGUI(viewer.gameObject);
+            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
         }
         public static void displayCraftingOfItem(ItemSlot itemSlot) {
             
@@ -33,13 +33,12 @@ namespace RecipeModule.Viewer {
             if (recipesWithItemInOutput.Count == 0) {
                 return;
             }
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
             RecipeViewer viewer = getViewer();
             if (viewer == null) {
                 return;
             }
             viewer.show(recipesWithItemInOutput);
-            globalUIController.setGUI(viewer.gameObject);
+            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
         }
 
         public static void displayUsesOfProcessor(RecipeProcessor processor) {
@@ -50,9 +49,8 @@ namespace RecipeModule.Viewer {
             if (viewer == null) {
                 return;
             }
-            GlobalUIController globalUIController = GlobalUIContainer.getInstance().getUiController();
             viewer.show(recipesOfProcessor);
-            globalUIController.setGUI(viewer.gameObject);
+            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
         }
 
         private static RecipeViewer getViewer() {

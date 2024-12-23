@@ -20,6 +20,12 @@ namespace UI {
                 handle.Completed += (handle) => onLoad(handle, key);
             }
         }
+
+        public void DisplayObject(string key)
+        {
+            GameObject uiObject = cloneGameObject(key);
+            CanvasController.Instance.DisplayObject(uiObject);
+        }
     }
 
     

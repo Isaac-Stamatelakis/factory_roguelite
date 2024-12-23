@@ -341,7 +341,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             CraftAmountPopUpUI craftAmountPopUpUI = AssetManager.cloneElement<CraftAmountPopUpUI>("CRAFT_POPUP");
             craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
-            GlobalUIContainer.getInstance().getUiController().addGUI(craftAmountPopUpUI.gameObject);
+            MainCanvasController.Instance.DisplayObject(craftAmountPopUpUI.gameObject);
             return true;
         }
         private bool fluidCellClick(GrabbedItemProperties grabbedItemProperties, ItemSlot inventorySlot, IItemSlotUIElement slotUIElement) {
