@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UI
 {
-    public class CanvasController : MonoBehaviour
+    public abstract class CanvasController : MonoBehaviour
     {
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
@@ -15,10 +15,10 @@ namespace UI
             instance = this;
         }
 
-        public virtual void EmptyListen()
-        {
-            
-        }
+        public abstract void EmptyListen();
+        public abstract void ListenKeyPresses();
+        
+        
 
         public void Update()
         {
@@ -28,13 +28,15 @@ namespace UI
                 EmptyListen();
                 return;
             }
-            DisplayedUIInfo top = uiObjectStack.Peek();
-            if (Input.GetKeyDown(KeyCode.Escape))
+            ListenKeyPresses();
+            if (uiObjectStack.Count == 0)
             {
-                PopStack();
                 return;
             }
+            DisplayedUIInfo top = uiObjectStack.Peek();
             List<KeyCode> additionalTerminators = top.additionalTerminators;
+            if (additionalTerminators == null) return;
+            
             foreach (KeyCode key in additionalTerminators)
             {
                 if (Input.GetKey(key))
@@ -61,9 +63,9 @@ namespace UI
             }
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,new List<KeyCode>(),true));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -73,7 +75,8 @@ namespace UI
                 DisplayedUIInfo current = uiObjectStack.Peek();
                 try
                 {
-                    current.gameObject.SetActive(!current.hideOnStack);
+                    bool hide = current.hideOnStack && uiInfo.hideParent;
+                    current.gameObject.SetActive(!hide);
                 }
                 catch (MissingReferenceException e)
                 {
@@ -91,12 +94,14 @@ namespace UI
         public GameObject gameObject;
         public List<KeyCode> additionalTerminators;
         public bool hideOnStack;
+        public bool hideParent;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
             this.hideOnStack = hideOnStack;
+            this.hideParent = hideParent;
         }
     }
     

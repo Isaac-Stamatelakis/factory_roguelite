@@ -14,5 +14,13 @@ namespace UI
                 DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject));
             }
         }
+
+        public override void ListenKeyPresses()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                PopStack();
+            }
+        }
     }
 }

@@ -11,5 +11,15 @@ namespace UI.TitleScreen
         {
             DisplayObject(titleScreenUI.gameObject);
         }
+
+        public override void EmptyListen()
+        {
+            
+        }
+
+        public override void ListenKeyPresses()
+        {
+            
+        }
     }
 }

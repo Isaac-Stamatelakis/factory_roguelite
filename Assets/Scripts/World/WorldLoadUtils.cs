@@ -47,6 +47,12 @@ namespace WorldModule {
             string path = getDimPath(dim);
             return pathExists(path);
         }
+
+        public static string GetWorldPath(string worldName)
+        {
+            string worldFolder = Path.Combine(Application.persistentDataPath,defaultWorldFolder);
+            return Path.Combine(worldFolder, worldName);
+        }
         public static bool dimExists(string worldName, int dim) {
             string path = getDimPath(dim);
             return pathExists(path);

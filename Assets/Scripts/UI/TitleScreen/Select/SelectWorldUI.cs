@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UI.ConfirmPopup;
 using UnityEngine;
 using UnityEngine.UI;
 using WorldModule;
@@ -19,6 +20,8 @@ namespace UI.TitleScreen.Select
         [SerializeField] private Button backButton;
         [SerializeField] private Color highlightColor;
         [SerializeField] private Transform elementList;
+        [SerializeField] private WorldCreationUI worldCreationUIPrefab;
+        [SerializeField] private ConfirmPopupUI confirmPopupUIPrefab;
         private List<Button> selectRequireButtons;
         private int selected = -1;
         private List<SelectWorldElement> worldElements = new List<SelectWorldElement>();
@@ -41,8 +44,26 @@ namespace UI.TitleScreen.Select
             });
             unselectButton.onClick.AddListener(() =>
             {
+                if (selected >= 0)
+                {
+                    worldElements[selected].SetHighlight(null);
+                }
                 selected = -1;
                 SetButtonInteractility(false);
+                
+            });
+            createButton.onClick.AddListener(() =>
+            {
+                WorldCreationUI worldCreationUI = Instantiate(worldCreationUIPrefab);
+                worldCreationUI.Initalize(AddWorld);
+                CanvasController.Instance.DisplayObject(worldCreationUI.gameObject);
+            });
+            
+            deleteButton.onClick.AddListener(() =>
+            {
+                ConfirmPopupUI confirmPopupUI = Instantiate(confirmPopupUIPrefab);
+                void DeleteAction() => DeleteWorld(selected);
+                confirmPopupUI.Display(DeleteAction, "Are you sure you want to delete this world?");
             });
             SetButtonInteractility(false);
             backButton.onClick.AddListener(CanvasController.Instance.PopStack);
@@ -53,6 +74,14 @@ namespace UI.TitleScreen.Select
                 worldNames.Add(worldName);
                 DisplayWorld(worldName,i);
             }
+        }
+
+        private void DeleteWorld(int index)
+        {
+            WorldCreation.DeleteWorld(worldNames[selected]);
+            worldNames.RemoveAt(index);
+            Destroy(worldElements[index].gameObject);
+            worldElements.RemoveAt(index);
         }
 
         private string[] GetWorlds()
@@ -68,6 +97,14 @@ namespace UI.TitleScreen.Select
                 Debug.LogError(ex);
                 return Array.Empty<string>();
             }
+        }
+
+        private void AddWorld(string worldName)
+        {
+            worldNames.Add(worldName);
+            int index = worldNames.Count - 1;
+            DisplayWorld(worldName, index);
+            worldElements[index].transform.SetSiblingIndex(0);
         }
 
         private void DisplayWorld(string worldName, int index)

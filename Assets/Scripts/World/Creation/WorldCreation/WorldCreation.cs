@@ -45,6 +45,18 @@ namespace WorldModule {
             File.WriteAllText(path,json);
         }
 
+        public static void DeleteWorld(string name)
+        {
+            string path = WorldLoadUtils.GetWorldPath(name);
+            if (!Directory.Exists(path))
+            {
+                Debug.LogWarning("Tried to delete world which does not exist " + path);
+                return;
+            }
+            Debug.Log("World Folder Deleted at " + path);
+            Directory.Delete(path, true);
+        }
+
         
         public static IEnumerator InitDim0() {
             if (WorldLoadUtils.dimExists(0)) {
