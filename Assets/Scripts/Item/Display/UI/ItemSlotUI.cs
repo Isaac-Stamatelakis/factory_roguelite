@@ -5,11 +5,12 @@ using UnityEngine.UI;
 using TMPro;
 using Items.Inventory;
 using Items.Tags;
+using Items.Transmutable;
 
 namespace Items {
     public class ItemSlotUI : MonoBehaviour
     {
-        private Image itemSprite;
+        private Image itemImage;
         private TextMeshProUGUI amountText;
         private Transform tagBehindContainer;
         private Transform tagFrontContainer;
@@ -20,7 +21,7 @@ namespace Items {
             counter ++;
             // Semi work around
             if (displayed != null && displayed.itemObject != null && displayed.itemObject.getDisplayType() == ItemDisplayType.Animated) {
-                displayItemSprite(displayed.itemObject);
+                ItemDisplayUtils.DisplayItemSprite(itemImage, displayed.itemObject, counter);
             }
         }
         public void init(Color? color,bool textEnabled = true) {
@@ -41,69 +42,49 @@ namespace Items {
             this.displayed = itemSlot;
             if (itemSlot == null || itemSlot.itemObject == null) {
                 if (transform.childCount != 0) {
-                    unload();
+                    Unload();
                 }
                 return;
-            } 
-            createRequiredObjects(itemSlot);
+            }
+            CreateRequiredObjects(itemSlot);
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                itemImage.color = transmutableItemObject.getMaterial().color;
+            }
+            else
+            {
+                itemImage.color = Color.white;
+            }
             if (amountText != null) {
                 amountText.text = ItemDisplayUtils.formatAmountText(itemSlot.amount);
             }
-            displayItemSprite(itemSlot.itemObject);
+            ItemDisplayUtils.DisplayItemSprite(itemImage, itemSlot.itemObject, counter);
         }
-        public ItemSlot getDisplayedSlot() {
+        public ItemSlot GetDisplayedSlot() {
             return displayed;
         }
 
-        public void unload() {
+        public void Unload() {
             GlobalHelper.deleteAllChildren(transform);
         }
 
-        public void displayItemSprite(ItemObject itemObject) {
-            switch (itemObject.getDisplayType()) {
-                case ItemDisplayType.Single:
-                    setImageSprite(itemSprite,itemObject.getSprite());
-                    break;
-                case ItemDisplayType.Stack:
-                    Image[] images = itemSprite.GetComponentsInChildren<Image>();
-                    Sprite[] stackSprites = itemObject.getSprites();
-                    for (int i = 0; i < stackSprites.Length; i++) {
-                        int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
-                        setImageSprite(images[imageIndex],stackSprites[i]);
-                    }
-                    break;
-                case ItemDisplayType.Animated:
-                    Sprite[] animationSprites = itemObject.getSprites();
-                    int adjustedCounter = Mathf.FloorToInt(counter/(float) ItemDisplayUtils.AnimationSpeed);
-                    int animationIndex = adjustedCounter % animationSprites.Length;
-                    setImageSprite(itemSprite,animationSprites[animationIndex]);
-                    break;
-            }
-        }
-
-        public void displayText(string text) {
+        public void DisplayText(string text) {
             if (amountText == null) {
-                amountText = generateNumber();
+                amountText = GenerateNumber();
             }
             amountText.text = text;
         }
 
-        private void setImageSprite(Image image, Sprite sprite) {
-            image.sprite = sprite;
-            image.transform.localScale = ItemDisplayUtils.getItemScale(sprite);
-        }
-
-
-        private void createRequiredObjects(ItemSlot itemSlot) {
-            if (itemSprite == null) {
-                itemSprite = generateItemImage();
+        private void CreateRequiredObjects(ItemSlot itemSlot) {
+            if (itemImage == null) {
+                itemImage = GenerateItemImage();
             }
             if (amountText == null && textEnabled) {
-                amountText = generateNumber();
+                amountText = GenerateNumber();
             }
             if (itemSlot.tags != null && itemSlot.tags.Dict != null) {
                 if (tagBehindContainer == null && tagFrontContainer == null) {
-                    (tagFrontContainer,tagBehindContainer) = generateTagContainers();
+                    (tagFrontContainer,tagBehindContainer) = GenerateTagContainers();
                 }
             } else {
                 if (tagFrontContainer != null) {
@@ -114,25 +95,25 @@ namespace Items {
                 }
             }
             if (itemSlot.itemObject.getDisplayType() == ItemDisplayType.Stack) {
-                itemSprite.enabled = false;
+                itemImage.enabled = false;
                 int requiredImages = itemSlot.itemObject.getSprites().Length;
-                while (itemSprite.transform.childCount < requiredImages) {
+                while (itemImage.transform.childCount < requiredImages) {
                     GameObject imageObject = new GameObject();
-                    imageObject.name = ItemDisplayUtils.StackSpriteImageName + itemSprite.transform.childCount;
+                    imageObject.name = ItemDisplayUtils.StackSpriteImageName + itemImage.transform.childCount;
                     imageObject.AddComponent<Image>();
-                    imageObject.transform.SetParent(itemSprite.transform,false);
+                    imageObject.transform.SetParent(itemImage.transform,false);
                     RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
                     rectTransform.sizeDelta = Vector2.zero;
                     rectTransform.anchorMin = Vector2.zero;
                     rectTransform.anchorMax = Vector2.one;
                 }
-                while (itemSprite.transform.childCount > requiredImages) {
-                    Transform child = itemSprite.transform.GetChild(itemSprite.transform.childCount-1);
+                while (itemImage.transform.childCount > requiredImages) {
+                    Transform child = itemImage.transform.GetChild(itemImage.transform.childCount-1);
                     GameObject.Destroy(child.gameObject);
                 }
             }
         }
-        public Image generateItemImage() {
+        public Image GenerateItemImage() {
             GameObject imageObject = new GameObject();
             imageObject.name = ItemDisplayUtils.ItemImageName;
             imageObject.transform.SetParent(transform,false);
@@ -145,7 +126,7 @@ namespace Items {
             Image image = imageObject.AddComponent<Image>();
             return image;
         }
-        public TextMeshProUGUI generateNumber() {
+        public TextMeshProUGUI GenerateNumber() {
             GameObject number = new GameObject();
             number.name = ItemDisplayUtils.ItemAmountName;
             number.transform.SetParent(transform,false);
@@ -160,7 +141,7 @@ namespace Items {
             textMeshPro.alignment = TextAlignmentOptions.BottomRight;
             return textMeshPro;
         }
-        public (Transform,Transform) generateTagContainers() {
+        public (Transform,Transform) GenerateTagContainers() {
             GameObject endTag = new GameObject();
             endTag.name = ItemDisplayUtils.ItemTagNameBehind;
             endTag.transform.SetParent(transform,false);
@@ -172,7 +153,7 @@ namespace Items {
             return (frontTag.transform,endTag.transform);
         }
 
-        public static void setItemImageTagVisuals(ItemSlot itemSlot, Transform frontContainer, Transform endContainer) {
+        public static void SetItemImageTagVisuals(ItemSlot itemSlot, Transform frontContainer, Transform endContainer) {
             if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
                 return;
             }

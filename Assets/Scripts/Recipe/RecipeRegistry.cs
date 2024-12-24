@@ -10,6 +10,7 @@ namespace RecipeModule {
     {
         private static HashSet<RecipeProcessor> processors;
         private static RecipeRegistry instance;
+        private Dictionary<ulong, Recipe> recipeDict;
         private RecipeRegistry() {
             int recipeCount = 0;
             processors = new HashSet<RecipeProcessor>();
@@ -28,12 +29,57 @@ namespace RecipeModule {
                 }
             }
             Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + recipeCount + " recipes");
+            InitalizeHashMap();
+            Debug.Log($"Recipe hash map initialized with {recipeDict.Count} recipes");
+        }
+
+        private void InitalizeHashMap()
+        {
+            recipeDict = new Dictionary<ulong, Recipe>();
+            foreach (RecipeProcessor recipeProcessor in processors)
+            {
+                foreach (IRecipe recipe in recipeProcessor.getRecipes())
+                {
+                    
+                }
+            }
         }
         public static RecipeRegistry getInstance() {
             if (instance == null) {
                 instance = new RecipeRegistry();
             }
             return instance;
+        }
+
+        public Recipe LookUpRecipe(List<ItemSlot> inputs)
+        {
+            if (inputs.Count == 0)
+            {
+                return null;
+            }
+            ulong hash = HashItemInputs(inputs);
+            return recipeDict.GetValueOrDefault(hash);
+        }
+
+        private ulong HashItemInputs(List<ItemSlot> inputs)
+        {
+            ulong result = 0;
+            foreach (ItemSlot itemSlot in inputs)
+            {
+                if (itemSlot == null || itemSlot.itemObject == null)
+                {
+                    continue;
+                }
+
+                ulong idSum = 0;
+                foreach (char c in itemSlot.itemObject.id)
+                {
+                    idSum += Convert.ToUInt64(c);
+                }
+                result += 13*idSum;
+            }
+            return result;
+
         }
 
         public Dictionary<RecipeProcessor, List<IRecipe>> getRecipesWithItemInOutput(ItemSlot itemSlot) {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Items {
     public static class ItemDisplayUtils {
@@ -93,6 +94,35 @@ namespace Items {
                 return new Vector2(adjustedSpriteSize.x/adjustedSpriteSize.y*64,64);
             }
             return Vector2.zero;
+        }
+
+        public static void SetImageItemSprite(Image image, Sprite sprite)
+        {
+            image.sprite = sprite;
+            image.transform.localScale = getItemScale(sprite);
+        }
+
+        public static void DisplayItemSprite(Image image, ItemObject itemObject, int counter)
+        {
+            switch (itemObject.getDisplayType()) {
+                case ItemDisplayType.Single:
+                    SetImageItemSprite(image,itemObject.getSprite());
+                    break;
+                case ItemDisplayType.Stack:
+                    Image[] images = image.GetComponentsInChildren<Image>();
+                    Sprite[] stackSprites = itemObject.getSprites();
+                    for (int i = 0; i < stackSprites.Length; i++) {
+                        int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
+                        SetImageItemSprite(images[imageIndex],stackSprites[i]);
+                    }
+                    break;
+                case ItemDisplayType.Animated:
+                    Sprite[] animationSprites = itemObject.getSprites();
+                    int adjustedCounter = Mathf.FloorToInt(counter/(float) ItemDisplayUtils.AnimationSpeed);
+                    int animationIndex = adjustedCounter % animationSprites.Length;
+                    SetImageItemSprite(image,animationSprites[animationIndex]);
+                    break;
+            }
         }
     }
 }

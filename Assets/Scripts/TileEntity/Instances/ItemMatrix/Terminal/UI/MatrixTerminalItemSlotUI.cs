@@ -42,7 +42,7 @@ namespace TileEntityModule.Instances.Matrix {
     
 
         public void showCraftText() {
-            GetComponent<ItemSlotUI>().displayText("Craft");
+            GetComponent<ItemSlotUI>().DisplayText("Craft");
         }
 
         public void setItemSlot(ItemSlot itemSlot)

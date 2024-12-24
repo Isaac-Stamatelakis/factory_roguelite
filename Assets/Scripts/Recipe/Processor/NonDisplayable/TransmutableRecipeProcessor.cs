@@ -59,7 +59,9 @@ namespace RecipeModule.Transmutation {
                         if (transmutableItem.getState() != transmutablePair.Input) {
                             continue;
                         }
-                        TransmutableItemObject outputItemObject = transmutableItem.getMaterial().transmute(transmutablePair.Output);
+
+                        TransmutableItemObject outputItemObject =
+                            TransmutableItemUtils.Transmute(transmutableItem.getMaterial(), transmutablePair.Output);
                         if (outputItemObject == null) {
                             continue;
                         }
@@ -139,11 +141,14 @@ namespace RecipeModule.Transmutation {
                         foreach (TransmutablePair pair in transmutablePairs) {
                             if (pair.Input != inputState) {
                                 continue;
-                            } 
-                            if (!material.canTransmute(pair.Output)) {
+                            }
+
+                            if (!TransmutableItemUtils.CanTransmute(material, pair.Output))
+                            {
                                 continue;
                             }
-                            ItemObject outputItem = material.transmute(pair.Output);
+
+                            ItemObject outputItem = TransmutableItemUtils.Transmute(material, pair.Output);
                             // Can be transmuted by this processor
                             float ratio = pair.Output.getComparedRatio(pair.Input);
                             (int outputAmount, int inputAmount) = calculateAmounts(ratio);

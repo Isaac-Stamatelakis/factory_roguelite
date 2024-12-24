@@ -116,7 +116,7 @@ namespace UI.JEI
                 }
                 foreach (Transform previouslyDisplayed in resultContainer.transform) { 
                     ItemSlotUI itemSlotUI = previouslyDisplayed.GetComponent<ItemSlotUI>();
-                    ItemSlot itemSlot = itemSlotUI.getDisplayedSlot();
+                    ItemSlot itemSlot = itemSlotUI.GetDisplayedSlot();
                     if (!newDisplayHash.containsItem(itemSlot)) {
                         GameObject.Destroy(previouslyDisplayed.gameObject);
                     }
