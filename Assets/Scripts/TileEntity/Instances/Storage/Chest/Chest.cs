@@ -7,10 +7,10 @@ using UnityEngine.Tilemaps;
 using Items.Inventory;
 using Entities;
 
-namespace TileEntityModule.Instances
+namespace TileEntity.Instances
 {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Chest")]
-    public class Chest : TileEntity
+    public class Chest : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
         public uint Rows;

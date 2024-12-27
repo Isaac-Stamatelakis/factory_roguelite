@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Teleporter")]
-    public class CompactMachineTeleporter : TileEntity
+    public class CompactMachineTeleporter : TileEntityObject
     {
         public TileEntityUIManager UIManager;
 

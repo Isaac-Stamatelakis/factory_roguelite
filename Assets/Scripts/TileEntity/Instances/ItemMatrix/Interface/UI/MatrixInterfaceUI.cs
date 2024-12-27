@@ -7,7 +7,7 @@ using Items;
 using Items.Inventory;
 using Items.Tags;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixInterfaceUI : MonoBehaviour
     {
         [SerializeField] private Button plusPriorityButton;
@@ -20,6 +20,7 @@ namespace TileEntityModule.Instances.Matrix {
         private MatrixInterfaceInstance matrixInterface;
 
         public void init(MatrixInterfaceInstance matrixInterface) {
+            /*
             this.matrixInterface = matrixInterface;
 
             GlobalHelper.deleteAllChildren(upgradeContainer.transform);
@@ -41,6 +42,7 @@ namespace TileEntityModule.Instances.Matrix {
                 matrixInterface.iteratePriority(-1);
                 priorityText.text = matrixInterface.Priority.ToString();
             });
+            */
             
         }
 

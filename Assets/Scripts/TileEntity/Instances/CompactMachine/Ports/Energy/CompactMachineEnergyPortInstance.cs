@@ -1,28 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances.Storage;
+using TileEntity.Instances.Storage;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineEnergyPortInstance : TileEntityInstance<CompactMachineEnergyPort>, 
-    ISerializableTileEntity ,IConduitInteractable, IEnergyConduitInteractable, ICompactMachineInteractable
+    ISerializableTileEntity ,IConduitTileEntity, IEnergyConduitInteractable, ICompactMachineInteractable
     {
-        private int energy;
+        private ulong energy;
         private CompactMachineInstance compactMachine;
 
         public CompactMachineEnergyPortInstance(CompactMachineEnergyPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
-        public ref int getEnergy(Vector2Int portPosition)
+        public ref ulong GetEnergy(Vector2Int portPosition)
         {
             return ref energy;
         }
@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.CompactMachines {
         /// <summary>
         /// Allows unbounded throughput but has no storage
         /// </summary>
-        public int insertEnergy(int insertEnergy,Vector2Int portPosition)
+        public ulong InsertEnergy(ulong insertEnergy, Vector2Int portPosition)
         {
             if (this.energy > 0) {
                 return 0;
@@ -55,7 +55,7 @@ namespace TileEntityModule.Instances.CompactMachines {
             if (data == null) {
                 return;
             }
-            energy = JsonConvert.DeserializeObject<int>(data);
+            energy = JsonConvert.DeserializeObject<uint>(data);
         }
     }
 

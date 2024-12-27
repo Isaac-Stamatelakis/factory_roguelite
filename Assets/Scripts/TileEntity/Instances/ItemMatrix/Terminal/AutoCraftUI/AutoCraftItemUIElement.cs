@@ -5,36 +5,38 @@ using UnityEngine.UI;
 using TMPro;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public enum AutoCraftElementMode {
         Input,
         Output
     }
     public class AutoCraftItemUIElement : MonoBehaviour
     {
+        [SerializeField] private ItemSlotUI ItemSlotUIPrefab;
         [SerializeField] private Image panel;
         [SerializeField] private TextMeshProUGUI avaiableText;
         [SerializeField] private TextMeshProUGUI missingText;
         [SerializeField] private Transform itemContainer;
-        public void init(AutoCraftElementMode mode, ItemSlot itemSlot, int amount, int required) {
-            int missing = required-amount;
+        public void init(AutoCraftElementMode mode, ItemSlot itemSlot, uint amount, uint required) {
+            uint missing = required-amount;
             switch (mode) {
                 case AutoCraftElementMode.Input:
-                    avaiableText.text = "Avaiable: " + ItemDisplayUtils.formatAmountText(amount,oneInvisible:false);
+                    avaiableText.text = "Avaiable: " + ItemDisplayUtils.FormatAmountText(amount,oneInvisible:false);
                     if (missing <= 0) {
                         missingText.gameObject.SetActive(false);
                     } else {
-                        missingText.text = "Missing: " + ItemDisplayUtils.formatAmountText(missing,oneInvisible:false);
+                        missingText.text = "Missing: " + ItemDisplayUtils.FormatAmountText(missing,oneInvisible:false);
                         panel.color = Color.red;
                     }
                     break;
                 case AutoCraftElementMode.Output:
-                    avaiableText.text = "To Craft: " + ItemDisplayUtils.formatAmountText(amount,oneInvisible:false);
+                    avaiableText.text = "To Craft: " + ItemDisplayUtils.FormatAmountText(amount,oneInvisible:false);
                     missingText.gameObject.SetActive(false);
                     break;
             }
-            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,null);
-            itemSlotUI.display(itemSlot);
+
+            ItemSlotUI itemSlotUI = Instantiate(ItemSlotUIPrefab, itemContainer);
+            itemSlotUI.Display(itemSlot);
         }
         public static AutoCraftItemUIElement newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/AutoCrafting/AutoCraftElement").GetComponent<AutoCraftItemUIElement>();   

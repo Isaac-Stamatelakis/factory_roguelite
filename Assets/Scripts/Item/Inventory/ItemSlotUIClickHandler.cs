@@ -5,38 +5,39 @@ using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
 using Items.Inventory;
 using Items;
+using Recipe.Viewer;
 using UI.ToolTip;
 
 public interface IItemSlotUIElement {
-    public ItemSlot getItemSlot();
-    public void setItemSlot(ItemSlot itemSlot);
-    public ItemSlotUI getItemSlotUI();
-    public int getDisplayAmount();
-    public ItemObject getDisplayItemObject();
-    public void reload(ItemSlot inventorySlot,bool force=false) {
-        ItemObject displayedItemObject = getDisplayItemObject();
+    public ItemSlot GetItemSlot();
+    public void SetItemSlot(ItemSlot itemSlot);
+    public ItemSlotUI GetItemSlotUI();
+    public uint GetDisplayAmount();
+    public ItemObject GetDisplayItemObject();
+    public void Reload(ItemSlot inventorySlot,bool force=false) {
+        ItemObject displayedItemObject = GetDisplayItemObject();
         if (inventorySlot == null || inventorySlot.itemObject == null) {
             return;
         }
-        if (!force && inventorySlot.itemObject.Equals(displayedItemObject) && inventorySlot.amount == getDisplayAmount()) {
+        if (!force && inventorySlot.itemObject.Equals(displayedItemObject) && inventorySlot.amount == GetDisplayAmount()) {
             return;
         }
-        setItemSlot(inventorySlot);
-        getItemSlotUI().display(inventorySlot);
+        SetItemSlot(inventorySlot);
+        GetItemSlotUI().Display(inventorySlot);
     }
-    public void showRecipes() {
-        ItemSlot itemSlot = getItemSlot();
+    public void ShowRecipes() {
+        ItemSlot itemSlot = GetItemSlot();
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayCraftingOfItem(itemSlot);
+        RecipeViewerHelper.DisplayCraftingOfItem(itemSlot);
     }
-    public void showUses() {
-        ItemSlot itemSlot = getItemSlot();
+    public void ShowUses() {
+        ItemSlot itemSlot = GetItemSlot();
         if (itemSlot == null || itemSlot.itemObject == null) {
             return;
         }
-        RecipeViewerHelper.displayUsesOfItem(itemSlot);
+        RecipeViewerHelper.DisplayUsesOfItem(itemSlot);
     }
 }
 public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItemSlotUIElement, IPointerEnterHandler, IPointerExitHandler
@@ -44,12 +45,12 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItem
     private InventoryUI inventoryUI;
     private int index;
     private ItemSlot itemSlot;
-    private int amount;
+    private uint amount;
     private ItemObject itemObject;
     public void init(InventoryUI inventoryUI, int index) {
         this.inventoryUI = inventoryUI;
         this.index = index;
-        setItemSlot(inventoryUI.getItemSlot(index));
+        SetItemSlot(inventoryUI.GetItemSlot(index));
     }
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -62,34 +63,34 @@ public class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IItem
         }
     }
 
-    public ItemSlot getItemSlot()
+    public ItemSlot GetItemSlot()
     {
         return itemSlot;
     }
 
-    public void setItemSlot(ItemSlot itemSlot)
+    public void SetItemSlot(ItemSlot itemSlot)
     {
         this.itemSlot = itemSlot;
         if (itemSlot == null || itemSlot.itemObject == null) {
             this.itemObject = null;
-            this.amount = -1;
+            this.amount = 0;
         } else {
             this.itemObject = itemSlot.itemObject;
             this.amount = itemSlot.amount;
         }
     }
 
-    public int getDisplayAmount()
+    public uint GetDisplayAmount()
     {
         return amount;
     }
 
-    public ItemObject getDisplayItemObject()
+    public ItemObject GetDisplayItemObject()
     {
         return itemObject;
     }
 
-    public ItemSlotUI getItemSlotUI()
+    public ItemSlotUI GetItemSlotUI()
     {
         return gameObject.GetComponent<ItemSlotUI>();
     }

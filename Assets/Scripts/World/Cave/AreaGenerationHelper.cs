@@ -19,14 +19,14 @@ namespace WorldModule.Caves {
 
             BlockState?[,] states = new BlockState?[width,height];
             SerializedBaseTileData serializedTileData = worldTileData.baseData;
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
                     string id = serializedTileData.ids[x,y];
                     if (id == null) {
                         continue;
                     }
-                    TileItem tileItem = itemRegistry.getTileItem(id);
+                    TileItem tileItem = itemRegistry.GetTileItem(id);
                     if (tileItem == null) {
                         continue;
                     }

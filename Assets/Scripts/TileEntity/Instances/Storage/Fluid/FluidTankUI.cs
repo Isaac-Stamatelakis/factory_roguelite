@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     public class FluidTankUI : MonoBehaviour, ITileEntityUI<FluidTankInstance>
     {
         [SerializeField] private Image image;
@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.Storage {
         private FluidTankInstance fluidTank;
         private string itemID;
 
-        public void display(FluidTankInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(FluidTankInstance tileEntityInstance)
         {
             this.fluidTank = tileEntityInstance;
         }

@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using RecipeModule.Viewer;
 using Items;
 using Items.Tags;
+using Recipe.Viewer;
 
 namespace UI.JEI {
     public class CatalogueElementClickHandler : MonoBehaviour, IPointerClickHandler
@@ -20,29 +21,29 @@ namespace UI.JEI {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 switch (catalogueController.Mode) {
                     case CatalogueMode.Recipe:
-                        RecipeViewerHelper.displayCraftingOfItem(itemSlot);
+                        RecipeViewerHelper.DisplayCraftingOfItem(itemSlot);
                         break;
                     case CatalogueMode.Cheat:
-                        ItemSlot copy = ItemSlotFactory.splice(itemSlot,Global.MaxSize);
+                        ItemSlot copy = ItemSlotFactory.Splice(itemSlot,Global.MaxSize);
                         GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
-                        grabbedItemProperties.setItemSlot(copy);
+                        grabbedItemProperties.SetItemSlot(copy);
                         break;
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
                 switch (catalogueController.Mode) {
                     case CatalogueMode.Recipe:
-                        RecipeViewerHelper.displayUsesOfItem(itemSlot);
+                        RecipeViewerHelper.DisplayUsesOfItem(itemSlot);
                         break;
                     case CatalogueMode.Cheat:
-                        ItemSlot copy = ItemSlotFactory.splice(itemSlot,1);
+                        ItemSlot copy = ItemSlotFactory.Splice(itemSlot,1);
                         GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
                         if (grabbedItemProperties.ItemSlot == null || grabbedItemProperties.ItemSlot.itemObject == null) {
-                            grabbedItemProperties.setItemSlot(copy);
+                            grabbedItemProperties.SetItemSlot(copy);
                         } else {
                             if (grabbedItemProperties.ItemSlot.itemObject.id == itemSlot.itemObject.id) {
-                                grabbedItemProperties.ItemSlot.amount = Mathf.Min(Global.MaxSize,1+grabbedItemProperties.ItemSlot.amount);
+                                grabbedItemProperties.ItemSlot.amount = GlobalHelper.MinUInt(Global.MaxSize, 1+grabbedItemProperties.ItemSlot.amount);
                             } else {
-                                grabbedItemProperties.setItemSlot(itemSlot);
+                                grabbedItemProperties.SetItemSlot(itemSlot);
                             }
                         }
                         break;

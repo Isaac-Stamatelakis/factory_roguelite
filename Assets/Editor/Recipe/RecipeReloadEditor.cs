@@ -26,6 +26,7 @@ public class RecipeReloadWindow : EditorWindow {
 
     void reload()
     {
+        /*
         HashSet<RecipeProcessor> processors = new HashSet<RecipeProcessor>();
         int recipeCount = 0;
         RecipeProcessor[] recipeProcessors = Resources.LoadAll<RecipeProcessor>("");
@@ -93,6 +94,7 @@ public class RecipeReloadWindow : EditorWindow {
         }
         Debug.Log("******************************************************************");
         Debug.Log("Recipes reloaded\n" + processors.Count + " recipe processors and " + recipeCount + " recipes");
+        */
     }
             
 

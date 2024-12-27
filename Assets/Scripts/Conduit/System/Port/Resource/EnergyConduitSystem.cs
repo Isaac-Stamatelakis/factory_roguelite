@@ -32,8 +32,8 @@ namespace Conduits.Systems {
 
         protected override void IterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts, int color)
         {
-            ref int totalEnergy = ref outputPort.extract();
-            int toInsert;
+            ref ulong totalEnergy = ref outputPort.Extract();
+            ulong toInsert;
             if (totalEnergy >= outputPort.extractionRate) {
                 toInsert = outputPort.extractionRate;
                 totalEnergy -= outputPort.extractionRate;
@@ -45,7 +45,7 @@ namespace Conduits.Systems {
                 if (toInsert == 0) {
                     return;
                 }
-                int taken = inputPort.Insert(toInsert);
+                ulong taken = inputPort.Insert(toInsert);
                 toInsert -= taken;
             }
             totalEnergy += toInsert;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     [CreateAssetMenu(fileName = "New Door", menuName = "Tile Entity/Ladder")]
-    public class Ladder : TileEntity, IClimableTileEntity
+    public class Ladder : TileEntityObject, IClimableTileEntity
     {
         public int speed;
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)

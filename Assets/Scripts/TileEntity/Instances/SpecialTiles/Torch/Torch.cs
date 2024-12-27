@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     [CreateAssetMenu(fileName = "New Torch", menuName = "Tile Entity/Torch")]
-    public class Torch : TileEntity
+    public class Torch : TileEntityObject
     {
         public float intensity = 1;
         public int radius = 10;

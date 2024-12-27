@@ -4,39 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace TileEntityModule.Instances.Machines {
+namespace TileEntity.Instances.Machines {
     public class ArrowProgressController : MonoBehaviour
     {
-        private Sprite[] arrows;
-        private Image image;
+        public Sprite[] arrows;
+        public Image image;
+        
+        public void SetArrowProgress(float val) {
+            if (val < 0)
+            {
+                val = 1;
+            }
+            if (val > 1)
+            {
+                val = 1;
+            }
 
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-        public void setArrow(float val) {
-
-            if (image == null) {
-                image = GetComponent<Image>();
-                if (image == null) {
-                    Debug.LogError("Arrow Progress Controller assigned to object '" + name + "' without Image component ");
-                    return;
-                }
-            }
-            if (val < 0 || val > 1) {
-                Debug.LogError("val provided to arrow outside range (0,1)");
-                return;
-            }
-            if (arrows == null) {
-                arrows = Resources.LoadAll<Sprite>("UI/Arrows/animatedarrow");
-            }
-            if (val == 0) {
-                image.sprite = arrows[0];
-                return;
-            }
-            int index = Mathf.CeilToInt(val*8);
+            int index = (int)(val * (arrows.Length-1));
             image.sprite = arrows[index];
         }
     }

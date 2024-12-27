@@ -9,7 +9,7 @@ using Items;
 using Conduits.Ports;
 
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class ItemMatrixControllerInstance : TileEntityInstance<ItemMatrixController>, IMatrixConduitInteractable
     {
         private HashSet<MatrixConduitSystem> systems = new HashSet<MatrixConduitSystem>();
@@ -20,7 +20,7 @@ namespace TileEntityModule.Instances.Matrix {
         }
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
         public void resetSystem() {
             
@@ -34,58 +34,53 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public ItemSlot takeItem(string id, ItemTagKey itemTagKey, int amount) {
+        public ItemSlot TakeItem(string id, ItemTagKey itemTagKey, uint amount) {
             ItemSlot toReturn = null;
-            int takeAmount = amount;
             foreach (MatrixConduitSystem matrixConduitSystem in systems) {
-                ItemSlot taken = matrixConduitSystem.DriveCollection.take(id,itemTagKey,takeAmount);
+                ItemSlot taken = matrixConduitSystem.DriveCollection.Take(id,itemTagKey,amount);
                 if (taken == null || taken.itemObject == null) {
                     continue;
                 }
-                takeAmount -= taken.amount;
+                amount -= taken.amount;
                 if (toReturn == null) {
                     toReturn = taken;
                 } else {
                     toReturn.amount += taken.amount; 
                 }
-                if (takeAmount == 0) {
-                    return toReturn;
-                } 
-                if (takeAmount < 0) {
-                    Debug.LogError("ItemMatrixController take item return took more than takeAmount");
+                if (amount == 0) {
                     return toReturn;
                 }
             }
             return toReturn;
         }
 
-        public int amountOf(string id, ItemTagKey itemTagKey) {
-            int amount = 0;
+        public uint AmountOf(string id, ItemTagKey itemTagKey) {
+            uint amount = 0;
             foreach (MatrixConduitSystem matrixConduitSystem in systems) {
-                amount += matrixConduitSystem.DriveCollection.amountOf(id,itemTagKey);
+                amount += matrixConduitSystem.DriveCollection.AmountOf(id,itemTagKey);
             }    
             return amount;
         }
-        public MatrixDriveCollection getEntireDriveCollection() {
+        public MatrixDriveCollection GetEntireDriveCollection() {
             MatrixDriveCollection matrixInventory = new MatrixDriveCollection();
             foreach (MatrixConduitSystem system in systems) {
                 matrixInventory.merge(system.DriveCollection);
             }
             return matrixInventory;
         }
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             if (!matrixController.Equals(this)) {
                 return;
             }
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             systems.Add(matrixConduitSystem);
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             
         }
@@ -102,8 +97,8 @@ namespace TileEntityModule.Instances.Matrix {
 
     public class MatrixDriveInventory {
         public List<ItemSlot> inventories;
-        public int maxSize;
-        public MatrixDriveInventory(List<ItemSlot> inventories, int maxSize) {
+        public uint maxSize;
+        public MatrixDriveInventory(List<ItemSlot> inventories, uint maxSize) {
             this.inventories = inventories;
             this.maxSize = maxSize;
         }

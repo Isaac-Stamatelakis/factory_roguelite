@@ -11,6 +11,7 @@ using Tiles;
 using Items;
 using RecipeModule;
 using PlayerModule;
+using Recipe;
 using UI.JEI;
 
 namespace Dimensions {
@@ -34,9 +35,9 @@ namespace Dimensions {
             StartCoroutine(initalLoad());
         }
         public IEnumerator initalLoad() {
-            Coroutine itemLoad = StartCoroutine(ItemRegistry.loadItems());
+            Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             yield return itemLoad;
-            RecipeRegistry.getInstance();
+            RecipeRegistry.GetInstance();
             PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
             foreach (PlayerInventory inventory in playerInventories) {
                 inventory.initalize();

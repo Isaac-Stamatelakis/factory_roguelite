@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.SimonSays {
+namespace TileEntity.Instances.SimonSays {
     public class SimonSaysCoroutineController : MonoBehaviour
     {
         private SimonSaysControllerInstance controller;

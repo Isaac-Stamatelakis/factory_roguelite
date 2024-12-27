@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace TileEntityModule {
+namespace TileEntity {
     [System.Serializable]
     public class TileEntityUIManager
     {
@@ -56,7 +56,7 @@ namespace TileEntityModule {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: Prefab doesn't have component {typeof(C).Name}");
                 return;
             }
-            uiComponent.display(tileEntityInstance);
+            uiComponent.DisplayTileEntityInstance(tileEntityInstance);
             MainCanvasController.Instance.DisplayObject(instantiated.gameObject);
         }
     }

@@ -16,12 +16,12 @@ namespace UI.Chat {
         {
             try {
                 string id = parameters[0];
-                RobotItem robotItem = ItemRegistry.getInstance().GetRobotItem(id);
+                RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
                 if (robotItem == null) {
                     chatUI.sendMessage("Invalid id");
                     return;
                 }
-                ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(robotItem,1);
+                ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(robotItem,1);
                 PlayerContainer.getInstance().getPlayerRobot().setRobot(itemSlot);
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
@@ -30,7 +30,7 @@ namespace UI.Chat {
 
         public List<string> getAutoFill(int paramIndex)
         {
-            List<ItemObject> items = ItemRegistry.getInstance().getAllItems();
+            List<ItemObject> items = ItemRegistry.GetInstance().GetAllItems();
             List<string> ids = new List<string>();
             foreach (ItemObject itemObject in items) {
                 if (itemObject is not RobotItem) {

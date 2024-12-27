@@ -5,9 +5,9 @@ using Conduits.Ports;
 using Conduits.Systems;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Terminal")]
-    public class MatrixTerminal : TileEntity
+    public class MatrixTerminal : TileEntityObject
     {
         public ConduitPortLayout Layout;
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)

@@ -24,7 +24,6 @@ namespace UI.TitleScreen.Select
             defaultColor = panel.color;
             this.selectCallback = callback;
             this.index = initIndex;
-            this.panel = panel;
             DisplayData(worldDisplayData);
         }
 

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine.UI;
 using Items.Tags.FluidContainers;
 using RecipeModule;
-using TileEntityModule.Instances.Matrix;
+using TileEntity.Instances.Matrix;
 using Items.Inventory;
 using RobotModule;
 
@@ -129,8 +129,14 @@ namespace Items.Tags {
             if (tagData == null || tagData is not EncodedRecipe encodedRecipe) {
                 return null;
             }
-            if (encodedRecipe.Outputs.Count > 0) {
-                return ItemSlotUIFactory.newItemSlotUI(encodedRecipe.Outputs[0],null,null,true,null).gameObject;
+            if (encodedRecipe.Outputs.Count > 0)
+            {
+                GameObject imageObject = new GameObject();
+                Image image = imageObject.AddComponent<Image>();
+                RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
+                rectTransform.sizeDelta = new Vector2(64, 64);
+                // TODO Update this to include tag data
+                image.sprite = encodedRecipe.Outputs[0].itemObject.getSprite();
             }
             return null;
         }
@@ -146,7 +152,7 @@ namespace Items.Tags {
             if (itemSlot.itemObject == null || itemSlot.itemObject is not IFluidContainer fluidContainer) {
                 return null;
             }  
-            Vector2Int spriteSize = fluidContainer.getFluidSpriteSize();
+            Vector2Int spriteSize = fluidContainer.GetFluidSpriteSize();
             if (spriteSize.Equals(Vector2Int.zero)) {
                 return null;
             }
@@ -171,7 +177,7 @@ namespace Items.Tags {
                 ItemTag.FluidContainer => ItemSlotFactory.deseralizeItemSlotFromString(data),
                 ItemTag.EnergyContainer => JsonConvert.DeserializeObject<int>(data),
                 ItemTag.CompactMachine => data,
-                ItemTag.StorageDrive => ItemSlotFactory.deserialize(data),
+                ItemTag.StorageDrive => ItemSlotFactory.Deserialize(data),
                 ItemTag.EncodedRecipe => EncodedRecipeFactory.deseralize(data),
                 ItemTag.RobotData => RobotDataFactory.deseralize(data),
                 _ => deserializeDefaultSwitchCase(tag)
@@ -228,7 +234,7 @@ namespace Items.Tags {
             if (second is not ItemSlot secondSlot) {
                 return false;
             }
-            if (!ItemSlotHelper.areEqualNoNullCheck(firstSlot,secondSlot)) {
+            if (!ItemSlotHelper.AreEqualNoNullCheck(firstSlot,secondSlot)) {
                 return false;
             }
             return firstSlot.amount == secondSlot.amount;

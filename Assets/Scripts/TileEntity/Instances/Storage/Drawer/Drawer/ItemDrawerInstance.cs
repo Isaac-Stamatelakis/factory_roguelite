@@ -8,8 +8,8 @@ using Items;
 using Items.Inventory;
 using Entities;
 
-namespace TileEntityModule.Instances.Storage {
-    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
+namespace TileEntity.Instances.Storage {
+    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitTileEntity, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
     {
         private ItemSlot itemSlot;
         private SpriteRenderer visualElement;
@@ -20,32 +20,32 @@ namespace TileEntityModule.Instances.Storage {
         {
         }
 
-        public int Amount {get => tileEntity.MaxStacks*Global.MaxSize;}
+        public uint Amount {get => TileEntityObject.MaxStacks*Global.MaxSize;}
 
         public ItemSlot ItemSlot { get => itemSlot; }
 
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
         {
             loadVisual();
             return itemSlot;
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSolidItem(ItemSlot insert, Vector2Int portPosition)
+        public void InsertSolidItem(ItemSlot insert, Vector2Int portPosition)
         {
             if (itemSlot == null || itemSlot.itemObject == null) {
-                itemSlot = ItemSlotFactory.copy(insert);
+                itemSlot = ItemSlotFactory.Copy(insert);
                 insert.amount = 0;
                 insert.itemObject = null;
                 loadVisual();
                 return;
             }
-            if (ItemSlotHelper.canInsertIntoSlot(itemSlot,insert,tileEntity.MaxStacks*Global.MaxSize)) {
-                ItemSlotHelper.insertIntoSlot(itemSlot, insert, tileEntity.MaxStacks * Global.MaxSize);
+            if (ItemSlotHelper.CanInsertIntoSlot(itemSlot,insert,TileEntityObject.MaxStacks*Global.MaxSize)) {
+                ItemSlotHelper.InsertIntoSlot(itemSlot, insert, TileEntityObject.MaxStacks * Global.MaxSize);
                 loadVisual();
             }
             
@@ -92,8 +92,7 @@ namespace TileEntityModule.Instances.Storage {
             }
             ItemSlot toDrop = ItemSlotFactory.createEmptyItemSlot();
             toDrop.itemObject = itemSlot.itemObject;
-            
-            toDrop.amount = Mathf.Min(Global.MaxSize,itemSlot.amount);
+            toDrop.amount = GlobalHelper.MinUInt(Global.MaxSize, itemSlot.amount);
             itemSlot.amount -= toDrop.amount;
             if (itemSlot.amount <= 0) {
                 itemSlot = null;
@@ -118,10 +117,10 @@ namespace TileEntityModule.Instances.Storage {
                 loadVisual();
             } else {
                 if (
-                    ItemSlotHelper.areEqual(itemSlot,playerItemSlot) &&
-                    ItemSlotHelper.canInsertIntoSlot(itemSlot,playerItemSlot,tileEntity.MaxStacks*Global.MaxSize)
+                    ItemSlotHelper.AreEqual(itemSlot,playerItemSlot) &&
+                    ItemSlotHelper.CanInsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize)
                 ) {
-                    ItemSlotHelper.insertIntoSlot(itemSlot,playerItemSlot,tileEntity.MaxStacks*Global.MaxSize);
+                    ItemSlotHelper.InsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize);
                     if (playerItemSlot.amount <= 0) {
                         playerInventory.removeSelectedItemSlot();
                         loadVisual();
@@ -155,10 +154,11 @@ namespace TileEntityModule.Instances.Storage {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return;
             }
-            while (itemSlot.amount > 0) {
-                int amount = Mathf.Min(itemSlot.amount,Global.MaxSize);
+            while (itemSlot.amount > 0)
+            {
+                uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MaxSize);
                 itemSlot.amount -= amount;
-                ItemSlot drop = ItemSlotFactory.createNewItemSlot(itemSlot.itemObject,amount);
+                ItemSlot drop = ItemSlotFactory.CreateNewItemSlot(itemSlot.itemObject,(uint)amount);
                 ItemEntityHelper.spawnItemEntity(getWorldPosition(),drop,loadedChunk.getEntityContainer());
             }
         }

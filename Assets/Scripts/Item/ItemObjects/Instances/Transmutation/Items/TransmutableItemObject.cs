@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Items.Transmutable {
-    public class TransmutableItemObject : PresetItemObject, ITransmutableItem, IStateItem
+    public class TransmutableItemObject : ItemObject, ITransmutableItem, IStateItem
     {
         [SerializeField] private TransmutableItemState state;
         [SerializeField] private TransmutableItemMaterial material;
@@ -31,8 +31,20 @@ namespace Items.Transmutable {
         {
             return state.getMatterState();
         }
-        public void setSprites(Sprite[] sprites) {
-            this.sprites = sprites;
+        public override Sprite[] getSprites()
+        {
+            return material.GetOptionStateDict()[state].sprites;
+        }
+
+        public override Sprite getSprite()
+        {
+            return getSprites()[0];
+        }
+
+        public override ItemDisplayType? getDisplayType()
+        {
+            var sprites = getSprites();
+            return sprites?.Length > 1 ? ItemDisplayType.Animated : ItemDisplayType.Single;
         }
     }
 }

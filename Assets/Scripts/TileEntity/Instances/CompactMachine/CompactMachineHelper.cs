@@ -14,7 +14,7 @@ using UnityEngine.AddressableAssets;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     public static class CompactMachineHelper 
     {
         /// 4*24^6 < |2^31-1| < |-2^31|
@@ -121,15 +121,15 @@ namespace TileEntityModule.Instances.CompactMachines {
         public static IEnumerator initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
-            var handle = Addressables.LoadAssetAsync<Object>(compactMachine.TileEntity.StructurePreset);
+            var handle = Addressables.LoadAssetAsync<Object>(compactMachine.TileEntityObject.StructurePreset);
             yield return handle;
             Structure structure = AddressableUtils.validateHandle<Structure>(handle);
             if (structure == null) {
-                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntity.name}: Could not load structure");
+                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntityObject.name}: Could not load structure");
                 yield break;
             }
             if (structure.variants.Count == 0) {
-                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntity.name} as structure has no variant");
+                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntityObject.name} as structure has no variant");
                 yield break;
             }
             StructureVariant variant = structure.variants[0];

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Items;
+using Recipe;
+using Recipe.Processor;
+using Recipe.Viewer;
 
 namespace RecipeModule.Viewer {
     public class RecipeProcessorIndicatorController : MonoBehaviour
@@ -16,16 +19,18 @@ namespace RecipeModule.Viewer {
 
         public RecipeViewer RecipeViewer { get => recipeViewer; set => recipeViewer = value; }
 
-        public void init(RecipeViewer recipeViewer, List<RecipeProcessor> processors, RecipeProcessor inital) {
+        public void Initialize(RecipeViewer recipeViewer, List<RecipeProcessor> processors, RecipeProcessor inital) {
             if (processors == null || processors.Count == 0) {
                 return;
             }
             this.recipeViewer = recipeViewer;
-            initIndicators();
+            InitIndicators();
             processorSprites = new Dictionary<RecipeProcessor, Sprite[]>();
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            foreach (RecipeProcessor recipeProcessor in processors) {
-                List<TileItem> tileItems = itemRegistry.getTileEntitiesOfProcessor(recipeProcessor);
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            foreach (RecipeProcessor recipeProcessor in processors)
+            {
+                RecipeProcessorInstance processorInstance = RecipeRegistry.GetProcessorInstance(recipeProcessor);
+                List<TileItem> tileItems = ItemRegistry.getTileEntitiesOfProcessor(processorInstance);
                 Sprite[] sprites = new Sprite[tileItems.Count];
                 for (int i = 0; i < tileItems.Count; i++) {
                     sprites[i] = tileItems[i].getSprite();
@@ -39,14 +44,16 @@ namespace RecipeModule.Viewer {
                 Debug.LogError("could not find initalIndex");
                 return;
             }
-            display();
+            Display();
         }
 
-        private void initIndicators() {
-            indicators = new Dictionary<RecipeProcessorPosition, List<RecipeProcessorIndicator>>();
-            indicators[RecipeProcessorPosition.Center] = new List<RecipeProcessorIndicator>();
-            indicators[RecipeProcessorPosition.Left] = new List<RecipeProcessorIndicator>();
-            indicators[RecipeProcessorPosition.Right] = new List<RecipeProcessorIndicator>();
+        private void InitIndicators() {
+            indicators = new Dictionary<RecipeProcessorPosition, List<RecipeProcessorIndicator>>
+                {
+                    [RecipeProcessorPosition.Center] = new List<RecipeProcessorIndicator>(),
+                    [RecipeProcessorPosition.Left] = new List<RecipeProcessorIndicator>(),
+                    [RecipeProcessorPosition.Right] = new List<RecipeProcessorIndicator>()
+                };
 
             for (int i = 0; i < transform.childCount; i++) {
                 Transform child = transform.GetChild(i);
@@ -67,7 +74,7 @@ namespace RecipeModule.Viewer {
             }
         }
         
-        public void display() {
+        public void Display() {
             indicators[RecipeProcessorPosition.Center][0].image.sprite = getRandomSprite(processorSprites[processors[currentIndex]]);
             for (int i = 0; i < length; i++) {
                 int index = Global.modInt(currentIndex-(i+1), processors.Count);
@@ -86,19 +93,19 @@ namespace RecipeModule.Viewer {
             int ran = Random.Range(0,sprites.Length);
             return sprites[ran];
         }
-        public void moveLeft() {
+        public void MoveLeft() {
             currentIndex = Global.modInt(currentIndex-1, processors.Count);
-            display();
+            Display();
         }
 
-        public void moveRight() {
+        public void MoveRight() {
             currentIndex = Global.modInt(currentIndex+1, processors.Count);
-            display();
+            Display();
         }
 
-        public void moveByAmount(int amount) {
+        public void MoveByAmount(int amount) {
             currentIndex = Global.modInt(currentIndex+amount, processors.Count);
-            display();
+            Display();
         }
     }
 

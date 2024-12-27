@@ -8,9 +8,9 @@ using UI;
 using Items;
 
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     [CreateAssetMenu(fileName ="New Fluid Tank",menuName="Tile Entity/Storage/Fluid/Standard")]
-    public class FluidTank : TileEntity
+    public class FluidTank : TileEntityObject
     {
         public Tier Tier;
         public ConduitPortLayout ConduitLayout;

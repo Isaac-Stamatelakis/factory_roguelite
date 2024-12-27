@@ -11,11 +11,12 @@ using Items.Inventory;
 namespace UI.QuestBook {
     public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable
     {
+        [SerializeField] private ItemSlotUI itemSlotUI;
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI amount;
         [SerializeField] private Transform itemUIContainer;
         private QuestBookPageUI questBookUI;
-        private int gottenAmount;
+        private uint gottenAmount;
         private ItemQuestTask itemQuestTask;
         private SerializedItemSlot ItemSlot {get => itemQuestTask.Items[index];}
         private ItemQuestTaskUI taskUI;
@@ -38,9 +39,9 @@ namespace UI.QuestBook {
             if (this == null) {
                 return;
             }
-            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemUIContainer,null,false);
+            itemSlotUI.Display(itemSlot);
             itemName.text = itemSlot.itemObject.name;
-            gottenAmount = Mathf.Clamp(gottenAmount,0,itemSlot.amount);
+            gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
             if (gottenAmount == itemSlot.amount) {
                 amount.color = Color.green;
             } else {
@@ -62,7 +63,7 @@ namespace UI.QuestBook {
         private void navigateToEditMode() {
             UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-            serializedItemSlotEditorUI.init(itemQuestTask.Items,index,this,gameObject);
+            serializedItemSlotEditorUI.Init(itemQuestTask.Items,index,this,gameObject);
             serializedItemSlotEditorUI.transform.SetParent(questBookUI.transform,false);
         }
 

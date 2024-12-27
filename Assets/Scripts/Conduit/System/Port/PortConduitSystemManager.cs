@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Conduits.Ports;
-using TileEntityModule;
+using TileEntity;
 using UnityEngine;
 
 namespace Conduits.Systems {
@@ -44,7 +44,8 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
         {
-            conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,tileEntity,conduit.GetConduitItem()));
+            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
+            conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,interactable,conduit.GetConduitItem()));
             conduit.GetConduitSystem().Rebuild();
         }
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.SimonSays {
+namespace TileEntity.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/ColoredTile")]
-    public class SimonSaysColoredTileEntity : TileEntity
+    public class SimonSaysColoredTileEntityObject : TileEntityObject
     {
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

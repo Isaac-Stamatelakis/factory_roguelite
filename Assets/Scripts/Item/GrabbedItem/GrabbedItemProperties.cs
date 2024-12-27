@@ -12,49 +12,44 @@ namespace Items {
         private static GrabbedItemProperties instance;
         public void Awake() {
             instance = this;
-            itemSlotUI = gameObject.AddComponent<ItemSlotUI>();
-            itemSlotUI.init(null);
         }
         
-        private ItemSlotUI itemSlotUI;
+        public ItemSlotUI ItemSlotUI;
         public ItemSlot ItemSlot {get => itemSlot;}
         public static GrabbedItemProperties Instance { get => instance;}
         private ItemSlot itemSlot;
-        public void FixedUpdate() {
-            itemSlotUI.display(itemSlot);
-        }
+        
         void Update()
         {
-            Vector3 position = Input.mousePosition;
-            position.z = 0;
+            Vector2 position = Input.mousePosition;
             transform.position = position;
         }
-        public void setItemSlot(ItemSlot itemSlot) {
+        public void SetItemSlot(ItemSlot itemSlot) {
             this.itemSlot = itemSlot;
-            updateSprite();
+            UpdateSprite();
         }
 
-        public void updateSprite() {
-            itemSlotUI.display(itemSlot);
+        public void UpdateSprite() {
+            ItemSlotUI.Display(itemSlot);
         }
         
-        public bool setItemSlotFromInventory(List<ItemSlot> inventory, int n) {
+        public bool SetItemSlotFromInventory(List<ItemSlot> inventory, int n) {
             if (ItemSlot != null && ItemSlot.itemObject != null) {
                 return false;
             }
             ItemSlot inventorySlot = inventory[n];
-            ItemSlot newSlot = ItemSlotFactory.createNewItemSlot(inventorySlot.itemObject,1);
+            ItemSlot newSlot = ItemSlotFactory.CreateNewItemSlot(inventorySlot.itemObject,1);
             inventorySlot.amount--;
             if (inventorySlot.amount == 0) {
                 inventory[n] = null;
             }
-            setItemSlot(newSlot);
+            SetItemSlot(newSlot);
             return true;
         }
 
-        public void addItemSlotFromInventory(List<ItemSlot> inventory, int n) {
+        public void AddItemSlotFromInventory(List<ItemSlot> inventory, int n) {
             ItemSlot inventorySlot = inventory[n];
-            if (!ItemSlotHelper.areEqual(ItemSlot,inventorySlot)) {
+            if (!ItemSlotHelper.AreEqual(ItemSlot,inventorySlot)) {
                 return;
             }
             if (ItemSlot.amount >= Global.MaxSize) {
@@ -65,7 +60,7 @@ namespace Items {
                 inventory[n] = null;
             }
             this.ItemSlot.amount += 1;
-            updateSprite();
+            UpdateSprite();
         }
     }
 }

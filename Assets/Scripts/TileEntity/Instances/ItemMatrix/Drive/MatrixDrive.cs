@@ -10,9 +10,9 @@ using Items.Inventory;
 using Entities;
 using UnityEngine.AddressableAssets;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
-    public class MatrixDrive : TileEntity, IAssetManagerTileEntity
+    public class MatrixDrive : TileEntityObject, IAssetManagerTileEntity
     {
         public ConduitPortLayout Layout;
         public int rows;

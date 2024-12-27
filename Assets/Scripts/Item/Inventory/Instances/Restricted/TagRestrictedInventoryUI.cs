@@ -11,7 +11,7 @@ namespace Items.Inventory {
         {
             this.inventory = items;
             this.validTag = validTag;
-            initalizeSlots();
+            InitalizeSlots();
         }
         public override void leftClick(int n)
         {

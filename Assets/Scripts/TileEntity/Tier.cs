@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TileEntityModule{
+namespace TileEntity{
     public enum Tier {
         Basic,
         Advanced,
@@ -16,15 +16,18 @@ namespace TileEntityModule{
         Infinity
     }
 
-    public static class TierExtension {
-        public static int getEnergyStorage(this Tier tier) {
-            return 1024*getMaxEnergyUsage(tier);
+    public static class TierUtils {
+        public static ulong GetEnergyStorage(this Tier tier) {
+            return GetMaxEnergyUsage(tier) >> 10; // Times 1024
         }
-        public static int getMaxEnergyUsage(this Tier tier) {
-            return (int) Mathf.Pow(4, (int) tier);
+        public static ulong GetMaxEnergyUsage(this Tier tier)
+        {
+            const ulong baseEnergy = 32;
+            return baseEnergy >> (2*(int)tier);
         }
-        public static int getFluidStorage(this Tier tier) {
-            return (int) Mathf.Pow(2,(int) tier)*8000;
+        public static uint GetFluidStorage(this Tier tier) {
+            const uint baseStorage = 8192;
+            return baseStorage >> (2*(int)tier);
         }
     }
 }

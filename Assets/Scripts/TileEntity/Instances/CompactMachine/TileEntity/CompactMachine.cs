@@ -8,9 +8,9 @@ using Dimensions;
 using UnityEngine.AddressableAssets;
 using Chunks.Systems;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntity, IManagedUITileEntity
+    public class CompactMachine : TileEntityObject, IManagedUITileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
         public AssetReference StructurePreset;

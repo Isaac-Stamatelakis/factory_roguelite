@@ -12,4 +12,19 @@ public static class GlobalHelper
             GameObject.Destroy(parent.GetChild(i).gameObject);
         }
     }
+
+    public static uint MaxUInt(uint a, uint b)
+    {
+        return a > b ? a : b;
+    }
+    
+    public static uint MinUInt(uint a, uint b)
+    {
+        return a < b ? a : b;
+    }
+
+    public static uint Clamp(uint val, uint min, uint max)
+    {
+        return val < min ? min : val > max ? max : val;
+    }
 }

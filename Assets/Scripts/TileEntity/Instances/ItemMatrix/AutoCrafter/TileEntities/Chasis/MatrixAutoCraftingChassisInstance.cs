@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixAutoCraftingChassisInstance<T> : TileEntityInstance<T>, IMatrixCraftTile, ILoadableTileEntity 
         where T : MatrixAutoCraftingChassis
     {

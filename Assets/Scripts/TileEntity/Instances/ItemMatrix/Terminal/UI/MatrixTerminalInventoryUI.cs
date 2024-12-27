@@ -13,7 +13,7 @@ using Chunks;
 using System.Threading.Tasks;
 using UI;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public interface IMatrixTerminalItemClickReciever {
         public void itemLeftClick(IItemSlotUIElement listener);
         public void itemRightClick(IItemSlotUIElement listener);
@@ -34,7 +34,7 @@ namespace TileEntityModule.Instances.Matrix {
             this.controller = controller;
             this.itemContainer = itemContainer;
             this.matrixTerminalUI = matrixTerminalUI;
-            matrixDriveCollection = controller.getEntireDriveCollection();
+            matrixDriveCollection = controller.GetEntireDriveCollection();
             toRebuild = matrixDriveCollection.getQueueOfDrives();
             driveInventoryToRebuild = new Queue<MatrixDriveInventory>();
             GlobalHelper.deleteAllChildren(itemContainer);
@@ -71,12 +71,12 @@ namespace TileEntityModule.Instances.Matrix {
             if (idTagItemSlotDict[itemSlot.itemObject.id].ContainsKey(tagKey)) {
                 (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[itemSlot.itemObject.id][tagKey];
                 if (tuple.Item1 == null || tuple.Item1.itemObject == null) {
-                    tuple.Item1 = ItemSlotFactory.copy(itemSlot);
+                    tuple.Item1 = ItemSlotFactory.Copy(itemSlot);
                 } else {
                     tuple.Item1.amount += itemSlot.amount;
                 }
             } else {
-                idTagItemSlotDict[itemSlot.itemObject.id][tagKey] = (ItemSlotFactory.copy(itemSlot),null,null);
+                idTagItemSlotDict[itemSlot.itemObject.id][tagKey] = (ItemSlotFactory.Copy(itemSlot),null,null);
             }
         }
         private void createItemSlotGameObject((ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe) tuple, string id, ItemTagKey tagKey) {
@@ -188,14 +188,14 @@ namespace TileEntityModule.Instances.Matrix {
                     GameObject.Destroy(matrixTerminalItemSlotUI.gameObject);
                     return true;
                 } else {
-                    matrixTerminalItemSlotUI.showCraftText();
+                    matrixTerminalItemSlotUI.ShowCraftText();
                 }
             }
             return false; 
         }
         public void FixedUpdate() {
             if (toRebuild.Count == 0) {
-                matrixDriveCollection = controller.getEntireDriveCollection();
+                matrixDriveCollection = controller.GetEntireDriveCollection();
                 toRebuild = matrixDriveCollection.getQueueOfDrives();
                 rebuildDict();
                 return;
@@ -227,7 +227,7 @@ namespace TileEntityModule.Instances.Matrix {
             MatrixTerminalItemSlotUI slot = value.Item2;
             if (slot != null) {
                 sortItemSlots();
-                ((IItemSlotUIElement)slot).reload(value.Item1);
+                ((IItemSlotUIElement)slot).Reload(value.Item1);
             }
             
         }
@@ -237,7 +237,7 @@ namespace TileEntityModule.Instances.Matrix {
             for (int i = 0; i < itemContainer.childCount; i++) {
                 Transform child = itemContainer.GetChild(i);
                 MatrixTerminalItemSlotUI matrixTerminalItemSlotUI = child.GetComponent<MatrixTerminalItemSlotUI>();
-                ItemSlot itemSlot = matrixTerminalItemSlotUI.getItemSlot();
+                ItemSlot itemSlot = matrixTerminalItemSlotUI.GetItemSlot();
                 if (itemSlot == null || itemSlot.itemObject == null) {
                     continue;
                 }
@@ -259,7 +259,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        private bool itemInDict(ItemSlot itemSlot) {
+        private bool ItemInDict(ItemSlot itemSlot) {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 return false;
             }
@@ -273,15 +273,15 @@ namespace TileEntityModule.Instances.Matrix {
             (ItemSlot, MatrixTerminalItemSlotUI, EncodedRecipe) tuple = idTagItemSlotDict[inventorySlot.itemObject.id][itemTagKey];
             bool destroyed = handleDestruction(tuple);
             if (!destroyed && inventorySlot.amount != 0) {
-                slotUIElement.reload(inventorySlot);   
+                slotUIElement.Reload(inventorySlot);   
             } 
             sortItemSlots();
-            grabbedItemProperties.updateSprite();
+            grabbedItemProperties.UpdateSprite();
         }
 
-        private bool insertItemIntoSystemFromTerminal(ItemSlot itemSlot, GrabbedItemProperties grabbedItemProperties) {
-            int preAmount = itemSlot.amount;
-            ItemSlot grabbedItemCopy = ItemSlotFactory.copy(itemSlot);
+        private bool InsertItemIntoSystemFromTerminal(ItemSlot itemSlot, GrabbedItemProperties grabbedItemProperties) {
+            uint preAmount = itemSlot.amount;
+            ItemSlot grabbedItemCopy = ItemSlotFactory.Copy(itemSlot);
             controller.sendItem(itemSlot);
             grabbedItemCopy.amount -= itemSlot.amount;
             if (grabbedItemCopy.amount == 0) { // Was not inserted
@@ -299,14 +299,14 @@ namespace TileEntityModule.Instances.Matrix {
             if (tuple.Item2 == null) {
                 createItemSlotGameObject(tuple,grabbedSlotId,grabbedSlotTagKey);
             } else {
-                ((IItemSlotUIElement)tuple.Item2).reload(tuple.Item1,force:true);
+                ((IItemSlotUIElement)tuple.Item2).Reload(tuple.Item1,force:true);
             }
-            grabbedItemProperties.updateSprite();
+            grabbedItemProperties.UpdateSprite();
             sortItemSlots();
             return true;
         }
 
-        private void giveAmountToGrabbedItem(ItemSlot inventorySlot, GrabbedItemProperties grabbedItemProperties, IItemSlotUIElement slotUIElement, int amount) {
+        private void GiveAmountToGrabbedItem(ItemSlot inventorySlot, GrabbedItemProperties grabbedItemProperties, IItemSlotUIElement slotUIElement, uint amount) {
             if (inventorySlot == null || inventorySlot.itemObject == null) {
                 return;
             }
@@ -315,7 +315,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
             
             ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
-            grabbedItemProperties.setItemSlot(matrixDriveCollection.take(inventorySlot.itemObject.id,itemTagKey,amount));
+            grabbedItemProperties.SetItemSlot(matrixDriveCollection.Take(inventorySlot.itemObject.id,itemTagKey,amount));
             if (grabbedItemProperties.ItemSlot == null || grabbedItemProperties.ItemSlot.itemObject == null) {
                 return;
             }
@@ -323,7 +323,7 @@ namespace TileEntityModule.Instances.Matrix {
             updateSlotOnRemoval(inventorySlot,inventorySlot.itemObject.id,itemTagKey,grabbedItemProperties,slotUIElement);
         }
 
-        private bool handleCraftClick(ItemSlot inventorySlot) {
+        private bool HandleCraftClick(ItemSlot inventorySlot) {
             string id = inventorySlot.itemObject.id;
             ItemTagKey tagKey = new ItemTagKey(inventorySlot.tags);
             if (!itemInDict(id,tagKey)) {
@@ -360,11 +360,11 @@ namespace TileEntityModule.Instances.Matrix {
                 }
                 string id = inventorySlot.itemObject.id;
                 ItemTagKey itemTagKey = new ItemTagKey(inventorySlot.tags);
-                ItemSlot extracted = controller.takeItem(id,itemTagKey,fluidContainer.getStorage());
+                ItemSlot extracted = controller.TakeItem(id,itemTagKey,fluidContainer.GetStorage());
                 if (extracted.amount == 0) {
                     return false;
                 }
-                ItemSlot spliced = ItemSlotFactory.deepSlice(grabbedSlot,1);
+                ItemSlot spliced = ItemSlotFactory.DeepSlice(grabbedSlot,1);
                 spliced.tags.Dict[ItemTag.FluidContainer] = extracted;
                 PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
                 playerInventory.give(spliced);
@@ -377,7 +377,7 @@ namespace TileEntityModule.Instances.Matrix {
             if (tagData is not ItemSlot fluidCellContent) {
                 return false;
             }
-            insertItemIntoSystemFromTerminal(fluidCellContent,grabbedItemProperties);
+            InsertItemIntoSystemFromTerminal(fluidCellContent,grabbedItemProperties);
             if (fluidCellContent == null || fluidCellContent.amount == 0 || fluidCellContent.itemObject == null) {
                 
             }
@@ -387,22 +387,22 @@ namespace TileEntityModule.Instances.Matrix {
         {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
-            ItemSlot inventorySlot = slotUIElement.getItemSlot();
+            ItemSlot inventorySlot = slotUIElement.GetItemSlot();
             
             if (grabbedSlot == null || grabbedSlot.itemObject == null) {
                 if (inventorySlot != null && inventorySlot.itemObject != null) {
-                    bool inCraftMenu = handleCraftClick(inventorySlot);
+                    bool inCraftMenu = HandleCraftClick(inventorySlot);
                     if (inCraftMenu) {
                         return;
                     }
                 } 
-                giveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,Global.MaxSize);
+                GiveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,Global.MaxSize);
             } else {
                 bool fluidClick = fluidCellClick(grabbedItemProperties,inventorySlot,slotUIElement);
                 if (fluidClick) {
                     return;
                 }
-                insertItemIntoSystemFromTerminal(grabbedSlot,grabbedItemProperties);
+                InsertItemIntoSystemFromTerminal(grabbedSlot,grabbedItemProperties);
             }
 
         }
@@ -415,17 +415,17 @@ namespace TileEntityModule.Instances.Matrix {
         {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
-            ItemSlot inventorySlot = slotUIElement.getItemSlot();
-            if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
-                giveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,1);
+            ItemSlot inventorySlot = slotUIElement.GetItemSlot();
+            if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotHelper.AreEqual(grabbedSlot,inventorySlot)) {
+                GiveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,1);
             } else {
-                ItemSlot spliced = ItemSlotFactory.splice(grabbedSlot,1);
-                insertItemIntoSystemFromTerminal(spliced,grabbedItemProperties);
+                ItemSlot spliced = ItemSlotFactory.Splice(grabbedSlot,1);
+                InsertItemIntoSystemFromTerminal(spliced,grabbedItemProperties);
                 if (spliced.amount == 0) {
                     grabbedItemProperties.ItemSlot.amount--;
                 }
                 if (grabbedItemProperties.ItemSlot.amount == 0) {
-                    grabbedItemProperties.setItemSlot(null);
+                    grabbedItemProperties.SetItemSlot(null);
                 }
             }
         }

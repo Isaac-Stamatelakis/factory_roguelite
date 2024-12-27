@@ -5,7 +5,7 @@ using UnityEngine;
 using Conduits.Ports;
 using Conduits.Systems;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixAutoCraftingCoreInstance : MatrixAutoCraftingChassisInstance<MatrixAutoCraftCore>, IMatrixConduitInteractable, IMultiBlockTileEntity
     {
         private int totalMemory;
@@ -76,7 +76,7 @@ namespace TileEntityModule.Instances.Matrix {
         
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
         public override void sync(MatrixAutoCraftingCoreInstance core)
@@ -87,12 +87,12 @@ namespace TileEntityModule.Instances.Matrix {
             this.core = core;
         }
 
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             this.matrixConduitSystem = matrixConduitSystem;
             if (assembled) {
@@ -100,7 +100,7 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.removeAutoCrafter(this);

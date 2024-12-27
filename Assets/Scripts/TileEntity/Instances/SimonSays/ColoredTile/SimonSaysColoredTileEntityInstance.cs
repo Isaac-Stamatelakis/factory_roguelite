@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.SimonSays {
-    public class SimonSaysColoredTileEntityInstance : TileEntityInstance<SimonSaysColoredTileEntity>, IRightClickableTileEntity
+namespace TileEntity.Instances.SimonSays {
+    public class SimonSaysColoredTileEntityInstance : TileEntityInstance<SimonSaysColoredTileEntityObject>, IRightClickableTileEntity
     {
-        public SimonSaysColoredTileEntityInstance(SimonSaysColoredTileEntity tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
+        public SimonSaysColoredTileEntityInstance(SimonSaysColoredTileEntityObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
         }
 

@@ -8,7 +8,7 @@ using TMPro;
 namespace Items {
     public static class ItemSlotUIFactory
     {
-        
+        /*
 
         public static ItemSlotUI newItemSlotUI(ItemSlot itemSlot, Transform parent, Color? color, bool enableText = true,  string suffix = null) {
             GameObject slot = new GameObject();
@@ -33,6 +33,7 @@ namespace Items {
             }
             return slots;
         }
+        */
 
 
         

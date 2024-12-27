@@ -1,60 +1,46 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using TileEntityModule;
-using Items;
+using Recipe.Processor;
+using TileEntity.Instances.WorkBenchs;
 using UI;
 
-namespace RecipeModule.Viewer {
+namespace Recipe.Viewer {
     public static class RecipeViewerHelper
     {
-        private static string path = "Assets/UI/Recipe/RecipeViewer.prefab";
-        public static void displayUsesOfItem(ItemSlot itemSlot) {
-            RecipeRegistry recipeRegistry = RecipeRegistry.getInstance();
-            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInInput = recipeRegistry.getRecipesWithItemInInput(itemSlot);
+        public static void DisplayUsesOfItem(ItemSlot itemSlot) {
+            RecipeRegistry recipeRegistry = RecipeRegistry.GetInstance();
+            var recipesWithItemInInput = recipeRegistry.GetRecipesWithItemInInput(itemSlot);
             // If is processor, show recipes it makes
             if (itemSlot.itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
-                RecipeProcessor processor = tileEntityProcessor.getRecipeProcessor();
-                recipesWithItemInInput[processor] = recipeRegistry.getRecipeProcessorRecipes(processor);
+                RecipeProcessor processor = tileEntityProcessor.GetRecipeProcessor();
+                recipesWithItemInInput[processor] = recipeRegistry.GetRecipeProcessorRecipes(processor);
             }
             if (recipesWithItemInInput.Count == 0) {
                 return;
             }
-            RecipeViewer viewer = getViewer();
-            if (viewer == null) {
-                return;
-            }
+            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
             viewer.show(recipesWithItemInInput);
-            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
+            CanvasController.Instance.DisplayObject(viewer.gameObject);
         }
-        public static void displayCraftingOfItem(ItemSlot itemSlot) {
-            
-            Dictionary<RecipeProcessor, List<IRecipe>> recipesWithItemInOutput = RecipeRegistry.getInstance().getRecipesWithItemInOutput(itemSlot);
+        public static void DisplayCraftingOfItem(ItemSlot itemSlot) {
+            var recipesWithItemInOutput = RecipeRegistry.GetInstance().GetRecipesWithItemInOutput(itemSlot);
             if (recipesWithItemInOutput.Count == 0) {
                 return;
             }
-            RecipeViewer viewer = getViewer();
-            if (viewer == null) {
-                return;
-            }
+
+            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
             viewer.show(recipesWithItemInOutput);
-            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
+            CanvasController.Instance.DisplayObject(viewer.gameObject);
         }
 
-        public static void displayUsesOfProcessor(RecipeProcessor processor) {
-            List<IRecipe> recipes = RecipeRegistry.getInstance().getRecipeProcessorRecipes(processor);
-            Dictionary<RecipeProcessor, List<IRecipe>> recipesOfProcessor = new Dictionary<RecipeProcessor, List<IRecipe>>();
-            recipesOfProcessor[processor] = recipes;
-            RecipeViewer viewer = getViewer();
-            if (viewer == null) {
-                return;
-            }
+        public static void DisplayUsesOfProcessor(RecipeProcessor processor) {
+            List<DisplayableRecipe> recipes = RecipeRegistry.GetInstance().GetRecipeProcessorRecipes(processor);
+            var recipesOfProcessor = new Dictionary<RecipeProcessor, List<DisplayableRecipe>>
+                {
+                    [processor] = recipes
+                };
+            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
             viewer.show(recipesOfProcessor);
-            MainCanvasController.Instance.DisplayObject(viewer.gameObject);
-        }
-
-        private static RecipeViewer getViewer() {
-            return AddressableLoader.getPrefabComponentInstantly<RecipeViewer>(path);
+            CanvasController.Instance.DisplayObject(viewer.gameObject);
         }
     }
 }

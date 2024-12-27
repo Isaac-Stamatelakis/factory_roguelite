@@ -132,7 +132,7 @@ namespace UI.QuestBook {
             }
             for (int i = 0; i < Content.Rewards.Count; i++) {
                 RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab);
-                rewardListElement.init(Content.Rewards,i,this);
+                rewardListElement.Init(Content.Rewards,i,this);
                 rewardListElement.transform.SetParent(rewardsGroup.transform,false);
             }
         }

@@ -4,7 +4,7 @@ using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     public class DrawerControllerInstance : TileEntityInstance<DrawerController>, ISolidItemConduitInteractable, IMultiBlockTileEntity
     {
         private List<ItemDrawerInstance> drawers;
@@ -18,7 +18,7 @@ namespace TileEntityModule.Instances.Storage {
             TileEntityHelper.dfsTileEntity(this,drawers);
         }
 
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot itemSlot = drawer.ItemSlot;
@@ -32,15 +32,15 @@ namespace TileEntityModule.Instances.Storage {
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
-                if (ItemSlotHelper.areEqual(drawerSlot,itemSlot) && ItemSlotHelper.canInsertIntoSlot(drawerSlot,itemSlot,drawer.Amount)) {
-                    ItemSlotHelper.insertIntoSlot(drawerSlot,itemSlot,drawerSlot.amount);
+                if (ItemSlotHelper.AreEqual(drawerSlot,itemSlot) && ItemSlotHelper.CanInsertIntoSlot(drawerSlot,itemSlot,drawer.Amount)) {
+                    ItemSlotHelper.InsertIntoSlot(drawerSlot,itemSlot,drawerSlot.amount);
                 }
                 if (itemSlot.itemObject == null || itemSlot.amount == 0) {
                     return;
@@ -49,7 +49,7 @@ namespace TileEntityModule.Instances.Storage {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
                 if (drawerSlot == null || drawerSlot.itemObject == null) {
-                    drawerSlot = ItemSlotFactory.copy(itemSlot);
+                    drawerSlot = ItemSlotFactory.Copy(itemSlot);
                     itemSlot.itemObject = null;
                     return;
                 }

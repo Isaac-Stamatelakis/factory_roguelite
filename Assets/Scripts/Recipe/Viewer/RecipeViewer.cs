@@ -1,11 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Recipe.Objects;
+using Recipe.Processor;
+using RecipeModule.Viewer;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Linq;
 
-namespace RecipeModule.Viewer {
+namespace Recipe.Viewer {
     public class RecipeViewer : MonoBehaviour
     {
         [SerializeField] public TextMeshProUGUI recipeProcessorTitle;
@@ -19,22 +21,22 @@ namespace RecipeModule.Viewer {
         private List<RecipeProcessor> orderedProcessors;
         private int currentProcessorIndex;
         private int currentRecipeIndex;
-        private Dictionary<RecipeProcessor, List<IRecipe>> processorRecipes;
+        private Dictionary<RecipeProcessor, List<DisplayableRecipe>> processorRecipes;
+        private GameObject currentUI;
+        public Dictionary<RecipeProcessor, List<DisplayableRecipe>> ProcessorRecipes { get => processorRecipes; set => processorRecipes = value; }
 
-        public Dictionary<RecipeProcessor, List<IRecipe>> ProcessorRecipes { get => processorRecipes; set => processorRecipes = value; }
-
-        public void show(Dictionary<RecipeProcessor, List<IRecipe>> processorRecipes) {
+        public void show(Dictionary<RecipeProcessor, List<DisplayableRecipe>> processorRecipes) {
             this.processorRecipes = processorRecipes;
-            orderedProcessors = processorRecipes.Keys.ToList();
-            RecipeProcessorSorter.sortProcessors(orderedProcessors);
+            orderedProcessors = OrderProcessors(this.processorRecipes);
+            //RecipeProcessorSorter.sortProcessors(orderedProcessors);
             RecipeProcessor processorToShow = orderedProcessors[0];
-            indicatorController.init(this, orderedProcessors,processorToShow);
-            recipeProcessorLeftButton.onClick.AddListener(() => moveByAmount(-1));   
-            recipeProcessorRightButton.onClick.AddListener(() => moveByAmount(1)); 
-            recipeLeftButton.onClick.AddListener(moveRecipeLeft);
-            recipeRightButton.onClick.AddListener(moveRecipeRight);
+            indicatorController.Initialize(this, orderedProcessors,processorToShow);
+            recipeProcessorLeftButton.onClick.AddListener(() => MoveByAmount(-1));   
+            recipeProcessorRightButton.onClick.AddListener(() => MoveByAmount(1)); 
+            recipeLeftButton.onClick.AddListener(MoveRecipeLeft);
+            recipeRightButton.onClick.AddListener(MoveRecipeRight);
             // ints are initalized at 0, so displays processor 0 with recipe 0
-            display();
+            Display();
 
         }
 
@@ -44,58 +46,72 @@ namespace RecipeModule.Viewer {
             recipeLeftButton.onClick.RemoveAllListeners();
             recipeRightButton.onClick.RemoveAllListeners();
         }
-        public void moveByAmount(int amount) {
+        public void MoveByAmount(int amount) {
             currentRecipeIndex = 0;
             currentProcessorIndex = Global.modInt(currentProcessorIndex+amount,orderedProcessors.Count);
-            indicatorController.moveByAmount(amount);
-            display();
+            indicatorController.MoveByAmount(amount);
+            Display();
         }
 
-        public void displayUsesOfProcessor(int offset) {
+        public void DisplayUsesOfProcessor(int offset) {
             currentProcessorIndex = Global.modInt(currentProcessorIndex+offset,orderedProcessors.Count);
             RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
-            RecipeViewerHelper.displayUsesOfProcessor(processor);
+            RecipeViewerHelper.DisplayUsesOfProcessor(processor);
         }
 
-        private void moveRecipeLeft() {
+        private List<RecipeProcessor> OrderProcessors(Dictionary<RecipeProcessor, List<DisplayableRecipe>> processorRecipes)
+        {
+            if (processorRecipes == null || processorRecipes.Count == 0)
+            {
+                return new List<RecipeProcessor>();
+            }
+
+            return processorRecipes.Keys
+                .OrderBy(processor => processor.name)
+                .ToList();
+        }
+
+        private void MoveRecipeLeft() {
             RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
-            List<IRecipe> recipes = processorRecipes[processor];
+            List<DisplayableRecipe> recipes = processorRecipes[processor];
             // modulus gives negatives
             currentRecipeIndex = currentRecipeIndex-1;
             if (currentRecipeIndex < 0) {
                 currentRecipeIndex = recipes.Count-1;
             }
-            display();
+            Display();
         }
 
-        private void moveRecipeRight() {
+        private void MoveRecipeRight() {
             RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
-            List<IRecipe> recipes = processorRecipes[processor];
+            List<DisplayableRecipe> recipes = processorRecipes[processor];
             currentRecipeIndex = Mathf.Abs((currentRecipeIndex+1) % recipes.Count);
-            display();
+            Display();
         }
 
-        private void display() {
+        private void SetProcessorUI(RecipeProcessorInstance recipeProcessorInstance)
+        {
+            if (currentUI != null)
+            {
+                Destroy(currentUI);
+            }
+            currentUI = Instantiate(recipeProcessorInstance.RecipeProcessorObject.UIPrefab, transform, false);
+        }
+        private void Display() {
             RecipeProcessor processor = orderedProcessors[currentProcessorIndex];
             recipeProcessorTitle.text = processor.name;
-            if (processor is not IDisplayableProcessor displayableProcessor) {
-                return;
-            } 
-            List<IRecipe> recipes = processorRecipes[processor];
+            
+            List<DisplayableRecipe> recipes = processorRecipes[processor];
             if (recipes.Count < currentRecipeIndex) {
                 Debug.LogError("Tried to display recipe with out of range index");
                 return;
             }
-            setPageIndicatorText(currentRecipeIndex,recipes.Count);
-            IRecipe recipe = recipes[currentRecipeIndex];
-            GameObject processorUI = displayableProcessor.getRecipeUI(recipe,processor.name);
-            for (int i = 0; i < processorContainer.childCount; i++) {
-                GameObject.Destroy(processorContainer.GetChild(i).gameObject);
-            }
-            processorUI.transform.SetParent(processorContainer,false);
+            SetPageIndicatorText(currentRecipeIndex,recipes.Count);
+            DisplayableRecipe recipe = recipes[currentRecipeIndex];
+            currentUI.GetComponent<IRecipeProcessorUI>().DisplayRecipe(recipe);
         }
 
-        private void setPageIndicatorText(int index, int count) {
+        private void SetPageIndicatorText(int index, int count) {
             string text = (index+1) + "/" + count;
             pageIndicator.text = text;
         }

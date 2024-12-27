@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace TileEntityModule {
+namespace TileEntity {
     public class TileEntityAssetManager : AddressableAssetManager
     {
         public TileEntityAssetManager(Dictionary<string, AssetReference> keyReferenceDict) {

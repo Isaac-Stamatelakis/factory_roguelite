@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 
 public class TileItemInstance : MonoBehaviour
 {
     private TileItem tileItem;
-    private TileEntity tileEntity;
+    private TileEntityObject tileEntity;
 }

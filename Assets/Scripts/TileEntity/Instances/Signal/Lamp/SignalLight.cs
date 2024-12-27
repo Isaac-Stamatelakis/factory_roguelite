@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using Tiles;
 
-namespace TileEntityModule.Instances.Signal {
+namespace TileEntity.Instances.Signal {
     [CreateAssetMenu(fileName = "E~Signal Light", menuName = "Tile Entity/Signal/Light")]
     public class SignalLight : Torch
     {
@@ -28,17 +28,17 @@ namespace TileEntityModule.Instances.Signal {
             
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
             return false;
         }
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSignal(bool signal, Vector2Int portPosition)
+        public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             active = signal;
             if (signal) {
@@ -55,19 +55,19 @@ namespace TileEntityModule.Instances.Signal {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            Color color = tileEntity.color;
+            Color color = TileEntityObject.color;
             color.a = 1;
             if (lightObject == null) {
                 lightObject = new GameObject();
                 lightObject.name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"; 
                 Light2D light = lightObject.AddComponent<Light2D>();
                 light.lightType = Light2D.LightType.Point;
-                light.intensity = tileEntity.intensity;
+                light.intensity = TileEntityObject.intensity;
                 light.color = color;
                 light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
-                light.pointLightOuterRadius=tileEntity.radius;
-                light.falloffIntensity=tileEntity.falloff;
-                lightObject.transform.position = (Vector2) positionInChunk/2 + tileEntity.positionInTile;
+                light.pointLightOuterRadius=TileEntityObject.radius;
+                light.falloffIntensity=TileEntityObject.falloff;
+                lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
                 lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
                 if (tileItem.tile is IStateTile stateTile) {
                     TileEntityHelper.stateSwitch(this,1); // set on

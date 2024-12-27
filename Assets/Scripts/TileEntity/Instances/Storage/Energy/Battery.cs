@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     [CreateAssetMenu(fileName = "E~New Battery", menuName = "Tile Entity/Storage/Battery")]
-    public class Battery : TileEntity
+    public class Battery : TileEntityObject
     {
-        public int Storage;
+        public ulong Storage;
         public ConduitPortLayout ConduitPortLayout;
         public TileEntityUIManager UIManager;
 

@@ -17,7 +17,6 @@ public static class TransmutableItemFactory
     private static TransmutableItemObject generateItemObject(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite[] sprites, string id, string path) {
         TransmutableItemObject transmutableItemObject = ScriptableObject.CreateInstance<TransmutableItemObject>();
         transmutableItemObject.name = name;
-        transmutableItemObject.setSprites(sprites);
         transmutableItemObject.setState(state);
         transmutableItemObject.setMaterial(material);
         transmutableItemObject.id = id;

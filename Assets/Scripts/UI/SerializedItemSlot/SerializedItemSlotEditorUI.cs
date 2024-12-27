@@ -15,6 +15,7 @@ namespace UI {
     }
     public class SerializedItemSlotEditorUI : MonoBehaviour
     {
+        [SerializeField] private ItemSlotUI itemSlotUIPrefab;
         [SerializeField] private Button backButton;
         [SerializeField] private GridLayoutGroup itemSearchResultContainer;
         [SerializeField] private TMP_InputField itemSearch;
@@ -39,7 +40,7 @@ namespace UI {
         private IItemListReloadable reloadable;
         private float timeSinceLastDeletePress = 2f;
         private Type itemType;
-        public void init(
+        public void Init(
             List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo, 
             Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true
         ) {
@@ -53,7 +54,7 @@ namespace UI {
             downButton.gameObject.SetActive(displayArrows);
             tagInput.gameObject.SetActive(displayTags);
             amountField.gameObject.SetActive(displayAmount);
-            setImage();
+            SetImage();
             
             backButton.onClick.AddListener(() => {
                 if (gameObject != null) {
@@ -64,7 +65,7 @@ namespace UI {
                 }
                 
             });
-            loadItems("");
+            LoadItems("");
             LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
             scrollRect.verticalNormalizedPosition=1f;
             
@@ -76,9 +77,7 @@ namespace UI {
                     scrollRect.verticalNormalizedPosition += 100f/contentSize.y;
                 }
             });
-            itemSearch.onValueChanged.AddListener((string value) => {
-                loadItems(value);
-            });
+            itemSearch.onValueChanged.AddListener(LoadItems);
             tagInput.onValueChanged.AddListener((string value) => {
                 SerializedItemSlot.tags = value;
             });
@@ -88,7 +87,7 @@ namespace UI {
                     return;
                 }
                 try {
-                    int amount = System.Convert.ToInt32(value);
+                    uint amount = System.Convert.ToUInt32(value);
                     if (amount <= 0) {
                         amountField.text = "";
                         return;
@@ -110,17 +109,13 @@ namespace UI {
             });
             upButton.onClick.AddListener(() => {
                 int newIndex = Global.modInt(index-1,itemSlots.Count);
-                SerializedItemSlot swap = itemSlots[index];
-                itemSlots[index] = itemSlots[newIndex];
-                itemSlots[newIndex] = swap;
+                (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 reloadable.reloadAll();
             });
             downButton.onClick.AddListener(() => {
                 int newIndex = Global.modInt(index+1,itemSlots.Count);
-                SerializedItemSlot swap = itemSlots[index];
-                itemSlots[index] = itemSlots[newIndex];
-                itemSlots[newIndex] = swap;
+                (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 reloadable.reloadAll();
             });
@@ -135,7 +130,7 @@ namespace UI {
             
         }
 
-        private void setImage() {
+        private void SetImage() {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(SerializedItemSlot);
             if (itemSlot.itemObject != null) {
                 selectedItemImage.sprite = itemSlot.itemObject.getSprite();
@@ -144,7 +139,7 @@ namespace UI {
             }
             
         }
-        public void selectItem(ItemObject itemObject) {
+        public void SelectItem(ItemObject itemObject) {
             SerializedItemSlot serializedItemSlot = new SerializedItemSlot(
                 itemObject.id,
                 itemSlots[index].amount,
@@ -152,7 +147,7 @@ namespace UI {
             );
             itemSlots[index] = serializedItemSlot;
             reloadable.reload();
-            setImage();
+            SetImage();
         }
 
         private void loadOneMoreRow() {
@@ -162,16 +157,18 @@ namespace UI {
                 }
                 ItemObject itemObject = currentItems[size+i];
                 size ++;
-                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor);
+                ItemSlotUI itemSlotUI = Instantiate(itemSlotUIPrefab, itemSearchResultContainer.transform);
+                ItemSlot itemSlot = new ItemSlot(itemObject, 1,null);
+                itemSlotUI.Display(itemSlot);
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
             }
         }
-        private void loadItems(string value) {
+        private void LoadItems(string value) {
             if (itemType != null) {
                 
             } else {
-                currentItems = ItemRegistry.getInstance().query(value,int.MaxValue);
+                currentItems = ItemRegistry.GetInstance().Query(value,int.MaxValue);
             }
             
             GlobalHelper.deleteAllChildren(itemSearchResultContainer.transform);
@@ -181,7 +178,8 @@ namespace UI {
             scrollRect.content.sizeDelta = contentSize;
             for (int i = 0; i < Mathf.Min(currentItems.Count,size); i++) {
                 ItemObject itemObject = currentItems[i];
-                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(new ItemSlot(itemObject,1,null),itemSearchResultContainer.transform,ItemDisplayUtils.SolidItemPanelColor,false);
+                ItemSlotUI itemSlotUI = Instantiate(itemSlotUIPrefab, itemSearchResultContainer.transform);
+                itemSlotUI.Display(new ItemSlot(itemObject,1,null));
                 SerializedItemSlotEditItemPanel editItemPanel = itemSlotUI.gameObject.AddComponent<SerializedItemSlotEditItemPanel>();
                 editItemPanel.init(SerializedItemSlot,this,itemObject);
             }

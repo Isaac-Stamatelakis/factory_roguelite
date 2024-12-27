@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Chunks;
 using UI;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixRecipeEncoderInstance : TileEntityInstance<MatrixRecipeEncoder>, 
         IRightClickableTileEntity, IMatrixConduitInteractable, ISerializableTileEntity, ILoadableTileEntity
     {
@@ -25,12 +25,12 @@ namespace TileEntityModule.Instances.Matrix {
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
         public void onRightClick()
         {
-            GameObject uiPrefab = tileEntity.UIManager.getUIElement();
+            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
             GameObject instantiated = GameObject.Instantiate(uiPrefab);
             RecipeEncoderUI recipeEncoderUI = instantiated.GetComponent<RecipeEncoderUI>();
             recipeEncoderUI.init(this); 
@@ -38,21 +38,21 @@ namespace TileEntityModule.Instances.Matrix {
         }
 
         private void initInventories() {
-            if (recipeOutputs == null || recipeOutputs.Count != tileEntity.RecipeOutputCount) {
+            if (recipeOutputs == null || recipeOutputs.Count != TileEntityObject.RecipeOutputCount) {
                 recipeOutputs = new List<ItemSlot>();
-                ItemSlotFactory.clampList(recipeOutputs,tileEntity.RecipeOutputCount);
+                ItemSlotFactory.ClampList(recipeOutputs,TileEntityObject.RecipeOutputCount);
             }
-            if (recipeInputs == null || recipeInputs.Count != tileEntity.RecipeInputCount) {
+            if (recipeInputs == null || recipeInputs.Count != TileEntityObject.RecipeInputCount) {
                 recipeInputs = new List<ItemSlot>();
-                ItemSlotFactory.clampList(recipeInputs,tileEntity.RecipeInputCount);
+                ItemSlotFactory.ClampList(recipeInputs,TileEntityObject.RecipeInputCount);
             }
-            if (blankRecipes == null || blankRecipes.Count != tileEntity.BlankRecipeCount) {
+            if (blankRecipes == null || blankRecipes.Count != TileEntityObject.BlankRecipeCount) {
                 blankRecipes = new List<ItemSlot>();
-                ItemSlotFactory.clampList(blankRecipes,tileEntity.BlankRecipeCount);
+                ItemSlotFactory.ClampList(blankRecipes,TileEntityObject.BlankRecipeCount);
             }
-            if (encodedRecipes == null || encodedRecipes.Count != tileEntity.EncodedRecipeCount) {
+            if (encodedRecipes == null || encodedRecipes.Count != TileEntityObject.EncodedRecipeCount) {
                 encodedRecipes = new List<ItemSlot>();
-                ItemSlotFactory.clampList(encodedRecipes,tileEntity.EncodedRecipeCount);
+                ItemSlotFactory.ClampList(encodedRecipes,TileEntityObject.EncodedRecipeCount);
             }
         }
 
@@ -65,12 +65,12 @@ namespace TileEntityModule.Instances.Matrix {
             return JsonConvert.SerializeObject(seralizedMatrixRecipeEncoder);
         }
 
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             
         }
@@ -84,11 +84,11 @@ namespace TileEntityModule.Instances.Matrix {
             try
             {
                 SeralizedMatrixRecipeEncoder seralizedMatrixRecipeEncoder = JsonConvert.DeserializeObject<SeralizedMatrixRecipeEncoder>(data);
-                blankRecipes = ItemSlotFactory.deserialize(seralizedMatrixRecipeEncoder.blankRecipes);
-                ItemSlotFactory.clampList(blankRecipes,tileEntity.BlankRecipeCount);
+                blankRecipes = ItemSlotFactory.Deserialize(seralizedMatrixRecipeEncoder.blankRecipes);
+                ItemSlotFactory.ClampList(blankRecipes,TileEntityObject.BlankRecipeCount);
 
-                encodedRecipes = ItemSlotFactory.deserialize(seralizedMatrixRecipeEncoder.encodedRecipes);
-                ItemSlotFactory.clampList(encodedRecipes,tileEntity.EncodedRecipeCount);
+                encodedRecipes = ItemSlotFactory.Deserialize(seralizedMatrixRecipeEncoder.encodedRecipes);
+                ItemSlotFactory.ClampList(encodedRecipes,TileEntityObject.EncodedRecipeCount);
             }  
             catch (JsonSerializationException e)
             {
@@ -98,7 +98,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             
         }

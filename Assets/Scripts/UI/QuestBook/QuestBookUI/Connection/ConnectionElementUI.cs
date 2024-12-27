@@ -10,6 +10,7 @@ using Items.Inventory;
 namespace UI.QuestBook {
     public class ConnectionElementUI : MonoBehaviour, IPointerClickHandler
     {
+        [SerializeField] private ItemSlotUI itemSlotUI;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI idText;
         [SerializeField] private Image panel;
@@ -21,9 +22,8 @@ namespace UI.QuestBook {
             this.nodeConnections = nodeConnections;
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(node.ImageSeralizedItemSlot);
             if (itemSlot != null) {
-                ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,transform,null);
                 itemSlotUI.transform.SetParent(transform,false);
-                itemSlotUI.display(itemSlot);
+                itemSlotUI.Display(itemSlot);
             }
             nameText.text = node.Content.Title;
             idText.text = "#" + node.Id.ToString();

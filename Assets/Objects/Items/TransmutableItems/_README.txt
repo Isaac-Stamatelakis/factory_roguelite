@@ -1,2 +1,0 @@
-Any transmutable materials in this folder have items auto created for them if [CreateTransmutationItems] is enabled in GlobalSettings.
-In order to trigger a reload, just delete the folder in question and they will be remade

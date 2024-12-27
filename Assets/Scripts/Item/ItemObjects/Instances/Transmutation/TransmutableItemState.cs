@@ -181,42 +181,4 @@ public static class TransmutableItemStateExtension {
                 return ItemState.Solid;
         }
     }
-
-    public static float getComparedRatio(this TransmutableItemState state, TransmutableItemState compare) {
-        return state.getRatio()/compare.getRatio();
-    }
-
-    
-}
-
-public class TransmutableItemSprites {
-    private static Dictionary<TransmutableItemState, Sprite> dict = new Dictionary<TransmutableItemState, Sprite>();
-    private static TransmutableItemSprites instance;
-    private TransmutableItemSprites() {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Items/TransmutableItems/TransmutableSprites");
-        Debug.Log("Loaded " + sprites.Length + " Base Transmutation Sprites");
-        foreach (TransmutableItemState state in (TransmutableItemState.GetValues(typeof(TransmutableItemState)))) {
-            foreach (Sprite sprite in sprites) {
-                if (sprite.name == state.ToString()) {
-                    if (!dict.ContainsKey(state)) {
-                        dict[state] = sprite;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    public static TransmutableItemSprites getInstance() {
-        if (instance == null) {
-            instance = new TransmutableItemSprites();
-        }
-        return instance;
-    }
-
-    public Sprite getSprite(TransmutableItemState state) {
-        if (dict.ContainsKey(state)) {
-            return dict[state];
-        }
-        return null;
-    }
 }

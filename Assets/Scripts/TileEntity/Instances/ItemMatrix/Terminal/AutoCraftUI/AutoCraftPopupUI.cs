@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class AutoCraftPopupUI : MonoBehaviour
     {
         [SerializeField] private GridLayoutGroup itemElementContainer;
@@ -18,13 +18,13 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private Button activateButton;
 
         private ItemSlot toCraft;
-        private int amount;
+        private uint amount;
         private ItemMatrixControllerInstance controller;
-        public void init(ItemMatrixControllerInstance controller,  ItemSlot toCraft, int amount) {
+        public void init(ItemMatrixControllerInstance controller,  ItemSlot toCraft, uint amount) {
             this.controller = controller;
             this.toCraft = toCraft;
             this.amount = amount;
-            displayCraftingTree();
+            DisplayCraftingTree();
             HashSet<MatrixAutoCraftCore> cores = new HashSet<MatrixAutoCraftCore>();
             cancelButton.onClick.AddListener(() => {
                 GameObject.Destroy(gameObject);
@@ -34,29 +34,27 @@ namespace TileEntityModule.Instances.Matrix {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/AutoCrafting/RecipeCraftPopup").GetComponent<AutoCraftPopupUI>();
         }
 
-        private void displayCraftingTree() {
+        private void DisplayCraftingTree() {
             GlobalHelper.deleteAllChildren(itemElementContainer.transform);
-            Tree<PreparedRecipePreview> craftingTree = AutoCraftingSequenceFactory.createRecipeTree(controller,toCraft,amount);
+            Tree<PreparedRecipePreview> craftingTree = AutoCraftingSequenceFactory.CreateRecipeTree(controller,toCraft,amount);
             List<TreeNode<PreparedRecipePreview>> items = TreeHelper.postOrderTraversal<PreparedRecipePreview>(craftingTree);
             foreach (TreeNode<PreparedRecipePreview> preparedRecipePreview in items) {
-                foreach ((ItemSlot,int,bool) tuple in preparedRecipePreview.Value.AvailableInputs) {
-                    ItemSlot itemSlot = tuple.Item1;
+                foreach (var (itemSlot, previewAmount, crafted) in preparedRecipePreview.Value.AvailableInputs) {
                     string id = itemSlot.itemObject.id;
                     ItemTagKey tagKey = new ItemTagKey(itemSlot.tags);
-                    int amount = tuple.Item2;
-                    bool crafted = tuple.Item3;
-                    if (tuple.Item2 == 0 && crafted) {
+                    if (amount == 0 && crafted) {
                         continue;
                     }
                     AutoCraftItemUIElement autoCraftItemUIElement = AutoCraftItemUIElement.newInstance();
                     autoCraftItemUIElement.init(
                         AutoCraftElementMode.Input, 
-                        tuple.Item1,
-                        tuple.Item2,tuple.Item1.amount*preparedRecipePreview.Value.Amount
+                        itemSlot,
+                        previewAmount,
+                        itemSlot.amount*preparedRecipePreview.Value.Amount
                     );
                     autoCraftItemUIElement.transform.SetParent(itemElementContainer.transform,false);
                 }
-                foreach ((ItemSlot,int) tuple in preparedRecipePreview.Value.OutputAmounts) {
+                foreach ((ItemSlot,uint) tuple in preparedRecipePreview.Value.OutputAmounts) {
                     AutoCraftItemUIElement autoCraftItemUIElement = AutoCraftItemUIElement.newInstance();
                     autoCraftItemUIElement.init(
                         AutoCraftElementMode.Output, 

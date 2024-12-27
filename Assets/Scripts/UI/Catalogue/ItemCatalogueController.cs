@@ -15,6 +15,7 @@ namespace UI.JEI
     }
     public class ItemCatalogueController : MonoBehaviour
     {
+        public ItemSlotUI ItemSlotUIPrefab;
         private int page = 1;
         private int maxPages = 1;
         private static int COLUMNS = 6;
@@ -62,7 +63,7 @@ namespace UI.JEI
 
         private void onSearchChange(string search) {
             page = 1;
-            queriedItems = ItemRegistry.getInstance().querySlots(search,int.MaxValue);
+            queriedItems = ItemRegistry.GetInstance().QuerySlots(search,int.MaxValue);
             maxPages = Mathf.CeilToInt(queriedItems.Count/limit)+1;
             lastSearch = currentSearch;
             currentSearch = search;
@@ -116,7 +117,7 @@ namespace UI.JEI
                 }
                 foreach (Transform previouslyDisplayed in resultContainer.transform) { 
                     ItemSlotUI itemSlotUI = previouslyDisplayed.GetComponent<ItemSlotUI>();
-                    ItemSlot itemSlot = itemSlotUI.getDisplayedSlot();
+                    ItemSlot itemSlot = itemSlotUI.GetDisplayedSlot();
                     if (!newDisplayHash.containsItem(itemSlot)) {
                         GameObject.Destroy(previouslyDisplayed.gameObject);
                     }
@@ -137,7 +138,8 @@ namespace UI.JEI
                     continue;
                 }
                 displayed.addItem(itemSlot);
-                ItemSlotUI slotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,resultContainer,null,false);
+                ItemSlotUI slotUI = Instantiate(ItemSlotUIPrefab, resultContainer);
+                slotUI.Display(itemSlot);
                 CatalogueElementClickHandler clickHandler = slotUI.gameObject.AddComponent<CatalogueElementClickHandler>();
                 clickHandler.init(this,itemSlot);
             }

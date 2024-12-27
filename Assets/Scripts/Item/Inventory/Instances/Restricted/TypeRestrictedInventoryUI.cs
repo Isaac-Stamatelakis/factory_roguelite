@@ -7,7 +7,7 @@ namespace Items.Inventory {
         public void initalize(List<ItemSlot> items)
         {
             this.inventory = items;
-            initalizeSlots();
+            InitalizeSlots();
         }
         public override void leftClick(int n)
         {

@@ -5,18 +5,18 @@ using UnityEngine.Tilemaps;
 using Chunks;
 using Chunks.Partitions;
 
-namespace TileEntityModule {
-    public class TileEntityInstance<T> : ITileEntityInstance where T : TileEntity
+namespace TileEntity {
+    public class TileEntityInstance<T> : ITileEntityInstance where T : TileEntityObject
     {
-        protected T tileEntity;
-        public T TileEntity => tileEntity;
+        protected T tileEntityObject;
+        public T TileEntityObject => tileEntityObject;
         protected Vector2Int positionInChunk;
         protected TileItem tileItem; 
         protected IChunk chunk;
 
-        public TileEntityInstance(T tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk)
+        public TileEntityInstance(T tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk)
         {
-            this.tileEntity = tileEntity;
+            this.tileEntityObject = tileEntityObject;
             this.positionInChunk = positionInChunk;
             this.tileItem = tileItem;
             this.chunk = chunk;
@@ -63,22 +63,22 @@ namespace TileEntityModule {
 
         public string getName()
         {
-            return tileEntity.name;
+            return TileEntityObject.name;
         }
 
-        public TileEntity GetTileEntity()
+        public TileEntityObject GetTileEntity()
         {
-            return tileEntity;
+            return TileEntityObject;
         }
 
         public bool SoftLoadable() {
-            return tileEntity.SoftLoadable;
+            return TileEntityObject.SoftLoadable;
         }
     }
 
-    public class StandardTileEntityInstance : TileEntityInstance<TileEntity>
+    public class StandardTileEntityInstance : TileEntityInstance<TileEntityObject>
     {
-        public StandardTileEntityInstance(TileEntity tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
+        public StandardTileEntityInstance(TileEntityObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
         }
     }

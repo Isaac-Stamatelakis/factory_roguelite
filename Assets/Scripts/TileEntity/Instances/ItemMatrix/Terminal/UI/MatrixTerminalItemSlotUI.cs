@@ -5,16 +5,16 @@ using UnityEngine.EventSystems;
 using Items.Inventory;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     
     public class MatrixTerminalItemSlotUI : MonoBehaviour, IItemSlotUIElement, IPointerClickHandler
     {
         private ItemSlot itemSlot;
         private IMatrixTerminalItemClickReciever reciever;
-        private int amount;
+        private uint amount;
         private ItemObject itemObject;
         public void init(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever){
-            setItemSlot(itemSlot);
+            SetItemSlot(itemSlot);
             this.reciever = reciever;
         }
         public void OnPointerClick(PointerEventData eventData)
@@ -34,40 +34,38 @@ namespace TileEntityModule.Instances.Matrix {
             return itemSlotUI;
         }
 
-        public ItemSlot getItemSlot()
+        public ItemSlot GetItemSlot()
         {
             return itemSlot;
         }
-
-    
-
-        public void showCraftText() {
-            GetComponent<ItemSlotUI>().displayText("Craft");
+        
+        public void ShowCraftText() {
+            GetComponent<ItemSlotUI>().SetText("Craft");
         }
 
-        public void setItemSlot(ItemSlot itemSlot)
+        public void SetItemSlot(ItemSlot itemSlot)
         {
             this.itemSlot = itemSlot;
             if (itemSlot == null || itemSlot.itemObject == null) {
                 this.itemObject = null;
-                this.amount = -1;
+                this.amount = 0;
             } else {
                 this.itemObject = itemSlot.itemObject;
                 this.amount = itemSlot.amount;
             }
         }
 
-        public int getDisplayAmount()
+        public uint GetDisplayAmount()
         {
             return amount;
         }
 
-        public ItemObject getDisplayItemObject()
+        public ItemObject GetDisplayItemObject()
         {
             return itemObject;
         }
 
-        public ItemSlotUI getItemSlotUI()
+        public ItemSlotUI GetItemSlotUI()
         {
             return GetComponent<ItemSlotUI>();
         }

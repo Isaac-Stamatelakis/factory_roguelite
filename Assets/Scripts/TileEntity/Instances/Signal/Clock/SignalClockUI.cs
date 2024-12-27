@@ -6,14 +6,14 @@ using UnityEngine.UI;
 using System;
 using UI;
 
-namespace TileEntityModule.Instances.Signal {
+namespace TileEntity.Instances.Signal {
     public class SignalClockUI : MonoBehaviour, ITileEntityUI<SignalClockInstance>, IAmountIteratorListener
     {
         [SerializeField] private TMP_InputField delayField;
         [SerializeField] private Toggle toggle;
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         private SignalClockInstance instance;
-        public void display(SignalClockInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(SignalClockInstance tileEntityInstance)
         {
             this.instance = tileEntityInstance;
             delayField.text = tileEntityInstance.ClockData.Time.ToString();
@@ -36,10 +36,10 @@ namespace TileEntityModule.Instances.Signal {
         }
 
         public void validRange(int value) {
-            if (value > instance.TileEntity.MaxTime) {
-                delayField.text = instance.TileEntity.MaxTime.ToString();
-            } else if (value < instance.TileEntity.MinTime) {
-                delayField.text = instance.TileEntity.MinTime.ToString();
+            if (value > instance.TileEntityObject.MaxTime) {
+                delayField.text = instance.TileEntityObject.MaxTime.ToString();
+            } else if (value < instance.TileEntityObject.MinTime) {
+                delayField.text = instance.TileEntityObject.MinTime.ToString();
             }
             instance.ClockData.Time = value;
         }

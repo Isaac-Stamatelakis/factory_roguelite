@@ -4,7 +4,7 @@ using UnityEngine;
 using TileMaps.Type;
 using TileMaps;
 using TileMaps.Layer;
-using TileEntityModule;
+using TileEntity;
 using Tiles;
 using UnityEngine.Tilemaps;
 using Items;
@@ -145,7 +145,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
 
         private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
-            TileItem tileItem = itemRegistry.getTileItem(id);
+            TileItem tileItem = itemRegistry.GetTileItem(id);
             if (tileItem == null) {
                 return;
             }
@@ -159,7 +159,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
 
         private void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
-            FluidTileItem fluidTileItem = itemRegistry.getFluidTileItem(id);
+            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
             if (fluidTileItem == null) {
                 return;
             }
@@ -171,7 +171,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             );
         }
         private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
-            TileItem tileItem = itemRegistry.getTileItem(id);
+            TileItem tileItem = itemRegistry.GetTileItem(id);
             if (tileItem == null) {
                 return;
             }
@@ -215,13 +215,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
         public override TileItem GetTileItem(Vector2Int position, TileMapLayer layer)
         {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             {
                 switch (layer) {
                     case TileMapLayer.Base:
-                        return itemRegistry.getTileItem(data.baseData.ids[position.x,position.y]);
+                        return itemRegistry.GetTileItem(data.baseData.ids[position.x,position.y]);
                     case TileMapLayer.Background:
-                        return itemRegistry.getTileItem(data.backgroundData.ids[position.x,position.y]);
+                        return itemRegistry.GetTileItem(data.backgroundData.ids[position.x,position.y]);
                     default:
                         Debug.LogError("TileChunkPartition attempted to return tileitem from invalid layer " + layer.ToString());
                         return null;
@@ -279,7 +279,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
             farLoaded = true;
             SeralizedWorldData data = (SeralizedWorldData) getData();
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             string[,] tileIds = data.baseData.ids;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -290,11 +290,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     if (id == null) {
                         continue;
                     }
-                    TileItem tileItem = itemRegistry.getTileItem(id);
+                    TileItem tileItem = itemRegistry.GetTileItem(id);
                     if (tileItem == null) {
                         continue;
                     }
-                    TileEntity tileEntity = tileItem.tileEntity;
+                    TileEntityObject tileEntity = tileItem.tileEntity;
                     if (tileEntity == null || !tileEntity.ExtraLoadRange) {
                         continue;
                     }
@@ -317,7 +317,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     if (tileEntityInstance == null) {
                         continue;
                     }
-                    TileEntity tileEntity = tileEntityInstance.GetTileEntity();
+                    TileEntityObject tileEntity = tileEntityInstance.GetTileEntity();
                     if (tileEntity.ExtraLoadRange) {
                         unloadTileEntity(tileEntities,x,y);
                     }

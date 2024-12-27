@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineTeleporterInstance : TileEntityInstance<CompactMachineTeleporter>, IRightClickableTileEntity, ICompactMachineInteractable
     {
         private CompactMachineInstance compactMachine;
@@ -13,7 +13,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public void onRightClick()
         {
-            GameObject uiPrefab = tileEntity.UIManager.getUIElement();
+            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
             if (uiPrefab == null) {
                 CompactMachineHelper.teleportOutOfCompactMachine(compactMachine);
                 return;

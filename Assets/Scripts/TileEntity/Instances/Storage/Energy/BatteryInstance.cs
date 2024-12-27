@@ -1,52 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.Storage {
-    public class BatteryInstance : TileEntityInstance<Battery>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, IEnergyConduitInteractable
+namespace TileEntity.Instances.Storage {
+    public class BatteryInstance : TileEntityInstance<Battery>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator
     {
-        private int energy;
+        public MachineEnergyInventory EnergyInventory;
         public BatteryInstance(Battery tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-
-        public int Energy { get => energy; set => energy = value; }
-        public ConduitPortLayout getConduitPortLayout()
+        
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.ConduitPortLayout;
+            return TileEntityObject.ConduitPortLayout;
         }
 
-        public ref int getEnergy(Vector2Int portPosition)
+        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
         {
-            return ref energy;
-        }
-
-        public int insertEnergy(int input,Vector2Int portPosition)
-        {
-            if (Energy >= tileEntity.Storage) {
-                return 0;
+            switch (conduitType)
+            {
+                case ConduitType.Energy:
+                    return EnergyInventory;
+                default:
+                    return null;
             }
-            int sum = input + Energy;
-            if (sum > tileEntity.Storage) {
-                Energy = tileEntity.Storage;
-                return sum-tileEntity.Storage;
-            }
-            Energy += input;
-            return input;
         }
+
 
         public void onRightClick()
         {
-            tileEntity.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
+            TileEntityObject.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
         }
 
         public string serialize()
         {
-            return JsonConvert.SerializeObject(Energy);
+            return MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory);
         }
 
         public void tickUpdate()
@@ -56,7 +48,7 @@ namespace TileEntityModule.Instances.Storage {
 
         public void unserialize(string data)
         {
-            Energy = JsonConvert.DeserializeObject<int>(data);
+            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(data, this);
         }
     }
 }

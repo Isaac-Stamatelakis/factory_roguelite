@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Conduits.Ports;
-using TileEntityModule;
+using TileEntity;
 using UnityEngine;
 
 namespace Conduits.Systems {
@@ -34,7 +34,7 @@ namespace Conduits.Systems {
 
         public override void onTileEntityRemoved(MatrixConduit conduit)
         {
-            conduit.MatrixConduitInteractable.removeFromSystem();
+            conduit.MatrixConduitInteractable.RemoveFromSystem();
             conduit.MatrixConduitInteractable = null;
         }
     }

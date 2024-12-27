@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Items.Inventory;
+using Recipe.Processor;
 using RecipeModule;
+using TileEntity.Instances.Machine;
+using UnityEngine.Serialization;
 
-namespace TileEntityModule.Instances.Machines
+namespace TileEntity.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "E~New Generator", menuName = "Tile Entity/Machine/Generator")]
-    public class Generator : TileEntity
+    public class Generator : TileEntityObject
     {
-        public EnergyRecipeProcessor EnergyRecipeProcessor;
+        public RecipeProcessor RecipeProcessor;
+        [FormerlySerializedAs("StandardMachineLayout")] public MachineLayoutObject machineLayoutObject;
         public Tier Tier;
         public ConduitPortLayout Layout;
 

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using WorldModule.Caves;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     public static class CaveTeleporterUIFactory 
     {
         public static Button generateButton(Cave cave, GameObject prefab, Transform parent) {

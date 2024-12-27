@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule {
-    public class StandardTileEntity : TileEntity
+namespace TileEntity {
+    public class StandardTileEntityObject : TileEntityObject
     {
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

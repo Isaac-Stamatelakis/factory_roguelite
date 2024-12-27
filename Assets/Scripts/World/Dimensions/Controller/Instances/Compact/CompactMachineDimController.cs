@@ -5,12 +5,12 @@ using Chunks;
 using Chunks.IO;
 using Chunks.Systems;
 using Chunks.Partitions;
-using TileEntityModule.Instances.CompactMachines;
+using TileEntity.Instances.CompactMachines;
 using WorldModule;
 using System.IO;
 using System;
 using System.Linq;
-using TileEntityModule;
+using TileEntity;
 
 namespace Dimensions {
     public interface ICompactMachineDimension {

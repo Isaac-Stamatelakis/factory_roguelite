@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using RecipeModule;
 using Items.Inventory;
+using Recipe.Processor;
+using TileEntity.Instances.Machine;
+using UnityEngine.Serialization;
 
-namespace TileEntityModule.Instances.Machines {
+namespace TileEntity.Instances.Machines {
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Passive")]
-    public class PassiveProcessor : TileEntity
+    public class PassiveProcessor : TileEntityObject
     {
-        public PassiveRecipeProcessor RecipeProcessor;
+        public RecipeProcessor RecipeProcessor;
         public Tier Tier;
-        public GameObject MachineUIPrefab;
         public ConduitPortLayout ConduitLayout;
-        public StandardMachineInventoryLayout Layout;
+        [FormerlySerializedAs("Layout")] public MachineLayoutObject layoutObject;
 
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

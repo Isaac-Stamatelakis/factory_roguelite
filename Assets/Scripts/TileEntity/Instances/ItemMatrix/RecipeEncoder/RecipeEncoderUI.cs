@@ -8,7 +8,7 @@ using Items;
 using Items.Tags;
 using PlayerModule;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class RecipeEncoderUI : MonoBehaviour, IPlayerInventoryIntegratedUI
     {
         [SerializeField] private Button clearButton;
@@ -30,7 +30,7 @@ namespace TileEntityModule.Instances.Matrix {
                     recipeEncoder.RecipeOutputs[i] = null;
                 }
             });
-
+            /*
             encodeButton.onClick.AddListener(encodeButtonClick);
 
             GlobalHelper.deleteAllChildren(recipeInputs.transform);
@@ -57,6 +57,7 @@ namespace TileEntityModule.Instances.Matrix {
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             playerInventory.cloneInventoryUI(playerInventoryContainer.transform);
             playerInventory.hideUI();
+            */
 
         }
 
@@ -65,10 +66,10 @@ namespace TileEntityModule.Instances.Matrix {
         }
 
         private void encodeButtonClick() {
-            if (ItemSlotHelper.inventoryAllNull(recipeEncoder.RecipeInputs)) {
+            if (ItemSlotHelper.InventoryAllNull(recipeEncoder.RecipeInputs)) {
                 return;
             }
-            if (ItemSlotHelper.inventoryAllNull(recipeEncoder.RecipeOutputs)) {
+            if (ItemSlotHelper.InventoryAllNull(recipeEncoder.RecipeOutputs)) {
                 return;
             }
             for (int i = 0; i < recipeEncoder.BlankRecipes.Count; i++) {
@@ -76,18 +77,18 @@ namespace TileEntityModule.Instances.Matrix {
                 if (itemSlot != null && itemSlot.itemObject != null && itemSlot.tags != null && !itemSlot.tags.Dict.ContainsKey(ItemTag.EncodedRecipe)) {
                     continue;
                 }
-                ItemSlot spliced = ItemSlotFactory.copy(itemSlot);
-                List<ItemSlot> copyInputs = ItemSlotFactory.copyList(recipeEncoder.RecipeInputs);
-                List<ItemSlot> copyOutputs = ItemSlotFactory.copyList(recipeEncoder.RecipeOutputs);
+                ItemSlot spliced = ItemSlotFactory.Copy(itemSlot);
+                List<ItemSlot> copyInputs = ItemSlotFactory.CopyList(recipeEncoder.RecipeInputs);
+                List<ItemSlot> copyOutputs = ItemSlotFactory.CopyList(recipeEncoder.RecipeOutputs);
                 spliced.tags.Dict[ItemTag.EncodedRecipe] = new EncodedRecipe(
                     copyInputs,
                     copyOutputs
                 );
                 spliced.amount = 1;
-                if (!ItemSlotHelper.canInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize)) {
+                if (!ItemSlotHelper.CanInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize)) {
                     continue;
                 }
-                ItemSlotHelper.insertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize);
+                ItemSlotHelper.InsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize);
                 itemSlot.amount--;
                 if (itemSlot.amount <= 0) {
                     itemSlot.itemObject = null;

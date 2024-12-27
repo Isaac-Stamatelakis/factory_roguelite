@@ -5,10 +5,10 @@ using Chunks;
 using Conduits.Systems;
 using TileMaps.Type;
 using Conduits;
-using TileEntityModule;
+using TileEntity;
 using Conduits.Ports;
 using Chunks.Partitions;
-using TileEntityModule.Instances.CompactMachines;
+using TileEntity.Instances.CompactMachines;
 using Chunks.IO;
 using TileMaps.Layer;
 

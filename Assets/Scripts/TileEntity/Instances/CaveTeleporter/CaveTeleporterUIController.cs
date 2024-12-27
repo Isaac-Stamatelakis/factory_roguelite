@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using WorldModule.Caves;
 using UnityEngine.AddressableAssets;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI<CaveTeleporterInstance>
     {
         public CaveSelectController caveSelectController;
@@ -15,7 +15,7 @@ namespace TileEntityModule.Instances {
             caveSelectController.showCave(cave);
         }
 
-        public void display(CaveTeleporterInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(CaveTeleporterInstance tileEntityInstance)
         {
             caveSelectController.showDefault();
             StartCoroutine(loadCaves());

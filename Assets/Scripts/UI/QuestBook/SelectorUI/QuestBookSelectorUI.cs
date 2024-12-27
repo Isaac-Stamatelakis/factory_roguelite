@@ -28,7 +28,7 @@ namespace UI.QuestBook {
         private int page = 0;
         public void init(QuestBookLibrary library) {
             if (!ItemRegistry.IsLoaded) {
-                StartCoroutine(ItemRegistry.loadItems());
+                StartCoroutine(ItemRegistry.LoadItems());
             }
             this.library = library;
             spriteDict = new Dictionary<string, Sprite>();

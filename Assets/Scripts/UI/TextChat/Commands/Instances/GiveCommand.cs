@@ -5,6 +5,8 @@ using System;
 using Dimensions;
 using PlayerModule;
 using Items;
+using Recipe.Data;
+
 namespace UI.Chat {
     public class GiveCommand : ChatCommand, IAutoFillChatCommand
     {
@@ -15,10 +17,11 @@ namespace UI.Chat {
         {
             try {
                 string id = parameters[0];
-                int amount = Convert.ToInt32(parameters[1]);
-                amount = Mathf.Clamp(amount, 1,Global.MaxSize);
+                uint amount = Convert.ToUInt32(parameters[1]);
+                amount = GlobalHelper.Clamp(amount, 1, Global.MaxSize);
                 PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
-                ItemSlot toGive = ItemSlotFactory.createNewItemSlot(id,amount);
+                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
+                ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
                 if (toGive == null) {
                     chatUI.sendMessage("Invalid id");
                     return;
@@ -38,7 +41,7 @@ namespace UI.Chat {
             if (paramIndex != 0) {
                 return new List<string>();
             }
-            List<ItemObject> items = ItemRegistry.getInstance().getAllItems();
+            List<ItemObject> items = ItemRegistry.GetInstance().GetAllItems();
             List<string> ids = new List<string>();
             foreach (ItemObject item in items) {
                 ids.Add(item.id);

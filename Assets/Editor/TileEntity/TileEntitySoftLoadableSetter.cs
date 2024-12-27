@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
-using TileEntityModule;
+using TileEntity;
 using System;
 using System.Reflection;
 
@@ -42,7 +42,7 @@ public class TileEntitySoftLoadableSetter : EditorWindow {
         foreach (string guid in guids)
         {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            var tileEntity = AssetDatabase.LoadAssetAtPath<TileEntity>(assetPath);
+            var tileEntity = AssetDatabase.LoadAssetAtPath<TileEntityObject>(assetPath);
             if (tileEntity == null) {
                 continue;
             }

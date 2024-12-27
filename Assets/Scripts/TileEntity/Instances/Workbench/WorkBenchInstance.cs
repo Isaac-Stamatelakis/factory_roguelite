@@ -3,28 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using RecipeModule;
 using Chunks;
+using Recipe.Processor;
 
-namespace TileEntityModule.Instances.WorkBenchs {
+namespace TileEntity.Instances.WorkBenchs {
     public class WorkBenchInstance : TileEntityInstance<WorkBench>, IRightClickableTileEntity, IProcessorTileEntity
     {
-        [SerializeField] public WorkBenchRecipeProcessor workBenchRecipeProcessor;
-        [SerializeField] public GameObject uiPrefab;
-
         public WorkBenchInstance(WorkBench tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
-        public RecipeProcessor getRecipeProcessor()
+        public RecipeProcessor GetRecipeProcessor()
         {
-            return workBenchRecipeProcessor;
+            return TileEntityObject.WorkBenchRecipeProcessor;
         }
 
         public void onRightClick()
         {
-            TileEntityUIManager uIManager = tileEntity.UIManager;
-            GameObject uiPrefab = uIManager.getUIElement();
+            GameObject uiPrefab = TileEntityObject.WorkBenchRecipeProcessor.UIPrefab;
             if (uiPrefab == null) {
-                Debug.LogError(tileEntity.name + " uiPrefab is null");
+                Debug.LogError(TileEntityObject.name + " uiPrefab is null");
                 return;
             }
             GameObject instantiated = GameObject.Instantiate(uiPrefab);

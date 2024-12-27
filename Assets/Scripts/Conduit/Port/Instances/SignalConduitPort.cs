@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.Ports {
     public class SignalConduitInputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitInputPort<int>, IColorPort, IConduitIOPort
@@ -11,15 +11,15 @@ namespace Conduits.Ports {
         public int color;
         public int priority;
 
-        public SignalConduitInputPort(ISignalConduitInteractable tileEntity) : base(tileEntity)
+        public SignalConduitInputPort(ISignalConduitInteractable interactable) : base(interactable)
         {
         }
 
         public void insert(bool active) {
-            if (tileEntity == null) {
+            if (interactable == null) {
                 return;
             }
-            tileEntity.insertSignal(active,relativePosition);
+            interactable.InsertSignal(active,relativePosition);
         }
         public int getColor()
         {
@@ -46,7 +46,7 @@ namespace Conduits.Ports {
             if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
                 return;
             } 
-            this.tileEntity = signalConduitInteractable;
+            this.interactable = signalConduitInteractable;
         }
     }
     public class SignalConduitOutputPort : ConduitTransferPort<ISignalConduitInteractable>, IConduitOutputPort<int>, IColorPort, IConduitIOPort
@@ -54,13 +54,13 @@ namespace Conduits.Ports {
         public bool enabled;
         public int color;
 
-        public SignalConduitOutputPort(ISignalConduitInteractable tileEntity) : base(tileEntity)
+        public SignalConduitOutputPort(ISignalConduitInteractable interactable) : base(interactable)
         {
         }
 
         public bool extract() {
             
-            return tileEntity.extractSignal(relativePosition);
+            return interactable.ExtractSignal(relativePosition);
         }
         public int getColor()
         {
@@ -87,7 +87,7 @@ namespace Conduits.Ports {
             if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
                 return;
             } 
-            this.tileEntity = signalConduitInteractable;
+            this.interactable = signalConduitInteractable;
         }
     }
 

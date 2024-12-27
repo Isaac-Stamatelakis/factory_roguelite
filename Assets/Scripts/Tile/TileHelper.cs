@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TileMaps;
-using TileEntityModule;
+using TileEntity;
 
 /**
 Collection of static methods for tiles

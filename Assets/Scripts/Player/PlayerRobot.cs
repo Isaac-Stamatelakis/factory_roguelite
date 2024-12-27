@@ -6,7 +6,7 @@ using Items;
 using Chunks.Systems;
 using Chunks;
 using TileMaps;
-using TileEntityModule;
+using TileEntity;
 using UnityEngine.EventSystems;
 using Dimensions;
 using UI;

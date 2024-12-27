@@ -6,7 +6,8 @@ using Newtonsoft.Json;
 using Items.Inventory;
 using System;
 
-namespace TileEntityModule.Instances.Machines {
+namespace TileEntity.Instances.Machines {
+    /*
     public class PassiveProcessorInventory : StandardSolidAndFluidInventory {
         private int mode;
         private IPassiveRecipe currentRecipe;
@@ -48,10 +49,10 @@ namespace TileEntityModule.Instances.Machines {
             if (machineInventoryLayout == null) {
                 return null;
             }
-            List<ItemSlot> itemInputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.itemInputs.Count);
-            List<ItemSlot> itemOutputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.itemOutputs.Count);
-            List<ItemSlot> fluidInputs = ItemSlotHelper.initEmptyInventory(machineInventoryLayout.fluidInputs.Count);
-            List<ItemSlot> fluidOutputs= ItemSlotHelper.initEmptyInventory(machineInventoryLayout.fluidOutputs.Count);
+            List<ItemSlot> itemInputs = ItemSlotHelper.InitEmptyInventory(machineInventoryLayout.itemInputs.Count);
+            List<ItemSlot> itemOutputs = ItemSlotHelper.InitEmptyInventory(machineInventoryLayout.itemOutputs.Count);
+            List<ItemSlot> fluidInputs = ItemSlotHelper.InitEmptyInventory(machineInventoryLayout.fluidInputs.Count);
+            List<ItemSlot> fluidOutputs= ItemSlotHelper.InitEmptyInventory(machineInventoryLayout.fluidOutputs.Count);
             
             return new PassiveProcessorInventory(
                 itemInputs,
@@ -99,4 +100,5 @@ namespace TileEntityModule.Instances.Machines {
             }
         }
     }
+    */
 }

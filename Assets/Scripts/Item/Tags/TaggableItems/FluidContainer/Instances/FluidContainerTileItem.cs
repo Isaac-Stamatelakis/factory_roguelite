@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances.Storage;
-using TileEntityModule;
+using TileEntity.Instances.Storage;
+using TileEntity;
 
 namespace Items.Tags.FluidContainers {
     [CreateAssetMenu(fileName ="I~New Fluid Container Tile Item",menuName="Item/Tagged Items/Fluid Container/Tile Item")]
@@ -11,12 +11,12 @@ namespace Items.Tags.FluidContainers {
         [Header("Set size so fluid fits in container\nLeave at 0,0 for no sprite")]
         [SerializeField] public Vector2Int fluidSizeInSprite;
 
-        public Vector2Int getFluidSpriteSize()
+        public Vector2Int GetFluidSpriteSize()
         {
             return fluidSizeInSprite;
         }
 
-        public int getStorage()
+        public uint GetStorage()
         {
             if (tileEntity == null) {
                 Debug.LogError("cannot get storage from FluidContainerTileItem as tileEntity is null");
@@ -26,7 +26,7 @@ namespace Items.Tags.FluidContainers {
                 Debug.LogError("Cannot get storage from FluidContainerTileItem " + name + " as tileEntity is not FluidTank");
                 return 0;
             }
-            return fluidTank.Tier.getFluidStorage();
+            return fluidTank.Tier.GetFluidStorage();
         }
 
         public List<ItemTag> getTags()

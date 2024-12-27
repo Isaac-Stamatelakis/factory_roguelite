@@ -4,7 +4,7 @@ using UnityEngine;
 using Conduits.Ports;
 using TileMaps.Layer;
 using Chunks.Partitions;
-using TileEntityModule;
+using TileEntity;
 using Items;
 using Chunks.Systems;
 using Newtonsoft.Json;
@@ -37,8 +37,10 @@ namespace Conduits {
             int state = conduitData.State % 16;
             IConduitPort port = ConduitPortFactory.Deserialize(conduitData.PortData,conduitType,conduitItem);
             if (tileEntity != null && portType != null) {
-                if (port == null) {
-                    port = ConduitPortFactory.CreateDefault(conduitType,(EntityPortType)portType,tileEntity,conduitItem);
+                if (port == null)
+                {
+                    IConduitInteractable interactable = GetInteractableFromTileEntity(tileEntity, conduitType);
+                    port = ConduitPortFactory.CreateDefault(conduitType,(EntityPortType)portType,interactable,conduitItem);
                 }
                 if (port == null) {
                     return null;
@@ -83,6 +85,21 @@ namespace Conduits {
             }
             return null;
             
+        }
+
+        public static IConduitInteractable GetInteractableFromTileEntity(ITileEntityInstance tileEntityInstance, ConduitType conduitType)
+        {
+            if (tileEntityInstance is IConduitTileEntityAggregator aggregator)
+            {
+                return aggregator.GetConduitInteractable(conduitType);
+            }
+
+            if (tileEntityInstance is IConduitInteractable conduitInteractable)
+            {
+                return conduitInteractable;
+            }
+
+            return null;
         }
 
         private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity)
@@ -138,11 +155,11 @@ namespace Conduits {
         /// <summary>
         /// Sets the port of given conduit to default port
         /// </summary
-        public static IConduit Create(ConduitItem conduitItem, EntityPortType portType, int x, int y, int state, ITileEntityInstance tileEntity) {
+        public static IConduit Create(ConduitItem conduitItem, EntityPortType portType, int x, int y, int state, IConduitInteractable interactable) {
             ConduitType conduitType = conduitItem.GetConduitType();
             switch (conduitType) {
                 case ConduitType.Item:
-                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
+                    SolidItemConduitPort itemConduitPort = (SolidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,interactable,conduitItem);
                     return new ItemConduit(
                         x: x,
                         y: y,
@@ -151,7 +168,7 @@ namespace Conduits {
                         port: itemConduitPort
                     );
                 case ConduitType.Fluid:
-                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
+                    FluidItemConduitPort fluidConduitPort = (FluidItemConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,interactable,conduitItem);
                     return new FluidConduit(
                         x: x,
                         y: y,
@@ -160,7 +177,7 @@ namespace Conduits {
                         port: fluidConduitPort
                     );
                 case ConduitType.Energy:
-                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
+                    EnergyConduitPort energyConduitPort = (EnergyConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,interactable,conduitItem);
                     return new EnergyConduit(
                         x: x,
                         y: y,
@@ -169,7 +186,7 @@ namespace Conduits {
                         port: energyConduitPort
                     );
                 case ConduitType.Signal:
-                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,tileEntity,conduitItem);
+                    SignalConduitPort signalConduitPort = (SignalConduitPort)ConduitPortFactory.CreateDefault(conduitType,portType,interactable,conduitItem);
                     return new SignalConduit(
                         x: x,
                         y: y,
@@ -179,7 +196,7 @@ namespace Conduits {
                     );
                 case ConduitType.Matrix:
                     IMatrixConduitInteractable matrixConduitInteractable = null;
-                    if (tileEntity is IMatrixConduitInteractable matrixConduitInteractable1) {
+                    if (interactable is IMatrixConduitInteractable matrixConduitInteractable1) {
                         matrixConduitInteractable = matrixConduitInteractable1;
                     }
                     return new MatrixConduit(

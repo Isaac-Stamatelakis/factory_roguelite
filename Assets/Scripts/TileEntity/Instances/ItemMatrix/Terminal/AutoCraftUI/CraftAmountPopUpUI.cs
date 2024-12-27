@@ -9,9 +9,10 @@ using UI;
 using System.Threading.Tasks;
 using System;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class CraftAmountPopUpUI : MonoBehaviour, IAmountIteratorListener
     {
+        [SerializeField] private ItemSlotUI ItemSlotUIPrefab;
         [SerializeField] private Transform itemContainer;
         [SerializeField] private Transform amountIteratorContainer;
         [SerializeField] private Button cancelButton;
@@ -20,19 +21,19 @@ namespace TileEntityModule.Instances.Matrix {
         [SerializeField] private AmountIteratorUI amountIteratorUI;
 
         public void init(ItemMatrixControllerInstance controller, ItemSlot toCraft, EncodedRecipe encodedRecipe) {
-            amountTextField.text = "1";
-            ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(toCraft,itemContainer,null);
+            ItemSlotUI itemSlotUI = Instantiate(ItemSlotUIPrefab, itemContainer);
+            itemSlotUI.Display(toCraft);
 
             amountIteratorUI.setListener(this);
 
             cancelButton.onClick.AddListener(() => {
-                MainCanvasController.Instance.PopStack();
+                CanvasController.Instance.PopStack();
             });
             continueButton.onClick.AddListener(() => {
                 AutoCraftPopupUI popupUI = AutoCraftPopupUI.newInstance();
-                popupUI.init(controller,toCraft,Convert.ToInt32(amountTextField.text));
-                MainCanvasController.Instance.PopStack();
-                MainCanvasController.Instance.DisplayObject(popupUI.gameObject);
+                popupUI.init(controller,toCraft,Convert.ToUInt32(amountTextField.text));
+                CanvasController.Instance.PopStack();
+                CanvasController.Instance.DisplayObject(popupUI.gameObject);
             });
 
         }

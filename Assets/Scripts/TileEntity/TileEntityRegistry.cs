@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 
-namespace TileEntityModule {
+namespace TileEntity {
     public enum LoadType {
         Hard,
         Soft
@@ -14,9 +14,9 @@ namespace TileEntityModule {
     public class TileEntityRegistry
     {
         private static TileEntityRegistry instance;
-        private Dictionary<string, TileEntity> idDict;
+        private Dictionary<string, TileEntityObject> idDict;
         private TileEntityRegistry() {
-            idDict = new Dictionary<string, TileEntity>();
+            idDict = new Dictionary<string, TileEntityObject>();
         }
         public static TileEntityRegistry getInstance() {
             if (instance == null) {
@@ -31,23 +31,23 @@ namespace TileEntityModule {
             if (tileItem == null || !idDict.ContainsKey(tileItem.id)) {
                 return;
             }
-            TileEntity tileEntity = idDict[tileItem.id];
+            TileEntityObject tileEntityObject = idDict[tileItem.id];
             switch (loadType) {
                 case LoadType.Hard:
                     break;
                 case LoadType.Soft:
-                    if (tileEntity.SoftLoadable) {
+                    if (tileEntityObject.SoftLoadable) {
                         return;
                     }
                     break;
             }
-            Addressables.Release(tileEntity);
+            Addressables.Release(tileEntityObject);
         }
-        private void OnAssetLoaded(AsyncOperationHandle<TileEntity> handle, string id) {
+        private void OnAssetLoaded(AsyncOperationHandle<TileEntityObject> handle, string id) {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                TileEntity loadedTileEntity = handle.Result;
-                idDict[id] = loadedTileEntity;
+                TileEntityObject loadedTileEntityObject = handle.Result;
+                idDict[id] = loadedTileEntityObject;
             }
             else
             {

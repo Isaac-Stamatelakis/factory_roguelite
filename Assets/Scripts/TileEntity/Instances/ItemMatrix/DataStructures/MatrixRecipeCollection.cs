@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixRecipeCollection
     {
         Dictionary<string, Dictionary<ItemTagKey, List<(EncodedRecipe,MatrixInterfaceInstance)>>> recipes;

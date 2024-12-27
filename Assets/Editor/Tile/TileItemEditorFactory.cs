@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
-using TileEntityModule;
+using TileEntity;
  public enum TileColliderType {
     Tile,
     Sprite
 }
 public static class ItemEditorFactory
 {
-    public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntity tileEntity = null, TileBase outline = null) {
+    public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
         string path = savePath + tileName + "/";
         if (createFolder) {
             createDirectory(tileName,savePath);
@@ -73,7 +73,7 @@ public static class ItemEditorFactory
     }
 
 
-    public static void saveTileEntity(TileEntity tileEntity, string tileName, string path = "Assets/EditorCreations/") {
+    public static void saveTileEntity(TileEntityObject tileEntity, string tileName, string path = "Assets/EditorCreations/") {
         string savePath = path + tileName + "/";
         AssetDatabase.CreateAsset(tileEntity, savePath + "E~" +tileName + ".asset");
     }

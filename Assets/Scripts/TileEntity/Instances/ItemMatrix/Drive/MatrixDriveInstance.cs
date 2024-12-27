@@ -10,7 +10,7 @@ using Items.Inventory;
 using Entities;
 using UI;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixDriveInstance : TileEntityInstance<MatrixDrive>, IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, 
         ILoadableTileEntity, ITickableTileEntity, IBreakActionTileEntity, IInventoryListener
     {
@@ -26,7 +26,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
         public void inventoryUpdate(int n)
@@ -39,13 +39,13 @@ namespace TileEntityModule.Instances.Matrix {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            MatrixDriverPixelContainer pixelContainer = GameObject.Instantiate(tileEntity.getAssetManager().getElement<MatrixDriverPixelContainer>("Pixels"));
+            MatrixDriverPixelContainer pixelContainer = GameObject.Instantiate(TileEntityObject.getAssetManager().getElement<MatrixDriverPixelContainer>("Pixels"));
             pixelContainer.name = "DrivePixels" + getPositionInChunk();
             pixelContainer.transform.position = getWorldPosition();
             pixelContainer.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
             if (storageDrives == null) {
                 storageDrives = new List<ItemSlot>();
-                for (int i = 0; i < TileEntity.rows*TileEntity.columns; i++) {
+                for (int i = 0; i < TileEntityObject.rows*TileEntityObject.columns; i++) {
                     storageDrives.Add(null);
                 }
             }
@@ -130,7 +130,7 @@ namespace TileEntityModule.Instances.Matrix {
         {
             
             MatrixDriveUI ui = MatrixDriveUI.createInstance();
-            ui.init(tileEntity.rows,tileEntity.columns,storageDrives,this);
+            ui.init(TileEntityObject.rows,TileEntityObject.columns,storageDrives,this);
             MainCanvasController.Instance.DisplayObject(ui.gameObject);
         }
 
@@ -139,12 +139,12 @@ namespace TileEntityModule.Instances.Matrix {
             return ItemSlotFactory.serializeList(storageDrives);
         }
 
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             this.controller = matrixController;
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             this.matrixConduitSystem = matrixConduitSystem;
             matrixConduitSystem.setDrive(this);
@@ -167,10 +167,10 @@ namespace TileEntityModule.Instances.Matrix {
 
         public void unserialize(string data)
         {
-            storageDrives = ItemSlotFactory.deserialize(data);
+            storageDrives = ItemSlotFactory.Deserialize(data);
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.removeDrive(this);
