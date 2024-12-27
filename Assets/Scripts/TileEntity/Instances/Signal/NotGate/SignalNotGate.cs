@@ -4,9 +4,9 @@ using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Signal {
+namespace TileEntity.Instances.Signal {
     [CreateAssetMenu(fileName = "E~Signal Logic Gate", menuName = "Tile Entity/Signal/NotGate")]
-    public class SignalNotGate : TileEntity
+    public class SignalNotGate : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
@@ -22,17 +22,17 @@ namespace TileEntityModule.Instances.Signal {
         {
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
             return !signal;
         }
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSignal(bool signal, Vector2Int portPosition)
+        public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             this.signal = signal;
         }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TileEntity;
 using UnityEngine;
 
 namespace Items.Transmutable
@@ -30,14 +31,27 @@ namespace Items.Transmutable
             return material.GetOptionStateDict().ContainsKey(state);
         }
         
-        public static TransmutableItemObject Transmute(TransmutableItemMaterial material, TransmutableItemState state) {
+        public static TransmutableItemObject GetMaterialItem(TransmutableItemMaterial material, TransmutableItemState state) {
             if (!CanTransmute(material, state)) {
                 return null;
             }
 
             TransmutableStateOptions stateOption = material.GetOptionStateDict()[state];
             string outputID = TransmutableItemUtils.GetStateId(material, stateOption);
-            return ItemRegistry.getInstance().getTransmutableItemObject(outputID);
+            return ItemRegistry.GetInstance().GetTransmutableItemObject(outputID);
+        }
+
+        public static uint GetTransmutationRatio(TransmutableItemState from, TransmutableItemState to) {
+            return (uint)(from.getRatio()/to.getRatio());
+        }
+
+        public static ItemSlot Transmute(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState)
+        {
+            TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, outputState);
+            return new ItemSlot(transmutableItemObject, 
+                TransmutableItemUtils.GetTransmutationRatio(inputState,outputState), 
+                null
+            );
         }
     }
 }

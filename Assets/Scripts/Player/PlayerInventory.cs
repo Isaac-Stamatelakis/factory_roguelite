@@ -26,7 +26,6 @@ namespace PlayerModule {
         private GameObject inventoryItemContainer;
         private GameObject hotbarNumbersContainer;
         private bool expanded = false;
-        private PlayerInventoryGrid inventoryGrid;
 
         public List<ItemSlot> Inventory { get => inventory; set => inventory = value; }
 
@@ -38,7 +37,7 @@ namespace PlayerModule {
 
         public void initalize() {
             GetComponent<PlayerIO>().initRead();
-            inventory = ItemSlotFactory.deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
+            inventory = ItemSlotFactory.Deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
             playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
         }
 
@@ -54,10 +53,10 @@ namespace PlayerModule {
             this.mode = displayMode;
             switch (mode) {
                 case InventoryDisplayMode.Inventory:
-                    playerInventoryGrid.setInventory(inventory);
+                    playerInventoryGrid.SetInventory(inventory);
                     break;
                 case InventoryDisplayMode.Tools:
-                    playerInventoryGrid.setInventory(toolInventory);
+                    playerInventoryGrid.SetInventory(toolInventory);
                     break;
             }
         }
@@ -84,10 +83,12 @@ namespace PlayerModule {
         public void toggleInventory() {
             expanded = !expanded;
             if (expanded) {
-                playerInventoryGrid.updateSize(new UnityEngine.Vector2Int(10,4));
+                playerInventoryGrid.UpdateSize(new UnityEngine.Vector2Int(10,4));
             } else {
-                playerInventoryGrid.updateSize(new UnityEngine.Vector2Int(10,1));
+                playerInventoryGrid.UpdateSize(new UnityEngine.Vector2Int(10,1));
             }
+
+            playerInventoryGrid.RefreshSlots();
         }
         public void changeSelectedSlot(int slot) {
             selectedSlot = slot;
@@ -124,14 +125,14 @@ namespace PlayerModule {
                             if (itemEntityProperities.itemSlot.amount <= 0) {
                                 Destroy(itemEntityProperities.gameObject);
                             }
-                            playerInventoryGrid.displayItem(n);
+                            playerInventoryGrid.DisplayItem(n);
                         }
                     }
                     if (!alreadyInInventory && firstOpenSlot >= 0) {
                         inventory[firstOpenSlot] = itemEntityProperities.itemSlot;
                         Destroy(itemEntityProperities.gameObject);
                         if (firstOpenSlot < inventorySize.x * inventorySize.y) {
-                            playerInventoryGrid.setItem(firstOpenSlot, inventory[firstOpenSlot]);
+                            playerInventoryGrid.SetItem(firstOpenSlot, inventory[firstOpenSlot]);
                         }
                     }
                 }
@@ -148,7 +149,7 @@ namespace PlayerModule {
             if (inventory[selectedSlot].amount == 0) {
                 inventory[selectedSlot] = null;
             }
-            playerInventoryGrid.displayItem(selectedSlot);
+            playerInventoryGrid.DisplayItem(selectedSlot);
         }
 
         public void iterateSelectedTile(int iterator) {
@@ -158,14 +159,14 @@ namespace PlayerModule {
         }
 
         public void give(ItemSlot itemSlot) {
-            if (!ItemSlotHelper.canInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
+            if (!ItemSlotHelper.CanInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
                 IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {
                     return;
                 }
                 ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
             } else {
-                ItemSlotHelper.insertIntoInventory(inventory,itemSlot,Global.MaxSize);
+                ItemSlotHelper.InsertIntoInventory(inventory,itemSlot,Global.MaxSize);
             }
         }
 

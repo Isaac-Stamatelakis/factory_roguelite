@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TileEntityModule {
+namespace TileEntity {
     public interface IManagedUITileEntity {
         public TileEntityUIManager getUIManager();
     }
@@ -14,6 +14,6 @@ namespace TileEntityModule {
     }
 
     public interface ITileEntityUI<T> where T : ITileEntityInstance {
-        public void display(T tileEntityInstance);
+        public void DisplayTileEntityInstance(T tileEntityInstance);
     }
 }

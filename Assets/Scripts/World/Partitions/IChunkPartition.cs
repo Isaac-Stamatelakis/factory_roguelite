@@ -4,7 +4,7 @@ using UnityEngine;
 using TileMaps.Type;
 using TileMaps;
 using TileMaps.Layer;
-using TileEntityModule;
+using TileEntity;
 using Tiles;
 
 namespace Chunks.Partitions {

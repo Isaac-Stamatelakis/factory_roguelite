@@ -5,9 +5,9 @@ using Conduits.Ports;
 using UnityEngine;
 using Newtonsoft.Json;
 
-namespace TileEntityModule.Instances.Signal {
+namespace TileEntity.Instances.Signal {
     [CreateAssetMenu(fileName = "E~New Clock", menuName = "Tile Entity/Signal/Clock")]
-    public class SignalClock : TileEntity, IManagedUITileEntity
+    public class SignalClock : TileEntityObject, IManagedUITileEntity
     {
         public TileEntityUIManager UIManager;
         public int ActiveDuration = 5;
@@ -36,28 +36,28 @@ namespace TileEntityModule.Instances.Signal {
             }
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
-            return ClockData.Counter < tileEntity.ActiveDuration;
+            return ClockData.Counter < TileEntityObject.ActiveDuration;
         }
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSignal(bool signal, Vector2Int portPosition)
+        public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             
         }
 
         public void onRightClick()
         {
-            tileEntity.UIManager.display<SignalClockInstance,SignalClockUI>(this);
+            TileEntityObject.UIManager.display<SignalClockInstance,SignalClockUI>(this);
         }
 
         private void initalizeData() {
-            ClockData = new ClockData(tileEntity.DefaultTime,0,true);
+            ClockData = new ClockData(TileEntityObject.DefaultTime,0,true);
         }
 
         public string serialize()

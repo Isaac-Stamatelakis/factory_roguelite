@@ -30,7 +30,7 @@ namespace Items.Inventory {
         {
             SolidItemInventoryHelper.leftClick(inventory,n,allowInputs);
             updateAllListeners(n);
-            displayItem(n);
+            DisplayItem(n);
         }
 
         private void updateAllListeners(int n) {
@@ -69,10 +69,10 @@ namespace Items.Inventory {
                 return;
             }
             
-            if (grabbedItemProperties.setItemSlotFromInventory(inventory,n)) {
+            if (grabbedItemProperties.SetItemSlotFromInventory(inventory,n)) {
                 return;
             }
-            grabbedItemProperties.addItemSlotFromInventory(inventory,n);
+            grabbedItemProperties.AddItemSlotFromInventory(inventory,n);
         }
 
         public static void leftClick(List<ItemSlot> inventory, int n, bool allowInputs) {
@@ -85,23 +85,23 @@ namespace Items.Inventory {
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (!allowInputs && grabbedSlot == null) {
                 inventory[n] = null;
-                grabbedItemProperties.setItemSlot(inventorySlot);
+                grabbedItemProperties.SetItemSlot(inventorySlot);
                 return;
             }
-            if (ItemSlotHelper.areEqual(grabbedSlot,inventorySlot)) {
+            if (ItemSlotHelper.AreEqual(grabbedSlot,inventorySlot)) {
                 // Merge
-                int sum = inventorySlot.amount + grabbedSlot.amount;
+                uint sum = inventorySlot.amount + grabbedSlot.amount;
                 if (sum > Global.MaxSize) {
                     grabbedSlot.amount = sum-Global.MaxSize;
                     inventorySlot.amount = Global.MaxSize;
                 } else { // Overflow
                     inventorySlot.amount = sum;
-                    grabbedItemProperties.setItemSlot(null);
+                    grabbedItemProperties.SetItemSlot(null);
                 }
             } else {    
                 // Swap
                 inventory[n] = grabbedItemProperties.ItemSlot;
-                grabbedItemProperties.setItemSlot(inventorySlot);
+                grabbedItemProperties.SetItemSlot(inventorySlot);
             }
         }
     }

@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using RecipeModule.Processors;
 using RecipeModule;
 using Items.Inventory;
+using Recipe.Processor;
+using TileEntity.Instances.Machine;
+using UnityEngine.Serialization;
 
-namespace TileEntityModule.Instances.Machines
+namespace TileEntity.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Processing")]
-    public class ProcessingMachine : TileEntity
+    public class ProcessingMachine : TileEntityObject
     {
-        
-        public AggregatedPoweredMachineProcessor Processor;       
+        [FormerlySerializedAs("Layout")] public MachineLayoutObject layoutObject;
+        public RecipeProcessor Processor;       
         public Tier Tier;
         public ConduitPortLayout ConduitLayout;
 

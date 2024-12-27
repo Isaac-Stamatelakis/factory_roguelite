@@ -6,9 +6,9 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Recipe Encoder")]
-    public class MatrixRecipeEncoder : TileEntity
+    public class MatrixRecipeEncoder : TileEntityObject
     {
         public ConduitPortLayout Layout;
         public TileEntityUIManager UIManager;

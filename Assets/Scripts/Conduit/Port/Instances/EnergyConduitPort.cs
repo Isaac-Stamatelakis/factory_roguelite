@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.Ports {
     public class EnergyConduitInputPort : ConduitTransferPort<IEnergyConduitInteractable>, IConduitInputPort<int>, IColorPort, IPriorityPort, IConduitIOPort
@@ -12,12 +12,12 @@ namespace Conduits.Ports {
         public int priority;
         private int inventory;
 
-        public EnergyConduitInputPort(IEnergyConduitInteractable tileEntity) : base(tileEntity)
+        public EnergyConduitInputPort(IEnergyConduitInteractable interactable) : base(interactable)
         {
         }
 
-        public int Insert(int energy) {
-            return tileEntity.insertEnergy(energy,relativePosition);
+        public ulong Insert(ulong energy) {
+            return interactable.InsertEnergy(energy,relativePosition);
         }
 
         public int getColor()
@@ -55,7 +55,7 @@ namespace Conduits.Ports {
             if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
                 return;
             } 
-            this.tileEntity = energyConduitInteractable;
+            this.interactable = energyConduitInteractable;
         }
     }
 
@@ -64,14 +64,14 @@ namespace Conduits.Ports {
     { 
         public bool enabled;
         public int color;
-        [JsonIgnore] public int extractionRate;
+        [JsonIgnore] public ulong extractionRate;
 
-        public EnergyConduitOutputPort(IEnergyConduitInteractable tileEntity) : base(tileEntity)
+        public EnergyConduitOutputPort(IEnergyConduitInteractable interactable) : base(interactable)
         {
         }
 
-        public ref int extract() {
-            return ref tileEntity.getEnergy(relativePosition);
+        public ref ulong Extract() {
+            return ref interactable.GetEnergy(relativePosition);
         }
 
         public int getColor()
@@ -99,7 +99,7 @@ namespace Conduits.Ports {
             if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
                 return;
             }
-            this.tileEntity = energyConduitInteractable;
+            this.interactable = energyConduitInteractable;
         }
     }
 

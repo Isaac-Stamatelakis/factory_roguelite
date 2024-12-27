@@ -11,7 +11,7 @@ using System.IO;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     public class CaveSelectController : MonoBehaviour
     {
         public TextMeshProUGUI nameText;

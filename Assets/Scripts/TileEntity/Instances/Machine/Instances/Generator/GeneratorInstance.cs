@@ -1,37 +1,53 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Items.Inventory;
+using Recipe;
+using Recipe.Data;
+using Recipe.Processor;
 using RecipeModule;
+using TileEntity.Instances.WorkBenchs;
+using UI;
 
-namespace TileEntityModule.Instances.Machines
+namespace TileEntity.Instances.Machines
 {
     
-    public class GeneratorInstance : TileEntityInstance<Generator>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class GeneratorInstance : TileEntityInstance<Generator>, ITickableTileEntity, 
+        IRightClickableTileEntity, ISerializableTileEntity, IProcessorTileEntity, IInventoryListener, IConduitTileEntityAggregator
     {
         public GeneratorInstance(Generator tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
+            /*
             if (inventory == null) {
-                inventory = StandardMachineInventoryFactory.initalize((StandardMachineInventoryLayout)tileEntity.EnergyRecipeProcessor.getInventoryLayout());
+                inventory = StandardMachineInventoryFactory.initalize(this.tileEntity.StandardMachineLayout);
             }
+            */
         }
-        private StandardMachineInventory inventory;
-        private IEnergyProduceRecipe currentRecipe;
-        private int remainingTicks;
-        public void onRightClick()   
+
+        private int mode;
+        private MachineItemInventory itemInventory;
+        private MachineEnergyInventory energyInventory;
+        private GeneratorItemRecipe currentRecipe;
+        public void onRightClick()
         {
-            tileEntity.EnergyRecipeProcessor.displayTileEntity(inventory,tileEntity.Tier,tileEntity.name,this);
+            TileEntityHelper.DisplayTileEntityUI<GeneratorInstance>(TileEntityObject.RecipeProcessor.UIPrefab, this);
         }
         
 
         public string serialize()
         {
-            return StandardMachineInventoryFactory.serialize(inventory);
+            SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
+                mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(itemInventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(energyInventory),
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Generator)
+            );
+            return JsonConvert.SerializeObject(serializedGeneratorData);
         }
 
         public void tickUpdate()
@@ -45,30 +61,30 @@ namespace TileEntityModule.Instances.Machines
         }
 
         private void processRecipe() {
+            /*
             if (remainingTicks > 0) {
-                if (inventory.Energy < tileEntity.Tier.getEnergyStorage()) {
+                if (inventory.Energy < tileEntity.Tier.GetEnergyStorage()) {
                     remainingTicks--;
                     inventory.Energy += currentRecipe.getEnergyPerTick();
                 }
-                
             }
             if (remainingTicks <= 0) {
                 currentRecipe = null;
             }
+            */
         }
 
         public void inventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }
-            currentRecipe = processEnergyRecipes();
-            if (currentRecipe == null) {
-                return;
-            }
-            remainingTicks = currentRecipe.getLifespan();
-            
+            currentRecipe = RecipeRegistry.GetProcessorInstance(TileEntityObject.RecipeProcessor).GetRecipe<GeneratorItemRecipe>(
+                mode, 
+                itemInventory.itemInputs,
+                itemInventory.fluidInputs
+            );
         }
-
+        /*
         private IEnergyProduceRecipe processEnergyRecipes() {
             if (tileEntity.EnergyRecipeProcessor == null) {
                 return null;
@@ -90,67 +106,47 @@ namespace TileEntityModule.Instances.Machines
             return recipe;
             
         }
+        */
 
         public void unserialize(string data)
         {
-            inventory = StandardMachineInventoryFactory.deserialize(data);
+            //inventory = StandardMachineInventoryFactory.deserialize(data);
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
-
-        public void insertSolidItem(ItemSlot itemSlot,Vector2Int portPosition)
+        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
         {
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot,Global.MaxSize);
+            return conduitType switch
+            {
+                ConduitType.Item or ConduitType.Fluid => itemInventory,
+                ConduitType.Energy => energyInventory,
+                _ => null
+            };
         }
 
-        public int insertEnergy(int insertEnergy,Vector2Int portPosition)
+        public RecipeProcessor GetRecipeProcessor()
         {
-            inventory.Energy += insertEnergy;
-            return 0;
+            return TileEntityObject.RecipeProcessor;
         }
 
-        public void insertSignal(bool signal,Vector2Int portPosition)
+        private class SerializedGeneratorData
         {
-            throw new System.NotImplementedException();
-        }
+            public int Mode;
+            public string SerializedMachineInventory;
+            public string SerializedEnergyInventory;
+            public string SerializedGeneratorRecipe;
 
-        public bool extractSignal(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-    
-
-        public ref int getEnergy(Vector2Int portPosition)
-        {
-            return ref inventory.energy;
-        }
-
-        
-
-        public RecipeProcessor getRecipeProcessor()
-        {
-            return tileEntity.EnergyRecipeProcessor;
-        }
-
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
-        }
-
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
-            
-        }
-
-        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots,itemSlot,tileEntity.Tier.getFluidStorage());
+            public SerializedGeneratorData(int mode, string serializedMachineInventory, string serializedEnergyInventory, string serializedGeneratorRecipe)
+            {
+                Mode = mode;
+                SerializedMachineInventory = serializedMachineInventory;
+                SerializedEnergyInventory = serializedEnergyInventory;
+                SerializedGeneratorRecipe = serializedGeneratorRecipe;
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace TileEntityModule.Instances.Signs {
+namespace TileEntity.Instances.Signs {
     public class SignUIController : MonoBehaviour
     {
         [SerializeField] public TMP_InputField line1In;

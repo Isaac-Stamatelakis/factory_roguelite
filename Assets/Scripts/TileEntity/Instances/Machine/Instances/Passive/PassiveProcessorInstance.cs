@@ -3,33 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using RecipeModule;
 using Items.Inventory;
+using Recipe;
+using Recipe.Data;
+using Recipe.Processor;
+using TileEntity.Instances.WorkBenchs;
 
-namespace TileEntityModule.Instances.Machines {
-    public class PassiveProcessorInstance : TileEntityInstance<PassiveProcessor>, ITickableTileEntity,  IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+namespace TileEntity.Instances.Machines {
+    public class PassiveProcessorInstance : TileEntityInstance<PassiveProcessor>, ITickableTileEntity,  IRightClickableTileEntity, ISerializableTileEntity, 
+        IConduitTileEntityAggregator,  IProcessorTileEntity, IInventoryListener
     {
-        private PassiveProcessorInventory inventory;
-        private IPassiveRecipe currentRecipe;
+        private int mode;
+        private MachineItemInventory inventory;
+        private PassiveItemRecipe currentRecipe;
 
         public PassiveProcessorInstance(PassiveProcessor tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
+            /*
             if (inventory == null) {
                 inventory = PassiveMachineInventoryFactory.initalize(tileEntity.Layout);
             }
+            */
         }
 
         public void onRightClick()   
         {
-            tileEntity.RecipeProcessor.displayTileEntity(inventory,tileEntity.name,this);
+            TileEntityHelper.DisplayTileEntityUI<PassiveProcessorInstance>(TileEntityObject.RecipeProcessor.UIPrefab,this);
         }
         
         public string serialize()
         {
-            return PassiveMachineInventoryFactory.serialize(inventory);
+            SerializedPassiveMachine serializedGeneratorData = new SerializedPassiveMachine(
+                mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(inventory),
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.PassiveItem)
+            );
+            return JsonConvert.SerializeObject(serializedGeneratorData);
         }
 
         public void tickUpdate()
@@ -42,21 +54,22 @@ namespace TileEntityModule.Instances.Machines {
         }
 
         private void processRecipe() {
+            /*
             if (inventory.RemainingTicks > 0) {
                 inventory.RemainingTicks--;
                 return;
             }
             List<ItemSlot> outputs = currentRecipe.getOutputs();
-            List<ItemSlot> solidOutputs;
-            List<ItemSlot> fluidOutputs;
-            ItemSlotHelper.sortInventoryByState(outputs, out solidOutputs, out fluidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
-            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.getFluidStorage());
+            ItemSlotHelper.sortInventoryByState(outputs, out var solidOutputs, out var fluidOutputs);
+            ItemSlotHelper.InsertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
+            ItemSlotHelper.InsertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.GetFluidStorage());
             currentRecipe = null;
             inventoryUpdate(0);
+            */
         }
 
         public void inventoryUpdate(int n) {
+            /*
             if (currentRecipe != null) {
                 return;
             }
@@ -71,53 +84,48 @@ namespace TileEntityModule.Instances.Machines {
                 return;
             }
             inventory.RemainingTicks = currentRecipe.getRequiredTicks();
+            */
         }
 
 
         public void unserialize(string data)
         {
-            inventory = PassiveMachineInventoryFactory.deserialize(data);
+            //inventory = PassiveMachineInventoryFactory.deserialize(data);
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-
-        public void insertSignal(bool signal,Vector2Int portPosition)
+        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
         {
-            throw new System.NotImplementedException();
+            switch (conduitType)
+            {
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    return inventory;
+                default:
+                    return null;
+            }
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public RecipeProcessor GetRecipeProcessor()
         {
-            return false;
+            return TileEntityObject.RecipeProcessor;
         }
-
-        public RecipeProcessor getRecipeProcessor()
+        private class SerializedPassiveMachine
         {
-            return tileEntity.RecipeProcessor;
-        }
+            public int Mode;
+            public string SerializedMachineInventory;
+            public string SerializedRecipe;
 
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
-        }
-
-        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots, itemSlot, Global.MaxSize);
-        }
-
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
-        }
-
-        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots, itemSlot, tileEntity.Tier.getFluidStorage());
+            public SerializedPassiveMachine(int mode, string serializedMachineInventory, string serializedRecipe)
+            {
+                Mode = mode;
+                SerializedMachineInventory = serializedMachineInventory;
+                SerializedRecipe = serializedRecipe;
+            }
         }
     }
 

@@ -33,7 +33,7 @@ namespace Items {
 
         private static readonly string[] suffixes = {"k","M","B","T"};
 
-        public static string formatAmountText(int amount,bool oneInvisible = true) {
+        public static string FormatAmountText(uint amount,bool oneInvisible = true) {
             if (amount == 1 && oneInvisible) {
                 return "";
             }
@@ -124,5 +124,6 @@ namespace Items {
                     break;
             }
         }
+        
     }
 }

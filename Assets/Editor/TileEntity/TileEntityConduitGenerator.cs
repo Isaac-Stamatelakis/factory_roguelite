@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
-using TileEntityModule;
-using TileEntityModule.Instances.Machines;
+using TileEntity;
+using TileEntity.Instances.Machines;
 using Conduits.Ports;
 
 public class TileEntityConduitGenerator : EditorWindow {
-    private TileEntity tileEntity;
+    private TileEntityObject tileEntity;
     private GameObject tilemapPrefab;
     [MenuItem("Tools/TileEntity/SetPorts")]
     public static void ShowWindow()
@@ -20,7 +20,7 @@ public class TileEntityConduitGenerator : EditorWindow {
 
     void OnGUI()
     {
-        tileEntity = EditorGUILayout.ObjectField("TileEntity", tileEntity, typeof(TileEntity), true) as TileEntity;
+        tileEntity = EditorGUILayout.ObjectField("TileEntity", tileEntity, typeof(TileEntityObject), true) as TileEntityObject;
         tilemapPrefab = EditorGUILayout.ObjectField("TileMapPrefab", tilemapPrefab, typeof(GameObject), true) as GameObject;
         if (GUILayout.Button("Set Conduit Ports"))
         {
@@ -49,7 +49,7 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tile tile = (Tile) mainMap.GetTile(center);
         Vector2Int spriteSize = Global.getSpriteSize(tile.sprite);
-        IConduitInteractable machinePorts = (IConduitInteractable) tileEntity;
+        IConduitTileEntity machinePorts = (IConduitTileEntity) tileEntity;
         Vector2Int xArea = getArea(spriteSize.x);
         Vector2Int yArea = getArea(spriteSize.y);
         setPorts(machinePorts,tilemapPrefab.transform,ConduitType.Item,center,xArea,yArea);
@@ -61,7 +61,7 @@ public class TileEntityConduitGenerator : EditorWindow {
         AssetDatabase.SaveAssets();
     }
 
-    private void setPorts(IConduitInteractable machinePortInterface, Transform parent, ConduitType conduitType, Vector3Int center, Vector2Int xArea, Vector2Int yArea) {
+    private void setPorts(IConduitTileEntity machinePortInterface, Transform parent, ConduitType conduitType, Vector3Int center, Vector2Int xArea, Vector2Int yArea) {
         Transform childTransform = parent.Find(conduitType.ToString());
         if (childTransform == null) {
             Debug.LogError("No tilemap object for " + conduitType.ToString());

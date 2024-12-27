@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using Chunks;
 using System;
 using TileMaps.Layer;
@@ -35,7 +35,7 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntity presetTileEntity = null, bool useOffset = true) {
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntityObject presetTileEntity = null, bool useOffset = true) {
             if (itemObject is TileItem tileItem) {
                 if (checkConditions && !tilePlacable(tileItem,worldPlaceLocation)) {
                     return false;
@@ -185,7 +185,7 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntity presetTileEntity = null, bool useOffset = true) {
+        private static void placeTile(TileItem tileItem, Vector2 worldPosition, ITileMap tileMap, ClosedChunkSystem closedChunkSystem, TileEntityObject presetTileEntity = null, bool useOffset = true) {
             if (tileMap == null) {
                 return;
             }
@@ -237,8 +237,7 @@ namespace TileMaps.Place {
                 return;
             }
             
-            // TODO change to registry
-            TileEntity tileEntity = tileItem.tileEntity;
+            TileEntityObject tileEntity = tileItem.tileEntity;
             if (tileEntity == null) {
                 return;
             }
@@ -260,7 +259,8 @@ namespace TileMaps.Place {
             EntityPortType entityPortType = conduitSystemManager.GetPortTypeAtPosition(placePosition.x,placePosition.y);
             ITileEntityInstance tileEntity = conduitSystemManager.GetTileEntityAtPosition(placePosition.x,placePosition.y);
             int state = conduitSystemManager.GetNewState(placePosition,ConduitPlacementMode.Any,conduitItem.id);
-            IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
+            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, conduitType);
+            IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,state,interactable);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
             
             

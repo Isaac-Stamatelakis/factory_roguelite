@@ -6,113 +6,119 @@ using TMPro;
 using Items.Inventory;
 using Items.Tags;
 using Items.Transmutable;
+using UnityEngine.Serialization;
 
 namespace Items {
+    public struct ItemDisplay
+    {
+        public Sprite Sprite;
+        public Color Color;
+
+        public ItemDisplay(Sprite sprite = null, Color color = default)
+        {
+            Sprite = sprite;
+            Color = color;
+        }
+    }
+    
     public class ItemSlotUI : MonoBehaviour
     {
-        private Image itemImage;
-        private TextMeshProUGUI amountText;
-        private Transform tagBehindContainer;
-        private Transform tagFrontContainer;
+        public Image Panel;
+        public Image ItemImage;
+        public TextMeshProUGUI AmountText;
+        public Transform TagBehindContainer;
+        public Transform TagFrontContainer;
+        private ItemDisplay[] toDisplay;
         private int counter;
-        private bool textEnabled;
-        private ItemSlot displayed;
+        private ItemSlot displayedSlot;
         public void FixedUpdate() {
-            counter ++;
-            // Semi work around
-            if (displayed != null && displayed.itemObject != null && displayed.itemObject.getDisplayType() == ItemDisplayType.Animated) {
-                ItemDisplayUtils.DisplayItemSprite(itemImage, displayed.itemObject, counter);
-            }
-        }
-        public void init(Color? color,bool textEnabled = true) {
-            if (color != null) {
-                Image panel = gameObject.GetComponent<Image>();
-                if (panel == null) {
-                    panel = gameObject.AddComponent<Image>();
-                }
-                panel.color = (Color) color;
-            }
-            if (gameObject.GetComponent<RectTransform>() == null) {
-                gameObject.AddComponent<RectTransform>();
-            }
-            this.textEnabled = textEnabled;  
-        }
-
-        public void display(ItemSlot itemSlot) {
-            this.displayed = itemSlot;
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                if (transform.childCount != 0) {
-                    Unload();
-                }
+            if (toDisplay == null || toDisplay.Length == 0)
+            {
                 return;
             }
-            CreateRequiredObjects(itemSlot);
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
-            {
-                itemImage.color = transmutableItemObject.getMaterial().color;
-            }
-            else
-            {
-                itemImage.color = Color.white;
-            }
-            if (amountText != null) {
-                amountText.text = ItemDisplayUtils.formatAmountText(itemSlot.amount);
-            }
-            ItemDisplayUtils.DisplayItemSprite(itemImage, itemSlot.itemObject, counter);
+            counter ++;
+            RefreshDisplay();
         }
+
+        public void RefreshDisplay()
+        {
+            int index = (counter/ItemDisplayUtils.AnimationSpeed) % toDisplay.Length;
+            ItemDisplay display = toDisplay[index];
+            ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
+            ItemImage.color = display.Color;
+        }
+
+        public void SetPanelColor(Color color)
+        {
+            Panel.color = color;
+        }
+
+        public void SetText(string text)
+        {
+            AmountText.text = text;
+        }
+
+        public void RefreshAmountText()
+        {
+            if (displayedSlot == null) return;
+            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+        }
+        public void Display(ItemSlot itemSlot)
+        {
+            if (itemSlot == null || itemSlot.itemObject == null) {
+                Unload();
+                return;
+            }
+            Sprite[] sprites = itemSlot.itemObject.getSprites();
+            if (sprites == null || sprites.Length == 0)
+            {
+                Unload();
+                return;
+            }
+            displayedSlot = itemSlot;
+            
+            toDisplay = new ItemDisplay[sprites.Length];
+            Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
+            for (int i = 0; i < toDisplay.Length; i++)
+            {
+                toDisplay[i] = new ItemDisplay(sprites[i], color);
+            }
+
+            counter = 0;
+            RefreshDisplay();
+            ItemImage.gameObject.SetActive(true);
+            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+            DisplayTagVisuals(itemSlot);
+        }
+
+        public void Display(ItemDisplay[] itemsToDisplay)
+        {
+            ItemImage.gameObject.SetActive(true);
+            toDisplay = itemsToDisplay;
+            displayedSlot = null;
+            DisableItemSlotVisuals();
+            counter = 0;
+            RefreshDisplay();
+        }
+        
         public ItemSlot GetDisplayedSlot() {
-            return displayed;
+            return displayedSlot;
         }
 
-        public void Unload() {
-            GlobalHelper.deleteAllChildren(transform);
+        public void DisableItemSlotVisuals()
+        {
+            GlobalHelper.deleteAllChildren(TagBehindContainer);
+            GlobalHelper.deleteAllChildren(TagFrontContainer);
+            AmountText.text = "";
         }
-
-        public void DisplayText(string text) {
-            if (amountText == null) {
-                amountText = GenerateNumber();
-            }
-            amountText.text = text;
+        public void Unload()
+        {
+            toDisplay = null;
+            ItemImage.gameObject.SetActive(false);
+            DisableItemSlotVisuals();
         }
-
-        private void CreateRequiredObjects(ItemSlot itemSlot) {
-            if (itemImage == null) {
-                itemImage = GenerateItemImage();
-            }
-            if (amountText == null && textEnabled) {
-                amountText = GenerateNumber();
-            }
-            if (itemSlot.tags != null && itemSlot.tags.Dict != null) {
-                if (tagBehindContainer == null && tagFrontContainer == null) {
-                    (tagFrontContainer,tagBehindContainer) = GenerateTagContainers();
-                }
-            } else {
-                if (tagFrontContainer != null) {
-                    GameObject.Destroy(tagFrontContainer.gameObject);
-                }
-                if (tagBehindContainer != null) {
-                    GameObject.Destroy(tagBehindContainer.transform);
-                }
-            }
-            if (itemSlot.itemObject.getDisplayType() == ItemDisplayType.Stack) {
-                itemImage.enabled = false;
-                int requiredImages = itemSlot.itemObject.getSprites().Length;
-                while (itemImage.transform.childCount < requiredImages) {
-                    GameObject imageObject = new GameObject();
-                    imageObject.name = ItemDisplayUtils.StackSpriteImageName + itemImage.transform.childCount;
-                    imageObject.AddComponent<Image>();
-                    imageObject.transform.SetParent(itemImage.transform,false);
-                    RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
-                    rectTransform.sizeDelta = Vector2.zero;
-                    rectTransform.anchorMin = Vector2.zero;
-                    rectTransform.anchorMax = Vector2.one;
-                }
-                while (itemImage.transform.childCount > requiredImages) {
-                    Transform child = itemImage.transform.GetChild(itemImage.transform.childCount-1);
-                    GameObject.Destroy(child.gameObject);
-                }
-            }
-        }
+        
+        /*
         public Image GenerateItemImage() {
             GameObject imageObject = new GameObject();
             imageObject.name = ItemDisplayUtils.ItemImageName;
@@ -152,27 +158,23 @@ namespace Items {
             frontTag.transform.SetParent(transform,false);
             return (frontTag.transform,endTag.transform);
         }
+        */
 
-        public static void SetItemImageTagVisuals(ItemSlot itemSlot, Transform frontContainer, Transform endContainer) {
-            if (itemSlot.tags == null || itemSlot.tags.Dict == null) {
+        public void DisplayTagVisuals(ItemSlot itemSlot) {
+            if (itemSlot.tags?.Dict == null) {
                 return;
             }
             
-            foreach (KeyValuePair<ItemTag, object> keyValuePair in itemSlot.tags.Dict) {
-                ItemTag tag = keyValuePair.Key;
+            foreach (var keyValuePair in itemSlot.tags.Dict) {
+                ItemTag itemTag = keyValuePair.Key;
                 object data = keyValuePair.Value;
-                GameObject visualElement = tag.getVisualElement(itemSlot,data);
+                GameObject visualElement = itemTag.getVisualElement(itemSlot,data);
                 if (visualElement == null) {
                     continue;
                 }
-                bool inFront = tag.getVisualLayer();
-                if (inFront) {
-                    visualElement.transform.SetParent(frontContainer,false);
-                } else {
-                    visualElement.transform.SetParent(endContainer,false);
-                }
+                bool inFront = itemTag.getVisualLayer();
+                visualElement.transform.SetParent(inFront ? TagFrontContainer : TagBehindContainer, false);
             }
-            
         }
         
     }

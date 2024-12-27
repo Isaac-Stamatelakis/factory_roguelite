@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Chunks;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixAutoCraftingMemoryInstance : MatrixAutoCraftingChassisInstance<MatrixAutoCraftingMemory>
     {
         public MatrixAutoCraftingMemoryInstance(MatrixAutoCraftingMemory tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -12,7 +12,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public override void sync(MatrixAutoCraftingCoreInstance core)
         {
-            core.TotalMemory += tileEntity.Memory;
+            core.TotalMemory += TileEntityObject.Memory;
             this.core = core;
         }
     }

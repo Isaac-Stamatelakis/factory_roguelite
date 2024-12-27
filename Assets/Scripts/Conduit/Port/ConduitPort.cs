@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using Newtonsoft.Json;
 
 namespace Conduits.Ports {

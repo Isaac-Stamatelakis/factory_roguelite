@@ -6,7 +6,7 @@ using Conduits;
 using Conduits.Systems;
 using UnityEngine.Tilemaps;
 using Chunks.Systems;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.PortViewer {
     public class ConduitPortViewer : MonoBehaviour

@@ -8,12 +8,12 @@ using UI;
 using Items;
 
 
-namespace TileEntityModule.Instances.Storage {
-    public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ILoadableTileEntity, IFluidConduitInteractable
+namespace TileEntity.Instances.Storage {
+    public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntity, ILoadableTileEntity, IFluidConduitInteractable
     {
         private ItemSlot itemSlot;
-        public int FillAmount {get => itemSlot.amount;}
-        public float FillRatio {get => ((float)FillAmount)/getStorage();}
+        public uint FillAmount {get => itemSlot.amount;}
+        public float FillRatio {get => ((float)FillAmount)/GetStorage();}
         public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
         private SpriteRenderer visualElement;
 
@@ -21,13 +21,13 @@ namespace TileEntityModule.Instances.Storage {
         {
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public int getStorage() {
-            return tileEntity.Tier.getFluidStorage();
+        public uint GetStorage() {
+            return TileEntityObject.Tier.GetFluidStorage();
         }
 
         public void load()
@@ -62,7 +62,7 @@ namespace TileEntityModule.Instances.Storage {
 
         public void onRightClick()
         {
-            tileEntity.UIManager.display<FluidTankInstance,FluidTankUI>(this);
+            TileEntityObject.UIManager.display<FluidTankInstance,FluidTankUI>(this);
         }
 
         public string serialize()
@@ -80,23 +80,23 @@ namespace TileEntityModule.Instances.Storage {
             this.itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
         }
 
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
         {
             updateVisual();
             return itemSlot;
         }
 
-        public void insertFluidItem(ItemSlot toInsert, Vector2Int portPosition)
+        public void InsertFluidItem(ItemSlot toInsert, Vector2Int portPosition)
         {
             if (itemSlot == null || itemSlot.itemObject == null) {
-                itemSlot = ItemSlotFactory.copy(toInsert);
+                itemSlot = ItemSlotFactory.Copy(toInsert);
                 toInsert.amount = 0;
                 return;
             }
-            if (!ItemSlotHelper.areEqual(itemSlot,toInsert)) {
+            if (!ItemSlotHelper.AreEqual(itemSlot,toInsert)) {
                 return;
             }
-            ItemSlotHelper.insertIntoSlot(itemSlot,toInsert,getStorage());
+            ItemSlotHelper.InsertIntoSlot(itemSlot,toInsert,GetStorage());
             updateVisual();
         }
     }

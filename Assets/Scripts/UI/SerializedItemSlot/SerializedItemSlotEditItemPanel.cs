@@ -19,7 +19,7 @@ namespace UI {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                editorUI.selectItem(itemObject);
+                editorUI.SelectItem(itemObject);
             }
         }
     }

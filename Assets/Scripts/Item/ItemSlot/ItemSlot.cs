@@ -30,13 +30,13 @@ public interface NonSolidItem {
 [System.Serializable]
 public class ItemSlot
 {
-    public ItemSlot(ItemObject itemObject, int amount, ItemTagCollection tags) {
+    public ItemSlot(ItemObject itemObject, uint amount, ItemTagCollection tags) {
         this.itemObject = itemObject;
         this.amount = amount;
         this.tags = tags;
     }
     public ItemObject itemObject;
-    public int amount;
+    public uint amount;
     public ItemTagCollection tags;
     public ItemState getState() {
         if (itemObject is SolidItem) {

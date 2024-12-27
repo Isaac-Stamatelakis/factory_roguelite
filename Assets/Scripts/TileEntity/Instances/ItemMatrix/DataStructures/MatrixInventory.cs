@@ -5,18 +5,18 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixItemCollection {
-        private Stack<(ItemSlot,int)> notFull;
-        private Stack<(ItemSlot,int)> full;
+        private Stack<(ItemSlot,uint)> notFull;
+        private Stack<(ItemSlot,uint)> full;
 
-        public Stack<(ItemSlot, int)> NotFull { get => notFull; }
-        public Stack<(ItemSlot, int)> Full { get => full; }
-        public int TotalAmount {get => totalAmount;}
-        private int totalAmount;
+        public Stack<(ItemSlot, uint)> NotFull { get => notFull; }
+        public Stack<(ItemSlot, uint)> Full { get => full; }
+        public uint TotalAmount {get => totalAmount;}
+        private uint totalAmount;
         public MatrixItemCollection() {
-            notFull = new Stack<(ItemSlot, int)>();
-            full = new Stack<(ItemSlot, int)>();
+            notFull = new Stack<(ItemSlot, uint)>();
+            full = new Stack<(ItemSlot, uint)>();
         }
         public void addMatrixDriveSlot(MatrixDriveInventory driveInventory, ItemSlot matrixDriveSlot) {
             if (matrixDriveSlot.amount > driveInventory.maxSize) {
@@ -35,11 +35,11 @@ namespace TileEntityModule.Instances.Matrix {
             if (notFull.Count == 0) {
                 return;
             }
-            (ItemSlot,int) value = notFull.Pop();
+            (ItemSlot,uint) value = notFull.Pop();
             ItemSlot driveSlot = value.Item1;
-            int amountBefore = itemSlot.amount;
-            ItemSlotHelper.insertIntoSlot(driveSlot,itemSlot,value.Item2);
-            int difference = amountBefore-itemSlot.amount;
+            uint amountBefore = itemSlot.amount;
+            ItemSlotHelper.InsertIntoSlot(driveSlot,itemSlot,value.Item2);
+            uint difference = amountBefore-itemSlot.amount;
             totalAmount += difference;
             if (driveSlot.amount == value.Item2) {
                 full.Push(value);
@@ -48,29 +48,29 @@ namespace TileEntityModule.Instances.Matrix {
             }
         }
 
-        public ItemSlot takeItem(int amount) {
+        public ItemSlot TakeItem(uint amount) {
             if (notFull.Count == 0 && full.Count == 0) {
                 return null;
             }
             ItemSlot spliced = null;
             if (notFull.Count > 0) {
-                spliced = ItemSlotFactory.splice(notFull.Peek().Item1,0);
+                spliced = ItemSlotFactory.Splice(notFull.Peek().Item1,0);
             } else if (full.Count > 0) {
-                spliced = ItemSlotFactory.splice(full.Peek().Item1,0);
+                spliced = ItemSlotFactory.Splice(full.Peek().Item1,0);
             }
             while (spliced.amount < amount && notFull.Count > 0) {
-                (ItemSlot,int) driveValue = notFull.Pop();
+                (ItemSlot,uint) driveValue = notFull.Pop();
                 ItemSlot driveItem = driveValue.Item1;
-                ItemSlotHelper.insertIntoSlot(spliced,driveItem,amount);
+                ItemSlotHelper.InsertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     notFull.Push(driveValue);
                     break;
                 }
             }
             while (spliced.amount < amount && full.Count > 0) {
-                (ItemSlot,int) driveValue = full.Pop();
+                (ItemSlot,uint) driveValue = full.Pop();
                 ItemSlot driveItem = driveValue.Item1;
-                ItemSlotHelper.insertIntoSlot(spliced,driveItem,amount);
+                ItemSlotHelper.InsertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     full.Push(driveValue);
                     break;
@@ -120,7 +120,7 @@ namespace TileEntityModule.Instances.Matrix {
                         if (!idTagItemDict[itemSlot.itemObject.id].ContainsKey(itemTagKey)) {
                             idTagItemDict[itemSlot.itemObject.id][itemTagKey] = new MatrixItemCollection();
                         }
-                        ItemSlot newSlot = ItemSlotFactory.copy(itemSlot);
+                        ItemSlot newSlot = ItemSlotFactory.Copy(itemSlot);
                         matrixDriveInventory.inventories[i] = newSlot;
                         itemSlot.itemObject = null;
                         itemSlot.amount = 0;
@@ -131,14 +131,14 @@ namespace TileEntityModule.Instances.Matrix {
                 }
             }
         }
-        public ItemSlot take(string id, ItemTagKey itemTagKey, int amount) {
+        public ItemSlot Take(string id, ItemTagKey itemTagKey, uint amount) {
             if (!idTagItemDict.ContainsKey(id) || !idTagItemDict[id].ContainsKey(itemTagKey)) {
                 return null;
             }
-            return idTagItemDict[id][itemTagKey].takeItem(amount);
+            return idTagItemDict[id][itemTagKey].TakeItem(amount);
         }
 
-        public int amountOf(string id, ItemTagKey itemTagKey) {
+        public uint AmountOf(string id, ItemTagKey itemTagKey) {
             if (!idTagItemDict.ContainsKey(id) || !idTagItemDict[id].ContainsKey(itemTagKey)) {
                 return 0;
             }

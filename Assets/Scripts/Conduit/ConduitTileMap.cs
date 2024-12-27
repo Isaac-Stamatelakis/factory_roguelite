@@ -26,7 +26,7 @@ namespace TileMaps.Conduit {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
         }
-        protected override void setTile(int x, int y, ConduitItem conduitItem)
+        protected override void SetTile(int x, int y, ConduitItem conduitItem)
         {
             var tile = conduitItem.Tile;
             IConduit conduit = conduitSystemManager.GetIConduitAtRelativeCellPosition(new Vector2Int(x,y));
@@ -57,25 +57,25 @@ namespace TileMaps.Conduit {
             cellPosition.z = 0;
             Vector2Int vect = new Vector2Int(cellPosition.x,cellPosition.y);
             if (mTileMap.GetTile(cellPosition) != null) {
-                IChunkPartition partition = getPartitionAtPosition(vect);
+                IChunkPartition partition = GetPartitionAtPosition(vect);
                 if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                     Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
                     return;
                 }
-                Vector2Int tilePositionInPartition = base.getTilePositionInPartition(vect);
+                Vector2Int tilePositionInPartition = base.GetTilePositionInPartition(vect);
                 ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-                spawnItemEntity(conduitItem,1,vect);
-                breakTile(new Vector2Int(cellPosition.x,cellPosition.y));
+                SpawnItemEntity(conduitItem,1,vect);
+                BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
                 conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
             }
         }
-        protected override Vector2Int getHitTilePosition(Vector2 position)
+        protected override Vector2Int GetHitTilePosition(Vector2 position)
         {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             return new Vector2Int(cellPosition.x,cellPosition.y);
         }
 
-        protected override void writeTile(IChunkPartition partition, Vector2Int position, ConduitItem item)
+        protected override void WriteTile(IChunkPartition partition, Vector2Int position, ConduitItem item)
         {
             if (partition == null) {
                 return;

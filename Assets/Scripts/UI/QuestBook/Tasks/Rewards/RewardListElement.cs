@@ -11,11 +11,11 @@ using Items.Inventory;
 namespace UI.QuestBook {
     public class RewardListElement : MonoBehaviour, IPointerClickHandler,  IItemListReloadable
     {
+        [SerializeField] private ItemSlotUI itemSlotUI;
         [SerializeField] private TextMeshProUGUI itemName;
         [SerializeField] private TextMeshProUGUI itemAmount;
         [SerializeField] private Image radioButtonImage;
         [SerializeField] private Transform itemContainer;
-        private ItemSlotUI itemSlotUI;
         private SerializedItemSlot ItemSlot {get => itemSlots[index];}
         private List<SerializedItemSlot> itemSlots;
         private QuestBookTaskPageUI questBookTaskPageUI;
@@ -27,7 +27,7 @@ namespace UI.QuestBook {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (QuestBookHelper.EditMode) {
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = questBookTaskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    serializedItemSlotEditorUI.init(itemSlots,index,this,questBookTaskPageUI.gameObject);
+                    serializedItemSlotEditorUI.Init(itemSlots,index,this,questBookTaskPageUI.gameObject);
                     serializedItemSlotEditorUI.transform.SetParent(questBookTaskPageUI.transform,false);
                 } else {
                     if (questBookTaskPageUI.RewardsSelectable) {
@@ -44,24 +44,23 @@ namespace UI.QuestBook {
             }
         }
 
-        public void init(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookTaskPageUI questBookTaskPageUI) {
+        public void Init(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookTaskPageUI questBookTaskPageUI) {
             this.itemSlots = serializedItemSlots;
             this.index = index;
             this.questBookTaskPageUI = questBookTaskPageUI;
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemSlots[index]);
-            itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,null,enableText:false);
-            display();
+            Display();
         }
 
-        public void display() {
+        public void Display() {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemSlots[index]);
             itemAmount.text = itemSlot.amount.ToString();
             itemName.text = itemSlot.itemObject.name;
-            itemSlotUI.display(itemSlot);
-            displayRadioButton();  
+            itemSlotUI.Display(itemSlot);
+            DisplayRadioButton();  
         }
 
-        private void displayRadioButton() {
+        private void DisplayRadioButton() {
             if (!questBookTaskPageUI.RewardsSelectable) {
                 radioButtonImage.gameObject.SetActive(false);
             }
@@ -70,7 +69,7 @@ namespace UI.QuestBook {
 
         public void reload()
         {
-            display();
+            Display();
         }
 
         public void reloadAll()

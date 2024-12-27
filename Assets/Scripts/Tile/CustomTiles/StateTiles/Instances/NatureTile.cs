@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 using TileMaps.Place;
 using TileMaps.Layer;
 using TileMaps.Type;
-using TileEntityModule.Instances.SimonSays;
+using TileEntity.Instances.SimonSays;
 
 namespace Tiles {
     

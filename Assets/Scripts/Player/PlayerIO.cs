@@ -8,7 +8,7 @@ using WorldModule;
 using RobotModule;
 using Items;
 using TileMaps.Previewer;
-using TileEntityModule.Instances;
+using TileEntity.Instances;
 using Dimensions;
 
 namespace PlayerModule.IO {

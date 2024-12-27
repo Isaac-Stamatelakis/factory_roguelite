@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Items.Inventory {
     public class SolidDynamicInventory : AbstractSolidItemInventory
     {
+        public ItemSlotUI ItemSlotUIPrefab;
         private Vector2Int size;
         public int Count {get => size.x * size.y;}
         public Vector2Int Size { get => size; set => size = value; }
@@ -12,30 +13,30 @@ namespace Items.Inventory {
         public void initalize(List<ItemSlot> inventory, Vector2Int size) {
             this.inventory = inventory;
             this.size = size;
-            initalizeSlots();
+            InitalizeSlots();
         }
-        protected override void initSlot(int n)
+        protected override void InitSlot(int n)
         {
-            Transform slotTransform = transform.Find("slot"+n);
-            if (slotTransform != null) {
-                slots.Add(slotTransform.GetComponent<ItemSlotUI>());
-                initClickHandler(slotTransform,n);
-            } else {
-                addSlot();
+            if (slots.Count <= n)
+            {
+                AddSlot();
+                return;
             }
+            Transform slotTransform = transform.GetChild(n);
+            slots.Add(slotTransform.GetComponent<ItemSlotUI>());
+            InitClickHandler(slotTransform,n);
             
         }
-        public ItemSlotUI addSlot() {
+        public ItemSlotUI AddSlot() {
             if (slots.Count >= size.x * size.y) {
                 return null;
             }
-            ItemSlotUI slot = ItemSlotUIFactory.newItemSlotUI(null,transform,ItemDisplayUtils.SolidItemPanelColor,suffix:slots.Count.ToString());
+            ItemSlotUI slot = Instantiate(ItemSlotUIPrefab, transform);
             slots.Add(slot);
-            slot.gameObject.AddComponent<ItemSlotUIClickHandler>();
-            initClickHandler(slot.transform,slots.Count-1);
+            InitClickHandler(slot.transform,slots.Count-1);
             return slot;
         }
-        public bool popSlot() {
+        public bool PopSlot() {
             if (slots.Count <= 0) {
                 return false;
             }
@@ -45,24 +46,24 @@ namespace Items.Inventory {
             return true;
         }
 
-        public void updateSize(UnityEngine.Vector2Int newSize) {
+        public void UpdateSize(UnityEngine.Vector2Int newSize) {
             this.size = newSize;
             while (slots.Count < Count) {
-                addSlot();
+                AddSlot();
             }
             while (slots.Count > Count) {
-                popSlot();
+                PopSlot();
             }
         }
 
-        public void setInventory(List<ItemSlot> itemSlots) {
+        public void SetInventory(List<ItemSlot> itemSlots) {
             this.inventory = itemSlots;
             for (int i = 0; i < itemSlots.Count; i++) {
                 if (i >= slots.Count) {
                     Debug.LogWarning("Tried to change inventory to one larger than the current size");
                     break;
                 }
-                displayItem(i);
+                DisplayItem(i);
             }
         }
     }

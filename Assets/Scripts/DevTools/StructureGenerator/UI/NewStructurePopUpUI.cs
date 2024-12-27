@@ -31,7 +31,7 @@ namespace DevTools.Structures {
 
         public void init(StructureDevControllerUI controllerUI) {
             if (!ItemRegistry.IsLoaded) {
-                StartCoroutine(ItemRegistry.loadItems());
+                StartCoroutine(ItemRegistry.LoadItems());
             }
             
             this.controllerUI = controllerUI;
@@ -78,7 +78,7 @@ namespace DevTools.Structures {
             tileSelector.onClick.AddListener(() => {
                 SerializedItemSlotEditorUI itemSlotEditorUI = GameObject.Instantiate(itemSelectorUIPrefab);
                 itemSlotEditorUI.transform.SetParent(transform.parent,false);
-                itemSlotEditorUI.init(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
+                itemSlotEditorUI.Init(itemSlots,0,this,gameObject,displayAmount:false,displayArrows:false,displayTags:false);
             });
 
             editIntervalVectorButton.onClick.AddListener(() => {
@@ -95,8 +95,8 @@ namespace DevTools.Structures {
 
         public void reload()
         {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
-            ItemObject itemObject = itemRegistry.getItemObject(itemSlots[0].id);
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            ItemObject itemObject = itemRegistry.GetItemObject(itemSlots[0].id);
             if (itemObject == null) {
                 itemImage.gameObject.SetActive(false);
             } else {

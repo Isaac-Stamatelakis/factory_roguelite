@@ -7,7 +7,7 @@ using Chunks.Systems;
 using Chunks.Partitions;
 using TileMaps;
 using TileMaps.Type;
-using TileEntityModule;
+using TileEntity;
 using Dimensions;
 using Entities;
 using Entities.Mobs;

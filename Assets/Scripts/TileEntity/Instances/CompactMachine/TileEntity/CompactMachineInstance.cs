@@ -8,8 +8,8 @@ using Dimensions;
 using Chunks.Systems;
 using UI;
 
-namespace TileEntityModule.Instances.CompactMachines {
-    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitInteractable, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
+namespace TileEntity.Instances.CompactMachines {
+    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitTileEntity, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
     {
         private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
@@ -43,20 +43,20 @@ namespace TileEntityModule.Instances.CompactMachines {
             }
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.ConduitPortLayout;
+            return TileEntityObject.ConduitPortLayout;
         }
 
-        public ref int getEnergy(Vector2Int portPosition)
+        public ref ulong GetEnergy(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public int insertEnergy(int energy,Vector2Int portPosition)
+        public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
         {
             if (inventory.EnergyPorts.ContainsKey(portPosition)) {
-                return inventory.EnergyPorts[portPosition].insertEnergy(energy,portPosition);
+                return inventory.EnergyPorts[portPosition].InsertEnergy(energy,portPosition);
             }
             return 0;
         }
@@ -67,7 +67,7 @@ namespace TileEntityModule.Instances.CompactMachines {
                 CompactMachineHelper.teleportIntoCompactMachine(this);
                 return;
             }
-            GameObject uiPrefab = tileEntity.UIManager.getUIElement();
+            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
             if (uiPrefab == null) {
                 Debug.LogError(getName() + " has uiprefab is null");
                 return;
@@ -90,43 +90,43 @@ namespace TileEntityModule.Instances.CompactMachines {
             return teleporter.getCellPosition();
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
             return false;
         }
 
-        public void insertSignal(bool signal, Vector2Int portPosition)
+        public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             
         }
 
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
         {
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                return inventory.ItemPorts[portPosition].extractSolidItem(portPosition);
+                return inventory.ItemPorts[portPosition].ExtractSolidItem(portPosition);
             }
             return null;
         }
 
-        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                inventory.ItemPorts[portPosition].insertSolidItem(itemSlot,portPosition);
+                inventory.ItemPorts[portPosition].InsertSolidItem(itemSlot,portPosition);
             }
         }
 
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
         {
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                return inventory.FluidPorts[portPosition].extractFluidItem(portPosition);
+                return inventory.FluidPorts[portPosition].ExtractFluidItem(portPosition);
             }
             return null;
         }
 
-        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                inventory.FluidPorts[portPosition].insertFluidItem(itemSlot,portPosition);
+                inventory.FluidPorts[portPosition].InsertFluidItem(itemSlot,portPosition);
             }
         }
     }
@@ -153,7 +153,7 @@ namespace TileEntityModule.Instances.CompactMachines {
 
         public void addPort(ITileEntityInstance tileEntity, ConduitType type) {
             Vector2Int positionInCompactMachine = tileEntity.getCellPosition()-CompactMachineHelper.getPositionInNextRing(compactMachine.getCellPosition()); 
-            Vector2Int positionOutsideCompactMachine = CompactMachineHelper.getPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntity.ConduitPortLayout,type);
+            Vector2Int positionOutsideCompactMachine = CompactMachineHelper.getPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
             switch (type) {
                 case ConduitType.Item:
                     if (itemPorts.ContainsKey(positionOutsideCompactMachine)) {

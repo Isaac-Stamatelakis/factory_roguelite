@@ -19,14 +19,14 @@ namespace RobotModule {
         public static RobotItemData deseralize(string data) {
             SeralizedRobotItemData seralizedRobotItemData = JsonConvert.DeserializeObject<SeralizedRobotItemData>(data);
             return new RobotItemData(
-                equipment: ItemSlotFactory.deserialize(seralizedRobotItemData.tools),
-                accessories: ItemSlotFactory.deserialize(seralizedRobotItemData.accessories),
+                equipment: ItemSlotFactory.Deserialize(seralizedRobotItemData.tools),
+                accessories: ItemSlotFactory.Deserialize(seralizedRobotItemData.accessories),
                 seralizedRobotItemData.name
             );
         }
         public static ItemSlot getDefaultRobot(bool creative) {
             string id = creative ? "happy_inf" : "happy_mk1";
-            ItemObject robotItem = ItemRegistry.getInstance().GetRobotItem(id);
+            ItemObject robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
             if (robotItem == null) {
                 Debug.LogWarning("Tried to get default robot which was null");
             }

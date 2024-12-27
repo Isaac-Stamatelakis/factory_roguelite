@@ -3,42 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
-using RecipeModule.Transmutation;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
-using RecipeModule.Processors;
 using RecipeModule;
 using Items.Inventory;
+using Recipe;
+using Recipe.Data;
+using Recipe.Processor;
+using UI;
 
-namespace TileEntityModule.Instances.Machines
+namespace TileEntity.Instances.Machines
 {
-    public class ProcessingMachineInstance : TileEntityInstance<ProcessingMachine>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, IEnergyConduitInteractable, ISignalConduitInteractable, IProcessorTileEntity, IInventoryListener
+    public class ProcessingMachineInstance : TileEntityInstance<ProcessingMachine>, ITickableTileEntity, 
+        IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator, ISignalConduitInteractable, IInventoryListener
     {
-        private StandardMachineInventory inventory;
-        private IMachineRecipe currentRecipe;
-        private int currentRecipeEnergy;
-        private int currentRecipeCost;
-
+        private int mode;
+        private MachineItemInventory inventory;
+        private MachineEnergyInventory energyInventory;
+        private ItemEnergyRecipe currentRecipe;
         public ProcessingMachineInstance(ProcessingMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
+            /*
             if (inventory == null) {
                 if (tileEntity.Processor == null) {
                     Debug.LogWarning($"Tile entity {tileEntity.name} has no processor");
                     return;
                 }
-                inventory = StandardMachineInventoryFactory.initalize((StandardMachineInventoryLayout) tileEntity.Processor.getInventoryLayout());
+                inventory = StandardMachineInventoryFactory.initalize(tileEntity.Layout);
             }
+            */
         }
 
-        public void onRightClick()   
+        public void onRightClick()
         {
-            tileEntity.Processor.displayTileEntity(inventory,tileEntity.Tier,tileEntity.name,this);
+            GameObject uiPrefab = TileEntityObject.Processor.UIPrefab;
+            GameObject ui = GameObject.Instantiate(uiPrefab);
+            CanvasController.Instance.DisplayObject(ui);
         }
         
 
         public string serialize()
         {
-            return StandardMachineInventoryFactory.serialize(inventory);
+            SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
+                mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(inventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(energyInventory),
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
+            );
+            return JsonConvert.SerializeObject(serializedProcessingMachine);
+        }
+        
+        public void unserialize(string data)
+        {
+            //inventory = StandardMachineInventoryFactory.deserialize(data);
         }
 
         public void tickUpdate()
@@ -46,16 +63,11 @@ namespace TileEntityModule.Instances.Machines
             if (currentRecipe == null) {
                 return;
             }
-            processRecipe();
-
+            ProcessRecipe();
         }
 
-        private void initRecipe() {
-            
-
-        }
-
-        private void processRecipe() {
+        private void ProcessRecipe() {
+            /*
             if (inventory.Energy <= 0) {
                 return;
             }
@@ -69,127 +81,70 @@ namespace TileEntityModule.Instances.Machines
             if (currentRecipeCost < 0) {
                 inventory.Energy-=currentRecipeCost;
             }   
-            List<ItemSlot> recipeOut = currentRecipe.getOutputs();
-            List<ItemSlot> solidOutputs;
-            List<ItemSlot> fluidOutputs;
-            ItemSlotHelper.sortInventoryByState(recipeOut, out solidOutputs, out fluidOutputs);
-            ItemSlotHelper.insertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
-            ItemSlotHelper.insertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.getFluidStorage());
+            List<ItemSlot> recipeOut = currentRecipe.Outputs;
+            ItemSlotHelper.sortInventoryByState(recipeOut, out var solidOutputs, out var fluidOutputs);
+            ItemSlotHelper.InsertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
+            ItemSlotHelper.InsertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.GetFluidStorage());
             currentRecipe = null;
             inventoryUpdate(0);
+            */
         }
 
         public void inventoryUpdate(int n) {
+            /*
             if (currentRecipe != null) {
                 return;
             }
-            currentRecipe = tileEntity.Processor.getRecipe(
-                mode: inventory.Mode,
-                solidInputs: inventory.ItemInputs.Slots,
-                solidOutputs: inventory.ItemOutputs.Slots,
-                fluidInputs: inventory.FluidInputs.Slots,
-                fluidOutputs: inventory.FluidOutputs.Slots
-            );
-            if (currentRecipe == null) {
-                return;
+            currentRecipe = RecipeRegistry.GetInstance().LookUpRecipe(inventory.ItemInputs.Slots, inventory.FluidInputs.Slots);
+            */
+            
+        }
+        
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return TileEntityObject.ConduitLayout;
+        }
+
+        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
+        {
+            switch (conduitType)
+            {
+                case ConduitType.Energy:
+                    return energyInventory;
+                case ConduitType.Item:
+                case ConduitType.Fluid:
+                    return inventory;
+                case ConduitType.Signal:
+                    return this;
+                default:
+                    return null;
             }
-            currentRecipeEnergy = currentRecipe.getTotalEnergyCost();
-            currentRecipeCost = currentRecipe.getEnergyCostPerTick();
         }
 
-
-        public void unserialize(string data)
-        {
-            inventory = StandardMachineInventoryFactory.deserialize(data);
-        }
-
-        public ConduitPortLayout getConduitPortLayout()
-        {
-            return tileEntity.ConduitLayout;
-        }
-
-        public ItemSlot extractItem(Vector2Int portPosition)
-        {
-            foreach (ItemSlot itemSlot in inventory.ItemOutputs.Slots) {
-                if (itemSlot != null && itemSlot.itemObject != null) {
-                    return itemSlot;
-                }
-            }
-            return null;
-        }
-
-        public void insertItem(ItemSlot itemSlot,Vector2Int portPosition)
-        {
-            inventoryUpdate(0);
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots,itemSlot,Global.MaxSize);
-        }
-
-        public ItemSlot extractFluid(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public bool insertFluid(ItemSlot itemSlot,Vector2Int portPosition)
+        public void InsertSignal(bool active, Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
         }
 
-        public int insertEnergy(int insertEnergy,Vector2Int portPosition)
+        private class SerializedProcessingMachine
         {
-            if (inventory.Energy >= tileEntity.Tier.getEnergyStorage()) {
-                return 0;
+            public int Mode;
+            public string SerializedMachineInventory;
+            public string SerializedEnergyInventory;
+            public string SerializedGeneratorRecipe;
+
+            public SerializedProcessingMachine(int mode, string serializedMachineInventory, string serializedEnergyInventory, string serializedGeneratorRecipe)
+            {
+                Mode = mode;
+                SerializedMachineInventory = serializedMachineInventory;
+                SerializedEnergyInventory = serializedEnergyInventory;
+                SerializedGeneratorRecipe = serializedGeneratorRecipe;
             }
-            int sum = inventory.Energy+=insertEnergy;
-            if (sum > tileEntity.Tier.getEnergyStorage()) {
-                inventory.Energy=tileEntity.Tier.getEnergyStorage();
-                Debug.Log(sum-tileEntity.Tier.getEnergyStorage());
-                return sum - tileEntity.Tier.getEnergyStorage();
-            }
-            inventory.Energy = sum;
-            return insertEnergy;
-        }
-
-        public void insertSignal(bool signal,Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool extractSignal(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ref int getEnergy(Vector2Int portPosition)
-        {
-            return ref inventory.energy;
-        }
-
-        public RecipeProcessor getRecipeProcessor()
-        {
-            return tileEntity.Processor;
-        }
-
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.ItemOutputs.Slots);
-        }
-
-        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.insertIntoInventory(inventory.ItemInputs.Slots, itemSlot, Global.MaxSize);
-        }
-
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.extractFromInventory(inventory.FluidOutputs.Slots);
-        }
-
-        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.insertIntoInventory(inventory.FluidInputs.Slots, itemSlot, tileEntity.Tier.getFluidStorage());
         }
     }
 }

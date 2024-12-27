@@ -4,12 +4,12 @@ using UnityEngine;
 using Items.Inventory;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class RecipeEncoderInventoryUI : InventoryUI
     {
         public void initalize(List<ItemSlot> inventory) {
             this.inventory = inventory;
-            initalizeSlots();
+            InitalizeSlots();
         }
         public override void leftClick(int n)
         {
@@ -17,7 +17,7 @@ namespace TileEntityModule.Instances.Matrix {
             if (grabbedItemProperties.ItemSlot == null) {
                 inventory[n] = null;
             } else {
-                inventory[n] = ItemSlotFactory.copy(grabbedItemProperties.ItemSlot);
+                inventory[n] = ItemSlotFactory.Copy(grabbedItemProperties.ItemSlot);
             }
         }
 

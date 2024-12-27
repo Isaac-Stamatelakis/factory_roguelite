@@ -14,7 +14,7 @@ using Conduits.PortViewer;
 using PlayerModule;
 using TileMaps;
 using TileMaps.Conduit;
-using TileEntityModule;
+using TileEntity;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;

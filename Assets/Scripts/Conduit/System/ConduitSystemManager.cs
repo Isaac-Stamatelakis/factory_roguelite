@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Conduits.Ports;
-using TileEntityModule;
+using TileEntity;
 using System;
 using TileMaps.Conduit;
 using Tiles;
@@ -79,10 +79,10 @@ namespace Conduits.Systems {
         }
         
         public void AddTileEntity(ITileEntityInstance tileEntity) {
-            if (tileEntity is not IConduitInteractable interactable) {
+            if (tileEntity is not IConduitTileEntity interactable) {
                 return;
             }
-            ConduitPortLayout layout = interactable.getConduitPortLayout();
+            ConduitPortLayout layout = interactable.GetConduitPortLayout();
             if (layout == null) {
                 return;
             }

@@ -8,12 +8,12 @@ using Items;
 using Items.Inventory;
 using Entities;
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Storage/Drawer/Instance")]
-    public class ItemDrawer : TileEntity
+    public class ItemDrawer : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
-        public int MaxStacks;
+        public uint MaxStacks;
 
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

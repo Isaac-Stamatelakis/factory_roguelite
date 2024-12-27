@@ -8,7 +8,7 @@ using RecipeModule;
 using System;
 using Items;
 
-namespace TileEntityModule.Instances.Machines {
+namespace TileEntity.Instances.Machines {
     public class ProcessMachineUI : MonoBehaviour
     {
         [SerializeField] public TextMeshProUGUI title;
@@ -17,11 +17,10 @@ namespace TileEntityModule.Instances.Machines {
         [SerializeField] public Image panel;
         private GameObject slotPrefab;
         private Tier tier;
-        private StandardMachineInventory machineInventory;
-        private InventoryUIMode mode;
         public void Update() {
-            setEnergyBar();
+            //setEnergyBar();
         }
+        /*
         public void displayMachine(IDisplayableLayout<StandardSolidAndFluidInventory> layout, StandardMachineInventory machineInventory, string machineName, Tier tier, IInventoryListener listener) {
             layout.display(transform,machineInventory,InventoryUIMode.Standard,listener);
             this.machineInventory = machineInventory;
@@ -36,19 +35,21 @@ namespace TileEntityModule.Instances.Machines {
             energyBar.gameObject.SetActive(false);
             panel.enabled = false;
         }
-
+        */
+        /*
         private void setEnergyBar() {
             if (machineInventory == null) {
                 return;
             }
-            energyBar.value = ((float) machineInventory.Energy)/tier.getEnergyStorage();
+            energyBar.value = ((float) machineInventory.Energy)/tier.GetEnergyStorage();
         }
+        */
 
         private void setArrow() {
             //arrowProgressController.setArrow()
         }
     }
-
+    /*
     public static class MachineUIFactory {
         public static void initInventory(List<ItemSlot> items, List<Vector2Int> layoutVectors, ItemState itemState, string containerName, Transform transform, InventoryUIMode type, IInventoryListener listener) {
             if (items == null) {
@@ -135,5 +136,6 @@ namespace TileEntityModule.Instances.Machines {
             return machineUI;  
         }
     }
+    */
 
 }

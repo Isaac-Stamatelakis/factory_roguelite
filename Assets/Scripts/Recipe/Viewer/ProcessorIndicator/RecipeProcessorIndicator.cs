@@ -29,10 +29,10 @@ namespace RecipeModule.Viewer {
             }
 
             if (eventData.button == PointerEventData.InputButton.Left) {
-                controller.RecipeViewer.moveByAmount(offset);
+                controller.RecipeViewer.MoveByAmount(offset);
                 
             } else if (eventData.button == PointerEventData.InputButton.Right) {
-                controller.RecipeViewer.displayUsesOfProcessor(offset);
+                controller.RecipeViewer.DisplayUsesOfProcessor(offset);
             }
         }
 

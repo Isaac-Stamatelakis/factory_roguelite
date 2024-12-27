@@ -6,7 +6,7 @@ using Items.Inventory;
 using Items.Tags;
 
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixDriveUI : MonoBehaviour
     {
         [SerializeField] private GridLayoutGroup inventoryList;

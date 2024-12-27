@@ -22,12 +22,12 @@ namespace Fluids {
             
         }
 
-        protected override Vector2Int getHitTilePosition(Vector2 position)
+        protected override Vector2Int GetHitTilePosition(Vector2 position)
         {
             return Global.getCellPositionFromWorld(position);
         }
 
-        protected override void setTile(int x, int y, FluidTileItem item)
+        protected override void SetTile(int x, int y, FluidTileItem item)
         {
             if (item == null) {
                 tilemap.SetTile(new Vector3Int(x,y,0),null);
@@ -42,7 +42,7 @@ namespace Fluids {
             tilemap.SetTile(new Vector3Int(x,y,0),tile);
         }
 
-        protected override void writeTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
+        protected override void WriteTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
         {
             Vector2Int realPosition = partition.getRealPosition()*Global.ChunkPartitionSize + position;
             ActiveFluidPartitionData data = partitionFluidData[partition.getRealPosition()];
@@ -76,7 +76,7 @@ namespace Fluids {
                 positionsHitThisUpdate.Add(position);
                 doFluidUpdate(position);
             }
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             foreach (var kvp in updateFills) {
                 Vector2Int position = kvp.Key;
                 float fill = kvp.Value;
@@ -95,11 +95,11 @@ namespace Fluids {
                 if (fill <= 0) {
                     partitionData.ids[x,y] = null;
                     partitionData.fill[x,y] = 0;
-                    setTile(position.x,position.y,null);
+                    SetTile(position.x,position.y,null);
                 } else {
                     partitionData.fill[x,y] = fill;
                     string id = partitionData.ids[x,y];
-                    setTile(position.x,position.y,itemRegistry.getFluidTileItem(id));
+                    SetTile(position.x,position.y,itemRegistry.GetFluidTileItem(id));
                 }
                 //addFluidUpdate(position);
             }
@@ -124,7 +124,7 @@ namespace Fluids {
             Vector2Int centerPositionInPartition = Global.getPositionInPartition(position);
             ActiveFluidPartitionData centerPartitionData = partitionFluidData[partitionPosition];
             CellFluidData cellFluidData = getFluidData(position,centerPositionInPartition,centerPartitionData);
-            FluidTileItem fluidTileItem = ItemRegistry.getInstance().getFluidTileItem(cellFluidData.id);
+            FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(cellFluidData.id);
             if (fluidTileItem == null) {
                 return;
             }
@@ -304,7 +304,7 @@ namespace Fluids {
             Vector2Int position = cellFluidData.position;
             float fill = cellFluidData.fill;
             string id = cellFluidData.id;
-            FluidTileItem fluidTileItem = ItemRegistry.getInstance().getFluidTileItem(id);
+            FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(id);
             int x = posInPartition.x;
             int y = posInPartition.y;
             if (partitionData == null) {
@@ -313,11 +313,11 @@ namespace Fluids {
             if (fill <= 0.01f) {
                 partitionData.ids[x,y] = null;
                 partitionData.fill[x,y] = 0;
-                setTile(position.x,position.y,null);
+                SetTile(position.x,position.y,null);
             } else {
                 partitionData.ids[x,y] = id;
                 partitionData.fill[x,y] = fill;
-                setTile(position.x,position.y,fluidTileItem);
+                SetTile(position.x,position.y,fluidTileItem);
             }
         }
         
@@ -344,7 +344,7 @@ namespace Fluids {
             if (baseId == null) {
                 return;
             }
-            TileItem tileItem = ItemRegistry.getInstance().getTileItem(baseId);
+            TileItem tileItem = ItemRegistry.GetInstance().GetTileItem(baseId);
             if (tileItem == null) {
                 return;
             }
@@ -377,7 +377,7 @@ namespace Fluids {
             if (id == null) {
                 return null;
             }
-            return ItemRegistry.getInstance().getFluidTileItem(id);
+            return ItemRegistry.GetInstance().GetFluidTileItem(id);
         }
 
         private FluidData? getFluidData(Vector2Int position) {

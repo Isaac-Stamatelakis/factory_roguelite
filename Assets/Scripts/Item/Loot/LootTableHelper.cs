@@ -18,7 +18,7 @@ namespace Items {
                 if (!lootTable.repetitions) {
                     excludedIds.Add(lootResult.item.id);
                 }
-                int itemSlotAmount = Random.Range(lootResult.amountRange.x,lootResult.amountRange.y);
+                uint itemSlotAmount = (uint)Random.Range(lootResult.amountRange.x,lootResult.amountRange.y);
                 itemSlots.Add(new ItemSlot(lootResult.item,itemSlotAmount,null));
             }
             return itemSlots;

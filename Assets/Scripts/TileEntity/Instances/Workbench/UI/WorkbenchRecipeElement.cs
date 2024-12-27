@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TileEntityModule.Instances.Workbench
+namespace TileEntity.Instances.Workbench
 {
     public class WorkbenchRecipeElement : MonoBehaviour
     {

@@ -4,9 +4,9 @@ using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Storage {
+namespace TileEntity.Instances.Storage {
     [CreateAssetMenu(fileName ="New Drawer Controller",menuName="Tile Entity/Storage/Drawer/Controller")]
-    public class DrawerController : TileEntity
+    public class DrawerController : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
 

@@ -10,7 +10,7 @@ using Items.Tags.Matrix;
 using Items;
 using UI;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixTerminalInstance : TileEntityInstance<MatrixTerminal>, IMatrixConduitInteractable, IRightClickableTileEntity
     {
         public ItemMatrixControllerInstance Controller { get => controller; }
@@ -21,7 +21,7 @@ namespace TileEntityModule.Instances.Matrix {
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
         public void onRightClick()
@@ -34,17 +34,17 @@ namespace TileEntityModule.Instances.Matrix {
             MainCanvasController.Instance.DisplayObject(matrixTerminalUI.gameObject);
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             
         }
 
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             this.controller = matrixController;
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             
         }

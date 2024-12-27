@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 using Chunks;
-using TileEntityModule;
+using TileEntity;
 using TileMaps.Layer;
 using TileMaps.Type;
 using TileMaps.Place;
@@ -20,8 +20,8 @@ namespace TileMaps {
     }
     public class TileGridMap : AbstractTileMap<TileItem>, ITileGridMap
     {   
-        protected override void spawnItemEntity(ItemObject itemObject, int amount, Vector2Int hitTilePosition) {
-            ILoadedChunk chunk = getChunk(hitTilePosition);  
+        protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
+            ILoadedChunk chunk = GetChunk(hitTilePosition);  
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
@@ -37,7 +37,7 @@ namespace TileMaps {
             if (PlaceTile.mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
-            ItemSlot itemSlot = ItemSlotFactory.createNewItemSlot(itemObject,amount);
+            ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(itemObject,amount);
             ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
@@ -45,11 +45,11 @@ namespace TileMaps {
             if (realTilePosition == new Vector2Int(-2147483647,-2147483647)) {
                 return null;
             }
-            IChunkPartition partition = getPartitionAtPosition(realTilePosition);
-            Vector2Int tilePositionInPartition = base.getTilePositionInPartition(realTilePosition);
+            IChunkPartition partition = GetPartitionAtPosition(realTilePosition);
+            Vector2Int tilePositionInPartition = base.GetTilePositionInPartition(realTilePosition);
             return partition.getTileOptions(tilePositionInPartition);
         }
-        protected override Vector2Int getHitTilePosition(Vector2 position)
+        protected override Vector2Int GetHitTilePosition(Vector2 position)
         {
             Vector2Int hitPosition = worldToTileMapPosition(position);
             int maxSearchWidth = 16;
@@ -97,12 +97,12 @@ namespace TileMaps {
             }
             return spriteY >= searchWidth;
         } 
-        protected override void breakTile(Vector2Int position) {
-            IChunkPartition partition = getPartitionAtPosition(position);
+        protected override void BreakTile(Vector2Int position) {
+            IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
                 return;
             }
-            Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             ITileEntityInstance tileEntity = getTileEntityAtPosition(position);
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
@@ -110,17 +110,17 @@ namespace TileMaps {
                 deleteTileEntityFromConduit(position);
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-            writeTile(partition,tilePositionInPartition,null);
+            WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
-            callListeners(position);
+            CallListeners(position);
         }
 
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
-            IChunkPartition partition = getPartitionAtPosition(position);
+            IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
                 return null;
             }
-            Vector2Int tilePositionInPartition = getTilePositionInPartition(position);
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             return partition.GetTileEntity(tilePositionInPartition);
         }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
@@ -153,7 +153,7 @@ namespace TileMaps {
             return broken;
         }
 
-        protected override void setTile(int x, int y,TileItem tileItem) {
+        protected override void SetTile(int x, int y,TileItem tileItem) {
             TileBase tileBase = tileItem.tile;
             if (tileBase == null) {
                 return;
@@ -187,13 +187,13 @@ namespace TileMaps {
         }
 
         public override void hitTile(Vector2 position) {
-            Vector2Int hitTilePosition = getHitTilePosition(position);
+            Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vec3Hit = (Vector3Int) hitTilePosition;
             TileOptions tileOptions = getOptionsAtPosition(hitTilePosition);
             if (hitHardness(hitTilePosition)) {
                 TileItem tileItem = getTileItem(hitTilePosition);
                 if (tileItem.tileOptions == null || tileItem.tileOptions.StaticOptions == null || tileItem.tileOptions.StaticOptions.dropOptions.Count == 0) {
-                    spawnItemEntity(tileItem,1,hitTilePosition);
+                    SpawnItemEntity(tileItem,1,hitTilePosition);
                 } else {
                     int totalWeight = 0;
                     foreach (DropOption dropOption in tileItem.tileOptions.StaticOptions.dropOptions) {
@@ -205,20 +205,20 @@ namespace TileMaps {
                         totalWeight += dropOption.weight;
                         if (totalWeight >= ran) {
                             if (dropOption.itemObject != null) {
-                                int amount = UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
-                                amount = Mathf.Max(1,amount);
-                                spawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
+                                uint amount = (uint)UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
+                                amount = GlobalHelper.MaxUInt(1, amount);
+                                SpawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
                             }
                             
                         }
                     }
                 }
                 
-                breakTile(hitTilePosition);
+                BreakTile(hitTilePosition);
             }
         }
 
-        protected override void writeTile(IChunkPartition partition, Vector2Int position, TileItem item)
+        protected override void WriteTile(IChunkPartition partition, Vector2Int position, TileItem item)
         {
             if (partition == null) {
                 return;
@@ -227,11 +227,11 @@ namespace TileMaps {
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {
-            IChunkPartition partition = getPartitionAtPosition(cellPosition);
+            IChunkPartition partition = GetPartitionAtPosition(cellPosition);
             if (partition == null) {
                 return null;
             }
-            Vector2Int positionInPartition = getTilePositionInPartition(cellPosition);
+            Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
         }

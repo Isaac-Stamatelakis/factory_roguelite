@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Workbench
+namespace TileEntity.Instances.Workbench
 {
     public class WorkBenchSelectedUI : MonoBehaviour
     {

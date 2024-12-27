@@ -7,10 +7,10 @@ namespace Items.Tags.Matrix {
     public class MatrixDriveItem : PresetItemObject, ITaggableItem
     {
         [SerializeField] private Sprite sprite;
-        [SerializeField] private int maxItems;
-        public int MaxItems {get => maxItems;}
-        [SerializeField] private int maxAmount;
-        public int MaxAmount {get => maxAmount;}
+        [SerializeField] private uint maxItems;
+        public uint MaxItems {get => maxItems;}
+        [SerializeField] private uint maxAmount;
+        public uint MaxAmount {get => maxAmount;}
 
         public List<ItemTag> getTags()
         {

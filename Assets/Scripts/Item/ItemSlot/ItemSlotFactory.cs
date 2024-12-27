@@ -15,7 +15,7 @@ public enum ItemSlotOption {
 public static class ItemSlotFactory 
 {
 
-    public static void clampList(List<ItemSlot> itemSlots, int count) {
+    public static void ClampList(List<ItemSlot> itemSlots, int count) {
         if (count < 0) {
             throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be negative.");
         }
@@ -26,15 +26,15 @@ public static class ItemSlotFactory
             itemSlots.AddRange(Enumerable.Repeat<ItemSlot>(null, count - currentCount));
         }
     }
-    public static List<ItemSlot> copyList(List<ItemSlot> itemSlots) {
+    public static List<ItemSlot> CopyList(List<ItemSlot> itemSlots) {
         List<ItemSlot> listCopy = new List<ItemSlot>();
         foreach (ItemSlot itemSlot in itemSlots) {
-            listCopy.Add(copy(itemSlot));
+            listCopy.Add(Copy(itemSlot));
         }
         return listCopy;
     }
-    public static List<ItemSlot> deserialize(string json) {
-        ItemRegistry itemRegister = ItemRegistry.getInstance();
+    public static List<ItemSlot> Deserialize(string json) {
+        ItemRegistry itemRegister = ItemRegistry.GetInstance();
         List<ItemSlot> itemSlots = new List<ItemSlot>();
         if (json == null) {
             return null;
@@ -47,13 +47,13 @@ public static class ItemSlotFactory
         return itemSlots;
     }
 
-    public static ItemSlot createNewItemSlot(ItemObject itemObject, int amount) {
+    public static ItemSlot CreateNewItemSlot(ItemObject itemObject, uint amount) {
         ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
         return new ItemSlot(itemObject,amount,itemTagData);
     }
 
-    public static ItemSlot createNewItemSlot(string id, int amount) {
-        ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
+    public static ItemSlot CreateNewItemSlot(string id, uint amount) {
+        ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
         if (itemObject == null) {
             return null;
         }
@@ -61,7 +61,7 @@ public static class ItemSlotFactory
         return new ItemSlot(itemObject,amount,itemTagData);
     }
 
-    public static ItemSlot copy(ItemSlot itemSlot) {
+    public static ItemSlot Copy(ItemSlot itemSlot) {
         if (itemSlot == null) {
             return null;
         }
@@ -77,8 +77,8 @@ public static class ItemSlotFactory
         return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemTagCollection);
     }
 
-    public static ItemSlot splice(ItemSlot itemSlot, int amount) {
-        ItemSlot clone = copy(itemSlot);
+    public static ItemSlot Splice(ItemSlot itemSlot, uint amount) {
+        ItemSlot clone = Copy(itemSlot);
         if (clone == null) {
             return null;
         }
@@ -86,15 +86,15 @@ public static class ItemSlotFactory
         return clone;
     }
 
-    public static ItemSlot deepSlice(ItemSlot itemSlot, int amount) {
-        int dif = itemSlot.amount - amount;
+    public static ItemSlot DeepSlice(ItemSlot itemSlot, uint amount) {
+        uint dif = itemSlot.amount - amount;
         if (dif <= 0) {
-            ItemSlot copy = ItemSlotFactory.copy(itemSlot);
+            ItemSlot copy = ItemSlotFactory.Copy(itemSlot);
             itemSlot.amount = 0;
             itemSlot.itemObject = null;
             return copy;
         } else {
-            ItemSlot spliced = ItemSlotFactory.splice(itemSlot,amount);
+            ItemSlot spliced = ItemSlotFactory.Splice(itemSlot,amount);
             itemSlot.amount -= amount;
             return spliced;
         }
@@ -167,7 +167,7 @@ public static class ItemSlotFactory
         return deseralizeItemSlot(serializedItemSlot);
     }
     public static ItemSlot deseralizeItemSlot(SerializedItemSlot serializedItemSlot) {
-        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+        ItemRegistry itemRegistry = ItemRegistry.GetInstance();
         if (serializedItemSlot.id == null) {
             return new ItemSlot(
                 itemObject: null,
@@ -176,11 +176,31 @@ public static class ItemSlotFactory
             );
         } else {
             return new ItemSlot(
-                itemObject: itemRegistry.getItemObject(serializedItemSlot.id),
+                itemObject: itemRegistry.GetItemObject(serializedItemSlot.id),
                 amount: serializedItemSlot.amount,
                 tags: ItemTagFactory.deseralize(serializedItemSlot.tags)
             );
         }
+    }
+
+    public static List<ItemSlot> FromEditorObjects(List<EditorItemSlot> itemSlotObjects)
+    {
+        List<ItemSlot> itemSlots = new List<ItemSlot>();
+        foreach (var itemSlotObject in itemSlotObjects)
+        {
+            itemSlots.Add(FromEditorObject(itemSlotObject));
+        }
+
+        return itemSlots;
+    }
+    public static ItemSlot FromEditorObject(EditorItemSlot editorItemSlot)
+    {
+        if (editorItemSlot.Tags.Count == 0)
+        {
+            return new ItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null);
+        }
+        Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
+        return null;
     }
 
     
@@ -189,12 +209,12 @@ public static class ItemSlotFactory
 
 [System.Serializable]
 public class SerializedItemSlot {
-    public SerializedItemSlot(string id, int amount, string tags) {
+    public SerializedItemSlot(string id, uint amount, string tags) {
         this.id = id;
         this.amount = amount;
         this.tags = tags;
     }
     public string id;
-    public int amount;
+    public uint amount;
     public string tags;
 }

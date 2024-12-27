@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
 using TileMaps.Type;
@@ -9,7 +9,7 @@ using Conduits;
 using Chunks.IO;
 using Conduits.Ports;
 using Items;
-using TileEntityModule.Instances.CompactMachines;
+using TileEntity.Instances.CompactMachines;
 using Chunks.Systems;
 using Tiles;
 
@@ -84,10 +84,10 @@ namespace Chunks.Partitions {
                     if (tileEntity == null) {
                         continue;
                     }
-                    if (tileEntity is not IConduitInteractable conduitInteractable) {
+                    if (tileEntity is not IConduitTileEntity conduitInteractable) {
                         continue;
                     }
-                    ConduitPortLayout layout = conduitInteractable.getConduitPortLayout();
+                    ConduitPortLayout layout = conduitInteractable.GetConduitPortLayout();
                     if (layout == null) {
                         continue;
                     }
@@ -118,18 +118,18 @@ namespace Chunks.Partitions {
             return ports;
         }
         private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                     string id = data.ids[x,y];
                     if (id == null) {
                         continue;
                     }
-                    TileItem tileItem = itemRegistry.getTileItem(id);
+                    TileItem tileItem = itemRegistry.GetTileItem(id);
                     if (tileItem == null) {
                         continue;
                     }
-                    TileEntity tileEntity = tileItem.tileEntity;
+                    TileEntityObject tileEntity = tileItem.tileEntity;
                     if (tileEntity != null) {
                         tileEntities[x,y] = placeSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
                     }
@@ -149,7 +149,7 @@ namespace Chunks.Partitions {
         }
 
         private void getConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityPorts) {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {

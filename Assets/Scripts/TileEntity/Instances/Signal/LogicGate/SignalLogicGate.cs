@@ -4,14 +4,14 @@ using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Signal {
+namespace TileEntity.Instances.Signal {
     public enum LogicGateType {
         And,
         Or,
         Xor
     }
     [CreateAssetMenu(fileName = "E~Signal Logic Gate", menuName = "Tile Entity/Signal/Gate")]
-    public class SignalLogicGate : TileEntity
+    public class SignalLogicGate : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
         public LogicGateType LogicGateType;
@@ -29,13 +29,13 @@ namespace TileEntityModule.Instances.Signal {
         {
         }
 
-        public bool extractSignal(Vector2Int portPosition)
+        public bool ExtractSignal(Vector2Int portPosition)
         {
             return isOpen();
         }
 
         private bool isOpen() {
-            switch (tileEntity.LogicGateType) {
+            switch (TileEntityObject.LogicGateType) {
                 case LogicGateType.Xor:
                     return (!topSignal && botSignal) || (topSignal && !botSignal);
                 case LogicGateType.And:
@@ -48,10 +48,10 @@ namespace TileEntityModule.Instances.Signal {
 
         public ConduitPortLayout getConduitPortLayout()
         {
-            return tileEntity.ConduitLayout;
+            return TileEntityObject.ConduitLayout;
         }
 
-        public void insertSignal(bool signal, Vector2Int portPosition)
+        public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             if (portPosition.y > 0) {
                 topSignal = signal;

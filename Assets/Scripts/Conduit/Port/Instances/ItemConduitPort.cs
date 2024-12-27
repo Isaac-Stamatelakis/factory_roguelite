@@ -2,27 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.Ports {
     public interface IItemConduitInputPort : IColorPort, IPriorityPort {
-        public void insert(ItemSlot itemSlot);
-        public IItemConduitInteractable getTileEntity();
+        public void Insert(ItemSlot itemSlot);
+        public IConduitInteractable GetConduitInteractable();
     }
     public interface IItemConduitOutputPort : IColorPort{
-        public ItemSlot extract();
-        public int getExtractAmount();
-        public IItemConduitInteractable getTileEntity();
+        public ItemSlot Extract();
+        public uint GetExtractAmount();
+        public IConduitInteractable GetConduitInteractable();
     }
 
+    public interface IItemConduitInteractable : IConduitInteractable
+    {
+        
+    }
 
     public abstract class ConduitTransferPort<TInteractable> where TInteractable : IConduitInteractable {
-        protected TInteractable tileEntity;
+        protected TInteractable interactable;
         protected Vector2Int relativePosition;
         [JsonIgnore] public Vector2Int RelativePosition {get => relativePosition; set => relativePosition = value;}
-        [JsonIgnore] public TInteractable TileEntity { get => tileEntity; set => tileEntity = value; }
-        protected ConduitTransferPort(TInteractable tileEntity) {
-            this.tileEntity = tileEntity;
+        [JsonIgnore] public TInteractable TileEntity { get => interactable; set => interactable = value; }
+        protected ConduitTransferPort(TInteractable interactable) {
+            this.interactable = interactable;
         }
     }
 
@@ -37,26 +41,24 @@ namespace Conduits.Ports {
         public int priority;
         private int inventory;
 
-        public ItemConduitInputPort(TInteractable tileEntity) : base(tileEntity)
+        protected ItemConduitInputPort(TInteractable interactable) : base(interactable)
         {
 
         }
 
         public bool Enabled { get => enabled; set => enabled = value; }
-
         
-
-        public void insert(ItemSlot itemSlot) {
+        public void Insert(ItemSlot itemSlot) {
             if (filter != null) {
                 if (!filter.Filter(itemSlot)) {
                     return;
                 }
             }
-            doInsertion(itemSlot);
+            DoInsertion(itemSlot);
             
         }
 
-        protected abstract void doInsertion(ItemSlot itemSlot);
+        protected abstract void DoInsertion(ItemSlot itemSlot);
 
         public int getColor()
         {
@@ -88,9 +90,9 @@ namespace Conduits.Ports {
             priority = val;
         }
 
-        public IItemConduitInteractable getTileEntity()
+        public IConduitInteractable GetConduitInteractable()
         {
-            return tileEntity;
+            return interactable;
         }
 
         public void setTileEntity(ITileEntityInstance tileEntity)
@@ -98,31 +100,31 @@ namespace Conduits.Ports {
             if (tileEntity is not TInteractable interactable) {
                 return;
             }
-            this.tileEntity = interactable;
+            this.interactable = interactable;
         }
     }
 
     public class SolidItemConduitInputPort : ItemConduitInputPort<ISolidItemConduitInteractable, ItemFilter>
     {
-        public SolidItemConduitInputPort(ISolidItemConduitInteractable tileEntity) : base(tileEntity)
+        public SolidItemConduitInputPort(ISolidItemConduitInteractable interactable) : base(interactable)
         {
         }
 
-        protected override void doInsertion(ItemSlot itemSlot)
+        protected override void DoInsertion(ItemSlot itemSlot)
         {
-            tileEntity.insertSolidItem(itemSlot,relativePosition);
+            interactable.InsertSolidItem(itemSlot,relativePosition);
         }
     }
 
     public class FluidItemConduitInputPort : ItemConduitInputPort<IFluidConduitInteractable, FluidFilter>
     {
-        public FluidItemConduitInputPort(IFluidConduitInteractable tileEntity) : base(tileEntity)
+        public FluidItemConduitInputPort(IFluidConduitInteractable interactable) : base(interactable)
         {
         }
 
-        protected override void doInsertion(ItemSlot itemSlot)
+        protected override void DoInsertion(ItemSlot itemSlot)
         {
-            tileEntity.insertFluidItem(itemSlot,relativePosition);
+            interactable.InsertFluidItem(itemSlot,relativePosition);
         }
     }
 
@@ -133,15 +135,15 @@ namespace Conduits.Ports {
     { 
         private bool enabled;
         public int color;
-        public int extractAmount = 4;
+        public uint extractAmount = 4;
         public bool roundRobin;
         private int roundRobinIndex;
         public TFilter filter;
         public bool Enabled { get => enabled; set => enabled = value; }
-        public ItemConduitOutputPort (TInteractable tileEntity) : base(tileEntity) {
-            this.tileEntity = tileEntity;
+        public ItemConduitOutputPort (TInteractable interactable) : base(interactable) {
+            this.interactable = interactable;
         }
-        public ItemSlot extract() {
+        public ItemSlot Extract() {
             ItemSlot output = doExtraction();
             if (filter != null) {
                 if (!filter.Filter(output)) {
@@ -175,14 +177,14 @@ namespace Conduits.Ports {
             this.enabled = val;
         }
 
-        public int getExtractAmount()
+        public uint GetExtractAmount()
         {
             return extractAmount;
         }
 
-        public IItemConduitInteractable getTileEntity()
+        public IConduitInteractable GetConduitInteractable()
         {
-            return tileEntity;
+            return interactable;
         }
 
         public void setTileEntity(ITileEntityInstance tileEntity)
@@ -190,30 +192,30 @@ namespace Conduits.Ports {
             if (tileEntity is not TInteractable interactable) {
                 return;
             }
-            this.tileEntity = interactable;
+            this.interactable = interactable;
         }
     }
 
     public class SolidItemConduitOutputPort : ItemConduitOutputPort<ISolidItemConduitInteractable, ItemFilter>
     {
-        public SolidItemConduitOutputPort(ISolidItemConduitInteractable tileEntity) : base(tileEntity)
+        public SolidItemConduitOutputPort(ISolidItemConduitInteractable interactable) : base(interactable)
         {
         }
 
         public override ItemSlot doExtraction()
         {
-            return tileEntity.extractSolidItem(relativePosition);
+            return interactable.ExtractSolidItem(relativePosition);
         }
     }
     public class FluidItemConduitOutputPort : ItemConduitOutputPort<IFluidConduitInteractable, FluidFilter>
     {
-        public FluidItemConduitOutputPort(IFluidConduitInteractable tileEntity) : base(tileEntity)
+        public FluidItemConduitOutputPort(IFluidConduitInteractable interactable) : base(interactable)
         {
         }
 
         public override ItemSlot doExtraction()
         {
-            return tileEntity.extractFluidItem(relativePosition);
+            return interactable.ExtractFluidItem(relativePosition);
         }
     }
 

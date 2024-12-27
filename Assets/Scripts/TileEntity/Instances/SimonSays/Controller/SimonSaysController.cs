@@ -9,9 +9,9 @@ using Tiles;
 using TileMaps.Place;
 using Chunks.Systems;
 
-namespace TileEntityModule.Instances.SimonSays {
+namespace TileEntity.Instances.SimonSays {
     [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/Controller")]
-    public class SimonSaysController : TileEntity
+    public class SimonSaysController : TileEntityObject
     {
         [Header("The number of simon says sequences which are played")]
         public int MaxLength;

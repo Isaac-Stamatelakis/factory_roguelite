@@ -14,38 +14,38 @@ namespace Items.Inventory {
     public abstract class InventoryUI : MonoBehaviour, IItemUIClickReciever {
         protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;
-        public ItemSlot getItemSlot(int index) {
+        public ItemSlot GetItemSlot(int index) {
             if (index < 0 || index >= inventory.Count) {
                 return null;
             }
             return inventory[index];
         }
-        protected void initalizeSlots() {
+        protected void InitalizeSlots() {
             for (int n = 0; n < inventory.Count; n ++) {
-                initSlot(n);
-                displayItem(n);
+                InitSlot(n);
+                DisplayItem(n);
             }
         }
 
         public void FixedUpdate() {
-            refreshSlots();
+            //RefreshSlots();
         }
 
-        protected void refreshSlots() {
+        public void RefreshSlots() {
             if (slots == null || inventory == null) {
                 return;
             }
             for (int n = 0; n < slots.Count; n ++) {
-                displayItem(n);
+                DisplayItem(n);
             }
         }
-        public void displayItem(int n) {
+        public void DisplayItem(int n) {
             if (n < 0 || n >= slots.Count || n >= inventory.Count) {
                 return;
             }
-            slots[n].display(inventory[n]);
+            slots[n].Display(inventory[n]);
         }
-        protected virtual void initSlot(int n) {
+        protected virtual void InitSlot(int n) {
             Transform slotTransform = transform.Find("slot" + n);
             if (slotTransform == null) {
                 Debug.LogError("slot" + n + " doesn't exist but tried to load it into  inventory " + name);
@@ -53,10 +53,10 @@ namespace Items.Inventory {
                 return;
             }
             slots.Add(slotTransform.GetComponent<ItemSlotUI>());
-            initClickHandler(slotTransform,n);
+            InitClickHandler(slotTransform,n);
         }
 
-        protected void initClickHandler(Transform slot, int n) {
+        protected void InitClickHandler(Transform slot, int n) {
             
             ItemSlotUIClickHandler clickHandler = slot.GetComponent<ItemSlotUIClickHandler>();
             if (clickHandler == null) {
@@ -65,12 +65,12 @@ namespace Items.Inventory {
             clickHandler.init(this,n);
         }
         
-        public virtual void setItem(int n, ItemSlot data) {
+        public virtual void SetItem(int n, ItemSlot data) {
             if (n < 0 || n >= slots.Count) {
                 return;
             }
             inventory[n]=data;
-            displayItem(n);
+            DisplayItem(n);
         }
     
 

@@ -19,7 +19,7 @@ namespace WorldModule {
     public static class WorldCreation
     {
         public static IEnumerator CreateWorld(string name) {
-            yield return ItemRegistry.loadItems();
+            yield return ItemRegistry.LoadItems();
             WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
             string path = WorldLoadUtils.getFullWorldPath();
             Directory.CreateDirectory(path);
@@ -190,7 +190,7 @@ namespace WorldModule {
             return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
         }
         private static SerializedBaseTileData TileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             //Debug.Log("Generating SerializedChunkTileData for Base");
             SerializedBaseTileData data = new SerializedBaseTileData();
             string[,] ids = new string[width,height];
@@ -224,7 +224,7 @@ namespace WorldModule {
     }
 
     private static SerializedBackgroundTileData TileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
-        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+        ItemRegistry itemRegistry = ItemRegistry.GetInstance();
         //Debug.Log("Generating SerializedBackgroundTileData");
         SerializedBackgroundTileData data = new SerializedBackgroundTileData();
         string[,] ids = new string[width,height];
@@ -254,7 +254,7 @@ namespace WorldModule {
     }
 
     private static SeralizedFluidTileData TileMapToFluidTileData(Tilemap tilemap, int width, int height) {
-        ItemRegistry itemRegistry = ItemRegistry.getInstance();
+        ItemRegistry itemRegistry = ItemRegistry.GetInstance();
         Debug.Log("Generating SeralizedFluidTileData");
         SeralizedFluidTileData data = new SeralizedFluidTileData();
         float[,] fill = new float[width,height];
@@ -293,7 +293,7 @@ namespace WorldModule {
         return data;
     }
     private static SeralizedChunkConduitData TileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             //Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
             SeralizedChunkConduitData data = new SeralizedChunkConduitData();
             string[,] ids = new string[width,height];

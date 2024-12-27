@@ -8,8 +8,9 @@ using TileMaps.Type;
 using UnityEngine.Tilemaps;
 using Chunks.Systems;
 using Entities;
+using UI;
 
-namespace TileEntityModule {
+namespace TileEntity {
     public static class TileEntityHelper {
 
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, string data = null) {
@@ -184,6 +185,13 @@ namespace TileEntityModule {
             dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.down),visited);
             dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.left),visited);
             dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
+        }
+
+        public static void DisplayTileEntityUI<T>(GameObject uiPrefab, T instance) where T : ITileEntityInstance
+        {
+            GameObject uiObject = GameObject.Instantiate(uiPrefab);
+            uiObject.GetComponent<ITileEntityUI<T>>().DisplayTileEntityInstance(instance);
+            CanvasController.Instance.DisplayObject(uiObject);
         }
     }
 }

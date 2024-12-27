@@ -10,7 +10,7 @@ using TileMaps.Place;
 using Chunks.Systems;
 using Chunks.Partitions;
 
-namespace TileEntityModule.Instances.SimonSays {
+namespace TileEntity.Instances.SimonSays {
     public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IRightClickableTileEntity, ILoadableTileEntity
     {
         public SimonSaysControllerInstance(SimonSaysController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -37,7 +37,7 @@ namespace TileEntityModule.Instances.SimonSays {
                     return;
                 }
                 initTiles();
-                currentChances = tileEntity.Chances;
+                currentChances = TileEntityObject.Chances;
                 GameObject controllerObject = new GameObject();
                 controllerObject.name = "SimonSaysController";
                 coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
@@ -69,7 +69,7 @@ namespace TileEntityModule.Instances.SimonSays {
 
         private void sequenceMatch() {
             highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
-            if (highestMatchingSequence >= tileEntity.MaxLength) {
+            if (highestMatchingSequence >= TileEntityObject.MaxLength) {
                 conclude();
                 return;
             }
@@ -91,7 +91,7 @@ namespace TileEntityModule.Instances.SimonSays {
         /// Removes this simon says controller, replaces it with other blocks, spawns loot
         /// </summary>
         private void conclude() {
-            int lootamount = (highestMatchingSequence*4)/tileEntity.MaxLength;
+            int lootamount = (highestMatchingSequence*4)/TileEntityObject.MaxLength;
             List<Vector2Int> brickPlacePositions = new List<Vector2Int>{
                 new Vector2Int(-1,-1),
                 new Vector2Int(-1,1),
@@ -99,7 +99,7 @@ namespace TileEntityModule.Instances.SimonSays {
                 new Vector2Int(1,1),
                 Vector2Int.zero
             };
-            TileItem bricks = ItemRegistry.getInstance().getTileItem("simons_brick");
+            TileItem bricks = ItemRegistry.GetInstance().GetTileItem("simons_brick");
             if (chunk is not ILoadedChunk loadedChunk) {
                 Debug.LogError("Somehow managed to get to deletion phase of simon says game in a non loaded chunk");
                 return;
@@ -115,27 +115,27 @@ namespace TileEntityModule.Instances.SimonSays {
                 new Vector2Int(0,-1),
                 new Vector2Int(0,1)
             };
-            TileItem chestTile = ItemRegistry.getInstance().getTileItem("small_chest");
+            TileItem chestTile = ItemRegistry.GetInstance().GetTileItem("small_chest");
             int count = 0;
             foreach (Vector2Int position in chestPlacePositions) {
                 if (count >= lootamount) {
                     break;
                 }
-                TileEntity chestTileEntity = chestTile.tileEntity;
-                if (chestTileEntity is not Chest chest) {
+                TileEntityObject chestTileEntityObject = chestTile.tileEntity;
+                if (chestTileEntityObject is not Chest chest) {
                     Debug.LogError("SimonSaysController attempted to give items to a non chest tile entity");
                     break;
                 }
-                List<ItemSlot> loot = LootTableHelper.openWithAmount(tileEntity.LootTable,3);
+                List<ItemSlot> loot = LootTableHelper.openWithAmount(TileEntityObject.LootTable,3);
                 if (count == 3) {
-                    loot.AddRange(LootTableHelper.openWithAmount(tileEntity.CompletionLootTable,1));
+                    loot.AddRange(LootTableHelper.openWithAmount(TileEntityObject.CompletionLootTable,1));
                 }
                 Vector2Int cellPosition = getCellPosition() + position;
                 Vector2Int chestPositionInChunk = Global.getPositionInChunk(cellPosition);
                 //chestTileEntity.initalize(chestPositionInChunk, chestTile.tile, chunk);
                 //chest.giveItems(loot);
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
-                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,checkConditions:false,chestTileEntity,useOffset:false);
+                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,checkConditions:false,chestTileEntityObject,useOffset:false);
                 //IChunkPartition partition = chunk.getPartition()
                 count ++;
             }

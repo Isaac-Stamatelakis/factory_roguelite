@@ -4,7 +4,7 @@ using UnityEngine;
 using Items;
 using Items.Inventory;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixInterfaceUpgradeRestrictedInventoryUI : TypeRestrictedInventoryUI<InterfaceUpgradeItem>
     {
         

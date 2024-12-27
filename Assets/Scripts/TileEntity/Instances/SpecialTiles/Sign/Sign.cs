@@ -4,9 +4,9 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.Signs {
+namespace TileEntity.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]
-    public class Sign : TileEntity, IManagedUITileEntity
+    public class Sign : TileEntityObject, IManagedUITileEntity
     {
         public TileEntityUIManager UIManager;
 

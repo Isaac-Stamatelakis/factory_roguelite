@@ -5,7 +5,7 @@ using PlayerModule;
 using Chunks.Systems;
 using Items;
 using UnityEngine.Tilemaps;
-using TileEntityModule;
+using TileEntity;
 using Conduits.Ports;
 using UI;
 using Conduits.Systems;
@@ -25,7 +25,7 @@ namespace Conduits.PortViewer {
         public void initalize(ConduitTileClosedChunkSystem closedChunkSystem) {
             this.closedChunkSystem = closedChunkSystem;
             playerInventory = GameObject.Find("Player").GetComponent<PlayerInventory>();
-            itemRegistry = ItemRegistry.getInstance();
+            itemRegistry = ItemRegistry.GetInstance();
             portViewer = GetComponentInChildren<ConduitPortViewer>();
             if (portViewer == null) {
                 Debug.LogWarning("Conduit Port Controller has no viewer child");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class AutoCraftingSequence
     {
 
@@ -14,7 +14,7 @@ namespace TileEntityModule.Instances.Matrix {
 
     public static class AutoCraftingSequenceFactory {
 
-        public static Tree<PreparedRecipePreview> createRecipeTree(ItemMatrixControllerInstance controller, ItemSlot toCraft, int amount) {
+        public static Tree<PreparedRecipePreview> CreateRecipeTree(ItemMatrixControllerInstance controller, ItemSlot toCraft, uint amount) {
             MatrixRecipeCollection recipeCollection = controller.Recipes;
             (EncodedRecipe, MatrixInterfaceInstance) primaryTuple = recipeCollection.getRecipeAndInterface(toCraft);
             EncodedRecipe rootRecipe = primaryTuple.Item1;
@@ -22,17 +22,17 @@ namespace TileEntityModule.Instances.Matrix {
                 return null;
             }
             PreparedRecipePreview rootPreparedRecipe = new PreparedRecipePreview(
-                inputs: prepareInputs(rootRecipe.Inputs,rootRecipe),
-                outputs: prepareOutputs(rootRecipe.Outputs,rootRecipe,amount),
+                inputs: PrepareInputs(rootRecipe.Inputs,rootRecipe),
+                outputs: PrepareOutputs(rootRecipe.Outputs,rootRecipe,amount),
                 amount: amount
             );
             Tree<PreparedRecipePreview> craftingTree = new Tree<PreparedRecipePreview>(rootPreparedRecipe);
-            buildTreeNode(craftingTree.Root, controller);
+            BuildTreeNode(craftingTree.Root, controller);
             return craftingTree;
         }
 
-        private static List<(ItemSlot,int,bool)> prepareInputs(List<ItemSlot> inputs, EncodedRecipe recipe) {
-            List<(ItemSlot, int,bool)> preparedInputs = new List<(ItemSlot, int,bool)>();
+        private static List<(ItemSlot,uint,bool)> PrepareInputs(List<ItemSlot> inputs, EncodedRecipe recipe) {
+            List<(ItemSlot, uint,bool)> preparedInputs = new List<(ItemSlot, uint,bool)>();
             foreach (ItemSlot input in recipe.Inputs) {
                 if (input == null || input.itemObject == null) {
                     continue;
@@ -41,18 +41,18 @@ namespace TileEntityModule.Instances.Matrix {
             }
             return preparedInputs;
         }
-        private static List<(ItemSlot,int)> prepareOutputs(List<ItemSlot> outputs, EncodedRecipe recipe, int amount) {
-            List<(ItemSlot, int)> preparedOutputs = new List<(ItemSlot, int)>();
+        private static List<(ItemSlot,uint)> PrepareOutputs(List<ItemSlot> outputs, EncodedRecipe recipe, uint amount) {
+            List<(ItemSlot, uint)> preparedOutputs = new List<(ItemSlot, uint)>();
             foreach (ItemSlot output in recipe.Outputs) {
                 if (output == null || output.itemObject == null) {
                     continue;
                 }
-                int produceAmount = output.amount * amount;
+                uint produceAmount = output.amount * amount;
                 preparedOutputs.Add((output,produceAmount));
             }
             return preparedOutputs;
         }
-        private static void buildTreeNode(TreeNode<PreparedRecipePreview> node, ItemMatrixControllerInstance controller) {
+        private static void BuildTreeNode(TreeNode<PreparedRecipePreview> node, ItemMatrixControllerInstance controller) {
             PreparedRecipePreview preparedRecipe = node.Value;
             for (int i = 0; i < preparedRecipe.AvailableInputs.Count; i++) {
                 ItemSlot input = preparedRecipe.AvailableInputs[i].Item1;
@@ -61,18 +61,18 @@ namespace TileEntityModule.Instances.Matrix {
                 }
                 string id = input.itemObject.id;
                 ItemTagKey tagKey = new ItemTagKey(input.tags);
-                int requiredAmount = preparedRecipe.Amount * input.amount;
-                int amountOfInput = controller.amountOf(id, tagKey);
+                uint requiredAmount = preparedRecipe.Amount * input.amount;
+                uint amountOfInput = controller.AmountOf(id, tagKey);
                 //Debug.Log(input.itemObject.name + ":" + amountOfInput);
                 if (amountOfInput >= requiredAmount) {
-                    (ItemSlot, int,bool) tuple = preparedRecipe.AvailableInputs[i];
+                    (ItemSlot, uint,bool) tuple = preparedRecipe.AvailableInputs[i];
                     tuple.Item2 = requiredAmount;
                     preparedRecipe.AvailableInputs[i] = tuple;
                     continue;
                 }
                 EncodedRecipe encodedRecipe = controller.Recipes.getRecipe(id,tagKey);
-                int craftAmount = requiredAmount-amountOfInput;
-                (ItemSlot, int,bool) tuple1 = preparedRecipe.AvailableInputs[i];
+                uint craftAmount = requiredAmount-amountOfInput;
+                (ItemSlot, uint,bool) tuple1 = preparedRecipe.AvailableInputs[i];
                 tuple1.Item2 = amountOfInput;
                 tuple1.Item3 = encodedRecipe != null;
                 preparedRecipe.AvailableInputs[i] = tuple1;
@@ -80,13 +80,13 @@ namespace TileEntityModule.Instances.Matrix {
                     continue;
                 }
                 PreparedRecipePreview newRecipe = new PreparedRecipePreview(
-                    inputs: prepareInputs(encodedRecipe.Inputs,encodedRecipe),
-                    outputs: prepareOutputs(encodedRecipe.Outputs,encodedRecipe,craftAmount),
+                    inputs: PrepareInputs(encodedRecipe.Inputs,encodedRecipe),
+                    outputs: PrepareOutputs(encodedRecipe.Outputs,encodedRecipe,craftAmount),
                     amount: craftAmount
                 );
                 TreeNode<PreparedRecipePreview> inputNode = new TreeNode<PreparedRecipePreview>(newRecipe);
                 node.Children.Add(inputNode);
-                buildTreeNode(inputNode,controller);
+                BuildTreeNode(inputNode,controller);
             }
         }
 
@@ -100,19 +100,19 @@ namespace TileEntityModule.Instances.Matrix {
     }
 
     public class PreparedRecipePreview {
-        private List<(ItemSlot,int,bool)> availableInputs;
-        private List<(ItemSlot,int)> outputAmounts;
-        public PreparedRecipePreview(List<(ItemSlot,int,bool)> inputs, List<(ItemSlot,int)> outputs, int amount) {
+        private List<(ItemSlot,uint,bool)> availableInputs;
+        private List<(ItemSlot,uint)> outputAmounts;
+        public PreparedRecipePreview(List<(ItemSlot,uint,bool)> inputs, List<(ItemSlot,uint)> outputs, uint amount) {
             this.availableInputs = inputs;
             this.outputAmounts = outputs;
             this.amount = amount;
         }
 
-        public List<(ItemSlot, int,bool)> AvailableInputs { get => availableInputs; set => availableInputs = value; }
-        public List<(ItemSlot, int)> OutputAmounts { get => outputAmounts; set => outputAmounts = value; }
-        public int Amount { get => amount; set => amount = value; }
+        public List<(ItemSlot, uint,bool)> AvailableInputs { get => availableInputs; set => availableInputs = value; }
+        public List<(ItemSlot, uint)> OutputAmounts { get => outputAmounts; set => outputAmounts = value; }
+        public uint Amount { get => amount; set => amount = value; }
 
-        private int amount;
+        private uint amount;
     }
     public class PreparedRecipe {
         private List<ItemSlot> inputs;

@@ -9,9 +9,9 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Controller")]
-    public class ItemMatrixController : TileEntity
+    public class ItemMatrixController : TileEntityObject
     {
         public ConduitPortLayout Layout;
 

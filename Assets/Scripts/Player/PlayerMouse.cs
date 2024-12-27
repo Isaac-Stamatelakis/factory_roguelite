@@ -15,7 +15,7 @@ using UnityEngine.Tilemaps;
 using Conduits;
 using Dimensions;
 using Items;
-using TileEntityModule;
+using TileEntity;
 using Entities;
 using PlayerModule.IO;
 using UI;
@@ -89,8 +89,8 @@ namespace PlayerModule.Mouse {
                 if (chunk != null) {
                         ItemEntityHelper.spawnItemEntity(
                         mousePosition+offset,
-                        ItemSlotFactory.createNewItemSlot(
-                            ItemRegistry.getInstance().getItemObject(devMode.spawnItemID),
+                        ItemSlotFactory.CreateNewItemSlot(
+                            ItemRegistry.GetInstance().GetItemObject(devMode.spawnItemID),
                             1
                         ),
                         chunk.getEntityContainer()
@@ -105,7 +105,7 @@ namespace PlayerModule.Mouse {
             breakMouseHover(mousePosition);
         }
         private void handleRightClick(Vector2 mousePosition,Vector2 offset) {
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(playerInventory.getSelectedId());
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(playerInventory.getSelectedId());
 
             bool somethingClicked = false;
             if (Input.GetMouseButtonDown(1)) {
@@ -127,7 +127,7 @@ namespace PlayerModule.Mouse {
             }
             
             string id = playerInventory.getSelectedId();
-            ConduitItem conduitItem = ItemRegistry.getInstance().GetConduitItem(id);
+            ConduitItem conduitItem = ItemRegistry.GetInstance().GetConduitItem(id);
             if (conduitItem == null) {
                 return false;
             }
@@ -280,7 +280,7 @@ namespace PlayerModule.Mouse {
             }
         
             bool placed = false;
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
             placed = PlaceTile.PlaceFromWorldPosition(itemObject,mousePosition,closedChunkSystem);
             if (placed && !devMode.noPlaceCost) {
                 playerInventory.deiterateInventoryAmount();
@@ -314,7 +314,7 @@ namespace PlayerModule.Mouse {
                     calculateItemVelocity(mousePosition)
                 );
             }
-            grabbedItemProperties.setItemSlot(null);
+            grabbedItemProperties.SetItemSlot(null);
             return true;
         }
         

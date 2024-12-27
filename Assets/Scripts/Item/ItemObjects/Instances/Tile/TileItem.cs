@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileEntityModule;
+using TileEntity;
 using TileMaps.Type;
 using Tiles;
 using UnityEngine.AddressableAssets;
@@ -51,7 +51,7 @@ public class TileItem : ItemObject, IPlacableItem
     public TileType tileType;
     public TileBase tile;
     public TileBase outline;
-    public TileEntity tileEntity;
+    public TileEntityObject tileEntity;
     public TileOptions tileOptions;
     public override ItemDisplayType? getDisplayType()
     {

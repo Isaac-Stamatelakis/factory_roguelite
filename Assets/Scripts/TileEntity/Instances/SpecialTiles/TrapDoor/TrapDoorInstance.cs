@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks;
 
-namespace TileEntityModule.Instances {
+namespace TileEntity.Instances {
     public class TrapDoorInstance : TileEntityInstance<TrapDoor>, IRightClickableTileEntity
     {
         

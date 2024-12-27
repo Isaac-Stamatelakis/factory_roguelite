@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances.Storage;
+using TileEntity.Instances.Storage;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Energy Port", menuName = "Tile Entity/Compact Machine/Port/Energy")]
-    public class CompactMachineEnergyPort : TileEntity
+    public class CompactMachineEnergyPort : TileEntityObject
     {
         public ConduitPortLayout Layout;
 

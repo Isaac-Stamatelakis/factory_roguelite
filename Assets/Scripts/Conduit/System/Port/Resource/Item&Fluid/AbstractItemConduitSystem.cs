@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Conduits;
 using Conduits.Ports;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.Systems {
     
@@ -41,19 +41,19 @@ namespace Conduits.Systems {
         
         protected override void IterateTickUpdate(TOutputPort outputPort, List<TInputPort> inputPorts, int color)
         {
-            ItemSlot toInsert = outputPort.extract();
+            ItemSlot toInsert = outputPort.Extract();
             if (toInsert == null) {
                 return;
             }
 
             activeThisTick = true;
-            int amount = Mathf.Min(toInsert.amount,outputPort.getExtractAmount());
+            uint amount = toInsert.amount < outputPort.GetExtractAmount() ? toInsert.amount : outputPort.GetExtractAmount();
             ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,tags: toInsert.tags);
             foreach (IItemConduitInputPort itemConduitInputPort in inputPorts) {
-                if (itemConduitInputPort.getTileEntity().Equals(outputPort.getTileEntity())) {
+                if (itemConduitInputPort.GetConduitInteractable().Equals(outputPort.GetConduitInteractable())) {
                     continue;
                 }
-                itemConduitInputPort.insert(tempItemSlot);
+                itemConduitInputPort.Insert(tempItemSlot);
                 if (tempItemSlot.amount == 0) {
                     break;
                 }

@@ -8,9 +8,9 @@ using Conduits.Ports;
 using Items.Tags;
 using UI;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixInterfaceInstance : TileEntityInstance<MatrixInterface>,
-        IConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, 
+        IConduitTileEntity, ISolidItemConduitInteractable, IFluidConduitInteractable, 
         IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity
     {
         public MatrixInterfaceInstance(MatrixInterface tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -28,37 +28,37 @@ namespace TileEntityModule.Instances.Matrix {
         private MatrixConduitSystem system;
 
 
-        public ItemSlot extractFluidItem(Vector2Int portPosition)
+        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
         {
             return null;
         }
 
-        public ItemSlot extractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
         {
             return null;
         }
 
-        public ConduitPortLayout getConduitPortLayout()
+        public ConduitPortLayout GetConduitPortLayout()
         {
-            return tileEntity.Layout;
+            return TileEntityObject.Layout;
         }
 
-        public void insertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            controller.sendItem(itemSlot);
-        }
-
-        public void insertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
         {
             controller.sendItem(itemSlot);
         }
 
-        public void syncToController(ItemMatrixControllerInstance matrixController)
+        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        {
+            controller.sendItem(itemSlot);
+        }
+
+        public void SyncToController(ItemMatrixControllerInstance matrixController)
         {
             this.controller = matrixController;
         }
 
-        public void syncToSystem(MatrixConduitSystem matrixConduitSystem)
+        public void SyncToSystem(MatrixConduitSystem matrixConduitSystem)
         {
             this.system = matrixConduitSystem;
             matrixConduitSystem.addInterface(this);
@@ -86,8 +86,8 @@ namespace TileEntityModule.Instances.Matrix {
             }
             SeralizedMatrixInterface seralizedMatrixInterface = JsonConvert.DeserializeObject<SeralizedMatrixInterface>(data);
             priority = seralizedMatrixInterface.priority;
-            upgrades = ItemSlotFactory.deserialize(seralizedMatrixInterface.upgrades);
-            recipes = ItemSlotFactory.deserialize(seralizedMatrixInterface.recipes);
+            upgrades = ItemSlotFactory.Deserialize(seralizedMatrixInterface.upgrades);
+            recipes = ItemSlotFactory.Deserialize(seralizedMatrixInterface.recipes);
         }
 
         private void initInventories() {
@@ -136,7 +136,7 @@ namespace TileEntityModule.Instances.Matrix {
             MainCanvasController.Instance.DisplayObject(matrixInterfaceUI.gameObject);
         }
 
-        public void removeFromSystem()
+        public void RemoveFromSystem()
         {
             system.removeInterface(this);
         }

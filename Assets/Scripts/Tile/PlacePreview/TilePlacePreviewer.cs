@@ -53,7 +53,7 @@ namespace TileMaps.Previewer {
             
         }   
         public void previewTile(string id, Vector2 position) {
-            ItemObject itemObject = ItemRegistry.getInstance().getItemObject(id);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
             if (!itemObject || itemObject is not IPlacableItem placableTile) {
                 placementRecord?.Clear();
                 return;

@@ -4,7 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Items;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class EncodedRecipe 
     {
         private List<ItemSlot> inputs;
@@ -26,7 +26,7 @@ namespace TileEntityModule.Instances.Matrix {
                 string outputId = output.itemObject.id;
                 ItemTagKey outputTagKey = new ItemTagKey(output.tags);
                 if (id.Equals(outputId) && tagKey.Equals(outputTagKey)) {
-                    return ItemSlotFactory.copy(output);
+                    return ItemSlotFactory.Copy(output);
                 }
             }
             return null;
@@ -61,8 +61,8 @@ namespace TileEntityModule.Instances.Matrix {
             {
                 SeralizedEncodedRecipe seralizedEncodedRecipe = JsonConvert.DeserializeObject<SeralizedEncodedRecipe>(data);
                 return new EncodedRecipe(
-                    inputs: ItemSlotFactory.deserialize(seralizedEncodedRecipe.inputs),
-                    outputs: ItemSlotFactory.deserialize(seralizedEncodedRecipe.outputs)
+                    inputs: ItemSlotFactory.Deserialize(seralizedEncodedRecipe.inputs),
+                    outputs: ItemSlotFactory.Deserialize(seralizedEncodedRecipe.outputs)
                 );
             }
             catch (JsonSerializationException e)

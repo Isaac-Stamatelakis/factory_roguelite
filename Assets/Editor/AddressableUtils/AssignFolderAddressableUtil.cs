@@ -7,8 +7,9 @@ using UnityEditor.AddressableAssets;
 using Items;
 using RecipeModule;
 using System.IO;
-using TileEntityModule;
+using TileEntity;
 using System.Linq;
+using Recipe.Objects;
 
 
 public enum AddressableTypeRestriction {
@@ -90,7 +91,7 @@ public class AssignFolderAddressableUtil : EditorWindow {
                     }
                     break;
                 case AddressableTypeRestriction.Recipe:
-                    if (asset is not Recipe) {
+                    if (asset is not RecipeObject) {
                         continue;
                     }
                     labels.Add("recipe");
@@ -133,10 +134,10 @@ public class AssignFolderAddressableUtil : EditorWindow {
             }
         }
         
-        List<(string,TileEntity)> tileEntities = new List<(string,TileEntity)>();
+        List<(string,TileEntityObject)> tileEntities = new List<(string,TileEntityObject)>();
         foreach (string guid in guids) {
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            var asset = AssetDatabase.LoadAssetAtPath<TileEntity>(path);
+            var asset = AssetDatabase.LoadAssetAtPath<TileEntityObject>(path);
             if (asset == null) {
                 continue;   
             }
@@ -150,7 +151,7 @@ public class AssignFolderAddressableUtil : EditorWindow {
         var tileEntityGroup = settings.FindGroup("TileEntities");
 
         string tileEntityGuid = tileEntities[0].Item1;
-        TileEntity tileEntity1 = tileEntities[0].Item2;
+        TileEntityObject tileEntity1 = tileEntities[0].Item2;
         if (tileEntities.Count > 1) {
             Debug.LogWarning($"{tileItem.name} at {assetPath} has {tileEntities.Count} tile enitites within its folder. Assigned reference to {tileEntity1.name}.");
         }

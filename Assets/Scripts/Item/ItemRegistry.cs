@@ -5,7 +5,7 @@ using UnityEditor;
 using System.IO;
 using RobotModule;
 using Items;
-using TileEntityModule;
+using TileEntity;
 using Conduits.Ports;
 using RecipeModule;
 using Items.Transmutable;
@@ -15,10 +15,13 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
 using Dimensions;
+using Recipe.Processor;
+using TileEntity.Instances.WorkBenchs;
 
 namespace Items {
     public class ItemRegistry {
         private static Dictionary<string,ItemObject> items;
+        private static Dictionary<RecipeProcessor, List<TileItem>> tileEntityProcessorDict;
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
@@ -26,7 +29,7 @@ namespace Items {
 
         public static bool IsLoaded => instance!=null;
 
-        public static IEnumerator loadItems() {
+        public static IEnumerator LoadItems() {
             if (instance != null) {
                 yield break;
             }
@@ -37,7 +40,7 @@ namespace Items {
                 IList<ItemObject> loadedAssets = handle.Result;
                 foreach (ItemObject asset in loadedAssets)
                 {
-                    addToDict(asset);
+                    AddToDict(asset);
                 }
             }
             else {
@@ -48,17 +51,16 @@ namespace Items {
             yield return null;
         }
 
-        private static bool addToDict(ItemObject itemObject) {
-            if (!items.ContainsKey(itemObject.id)) {
+        private static bool AddToDict(ItemObject itemObject) {
+            if (!items.TryGetValue(itemObject.id, out var contained)) {
                 items[itemObject.id] = itemObject;
                 return true;
             } else {
-                ItemObject contained = items[itemObject.id];
-                Debug.LogError("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
+                Debug.LogWarning("Duplicate id for objects " + contained.name + " and " + itemObject.name + " with id: " + itemObject.id);
                 return false;
             }
         }
-        public static ItemRegistry getInstance() {
+        public static ItemRegistry GetInstance() {
             if (instance == null) {
                 Debug.LogError("Accessed unitalized item registry");
                 return null;
@@ -68,73 +70,68 @@ namespace Items {
 
         
 
-        public List<ItemObject> getAllItems() {
+        public List<ItemObject> GetAllItems() {
             return items.Values.ToList();
         }
 
-        public List<ItemObject> getAllItemsWithPrefix(string idPrefix) {
+        public List<ItemObject> GetAllItemsWithPrefix(string idPrefix) {
             List<ItemObject> list = items.Values.ToList();
             return list.Where(item => item.id.StartsWith(idPrefix)).ToList();
         }
         ///
         /// Returns tileItem if id maps to tile item, null otherwise
         ///
-        public TileItem getTileItem(string id) {
+        public TileItem GetTileItem(string id) {
             if (id == null) {
                 return null;
             }
-            if (!items.ContainsKey(id)) {
+            if (!items.TryGetValue(id, value: out var itemObject)) {
                 return null;
             }
-            ItemObject itemObject = items[id];
-            if (itemObject is TileItem) {
-                return (TileItem) itemObject;
-            } else {
-                return null;
+            
+            if (itemObject is TileItem item) {
+                return item;
             }
+
+            return null;
         }
 
         public RobotItem GetRobotItem(string id) {
             if (id == null) {
                 return null;
             }
-            if (!items.ContainsKey(id)) {
+            if (!items.TryGetValue(id, value: out var itemObject)) {
                 return null;
             }
-            ItemObject itemObject = items[id];
-            if (itemObject is RobotItem) {
-                return (RobotItem) itemObject;
+
+            if (itemObject is RobotItem item) {
+                return item;
             }
             return null;
         }
 
-        public TransmutableItemObject getTransmutableItemObject(string id) {
+        public TransmutableItemObject GetTransmutableItemObject(string id) {
             if (id == null) {
                 return null;
             }
-            if (!items.ContainsKey(id)) {
+            if (!items.TryGetValue(id, value: out var itemObject)) {
                 return null;
             }
-            ItemObject itemObject = items[id];
-            if (itemObject is TransmutableItemObject) {
-                return (TransmutableItemObject) itemObject;
+
+            if (itemObject is TransmutableItemObject value) {
+                return value;
             }
             return null;
         }
-        public ItemObject getItemObject(string id) {
-            if (id == null) {
-                return null;
-            }
-            if (!items.ContainsKey(id)) {
-                return null;
-            }
-            return items[id];   
+        public ItemObject GetItemObject(string id)
+        {
+            return id == null ? null : items.GetValueOrDefault(id);
         }
-        public FluidTileItem getFluidTileItem(string id) {
-            if (id == null || !items.ContainsKey(id)) {
+        public FluidTileItem GetFluidTileItem(string id) {
+            if (id == null || !items.TryGetValue(id, value: out var itemObject)) {
                 return null;
             }
-            ItemObject itemObject = items[id];
+
             if (itemObject is FluidTileItem) {
                 return (FluidTileItem) itemObject;
             }
@@ -144,10 +141,10 @@ namespace Items {
         /// Returns ConduitItem if id maps to ConduitItem, null otherwise
         ///
         public ConduitItem GetConduitItem(string id) {
-            if (!items.ContainsKey(id)) {
+            if (!items.TryGetValue(id, value: out var itemObject)) {
                 return null;
             }
-            ItemObject itemObject = items[id];
+
             if (itemObject is ConduitItem) {
                 return (ConduitItem) itemObject;
             } else {
@@ -155,7 +152,7 @@ namespace Items {
             }
         }
 
-        public List<ItemObject> query(string search, int limit) {
+        public List<ItemObject> Query(string search, int limit) {
             List<ItemObject> queried = new List<ItemObject>();
             int i = 0;
             foreach (ItemObject itemObject in items.Values) {
@@ -171,7 +168,7 @@ namespace Items {
             return queried;
         }
 
-        public List<T> query<T>(string search, int limit) where T : ItemObject {
+        public List<T> Query<T>(string search, int limit) where T : ItemObject {
             List<T> queried = new List<T>();
             int i = 0;
             foreach (ItemObject itemObject in items.Values) {
@@ -189,7 +186,7 @@ namespace Items {
             }
             return queried;
         }
-        public List<ItemSlot> querySlots(string search, int limit) {
+        public List<ItemSlot> QuerySlots(string search, int limit) {
             // TODO options to put certain tag items in here
             List<ItemSlot> queried = new List<ItemSlot>();
             int i = 0;
@@ -198,32 +195,16 @@ namespace Items {
                     break;
                 }
                 if (itemObject.name.ToLower().Contains(search.ToLower())) {
-                    queried.Add(ItemSlotFactory.createNewItemSlot(itemObject,1));
+                    queried.Add(ItemSlotFactory.CreateNewItemSlot(itemObject,1));
                     i ++;
                 }
             }
             return queried;
         }
 
-        public List<TileItem> getTileEntitiesOfProcessor(RecipeProcessor processor) {
-            List<TileItem> tileItems = new List<TileItem>();
-            foreach (ItemObject itemObject in items.Values) {
-                if (itemObject is not TileItem tileItem) {
-                    continue;
-                }
-                if (tileItem.tileEntity == null) {
-                    continue;
-                }
-                if (tileItem.tileEntity is not IProcessorTileEntity tileEntityProcess) {
-                    continue;
-                }
-                RecipeProcessor entityProcessor = tileEntityProcess.getRecipeProcessor();
-                if (!processor.Equals(entityProcessor)) {
-                    continue;
-                }
-                tileItems.Add(tileItem);
-            }
-            return tileItems;
+        public static List<TileItem> getTileEntitiesOfProcessor(RecipeProcessorInstance processor)
+        {
+            return tileEntityProcessorDict.GetValueOrDefault(processor.RecipeProcessorObject);
         }
     }
 }

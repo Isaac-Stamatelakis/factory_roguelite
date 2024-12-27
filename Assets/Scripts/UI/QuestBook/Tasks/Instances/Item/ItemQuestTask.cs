@@ -6,10 +6,10 @@ namespace UI.QuestBook {
     public class ItemQuestTask : QuestBookTask
     {
         private List<SerializedItemSlot> items;
-        private List<int> gottenAmounts;
+        private List<uint> gottenAmounts;
 
         public List<SerializedItemSlot> Items { get => items; set => items = value; }
-        public List<int> GottenAmounts { get => gottenAmounts; set => gottenAmounts = value; }
+        public List<uint> GottenAmounts { get => gottenAmounts; set => gottenAmounts = value; }
 
         public override bool getComplete()
         {
@@ -22,7 +22,7 @@ namespace UI.QuestBook {
         }
         public ItemQuestTask() {
             this.items = new List<SerializedItemSlot>();
-            this.gottenAmounts = new List<int>();
+            this.gottenAmounts = new List<uint>();
         }
 
         public override QuestTaskType getTaskType()

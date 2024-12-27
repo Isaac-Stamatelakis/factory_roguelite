@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances.Matrix;
+using TileEntity.Instances.Matrix;
 using Items.Tags;
 using Items.Tags.Matrix;
-using TileEntityModule;
+using TileEntity;
 
 namespace Conduits.Systems {
     public class MatrixConduitSystem : ConduitSystem<MatrixConduit>
@@ -50,7 +50,7 @@ namespace Conduits.Systems {
         /// Rebuilds sections of the system depending on the TileEntity
         /// </summary>
         public void addTileEntityToSystem(MatrixConduit matrixConduit, IMatrixConduitInteractable matrixConduitInteractable) {
-            matrixConduitInteractable.syncToSystem(this);
+            matrixConduitInteractable.SyncToSystem(this);
         }
         private void addTileEntity(MatrixConduit matrixConduit) {
             if (!matrixConduit.HasTileEntity) {
@@ -71,7 +71,7 @@ namespace Conduits.Systems {
             }
             if (controller == null) {
                 foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
-                    matrixConduitInteractable.syncToController(null);
+                    matrixConduitInteractable.SyncToController(null);
                 }
                 return;
             }
@@ -79,8 +79,8 @@ namespace Conduits.Systems {
             driveCollection = new MatrixDriveCollection();
             autoCraftingCores = new HashSet<MatrixAutoCraftingCoreInstance>();
             foreach (IMatrixConduitInteractable matrixConduitInteractable in tileEntities) {
-                matrixConduitInteractable.syncToSystem(this);
-                matrixConduitInteractable.syncToController(controller);
+                matrixConduitInteractable.SyncToSystem(this);
+                matrixConduitInteractable.SyncToController(controller);
             }
         }
 

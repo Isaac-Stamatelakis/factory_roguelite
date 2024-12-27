@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using Dimensions;
 
-namespace TileEntityModule.Instances.CompactMachines {
+namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineUIController : MonoBehaviour
     {
         [SerializeField] public TextMeshProUGUI title;

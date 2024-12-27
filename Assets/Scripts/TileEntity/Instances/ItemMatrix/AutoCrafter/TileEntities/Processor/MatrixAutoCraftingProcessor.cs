@@ -4,7 +4,7 @@ using Conduits.Ports;
 using Conduits.Systems;
 using UnityEngine;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Crafting Processor", menuName = "Tile Entity/Item Matrix/Crafting/Processor")]
     public class MatrixAutoCraftingProcessor : MatrixAutoCraftingChassis
     {

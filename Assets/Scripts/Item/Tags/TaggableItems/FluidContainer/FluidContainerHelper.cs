@@ -33,39 +33,39 @@ namespace Items.Tags.FluidContainers {
                     return;
                 }
                 ItemSlot fluidInventorySlot = fluidInventory[index];
-                if (ItemSlotHelper.areEqual(fluidInventorySlot,itemSlot)) { // Merge
+                if (ItemSlotHelper.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
                     Debug.Log("Hi");
                 }
                 fluidInventory[index] = itemSlot;
                 container.amount--;
-                ItemSlot empty = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
+                ItemSlot empty = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
                 if (container.amount == 0) {
-                    grabbedItemProperties.setItemSlot(empty);
+                    grabbedItemProperties.SetItemSlot(empty);
                 } else {
-                    if (!ItemSlotHelper.canInsertIntoInventory(inventory,container,fluidContainer.getStorage())) {
+                    if (!ItemSlotHelper.CanInsertIntoInventory(inventory,container,fluidContainer.GetStorage())) {
                     // TODO spawn item
                         return;
                     } else {
-                        ItemSlotHelper.insertIntoInventory(inventory,empty,fluidContainer.getStorage());
+                        ItemSlotHelper.InsertIntoInventory(inventory,empty,fluidContainer.GetStorage());
                     }
                 }
                 return;
             }
             // Input fluid cell into player inventory
-            ItemSlot newItemSlot = ItemSlotFactory.createNewItemSlot(container.itemObject,1);
-            if (!ItemSlotHelper.canInsertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage())) {
+            ItemSlot newItemSlot = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
+            if (!ItemSlotHelper.CanInsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage())) {
                 return;
             }
             newItemSlot.tags.Dict[ItemTag.FluidContainer] = fluidInventory[index];
             fluidInventory[index] = null;
             container.amount -= 1;
             if (container.amount == 0) {
-                grabbedItemProperties.setItemSlot(newItemSlot);
+                grabbedItemProperties.SetItemSlot(newItemSlot);
                 container.itemObject = null;
                 return;
             }
-            ItemSlotHelper.insertIntoInventory(inventory,newItemSlot,fluidContainer.getStorage());
-            grabbedItemProperties.updateSprite();
+            ItemSlotHelper.InsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage());
+            grabbedItemProperties.UpdateSprite();
         }
     }
 }

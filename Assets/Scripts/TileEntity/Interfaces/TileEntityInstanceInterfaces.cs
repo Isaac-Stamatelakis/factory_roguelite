@@ -5,7 +5,7 @@ using Conduits.Ports;
 using RecipeModule;
 
 
-namespace TileEntityModule {
+namespace TileEntity {
     public interface ITickableTileEntity
     {
         public void tickUpdate();
@@ -43,10 +43,6 @@ namespace TileEntityModule {
     public interface IBreakActionTileEntity {
         public void onBreak();
     }
-    public interface IProcessorTileEntity {
-        public RecipeProcessor getRecipeProcessor();
-    }
-
     public interface IMultiBlockTileEntity {
         public void assembleMultiBlock();
     }

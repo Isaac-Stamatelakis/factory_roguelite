@@ -5,7 +5,7 @@ using Items.Inventory;
 using Items.Tags;
 
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class EncodedRecipeTagInventoryUI : TagRestrictedInventoryUI
     {
         private MatrixInterfaceInstance matrixInterface;
@@ -18,7 +18,7 @@ namespace TileEntityModule.Instances.Matrix {
             this.inventory = items;
             this.matrixInterface = matrixInterface;
             validTag = ItemTag.EncodedRecipe;
-            initalizeSlots();
+            InitalizeSlots();
         }
 
         public override void leftClick(int n)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Recipe.Viewer;
 using UnityEngine;
 using RecipeModule.Viewer;
 
@@ -9,7 +10,7 @@ namespace Items.Inventory {
         public void initalize(List<ItemSlot> items)
         {
             this.inventory = items;
-            initalizeSlots();
+            InitalizeSlots();
         }
 
         public override void leftClick(int n)
@@ -18,7 +19,7 @@ namespace Items.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayCraftingOfItem(itemSlot);
+            RecipeViewerHelper.DisplayCraftingOfItem(itemSlot);
         }
 
         public override void middleClick(int n)
@@ -32,7 +33,7 @@ namespace Items.Inventory {
             if (itemSlot == null) {
                 return;
             }
-            RecipeViewerHelper.displayUsesOfItem(itemSlot);
+            RecipeViewerHelper.DisplayUsesOfItem(itemSlot);
         }
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule;
+using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
 using TileMaps.Type;
@@ -79,7 +79,7 @@ namespace Chunks.Partitions {
                     tileGridMap.addPartition(this);
                 }
             }
-            ItemRegistry itemRegistry = ItemRegistry.getInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int realPosition = getRealPosition();
 
             switch (direction) {

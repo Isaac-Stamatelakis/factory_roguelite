@@ -31,21 +31,21 @@ namespace TileMaps {
         }
 
 
-        protected override void breakTile(Vector2Int position)
+        protected override void BreakTile(Vector2Int position)
         {
             outlineTileMap.SetTile(new Vector3Int(position.x,position.y,0), null);
-            base.breakTile(position);
+            base.BreakTile(position);
         }
 
-        protected override void removeTile(int x, int y)
+        protected override void RemoveTile(int x, int y)
         {
             outlineTileMap.SetTile(new Vector3Int(x,y,0), null);
-            base.removeTile(x, y);
+            base.RemoveTile(x, y);
         }
 
-        protected override void setTile(int x, int y, TileItem tileItem)
+        protected override void SetTile(int x, int y, TileItem tileItem)
         {
-            base.setTile(x, y, tileItem);
+            base.SetTile(x, y, tileItem);
             TileBase outlineTile = tileItem.outline;
             if (outlineTile == null) {
                 return;

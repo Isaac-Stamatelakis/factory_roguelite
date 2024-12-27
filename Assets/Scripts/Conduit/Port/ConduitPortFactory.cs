@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using TileEntityModule;
+using TileEntity;
 using Items;
 
 namespace Conduits.Ports {
@@ -35,10 +35,10 @@ namespace Conduits.Ports {
             return JsonConvert.SerializeObject(new PortConduitData(state, portData));
         }
 
-        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntity, ConduitItem conduitItem) {
+        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, IConduitInteractable interactable, ConduitItem conduitItem) {
             switch (conduitType) {
                 case ConduitType.Item:
-                    if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
+                    if (interactable is not ISolidItemConduitInteractable itemConduitInteractable) {
                         return null;
                     }
                     SolidItemConduitInputPort itemInputPort = null;
@@ -52,7 +52,7 @@ namespace Conduits.Ports {
                     SolidItemConduitPort itemConduitPort = new SolidItemConduitPort(itemInputPort,itemOutputPort);
                     return itemConduitPort;
                 case ConduitType.Fluid:
-                    if (tileEntity is not IFluidConduitInteractable fluidConduitInteractable) {
+                    if (interactable is not IFluidConduitInteractable fluidConduitInteractable) {
                         return null;
                     }
                     FluidItemConduitInputPort fluidInputPort = null;
@@ -66,7 +66,7 @@ namespace Conduits.Ports {
                     FluidItemConduitPort fluidConduitPort = new FluidItemConduitPort(fluidInputPort,fluidOutputPort);
                     return fluidConduitPort;
                 case ConduitType.Energy:
-                    if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
+                    if (interactable is not IEnergyConduitInteractable energyConduitInteractable) {
                         return null;
                     }
                     EnergyConduitInputPort energyInputPort = null;
@@ -82,13 +82,13 @@ namespace Conduits.Ports {
                     if (portType == EntityPortType.All || portType == EntityPortType.Output) {
                         energyOutputPort = new EnergyConduitOutputPort(energyConduitInteractable)
                             {
-                                extractionRate = energyConduit.maxSpeed
+                                extractionRate = (ulong)energyConduit.maxSpeed
                             };
                     }   
                     EnergyConduitPort energyConduitPort = new EnergyConduitPort(energyInputPort,energyOutputPort);
                     return energyConduitPort;
                 case ConduitType.Signal:
-                    if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
+                    if (interactable is not ISignalConduitInteractable signalConduitInteractable) {
                         return null;
                     }
                     SignalConduitInputPort signalInputPort = null;

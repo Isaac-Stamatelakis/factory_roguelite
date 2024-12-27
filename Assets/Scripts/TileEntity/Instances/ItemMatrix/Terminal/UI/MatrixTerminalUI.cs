@@ -8,7 +8,7 @@ using Items.Inventory;
 using Items.Tags.Matrix;
 using PlayerModule;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     public class MatrixTerminalUI : MonoBehaviour
     {
         [SerializeField] private TMP_InputField searchBar;

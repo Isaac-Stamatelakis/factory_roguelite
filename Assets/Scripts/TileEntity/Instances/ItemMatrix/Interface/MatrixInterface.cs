@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 using Items.Tags;
 using Chunks;
 
-namespace TileEntityModule.Instances.Matrix {
+namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Controller", menuName = "Tile Entity/Item Matrix/Interface")]
-    public class MatrixInterface : TileEntity
+    public class MatrixInterface : TileEntityObject
     {
         public ConduitPortLayout Layout;
 

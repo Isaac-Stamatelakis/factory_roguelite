@@ -8,7 +8,7 @@ using Tiles;
 namespace TileMaps {
     public class BackgroundTileMap : TileGridMap
     {
-        protected override Vector2Int getHitTilePosition(Vector2 position) {
+        protected override Vector2Int GetHitTilePosition(Vector2 position) {
             Vector3Int cellPosition = tilemap.WorldToCell(position);
             if (tilemap.GetTile(cellPosition) != null) { // Mouse was over 16x16 area of background
                 return (Vector2Int)cellPosition;

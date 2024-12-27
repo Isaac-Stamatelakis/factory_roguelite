@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TileEntityModule.Instances;
+using TileEntity.Instances;
 using WorldModule.Caves;
 
 namespace UI.QuestBook {
