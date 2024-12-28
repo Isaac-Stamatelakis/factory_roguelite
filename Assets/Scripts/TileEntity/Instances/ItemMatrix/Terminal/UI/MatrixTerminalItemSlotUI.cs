@@ -6,6 +6,7 @@ using Items.Inventory;
 using Items;
 
 namespace TileEntity.Instances.Matrix {
+    /*
     
     public class MatrixTerminalItemSlotUI : MonoBehaviour, IItemSlotUIElement, IPointerClickHandler
     {
@@ -70,5 +71,6 @@ namespace TileEntity.Instances.Matrix {
             return GetComponent<ItemSlotUI>();
         }
     }
+    */
 }
 

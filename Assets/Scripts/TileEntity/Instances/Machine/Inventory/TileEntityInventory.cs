@@ -5,6 +5,7 @@ using Conduits.Ports;
 using UnityEngine;
 using Items.Inventory;
 using Newtonsoft.Json;
+using TileEntity.Instances.Machine;
 
 namespace TileEntity {
     public class MachineItemInventory : ISolidItemConduitInteractable, IFluidConduitInteractable
@@ -96,6 +97,16 @@ namespace TileEntity {
 
     public static class MachineInventoryFactory
     {
+        public static MachineItemInventory InitializeItemInventory(ITileEntityInstance parent, MachineLayoutObject layoutObject)
+        {
+            return new MachineItemInventory(
+                parent,
+                ItemSlotFactory.createEmptyInventory(layoutObject.SolidInputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.SolidOutputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.FluidInputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.FluidOutputs.GetIntSize())
+            );
+        }
         public static string SerializeItemMachineInventory(MachineItemInventory machineInventory)
         {
             try
@@ -110,20 +121,26 @@ namespace TileEntity {
             }
             catch (NullReferenceException e)
             {
-                Debug.LogError(e);
+                Debug.LogWarning("Could not serialize inventory: " + e);
                 return null;
             }
         }
 
         public static string SerializedEnergyMachineInventory(MachineEnergyInventory machineInventory)
         {
+            if (machineInventory == null)
+            {
+                return null;
+            }
             return JsonConvert.SerializeObject(machineInventory.Energy);
-            
-            
         }
 
         public static MachineItemInventory DeserializeMachineInventory(string json, ITileEntityInstance parent)
         {
+            if (json == null)
+            {
+                return null;
+            }
             try
             {
                 SerializedMachineData serializedMachineData =
@@ -136,7 +153,7 @@ namespace TileEntity {
             }
             catch (JsonSerializationException e)
             {
-                Debug.LogError(e);
+                Debug.LogWarning(e);
                 return null;
             }
         }

@@ -6,8 +6,10 @@ using Items.Tags;
 
 
 namespace TileEntity.Instances.Matrix {
-    public class EncodedRecipeTagInventoryUI : TagRestrictedInventoryUI
+    /*
+    public class EncodedRecipeTagInventoryUI : IInventoryListener
     {
+        private List<ItemSlot> inventory;
         private MatrixInterfaceInstance matrixInterface;
         public override void initalize(List<ItemSlot> items, ItemTag validTag)
         {
@@ -53,5 +55,6 @@ namespace TileEntity.Instances.Matrix {
         }
         
     }
+    */
 }
 

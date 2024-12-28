@@ -52,7 +52,7 @@ namespace TileEntity.Instances.Machines
 
         public void tickUpdate()
         {
-            inventoryUpdate(0); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
+            InventoryUpdate(0); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
             if (currentRecipe == null) {
                 return;
             }
@@ -74,7 +74,7 @@ namespace TileEntity.Instances.Machines
             */
         }
 
-        public void inventoryUpdate(int n) {
+        public void InventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }

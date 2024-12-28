@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Matrix {
             return TileEntityObject.Layout;
         }
 
-        public void inventoryUpdate(int n)
+        public void InventoryUpdate(int n)
         {
             matrixConduitSystem.setDrive(this);
         }

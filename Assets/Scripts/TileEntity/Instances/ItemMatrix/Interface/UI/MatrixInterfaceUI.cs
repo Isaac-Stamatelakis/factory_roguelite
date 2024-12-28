@@ -15,8 +15,8 @@ namespace TileEntity.Instances.Matrix {
         [SerializeField] private TextMeshProUGUI priorityText;
         [SerializeField] private GridLayoutGroup recipeContainer;
         [SerializeField] private GridLayoutGroup upgradeContainer;
-        private MatrixInterfaceUpgradeRestrictedInventoryUI typeRestrictedInventory;
-        private EncodedRecipeTagInventoryUI recipeRestrictedInventory;
+        private InventoryUI upgradeInventoryUI;
+        private InventoryUI encodedRecipeUI;
         private MatrixInterfaceInstance matrixInterface;
 
         public void init(MatrixInterfaceInstance matrixInterface) {

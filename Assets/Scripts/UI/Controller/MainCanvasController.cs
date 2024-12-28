@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Recipe.Viewer;
 using UI.PauseScreen;
+using UI.PlayerInvUI;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ namespace UI
         public static MainCanvasController TInstance => instance as MainCanvasController; 
         [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
         [SerializeField] private RecipeViewer recipeViewerPrefab;
+        [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -46,6 +48,17 @@ namespace UI
             }
             DisplayObject(clone);
             return element;
+        }
+
+        public void DisplayUIWithPlayerInventory(GameObject uiObject, Color? color = null)
+        {
+            var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
+            stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
+            DisplayObject(stackedPlayerUI.gameObject);
+            if (color != null)
+            {
+                stackedPlayerUI.SetBackgroundColor((Color)color);
+            }
         }
 
         private GameObject GetMainSceneUIElement(MainSceneUIElement mainSceneUIElement)

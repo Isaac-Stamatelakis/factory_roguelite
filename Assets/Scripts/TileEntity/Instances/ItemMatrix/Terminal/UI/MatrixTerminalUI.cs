@@ -14,14 +14,16 @@ namespace TileEntity.Instances.Matrix {
         [SerializeField] private TMP_InputField searchBar;
         [SerializeField] private GridLayoutGroup itemContainer;
         [SerializeField] private ScrollRect itemContainerScroll;
-        [SerializeField] private MatrixTerminalInventoryUI inventoryUI;
+        //[SerializeField] private MatrixTerminalInventoryUI inventoryUI;
         [SerializeField] private GridLayoutGroup playerInventoryContainer;
 
         public void init(MatrixTerminalInstance matrixTerminal) {
+            /*
             inventoryUI.init(matrixTerminal.Controller,itemContainer.transform,this);
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             playerInventory.cloneInventoryUI(playerInventoryContainer.transform);
             playerInventory.hideUI();
+            */
 
         }
 

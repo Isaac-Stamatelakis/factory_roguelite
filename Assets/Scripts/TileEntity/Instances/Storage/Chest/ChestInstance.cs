@@ -39,10 +39,11 @@ namespace TileEntity.Instances
             if (items == null) {
                 initInventory();
             }
+            /*
             GameObject shownGui = GameObject.Instantiate(uiElement);
-            SolidDynamicInventory inventoryGrid = shownGui.GetComponent<SolidDynamicInventory>();
             inventoryGrid.initalize(items, new Vector2Int((int) TileEntityObject.Rows, (int) TileEntityObject.Columns));
             MainCanvasController.Instance.DisplayObject(shownGui);
+            */
         }
 
         public string serialize()

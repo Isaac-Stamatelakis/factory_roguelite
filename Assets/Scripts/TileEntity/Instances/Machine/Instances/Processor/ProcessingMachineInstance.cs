@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
@@ -10,55 +12,46 @@ using Items.Inventory;
 using Recipe;
 using Recipe.Data;
 using Recipe.Processor;
+using TileEntity.Instances.Machine.Instances;
 using UI;
 
 namespace TileEntity.Instances.Machines
 {
-    public class ProcessingMachineInstance : TileEntityInstance<ProcessingMachine>, ITickableTileEntity, 
-        IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator, ISignalConduitInteractable, IInventoryListener
+    public class ProcessingMachineInstance : MachineInstance<ProcessingMachine, ItemEnergyRecipe>
     {
-        private int mode;
-        private MachineItemInventory inventory;
-        private MachineEnergyInventory energyInventory;
-        private ItemEnergyRecipe currentRecipe;
         public ProcessingMachineInstance(ProcessingMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            /*
-            if (inventory == null) {
-                if (tileEntity.Processor == null) {
-                    Debug.LogWarning($"Tile entity {tileEntity.name} has no processor");
-                    return;
-                }
-                inventory = StandardMachineInventoryFactory.initalize(tileEntity.Layout);
+            Debug.Log("Initalized");
+            InitializeItemInventory();
+            InitializeEnergyInventory();
+        }
+
+        public override string serialize()
+        {
+            try
+            {
+                SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
+                    Mode,
+                    MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                    MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
+                    RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
+                );
+                return JsonConvert.SerializeObject(serializedProcessingMachine);
             }
-            */
-        }
-
-        public void onRightClick()
-        {
-            GameObject uiPrefab = TileEntityObject.Processor.UIPrefab;
-            GameObject ui = GameObject.Instantiate(uiPrefab);
-            CanvasController.Instance.DisplayObject(ui);
+            catch (NullReferenceException e)
+            {
+                Debug.LogWarning(e);
+                return null;
+            }
         }
         
-
-        public string serialize()
+        public override void unserialize(string data)
         {
-            SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
-                mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(inventory),
-                MachineInventoryFactory.SerializedEnergyMachineInventory(energyInventory),
-                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
-            );
-            return JsonConvert.SerializeObject(serializedProcessingMachine);
-        }
-        
-        public void unserialize(string data)
-        {
+            Debug.Log("Unserialized");
             //inventory = StandardMachineInventoryFactory.deserialize(data);
         }
 
-        public void tickUpdate()
+        public override void tickUpdate()
         {
             if (currentRecipe == null) {
                 return;
@@ -90,7 +83,7 @@ namespace TileEntity.Instances.Machines
             */
         }
 
-        public void inventoryUpdate(int n) {
+        public override void InventoryUpdate(int n) {
             /*
             if (currentRecipe != null) {
                 return;
@@ -99,36 +92,10 @@ namespace TileEntity.Instances.Machines
             */
             
         }
-        
-        public ConduitPortLayout GetConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
 
-        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
+        public override float GetProgressPercent()
         {
-            switch (conduitType)
-            {
-                case ConduitType.Energy:
-                    return energyInventory;
-                case ConduitType.Item:
-                case ConduitType.Fluid:
-                    return inventory;
-                case ConduitType.Signal:
-                    return this;
-                default:
-                    return null;
-            }
-        }
-
-        public bool ExtractSignal(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void InsertSignal(bool active, Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
+            return 0;
         }
 
         private class SerializedProcessingMachine

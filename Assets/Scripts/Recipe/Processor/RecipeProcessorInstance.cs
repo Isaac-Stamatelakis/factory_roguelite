@@ -183,14 +183,14 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(outputCopy);
                 case RecipeType.PassiveItem:
-                    return new PassiveItemRecipe(outputCopy, ((PassiveItemRecipeObject)recipeObject).Ticks);
+                    PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
+                    return new PassiveItemRecipe(outputCopy, passiveItemRecipeObject.Ticks, passiveItemRecipeObject.Ticks);
                 case RecipeType.Generator:
                     GeneratorItemRecipeObject generatorRecipeObject = (GeneratorItemRecipeObject)recipeObject;
-                    return new GeneratorItemRecipe(outputCopy, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
+                    return new GeneratorItemRecipe(outputCopy, generatorRecipeObject.Ticks, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
                 case RecipeType.EnergyItem:
                     ItemEnergyRecipeObject itemRecipeObject = (ItemEnergyRecipeObject)recipeObject;
-                    return new ItemEnergyRecipe(outputCopy, itemRecipeObject.TotalInputEnergy,
-                        itemRecipeObject.MinimumEnergyPerTick);
+                    return new ItemEnergyRecipe(outputCopy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.MinimumEnergyPerTick);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -204,7 +204,7 @@ namespace Recipe.Processor
                 case RecipeType.EnergyItem:
                     ulong energyCost = TierUtils.GetMaxEnergyUsage(material.tier);
                     ulong ticks = 200; // TODO change this
-                    return new ItemEnergyRecipe(new List<ItemSlot>{ output }, energyCost, ticks);
+                    return new ItemEnergyRecipe(new List<ItemSlot>{ output }, energyCost, energyCost,ticks);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }

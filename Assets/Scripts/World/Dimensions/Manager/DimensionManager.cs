@@ -40,7 +40,7 @@ namespace Dimensions {
             RecipeRegistry.GetInstance();
             PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
             foreach (PlayerInventory inventory in playerInventories) {
-                inventory.initalize();
+                inventory.Initalize();
             }
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.showAll();

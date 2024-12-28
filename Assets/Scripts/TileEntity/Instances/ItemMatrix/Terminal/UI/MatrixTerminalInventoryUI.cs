@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using UI;
 
 namespace TileEntity.Instances.Matrix {
+    /* This will be fun :) why did i do this to myself
     public interface IMatrixTerminalItemClickReciever {
         public void itemLeftClick(IItemSlotUIElement listener);
         public void itemRightClick(IItemSlotUIElement listener);
@@ -105,8 +106,8 @@ namespace TileEntity.Instances.Matrix {
                 }
                 toDisplay = itemSlot;
             }
-            /*
-            TODO FIX WHATEVER THE FUCK THIS IS
+
+            //TODO FIX WHATEVER THE FUCK THIS IS
             
             ItemSlotUI itemSlotUI = ItemSlotUIFactory.newItemSlotUI(itemSlot,itemContainer,ItemDisplayUtils.SolidItemPanelColor);
             MatrixTerminalItemSlotUI slot = MatrixTerminalItemSlotUI.newInstance(toDisplay, this);
@@ -117,7 +118,6 @@ namespace TileEntity.Instances.Matrix {
             var updatedValue = (tuple.Item1, slot,tuple.Item3);
             idTagItemSlotDict[id][tagKey] = updatedValue;
             slot.transform.SetParent(itemContainer, false);
-            */
         }
 
         public void buildDict() {
@@ -430,5 +430,6 @@ namespace TileEntity.Instances.Matrix {
             }
         }
     }
+    */
 }
 

@@ -16,10 +16,12 @@ namespace Recipe.Data
     }
     public class ItemEnergyRecipe : ItemRecipe
     {
+        public ulong InitialCost;
         public ulong InputEnergy;
         public ulong EnergyCostPerTick;
-        public ItemEnergyRecipe(List<ItemSlot> outputs, ulong inputEnergy, ulong energyCostPerTick) : base(outputs)
+        public ItemEnergyRecipe(List<ItemSlot> outputs, ulong initialCost, ulong inputEnergy, ulong energyCostPerTick) : base(outputs)
         {
+            InitialCost = initialCost;
             InputEnergy = inputEnergy;
             EnergyCostPerTick = energyCostPerTick;
         }
@@ -27,17 +29,19 @@ namespace Recipe.Data
 
     public class PassiveItemRecipe : ItemRecipe
     {
-        public double Ticks;
-        public PassiveItemRecipe(List<ItemSlot> outputs, double ticks) : base(outputs)
+        public double InitalTicks;
+        public double RemainingTicks;
+        public PassiveItemRecipe(List<ItemSlot> outputs, double initalTicks, double remainginTicks) : base(outputs)
         {
-            Ticks = ticks;
+            InitalTicks = initalTicks;
+            RemainingTicks = remainginTicks;
         }
     }
 
     public class GeneratorItemRecipe : PassiveItemRecipe
     {
         public ulong EnergyOutputPerTick;
-        public GeneratorItemRecipe(List<ItemSlot> outputs, double ticks, ulong energyOutputPerTick) : base(outputs, ticks)
+        public GeneratorItemRecipe(List<ItemSlot> outputs, double initalTicks, double remainginTicks, ulong energyOutputPerTick) : base(outputs, initalTicks, remainginTicks)
         {
             EnergyOutputPerTick = energyOutputPerTick;
         }
@@ -47,6 +51,7 @@ namespace Recipe.Data
     {
         public static string Serialize(ItemRecipe itemRecipe, RecipeType recipeType)
         {
+            if (itemRecipe == null) return null;
             string serializedOutputs = ItemSlotFactory.serializeList(itemRecipe.Outputs);
             switch (recipeType)
             {
@@ -57,14 +62,16 @@ namespace Recipe.Data
                     PassiveItemRecipe passiveItemRecipe = (PassiveItemRecipe)itemRecipe;
                     SerializedPassiveItemRecipe serializedPassiveItemRecipe = new SerializedPassiveItemRecipe(
                         serializedOutputs, 
-                        passiveItemRecipe.Ticks
+                        passiveItemRecipe.InitalTicks,
+                        passiveItemRecipe.RemainingTicks
                     );
                     return JsonConvert.SerializeObject(serializedPassiveItemRecipe);
                 case RecipeType.Generator:
                     GeneratorItemRecipe generatorItemRecipe = (GeneratorItemRecipe)itemRecipe;
                     SerializedGeneratorItemRecipe serializedGeneratorItem = new SerializedGeneratorItemRecipe(
                         serializedOutputs, 
-                        generatorItemRecipe.Ticks,
+                        generatorItemRecipe.InitalTicks,
+                        generatorItemRecipe.RemainingTicks,
                         generatorItemRecipe.EnergyOutputPerTick
                     );
                     return JsonConvert.SerializeObject(generatorItemRecipe);
@@ -72,6 +79,7 @@ namespace Recipe.Data
                     ItemEnergyRecipe itemEnergyRecipe = (ItemEnergyRecipe)itemRecipe;
                     SerializedItemEnergyRecipe serializedItemEnergyRecipe = new SerializedItemEnergyRecipe(
                         serializedOutputs,
+                        itemEnergyRecipe.InitialCost,
                         itemEnergyRecipe.InputEnergy,
                         itemEnergyRecipe.EnergyCostPerTick
                     );
@@ -120,13 +128,13 @@ namespace Recipe.Data
                         return new ItemRecipe(outputs) as T;
                     case RecipeType.PassiveItem:
                         SerializedPassiveItemRecipe serializedPassiveItemRecipe = (SerializedPassiveItemRecipe) serializedItemRecipe;
-                        return new PassiveItemRecipe(outputs, serializedPassiveItemRecipe.Ticks) as T;
+                        return new PassiveItemRecipe(outputs, serializedPassiveItemRecipe.InitalTicks, serializedPassiveItemRecipe.RemainingTicks) as T;
                     case RecipeType.Generator:
                         SerializedGeneratorItemRecipe serializedGeneratorItemRecipe = (SerializedGeneratorItemRecipe) serializedItemRecipe;
-                        return new GeneratorItemRecipe(outputs, serializedGeneratorItemRecipe.Ticks, serializedGeneratorItemRecipe.EnergyOutputPerTick) as T;
+                        return new GeneratorItemRecipe(outputs, serializedGeneratorItemRecipe.InitalTicks, serializedGeneratorItemRecipe.RemainingTicks, serializedGeneratorItemRecipe.EnergyOutputPerTick) as T;
                     case RecipeType.EnergyItem:
                         SerializedItemEnergyRecipe serializedItemEnergyRecipe = (SerializedItemEnergyRecipe) serializedItemRecipe;
-                        return new ItemEnergyRecipe(outputs, serializedItemEnergyRecipe.Energy, serializedItemEnergyRecipe.EnergyCostPerTick) as T;
+                        return new ItemEnergyRecipe(outputs, serializedItemEnergyRecipe.InitialEnergy, serializedItemEnergyRecipe.Energy, serializedItemEnergyRecipe.EnergyCostPerTick) as T;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
                 }
@@ -150,36 +158,35 @@ namespace Recipe.Data
     }
     public class SerializedPassiveItemRecipe : SerializedItemRecipe
     {
-        public double Ticks;
-
-        public SerializedPassiveItemRecipe(string itemOutputs, double ticks) : base(itemOutputs)
+        public double RemainingTicks;
+        public double InitalTicks;
+        public SerializedPassiveItemRecipe(string itemOutputs, double initalTicks, double remainingTicks) : base(itemOutputs)
         {
-            ItemOutputs = itemOutputs;
-            Ticks = ticks;
+            InitalTicks = initalTicks;
+            RemainingTicks = remainingTicks;
         }
     }
 
-    public class SerializedGeneratorItemRecipe : SerializedItemRecipe
+    public class SerializedGeneratorItemRecipe : SerializedPassiveItemRecipe
     {
         public double Ticks;
         public ulong EnergyOutputPerTick;
 
-        public SerializedGeneratorItemRecipe(string itemOutputs, double ticks, ulong energyOutputPerTick) : base(itemOutputs)
+        public SerializedGeneratorItemRecipe(string itemOutputs,double initalTicks, double remainingTicks, ulong energyOutputPerTick) : base(itemOutputs, initalTicks, remainingTicks)
         {
-            ItemOutputs = itemOutputs;
-            Ticks = ticks;
             EnergyOutputPerTick = energyOutputPerTick;
         }
     }
 
     public class SerializedItemEnergyRecipe : SerializedItemRecipe
     {
+        public ulong InitialEnergy;
         public ulong Energy;
         public ulong EnergyCostPerTick;
 
-        public SerializedItemEnergyRecipe(string itemOutputs, ulong energy, ulong energyCostPerTick) : base(itemOutputs)
+        public SerializedItemEnergyRecipe(string itemOutputs, ulong initialEnergy, ulong energy, ulong energyCostPerTick) : base(itemOutputs)
         {
-            ItemOutputs = itemOutputs;
+            InitialEnergy = initialEnergy;
             Energy = energy;
             EnergyCostPerTick = energyCostPerTick;
         }

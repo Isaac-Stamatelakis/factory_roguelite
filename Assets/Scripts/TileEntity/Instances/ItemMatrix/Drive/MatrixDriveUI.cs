@@ -10,7 +10,7 @@ namespace TileEntity.Instances.Matrix {
     public class MatrixDriveUI : MonoBehaviour
     {
         [SerializeField] private GridLayoutGroup inventoryList;
-        [SerializeField] private TagRestrictedInventoryUI tagRestrictedInventoryUI;
+        [SerializeField] private InventoryUI tagRestrictedInventoryUI;
         private MatrixDriveInstance matrixDrive;
         public void init(int rows, int columns, List<ItemSlot> inventory, MatrixDriveInstance matrixDrive) {
             this.matrixDrive = matrixDrive;
@@ -22,8 +22,8 @@ namespace TileEntity.Instances.Matrix {
                 }
             }
             inventoryList.constraintCount=columns;
-            tagRestrictedInventoryUI.initalize(inventory,ItemTag.StorageDrive);
-            tagRestrictedInventoryUI.addListener(matrixDrive);
+            tagRestrictedInventoryUI.DisplayInventory(inventory);
+            tagRestrictedInventoryUI.AddListener(matrixDrive);
         }
 
         public static MatrixDriveUI createInstance() {

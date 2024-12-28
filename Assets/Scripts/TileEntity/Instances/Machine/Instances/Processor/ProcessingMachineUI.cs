@@ -5,10 +5,11 @@ using TileEntity;
 using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Machines;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ProcessingMachineUI : MonoBehaviour, ITileEntityUI<ProcessingMachineInstance>, IRecipeProcessorUI
 {
-    [SerializeField] private MachineUI machineUI;
+    [SerializeField] private MachineBaseUI machineBaseUI;
     public void DisplayTileEntityInstance(ProcessingMachineInstance tileEntityInstance)
     {
         throw new System.NotImplementedException();
