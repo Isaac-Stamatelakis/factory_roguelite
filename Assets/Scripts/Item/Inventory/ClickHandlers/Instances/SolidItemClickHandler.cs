@@ -17,16 +17,18 @@ namespace Item.Inventory.ClickHandlers.Instances
                 return;
             }
 
-            var inventory = inventoryUI.Inventory;
+            var inventory = inventoryUI.GetInventory();
             if (!grabbedItemProperties.SetItemSlotFromInventory(inventory,index)) {
                 grabbedItemProperties.AddItemSlotFromInventory(inventory,index);
             }
             
+            inventoryUI.CallListeners(index);
             inventoryUI.DisplayItem(index);
         }
 
         protected override void LeftClick() {
-            var inventory = inventoryUI.Inventory;
+            var inventory = inventoryUI.GetInventory();
+            inventoryUI.CallListeners(index);
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot inventorySlot = inventory[index];
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
@@ -34,6 +36,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 inventory[index] = null;
                 grabbedItemProperties.SetItemSlot(inventorySlot);
                 inventoryUI.DisplayItem(index);
+                inventoryUI.CallListeners(index);
                 return;
             }
             if (ItemSlotHelper.AreEqual(grabbedSlot,inventorySlot)) {
@@ -53,6 +56,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             }
 
             inventoryUI.DisplayItem(index);
+            inventoryUI.CallListeners(index);
         }
         
         protected override void MiddleClick()

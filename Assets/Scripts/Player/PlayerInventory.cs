@@ -17,7 +17,7 @@ namespace PlayerModule {
         public static readonly int COLUMNS = 10;
         [SerializeField] private PlayerRobot playerRobot;
         [SerializeField] private InventoryUI playerInventoryGrid;
-        private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
+        //private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);

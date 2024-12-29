@@ -13,7 +13,6 @@ namespace Item.Inventory
         protected InventoryUI inventoryUI;
         protected int index;
         public void Initialize(InventoryUI parent, int index) {
-            Debug.LogError(index);
             this.inventoryUI = parent;
             this.index = index;
         }

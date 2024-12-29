@@ -89,9 +89,18 @@ namespace TileEntity {
             return ref Energy;
         }
 
+        public ulong GetSpace()
+        {
+            return maxEnergy - Energy;
+        }
         public float GetFillPercent()
         {
             return ((float)Energy)/maxEnergy;
+        }
+
+        public void Fill()
+        {
+            Energy = maxEnergy;
         }
     }
 
@@ -160,6 +169,10 @@ namespace TileEntity {
 
         public static MachineEnergyInventory DeserializeEnergyMachineInventory(string json, ITileEntityInstance parent)
         {
+            if (json == null)
+            {
+                return null;
+            }
             try
             {
                 ulong energy = JsonConvert.DeserializeObject<ulong>(json);

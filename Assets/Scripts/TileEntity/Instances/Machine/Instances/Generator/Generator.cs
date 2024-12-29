@@ -15,16 +15,17 @@ namespace TileEntity.Instances.Machines
 {
     
     [CreateAssetMenu(fileName = "E~New Generator", menuName = "Tile Entity/Machine/Generator")]
-    public class Generator : TileEntityObject
+    public class Generator : MachineObject, ITieredTileEntity
     {
-        public RecipeProcessor RecipeProcessor;
-        [FormerlySerializedAs("StandardMachineLayout")] public MachineLayoutObject machineLayoutObject;
         public Tier Tier;
-        public ConduitPortLayout Layout;
-
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new GeneratorInstance(this,tilePosition,tileItem,chunk);
+        }
+
+        public Tier GetTier()
+        {
+            return Tier;
         }
     }
 }

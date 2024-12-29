@@ -47,6 +47,7 @@ namespace Chunks.Partitions {
             if (tickableTileEntities == null) {
                 return;
             }
+            
             foreach (ITickableTileEntity tileEntity in tickableTileEntities) {
                 tileEntity.tickUpdate();
             }
@@ -72,7 +73,6 @@ namespace Chunks.Partitions {
         /// </summary>
         public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
             tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            tickableTileEntities = new List<ITickableTileEntity>();
             foreach (ITileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
@@ -164,14 +164,13 @@ namespace Chunks.Partitions {
 
         public void addTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
-            if (layer == TileMapLayer.Base) {
-                if (tileEntity is ILoadableTileEntity) {
-                    ((ILoadableTileEntity) tileEntity).load();
-                }
-                tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
-                if (tileEntity is ITickableTileEntity tickableTileEntity) {
-                    tickableTileEntities.Add(tickableTileEntity);
-                }
+            if (layer != TileMapLayer.Base) return;
+            if (tileEntity is ILoadableTileEntity entity) {
+                entity.load();
+            }
+            tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
+            if (tileEntity is ITickableTileEntity tickableTileEntity) {
+                tickableTileEntities.Add(tickableTileEntity);
             }
         }
 

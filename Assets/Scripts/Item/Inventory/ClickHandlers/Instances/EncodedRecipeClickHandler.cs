@@ -8,7 +8,7 @@ namespace Item.Inventory.ClickHandlers.Instances
         protected override void LeftClick()
         {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
-            var inventory = inventoryUI.Inventory;
+            var inventory = inventoryUI.GetInventory();
             if (grabbedItemProperties.ItemSlot == null) {
                 inventory[index] = null;
             } else {
@@ -31,7 +31,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (selectedSlot.amount > 0) {
                 return;
             }
-            var inventory = inventoryUI.Inventory;
+            var inventory = inventoryUI.GetInventory();
             inventory[index] = null;
         }
     }

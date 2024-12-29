@@ -42,6 +42,11 @@ namespace Items {
 
         public void RefreshDisplay()
         {
+            if (displayedSlot == null || displayedSlot.amount == 0)
+            {
+                ItemImage.gameObject.SetActive(false);
+                return;
+            }
             int index = (counter/ItemDisplayUtils.AnimationSpeed) % toDisplay.Length;
             ItemDisplay display = toDisplay[index];
             ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
@@ -118,47 +123,6 @@ namespace Items {
             DisableItemSlotVisuals();
         }
         
-        /*
-        public Image GenerateItemImage() {
-            GameObject imageObject = new GameObject();
-            imageObject.name = ItemDisplayUtils.ItemImageName;
-            imageObject.transform.SetParent(transform,false);
-            RectTransform rectTransform = imageObject.AddComponent<RectTransform>();
-            rectTransform.localPosition = Vector3.zero;
-            rectTransform.anchorMax = Vector2.one;
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.sizeDelta = Vector2.zero;
-            imageObject.AddComponent<CanvasRenderer>();
-            Image image = imageObject.AddComponent<Image>();
-            return image;
-        }
-        public TextMeshProUGUI GenerateNumber() {
-            GameObject number = new GameObject();
-            number.name = ItemDisplayUtils.ItemAmountName;
-            number.transform.SetParent(transform,false);
-            number.AddComponent<RectTransform>();
-            TextMeshProUGUI textMeshPro = number.AddComponent<TextMeshProUGUI>();
-            textMeshPro.fontSize = 20;
-            RectTransform rectTransform = textMeshPro.GetComponent<RectTransform>();
-            rectTransform.anchorMax = Vector2.one;
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.localPosition = new Vector3(2,-2,1);
-            rectTransform.sizeDelta = Vector2.zero;
-            textMeshPro.alignment = TextAlignmentOptions.BottomRight;
-            return textMeshPro;
-        }
-        public (Transform,Transform) GenerateTagContainers() {
-            GameObject endTag = new GameObject();
-            endTag.name = ItemDisplayUtils.ItemTagNameBehind;
-            endTag.transform.SetParent(transform,false);
-            endTag.transform.SetSiblingIndex(0);
-
-            GameObject frontTag = new GameObject();
-            frontTag.name = ItemDisplayUtils.ItemTagNameFront;
-            frontTag.transform.SetParent(transform,false);
-            return (frontTag.transform,endTag.transform);
-        }
-        */
 
         public void DisplayTagVisuals(ItemSlot itemSlot) {
             if (itemSlot.tags?.Dict == null) {

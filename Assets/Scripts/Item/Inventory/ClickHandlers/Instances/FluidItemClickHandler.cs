@@ -11,8 +11,8 @@ namespace Item.Inventory.ClickHandlers.Instances
     {
         protected override void LeftClick()
         {
-            var inventory = inventoryUI.Inventory;
-            ItemSlot fluidSlot = inventory[index];
+            var inventory = inventoryUI.GetInventory();
+            inventoryUI.CallListeners(index);
             ItemSlot container = GrabbedItemProperties.Instance.ItemSlot;
             if (container == null || container.itemObject == null) {
                 return;

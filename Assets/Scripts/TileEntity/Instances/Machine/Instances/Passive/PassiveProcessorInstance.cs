@@ -87,10 +87,19 @@ namespace TileEntity.Instances.Machines {
             return (float)(currentRecipe.RemainingTicks/currentRecipe.InitalTicks);
         }
 
-
+        public override void PlaceInitialize()
+        {
+            InitializeItemInventory();
+        }
+        
         public override void unserialize(string data)
         {
-            //inventory = PassiveMachineInventoryFactory.deserialize(data);
+            SerializedPassiveMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedPassiveMachine>(data);
+            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            currentRecipe = RecipeSerializationFactory.Deserialize<PassiveItemRecipe>(
+                serializedProcessingMachine.SerializedRecipe, 
+                RecipeType.PassiveItem
+            );
         }
         
         private class SerializedPassiveMachine

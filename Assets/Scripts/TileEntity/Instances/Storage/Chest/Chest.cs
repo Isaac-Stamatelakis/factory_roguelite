@@ -10,7 +10,7 @@ using Entities;
 namespace TileEntity.Instances
 {
     [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/Chest")]
-    public class Chest : TileEntityObject
+    public class Chest : TileEntityObject, IManagedUITileEntity
     {
         public ConduitPortLayout ConduitLayout;
         public uint Rows;
@@ -20,6 +20,11 @@ namespace TileEntity.Instances
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new ChestInstance(this,tilePosition,tileItem,chunk);
+        }
+
+        public TileEntityUIManager getUIManager()
+        {
+            return UIManager;
         }
     }
 }

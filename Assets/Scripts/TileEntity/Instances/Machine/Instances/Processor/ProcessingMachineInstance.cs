@@ -21,81 +21,83 @@ namespace TileEntity.Instances.Machines
     {
         public ProcessingMachineInstance(ProcessingMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            Debug.Log("Initalized");
-            InitializeItemInventory();
-            InitializeEnergyInventory();
         }
 
         public override string serialize()
         {
-            try
-            {
-                SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
-                    Mode,
-                    MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
-                    MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
-                    RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
-                );
-                return JsonConvert.SerializeObject(serializedProcessingMachine);
-            }
-            catch (NullReferenceException e)
-            {
-                Debug.LogWarning(e);
-                return null;
-            }
+            SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
+                Mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
+            );
+            return JsonConvert.SerializeObject(serializedProcessingMachine);
         }
         
         public override void unserialize(string data)
         {
-            Debug.Log("Unserialized");
-            //inventory = StandardMachineInventoryFactory.deserialize(data);
+            SerializedProcessingMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedProcessingMachine>(data);
+            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            currentRecipe = RecipeSerializationFactory.Deserialize<ItemEnergyRecipe>(
+                serializedProcessingMachine.SerializedGeneratorRecipe, 
+                RecipeType.EnergyItem
+            );
+            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
+            InventoryUpdate(0);
         }
 
         public override void tickUpdate()
         {
-            if (currentRecipe == null) {
-                return;
-            }
-            ProcessRecipe();
+            if (currentRecipe == null || EnergyInventory.Energy == 0 || currentRecipe.InputEnergy == 0) return;
+
+            ulong energyToUse = EnergyInventory.Energy < currentRecipe.EnergyCostPerTick ? EnergyInventory.Energy : currentRecipe.EnergyCostPerTick;
+            EnergyInventory.Energy -= energyToUse;
+            currentRecipe.InputEnergy -= energyToUse;
+            if (currentRecipe.InputEnergy > 0) return;
+            TryInsertOutput();
         }
 
-        private void ProcessRecipe() {
-            /*
-            if (inventory.Energy <= 0) {
-                return;
-            }
-            int energyToUse = Mathf.Min(inventory.Energy, currentRecipeCost);
-            inventory.Energy -= energyToUse;
-            currentRecipeCost -= energyToUse;
+        private void TryInsertOutput()
+        {
+            ItemSlotHelper.InsertInventoryIntoInventory(Inventory.itemOutputs, currentRecipe.SolidOutputs, Global.MaxSize);
+            ItemSlotHelper.InsertInventoryIntoInventory(Inventory.fluidOutputs,currentRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
+            bool recipeConsumed = RecipeUtils.OutputsUsed(currentRecipe);
+            if (!recipeConsumed) return;
             
-            if (currentRecipeCost > 0) {
-                return;
-            }
-            if (currentRecipeCost < 0) {
-                inventory.Energy-=currentRecipeCost;
-            }   
-            List<ItemSlot> recipeOut = currentRecipe.Outputs;
-            ItemSlotHelper.sortInventoryByState(recipeOut, out var solidOutputs, out var fluidOutputs);
-            ItemSlotHelper.InsertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
-            ItemSlotHelper.InsertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.GetFluidStorage());
             currentRecipe = null;
-            inventoryUpdate(0);
-            */
+            InventoryUpdate(0);
         }
 
         public override void InventoryUpdate(int n) {
-            /*
-            if (currentRecipe != null) {
+            if (currentRecipe != null)
+            {
+                bool complete = currentRecipe.InputEnergy == 0;
+                if (complete)
+                {
+                    TryInsertOutput();
+                }
+                
                 return;
             }
-            currentRecipe = RecipeRegistry.GetInstance().LookUpRecipe(inventory.ItemInputs.Slots, inventory.FluidInputs.Slots);
-            */
-            
+            RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor);
+            if (recipeProcessorInstance == null)
+            {
+                Debug.LogError("Null recipe processor instance");
+                return;
+            }
+            currentRecipe = recipeProcessorInstance.GetRecipe<ItemEnergyRecipe>(Mode, Inventory.itemInputs, Inventory.fluidInputs);
         }
 
         public override float GetProgressPercent()
         {
-            return 0;
+            if (currentRecipe == null) return 0;
+            return 1 - (float)currentRecipe.InputEnergy / currentRecipe.InitialCost;
+        }
+
+        public override void PlaceInitialize()
+        {
+            InitializeItemInventory();
+            InitializeEnergyInventory();
         }
 
         private class SerializedProcessingMachine

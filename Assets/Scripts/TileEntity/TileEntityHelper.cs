@@ -8,6 +8,7 @@ using TileMaps.Type;
 using UnityEngine.Tilemaps;
 using Chunks.Systems;
 using Entities;
+using Newtonsoft.Json;
 using UI;
 
 namespace TileEntity {
@@ -29,8 +30,24 @@ namespace TileEntity {
                     
                 }
             }
-            if (unserialize && tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
-                serializableTileEntity.unserialize(data);
+            if (data == null && tileEntityInstance is IPlaceInitializable placeInitializable)
+            {
+                placeInitializable.PlaceInitialize();
+            } else if (data != null && unserialize && tileEntityInstance is ISerializableTileEntity serializableTileEntity)
+            {
+                try
+                {
+                    serializableTileEntity.unserialize(data);
+                }
+                catch (JsonSerializationException e)
+                {
+                    Debug.LogWarning($"Could not deserialize tile entity {tileItem.tileEntity.name} at {tileEntityInstance.getCellPosition()}\n{e}");
+                    if (tileEntityInstance is IPlaceInitializable placeInitializable1)
+                    {
+                        placeInitializable1.PlaceInitialize();
+                    }
+                }
+                
             }
 
             return tileEntityInstance;
@@ -40,7 +57,6 @@ namespace TileEntity {
         }
         public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
             Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
-            Debug.Log(offsetPosition);
             foreach (ItemSlot itemSlot in items) {
                 ItemEntityHelper.spawnItemEntityFromBreak(
                     offsetPosition,

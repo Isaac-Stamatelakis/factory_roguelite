@@ -4,6 +4,7 @@ using Items.Inventory;
 using LibNoise.Operator;
 using Recipe.Data;
 using Recipe.Processor;
+using RecipeModule.Viewer;
 using TileEntity;
 using TileEntity.Instances.Machine.UI;
 using UI;
@@ -13,7 +14,8 @@ using UnityEngine;
 namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
-        IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator, ISignalConduitInteractable, IInventoryListener, IMachineInstance
+        IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
+        IPlaceInitializable
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
         protected TRecipe currentRecipe;
@@ -58,12 +60,12 @@ namespace TileEntity.Instances.Machine.Instances
         {
             return tileEntityObject.ConduitPortLayout;
         }
-
         public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
         {
             switch (conduitType)
             {
                 case ConduitType.Energy:
+                    Debug.Log(EnergyInventory==null);
                     return EnergyInventory;
                 case ConduitType.Item:
                 case ConduitType.Fluid:
@@ -98,5 +100,39 @@ namespace TileEntity.Instances.Machine.Instances
             }
             return recipeProcessor.MachineLayout;
         }
+
+        public MachineItemInventory GetItemInventory()
+        {
+            return Inventory;
+        }
+
+        public MachineEnergyInventory GetEnergyInventory()
+        {
+            return EnergyInventory;
+        }
+
+        public void SetMode(int mode)
+        {
+            this.Mode = mode;
+        }
+
+        public int GetMode()
+        {
+            return Mode;
+        }
+
+        public void IterateMode(int amount)
+        {
+            Mode += amount;
+        }
+
+        public int GetModeCount()
+        {
+            RecipeProcessor processor = tileEntityObject.RecipeProcessor;
+            if (processor == null) return 0;
+            return 0;
+        }
+
+        public abstract void PlaceInitialize();
     }
 }

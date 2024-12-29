@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Items.Inventory;
 using Recipe.Viewer;
@@ -10,24 +11,19 @@ using UnityEngine.UI;
 
 namespace TileEntity.Instances.Machine.UI
 {
-    public interface IModeMachine
-    {
-        public void SetMode();
-        public int GetMode();
-        public void IterateMode(int amount);
-    }
 
-    public interface IMachineInstance : ITileEntityInstance
+    public interface IMachineInstance : ITileEntityInstance, IInventoryListener
     {
         public float GetProgressPercent();
         public MachineLayoutObject GetMachineLayout();
-    }
-
-    public interface IEnergyTileEntity
-    {
+        public MachineItemInventory GetItemInventory();
         public MachineEnergyInventory GetEnergyInventory();
-        
+        public void SetMode(int mode);
+        public int GetMode();
+        public void IterateMode(int amount);
+        public int GetModeCount();
     }
+    
     public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener
     {
         [SerializeField] private AmountIteratorUI amountIteratorUI;
@@ -51,29 +47,57 @@ namespace TileEntity.Instances.Machine.UI
         {
             this.displayedInstance = machineInstance;
             titleText.text = machineInstance.GetTileEntity().name;
-            if (machineInstance is IModeMachine modeMachine)
-            {
-                modeText.text = modeMachine.GetMode().ToString();
-            }
-            else
+            
+            machineEnergyInventory = machineInstance.GetEnergyInventory();
+            energyScrollbar.gameObject.SetActive(machineEnergyInventory!=null);
+            
+            InitializeModeDisplay();
+            InitializeItemDisplay();
+        }
+
+        public void FixedUpdate()
+        {
+            solidInputs.RefreshSlots();
+            solidOutputs.RefreshSlots();
+            fluidInputs.RefreshSlots();
+            fluidOutputs.RefreshSlots();
+        }
+
+        private void InitializeModeDisplay()
+        {
+            int modeCount = displayedInstance.GetModeCount();
+            if (modeCount < 2)
             {
                 amountIteratorUI.gameObject.SetActive(false);
             }
-
-            if (machineInstance is IEnergyTileEntity energyTileEntity)
-            {
-                machineEnergyInventory = energyTileEntity.GetEnergyInventory();   
-            }
             else
             {
-                energyScrollbar.gameObject.SetActive(false);
+                modeText.text = displayedInstance.GetMode().ToString();
             }
-
-            MachineLayoutObject layoutObject = machineInstance.GetMachineLayout();
-            
         }
-
-        private void InitializeInventoryUI(InventoryUI inventoryUI, MachineInventoryOptions inventoryOptions)
+        private void InitializeItemDisplay()
+        {
+            MachineLayoutObject layoutObject = displayedInstance.GetMachineLayout();
+            bool error = false;
+            if (layoutObject == null)
+            {
+                Debug.LogWarning($"'MachineBaseUI' Tried to display inventory with no layout for {displayedInstance.getName()}");
+                error = true;
+            }
+            MachineItemInventory machineItemInventory = displayedInstance.GetItemInventory();
+            if (machineItemInventory == null)
+            {
+                Debug.LogWarning($"'MachineBaseUI' Tried to display null inventory for {displayedInstance.getName()}");
+                error = true;
+            }
+            if (error) return;
+            
+            InitializeInventoryUI(solidInputs, machineItemInventory.itemInputs,layoutObject.SolidInputs);
+            InitializeInventoryUI(solidOutputs, machineItemInventory.itemOutputs,layoutObject.SolidOutputs);
+            InitializeInventoryUI(fluidInputs, machineItemInventory.fluidInputs,layoutObject.FluidInputs);
+            InitializeInventoryUI(fluidOutputs, machineItemInventory.fluidOutputs,layoutObject.FluidOutputs);
+        }
+        private void InitializeInventoryUI(InventoryUI inventoryUI, List<ItemSlot> inventory, MachineInventoryOptions inventoryOptions)
         {
             int size = inventoryOptions.GetIntSize();
             if (size == 0)
@@ -81,11 +105,18 @@ namespace TileEntity.Instances.Machine.UI
                 inventoryUI.gameObject.SetActive(false);
                 return;
             }
+
+            if (inventory == null)
+            {
+                Debug.LogWarning($"'MachineBaseUI' Tried to display '{inventoryUI.name}' for {displayedInstance.getName()} which was null");
+                return;
+            }
             if (!inventoryOptions.DefaultOffset)
             {
                 inventoryUI.transform.position = (Vector2)inventoryOptions.Offset;
             }
-            
+            inventoryUI.DisplayInventory(inventory);
+            inventoryUI.AddListener(displayedInstance);
         }
 
         public void DisplayProcessor(DisplayableRecipe displayableRecipe)
@@ -110,7 +141,7 @@ namespace TileEntity.Instances.Machine.UI
 
         public void iterate(int amount)
         {
-            ((IModeMachine)displayedInstance).IterateMode(amount);
+            displayedInstance.IterateMode(amount);
         }
     }
 }

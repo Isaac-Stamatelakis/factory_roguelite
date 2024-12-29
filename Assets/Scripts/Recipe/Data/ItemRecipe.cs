@@ -8,10 +8,12 @@ namespace Recipe.Data
 {
     public class ItemRecipe
     {
-        public List<ItemSlot> Outputs;
-        public ItemRecipe(List<ItemSlot> outputs)
+        public List<ItemSlot> SolidOutputs;
+        public List<ItemSlot> FluidOutputs;
+        public ItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs)
         {
-            Outputs = outputs;
+            SolidOutputs = solidOutputs;
+            FluidOutputs = fluidOutputs;
         }
     }
     public class ItemEnergyRecipe : ItemRecipe
@@ -19,7 +21,7 @@ namespace Recipe.Data
         public ulong InitialCost;
         public ulong InputEnergy;
         public ulong EnergyCostPerTick;
-        public ItemEnergyRecipe(List<ItemSlot> outputs, ulong initialCost, ulong inputEnergy, ulong energyCostPerTick) : base(outputs)
+        public ItemEnergyRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, ulong initialCost, ulong inputEnergy, ulong energyCostPerTick) : base(solidOutputs, fluidOutputs)
         {
             InitialCost = initialCost;
             InputEnergy = inputEnergy;
@@ -31,7 +33,7 @@ namespace Recipe.Data
     {
         public double InitalTicks;
         public double RemainingTicks;
-        public PassiveItemRecipe(List<ItemSlot> outputs, double initalTicks, double remainginTicks) : base(outputs)
+        public PassiveItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks) : base(solidOutputs, fluidOutputs)
         {
             InitalTicks = initalTicks;
             RemainingTicks = remainginTicks;
@@ -41,7 +43,7 @@ namespace Recipe.Data
     public class GeneratorItemRecipe : PassiveItemRecipe
     {
         public ulong EnergyOutputPerTick;
-        public GeneratorItemRecipe(List<ItemSlot> outputs, double initalTicks, double remainginTicks, ulong energyOutputPerTick) : base(outputs, initalTicks, remainginTicks)
+        public GeneratorItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks, ulong energyOutputPerTick) : base(solidOutputs,fluidOutputs, initalTicks, remainginTicks)
         {
             EnergyOutputPerTick = energyOutputPerTick;
         }
@@ -52,16 +54,18 @@ namespace Recipe.Data
         public static string Serialize(ItemRecipe itemRecipe, RecipeType recipeType)
         {
             if (itemRecipe == null) return null;
-            string serializedOutputs = ItemSlotFactory.serializeList(itemRecipe.Outputs);
+            string serializedSolidOutputs = ItemSlotFactory.serializeList(itemRecipe.SolidOutputs);
+            string serializedFluidOutputs = ItemSlotFactory.serializeList(itemRecipe.FluidOutputs);
             switch (recipeType)
             {
                 case RecipeType.Item:
-                    SerializedItemRecipe serializedItemRecipe = new SerializedItemRecipe(serializedOutputs);
+                    SerializedItemRecipe serializedItemRecipe = new SerializedItemRecipe(serializedSolidOutputs, serializedFluidOutputs);
                     return JsonConvert.SerializeObject(serializedItemRecipe);
                 case RecipeType.PassiveItem:
                     PassiveItemRecipe passiveItemRecipe = (PassiveItemRecipe)itemRecipe;
                     SerializedPassiveItemRecipe serializedPassiveItemRecipe = new SerializedPassiveItemRecipe(
-                        serializedOutputs, 
+                        serializedSolidOutputs, 
+                        serializedFluidOutputs,
                         passiveItemRecipe.InitalTicks,
                         passiveItemRecipe.RemainingTicks
                     );
@@ -69,21 +73,23 @@ namespace Recipe.Data
                 case RecipeType.Generator:
                     GeneratorItemRecipe generatorItemRecipe = (GeneratorItemRecipe)itemRecipe;
                     SerializedGeneratorItemRecipe serializedGeneratorItem = new SerializedGeneratorItemRecipe(
-                        serializedOutputs, 
+                        serializedSolidOutputs, 
+                        serializedFluidOutputs,
                         generatorItemRecipe.InitalTicks,
                         generatorItemRecipe.RemainingTicks,
                         generatorItemRecipe.EnergyOutputPerTick
                     );
-                    return JsonConvert.SerializeObject(generatorItemRecipe);
+                    return JsonConvert.SerializeObject(serializedGeneratorItem);
                 case RecipeType.EnergyItem:
                     ItemEnergyRecipe itemEnergyRecipe = (ItemEnergyRecipe)itemRecipe;
                     SerializedItemEnergyRecipe serializedItemEnergyRecipe = new SerializedItemEnergyRecipe(
-                        serializedOutputs,
+                        serializedSolidOutputs,
+                        serializedFluidOutputs,
                         itemEnergyRecipe.InitialCost,
                         itemEnergyRecipe.InputEnergy,
                         itemEnergyRecipe.EnergyCostPerTick
                     );
-                    return JsonConvert.SerializeObject(itemEnergyRecipe);
+                    return JsonConvert.SerializeObject(serializedItemEnergyRecipe);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -91,6 +97,7 @@ namespace Recipe.Data
 
         public static T Deserialize<T>(string serializedOutputs, RecipeType recipeType) where T : ItemRecipe
         {
+            if (serializedOutputs == null) return default;
             SerializedItemRecipe serializedItemRecipe;
             try
             {
@@ -121,20 +128,21 @@ namespace Recipe.Data
   
             try
             {
-                var outputs = ItemSlotFactory.Deserialize(serializedItemRecipe.ItemOutputs);
+                var solidOutputs = ItemSlotFactory.Deserialize(serializedItemRecipe.ItemOutputs);
+                var fluidOutputs = ItemSlotFactory.Deserialize(serializedItemRecipe.FluidOutputs);
                 switch (recipeType)
                 {
                     case RecipeType.Item:
-                        return new ItemRecipe(outputs) as T;
+                        return new ItemRecipe(solidOutputs,fluidOutputs) as T;
                     case RecipeType.PassiveItem:
                         SerializedPassiveItemRecipe serializedPassiveItemRecipe = (SerializedPassiveItemRecipe) serializedItemRecipe;
-                        return new PassiveItemRecipe(outputs, serializedPassiveItemRecipe.InitalTicks, serializedPassiveItemRecipe.RemainingTicks) as T;
+                        return new PassiveItemRecipe(solidOutputs,fluidOutputs, serializedPassiveItemRecipe.InitalTicks, serializedPassiveItemRecipe.RemainingTicks) as T;
                     case RecipeType.Generator:
                         SerializedGeneratorItemRecipe serializedGeneratorItemRecipe = (SerializedGeneratorItemRecipe) serializedItemRecipe;
-                        return new GeneratorItemRecipe(outputs, serializedGeneratorItemRecipe.InitalTicks, serializedGeneratorItemRecipe.RemainingTicks, serializedGeneratorItemRecipe.EnergyOutputPerTick) as T;
+                        return new GeneratorItemRecipe(solidOutputs,fluidOutputs, serializedGeneratorItemRecipe.InitalTicks, serializedGeneratorItemRecipe.RemainingTicks, serializedGeneratorItemRecipe.EnergyOutputPerTick) as T;
                     case RecipeType.EnergyItem:
                         SerializedItemEnergyRecipe serializedItemEnergyRecipe = (SerializedItemEnergyRecipe) serializedItemRecipe;
-                        return new ItemEnergyRecipe(outputs, serializedItemEnergyRecipe.InitialEnergy, serializedItemEnergyRecipe.Energy, serializedItemEnergyRecipe.EnergyCostPerTick) as T;
+                        return new ItemEnergyRecipe(solidOutputs,fluidOutputs, serializedItemEnergyRecipe.InitialEnergy, serializedItemEnergyRecipe.Energy, serializedItemEnergyRecipe.EnergyCostPerTick) as T;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
                 }
@@ -150,17 +158,19 @@ namespace Recipe.Data
     public class SerializedItemRecipe
     {
         public string ItemOutputs;
+        public string FluidOutputs;
 
-        public SerializedItemRecipe(string itemOutputs)
+        public SerializedItemRecipe(string itemOutputs, string fluidOutputs)
         {
             ItemOutputs = itemOutputs;
+            FluidOutputs = fluidOutputs;
         }
     }
     public class SerializedPassiveItemRecipe : SerializedItemRecipe
     {
         public double RemainingTicks;
         public double InitalTicks;
-        public SerializedPassiveItemRecipe(string itemOutputs, double initalTicks, double remainingTicks) : base(itemOutputs)
+        public SerializedPassiveItemRecipe(string itemOutputs, string fluidOutputs, double initalTicks, double remainingTicks) : base(itemOutputs, fluidOutputs)
         {
             InitalTicks = initalTicks;
             RemainingTicks = remainingTicks;
@@ -169,10 +179,9 @@ namespace Recipe.Data
 
     public class SerializedGeneratorItemRecipe : SerializedPassiveItemRecipe
     {
-        public double Ticks;
         public ulong EnergyOutputPerTick;
 
-        public SerializedGeneratorItemRecipe(string itemOutputs,double initalTicks, double remainingTicks, ulong energyOutputPerTick) : base(itemOutputs, initalTicks, remainingTicks)
+        public SerializedGeneratorItemRecipe(string itemOutputs,string fluidOutputs,double initalTicks, double remainingTicks, ulong energyOutputPerTick) : base(itemOutputs, fluidOutputs,initalTicks, remainingTicks)
         {
             EnergyOutputPerTick = energyOutputPerTick;
         }
@@ -184,7 +193,7 @@ namespace Recipe.Data
         public ulong Energy;
         public ulong EnergyCostPerTick;
 
-        public SerializedItemEnergyRecipe(string itemOutputs, ulong initialEnergy, ulong energy, ulong energyCostPerTick) : base(itemOutputs)
+        public SerializedItemEnergyRecipe(string itemOutputs,string fluidOutputs, ulong initialEnergy, ulong energy, ulong energyCostPerTick) : base(itemOutputs, fluidOutputs)
         {
             InitialEnergy = initialEnergy;
             Energy = energy;

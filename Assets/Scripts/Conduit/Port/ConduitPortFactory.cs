@@ -36,6 +36,10 @@ namespace Conduits.Ports {
         }
 
         public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, IConduitInteractable interactable, ConduitItem conduitItem) {
+            if (interactable == null)
+            {
+                return null;
+            }
             switch (conduitType) {
                 case ConduitType.Item:
                     if (interactable is not ISolidItemConduitInteractable itemConduitInteractable) {

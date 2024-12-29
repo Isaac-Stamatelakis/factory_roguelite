@@ -10,9 +10,10 @@ namespace TileEntity {
     {
         public void tickUpdate();
     }
-
-    public interface ILoadedTickableTileEntity {
-        public void loadedTickUpdate();
+    
+    public interface IPlaceInitializable
+    {
+        public void PlaceInitialize();
     }
 
     public interface IClimableTileEntity {

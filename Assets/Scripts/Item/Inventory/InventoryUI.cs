@@ -19,21 +19,47 @@ namespace Items.Inventory {
         protected List<ItemSlot> inventory;
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
         private int highlightedSlot = -1;
-        public List<ItemSlot> Inventory => inventory;
         
-        public void DisplayInventory(List<ItemSlot> displayInventory)
+        public void Awake()
         {
-            if (displayInventory == null)
+            List<GameObject> toDestroy = new List<GameObject>();
+            for (int i = 0; i < transform.childCount; i++)
             {
-                GlobalHelper.deleteAllChildren(transform);
-                return;
+                ItemSlotUI itemSlotUI = transform.GetChild(i).GetComponent<ItemSlotUI>();
+                if (itemSlotUI == null)
+                {
+                    toDestroy.Add(transform.gameObject);
+                }
+                else
+                {
+                    slots.Add(itemSlotUI);
+                }
             }
-            DisplayInventory(displayInventory, displayInventory.Count);
+
+            foreach (GameObject go in toDestroy)
+            {
+                Destroy(go);
+            }
         }
 
-        public void DisplayInventory(List<ItemSlot> displayInventory, int displayAmount)
+        public void DisplayInventory(List<ItemSlot> displayInventory, bool clear = true)
         {
+            int displayAmount = displayInventory?.Count ?? 0;
+            DisplayInventory(displayInventory, displayAmount, clear:clear);
+        }
+
+        public void DisplayInventory(List<ItemSlot> displayInventory, int displayAmount, bool clear = true)
+        {
+            if (clear)
+            {
+                slots.Clear();
+                GlobalHelper.deleteAllChildren(transform);
+            }
             inventory = displayInventory;
+            if (inventory == null)
+            {
+                return;
+            }
             while (slots.Count < displayAmount)
             {
                 AddSlot();
@@ -49,7 +75,6 @@ namespace Items.Inventory {
             }
         }
         
-        
         public void AddListener(IInventoryListener listener) {
             listeners.Add(listener);
         }
@@ -61,7 +86,17 @@ namespace Items.Inventory {
                 listener.InventoryUpdate(index);
             }
         }
-        
+
+        public List<ItemSlot> GetInventory()
+        {
+            return inventory;
+        }
+
+        public TClickHandler[] GetClickHandlers<TClickHandler>() where TClickHandler : ItemSlotUIClickHandler
+        {
+            return GetComponentsInChildren<TClickHandler>();
+        }
+         
         protected void AddSlot() {
             ItemSlotUI slot = Instantiate(itemSlotUIPrefab, transform);
             slots.Add(slot);
@@ -114,17 +149,7 @@ namespace Items.Inventory {
             DisplayItem(n);
             CallListeners(n);
         }
-
-        public void IterateSlot(int n, uint amount)
-        {
-            if (n < 0 || n >= slots.Count) {
-                return;
-            }
-            inventory[n].amount += amount;
-            DisplayItem(n);
-            CallListeners(n);
-        }
-
+        
         public void HighlightSlot(int n)
         {
             if (n == highlightedSlot) {

@@ -44,35 +44,6 @@ namespace Chunks.Systems {
             }
             return false;
         }
-        public bool systemIsNeighbor(SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            foreach (SoftLoadedConduitTileChunk neighborChunk in inactiveClosedChunkSystem.Chunks) {
-                if (chunkIsNeighbor(neighborChunk)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public void merge(SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
-            this.softLoadedChunks.AddRange(inactiveClosedChunkSystem.Chunks);
-            IntervalVector toMergeArea = inactiveClosedChunkSystem.coveredArea;
-            if (toMergeArea.X.UpperBound > coveredArea.X.UpperBound) {
-                coveredArea.X.UpperBound = toMergeArea.X.UpperBound;
-            } else if (toMergeArea.X.LowerBound < coveredArea.X.LowerBound) {
-                coveredArea.X.LowerBound = toMergeArea.X.LowerBound;
-            }
-
-            if (toMergeArea.Y.UpperBound > coveredArea.Y.UpperBound) {
-                coveredArea.Y.UpperBound = toMergeArea.Y.UpperBound;
-            } else if (toMergeArea.Y.LowerBound < coveredArea.Y.LowerBound) {
-                coveredArea.Y.LowerBound = toMergeArea.Y.LowerBound;
-            }
-        }
-
-        public void addChunk(SoftLoadedConduitTileChunk chunk) {
-            this.Chunks.Add(chunk);
-            chunk.System = this;
-            updateCoveredArea(chunk);
-        }
 
         private void updateCoveredArea(SoftLoadedConduitTileChunk chunk) {
             if (coveredArea == null) {

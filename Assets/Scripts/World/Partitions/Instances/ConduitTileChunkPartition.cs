@@ -66,10 +66,8 @@ namespace Chunks.Partitions {
                 Debug.LogError("Attempted to tick load partition which is already ticked loaded");
                 return;
             }
-            if (tileEntities == null) {
-                tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            }
-            
+            tileEntities ??= new ITileEntityInstance[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+            tickableTileEntities = new List<ITickableTileEntity>();
             loadTickableTileEntityLayer(data.baseData);
             tickLoaded = true;
         }
@@ -132,6 +130,10 @@ namespace Chunks.Partitions {
                     TileEntityObject tileEntity = tileItem.tileEntity;
                     if (tileEntity != null) {
                         tileEntities[x,y] = placeSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
+                        if (tileEntities[x, y] is ITickableTileEntity tickableTileEntity)
+                        {
+                            tickableTileEntities.Add(tickableTileEntity);
+                        }
                     }
                 }
             }
@@ -141,7 +143,7 @@ namespace Chunks.Partitions {
                 return null;
             }
             Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
-            return TileEntityHelper.placeTileEntity(tileItem,position,parent,false);
+            return TileEntityHelper.placeTileEntity(tileItem,position,parent,false,unserialize:true, data:options);
         }
         protected override void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y)
         {

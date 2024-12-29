@@ -15,6 +15,26 @@ public static class ItemSlotHelper
         }
         return true;
     }
+
+    public static bool IsEmpty(List<ItemSlot> inventory)
+    {
+        if (inventory == null) return true;
+        foreach (ItemSlot itemSlot in inventory)
+        {
+            if (ReferenceEquals(itemSlot?.itemObject, null)) continue;
+            if (itemSlot.amount > 0) return false;
+        }
+        return true;
+    }
+
+    public static void InsertInventoryIntoInventory(List<ItemSlot> to, List<ItemSlot> from, uint maxSize)
+    {
+        if (to == null || from == null) return;
+        foreach (ItemSlot itemSlot in from)
+        {
+            InsertIntoInventory(to,itemSlot,maxSize);
+        }
+    }
     public static bool InsertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
         if (contained == null) {
             return false;
@@ -26,7 +46,7 @@ public static class ItemSlotHelper
                 toInsert.amount=0;
                 return true;
             }
-            if (!ItemSlotHelper.AreEqualNoNullCheck(inputSlot,toInsert)) {
+            if (!AreEqual(inputSlot,toInsert)) {
                 continue;
             }
             
@@ -38,6 +58,11 @@ public static class ItemSlotHelper
             return true;
         }
         return false;
+    }
+
+    public static bool IsItemSlotNull(ItemSlot itemSlot)
+    {
+        return (itemSlot == null || itemSlot.itemObject == null || itemSlot.amount == 0);
     }
 
     public static ItemSlot ExtractFromInventory(List<ItemSlot> inventory) {

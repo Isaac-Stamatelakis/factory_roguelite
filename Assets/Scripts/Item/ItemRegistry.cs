@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,7 +47,6 @@ namespace Items {
             else {
                 Debug.LogError("Failed to load assets from group: " + handle.OperationException);
             }
-            Addressables.Release(handle);
             Debug.Log($"Loaded {items.Count} Items");
             yield return null;
         }
@@ -62,8 +62,7 @@ namespace Items {
         }
         public static ItemRegistry GetInstance() {
             if (instance == null) {
-                Debug.LogError("Accessed unitalized item registry");
-                return null;
+                throw new NullReferenceException("Tried to access null item registry");
             }
             return instance;
         }

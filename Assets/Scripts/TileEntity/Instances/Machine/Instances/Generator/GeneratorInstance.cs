@@ -11,128 +11,89 @@ using Recipe;
 using Recipe.Data;
 using Recipe.Processor;
 using RecipeModule;
+using TileEntity.Instances.Machine.Instances;
 using TileEntity.Instances.WorkBenchs;
 using UI;
 
 namespace TileEntity.Instances.Machines
 {
     
-    public class GeneratorInstance : TileEntityInstance<Generator>, ITickableTileEntity, 
-        IRightClickableTileEntity, ISerializableTileEntity, IProcessorTileEntity, IInventoryListener, IConduitTileEntityAggregator
+    public class GeneratorInstance : MachineInstance<Generator, GeneratorItemRecipe>
     {
         public GeneratorInstance(Generator tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            /*
-            if (inventory == null) {
-                inventory = StandardMachineInventoryFactory.initalize(this.tileEntity.StandardMachineLayout);
-            }
-            */
-        }
-
-        private int mode;
-        private MachineItemInventory itemInventory;
-        private MachineEnergyInventory energyInventory;
-        private GeneratorItemRecipe currentRecipe;
-        public void onRightClick()
-        {
-            TileEntityHelper.DisplayTileEntityUI<GeneratorInstance>(TileEntityObject.RecipeProcessor.UIPrefab, this);
+            
         }
         
-
-        public string serialize()
+        public override string serialize()
         {
             SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
-                mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(itemInventory),
-                MachineInventoryFactory.SerializedEnergyMachineInventory(energyInventory),
+                Mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Generator)
             );
             return JsonConvert.SerializeObject(serializedGeneratorData);
         }
 
-        public void tickUpdate()
+        public override void tickUpdate()
         {
-            InventoryUpdate(0); // ONLY HERE FOR TESTING PURPOSES VERY INEFFICENT
-            if (currentRecipe == null) {
+            if (ReferenceEquals(currentRecipe,null)) {
                 return;
             }
-            processRecipe();
+            ulong space = EnergyInventory.GetSpace();
+            if (space > currentRecipe.EnergyOutputPerTick)
+            {
+                EnergyInventory.Energy += currentRecipe.EnergyOutputPerTick;
+                currentRecipe.RemainingTicks--;
+            }
+            else
+            {
+                EnergyInventory.Fill();
+                double loss = (double)space/currentRecipe.EnergyOutputPerTick;
+                currentRecipe.RemainingTicks -= loss;
+            }
+            
+            if (!(currentRecipe.RemainingTicks <= 0)) return;
+            currentRecipe = null;
+            InventoryUpdate(0);
 
         }
+        
 
-        private void processRecipe() {
-            /*
-            if (remainingTicks > 0) {
-                if (inventory.Energy < tileEntity.Tier.GetEnergyStorage()) {
-                    remainingTicks--;
-                    inventory.Energy += currentRecipe.getEnergyPerTick();
-                }
-            }
-            if (remainingTicks <= 0) {
-                currentRecipe = null;
-            }
-            */
-        }
-
-        public void InventoryUpdate(int n) {
+        public override void InventoryUpdate(int n) {
             if (currentRecipe != null) {
                 return;
             }
             currentRecipe = RecipeRegistry.GetProcessorInstance(TileEntityObject.RecipeProcessor).GetRecipe<GeneratorItemRecipe>(
-                mode, 
-                itemInventory.itemInputs,
-                itemInventory.fluidInputs
+                Mode, 
+            Inventory.itemInputs,
+            Inventory.fluidInputs
             );
         }
-        /*
-        private IEnergyProduceRecipe processEnergyRecipes() {
-            if (tileEntity.EnergyRecipeProcessor == null) {
-                return null;
-            }
-            IEnergyProduceRecipe recipe = tileEntity.EnergyRecipeProcessor.getEnergyRecipe(
-                mode: inventory.Mode,
-                solidInputs: inventory.ItemInputs.Slots,
-                solidOutputs: inventory.ItemOutputs.Slots,
-                fluidInputs: inventory.FluidInputs.Slots,
-                fluidOutputs: inventory.FluidOutputs.Slots
+
+        public override float GetProgressPercent()
+        {
+            if (currentRecipe == null) return 0;
+            return (float)(1 - currentRecipe.RemainingTicks / currentRecipe.InitalTicks);
+        }
+
+        public override void PlaceInitialize()
+        {
+            InitializeItemInventory();
+            InitializeEnergyInventory();
+        }
+        
+        public override void unserialize(string data)
+        {
+            SerializedGeneratorData serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedGeneratorData>(data);
+            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
+            currentRecipe = RecipeSerializationFactory.Deserialize<GeneratorItemRecipe>(
+                serializedProcessingMachine.SerializedGeneratorRecipe, 
+                RecipeType.Generator
             );
-            if (recipe == null) {
-                return null;
-            }
-            if (recipe is not IEnergyProduceRecipe energyProduceRecipe) {
-                Debug.LogError("Machine '" + tileEntity.name + "' Reciped assigned to machine");
-                return null;
-            }
-            return recipe;
-            
         }
-        */
-
-        public void unserialize(string data)
-        {
-            //inventory = StandardMachineInventoryFactory.deserialize(data);
-        }
-
-        public ConduitPortLayout GetConduitPortLayout()
-        {
-            return TileEntityObject.Layout;
-        }
-
-        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
-        {
-            return conduitType switch
-            {
-                ConduitType.Item or ConduitType.Fluid => itemInventory,
-                ConduitType.Energy => energyInventory,
-                _ => null
-            };
-        }
-
-        public RecipeProcessor GetRecipeProcessor()
-        {
-            return TileEntityObject.RecipeProcessor;
-        }
-
         private class SerializedGeneratorData
         {
             public int Mode;
