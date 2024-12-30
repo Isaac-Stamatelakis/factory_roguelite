@@ -164,11 +164,6 @@ namespace Conduits {
                     );
                 case ConduitType.Signal:
                     SignalTileEntityPort signalTileEntityPort = port as SignalTileEntityPort;
-                    if (signalTileEntityPort != null)
-                    {
-                        Debug.Log(signalTileEntityPort.HasConnection(PortConnectionType.Input));
-                    }
-                    
                     return new SignalConduit(
                         x: x,
                         y: y,

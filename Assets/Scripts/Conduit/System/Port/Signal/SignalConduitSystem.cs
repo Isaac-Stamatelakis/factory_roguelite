@@ -46,6 +46,22 @@ namespace Conduits.Systems {
         {
             // No post processing
         }
+
+        public override void Rebuild()
+        {
+            foreach (var (color, signalPorts) in coloredPriorityInputs) {
+                foreach (var signalPort in signalPorts)
+                {
+                    ISignalConduitInteractable signalInteractable = signalPort.Interactable;
+                    signalInteractable.InsertSignal(false, signalPort.Position);
+                }
+            }
+            base.Rebuild();
+            for (int i = 0; i < colorActivations.Length; i++)
+            {
+                colorActivations[i] = false;
+            }
+        }
     }
 }
 

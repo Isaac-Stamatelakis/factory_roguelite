@@ -30,7 +30,7 @@ namespace TileEntity.Instances.Machines {
             SerializedPassiveMachine serializedGeneratorData = new SerializedPassiveMachine(
                 Mode,
                 MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
-                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.PassiveItem)
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Passive)
             );
             return JsonConvert.SerializeObject(serializedGeneratorData);
         }
@@ -98,7 +98,7 @@ namespace TileEntity.Instances.Machines {
             Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
             currentRecipe = RecipeSerializationFactory.Deserialize<PassiveItemRecipe>(
                 serializedProcessingMachine.SerializedRecipe, 
-                RecipeType.PassiveItem
+                RecipeType.Passive
             );
         }
         

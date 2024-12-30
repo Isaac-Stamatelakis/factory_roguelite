@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Machines
                 Mode,
                 MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
                 MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
-                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Machine)
             );
             return JsonConvert.SerializeObject(serializedProcessingMachine);
         }
@@ -40,7 +40,7 @@ namespace TileEntity.Instances.Machines
             Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
             currentRecipe = RecipeSerializationFactory.Deserialize<ItemEnergyRecipe>(
                 serializedProcessingMachine.SerializedGeneratorRecipe, 
-                RecipeType.EnergyItem
+                RecipeType.Machine
             );
             EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             InventoryUpdate(0);

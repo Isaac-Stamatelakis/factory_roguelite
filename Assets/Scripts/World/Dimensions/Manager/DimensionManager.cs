@@ -35,7 +35,8 @@ namespace Dimensions {
         public void Start() {
             StartCoroutine(initalLoad());
         }
-        public IEnumerator initalLoad() {
+        public IEnumerator initalLoad()
+        {
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
@@ -45,6 +46,7 @@ namespace Dimensions {
             foreach (PlayerInventory inventory in playerInventories) {
                 inventory.Initalize();
             }
+            
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.showAll();
             yield return itemLoad;

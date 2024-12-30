@@ -28,7 +28,7 @@ namespace Recipe.Viewer
             {
                 case RecipeType.Item:
                     return null;
-                case RecipeType.PassiveItem:
+                case RecipeType.Passive:
                     if (recipeObject is PassiveItemRecipeObject passiveRecipe)
                         return new List<string>
                         {
@@ -47,7 +47,7 @@ namespace Recipe.Viewer
                         };
                     Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
                     return null;
-                case RecipeType.EnergyItem:
+                case RecipeType.Machine:
                     if (recipeObject is ItemEnergyRecipeObject itemEnergyRecipe)
                         return new List<string>
                         {
