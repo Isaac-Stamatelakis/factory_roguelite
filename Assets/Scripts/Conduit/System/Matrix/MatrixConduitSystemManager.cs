@@ -7,18 +7,18 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class MatrixConduitSystemManager : ConduitSystemManager<MatrixConduit, MatrixConduitSystem>
     {
-        public MatrixConduitSystemManager(ConduitType conduitType, Dictionary<Vector2Int, MatrixConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public MatrixConduitSystemManager(ConduitType conduitType, Dictionary<Vector2Int, MatrixConduit> conduits, Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts) : base(conduitType, conduits, chunkConduitPorts)
         {
         }
 
-        public override void onGenerationCompleted()
+        public override void OnGenerationCompleted()
         {
             foreach (MatrixConduitSystem system in conduitSystems) {
                 system.syncToController();
             }
         }
 
-        public override void onTileEntityAdd(MatrixConduit conduit, ITileEntityInstance tileEntity, TileEntityPortData portData)
+        public override void OnTileEntityAdd(MatrixConduit conduit, ITileEntityInstance tileEntity, TileEntityPortData portData)
         {
             IConduitSystem system = conduit.GetConduitSystem();
             if (system is not MatrixConduitSystem matrixConduitSystem) {
@@ -32,7 +32,7 @@ namespace Conduits.Systems {
             matrixConduitSystem.addTileEntityToSystem(conduit,matrixConduitInteractable);
         }
 
-        public override void onTileEntityRemoved(MatrixConduit conduit)
+        public override void OnTileEntityRemoved(MatrixConduit conduit)
         {
             conduit.MatrixConduitInteractable.RemoveFromSystem();
             conduit.MatrixConduitInteractable = null;
