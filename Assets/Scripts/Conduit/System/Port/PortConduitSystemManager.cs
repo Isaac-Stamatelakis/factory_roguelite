@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Conduits.Systems {
     public class PortConduitSystemManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystem
     {
-        public PortConduitSystemManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
+        public PortConduitSystemManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Vector2Int size, Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts, Vector2Int referencePosition) : base(conduitType, conduits, size, chunkConduitPorts, referencePosition)
         {
 
         }
@@ -42,10 +42,12 @@ namespace Conduits.Systems {
             // No action
         }
 
-        public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity,TileEntityPort port)
+        public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity, TileEntityPortData portData)
         {
+            Vector2Int relativePosition = tileEntity.getCellPosition() - conduit.GetPosition();
+            Debug.Log(relativePosition);
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
-            conduit.SetPort(ConduitPortFactory.CreateDefault(type,port.portType,interactable,conduit.GetConduitItem()));
+            conduit.SetPort(ConduitPortFactory.CreateDefault(type,portData.portType,interactable,conduit.GetConduitItem(),relativePosition));
             conduit.GetConduitSystem().Rebuild();
         }
 

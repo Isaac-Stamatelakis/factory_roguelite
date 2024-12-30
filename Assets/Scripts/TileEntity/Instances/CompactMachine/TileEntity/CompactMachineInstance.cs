@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,10 +7,11 @@ using UnityEngine.Tilemaps;
 using Chunks;
 using Dimensions;
 using Chunks.Systems;
+using Conduits;
 using UI;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitTileEntity, IEnergyConduitInteractable, ISolidItemConduitInteractable, IFluidConduitInteractable, ISignalConduitInteractable, ICompactMachine
+    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine
     {
         private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
@@ -99,7 +101,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             
         }
-
+        /*
         public ItemSlot ExtractSolidItem(Vector2Int portPosition)
         {
             if (inventory.ItemPorts.ContainsKey(portPosition)) {
@@ -129,81 +131,75 @@ namespace TileEntity.Instances.CompactMachines {
                 inventory.FluidPorts[portPosition].InsertFluidItem(itemSlot,portPosition);
             }
         }
+        */
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            switch (state)
+            {
+                case ItemState.Solid:
+                    if (!inventory.ItemPorts.ContainsKey(portPosition)) return null;
+                    return inventory.ItemPorts[portPosition].ExtractItem(state,portPosition,filter);
+                case ItemState.Fluid:
+                    if (!inventory.FluidPorts.ContainsKey(portPosition)) return null;
+                    return inventory.FluidPorts[portPosition].ExtractItem(state,portPosition,filter);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     public class CompactMachinePortInventory {
         private CompactMachineInstance compactMachine;
         private Dictionary<Vector2Int, IEnergyConduitInteractable> energyPorts;
-        private Dictionary<Vector2Int, ISolidItemConduitInteractable> itemPorts;
-        private Dictionary<Vector2Int, IFluidConduitInteractable> fluidPorts;
+        private Dictionary<Vector2Int, IItemConduitInteractable> itemPorts;
+        private Dictionary<Vector2Int, IItemConduitInteractable> fluidPorts;
         private Dictionary<Vector2Int, ISignalConduitInteractable> signalPorts;
 
         public CompactMachinePortInventory(CompactMachineInstance compactMachine) {
             this.compactMachine = compactMachine;
             this.energyPorts = new Dictionary<Vector2Int, IEnergyConduitInteractable>();
-            this.itemPorts = new Dictionary<Vector2Int, ISolidItemConduitInteractable>();
-            this.fluidPorts = new Dictionary<Vector2Int, IFluidConduitInteractable>();
+            this.itemPorts = new Dictionary<Vector2Int, IItemConduitInteractable>();
+            this.fluidPorts = new Dictionary<Vector2Int, IItemConduitInteractable>();
             this.signalPorts = new Dictionary<Vector2Int, ISignalConduitInteractable>();
         }
 
         public Dictionary<Vector2Int, IEnergyConduitInteractable> EnergyPorts { get => energyPorts; set => energyPorts = value; }
-        public Dictionary<Vector2Int, ISolidItemConduitInteractable> ItemPorts { get => itemPorts; set => itemPorts = value; }
-        public Dictionary<Vector2Int, IFluidConduitInteractable> FluidPorts { get => fluidPorts; set => fluidPorts = value; }
+        public Dictionary<Vector2Int, IItemConduitInteractable> ItemPorts { get => itemPorts; set => itemPorts = value; }
+        public Dictionary<Vector2Int, IItemConduitInteractable> FluidPorts { get => fluidPorts; set => fluidPorts = value; }
         public Dictionary<Vector2Int, ISignalConduitInteractable> SignalPorts { get => signalPorts; set => signalPorts = value; }
 
+        private void SetPortInteractable<T>(Dictionary<Vector2Int, T> ports, IConduitInteractable interactable, Vector2Int position, ConduitType type) where T : IConduitInteractable
+        {
+            if (ports.ContainsKey(position)) {
+                Debug.LogWarning("Duplicate key " + position + " of type " + type + " for compact machine " + compactMachine.getName());
+                return;
+            }
+            ports[position] = (T)interactable;
+        }
         public void addPort(ITileEntityInstance tileEntity, ConduitType type) {
             Vector2Int positionInCompactMachine = tileEntity.getCellPosition()-CompactMachineHelper.getPositionInNextRing(compactMachine.getCellPosition()); 
             Vector2Int positionOutsideCompactMachine = CompactMachineHelper.getPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
+            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
+            if (interactable == null) return;
             switch (type) {
                 case ConduitType.Item:
-                    if (itemPorts.ContainsKey(positionOutsideCompactMachine)) {
-                        duplicateWarning(positionOutsideCompactMachine,type);
-                        return;
-                    }
-                    if (tileEntity is not ISolidItemConduitInteractable itemConduitInteractable) {
-                        Debug.LogWarning("Attempted to add " + tileEntity.getName() + " which is not item conduit interactable to compact machine '" + compactMachine.getName() + "'");
-                        return;
-                    }
-                    itemPorts[positionOutsideCompactMachine] = itemConduitInteractable;
+                    SetPortInteractable(ItemPorts,interactable,positionOutsideCompactMachine,type);
                     break;
                 case ConduitType.Energy:
-                    if (itemPorts.ContainsKey(positionOutsideCompactMachine)) {
-                        duplicateWarning(positionOutsideCompactMachine,type);
-                        return;
-                    }
-                    if (tileEntity is not IEnergyConduitInteractable energyConduitInteractable) {
-                        Debug.LogWarning("Attempted to add " + tileEntity.getName() + " which is not energy conduit interactable to compact machine '" + compactMachine.getName() + "'");
-                        return;
-                    }
-                    energyPorts[positionOutsideCompactMachine] = energyConduitInteractable;
+                    SetPortInteractable(EnergyPorts,interactable,positionOutsideCompactMachine,type);
                     break;
                 case ConduitType.Fluid:
-                    if (itemPorts.ContainsKey(positionOutsideCompactMachine)) {
-                        duplicateWarning(positionOutsideCompactMachine,type);
-                        return;
-                    }
-                    if (tileEntity is not IFluidConduitInteractable fluidConduitInteractable) {
-                        Debug.LogWarning("Attempted to add " + tileEntity.getName() + " which is not fluid conduit interactable to compact machine '" + compactMachine.getName() + "'");
-                        return;
-                    }
-                    fluidPorts[positionOutsideCompactMachine] = fluidConduitInteractable;
+                    SetPortInteractable(FluidPorts,interactable,positionOutsideCompactMachine,type);
                     break;
                 case ConduitType.Signal:
-                    if (itemPorts.ContainsKey(positionOutsideCompactMachine)) {
-                        duplicateWarning(positionOutsideCompactMachine,type);
-                        return;
-                    }
-                    if (tileEntity is not ISignalConduitInteractable signalConduitInteractable) {
-                        Debug.LogWarning("Attempted to add " + tileEntity.getName() + " which is not signal conduit interactable to compact machine '" + compactMachine.getName() + "'");
-                        return;
-                    }
-                    signalPorts[positionOutsideCompactMachine] = signalConduitInteractable;
+                    SetPortInteractable(SignalPorts,interactable,positionOutsideCompactMachine,type);
                     break;
             }
-        }
-
-        private void duplicateWarning(Vector2Int key, ConduitType type) {
-            Debug.LogWarning("Duplicate key " + key + " of type " + type + " for compact machine " + compactMachine.getName());
         }
     }
 }

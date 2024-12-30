@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,29 +9,15 @@ namespace Conduits.Systems {
         public static IConduitSystem Create(IConduit conduit, IConduitSystemManager manager) {
             ConduitItem conduitItem = conduit.GetConduitItem();
             ConduitType type = conduitItem.GetConduitType();
-            IConduitSystem system = null;
-            switch (type) {
-                case ConduitType.Item:
-                    system = new SolidItemConduitSystem(conduitItem.id, manager);
-                    break;
-                case ConduitType.Fluid:
-                    system = new FluidConduitSystem(conduitItem.id, manager);
-                    break;
-                case ConduitType.Energy:
-                    system = new EnergyConduitSystem(conduitItem.id, manager);
-                    break;
-                case ConduitType.Signal:
-                    system = new SignalConduitSystem(conduitItem.id, manager);
-                    break;
-                case ConduitType.Matrix:
-                    system = new MatrixConduitSystem(conduitItem.id, manager);
-                    break;
-            }
-
-            if (system == null) {
-                Debug.LogError("ConduitSystemFactory method 'constructSystem' did not handle switch case for '" + type.ToString() + "'");
-            }
-            return system;
+            return type switch
+            {
+                ConduitType.Item => new ItemConduitSystem(conduitItem.id, manager, ItemState.Solid),
+                ConduitType.Fluid => new ItemConduitSystem(conduitItem.id, manager, ItemState.Fluid),
+                ConduitType.Energy => new EnergyConduitSystem(conduitItem.id, manager),
+                ConduitType.Signal => new SignalConduitSystem(conduitItem.id, manager),
+                ConduitType.Matrix => new MatrixConduitSystem(conduitItem.id, manager),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
     }

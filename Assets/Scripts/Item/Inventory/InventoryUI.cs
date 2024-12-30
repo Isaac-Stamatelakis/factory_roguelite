@@ -19,6 +19,7 @@ namespace Items.Inventory {
         protected List<ItemSlot> inventory;
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
         private int highlightedSlot = -1;
+        private bool refresh;
         
         public void Awake()
         {
@@ -90,6 +91,17 @@ namespace Items.Inventory {
         public List<ItemSlot> GetInventory()
         {
             return inventory;
+        }
+
+        public void SetRefresh(bool refresh)
+        {
+            this.refresh = refresh;
+        }
+
+        public void FixedUpdate()
+        {
+            if (!refresh) return;
+            RefreshSlots();
         }
 
         public TClickHandler[] GetClickHandlers<TClickHandler>() where TClickHandler : ItemSlotUIClickHandler

@@ -42,11 +42,13 @@ namespace Items {
 
         public void RefreshDisplay()
         {
-            if (displayedSlot == null || displayedSlot.amount == 0)
+            if (ReferenceEquals(displayedSlot?.itemObject,null) || displayedSlot.amount == 0)
             {
+                AmountText.text = string.Empty;
                 ItemImage.gameObject.SetActive(false);
                 return;
             }
+            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
             int index = (counter/ItemDisplayUtils.AnimationSpeed) % toDisplay.Length;
             ItemDisplay display = toDisplay[index];
             ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
@@ -62,16 +64,18 @@ namespace Items {
         {
             AmountText.text = text;
         }
-
-        public void RefreshAmountText()
-        {
-            if (displayedSlot == null) return;
-            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
-        }
+        
         public void Display(ItemSlot itemSlot)
         {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                Unload();
+            if (ReferenceEquals(itemSlot?.itemObject,null)) {
+                if (ItemImage.IsActive()) Unload();
+                displayedSlot = null;
+                return;
+            }
+
+            if (!ReferenceEquals(displayedSlot?.itemObject, null) &&
+                itemSlot.itemObject.id == displayedSlot.itemObject.id)
+            {
                 return;
             }
             Sprite[] sprites = itemSlot.itemObject.getSprites();
@@ -80,8 +84,9 @@ namespace Items {
                 Unload();
                 return;
             }
-            displayedSlot = itemSlot;
             
+            displayedSlot = itemSlot;
+            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
             toDisplay = new ItemDisplay[sprites.Length];
             Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
             for (int i = 0; i < toDisplay.Length; i++)
@@ -92,7 +97,7 @@ namespace Items {
             counter = 0;
             RefreshDisplay();
             ItemImage.gameObject.SetActive(true);
-            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+            
             DisplayTagVisuals(itemSlot);
         }
 

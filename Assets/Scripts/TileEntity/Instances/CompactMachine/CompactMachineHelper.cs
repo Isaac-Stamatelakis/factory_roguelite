@@ -85,7 +85,7 @@ namespace TileEntity.Instances.CompactMachines {
         /// Maps a port inside a compact machine to its port on the compact machine tile entity
         /// <summary>
         public static Vector2Int getPortPositionInLayout(Vector2Int relativePortPosition, ConduitPortLayout layout, ConduitType type) {
-            List<TileEntityPort> possiblePorts = null;
+            List<TileEntityPortData> possiblePorts = null;
             switch (type) {
                 case ConduitType.Item:
                     possiblePorts = layout.itemPorts;
@@ -101,21 +101,21 @@ namespace TileEntity.Instances.CompactMachines {
                     break;
             }
             float smallestDistance = float.PositiveInfinity;
-            TileEntityPort closestPort = null;
-            foreach (TileEntityPort port in possiblePorts) {
-                // maps port position to the center of its relative chunk (eg (1,1) -> (36,36))
+            TileEntityPortData closestPortData = null;
+            foreach (TileEntityPortData port in possiblePorts) {
+                // maps portData position to the center of its relative chunk (eg (1,1) -> (36,36))
                 Vector2 positionInSideCompactMachine =  (port.position + Vector2.one/2f) * (Global.ChunkSize); 
                 float dist = Vector2.Distance(positionInSideCompactMachine,relativePortPosition);
                 if (dist < smallestDistance) {
                     smallestDistance = dist;
-                    closestPort = port;
+                    closestPortData = port;
                 }
             }
-            if (closestPort == null) {
-                Debug.LogError("Could not find port to map compact machine to");
+            if (closestPortData == null) {
+                Debug.LogError("Could not find portData to map compact machine to");
                 return Vector2Int.zero;
             }
-            return closestPort.position;
+            return closestPortData.position;
         }
 
         public static IEnumerator initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {

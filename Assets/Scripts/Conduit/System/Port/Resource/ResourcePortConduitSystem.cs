@@ -5,10 +5,12 @@ using UnityEngine;
 
 namespace Conduits.Systems
 {
-    public abstract class ResourcePortConduitSystem<TInPort, TOutPort> : PortConduitSystem<TInPort,TOutPort>
-    
-        where TInPort : IColorPort 
-        where TOutPort : IColorPort
+    public interface ITileEntityResourcePort : IColoredTileEntityPort
+    {
+        public uint GetExtractionRate();
+    }
+    public abstract class ResourcePortConduitSystem<TTileEntityPort> : PortConduitSystem<TTileEntityPort>
+        where TTileEntityPort : IColoredTileEntityPort 
     {
         protected ResourcePortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
@@ -18,20 +20,16 @@ namespace Conduits.Systems
         public override void TickUpdate()
         {
             activeThisTick = false;
-            foreach (var colorOutputKVP in ColoredOutputPorts) {
-                int color = colorOutputKVP.Key;
-                var list = colorOutputKVP.Value;
-                if (ColoredInputPorts.ContainsKey(color)) {
-                    List<TInPort> priorityOrderInputs = ColoredInputPorts[color];
-                    foreach (TOutPort outputPort in list) {
-                        IterateTickUpdate(outputPort,priorityOrderInputs,color);
-                    }
+            foreach (var (color, list) in coloredOutputPorts) {
+                if (!coloredPriorityInputs.TryGetValue(color, value: out var priorityOrderInputs)) continue;
+                foreach (TTileEntityPort outputPort in list) {
+                    IterateTickUpdate(outputPort,priorityOrderInputs,color);
                 }
             }
             SetActive(activeThisTick);
         }
-
-        protected abstract void IterateTickUpdate(TOutPort outputPort,List<TInPort> inputPorts, int color);
+        
+        protected abstract void IterateTickUpdate(TTileEntityPort outputPort,List<TTileEntityPort> inputPorts, int color);
     }
     
     

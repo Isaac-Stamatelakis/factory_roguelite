@@ -19,7 +19,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalLampInstance : TileEntityInstance<SignalLight>, ILoadableTileEntity, ISignalConduitInteractable
+    public class SignalLampInstance : TileEntityInstance<SignalLight>, ILoadableTileEntity, ISignalConduitInteractable, IConduitPortTileEntity
     {
         private bool active;
         private GameObject lightObject;
@@ -32,12 +32,7 @@ namespace TileEntity.Instances.Signal {
         {
             return false;
         }
-
-        public ConduitPortLayout getConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
-
+        
         public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             active = signal;
@@ -81,6 +76,11 @@ namespace TileEntity.Instances.Signal {
             if (tileItem.tile is IStateTile stateTile) {
                 TileEntityHelper.stateSwitch(this,0); // set off
             }
+        }
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return TileEntityObject.ConduitLayout;
         }
     }
 }

@@ -4,56 +4,40 @@ using UnityEngine;
 using Conduits.Ports;
 
 namespace Conduits.Systems {
-    public class EnergyConduitSystem : ResourcePortConduitSystem<EnergyConduitInputPort, EnergyConduitOutputPort>
+    public class EnergyConduitSystem : ResourcePortConduitSystem<EnergyTileEntityPort>
     {
         public EnergyConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
         }
-
-        public override void addPort(IPortConduit conduit)
+        
+        protected override void AddInputPortPostProcessing(EnergyTileEntityPort inputPort)
         {
-            IConduitPort conduitPort = conduit.GetPort();
-            if (conduitPort == null) {
-                return;
-            }
-            if (conduitPort is not EnergyConduitPort energyConduitPort) {
-                Debug.LogError("Energy Conduit System recieved non energy conduit port");
-                return;
-            }
-            object input = energyConduitPort.getInputPort();
-            if (input != null) {
-                addInputPort((EnergyConduitInputPort) energyConduitPort.getInputPort());
-            } 
-            object output = energyConduitPort.GetOutputPort();
-            if (output != null) {
-                addOutputPort((EnergyConduitOutputPort) energyConduitPort.GetOutputPort());
-            }
+            // No post processing
         }
 
-        protected override void IterateTickUpdate(EnergyConduitOutputPort outputPort, List<EnergyConduitInputPort> inputPorts, int color)
+        protected override void IterateTickUpdate(EnergyTileEntityPort outputPort, List<EnergyTileEntityPort> inputPorts, int color)
         {
-            ref ulong totalEnergy = ref outputPort.Extract();
+            IEnergyConduitInteractable outputInteractable = outputPort.Interactable;
+            
+            ref ulong totalEnergy = ref outputInteractable.GetEnergy(outputPort.Position);
             ulong toInsert;
-            if (totalEnergy >= outputPort.extractionRate) {
-                toInsert = outputPort.extractionRate;
-                totalEnergy -= outputPort.extractionRate;
+            ulong extractionRate = outputPort.GetExtractionRate();
+            if (totalEnergy >= extractionRate) {
+                toInsert = extractionRate;
+                totalEnergy -= extractionRate;
             } else {
                 toInsert = totalEnergy;
             }
             
-            foreach (EnergyConduitInputPort inputPort in inputPorts) {
+            foreach (EnergyTileEntityPort inputPort in inputPorts) {
                 if (toInsert == 0) {
                     return;
                 }
-                ulong taken = inputPort.Insert(toInsert);
+                IEnergyConduitInteractable inputInteractable = inputPort.Interactable;
+                ulong taken = inputInteractable.InsertEnergy(toInsert, inputPort.Position);
                 toInsert -= taken;
             }
             totalEnergy += toInsert;
-        }
-
-        protected override void addInputPortPostProcessing(EnergyConduitInputPort inputPort)
-        {
-            // No post processing
         }
     }
 }

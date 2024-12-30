@@ -62,7 +62,7 @@ public static class ItemSlotHelper
 
     public static bool IsItemSlotNull(ItemSlot itemSlot)
     {
-        return (itemSlot == null || itemSlot.itemObject == null || itemSlot.amount == 0);
+        return ReferenceEquals(itemSlot?.itemObject,null) || itemSlot.amount == 0;
     }
 
     public static ItemSlot ExtractFromInventory(List<ItemSlot> inventory) {

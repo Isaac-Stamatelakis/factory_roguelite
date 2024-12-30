@@ -259,10 +259,8 @@ namespace TileMaps.Place {
             EntityPortType entityPortType = conduitSystemManager.GetPortTypeAtPosition(placePosition.x,placePosition.y);
             ITileEntityInstance tileEntity = conduitSystemManager.GetTileEntityAtPosition(placePosition.x,placePosition.y);
             int state = conduitSystemManager.GetNewState(placePosition,ConduitPlacementMode.Any,conduitItem.id);
-            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, conduitType);
-            IConduit conduit = ConduitFactory.Create(conduitItem,entityPortType,placePosition.x,placePosition.y,state,interactable);
+            IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
-            
             
             tileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             return true;

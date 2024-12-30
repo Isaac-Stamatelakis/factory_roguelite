@@ -14,7 +14,7 @@ using UnityEngine;
 namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
-        IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
+        IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
         IPlaceInitializable
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
@@ -56,16 +56,12 @@ namespace TileEntity.Instances.Machine.Instances
 
         public abstract void unserialize(string data);
 
-        public ConduitPortLayout GetConduitPortLayout()
-        {
-            return tileEntityObject.ConduitPortLayout;
-        }
+        
         public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
         {
             switch (conduitType)
             {
                 case ConduitType.Energy:
-                    Debug.Log(EnergyInventory==null);
                     return EnergyInventory;
                 case ConduitType.Item:
                 case ConduitType.Fluid:
@@ -134,5 +130,9 @@ namespace TileEntity.Instances.Machine.Instances
         }
 
         public abstract void PlaceInitialize();
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return tileEntityObject.ConduitPortLayout;
+        }
     }
 }

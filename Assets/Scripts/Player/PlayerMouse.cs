@@ -143,13 +143,10 @@ namespace PlayerModule.Mouse {
                 if (conduit == null) {
                     return false;
                 }
-                if (conduit is not IPortConduit portConduit) {
-                    return false;
-                }
                 UIAssetManager assetManager = conduitTileClosedChunkSystem.PortViewerController.AssetManager;
                 EntityPortType portType = portConduitSystemManager.GetPortTypeAtPosition(cellPosition.x,cellPosition.y);
-                GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
-                MainCanvasController.Instance.DisplayObject(ui);
+                //GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
+                //MainCanvasController.Instance.DisplayObject(ui);
                 return true;
             }
             return false;

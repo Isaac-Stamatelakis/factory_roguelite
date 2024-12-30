@@ -10,7 +10,7 @@ using UI;
 
 namespace TileEntity.Instances.Matrix {
     public class MatrixInterfaceInstance : TileEntityInstance<MatrixInterface>,
-        IConduitTileEntity, ISolidItemConduitInteractable, IFluidConduitInteractable, 
+        IConduitPortTileEntity, IItemConduitInteractable ,
         IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity
     {
         public MatrixInterfaceInstance(MatrixInterface tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -26,31 +26,11 @@ namespace TileEntity.Instances.Matrix {
         private List<ItemSlot> upgrades;
         private List<ItemSlot> recipes;
         private MatrixConduitSystem system;
-
-
-        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
-        {
-            return null;
-        }
-
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
-        {
-            return null;
-        }
+        
 
         public ConduitPortLayout GetConduitPortLayout()
         {
             return TileEntityObject.Layout;
-        }
-
-        public void InsertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            controller.sendItem(itemSlot);
-        }
-
-        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            controller.sendItem(itemSlot);
         }
 
         public void SyncToController(ItemMatrixControllerInstance matrixController)
@@ -150,6 +130,17 @@ namespace TileEntity.Instances.Matrix {
                 this.upgrades = upgrades;
                 this.recipes = recipes;
             }
+        }
+
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            // TODO
+            return null;
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            controller.sendItem(toInsert);
         }
     }
 }

@@ -49,7 +49,6 @@ namespace TileEntity {
                 }
                 
             }
-
             return tileEntityInstance;
         }
         public static void setParentOfSpawnedObject(GameObject spawned, ILoadedChunk loadedChunk) {

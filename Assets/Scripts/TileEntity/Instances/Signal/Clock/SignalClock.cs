@@ -26,25 +26,19 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalClockInstance : TileEntityInstance<SignalClock>, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, IRightClickableTileEntity
+    public class SignalClockInstance : TileEntityInstance<SignalClock>, IPlaceInitializable, IConduitPortTileEntity, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, IRightClickableTileEntity
     {
         public ClockData ClockData;
         public SignalClockInstance(SignalClock tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            if (ClockData == null) {
-                initalizeData();
-            }
+            
         }
 
         public bool ExtractSignal(Vector2Int portPosition)
         {
             return ClockData.Counter < TileEntityObject.ActiveDuration;
         }
-
-        public ConduitPortLayout getConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
+        
 
         public void InsertSignal(bool signal, Vector2Int portPosition)
         {
@@ -55,11 +49,7 @@ namespace TileEntity.Instances.Signal {
         {
             TileEntityObject.UIManager.display<SignalClockInstance,SignalClockUI>(this);
         }
-
-        private void initalizeData() {
-            ClockData = new ClockData(TileEntityObject.DefaultTime,0,true);
-        }
-
+        
         public string serialize()
         {
             return JsonConvert.SerializeObject(ClockData);
@@ -78,14 +68,17 @@ namespace TileEntity.Instances.Signal {
 
         public void unserialize(string data)
         {
-            if (data == null) {
-                return;
-            }
-            try {
-                ClockData = JsonConvert.DeserializeObject<ClockData>(data);
-            } catch (JsonSerializationException) {
-                initalizeData();
-            }
+            ClockData = JsonConvert.DeserializeObject<ClockData>(data);
+        }
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return TileEntityObject.ConduitLayout;
+        }
+
+        public void PlaceInitialize()
+        {
+            ClockData = new ClockData(TileEntityObject.DefaultTime,0,true);
         }
     }
 

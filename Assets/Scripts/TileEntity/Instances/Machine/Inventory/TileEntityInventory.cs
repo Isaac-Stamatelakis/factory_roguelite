@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using TileEntity.Instances.Machine;
 
 namespace TileEntity {
-    public class MachineItemInventory : ISolidItemConduitInteractable, IFluidConduitInteractable
+    public class MachineItemInventory : IItemConduitInteractable
     {
         public MachineItemInventory(ITileEntityInstance parent, List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
@@ -25,29 +25,34 @@ namespace TileEntity {
         public List<ItemSlot> fluidInputs;
         public List<ItemSlot> fluidOutputs;
         
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
-            return ItemSlotHelper.ExtractFromInventory(itemOutputs);
-        }
-
-        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            ItemSlotHelper.InsertIntoInventory(itemInputs, itemSlot, Global.MaxSize);
-        }
-
-        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
-        {
-            return ItemSlotHelper.ExtractFromInventory(fluidOutputs);
-        }
-
-        public void InsertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            Tier tier = Tier.Basic;
-            if (parent.GetTileEntity() is ITieredTileEntity tieredTileEntity)
+            return state switch
             {
-                tier = tieredTileEntity.GetTier();
+                ItemState.Solid => ItemSlotHelper.ExtractFromInventory(itemOutputs),
+                ItemState.Fluid => ItemSlotHelper.ExtractFromInventory(fluidOutputs),
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            switch (state)
+            {
+                case ItemState.Solid:
+                    ItemSlotHelper.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize);
+                    break;
+                case ItemState.Fluid:
+                    Tier tier = Tier.Basic;
+                    if (parent.GetTileEntity() is ITieredTileEntity tieredTileEntity)
+                    {
+                        tier = tieredTileEntity.GetTier();
+                    }
+                    ItemSlotHelper.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
-            ItemSlotHelper.InsertIntoInventory(fluidInputs, itemSlot, tier.GetFluidStorage());
         }
     }
 

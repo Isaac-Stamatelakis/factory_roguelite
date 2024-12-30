@@ -6,26 +6,17 @@ using TileEntity.Instances.Matrix;
 using Conduits.Systems;
 using Conduits.Ports;
 
-public interface IConduitTileEntity : ISoftLoadableTileEntity {
+public interface IConduitPortTileEntity : ISoftLoadableTileEntity {
     public ConduitPortLayout GetConduitPortLayout();
 }
 
-public interface IConduitTileEntityAggregator : IConduitTileEntity
+public interface IConduitPortTileEntityAggregator : IConduitPortTileEntity
 {
     public IConduitInteractable GetConduitInteractable(ConduitType conduitType);
 }
 public interface IConduitInteractable
 {
     
-}
-
-public interface ISolidItemConduitInteractable : IItemConduitInteractable {
-    public ItemSlot ExtractSolidItem(Vector2Int portPosition);
-    public void InsertSolidItem(ItemSlot itemSlot,Vector2Int portPosition);
-}
-public interface IFluidConduitInteractable : IItemConduitInteractable{
-    public ItemSlot ExtractFluidItem(Vector2Int portPosition);
-    public void InsertFluidItem(ItemSlot itemSlot,Vector2Int portPosition);
 }
 public interface IEnergyConduitInteractable : IConduitInteractable{
     public ulong InsertEnergy(ulong energy, Vector2Int portPosition);

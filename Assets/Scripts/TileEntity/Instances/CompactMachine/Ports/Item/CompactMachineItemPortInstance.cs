@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Chunks;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineItemPortInstance : TileEntityInstance<CompactMachineItemPort>, ISerializableTileEntity ,IConduitTileEntity, ISolidItemConduitInteractable, ICompactMachineInteractable
+    public class CompactMachineItemPortInstance : TileEntityInstance<CompactMachineItemPort>, ISerializableTileEntity ,IConduitPortTileEntity, IItemConduitInteractable, ICompactMachineInteractable
     {
         public CompactMachineItemPortInstance(CompactMachineItemPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -23,16 +23,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             return TileEntityObject.Layout;
         }
-
-        public void InsertSolidItem(ItemSlot toInsert,Vector2Int portPosition)
-        {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                itemSlot = ItemSlotFactory.Copy(toInsert);
-                toInsert.amount=0;
-                return;
-            }
-        }
-
+        
         public string serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
@@ -47,6 +38,18 @@ namespace TileEntity.Instances.CompactMachines {
         public void unserialize(string data)
         {
             itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
+        }
+
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            return itemSlot;
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            if (ReferenceEquals(toInsert?.itemObject, null)) return;
+            toInsert = ItemSlotFactory.Copy(toInsert);
+            toInsert.amount=0;
         }
     }
 

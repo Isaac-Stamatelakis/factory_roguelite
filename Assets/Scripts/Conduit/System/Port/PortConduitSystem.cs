@@ -23,71 +23,74 @@ namespace Conduits.Systems {
         public void TickUpdate();
     }
 
-    public abstract class PortConduitSystem<TInPort, TOutPort> : ConduitSystem<IPortConduit>, IPortConduitSystem
-    
-        where TInPort : IColorPort 
-        where TOutPort : IColorPort
+    public enum PortConnectionType
+    {
+        Input,
+        Output
+    }
+    public interface IColoredTileEntityPort
+    {
+        public int GetColor(PortConnectionType portConnectionType);
+        public int SetColor(PortConnectionType portConnectionType, int color);
+    }
+
+    public abstract class PortConduitSystem<TTileEntityPort> : ConduitSystem<IPortConduit>, IPortConduitSystem where TTileEntityPort : IColoredTileEntityPort
 
     {
+        protected Dictionary<int, List<TTileEntityPort>> coloredOutputPorts;
+        protected Dictionary<int, List<TTileEntityPort>> coloredPriorityInputs;
         private bool active;
-        protected PortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager) {
-            init();
+        protected PortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
+        {
+            coloredOutputPorts = new Dictionary<int, List<TTileEntityPort>>();
+            coloredPriorityInputs = new Dictionary<int, List<TTileEntityPort>>();
         }
 
         public override void AddConduit(IConduit conduit) {
             base.AddConduit(conduit);
-            addPort((IPortConduit)conduit);
+            AddPort((IPortConduit)conduit);
         }
         public override void Rebuild()
         {
-            ColoredOutputPorts = new Dictionary<int, List<TOutPort>>();
-            ColoredInputPorts = new Dictionary<int, List<TInPort>>();
+            coloredOutputPorts = new Dictionary<int, List<TTileEntityPort>>();
+            coloredPriorityInputs = new Dictionary<int, List<TTileEntityPort>>();
             foreach (IPortConduit conduit in conduits) {
-                addPort(conduit);
+                AddPort(conduit);
             }
         }
 
-        public abstract void addPort(IPortConduit conduit);
-        protected Dictionary<int, List<TOutPort>> coloredOutputPorts;
-        protected Dictionary<int, List<TInPort>> coloredPriorityInputs;
-        public Dictionary<int, List<TOutPort>> ColoredOutputPorts { get => coloredOutputPorts; set => coloredOutputPorts = value; }
-        public Dictionary<int, List<TInPort>> ColoredInputPorts { get => coloredPriorityInputs; set => coloredPriorityInputs = value; }
-
-        public abstract void TickUpdate();
-        protected void addOutputPort(TOutPort outputPort) {
-            if (outputPort == null) {
-                return;
-            }
-            if (!ColoredOutputPorts.ContainsKey(outputPort.getColor())) {
-                ColoredOutputPorts[outputPort.getColor()] = new List<TOutPort>();
-            }
-            ColoredOutputPorts[outputPort.getColor()].Add(outputPort);
-        }
-        protected void addInputPort(TInPort inputPort) {
-            if (inputPort == null) {
-                return;
-            }
-            if (!ColoredInputPorts.ContainsKey(inputPort.getColor())) {
-                ColoredInputPorts[inputPort.getColor()] = new List<TInPort>();
-            }
-            ColoredInputPorts[inputPort.getColor()].Add(inputPort);
-            addInputPortPostProcessing(inputPort);
-        }
-
-        protected abstract void addInputPortPostProcessing(TInPort inputPort);
-
-        protected void init()
+        private void AddPort(IPortConduit conduit)
         {
-            ColoredOutputPorts = new Dictionary<int, List<TOutPort>>();
-            ColoredInputPorts = new Dictionary<int, List<TInPort>>();
+            if (conduit.GetPort() is not TTileEntityPort tileEntityPort) return;
+            AddInputPort(tileEntityPort);
+            AddOutputPort(tileEntityPort);
         }
+        public abstract void TickUpdate();
+        protected void AddOutputPort(TTileEntityPort tileEntityPort)
+        {
+            if (ReferenceEquals(tileEntityPort,null)) return;
+            int color = tileEntityPort.GetColor(PortConnectionType.Output);
+            if (!coloredOutputPorts.ContainsKey(color))
+            {
+                coloredOutputPorts[color] = new List<TTileEntityPort>();
+            }
+            coloredOutputPorts[color].Add(tileEntityPort);
+        }
+        protected void AddInputPort(TTileEntityPort tileEntityPort) {
+            if (ReferenceEquals(tileEntityPort,null)) return;
+            int color = tileEntityPort.GetColor(PortConnectionType.Input);
+            if (!coloredPriorityInputs.ContainsKey(color)) {
+                coloredPriorityInputs[color] = new List<TTileEntityPort>();
+            }
+            coloredPriorityInputs[color].Add(tileEntityPort);
+            AddInputPortPostProcessing(tileEntityPort);
+        }
+
+        protected abstract void AddInputPortPostProcessing(TTileEntityPort inputPort);
 
         protected void SetActive(bool state)
         {
-            if (active == state)
-            {
-                return;
-            }
+            if (active == state) return;
             active = state;
             manager.RefreshSystemTiles(this);
         }

@@ -10,7 +10,8 @@ using UI;
 
 namespace TileEntity.Instances
 {
-    public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, ISolidItemConduitInteractable, IPlaceInitializable
+    public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 
+        IItemConduitInteractable, IPlaceInitializable, IConduitPortTileEntity
     {
         protected List<ItemSlot> items;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -39,6 +40,7 @@ namespace TileEntity.Instances
             GameObject clone = GameObject.Instantiate(uiElement);
             InventoryUI inventoryUI = clone.GetComponent<InventoryUI>();
             inventoryUI.DisplayInventory(items);
+            inventoryUI.SetRefresh(true);
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(clone);
         }
 
@@ -65,7 +67,7 @@ namespace TileEntity.Instances
             }
         }
 
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             for (int i = 0; i < items.Count; i++)
             {
@@ -76,9 +78,9 @@ namespace TileEntity.Instances
             return null;
         }
 
-        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            ItemSlotHelper.InsertIntoInventory(items, itemSlot, Global.MaxSize);
+            ItemSlotHelper.InsertIntoInventory(items, toInsert, Global.MaxSize);
         }
     }
 }

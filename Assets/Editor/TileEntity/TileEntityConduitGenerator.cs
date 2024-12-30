@@ -49,7 +49,7 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tile tile = (Tile) mainMap.GetTile(center);
         Vector2Int spriteSize = Global.getSpriteSize(tile.sprite);
-        IConduitTileEntity machinePorts = (IConduitTileEntity) tileEntity;
+        IConduitPortTileEntity machinePorts = (IConduitPortTileEntity) tileEntity;
         Vector2Int xArea = getArea(spriteSize.x);
         Vector2Int yArea = getArea(spriteSize.y);
         setPorts(machinePorts,tilemapPrefab.transform,ConduitType.Item,center,xArea,yArea);
@@ -61,7 +61,7 @@ public class TileEntityConduitGenerator : EditorWindow {
         AssetDatabase.SaveAssets();
     }
 
-    private void setPorts(IConduitTileEntity machinePortInterface, Transform parent, ConduitType conduitType, Vector3Int center, Vector2Int xArea, Vector2Int yArea) {
+    private void setPorts(IConduitPortTileEntity machinePortInterface, Transform parent, ConduitType conduitType, Vector3Int center, Vector2Int xArea, Vector2Int yArea) {
         Transform childTransform = parent.Find(conduitType.ToString());
         if (childTransform == null) {
             Debug.LogError("No tilemap object for " + conduitType.ToString());
@@ -69,22 +69,22 @@ public class TileEntityConduitGenerator : EditorWindow {
         }
         Tilemap tilemap = childTransform.GetComponent<Tilemap>();
         
-        List<TileEntityPort> conduitPorts = new List<TileEntityPort>();
+        List<TileEntityPortData> conduitPorts = new List<TileEntityPortData>();
         for (int x = xArea.x; x <= xArea.y; x++) {
             for (int y = yArea.x; y <= yArea.y; y++) {
                 TileBase tileBase = tilemap.GetTile(new Vector3Int(x,y,0)+center);
                 if (tileBase != null) {
                     StandardTile standardTile = (StandardTile) tileBase;
-                    TileEntityPort conduitPortData;
+                    TileEntityPortData conduitPortDataData;
                     switch (standardTile.id) {
                         case "All":
-                            conduitPortData = new TileEntityPort(EntityPortType.All,new Vector2Int(x,y));
+                            conduitPortDataData = new TileEntityPortData(EntityPortType.All,new Vector2Int(x,y));
                             break;
                         case "Input":
-                            conduitPortData = new TileEntityPort(EntityPortType.Input,new Vector2Int(x,y));
+                            conduitPortDataData = new TileEntityPortData(EntityPortType.Input,new Vector2Int(x,y));
                             break;
                         case "Output":
-                            conduitPortData = new TileEntityPort(EntityPortType.Output,new Vector2Int(x,y));
+                            conduitPortDataData = new TileEntityPortData(EntityPortType.Output,new Vector2Int(x,y));
                             break;
                     }
                 }

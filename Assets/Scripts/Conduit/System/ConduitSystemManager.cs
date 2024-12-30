@@ -19,7 +19,7 @@ namespace Conduits.Systems {
         public void SetConduit(int x, int y, IConduit conduit);
         public ITileEntityInstance GetTileEntityAtPosition(int x, int y);
         public ConduitType GetConduitType();
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetTileEntityPorts();
+        public Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetTileEntityPorts();
         public EntityPortType GetPortTypeAtPosition(int x, int y);
         public void AddTileEntity(ITileEntityInstance tileEntity);
         public void DeleteTileEntity(Vector2Int position);
@@ -40,19 +40,19 @@ namespace Conduits.Systems {
         protected List<TSystem> conduitSystems;
         protected ConduitType type;
         protected Dictionary<Vector2Int, TConduit> conduits;
-        protected Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts;
+        protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
         protected Vector2Int size;
         protected Vector2Int referencePosition;
         protected ConduitTileMap conduitTileMap;
 
         public ConduitType Type { get => type;}
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
+        public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
 
         protected ConduitSystemManager(
             ConduitType conduitType, 
             Dictionary<Vector2Int, TConduit> conduits, 
             Vector2Int size,
-            Dictionary<ITileEntityInstance, List<TileEntityPort>> chunkConduitPorts, 
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts, 
             Vector2Int referencePosition
             ) {
             this.type = conduitType;
@@ -79,10 +79,10 @@ namespace Conduits.Systems {
         }
         
         public void AddTileEntity(ITileEntityInstance tileEntity) {
-            if (tileEntity is not IConduitTileEntity interactable) {
+            if (tileEntity is not IConduitPortTileEntity conduitPortTileEntity) {
                 return;
             }
-            ConduitPortLayout layout = interactable.GetConduitPortLayout();
+            ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
             if (layout == null) {
                 return;
             }
@@ -103,7 +103,7 @@ namespace Conduits.Systems {
                     chunkConduitPorts[tileEntity] = layout.matrixPorts;
                     break;
             }
-            foreach (TileEntityPort port in chunkConduitPorts[tileEntity]) {
+            foreach (TileEntityPortData port in chunkConduitPorts[tileEntity]) {
                 Vector2Int position = port.position + tileEntity.getCellPosition() - referencePosition;
                 if (!conduits.TryGetValue(position, out var conduit))
                 {
@@ -116,12 +116,12 @@ namespace Conduits.Systems {
             }
         }
 
-        public abstract void onTileEntityAdd(TConduit conduit,ITileEntityInstance tileEntity, TileEntityPort port);
+        public abstract void onTileEntityAdd(TConduit conduit,ITileEntityInstance tileEntity, TileEntityPortData portData);
         public abstract void onTileEntityRemoved(TConduit conduit);
         public void DeleteTileEntity(Vector2Int position) {
-            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
+            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
                 if (kvp.Key.getCellPosition() == position) {
-                    foreach (TileEntityPort port in chunkConduitPorts[kvp.Key]) {
+                    foreach (TileEntityPortData port in chunkConduitPorts[kvp.Key]) {
                         Vector2Int portPosition = port.position + position-referencePosition;
                         TConduit conduit = GetConduitAtCellPosition(portPosition);
                         if (conduit == null) {
@@ -346,9 +346,9 @@ namespace Conduits.Systems {
         public ITileEntityInstance GetTileEntityAtPosition(int x, int y) {
             // TODO make this more efficent
             Vector2Int pos = new Vector2Int(x,y);
-            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
+            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
                 //Vector2Int distVec = kvp.Key - new Vector2Int(x,y);
-                foreach (TileEntityPort tileEntityPort in kvp.Value) {
+                foreach (TileEntityPortData tileEntityPort in kvp.Value) {
                     // Key is tileEntityPosition
                     if (tileEntityPort.position + kvp.Key.getCellPosition() == pos) { // Conduit is placed on tileEntityPort
                         return kvp.Key;
@@ -360,9 +360,9 @@ namespace Conduits.Systems {
         public EntityPortType GetPortTypeAtPosition(int x, int y) {
             // TODO make this more efficent
             Vector2Int pos = new Vector2Int(x,y);
-            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPort>> kvp in chunkConduitPorts) {
+            foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
                 //Vector2Int distVec = kvp.Key - new Vector2Int(x,y);
-                foreach (TileEntityPort tileEntityPort in kvp.Value) {
+                foreach (TileEntityPortData tileEntityPort in kvp.Value) {
                     // Key is tileEntityPosition
                     if (tileEntityPort.position + kvp.Key.getCellPosition() == pos) { // Conduit is placed on tileEntityPort
                         return tileEntityPort.portType;
@@ -452,7 +452,7 @@ namespace Conduits.Systems {
             return type;
         }
 
-        public Dictionary<ITileEntityInstance, List<TileEntityPort>> GetTileEntityPorts()
+        public Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetTileEntityPorts()
         {
             return tileEntityConduitPorts;
         }
