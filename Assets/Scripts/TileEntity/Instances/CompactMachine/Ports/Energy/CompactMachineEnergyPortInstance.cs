@@ -8,7 +8,7 @@ using Chunks;
 
 namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineEnergyPortInstance : TileEntityInstance<CompactMachineEnergyPort>, 
-    ISerializableTileEntity ,IConduitTileEntity, IEnergyConduitInteractable, ICompactMachineInteractable
+    ISerializableTileEntity ,IConduitPortTileEntity, IEnergyConduitInteractable, ICompactMachineInteractable
     {
         private ulong energy;
         private CompactMachineInstance compactMachine;

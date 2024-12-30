@@ -9,7 +9,7 @@ using Items;
 
 
 namespace TileEntity.Instances.Storage {
-    public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitTileEntity, ILoadableTileEntity, IFluidConduitInteractable
+    public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntity, ILoadableTileEntity, IItemConduitInteractable
     {
         private ItemSlot itemSlot;
         public uint FillAmount {get => itemSlot.amount;}
@@ -79,14 +79,14 @@ namespace TileEntity.Instances.Storage {
         {
             this.itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
         }
-
-        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
+        
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             updateVisual();
             return itemSlot;
         }
 
-        public void InsertFluidItem(ItemSlot toInsert, Vector2Int portPosition)
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
             if (itemSlot == null || itemSlot.itemObject == null) {
                 itemSlot = ItemSlotFactory.Copy(toInsert);

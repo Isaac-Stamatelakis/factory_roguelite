@@ -14,9 +14,10 @@ using Entities;
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
+        public static readonly int COLUMNS = 10;
         [SerializeField] private PlayerRobot playerRobot;
-        [SerializeField] private PlayerInventoryGrid playerInventoryGrid;
-        private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
+        [SerializeField] private InventoryUI playerInventoryGrid;
+        //private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
@@ -35,46 +36,13 @@ namespace PlayerModule {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
         }
 
-        public void initalize() {
+        public void Initalize() {
             GetComponent<PlayerIO>().initRead();
             inventory = ItemSlotFactory.Deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
-            playerInventoryGrid.initalize(inventory, new UnityEngine.Vector2Int(10,1));
+            playerInventoryGrid.DisplayInventory(inventory,10);
         }
-
-        public void cloneInventoryUI(Transform container) {
-            PlayerInventoryGrid cloneGrid = container.gameObject.AddComponent<PlayerInventoryGrid>();
-            cloneGrid.initalize(inventory,new Vector2Int(10,4));
-        }
-
-        public void changeDisplayMode(InventoryDisplayMode displayMode) {
-            if (this.mode == displayMode) {
-                return;
-            }
-            this.mode = displayMode;
-            switch (mode) {
-                case InventoryDisplayMode.Inventory:
-                    playerInventoryGrid.SetInventory(inventory);
-                    break;
-                case InventoryDisplayMode.Tools:
-                    playerInventoryGrid.SetInventory(toolInventory);
-                    break;
-            }
-        }
-
-        public void toggleToolAndInventory() {
-            switch (mode) {
-                case InventoryDisplayMode.Inventory:
-                    changeDisplayMode(InventoryDisplayMode.Inventory);
-                    break;
-                case InventoryDisplayMode.Tools:
-                    changeDisplayMode(InventoryDisplayMode.Tools);
-                    break;
-                default:
-                    changeDisplayMode(InventoryDisplayMode.Inventory);
-                    break;
-            }
-        }
-
+        
+        
         void Update()
         {
             raycastHitTileEntities();
@@ -83,16 +51,14 @@ namespace PlayerModule {
         public void toggleInventory() {
             expanded = !expanded;
             if (expanded) {
-                playerInventoryGrid.UpdateSize(new UnityEngine.Vector2Int(10,4));
+                playerInventoryGrid.DisplayInventory(inventory);
             } else {
-                playerInventoryGrid.UpdateSize(new UnityEngine.Vector2Int(10,1));
+                playerInventoryGrid.DisplayInventory(inventory,10);
             }
-
-            playerInventoryGrid.RefreshSlots();
         }
-        public void changeSelectedSlot(int slot) {
+        public void ChangeSelectedSlot(int slot) {
             selectedSlot = slot;
-            playerInventoryGrid.selectSlot(slot);
+            playerInventoryGrid.HighlightSlot(slot);
         }
         
         private void raycastHitTileEntities() {
@@ -154,8 +120,8 @@ namespace PlayerModule {
 
         public void iterateSelectedTile(int iterator) {
             selectedSlot += iterator;
-            selectedSlot = (int) Global.modInt(selectedSlot,playerInventoryGrid.Size.x);
-            changeSelectedSlot(selectedSlot); 
+            selectedSlot = (int) Global.modInt(selectedSlot,COLUMNS);
+            ChangeSelectedSlot(selectedSlot); 
         }
 
         public void give(ItemSlot itemSlot) {
@@ -192,7 +158,7 @@ namespace PlayerModule {
             return ItemSlotFactory.serializeList(inventory);
         }
 
-        public void inventoryUpdate(int n)
+        public void InventoryUpdate(int n)
         {
             
         }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
@@ -23,12 +24,13 @@ namespace PlayerModule.KeyPress {
                 return;
             }
             if (Input.GetKeyDown(KeyCode.E)) {
-                playerInventory.changeDisplayMode(InventoryDisplayMode.Inventory);
                 playerInventory.toggleInventory();
             }
+            /*
             if (Input.GetKeyDown(KeyCode.C)) {
                 playerInventory.toggleToolAndInventory();
             }
+            */
 
             inventoryNavigationKeys();
             inventoryKeyPresses();
@@ -37,34 +39,34 @@ namespace PlayerModule.KeyPress {
 
         private void inventoryNavigationKeys() {
             if (Input.GetKeyDown(KeyCode.Alpha1)) {
-                playerInventory.changeSelectedSlot(0);
+                playerInventory.ChangeSelectedSlot(0);
             }
             if (Input.GetKeyDown(KeyCode.Alpha2)) {
-                playerInventory.changeSelectedSlot(1);
+                playerInventory.ChangeSelectedSlot(1);
             }
             if (Input.GetKeyDown(KeyCode.Alpha3)) {
-                playerInventory.changeSelectedSlot(2);
+                playerInventory.ChangeSelectedSlot(2);
             }
             if (Input.GetKeyDown(KeyCode.Alpha4)) {
-                playerInventory.changeSelectedSlot(3);
+                playerInventory.ChangeSelectedSlot(3);
             }
             if (Input.GetKeyDown(KeyCode.Alpha5)) {
-                playerInventory.changeSelectedSlot(4);
+                playerInventory.ChangeSelectedSlot(4);
             }
             if (Input.GetKeyDown(KeyCode.Alpha6)) {
-                playerInventory.changeSelectedSlot(5);
+                playerInventory.ChangeSelectedSlot(5);
             }
             if (Input.GetKeyDown(KeyCode.Alpha7)) {
-                playerInventory.changeSelectedSlot(6);
+                playerInventory.ChangeSelectedSlot(6);
             }
             if (Input.GetKeyDown(KeyCode.Alpha8)) {
-                playerInventory.changeSelectedSlot(7);
+                playerInventory.ChangeSelectedSlot(7);
             }
             if (Input.GetKeyDown(KeyCode.Alpha9)) {
-                playerInventory.changeSelectedSlot(8);
+                playerInventory.ChangeSelectedSlot(8);
             }
             if (Input.GetKeyDown(KeyCode.Alpha0)) {
-                playerInventory.changeSelectedSlot(9);
+                playerInventory.ChangeSelectedSlot(9);
             }
         }
 
@@ -74,7 +76,7 @@ namespace PlayerModule.KeyPress {
                 if (current != null) {
                     ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
                     if (clickHandler != null) {
-                        ((IItemSlotUIElement) clickHandler).ShowRecipes();
+                        clickHandler.ShowRecipes();
                     } 
                 }
             }
@@ -83,7 +85,7 @@ namespace PlayerModule.KeyPress {
                 if (current != null) {
                     ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
                     if (clickHandler != null) {
-                        ((IItemSlotUIElement) clickHandler).ShowUses();
+                        clickHandler.ShowUses();
                     } 
                 }
             }

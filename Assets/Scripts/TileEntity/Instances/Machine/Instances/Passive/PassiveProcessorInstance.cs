@@ -10,16 +10,12 @@ using Items.Inventory;
 using Recipe;
 using Recipe.Data;
 using Recipe.Processor;
+using TileEntity.Instances.Machine.Instances;
 using TileEntity.Instances.WorkBenchs;
 
 namespace TileEntity.Instances.Machines {
-    public class PassiveProcessorInstance : TileEntityInstance<PassiveProcessor>, ITickableTileEntity,  IRightClickableTileEntity, ISerializableTileEntity, 
-        IConduitTileEntityAggregator,  IProcessorTileEntity, IInventoryListener
+    public class PassiveProcessorInstance : MachineInstance<PassiveProcessor, PassiveItemRecipe>
     {
-        private int mode;
-        private MachineItemInventory inventory;
-        private PassiveItemRecipe currentRecipe;
-
         public PassiveProcessorInstance(PassiveProcessor tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
             /*
@@ -28,23 +24,18 @@ namespace TileEntity.Instances.Machines {
             }
             */
         }
-
-        public void onRightClick()   
-        {
-            TileEntityHelper.DisplayTileEntityUI<PassiveProcessorInstance>(TileEntityObject.RecipeProcessor.UIPrefab,this);
-        }
         
-        public string serialize()
+        public override string serialize()
         {
             SerializedPassiveMachine serializedGeneratorData = new SerializedPassiveMachine(
-                mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(inventory),
+                Mode,
+                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.PassiveItem)
             );
             return JsonConvert.SerializeObject(serializedGeneratorData);
         }
 
-        public void tickUpdate()
+        public override void tickUpdate()
         {
             if (currentRecipe == null) {
                 return;
@@ -68,7 +59,7 @@ namespace TileEntity.Instances.Machines {
             */
         }
 
-        public void inventoryUpdate(int n) {
+        public override void InventoryUpdate(int n) {
             /*
             if (currentRecipe != null) {
                 return;
@@ -87,33 +78,30 @@ namespace TileEntity.Instances.Machines {
             */
         }
 
-
-        public void unserialize(string data)
+        public override float GetProgressPercent()
         {
-            //inventory = PassiveMachineInventoryFactory.deserialize(data);
-        }
-
-        public ConduitPortLayout GetConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
-
-        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
-        {
-            switch (conduitType)
+            if (currentRecipe == null)
             {
-                case ConduitType.Item:
-                case ConduitType.Fluid:
-                    return inventory;
-                default:
-                    return null;
+                return 0;
             }
+            return (float)(currentRecipe.RemainingTicks/currentRecipe.InitalTicks);
         }
 
-        public RecipeProcessor GetRecipeProcessor()
+        public override void PlaceInitialize()
         {
-            return TileEntityObject.RecipeProcessor;
+            InitializeItemInventory();
         }
+        
+        public override void unserialize(string data)
+        {
+            SerializedPassiveMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedPassiveMachine>(data);
+            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            currentRecipe = RecipeSerializationFactory.Deserialize<PassiveItemRecipe>(
+                serializedProcessingMachine.SerializedRecipe, 
+                RecipeType.PassiveItem
+            );
+        }
+        
         private class SerializedPassiveMachine
         {
             public int Mode;

@@ -10,6 +10,11 @@ namespace Conduits {
         public IConduitPort GetPort();
         public void SetPort(IConduitPort port);
     }
+
+    public interface IConduitPort
+    {
+        
+    }
     public abstract class PortConduit<TPort> : Conduit<ConduitItem>, IPortConduit where TPort : IConduitPort
     {
         private TPort port;

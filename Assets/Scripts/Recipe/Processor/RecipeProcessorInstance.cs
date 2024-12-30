@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Items;
 using Items.Transmutable;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Viewer;
 using RecipeModule;
 using TileEntity;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Recipe.Processor
@@ -15,12 +15,10 @@ namespace Recipe.Processor
     {
         private RecipeProcessor recipeProcessorObject;
         public RecipeProcessor RecipeProcessorObject => recipeProcessorObject;
-        private Dictionary<int, List<RecipeObject>> modeRecipeObjects;
-        private Dictionary<int, Dictionary<ulong, ItemRecipeObject>> modeRecipeDict;
-        private Dictionary<ulong, List<DisplayableRecipe>> outputItemRecipes;
-        private Dictionary<ulong, List<DisplayableRecipe>> inputItemRecipes;
-        private Dictionary<int, List<TransmutableRecipeObject>> modeRecipeTransmutation;
-
+        private Dictionary<int, Dictionary<ulong, ItemRecipeObjectInstance[]>> modeRecipeDict;
+        private Dictionary<string, List<DisplayableRecipe>> outputItemRecipes;
+        private Dictionary<string, List<DisplayableRecipe>> inputItemRecipes;
+        private Dictionary<int, Dictionary<TransmutableItemState, TransmutableRecipeObject>> modeRecipeTransmutation;
         public RecipeProcessorInstance(RecipeProcessor recipeProcessorObject)
         {
             this.recipeProcessorObject = recipeProcessorObject;
@@ -29,111 +27,236 @@ namespace Recipe.Processor
         
         private void InitializeModeRecipeDict()
         {
-            modeRecipeObjects = new Dictionary<int, List<RecipeObject>>();
-            modeRecipeDict = new Dictionary<int, Dictionary<ulong, ItemRecipeObject>>();
+            modeRecipeDict = new Dictionary<int, Dictionary<ulong, ItemRecipeObjectInstance[]>>();
+            modeRecipeTransmutation = new Dictionary<int, Dictionary<TransmutableItemState, TransmutableRecipeObject>>();
+            int hashCollisions = 0;
+            var tempModeRecipeDict = new Dictionary<int, Dictionary<ulong, List<ItemRecipeObject>>>();
             foreach (RecipeModeCollection recipeModeCollection in recipeProcessorObject.RecipeCollections)
             {
                 int mode = recipeModeCollection.Mode;
-                if (!modeRecipeObjects.ContainsKey(mode))
+                if (!tempModeRecipeDict.ContainsKey(mode))
                 {
-                    modeRecipeObjects[mode] = new List<RecipeObject>();
+                    tempModeRecipeDict[mode] = new Dictionary<ulong, List<ItemRecipeObject>>();
                 }
+
+                if (!modeRecipeTransmutation.ContainsKey(mode))
+                {
+                    modeRecipeTransmutation[mode] = new Dictionary<TransmutableItemState, TransmutableRecipeObject>();
+                }
+                List<ItemRecipeObject> itemRecipes = new List<ItemRecipeObject>();
                 foreach (RecipeObject recipeObject in recipeModeCollection.RecipeCollection.Recipes)
                 {
-                    RecipeUtils.InsertValidRecipes(recipeProcessorObject, recipeObject, modeRecipeObjects[mode]);
+                    RecipeUtils.InsertValidRecipes(recipeProcessorObject, recipeObject, itemRecipes,modeRecipeTransmutation[mode]);
                 }
-            }
-        }
-
-        public T GetRecipe<T>(int mode, List<ItemSlot> inputs) where T : ItemRecipe
-        {
-            bool canTransmute = modeRecipeTransmutation != null;
-            if (canTransmute && modeRecipeTransmutation.ContainsKey(mode))
-            {
-                T transmutationRecipe = GetTransmutationRecipe<T>(mode, inputs);
-                if (transmutationRecipe != default(T))
+                
+                foreach (ItemRecipeObject itemRecipeObject in itemRecipes)
                 {
-                    return transmutationRecipe;
+                    var inputs = new List<ItemSlot>();
+                    foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
+                    {
+                        ItemSlot itemSlot = ItemSlotFactory.FromEditorObject(editorItemSlot);
+                        if (!ReferenceEquals(itemSlot?.itemObject, null)) inputs.Add(itemSlot);
+                    }
+                    if (inputs.Count == 0) continue;
+                    
+                    ulong hash = RecipeUtils.HashItemInputs(inputs);
+                    if (tempModeRecipeDict[mode].ContainsKey(hash))
+                    {
+                        hashCollisions++;
+                    }
+                    else
+                    {
+                        tempModeRecipeDict[mode][hash] = new List<ItemRecipeObject>();
+                    }
+                    tempModeRecipeDict[mode][hash].Add(itemRecipeObject);
                 }
             }
 
-            if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
+            foreach (var kvp in tempModeRecipeDict)
             {
-                return default;
+                if (kvp.Value.Count == 0) continue;
+                int mode = kvp.Key;
+                if (!modeRecipeDict.ContainsKey(mode))
+                {
+                    modeRecipeDict[mode] = new Dictionary<ulong, ItemRecipeObjectInstance[]>();
+                }
+                
+                foreach (var hashDict in tempModeRecipeDict.Values)
+                {
+                    foreach (var hashKvp in hashDict)
+                    {
+                        var hash = hashKvp.Key;
+                        var recipeObjectInstances = new ItemRecipeObjectInstance[hashKvp.Value.Count];
+                        for (int i = 0; i < hashKvp.Value.Count; i++)
+                        {
+                            recipeObjectInstances[i] = new ItemRecipeObjectInstance(hashKvp.Value[i]);
+                        }
+                        modeRecipeDict[mode][hash] = recipeObjectInstances;
+                    }
+                }
+            }
+    
+            List<int> emptyModes = new List<int>();
+            foreach (var kvp in modeRecipeTransmutation)
+            {
+                if (kvp.Value.Count == 0) emptyModes.Add(kvp.Key);
+            }
+            foreach (int mode in emptyModes)
+            {
+                modeRecipeTransmutation.Remove(mode);
             }
 
-            ulong hash = RecipeUtils.HashItemInputs(inputs);
-            if (!recipeDict.TryGetValue(hash, out ItemRecipeObject recipeObject))
-            {
-                return default;
-            }
-            return (T)RecipeFactory.GetRecipe(recipeProcessorObject.RecipeType, recipeObject);
+            if (hashCollisions > 0) Debug.LogWarning($"RecipeProcessor '{RecipeProcessorObject.name} item recipe dict has {hashCollisions} hash collisions");
         }
         
-        public T GetRecipe<T>(int mode, List<ItemSlot> first, List<ItemSlot> second) where T : ItemRecipe
+        public T GetRecipe<T>(int mode, List<ItemSlot> solidItems, List<ItemSlot> fluidItems) where T : ItemRecipe
         {
-            bool canTransmute = modeRecipeTransmutation != null;
-            if (canTransmute && modeRecipeTransmutation.ContainsKey(mode))
+            bool canTransmute = modeRecipeTransmutation.ContainsKey(mode);
+            if (canTransmute)
             {
-                T transmutationRecipe = GetTransmutationRecipe<T>(mode, first);
-                if (transmutationRecipe != default(T))
+                var transmutableItems = new List<ItemSlot>();
+                foreach (ItemSlot itemSlot in solidItems)
                 {
-                    return transmutationRecipe;
+                    if (itemSlot == null || itemSlot.itemObject == null ||
+                        itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
+                    {
+                        continue;
+                    }
+                    transmutableItems.Add(itemSlot);
                 }
-                transmutationRecipe = GetTransmutationRecipe<T>(mode, second);
-                if (transmutationRecipe != default(T))
+                foreach (ItemSlot itemSlot in fluidItems)
                 {
-                    return transmutationRecipe;
+                    if (itemSlot == null || itemSlot.itemObject == null ||
+                        itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
+                    {
+                        continue;
+                    }
+                    transmutableItems.Add(itemSlot);
+                }
+                Dictionary<TransmutableItemState, TransmutableRecipeObject> stateRecipeDict = modeRecipeTransmutation[mode];
+                foreach (ItemSlot transmutableItem in transmutableItems)
+                {
+                    var transItemObject = transmutableItem.itemObject as TransmutableItemObject;
+                    var state = transItemObject!.getState();
+                    if (!stateRecipeDict.TryGetValue(state, out var transmutableRecipe)) continue;
+                    float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutableRecipe.InputState,transmutableRecipe.OutputState);
+                    switch (transmutableRecipe.Efficency)
+                    {
+                        case TransmutationEfficency.Half:
+                            ratio *= 2;
+                            break;
+                    }
+                    uint requiredAmount = (uint)Mathf.CeilToInt(ratio);
+                    if (transmutableItem.amount < requiredAmount)
+                    {
+                        continue;
+                    }
+                    transmutableItem.amount -= requiredAmount;
+                    ItemSlot output = TransmutableItemUtils.Transmute(transItemObject.getMaterial(), transmutableRecipe.InputState, transmutableRecipe.OutputState);
+                    return (T)RecipeFactory.GetTransmutationRecipe(recipeProcessorObject.RecipeType,transItemObject.getMaterial(), state, output);
                 }
             }
-
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))
             {
                 return default;
             }
-
-            ulong hash = RecipeUtils.HashItemInputs(first,second);
-            if (!recipeDict.TryGetValue(hash, out ItemRecipeObject recipeObject))
+            ulong hash = RecipeUtils.HashItemInputs(solidItems,fluidItems);
+            if (!recipeDict.TryGetValue(hash, out var recipeObjects))
             {
                 return default;
             }
-            return (T)RecipeFactory.GetRecipe(recipeProcessorObject.RecipeType, recipeObject);
-        }
-
-        private T GetTransmutationRecipe<T>(int mode, List<ItemSlot> inputs)  where T : ItemRecipe
-        {
-            List<TransmutableRecipeObject> recipes = modeRecipeTransmutation[mode];
-            foreach (TransmutableRecipeObject transmutableRecipeObject in recipes)
+            foreach (ItemRecipeObjectInstance itemRecipeInstance in recipeObjects)
             {
-                foreach (ItemSlot itemSlot in inputs)
+                if (TryConsumeItemRecipe(itemRecipeInstance, solidItems, fluidItems))
                 {
-                    if (itemSlot == null || itemSlot.itemObject == null || itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
-                    {
-                        continue;
-                    }
-                    TransmutableItemState itemState = transmutableItemObject.getState();
-                    if (itemState != transmutableRecipeObject.InputState)
-                    {
-                        continue;
-                    }
-                    ItemSlot output = TransmutableItemUtils.Transmute(transmutableItemObject.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
-                    return (T)RecipeFactory.GetTransmutationRecipe(recipeProcessorObject.RecipeType,transmutableItemObject.getMaterial(), itemState, output);
+                    return (T)RecipeFactory.CreateRecipe(RecipeProcessorObject.RecipeType, itemRecipeInstance.ItemRecipeObject);
                 }
             }
-            
             return default;
+
+        }
+        
+
+        private Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candiateRecipe)
+        {
+            var requiredItemAmounts = new Dictionary<string, long>();
+            foreach (ItemSlot itemSlot in candiateRecipe.Inputs)
+            {
+                if (ReferenceEquals(itemSlot?.itemObject,null)) continue;
+                if (requiredItemAmounts.ContainsKey(itemSlot.itemObject.id))
+                {
+                    requiredItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
+                }
+                else
+                {
+                    requiredItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
+                }
+            }
+
+            return requiredItemAmounts;
         }
 
+        private bool TryConsumeItemRecipe(ItemRecipeObjectInstance candiateRecipe, List<ItemSlot> solids, List<ItemSlot> fluids)
+        {
+            var requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
+
+            DeiterateRequiredAmount(solids, requiredItemAmounts);
+            DeiterateRequiredAmount(fluids, requiredItemAmounts);
+            
+            foreach (var kvp in requiredItemAmounts)
+            {
+                if (kvp.Value > 0) return false;
+            }
+
+            requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
+            
+            DeiterateInputs(solids, requiredItemAmounts);
+            DeiterateInputs(fluids, requiredItemAmounts);
+            return true;
+        }
+
+        private void DeiterateRequiredAmount(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
+        {
+            foreach (ItemSlot input in inputs)
+            {
+                if (ReferenceEquals(input?.itemObject,null)) continue;
+                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
+                requiredItemAmounts[input.itemObject.id] -= input.amount;
+            }
+        }
+
+        private void DeiterateInputs(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
+        {
+            foreach (ItemSlot input in inputs)
+            {
+                if (ReferenceEquals(input?.itemObject,null)) continue;
+                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
+                uint requiredRemoval = (uint) requiredItemAmounts[input.itemObject.id];
+                if (requiredRemoval == 0) continue;
+                uint removal = requiredRemoval > Global.MaxSize ? Global.MaxSize : requiredRemoval;
+                requiredRemoval -= removal;
+                requiredItemAmounts[input.itemObject.id] = requiredRemoval;
+                input.amount -= removal;
+            }
+        }
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
         {
-            ulong hash = RecipeUtils.HashItemInput(itemSlot);
-            return outputItemRecipes.GetValueOrDefault(hash);
+            if (itemSlot == null || itemSlot.itemObject == null)
+            {
+                return null;
+            }
+            string id = itemSlot.itemObject.id;
+            return outputItemRecipes.GetValueOrDefault(id);
         }
         
         public List<DisplayableRecipe> GetRecipesWithItem(ItemSlot itemSlot)
         {
-            ulong hash = RecipeUtils.HashItemInput(itemSlot);
-            return inputItemRecipes.GetValueOrDefault(hash);
+            if (itemSlot == null || itemSlot.itemObject == null)
+            {
+                return null;
+            }
+            string id = itemSlot.itemObject.id;
+            return inputItemRecipes.GetValueOrDefault(id);
         }
 
         public List<DisplayableRecipe> GetAllRecipes()
@@ -144,7 +267,10 @@ namespace Recipe.Processor
                 int mode = kvp.Key;
                 foreach (var recipeKvp in kvp.Value)
                 {
-                    recipes.Add(new DisplayableRecipe(mode, recipeKvp.Value, this));
+                    foreach (ItemRecipeObjectInstance recipe in recipeKvp.Value)
+                    {
+                        recipes.Add(new DisplayableRecipe(mode, recipe.ItemRecipeObject, this));
+                    }
                 }
             }
 
@@ -153,7 +279,7 @@ namespace Recipe.Processor
                 int mode = kvp.Key;
                 foreach (var transRecipe in kvp.Value)
                 {
-                    recipes.Add(new DisplayableRecipe(mode, transRecipe, this));
+                    recipes.Add(new DisplayableRecipe(mode, transRecipe.Value, this));
                 }
             }
 
@@ -168,6 +294,11 @@ namespace Recipe.Processor
                 count += kvp.Value.Count;
             }
 
+            foreach (var kvp in modeRecipeTransmutation)
+            {
+                count += kvp.Value.Count;
+            }
+
             return count;
         }
         
@@ -175,36 +306,51 @@ namespace Recipe.Processor
 
     public static class RecipeFactory
     {
-        public static ItemRecipe GetRecipe(RecipeType recipeType, ItemRecipeObject recipeObject)
+        public static ItemRecipe CreateRecipe(RecipeType recipeType, ItemRecipeObject recipeObject)
         {
             List<ItemSlot> outputCopy = ItemSlotFactory.FromEditorObjects(recipeObject.Outputs);
+            ItemSlotHelper.sortInventoryByState(outputCopy,out var solidOutputs, out var fluidOutputs);
             switch (recipeType)
             {
                 case RecipeType.Item:
-                    return new ItemRecipe(outputCopy);
+                    return new ItemRecipe(solidOutputs, fluidOutputs);
                 case RecipeType.PassiveItem:
-                    return new PassiveItemRecipe(outputCopy, ((PassiveItemRecipeObject)recipeObject).Ticks);
+                    PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
+                    return new PassiveItemRecipe(solidOutputs,fluidOutputs, passiveItemRecipeObject.Ticks, passiveItemRecipeObject.Ticks);
                 case RecipeType.Generator:
                     GeneratorItemRecipeObject generatorRecipeObject = (GeneratorItemRecipeObject)recipeObject;
-                    return new GeneratorItemRecipe(outputCopy, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
+                    return new GeneratorItemRecipe(solidOutputs,fluidOutputs, generatorRecipeObject.Ticks, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
                 case RecipeType.EnergyItem:
                     ItemEnergyRecipeObject itemRecipeObject = (ItemEnergyRecipeObject)recipeObject;
-                    return new ItemEnergyRecipe(outputCopy, itemRecipeObject.TotalInputEnergy,
-                        itemRecipeObject.MinimumEnergyPerTick);
+                    return new ItemEnergyRecipe(solidOutputs,fluidOutputs, itemRecipeObject.TotalInputEnergy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.MinimumEnergyPerTick);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
         }
         public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType, TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
         {
+            List<ItemSlot> solid = null;
+            List<ItemSlot> fluid = null;
+            ItemState itemState = outputState.getMatterState();
+            switch (itemState)
+            {
+                case ItemState.Solid:
+                    solid = new List<ItemSlot> { output };
+                    break;
+                case ItemState.Fluid:
+                    fluid = new List<ItemSlot> { output };
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             switch (recipeType)
             {
                 case RecipeType.Item:
-                    return new ItemRecipe(new List<ItemSlot>{ output });
+                    return new ItemRecipe(solid, fluid);
                 case RecipeType.EnergyItem:
-                    ulong energyCost = TierUtils.GetMaxEnergyUsage(material.tier);
-                    ulong ticks = 200; // TODO change this
-                    return new ItemEnergyRecipe(new List<ItemSlot>{ output }, energyCost, ticks);
+                    ulong usage = TierUtils.GetMaxEnergyUsage(material.tier);
+                    ulong cost = 32 * usage; // TODO change this
+                    return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }

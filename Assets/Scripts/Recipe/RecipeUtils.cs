@@ -88,66 +88,30 @@ public static class RecipeUtils {
             return remaining <= clearSpaces;
         }
 
-        public static void ConsumeRecipe(List<ItemSlot> inputs, List<ItemSlot> recipeInputs) {
-            if (inputs == null) {
-                return;
-            }
-            Dictionary<string, uint> requiredAmount = new Dictionary<string, uint>();
-            for (int i = 0; i < recipeInputs.Count; i++) {
-                ItemSlot recipeInput = recipeInputs[i];
-                requiredAmount.TryAdd(recipeInput.itemObject.id, 0);
-                requiredAmount[recipeInput.itemObject.id] += recipeInput.amount;
-            }
-            for (int i = 0; i < inputs.Count; i++) {
-                ItemSlot inputSlot = inputs[i];
-                if (inputSlot == null || inputSlot.itemObject == null) {
-                    continue;
-                }
-                string id = inputSlot.itemObject.id;
-                if (!requiredAmount.TryGetValue(id, value: out var value)) {
-                    continue;
-                }
-
-                uint removal = GlobalHelper.MinUInt(value, Global.MaxSize);
-                inputSlot.amount -= removal;
-                requiredAmount[id] -= removal;
-                if (requiredAmount[id] == 0) {
-                    requiredAmount.Remove(id);
-                }
-                if (inputSlot.amount == 0) {
-                    Debug.Log(i);
-                    inputs[i] = null;
-                }   
-            }
-        }
-
-        public static bool MatchSolidsAndFluids(List<ItemSlot> solidInputs, List<ItemSlot> solidOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs, List<ItemSlot> inputs, List<ItemSlot> outputs) {
-            ItemSlotHelper.sortInventoryByState(inputs,out var solidRecipeInputs,out var fluidRecipeInputs);
-            if (MatchInputs(solidInputs, solidRecipeInputs)) {
-                return false;
-            }
-            if (MatchInputs(fluidInputs,fluidRecipeInputs)) {
-                return false;
-            }
-            ItemSlotHelper.sortInventoryByState(outputs,out var solidRecipeOutputs,out var fluidRecipeOutputs);
-            if(!RecipeUtils.SpaceInOutput(solidOutputs, solidRecipeOutputs)) {
-                return false;
-            }
-            if(!RecipeUtils.SpaceInOutput(fluidOutputs, fluidRecipeOutputs)) {
-                return false;
-            }
-            ConsumeRecipe(solidInputs,solidRecipeInputs);
-            ConsumeRecipe(fluidInputs,solidRecipeInputs);
-            return true;
+        public static bool OutputsUsed(ItemRecipe itemRecipe)
+        {
+            return ItemSlotHelper.IsEmpty(itemRecipe.SolidOutputs) && ItemSlotHelper.IsEmpty(itemRecipe.FluidOutputs);
         }
         
-        public static void InsertValidRecipes(RecipeProcessor recipeProcessor, RecipeObject recipeObject, List<RecipeObject> recipes)
+    
+        
+        public static void InsertValidRecipes(RecipeProcessor recipeProcessor, RecipeObject recipeObject, List<ItemRecipeObject> itemRecipes, Dictionary<TransmutableItemState, TransmutableRecipeObject> transmutableRecipes)
         {
             RecipeType recipeType = recipeProcessor.RecipeType;
+            if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
+            {
+                if (transmutableRecipes.ContainsKey(transmutableRecipeObject.InputState))
+                {
+
+                    Debug.LogWarning($"{recipeProcessor.name} has duplicate transmutable recipe for state {transmutableRecipeObject.InputState}");
+                }
+                transmutableRecipes[transmutableRecipeObject.InputState] = transmutableRecipeObject;
+                return;
+            }
             switch (recipeType)
             {
                 case RecipeType.Item:
-                    if (recipeObject is not ItemRecipeObject && recipeObject is not TransmutableRecipeObject)
+                    if (recipeObject is not ItemRecipeObject)
                     {
                         LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
                         return;
@@ -161,14 +125,14 @@ public static class RecipeUtils {
                     }
                     break;
                 case RecipeType.Generator:
-                    if (recipeObject is not PassiveItemRecipeObject)
+                    if (recipeObject is not GeneratorItemRecipeObject)
                     {
                         LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
                         return;
                     }
                     break;
                 case RecipeType.EnergyItem:
-                    if (recipeObject is not ItemEnergyRecipeObject && recipeObject is not TransmutableRecipeObject)
+                    if (recipeObject is not ItemEnergyRecipeObject)
                     {
                         LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
                         return;
@@ -178,7 +142,7 @@ public static class RecipeUtils {
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
 
             }
-            recipes.Add(recipeObject);
+            itemRecipes.Add((ItemRecipeObject)recipeObject);
         }
 
         private static void LogInvalidRecipeWarning(RecipeType recipeType, RecipeProcessor recipeProcessor,
@@ -186,69 +150,37 @@ public static class RecipeUtils {
         {
             Debug.LogWarning($"Invalid recipe '{recipeObject.name}' not of type '{recipeType} Recipe' in recipe processor {recipeProcessor.name}");
         }
-
-        public static ulong HashItemInput(ItemSlot itemSlot)
-        {
-            return HashString(itemSlot.itemObject.id);
-        }
-
-        private static ulong HashString(string id)
-        {
-            using SHA256 sha256 = SHA256.Create();
-            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(id));
-            return BitConverter.ToUInt64(hashBytes, 0);
-        }
         
-        public static ulong HashItemInputs(List<ItemSlot> inputs)
+        public static ulong HashItemInputs(List<ItemSlot> inputs, HashSet<string> included = null)
         {
-            string id = "";
+            ulong hash = 0;
+            included ??= new HashSet<string>();
             for (int i = 0; i < inputs.Count; i++)
             {
                 ItemSlot itemSlot = inputs[i];
-                if (itemSlot == null || itemSlot.itemObject == null)
+                if (ReferenceEquals(itemSlot?.itemObject,null) || included.Contains(itemSlot.itemObject.id))
                 {
                     continue;
                 }
-                id += itemSlot.itemObject.id;
-                if (i < inputs.Count - 1)
+                included.Add(itemSlot.itemObject.id);
+                ulong sum = 0;
+                foreach (char c in itemSlot.itemObject.id)
                 {
-                    id += "Z"; // ids will never contain this char
+                    sum += 13*(ulong)c;
                 }
+                hash += sum * 17;
+                
             }
-            return HashString(id);
+            return hash;
         }
         
         public static ulong HashItemInputs(List<ItemSlot> first, List<ItemSlot> second)
         {
-            string id = "";
-            for (int i = 0; i < first.Count; i++)
-            {
-                ItemSlot itemSlot = first[i];
-                if (itemSlot == null || itemSlot.itemObject == null)
-                {
-                    continue;
-                }
-                id += itemSlot.itemObject.id;
-                if (second.Count > 0 || i < first.Count - 1)
-                {
-                    id += "Z";
-                }
-            }
-
-            for (int i = 0; i < second.Count; i++)
-            {
-                ItemSlot itemSlot = second[i];
-                if (itemSlot == null || itemSlot.itemObject == null)
-                {
-                    continue;
-                }
-                id += itemSlot.itemObject.id;
-                if (i < second.Count - 1)
-                {
-                    id += "Z";
-                }
-            }
-            return HashString(id);
+            HashSet<string> included = new HashSet<string>();
+            ulong hash = 0;
+            hash += HashItemInputs(first, included);
+            hash += HashItemInputs(second, included);
+            return hash;
         }
     }
 }

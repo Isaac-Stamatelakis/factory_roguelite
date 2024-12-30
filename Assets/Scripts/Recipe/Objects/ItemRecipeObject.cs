@@ -12,5 +12,16 @@ namespace Recipe.Objects
         public List<EditorItemSlot> Inputs;
         public List<EditorItemSlot> Outputs;
     }
+
+    public class ItemRecipeObjectInstance
+    {
+        public ItemRecipeObject ItemRecipeObject;
+        public List<ItemSlot> Inputs;
+        public ItemRecipeObjectInstance(ItemRecipeObject itemRecipeObject)
+        {
+            ItemRecipeObject = itemRecipeObject;
+            Inputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Inputs);
+        }
+    }
 }
 

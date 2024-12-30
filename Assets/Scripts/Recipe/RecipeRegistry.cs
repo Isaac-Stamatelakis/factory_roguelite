@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using Items;
 using Recipe.Data;
+using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
 using UnityEditor;
@@ -16,43 +20,48 @@ namespace Recipe {
         private RecipeRegistry() {
             processors = new List<RecipeProcessorInstance>();
             processorDict = new Dictionary<RecipeProcessor, RecipeProcessorInstance>();
-            Addressables.LoadAssetsAsync<RecipeProcessor>("recipe_processor",null).Completed += OnProcessorsLoaded;
         }
-        private static void OnProcessorsLoaded(AsyncOperationHandle<IList<RecipeProcessor>> handle)
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
+        
+        public static IEnumerator LoadRecipes() {
+            if (instance != null) {
+                yield break;
+            }
+            instance = new RecipeRegistry();
+            var handle = Addressables.LoadAssetsAsync<RecipeProcessor>("recipe_processor", null);
+            yield return handle;
+            if (handle.Status == AsyncOperationStatus.Succeeded) {
                 foreach (var asset in handle.Result)
                 {
                     var processorInstance = new RecipeProcessorInstance(asset);
                     processors.Add(processorInstance);
                     processorDict[asset] = processorInstance;
                 }
-
                 int count = 0;
                 foreach (RecipeProcessorInstance processorInstance in processors)
                 {
                     count += processorInstance.GetCount();
                 }
                 Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + count + " recipes");
-                AssetDatabase.Refresh();
             }
-            else
-            {
-                Debug.LogError("Failed to load assets");
+            else {
+                Debug.LogError("Failed to load assets from group: " + handle.OperationException);
             }
         }
-       
         public static RecipeRegistry GetInstance() {
             if (instance == null) {
-                instance = new RecipeRegistry();
+                throw new NullReferenceException("Tried to access null recipe registry");
             }
             return instance;
         }
 
         public static RecipeProcessorInstance GetProcessorInstance(RecipeProcessor processor)
         {
-            return processorDict.GetValueOrDefault(processor);
+            RecipeProcessorInstance val = processorDict.GetValueOrDefault(processor);
+            if (val == null)
+            {
+                Debug.LogWarning($"Could not find recipe processor instance for {processor.name} in registry. Did you forget to put in addressables?");
+            }
+            return val;
         }
 
         public Dictionary<RecipeProcessor, List<DisplayableRecipe>> GetRecipesWithItemInOutput(ItemSlot itemSlot) {

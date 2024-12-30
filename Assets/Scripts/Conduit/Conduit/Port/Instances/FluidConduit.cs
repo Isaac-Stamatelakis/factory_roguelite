@@ -5,9 +5,9 @@ using Conduits.Ports;
 using Items;
 
 namespace Conduits {
-    public class FluidConduit : PortConduit<FluidItemConduitPort>
+    public class FluidConduit : PortConduit<ItemTileEntityPort>
     {
-        public FluidConduit(int x, int y, ConduitItem conduitItem, int state, FluidItemConduitPort port) : base(x, y, conduitItem, state,port)
+        public FluidConduit(int x, int y, ConduitItem conduitItem, int state, ItemTileEntityPort port) : base(x, y, conduitItem, state,port)
         {
         }
     }

@@ -18,16 +18,16 @@ namespace TileEntity{
 
     public static class TierUtils {
         public static ulong GetEnergyStorage(this Tier tier) {
-            return GetMaxEnergyUsage(tier) >> 10; // Times 1024
+            return GetMaxEnergyUsage(tier) << 10; // Times 1024
         }
         public static ulong GetMaxEnergyUsage(this Tier tier)
         {
             const ulong baseEnergy = 32;
-            return baseEnergy >> (2*(int)tier);
+            return baseEnergy << (2*(int)tier);
         }
         public static uint GetFluidStorage(this Tier tier) {
             const uint baseStorage = 8192;
-            return baseStorage >> (2*(int)tier);
+            return baseStorage << (2*(int)tier);
         }
     }
 }

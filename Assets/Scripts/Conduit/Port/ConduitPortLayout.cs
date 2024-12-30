@@ -6,11 +6,11 @@ namespace Conduits.Ports {
     [CreateAssetMenu(fileName ="New Conduit Port Layout",menuName="Tile Entity/ConduitLayout")]
     public class ConduitPortLayout : ScriptableObject
     {
-        public List<TileEntityPort> itemPorts;
-        public List<TileEntityPort> fluidPorts;
-        public List<TileEntityPort> energyPorts;
-        public List<TileEntityPort> signalPorts;
-        public List<TileEntityPort> matrixPorts;
+        public List<TileEntityPortData> itemPorts;
+        public List<TileEntityPortData> fluidPorts;
+        public List<TileEntityPortData> energyPorts;
+        public List<TileEntityPortData> signalPorts;
+        public List<TileEntityPortData> matrixPorts;
     }
 }
 

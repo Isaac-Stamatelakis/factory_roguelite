@@ -9,7 +9,7 @@ using Items.Inventory;
 using Entities;
 
 namespace TileEntity.Instances.Storage {
-    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitTileEntity, ISolidItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
+    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
     {
         private ItemSlot itemSlot;
         private SpriteRenderer visualElement;
@@ -33,22 +33,6 @@ namespace TileEntity.Instances.Storage {
         public ConduitPortLayout GetConduitPortLayout()
         {
             return TileEntityObject.ConduitLayout;
-        }
-
-        public void InsertSolidItem(ItemSlot insert, Vector2Int portPosition)
-        {
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                itemSlot = ItemSlotFactory.Copy(insert);
-                insert.amount = 0;
-                insert.itemObject = null;
-                loadVisual();
-                return;
-            }
-            if (ItemSlotHelper.CanInsertIntoSlot(itemSlot,insert,TileEntityObject.MaxStacks*Global.MaxSize)) {
-                ItemSlotHelper.InsertIntoSlot(itemSlot, insert, TileEntityObject.MaxStacks * Global.MaxSize);
-                loadVisual();
-            }
-            
         }
 
         public void load()
@@ -180,6 +164,26 @@ namespace TileEntity.Instances.Storage {
                 return;
             }
             controller.assembleMultiBlock();
+        }
+
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            if (ItemSlotHelper.IsItemSlotNull(itemSlot)) {
+                itemSlot = ItemSlotFactory.Copy(toInsert);
+                toInsert.amount = 0;
+                loadVisual();
+                return;
+            }
+
+            if (!ItemSlotHelper.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize))
+                return;
+            ItemSlotHelper.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize);
+            loadVisual();
         }
     }
 }

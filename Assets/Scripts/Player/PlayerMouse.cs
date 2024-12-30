@@ -8,6 +8,7 @@ using TileMaps.Layer;
 using TileMaps;
 using TileMaps.Place;
 using Chunks.Partitions;
+using Conduit.Port.UI;
 using TileMaps.Type;
 using Conduits.Systems;
 using Conduits.Ports;
@@ -139,17 +140,13 @@ namespace PlayerModule.Mouse {
             }
             if (conduitSystemManager is PortConduitSystemManager portConduitSystemManager) {
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-                IConduit conduit = portConduitSystemManager.getConduitWithPort(cellPosition);
+                IPortConduit conduit = portConduitSystemManager.getConduitWithPort(cellPosition);
                 if (conduit == null) {
                     return false;
                 }
-                if (conduit is not IPortConduit portConduit) {
-                    return false;
-                }
-                UIAssetManager assetManager = conduitTileClosedChunkSystem.PortViewerController.AssetManager;
-                EntityPortType portType = portConduitSystemManager.GetPortTypeAtPosition(cellPosition.x,cellPosition.y);
-                GameObject ui = ConduitPortUIFactory.getUI(assetManager,portConduit,conduitType,portType);
-                MainCanvasController.Instance.DisplayObject(ui);
+                IOConduitPortUI conduitPortUI = MainCanvasController.TInstance.DisplayUIElement<IOConduitPortUI>(MainSceneUIElement.IOPortViewer);
+                IOConduitPort conduitPort = conduit.GetPort() as IOConduitPort;
+                conduitPortUI.Display(conduitPort,conduit);
                 return true;
             }
             return false;

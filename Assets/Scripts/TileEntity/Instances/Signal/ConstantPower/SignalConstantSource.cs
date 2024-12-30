@@ -15,7 +15,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalConstantSourceInstance : TileEntityInstance<SignalConstantSource>, ISignalConduitInteractable
+    public class SignalConstantSourceInstance : TileEntityInstance<SignalConstantSource>, ISignalConduitInteractable, IConduitPortTileEntity
     {
         private int signal;
         public SignalConstantSourceInstance(SignalConstantSource tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -35,6 +35,11 @@ namespace TileEntity.Instances.Signal {
         public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             
+        }
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return TileEntityObject.ConduitLayout;
         }
     }
 }

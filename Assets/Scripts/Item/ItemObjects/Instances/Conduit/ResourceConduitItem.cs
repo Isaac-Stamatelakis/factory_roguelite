@@ -6,7 +6,7 @@ namespace Items {
     [CreateAssetMenu(fileName ="I~New Resource Conduit",menuName="Item/Instances/Conduit/Resource")]
     public class ResourceConduitItem : ConduitItem {
         public ResourceConduitType type;
-        public int maxSpeed;
+        public uint maxSpeed;
 
         public override ConduitType GetConduitType()
         {

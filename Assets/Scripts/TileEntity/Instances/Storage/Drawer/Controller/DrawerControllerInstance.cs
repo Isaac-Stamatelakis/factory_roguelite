@@ -5,7 +5,7 @@ using Conduits.Ports;
 using UnityEngine;
 
 namespace TileEntity.Instances.Storage {
-    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, ISolidItemConduitInteractable, IMultiBlockTileEntity
+    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, IItemConduitInteractable, IMultiBlockTileEntity
     {
         private List<ItemDrawerInstance> drawers;
         public DrawerControllerInstance(DrawerController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -17,8 +17,8 @@ namespace TileEntity.Instances.Storage {
             List<ItemDrawerInstance> drawers = new List<ItemDrawerInstance>();
             TileEntityHelper.dfsTileEntity(this,drawers);
         }
-
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
+        
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot itemSlot = drawer.ItemSlot;
@@ -30,27 +30,22 @@ namespace TileEntity.Instances.Storage {
             return null;
         }
 
-        public ConduitPortLayout getConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
-
-        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
-                if (ItemSlotHelper.AreEqual(drawerSlot,itemSlot) && ItemSlotHelper.CanInsertIntoSlot(drawerSlot,itemSlot,drawer.Amount)) {
-                    ItemSlotHelper.InsertIntoSlot(drawerSlot,itemSlot,drawerSlot.amount);
+                if (ItemSlotHelper.AreEqual(drawerSlot,toInsert) && ItemSlotHelper.CanInsertIntoSlot(drawerSlot,toInsert,drawer.Amount)) {
+                    ItemSlotHelper.InsertIntoSlot(drawerSlot,toInsert,drawerSlot.amount);
                 }
-                if (itemSlot.itemObject == null || itemSlot.amount == 0) {
+                if (toInsert.itemObject == null || toInsert.amount == 0) {
                     return;
                 }
             }
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
                 if (drawerSlot == null || drawerSlot.itemObject == null) {
-                    drawerSlot = ItemSlotFactory.Copy(itemSlot);
-                    itemSlot.itemObject = null;
+                    drawerSlot = ItemSlotFactory.Copy(toInsert);
+                    toInsert.itemObject = null;
                     return;
                 }
             }

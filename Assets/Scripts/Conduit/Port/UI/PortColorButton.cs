@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Conduits.Systems;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -7,37 +10,39 @@ using UnityEngine.EventSystems;
 namespace Conduits.Ports.UI {
     public class PortColorButton : MonoBehaviour, IPointerClickHandler
     {
-        private IColorPort colorPort;
+        private ConduitPortData portData;
         private IConduit conduit;
         private Image colorImage;
-        public void initalize(IColorPort colorInputPort, IConduit conduit) {
-            this.colorPort = colorInputPort;
+        public void Initialize(ConduitPortData portData, IConduit conduit) {
             this.conduit = conduit;
+            this.portData = portData;
             colorImage = GetComponent<Image>();
-            colorImage.color = ConduitPortUIFactory.getColorFromInt(colorPort.getColor());
+            colorImage.color = ConduitPortFactory.GetColorFromInt(portData.Color);
         }
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (colorPort == null) {
-                Debug.LogError(name + " colorInputPort is null");
+            if (portData == null) {
                 return;
             }
-            int color = colorPort.getColor();
-            if (eventData.button == PointerEventData.InputButton.Left) {
-                color++;
-                if (color >= 15) {
-                    color = 0;
-                }
-                
-            } else if (eventData.button == PointerEventData.InputButton.Right) {
-                color--;
-                if (color < 0) {
-                    color = 15;
-                }
+            int color = portData.Color;
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    color++;
+                    if (color >= 15) {
+                        color = 0;
+                    }
+                    break;
+                case PointerEventData.InputButton.Right:
+                    color--;
+                    if (color < 0) {
+                        color = 15;
+                    }
+                    break;
             }
-            colorPort.setColor(color);
+            portData.Color = color;
             conduit.GetConduitSystem().Rebuild();
-            colorImage.color = ConduitPortUIFactory.getColorFromInt(color);
+            colorImage.color = ConduitPortFactory.GetColorFromInt(color);
         }
     }
 }

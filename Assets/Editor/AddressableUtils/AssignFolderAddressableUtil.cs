@@ -97,7 +97,7 @@ public class AssignFolderAddressableUtil : EditorWindow {
                     labels.Add("recipe");
                     break;
             }
-            // Create an addressable entry
+            // CreateNew an addressable entry
             var entry = settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(assetPath), group);
             foreach (string label in labels) {
                 entry.labels.Add(label);
@@ -171,7 +171,7 @@ public class AssignFolderAddressableUtil : EditorWindow {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             var asset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
             var entry = settings.FindAssetEntry(AssetDatabase.AssetPathToGUID(assetPath));
-            // Create an addressable entry
+            // CreateNew an addressable entry
             if (entry != null)
             {
                 counter++;

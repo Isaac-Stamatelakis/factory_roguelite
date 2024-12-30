@@ -13,6 +13,7 @@ using RecipeModule;
 using PlayerModule;
 using Recipe;
 using UI.JEI;
+using UnityEngine.Rendering;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -36,11 +37,13 @@ namespace Dimensions {
         }
         public IEnumerator initalLoad() {
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
+            Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
-            RecipeRegistry.GetInstance();
+            yield return recipeLoad;
+            
             PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
             foreach (PlayerInventory inventory in playerInventories) {
-                inventory.initalize();
+                inventory.Initalize();
             }
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.showAll();

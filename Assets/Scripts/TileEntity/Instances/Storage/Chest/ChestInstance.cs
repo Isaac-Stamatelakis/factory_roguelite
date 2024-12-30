@@ -10,7 +10,8 @@ using UI;
 
 namespace TileEntity.Instances
 {
-    public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, IConduitTileEntity
+    public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 
+        IItemConduitInteractable, IPlaceInitializable, IConduitPortTileEntity
     {
         protected List<ItemSlot> items;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -36,13 +37,11 @@ namespace TileEntity.Instances
                 Debug.LogError("GUI GameObject for chest:" + TileEntityObject.name + " null");
                 return;
             }
-            if (items == null) {
-                initInventory();
-            }
-            GameObject shownGui = GameObject.Instantiate(uiElement);
-            SolidDynamicInventory inventoryGrid = shownGui.GetComponent<SolidDynamicInventory>();
-            inventoryGrid.initalize(items, new Vector2Int((int) TileEntityObject.Rows, (int) TileEntityObject.Columns));
-            MainCanvasController.Instance.DisplayObject(shownGui);
+            GameObject clone = GameObject.Instantiate(uiElement);
+            InventoryUI inventoryUI = clone.GetComponent<InventoryUI>();
+            inventoryUI.DisplayInventory(items);
+            inventoryUI.SetRefresh(true);
+            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(clone);
         }
 
         public string serialize()
@@ -52,12 +51,7 @@ namespace TileEntity.Instances
 
         public void unserialize(string data)
         {
-            if (data == null && items == null) {
-                initInventory();
-                return;
-            } 
-            this.items = ItemSlotFactory.Deserialize(data);
-            
+            items = ItemSlotFactory.Deserialize(data);
         }
 
         public ConduitPortLayout GetConduitPortLayout()
@@ -65,30 +59,28 @@ namespace TileEntity.Instances
             return TileEntityObject.ConduitLayout;
         }
 
-
-        private void initInventory() {
+        public void PlaceInitialize()
+        {
             items = new List<ItemSlot>();
             for (int i = 0; i < TileEntityObject.Rows*TileEntityObject.Columns;i++) {
                 items.Add(null);
             }
-            
         }
 
-        public void giveItems(List<ItemSlot> toGive) {
-            if (items == null) {
-                initInventory();
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (ReferenceEquals(items[i]?.itemObject,null) || items[i].amount <= 0) continue;
+                return items[i];
             }
-            int j = 0;
-            for (int i = 0; i < items.Count; i++) {
-                if (j >= toGive.Count) {
-                    return;
-                }
-                ItemSlot itemSlot = items[i];
-                if (itemSlot == null || itemSlot.itemObject == null) {
-                    items[i] = toGive[j];
-                    j++;
-                }
-            }
+
+            return null;
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            ItemSlotHelper.InsertIntoInventory(items, toInsert, Global.MaxSize);
         }
     }
 }

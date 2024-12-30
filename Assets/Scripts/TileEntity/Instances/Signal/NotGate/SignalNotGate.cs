@@ -15,7 +15,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalNotGateInstance : TileEntityInstance<SignalNotGate>, ISignalConduitInteractable
+    public class SignalNotGateInstance : TileEntityInstance<SignalNotGate>, ISignalConduitInteractable, IConduitPortTileEntity
     {
         bool signal;
         public SignalNotGateInstance(SignalNotGate tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -27,14 +27,14 @@ namespace TileEntity.Instances.Signal {
             return !signal;
         }
 
-        public ConduitPortLayout getConduitPortLayout()
-        {
-            return TileEntityObject.ConduitLayout;
-        }
-
         public void InsertSignal(bool signal, Vector2Int portPosition)
         {
             this.signal = signal;
+        }
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return TileEntityObject.ConduitLayout;
         }
     }
 }
