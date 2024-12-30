@@ -44,10 +44,8 @@ namespace Conduits.Systems {
 
         public override void onTileEntityAdd(IPortConduit conduit, ITileEntityInstance tileEntity, TileEntityPortData portData)
         {
-            Vector2Int relativePosition = tileEntity.getCellPosition() - conduit.GetPosition();
-            Debug.Log(relativePosition);
-            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
-            conduit.SetPort(ConduitPortFactory.CreateDefault(type,portData.portType,interactable,conduit.GetConduitItem(),relativePosition));
+            IConduitPort port = ConduitPortFactory.CreateDefault(type, portData.portType, tileEntity, conduit.GetConduitItem(), conduit.GetPosition());
+            conduit.SetPort(port);
             conduit.GetConduitSystem().Rebuild();
         }
 

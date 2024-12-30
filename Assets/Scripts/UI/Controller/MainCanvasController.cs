@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Conduit.Port.UI;
 using Recipe.Viewer;
 using UI.PauseScreen;
 using UI.PlayerInvUI;
@@ -11,7 +12,8 @@ namespace UI
     public enum MainSceneUIElement
     {
         PauseScreen,
-        RecipeViewer
+        RecipeViewer,
+        IOPortViewer
     }
     public class MainCanvasController : CanvasController
     {
@@ -19,6 +21,7 @@ namespace UI
         [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
         [SerializeField] private RecipeViewer recipeViewerPrefab;
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
+        [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -37,8 +40,7 @@ namespace UI
 
         public T DisplayUIElement<T>(MainSceneUIElement mainSceneUIElement)
         {
-            GameObject prefab = GetMainSceneUIElement(mainSceneUIElement);
-            GameObject clone = Instantiate(prefab);
+            GameObject clone = GetMainSceneUIElement(mainSceneUIElement);
             T element = clone.GetComponent<T>();
             if (element == null)
             {
@@ -46,7 +48,17 @@ namespace UI
                 Destroy(clone);
                 return default;
             }
-            DisplayObject(clone);
+
+            switch (mainSceneUIElement)
+            {
+                case MainSceneUIElement.IOPortViewer:
+                    DisplayUIWithPlayerInventory(clone);
+                    break;
+                default:
+                    DisplayObject(clone);
+                    break;
+            }
+            
             return element;
         }
 
@@ -67,6 +79,7 @@ namespace UI
             {
                 MainSceneUIElement.PauseScreen => Instantiate(pauseScreenUIPrefab).gameObject,
                 MainSceneUIElement.RecipeViewer => Instantiate(recipeViewerPrefab).gameObject,
+                MainSceneUIElement.IOPortViewer => Instantiate(ioConduitPortUIPrefab).gameObject,
                 _ => throw new ArgumentOutOfRangeException(nameof(mainSceneUIElement), mainSceneUIElement, null)
             };
         }

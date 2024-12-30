@@ -8,20 +8,15 @@ using Newtonsoft.Json;
 using TileEntity;
 
 namespace Conduits.Ports {
+    public interface IOConduitPort : IConduitPort
+    {
+        public ConduitPortData GetPortData(PortConnectionType connectionType);
+        public bool HasConnection(PortConnectionType connectionType);
+    }
     public interface IItemConduitInteractable : IConduitInteractable
     {
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter);
         public void InsertItem(ItemState state, ItemSlot toInsert,Vector2Int portPosition);
-    }
-
-    public abstract class ConduitTransferPort<TInteractable> where TInteractable : IConduitInteractable {
-        protected TInteractable interactable;
-        protected Vector2Int relativePosition;
-        [JsonIgnore] public Vector2Int RelativePosition {get => relativePosition; set => relativePosition = value;}
-        [JsonIgnore] public TInteractable TileEntity { get => interactable; set => interactable = value; }
-        protected ConduitTransferPort(TInteractable interactable) {
-            this.interactable = interactable;
-        }
     }
 
     public class SerializedTileEntityPort<TInputData, TOutputData>
@@ -37,7 +32,7 @@ namespace Conduits.Ports {
             OutputPortData = outputPortData;
         }
     }
-    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IConduitPort
+    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IConduitPort, IOConduitPort
         where TInteractable : IConduitInteractable
         where TInputData : ConduitPortData
         where TOutputData : ConduitPortData
@@ -66,15 +61,6 @@ namespace Conduits.Ports {
         {
             return outputPortData;
         }
-        public bool HasPort(PortConnectionType portConnectionType)
-        {
-            return portConnectionType switch
-            {
-                PortConnectionType.Input => ReferenceEquals(inputPortData, null),
-                PortConnectionType.Output => ReferenceEquals(outputPortData, null),
-                _ => throw new ArgumentOutOfRangeException(nameof(portConnectionType), portConnectionType, null)
-            };
-        }
 
         public int GetColor(PortConnectionType portConnectionType)
         {
@@ -93,6 +79,26 @@ namespace Conduits.Ports {
                 PortConnectionType.Input => inputPortData.Color = color,
                 PortConnectionType.Output => outputPortData.Color = color,
                 _ => throw new ArgumentOutOfRangeException(nameof(portConnectionType), portConnectionType, null)
+            };
+        }
+
+        public ConduitPortData GetPortData(PortConnectionType connectionType)
+        {
+            return connectionType switch
+            {
+                PortConnectionType.Input => inputPortData,
+                PortConnectionType.Output => outputPortData,
+                _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null)
+            };
+        }
+
+        public bool HasConnection(PortConnectionType connectionType)
+        {
+            return connectionType switch
+            {
+                PortConnectionType.Input => !ReferenceEquals(inputPortData, null),
+                PortConnectionType.Output => !ReferenceEquals(outputPortData, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null)
             };
         }
     }

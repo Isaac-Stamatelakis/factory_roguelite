@@ -4,7 +4,7 @@ using UnityEngine;
 using Conduits.Ports;
 
 namespace Conduits.Systems {
-    public class SignalConduitSystem : PortConduitSystem<SignalTileEntityPort>
+    public class SignalConduitSystem : ColoredIOPortConduitSystem<SignalTileEntityPort>
     {
         private bool[] colorActivations;
         public SignalConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
@@ -29,7 +29,6 @@ namespace Conduits.Systems {
                 }
                 active = active || systemActive;
                 if (!coloredPriorityInputs.ContainsKey(color)) continue;
-                
                 bool currentActivationStatus = colorActivations[color];
                 bool signalChange = currentActivationStatus != systemActive;
                 if (!signalChange) continue;

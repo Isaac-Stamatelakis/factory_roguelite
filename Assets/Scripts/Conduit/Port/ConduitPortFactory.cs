@@ -42,11 +42,13 @@ namespace Conduits.Ports {
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
-        public static IConduitPort Deserialize(string data, ConduitType conduitType, ConduitItem conduitItem, ITileEntityInstance tileEntityInstance, Vector2Int position) {
+        public static IConduitPort Deserialize(string data, ConduitType conduitType, ConduitItem conduitItem, ITileEntityInstance tileEntityInstance, Vector2Int conduitPosition) {
             if (data == null) {
                 return null;
             }
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
+            if (ReferenceEquals(interactable, null)) return null;
+            Vector2Int position = conduitPosition - tileEntityInstance.getCellPosition();
             try
             {
                 switch (conduitType) {
@@ -155,46 +157,53 @@ namespace Conduits.Ports {
             switch (portConnectionType)
             {
                 case PortConnectionType.Input:
-                    if (entityPortType is EntityPortType.All or EntityPortType.Input) return null;
+                    if (entityPortType is not EntityPortType.All && entityPortType is not EntityPortType.Input) return null;
                     break;
                 case PortConnectionType.Output:
-                    if (entityPortType is EntityPortType.All or EntityPortType.Input) return null;
+                    if (entityPortType is not EntityPortType.All && entityPortType is not EntityPortType.Output) return null;
                     break;
             }
-
             return GetDefaultConduitPortData(portDataType);
         }
 
-        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, IConduitInteractable interactable, ConduitItem conduitItem, Vector2Int position) {
-            if (interactable == null)
-            {
-                return null;
-            }
+        public static IConduitPort CreateDefault(ConduitType conduitType, EntityPortType portType, ITileEntityInstance tileEntityInstance, ConduitItem conduitItem, Vector2Int conduitPosition)
+        {
+            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
+            if (interactable == null) return default;
+            
+            Vector2Int position = conduitPosition - tileEntityInstance.getCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
                 case ConduitType.Fluid:
                     if (interactable is not IItemConduitInteractable itemConduitInteractable || conduitItem is not ResourceConduitItem itemConduitItem) {
                         return null;
                     }
-                    ItemConduitInputPortData itemInputPortData = GetDefaultConduitPortData(PortDataType.ItemInput, PortConnectionType.Input, portType) 
-                        as ItemConduitInputPortData;
-                    ItemConduitOutputPortData itemOutputPortData = GetDefaultConduitPortData(PortDataType.ItemOutput, PortConnectionType.Output, portType)
-                        as ItemConduitOutputPortData;
+
+                    ItemConduitInputPortData itemInputPortData =
+                        (ItemConduitInputPortData)GetDefaultConduitPortData(PortDataType.ItemInput,
+                            PortConnectionType.Input, portType);
+                    ItemConduitOutputPortData itemOutputPortData =
+                        (ItemConduitOutputPortData)GetDefaultConduitPortData(PortDataType.ItemOutput,
+                            PortConnectionType.Output, portType);
                     return new ItemTileEntityPort(itemConduitInteractable, position, itemInputPortData, itemOutputPortData, itemConduitItem);
                 case ConduitType.Energy:
                     if (interactable is not IEnergyConduitInteractable energyConduitInteractable || conduitItem is not ResourceConduitItem energyConduitItem) {
                         return null;
                     }
-                    PriorityConduitPortData energyInputPortData = GetDefaultConduitPortData(PortDataType.Priority, PortConnectionType.Input, portType) 
-                        as PriorityConduitPortData;
+
+                    PriorityConduitPortData energyInputPortData =
+                        (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority,
+                            PortConnectionType.Input, portType); 
                     ConduitPortData energyOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new EnergyTileEntityPort(energyConduitInteractable, position, energyInputPortData, energyOutputData, energyConduitItem);
                 case ConduitType.Signal:
                     if (interactable is not ISignalConduitInteractable signalConduitInteractable || conduitItem is not SignalConduitItem signalConduitItem) {
                         return null;
                     }
-                    ConduitPortData signalInputPortData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Input, portType) 
-                        as PriorityConduitPortData;
+
+                    ConduitPortData signalInputPortData =
+                        (PriorityConduitPortData)GetDefaultConduitPortData(PortDataType.Priority,
+                            PortConnectionType.Input, portType);
                     ConduitPortData signalOutputData = GetDefaultConduitPortData(PortDataType.Standard, PortConnectionType.Output, portType);
                     return new SignalTileEntityPort(signalConduitInteractable, position, signalInputPortData, signalOutputData, signalConduitItem);
                 default:

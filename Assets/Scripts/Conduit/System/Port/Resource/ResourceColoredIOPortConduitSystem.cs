@@ -9,10 +9,10 @@ namespace Conduits.Systems
     {
         public uint GetExtractionRate();
     }
-    public abstract class ResourcePortConduitSystem<TTileEntityPort> : PortConduitSystem<TTileEntityPort>
-        where TTileEntityPort : IColoredTileEntityPort 
+    public abstract class ResourceColoredIOPortConduitSystem<TTileEntityPort> : ColoredIOPortConduitSystem<TTileEntityPort>
+        where TTileEntityPort : IColoredTileEntityPort, IOConduitPort
     {
-        protected ResourcePortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
+        protected ResourceColoredIOPortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
         }
 

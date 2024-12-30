@@ -13,9 +13,9 @@ namespace Conduits.Ports.UI {
         private ConduitPortData portData;
         private IConduit conduit;
         private Image colorImage;
-        private PortConnectionType portConnectionType;
-        public void Initalize(ConduitPortData portData, IConduit conduit, PortConnectionType portConnectionType) {
+        public void Initialize(ConduitPortData portData, IConduit conduit) {
             this.conduit = conduit;
+            this.portData = portData;
             colorImage = GetComponent<Image>();
             colorImage.color = ConduitPortFactory.GetColorFromInt(portData.Color);
         }

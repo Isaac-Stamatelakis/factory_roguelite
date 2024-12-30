@@ -4,7 +4,7 @@ using UnityEngine;
 using Conduits.Ports;
 
 namespace Conduits.Systems {
-    public class EnergyConduitSystem : ResourcePortConduitSystem<EnergyTileEntityPort>
+    public class EnergyConduitSystem : ResourceColoredIOPortConduitSystem<EnergyTileEntityPort>
     {
         public EnergyConduitSystem(string id, IConduitSystemManager manager) : base(id, manager)
         {
@@ -27,6 +27,11 @@ namespace Conduits.Systems {
                 totalEnergy -= extractionRate;
             } else {
                 toInsert = totalEnergy;
+            }
+
+            if (toInsert > 0)
+            {
+                activeThisTick = true;
             }
             
             foreach (EnergyTileEntityPort inputPort in inputPorts) {

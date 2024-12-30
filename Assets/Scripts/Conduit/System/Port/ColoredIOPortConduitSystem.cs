@@ -34,13 +34,13 @@ namespace Conduits.Systems {
         public int SetColor(PortConnectionType portConnectionType, int color);
     }
 
-    public abstract class PortConduitSystem<TTileEntityPort> : ConduitSystem<IPortConduit>, IPortConduitSystem where TTileEntityPort : IColoredTileEntityPort
+    public abstract class ColoredIOPortConduitSystem<TTileEntityPort> : ConduitSystem<IPortConduit>, IPortConduitSystem where TTileEntityPort : IColoredTileEntityPort, IOConduitPort
 
     {
         protected Dictionary<int, List<TTileEntityPort>> coloredOutputPorts;
         protected Dictionary<int, List<TTileEntityPort>> coloredPriorityInputs;
         private bool active;
-        protected PortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
+        protected ColoredIOPortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
             coloredOutputPorts = new Dictionary<int, List<TTileEntityPort>>();
             coloredPriorityInputs = new Dictionary<int, List<TTileEntityPort>>();
@@ -68,7 +68,8 @@ namespace Conduits.Systems {
         public abstract void TickUpdate();
         protected void AddOutputPort(TTileEntityPort tileEntityPort)
         {
-            if (ReferenceEquals(tileEntityPort,null)) return;
+            if (ReferenceEquals(tileEntityPort?.GetPortData(PortConnectionType.Output),null)) return;
+            if (!tileEntityPort.GetPortData(PortConnectionType.Output).Enabled) return;
             int color = tileEntityPort.GetColor(PortConnectionType.Output);
             if (!coloredOutputPorts.ContainsKey(color))
             {
@@ -77,7 +78,8 @@ namespace Conduits.Systems {
             coloredOutputPorts[color].Add(tileEntityPort);
         }
         protected void AddInputPort(TTileEntityPort tileEntityPort) {
-            if (ReferenceEquals(tileEntityPort,null)) return;
+            if (ReferenceEquals(tileEntityPort?.GetPortData(PortConnectionType.Input),null)) return;
+            if (!tileEntityPort.GetPortData(PortConnectionType.Input).Enabled) return;
             int color = tileEntityPort.GetColor(PortConnectionType.Input);
             if (!coloredPriorityInputs.ContainsKey(color)) {
                 coloredPriorityInputs[color] = new List<TTileEntityPort>();

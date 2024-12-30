@@ -8,7 +8,7 @@ using TileEntity;
 
 namespace Conduits.Systems {
     
-    public class ItemConduitSystem : ResourcePortConduitSystem<ItemTileEntityPort>
+    public class ItemConduitSystem : ResourceColoredIOPortConduitSystem<ItemTileEntityPort>
     {
         private ItemState itemState;
         public ItemConduitSystem(string id, IConduitSystemManager manager, ItemState itemState) : base(id, manager)
