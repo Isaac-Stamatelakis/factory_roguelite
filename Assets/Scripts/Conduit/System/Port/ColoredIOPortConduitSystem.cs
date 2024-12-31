@@ -39,7 +39,7 @@ namespace Conduits.Systems {
     {
         protected Dictionary<int, List<TTileEntityPort>> coloredOutputPorts;
         protected Dictionary<int, List<TTileEntityPort>> coloredPriorityInputs;
-        private bool active;
+        protected int activeDisplayTicks;
         protected ColoredIOPortConduitSystem(string id,IConduitSystemManager manager) : base(id,manager)
         {
             coloredOutputPorts = new Dictionary<int, List<TTileEntityPort>>();
@@ -65,7 +65,18 @@ namespace Conduits.Systems {
             AddInputPort(tileEntityPort);
             AddOutputPort(tileEntityPort);
         }
-        public abstract void TickUpdate();
+
+        public void TickUpdate()
+        {
+            activeDisplayTicks--;
+            if (activeDisplayTicks == 0)
+            {
+                manager.RefreshSystemTiles(this);
+            }
+            SystemTickUpdate();
+        }
+
+        public abstract void SystemTickUpdate();
         protected void AddOutputPort(TTileEntityPort tileEntityPort)
         {
             if (ReferenceEquals(tileEntityPort?.GetPortData(PortConnectionType.Output),null)) return;
@@ -89,17 +100,11 @@ namespace Conduits.Systems {
         }
 
         protected abstract void AddInputPortPostProcessing(TTileEntityPort inputPort);
-
-        protected void SetActive(bool state)
-        {
-            if (active == state) return;
-            active = state;
-            manager.RefreshSystemTiles(this);
-        }
+        protected abstract void SetActive(bool state);
 
         public override bool IsActive()
         {
-            return active;
+            return activeDisplayTicks > 0;
         }
     }
     

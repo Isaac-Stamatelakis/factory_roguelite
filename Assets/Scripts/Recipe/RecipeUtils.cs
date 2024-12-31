@@ -138,6 +138,13 @@ public static class RecipeUtils {
                         return;
                     }
                     break;
+                case RecipeType.Burner:
+                    if (recipeObject is not BurnerRecipeObject)
+                    {
+                        LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
+                        return;
+                    }
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
 

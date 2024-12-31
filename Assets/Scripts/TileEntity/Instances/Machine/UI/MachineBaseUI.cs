@@ -22,6 +22,7 @@ namespace TileEntity.Instances.Machine.UI
         public int GetMode();
         public void IterateMode(int amount);
         public int GetModeCount();
+        public void ResetRecipe();
     }
     
     public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener
@@ -31,10 +32,7 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private ArrowProgressController progressController;
         [SerializeField] private Scrollbar energyScrollbar;
         [SerializeField] private TextMeshProUGUI modeText;
-        [SerializeField] private InventoryUI solidInputs;
-        [SerializeField] private InventoryUI solidOutputs;
-        [SerializeField] private InventoryUI fluidInputs;
-        [SerializeField] private InventoryUI fluidOutputs;
+        [SerializeField] private MachineInventoryUI machineInventoryUI;
 
         private MachineEnergyInventory machineEnergyInventory;
         private IMachineInstance displayedInstance;
@@ -52,16 +50,10 @@ namespace TileEntity.Instances.Machine.UI
             energyScrollbar.gameObject.SetActive(machineEnergyInventory!=null);
             
             InitializeModeDisplay();
-            InitializeItemDisplay();
+            machineInventoryUI.Display(machineInstance.GetItemInventory());
         }
 
-        public void FixedUpdate()
-        {
-            solidInputs.RefreshSlots();
-            solidOutputs.RefreshSlots();
-            fluidInputs.RefreshSlots();
-            fluidOutputs.RefreshSlots();
-        }
+        
 
         private void InitializeModeDisplay()
         {
@@ -75,49 +67,8 @@ namespace TileEntity.Instances.Machine.UI
                 modeText.text = displayedInstance.GetMode().ToString();
             }
         }
-        private void InitializeItemDisplay()
-        {
-            MachineLayoutObject layoutObject = displayedInstance.GetMachineLayout();
-            bool error = false;
-            if (layoutObject == null)
-            {
-                Debug.LogWarning($"'MachineBaseUI' Tried to display inventory with no layout for {displayedInstance.getName()}");
-                error = true;
-            }
-            MachineItemInventory machineItemInventory = displayedInstance.GetItemInventory();
-            if (machineItemInventory == null)
-            {
-                Debug.LogWarning($"'MachineBaseUI' Tried to display null inventory for {displayedInstance.getName()}");
-                error = true;
-            }
-            if (error) return;
-            
-            InitializeInventoryUI(solidInputs, machineItemInventory.itemInputs,layoutObject.SolidInputs);
-            InitializeInventoryUI(solidOutputs, machineItemInventory.itemOutputs,layoutObject.SolidOutputs);
-            InitializeInventoryUI(fluidInputs, machineItemInventory.fluidInputs,layoutObject.FluidInputs);
-            InitializeInventoryUI(fluidOutputs, machineItemInventory.fluidOutputs,layoutObject.FluidOutputs);
-        }
-        private void InitializeInventoryUI(InventoryUI inventoryUI, List<ItemSlot> inventory, MachineInventoryOptions inventoryOptions)
-        {
-            int size = inventoryOptions.GetIntSize();
-            if (size == 0)
-            {
-                inventoryUI.gameObject.SetActive(false);
-                return;
-            }
-
-            if (inventory == null)
-            {
-                Debug.LogWarning($"'MachineBaseUI' Tried to display '{inventoryUI.name}' for {displayedInstance.getName()} which was null");
-                return;
-            }
-            if (!inventoryOptions.DefaultOffset)
-            {
-                inventoryUI.transform.position = (Vector2)inventoryOptions.Offset;
-            }
-            inventoryUI.DisplayInventory(inventory);
-            inventoryUI.AddListener(displayedInstance);
-        }
+        
+        
 
         public void DisplayProcessor(DisplayableRecipe displayableRecipe)
         {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,9 +8,9 @@ using Newtonsoft.Json;
 using Chunks;
 
 namespace TileEntity.Instances.Storage {
-    public class BatteryInstance : TileEntityInstance<Battery>, ITickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator
+    public class BatteryInstance : TileEntityInstance<Battery>, IRightClickableTileEntity, ISerializableTileEntity, IEnergyConduitInteractable
     {
-        public MachineEnergyInventory EnergyInventory;
+        public ulong Energy;
         public BatteryInstance(Battery tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
@@ -18,19 +19,7 @@ namespace TileEntity.Instances.Storage {
         {
             return TileEntityObject.ConduitPortLayout;
         }
-
-        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
-        {
-            switch (conduitType)
-            {
-                case ConduitType.Energy:
-                    return EnergyInventory;
-                default:
-                    return null;
-            }
-        }
-
-
+        
         public void onRightClick()
         {
             TileEntityObject.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
@@ -38,17 +27,32 @@ namespace TileEntity.Instances.Storage {
 
         public string serialize()
         {
-            return MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory);
+            return Energy.ToString();
         }
-
-        public void tickUpdate()
-        {
-            
-        }
-
+        
         public void unserialize(string data)
         {
-            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(data, this);
+            Energy = Convert.ToUInt64(data);
+        }
+
+        public ulong InsertEnergy(ulong amount, Vector2Int portPosition)
+        {
+            ulong maxEnergy = tileEntityObject.Storage;
+            if (Energy >= maxEnergy) {
+                return 0;
+            }
+            ulong sum = Energy+=amount;
+            if (sum > maxEnergy) {
+                Energy = maxEnergy;
+                return sum - maxEnergy;
+            }
+            Energy = sum;
+            return amount;
+        }
+
+        public ref ulong GetEnergy(Vector2Int portPosition)
+        {
+            return ref Energy;
         }
     }
 }

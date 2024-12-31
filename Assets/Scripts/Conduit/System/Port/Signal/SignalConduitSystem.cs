@@ -12,7 +12,7 @@ namespace Conduits.Systems {
             colorActivations = new bool[ConduitPortFactory.PORT_COLORS];
         }
 
-        public override void TickUpdate()
+        public override void SystemTickUpdate()
         {
             bool active = false;
             for (int color = 0; color < colorActivations.Length; color ++) {
@@ -45,6 +45,16 @@ namespace Conduits.Systems {
         protected override void AddInputPortPostProcessing(SignalTileEntityPort inputPort)
         {
             // No post processing
+        }
+
+        protected override void SetActive(bool state)
+        {
+            if (!state)
+            {
+                return;
+            }
+            activeDisplayTicks = 1;
+            manager.RefreshSystemTiles(this);
         }
 
         public override void Rebuild()

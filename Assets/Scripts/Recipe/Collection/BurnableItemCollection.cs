@@ -44,13 +44,14 @@ namespace Recipe.Collection
 
         public uint GetBurnDuration(ItemObject itemObject)
         {
+            if (ReferenceEquals(itemObject, null)) return 0;
             if (itemBurnDurations.TryGetValue(itemObject.id, out var duration)) return duration;
             if (itemObject is not TransmutableItemObject transmutableItemObject) return 0;
             var material = transmutableItemObject.getMaterial();
             if (!materialBurnDurations.TryGetValue(material, out var matDuration)) return 0;
             var state = transmutableItemObject.getState();
             float stateRatio = state.getRatio();
-            return (uint) (matDuration * stateRatio);
+            return (uint) (matDuration / stateRatio);
         }
         
         

@@ -18,11 +18,7 @@ namespace TileEntity.Instances.Machines {
     {
         public PassiveProcessorInstance(PassiveProcessor tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            /*
-            if (inventory == null) {
-                inventory = PassiveMachineInventoryFactory.initalize(tileEntity.Layout);
-            }
-            */
+            
         }
         
         public override string serialize()
@@ -40,42 +36,23 @@ namespace TileEntity.Instances.Machines {
             if (currentRecipe == null) {
                 return;
             }
-            processRecipe();
 
-        }
-
-        private void processRecipe() {
-            /*
-            if (inventory.RemainingTicks > 0) {
-                inventory.RemainingTicks--;
+            if (currentRecipe.RemainingTicks > 0)
+            {
+                currentRecipe.RemainingTicks--;
                 return;
             }
-            List<ItemSlot> outputs = currentRecipe.getOutputs();
-            ItemSlotHelper.sortInventoryByState(outputs, out var solidOutputs, out var fluidOutputs);
-            ItemSlotHelper.InsertListIntoInventory(inventory.ItemOutputs.Slots,solidOutputs,Global.MaxSize);
-            ItemSlotHelper.InsertListIntoInventory(inventory.FluidOutputs.Slots,fluidOutputs,tileEntity.Tier.GetFluidStorage());
-            currentRecipe = null;
-            inventoryUpdate(0);
-            */
+            Inventory.TryOutputRecipe(currentRecipe);
         }
 
+        
         public override void InventoryUpdate(int n) {
-            /*
             if (currentRecipe != null) {
                 return;
             }
-            currentRecipe = tileEntity.RecipeProcessor.GetPassiveRecipe(
-                inventory.Mode,
-                inventory.ItemInputs.Slots,
-                inventory.FluidInputs.Slots,
-                inventory.ItemOutputs.Slots,
-                inventory.FluidOutputs.Slots
-            );
-            if (currentRecipe == null) {
-                return;
-            }
-            inventory.RemainingTicks = currentRecipe.getRequiredTicks();
-            */
+
+            currentRecipe = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor).GetRecipe<PassiveItemRecipe>(Mode, Inventory.itemInputs, Inventory.fluidInputs);
+            
         }
 
         public override float GetProgressPercent()
@@ -84,7 +61,7 @@ namespace TileEntity.Instances.Machines {
             {
                 return 0;
             }
-            return (float)(currentRecipe.RemainingTicks/currentRecipe.InitalTicks);
+            return 1-(float)(currentRecipe.RemainingTicks/currentRecipe.InitalTicks);
         }
 
         public override void PlaceInitialize()

@@ -7,6 +7,7 @@ namespace Recipe
         Item,
         Passive,
         Generator,
-        Machine
+        Machine,
+        Burner,
     }
 }

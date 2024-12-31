@@ -323,6 +323,9 @@ namespace Recipe.Processor
                 case RecipeType.Machine:
                     ItemEnergyRecipeObject itemRecipeObject = (ItemEnergyRecipeObject)recipeObject;
                     return new ItemEnergyRecipe(solidOutputs,fluidOutputs, itemRecipeObject.TotalInputEnergy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.MinimumEnergyPerTick);
+                case RecipeType.Burner:
+                    BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
+                    return new BurnerItemRecipe(solidOutputs, fluidOutputs, burnerRecipeObject.Ticks, burnerRecipeObject.Ticks, burnerRecipeObject.PassiveSpeed);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }

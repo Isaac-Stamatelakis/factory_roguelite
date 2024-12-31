@@ -20,7 +20,9 @@ namespace TileEntity.Instances.Machines {
                 val = 1;
             }
 
-            int index = (int)(val * (arrows.Length-1));
+            int index = (int)(val * (arrows.Length));
+            if (index > arrows.Length - 1) index = arrows.Length - 1;
+            if (index < 0) index = 0;
             image.sprite = arrows[index];
         }
     }
