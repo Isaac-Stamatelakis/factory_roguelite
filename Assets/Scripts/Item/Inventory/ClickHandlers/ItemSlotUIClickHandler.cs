@@ -1,4 +1,5 @@
 using System;
+using Item.Slot;
 using Items.Inventory;
 using Recipe.Viewer;
 using UI.ToolTip;
@@ -55,16 +56,14 @@ namespace Item.Inventory
         public void OnPointerEnter(PointerEventData eventData)
         {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (!EnableToolTip || itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
-            ToolTipController.Instance.showToolTip(transform.position+new Vector3(40,0),itemSlot.itemObject.name);
+            if (!EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            ToolTipController.Instance.ShowToolTip(transform.position+new Vector3(60,0),itemSlot.itemObject.name);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             if (!EnableToolTip) return; 
-            ToolTipController.Instance.hideToolTip();
+            ToolTipController.Instance.HideToolTip();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Entities.Mobs;
+using Item.Slot;
 using Newtonsoft.Json;
 
 namespace Entities {

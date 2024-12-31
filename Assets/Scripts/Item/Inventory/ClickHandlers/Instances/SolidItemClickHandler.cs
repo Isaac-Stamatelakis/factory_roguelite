@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using Items.Tags;
 using UnityEngine;
@@ -11,12 +12,7 @@ namespace Item.Inventory.ClickHandlers.Instances
         public List<ItemTag> WhiteListedTags;
         public bool AllowInputs = true;
         protected override void RightClick() {
-            ItemSlot inventorySlot = inventoryUI.GetItemSlot(index);
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
-            if (inventorySlot == null || inventorySlot.itemObject == null) {
-                return;
-            }
-
             var inventory = inventoryUI.GetInventory();
             if (!grabbedItemProperties.SetItemSlotFromInventory(inventory,index)) {
                 grabbedItemProperties.AddItemSlotFromInventory(inventory,index);
@@ -39,7 +35,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 inventoryUI.CallListeners(index);
                 return;
             }
-            if (ItemSlotHelper.AreEqual(grabbedSlot,inventorySlot)) {
+            if (ItemSlotUtils.AreEqual(grabbedSlot,inventorySlot)) {
                 // Merge
                 uint sum = inventorySlot.amount + grabbedSlot.amount;
                 if (sum > Global.MaxSize) {

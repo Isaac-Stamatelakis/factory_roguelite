@@ -10,6 +10,7 @@ using TileMaps.Place;
 using Tiles;
 using Chunks.Partitions;
 using Entities;
+using Item.Slot;
 using Items;
 
 namespace TileMaps {

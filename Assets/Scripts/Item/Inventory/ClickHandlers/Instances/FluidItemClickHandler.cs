@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using Items.Tags;
 using Items.Tags.FluidContainers;
@@ -37,7 +38,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                     return;
                 }
                 ItemSlot fluidInventorySlot = inventory[index];
-                if (ItemSlotHelper.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
+                if (ItemSlotUtils.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
                     Debug.Log("Hi");
                 }
                 inventory[index] = itemSlot;
@@ -46,18 +47,18 @@ namespace Item.Inventory.ClickHandlers.Instances
                 if (container.amount == 0) {
                     GrabbedItemProperties.Instance.SetItemSlot(empty);
                 } else {
-                    if (!ItemSlotHelper.CanInsertIntoInventory(inventory,container,fluidContainer.GetStorage())) {
+                    if (!ItemSlotUtils.CanInsertIntoInventory(inventory,container,fluidContainer.GetStorage())) {
                     
                         return;
                     } else {
-                        ItemSlotHelper.InsertIntoInventory(inventory,empty,fluidContainer.GetStorage());
+                        ItemSlotUtils.InsertIntoInventory(inventory,empty,fluidContainer.GetStorage());
                     }
                 }
                 return;
             }
             List<ItemSlot> playerInventory =  PlayerContainer.getInstance().getInventory().Inventory;
             ItemSlot newItemSlot = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
-            if (!ItemSlotHelper.CanInsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage())) {
+            if (!ItemSlotUtils.CanInsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage())) {
                 return;
             }
             newItemSlot.tags.Dict[ItemTag.FluidContainer] = inventory[index];
@@ -68,7 +69,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 container.itemObject = null;
                 return;
             }
-            ItemSlotHelper.InsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage());
+            ItemSlotUtils.InsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage());
             GrabbedItemProperties.Instance.UpdateSprite();
         }
 

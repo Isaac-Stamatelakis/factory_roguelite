@@ -8,6 +8,7 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items.Inventory;
 using Entities;
+using Item.Slot;
 using UI;
 
 namespace TileEntity.Instances.Matrix {

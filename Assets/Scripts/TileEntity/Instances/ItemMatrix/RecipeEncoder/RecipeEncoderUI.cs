@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -66,10 +67,10 @@ namespace TileEntity.Instances.Matrix {
         }
 
         private void encodeButtonClick() {
-            if (ItemSlotHelper.InventoryAllNull(recipeEncoder.RecipeInputs)) {
+            if (ItemSlotUtils.InventoryAllNull(recipeEncoder.RecipeInputs)) {
                 return;
             }
-            if (ItemSlotHelper.InventoryAllNull(recipeEncoder.RecipeOutputs)) {
+            if (ItemSlotUtils.InventoryAllNull(recipeEncoder.RecipeOutputs)) {
                 return;
             }
             for (int i = 0; i < recipeEncoder.BlankRecipes.Count; i++) {
@@ -85,10 +86,10 @@ namespace TileEntity.Instances.Matrix {
                     copyOutputs
                 );
                 spliced.amount = 1;
-                if (!ItemSlotHelper.CanInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize)) {
+                if (!ItemSlotUtils.CanInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize)) {
                     continue;
                 }
-                ItemSlotHelper.InsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize);
                 itemSlot.amount--;
                 if (itemSlot.amount <= 0) {
                     itemSlot.itemObject = null;

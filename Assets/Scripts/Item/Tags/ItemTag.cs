@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.UI;
@@ -234,7 +235,7 @@ namespace Items.Tags {
             if (second is not ItemSlot secondSlot) {
                 return false;
             }
-            if (!ItemSlotHelper.AreEqualNoNullCheck(firstSlot,secondSlot)) {
+            if (!ItemSlotUtils.AreEqualNoNullCheck(firstSlot,secondSlot)) {
                 return false;
             }
             return firstSlot.amount == secondSlot.amount;

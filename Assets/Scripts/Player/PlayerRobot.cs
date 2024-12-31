@@ -9,6 +9,7 @@ using TileMaps;
 using TileEntity;
 using UnityEngine.EventSystems;
 using Dimensions;
+using Item.Slot;
 using UI;
 
 namespace PlayerModule {

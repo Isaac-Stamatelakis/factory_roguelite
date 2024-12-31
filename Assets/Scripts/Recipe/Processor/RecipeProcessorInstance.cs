@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using Items.Transmutable;
 using Recipe.Data;
@@ -309,7 +310,7 @@ namespace Recipe.Processor
         public static ItemRecipe CreateRecipe(RecipeType recipeType, ItemRecipeObject recipeObject)
         {
             List<ItemSlot> outputCopy = ItemSlotFactory.FromEditorObjects(recipeObject.Outputs);
-            ItemSlotHelper.sortInventoryByState(outputCopy,out var solidOutputs, out var fluidOutputs);
+            ItemSlotUtils.sortInventoryByState(outputCopy,out var solidOutputs, out var fluidOutputs);
             switch (recipeType)
             {
                 case RecipeType.Item:

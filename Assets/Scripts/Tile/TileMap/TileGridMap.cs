@@ -13,6 +13,7 @@ using Chunks.Systems;
 using Tiles;
 using Items;
 using Entities;
+using Item.Slot;
 
 namespace TileMaps {
     public interface ITileGridMap {

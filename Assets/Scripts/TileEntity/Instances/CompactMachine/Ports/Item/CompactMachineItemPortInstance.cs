@@ -5,6 +5,7 @@ using TileEntity.Instances.Storage;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
+using Item.Slot;
 
 namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineItemPortInstance : TileEntityInstance<CompactMachineItemPort>, ISerializableTileEntity ,IConduitPortTileEntity, IItemConduitInteractable, ICompactMachineInteractable

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UI.PauseScreen;
+using UI.ToolTip;
 using UnityEngine;
 
 namespace UI
@@ -54,8 +55,8 @@ namespace UI
                 return;
             }
             DisplayedUIInfo top = uiObjectStack.Pop();
-            GameObject.Destroy(top.gameObject);
-            
+            Destroy(top.gameObject);
+            ToolTipController.Instance.HideToolTip();
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();

@@ -10,6 +10,7 @@ using Items;
 using TileMaps.Previewer;
 using TileEntity.Instances;
 using Dimensions;
+using Item.Slot;
 
 namespace PlayerModule.IO {
 

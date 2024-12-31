@@ -10,6 +10,7 @@ using Dimensions;
 using Chunks;
 using UnityEngine.UI;
 using Entities;
+using Item.Slot;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -125,14 +126,14 @@ namespace PlayerModule {
         }
 
         public void give(ItemSlot itemSlot) {
-            if (!ItemSlotHelper.CanInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
+            if (!ItemSlotUtils.CanInsertIntoInventory(inventory,itemSlot,Global.MaxSize)) {
                 IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {
                     return;
                 }
                 ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
             } else {
-                ItemSlotHelper.InsertIntoInventory(inventory,itemSlot,Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(inventory,itemSlot,Global.MaxSize);
             }
         }
 

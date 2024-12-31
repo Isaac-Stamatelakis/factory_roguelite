@@ -9,6 +9,7 @@ using Tiles;
 using TileMaps.Place;
 using Chunks.Systems;
 using Chunks.Partitions;
+using Item.Slot;
 
 namespace TileEntity.Instances.SimonSays {
     public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IRightClickableTileEntity, ILoadableTileEntity

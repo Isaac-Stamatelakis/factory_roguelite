@@ -14,14 +14,13 @@ namespace UI.ToolTip {
             instance = this;
         }
 
-        public void showToolTip(Vector2 position, string text) {
-            hideToolTip();
-            ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab);
+        public void ShowToolTip(Vector2 position, string text) {
+            HideToolTip();
+            ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
             newToolTip.setText(text);
-            newToolTip.transform.SetParent(transform,false);
             newToolTip.transform.position = position;
         }
-        public void hideToolTip() {
+        public void HideToolTip() {
             GlobalHelper.deleteAllChildren(transform);
         }
     }

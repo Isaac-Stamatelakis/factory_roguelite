@@ -5,6 +5,7 @@ using Conduits.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
 using Chunks;
+using Item.Slot;
 using UI;
 
 namespace TileEntity.Instances.Matrix {

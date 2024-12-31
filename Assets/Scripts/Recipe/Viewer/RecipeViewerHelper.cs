@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Item.Slot;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
 using UI;

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
+using Item.Slot;
 using UnityEngine;
 
 namespace TileEntity.Instances.Storage {
@@ -34,8 +35,8 @@ namespace TileEntity.Instances.Storage {
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
-                if (ItemSlotHelper.AreEqual(drawerSlot,toInsert) && ItemSlotHelper.CanInsertIntoSlot(drawerSlot,toInsert,drawer.Amount)) {
-                    ItemSlotHelper.InsertIntoSlot(drawerSlot,toInsert,drawerSlot.amount);
+                if (ItemSlotUtils.AreEqual(drawerSlot,toInsert) && ItemSlotUtils.CanInsertIntoSlot(drawerSlot,toInsert,drawer.Amount)) {
+                    ItemSlotUtils.InsertIntoSlot(drawerSlot,toInsert,drawerSlot.amount);
                 }
                 if (toInsert.itemObject == null || toInsert.amount == 0) {
                     return;

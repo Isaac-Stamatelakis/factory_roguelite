@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Chunks;
 using Conduits.Systems;
+using Item.Slot;
 using Newtonsoft.Json;
 using Recipe;
 using Recipe.Collection;
@@ -48,7 +49,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         {
             foreach (ItemSlot itemSlot in BurnerSlots)
             {
-                if (ItemSlotHelper.IsItemSlotNull(itemSlot)) continue;
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
                 uint duration = RecipeRegistry.BurnableItemRegistry.GetBurnDuration(itemSlot.itemObject);
                 if (duration == 0) continue;
                 SetFuel(duration);
@@ -129,7 +130,6 @@ namespace TileEntity.Instances.Machine.Instances.Passive
                 MachineInventoryFactory.SerializeMachineBurnerInventory(BurnerFuelInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Burner)
             );
-            Debug.Log(JsonConvert.SerializeObject(serializedBurnerMachine));
             return JsonConvert.SerializeObject(serializedBurnerMachine);
         }
 
@@ -155,7 +155,10 @@ namespace TileEntity.Instances.Machine.Instances.Passive
                 {
                     Inventory.TryOutputRecipe(currentRecipe);
                 }
-                if (!BurnerFuelInventory.Active()) BurnerFuelInventory.TryConsumeFuel();
+                else if (!BurnerFuelInventory.Active())
+                {
+                    BurnerFuelInventory.TryConsumeFuel();
+                }
                 return;
             }
             currentRecipe = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor).GetRecipe<BurnerItemRecipe>(

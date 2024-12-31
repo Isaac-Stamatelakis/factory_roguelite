@@ -1,3 +1,4 @@
+using Item.Slot;
 using Recipe.Viewer;
 
 namespace Item.Inventory.ClickHandlers.Instances

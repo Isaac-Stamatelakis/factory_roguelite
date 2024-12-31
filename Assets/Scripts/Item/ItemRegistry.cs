@@ -16,6 +16,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
 using Dimensions;
+using Item.Slot;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
 

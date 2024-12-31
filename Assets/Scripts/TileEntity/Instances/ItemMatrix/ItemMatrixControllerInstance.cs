@@ -7,6 +7,7 @@ using Items.Tags;
 using Items.Tags.Matrix;
 using Items;
 using Conduits.Ports;
+using Item.Slot;
 
 
 namespace TileEntity.Instances.Matrix {

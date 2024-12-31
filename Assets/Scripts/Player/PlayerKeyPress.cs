@@ -4,6 +4,7 @@ using Item.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using UI.ToolTip;
 
 
 namespace PlayerModule.KeyPress {
@@ -20,10 +21,8 @@ namespace PlayerModule.KeyPress {
         // Update is called once per frame
         void Update()
         {
-            if (EventSystem.current.currentSelectedGameObject != null) {
-                return;
-            }
             if (Input.GetKeyDown(KeyCode.E)) {
+                ToolTipController.Instance.HideToolTip();
                 playerInventory.toggleInventory();
             }
             /*

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -67,6 +68,12 @@ namespace Items {
         
         public void Display(ItemSlot itemSlot)
         {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot))
+            {
+                Unload();
+                return;
+            }
+            /*
             if (ReferenceEquals(itemSlot?.itemObject,null)) {
                 if (ItemImage.IsActive()) Unload();
                 displayedSlot = null;
@@ -78,6 +85,7 @@ namespace Items {
             {
                 return;
             }
+            */
             Sprite[] sprites = itemSlot.itemObject.getSprites();
             if (sprites == null || sprites.Length == 0)
             {

@@ -5,6 +5,7 @@ using UnityEngine;
 using Conduits.Systems;
 using Newtonsoft.Json;
 using Conduits.Ports;
+using Item.Slot;
 using Items.Tags;
 using UI;
 

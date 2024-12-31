@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using Item.Slot;
 using Items.Inventory;
 
 namespace Items {
@@ -33,32 +34,25 @@ namespace Items {
             ItemSlotUI.Display(itemSlot);
         }
         
-        public bool SetItemSlotFromInventory(List<ItemSlot> inventory, int n) {
-            if (ItemSlot != null && ItemSlot.itemObject != null) {
-                return false;
-            }
-            ItemSlot inventorySlot = inventory[n];
-            ItemSlot newSlot = ItemSlotFactory.CreateNewItemSlot(inventorySlot.itemObject,1);
-            inventorySlot.amount--;
-            if (inventorySlot.amount == 0) {
-                inventory[n] = null;
-            }
+        public bool SetItemSlotFromInventory(List<ItemSlot> inventory, int n)
+        {
+            if (ItemSlotUtils.IsItemSlotNull(inventory[n])) return false;
+            if (!ItemSlotUtils.IsItemSlotNull(itemSlot)) return false;
+            ItemSlot newSlot = ItemSlotFactory.CreateNewItemSlot(inventory[n].itemObject,1);
+            inventory[n].amount--;
             SetItemSlot(newSlot);
             return true;
         }
 
         public void AddItemSlotFromInventory(List<ItemSlot> inventory, int n) {
             ItemSlot inventorySlot = inventory[n];
-            if (!ItemSlotHelper.AreEqual(ItemSlot,inventorySlot)) {
+            if (!ItemSlotUtils.AreEqual(ItemSlot,inventorySlot)) {
                 return;
             }
             if (ItemSlot.amount >= Global.MaxSize) {
                 return;
             }
             inventorySlot.amount--;
-            if (inventorySlot.amount == 0) {
-                inventory[n] = null;
-            }
             this.ItemSlot.amount += 1;
             UpdateSprite();
         }

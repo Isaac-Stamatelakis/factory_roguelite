@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UI;
@@ -93,10 +94,10 @@ namespace TileEntity.Instances.Storage {
                 toInsert.amount = 0;
                 return;
             }
-            if (!ItemSlotHelper.AreEqual(itemSlot,toInsert)) {
+            if (!ItemSlotUtils.AreEqual(itemSlot,toInsert)) {
                 return;
             }
-            ItemSlotHelper.InsertIntoSlot(itemSlot,toInsert,GetStorage());
+            ItemSlotUtils.InsertIntoSlot(itemSlot,toInsert,GetStorage());
             updateVisual();
         }
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Item.Slot;
 using Items.Inventory;
 using UnityEngine;
 
