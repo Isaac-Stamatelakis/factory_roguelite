@@ -165,7 +165,7 @@ namespace Items.Tags {
         }
 
         private static GameObject getEnergyContainerVisualElement(ItemSlot itemSlot, object tagData) {
-            // TODO slider of energy
+            // TODO slider of Energy
             return null;
         }
 

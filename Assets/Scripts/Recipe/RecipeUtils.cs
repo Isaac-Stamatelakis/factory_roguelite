@@ -117,7 +117,7 @@ public static class RecipeUtils {
                         return;
                     }
                     break;
-                case RecipeType.PassiveItem:
+                case RecipeType.Passive:
                     if (recipeObject is not PassiveItemRecipeObject)
                     {
                         LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
@@ -131,8 +131,15 @@ public static class RecipeUtils {
                         return;
                     }
                     break;
-                case RecipeType.EnergyItem:
+                case RecipeType.Machine:
                     if (recipeObject is not ItemEnergyRecipeObject)
+                    {
+                        LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
+                        return;
+                    }
+                    break;
+                case RecipeType.Burner:
+                    if (recipeObject is not BurnerRecipeObject)
                     {
                         LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
                         return;

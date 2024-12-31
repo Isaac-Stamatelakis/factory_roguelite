@@ -314,15 +314,18 @@ namespace Recipe.Processor
             {
                 case RecipeType.Item:
                     return new ItemRecipe(solidOutputs, fluidOutputs);
-                case RecipeType.PassiveItem:
+                case RecipeType.Passive:
                     PassiveItemRecipeObject passiveItemRecipeObject = (PassiveItemRecipeObject)recipeObject;
                     return new PassiveItemRecipe(solidOutputs,fluidOutputs, passiveItemRecipeObject.Ticks, passiveItemRecipeObject.Ticks);
                 case RecipeType.Generator:
                     GeneratorItemRecipeObject generatorRecipeObject = (GeneratorItemRecipeObject)recipeObject;
                     return new GeneratorItemRecipe(solidOutputs,fluidOutputs, generatorRecipeObject.Ticks, generatorRecipeObject.Ticks, generatorRecipeObject.EnergyPerTick);
-                case RecipeType.EnergyItem:
+                case RecipeType.Machine:
                     ItemEnergyRecipeObject itemRecipeObject = (ItemEnergyRecipeObject)recipeObject;
                     return new ItemEnergyRecipe(solidOutputs,fluidOutputs, itemRecipeObject.TotalInputEnergy, itemRecipeObject.TotalInputEnergy, itemRecipeObject.MinimumEnergyPerTick);
+                case RecipeType.Burner:
+                    BurnerRecipeObject burnerRecipeObject = (BurnerRecipeObject)recipeObject;
+                    return new BurnerItemRecipe(solidOutputs, fluidOutputs, burnerRecipeObject.Ticks, burnerRecipeObject.Ticks, burnerRecipeObject.PassiveSpeed);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -347,7 +350,7 @@ namespace Recipe.Processor
             {
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
-                case RecipeType.EnergyItem:
+                case RecipeType.Machine:
                     ulong usage = TierUtils.GetMaxEnergyUsage(material.tier);
                     ulong cost = 32 * usage; // TODO change this
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);

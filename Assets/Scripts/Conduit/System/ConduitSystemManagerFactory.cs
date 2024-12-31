@@ -11,9 +11,7 @@ namespace Conduits.Systems {
         public static IConduitSystemManager CreateManager(
             ConduitType conduitType, 
             Dictionary<Vector2Int,IConduit> conduits,
-            Vector2Int size,
-            Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts,
-            Vector2Int referencePosition
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts
         ) {
             switch (conduitType)
             {
@@ -24,17 +22,13 @@ namespace Conduits.Systems {
                     return new PortConduitSystemManager(
                         conduitType: conduitType,
                         conduits: CastConduitDict<IPortConduit>(conduits),
-                        size: size,
-                        chunkConduitPorts: chunkConduitPorts,
-                        referencePosition: referencePosition
+                        chunkConduitPorts: chunkConduitPorts
                     );
                 case ConduitType.Matrix:
                     return new MatrixConduitSystemManager(
                         conduitType: conduitType,
                         conduits: CastConduitDict<MatrixConduit>(conduits),
-                        size: size,
-                        chunkConduitPorts: chunkConduitPorts,
-                        referencePosition: referencePosition
+                        chunkConduitPorts: chunkConduitPorts
                     );
                 default:
                     throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);

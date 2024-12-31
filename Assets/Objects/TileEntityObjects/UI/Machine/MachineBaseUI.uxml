@@ -1,5 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:GroupBox style="justify-content: center; align-items: stretch; left: 25%; height: 50%; top: 25%; width: 50%; background-color: rgb(24, 24, 77);">
-        <ui:VisualElement name="arrow" style="background-image: resource(&apos;Sprites/arrow&apos;); width: 120px; height: 120px; left: 50%; top: 50%; position: absolute; justify-content: center; align-items: center; overflow: visible; transform-origin: center; flex-direction: column; rotate: 0; translate: -30px -30px;" />
-    </ui:GroupBox>
-</ui:UXML>

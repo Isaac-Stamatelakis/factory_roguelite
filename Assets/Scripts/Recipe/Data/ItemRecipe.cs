@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Items;
 using Newtonsoft.Json;
+using Recipe.Objects;
 using UnityEngine;
 
 namespace Recipe.Data
@@ -40,6 +41,15 @@ namespace Recipe.Data
         }
     }
 
+    public class BurnerItemRecipe : PassiveItemRecipe
+    {
+        public float PassiveSpeed;
+        public BurnerItemRecipe(List<ItemSlot> solidOutputs, List<ItemSlot> fluidOutputs, double initalTicks, double remainginTicks, float passiveSpeed) 
+            : base(solidOutputs, fluidOutputs, initalTicks, remainginTicks)
+        {
+            PassiveSpeed = passiveSpeed;
+        }
+    }
     public class GeneratorItemRecipe : PassiveItemRecipe
     {
         public ulong EnergyOutputPerTick;
@@ -61,7 +71,7 @@ namespace Recipe.Data
                 case RecipeType.Item:
                     SerializedItemRecipe serializedItemRecipe = new SerializedItemRecipe(serializedSolidOutputs, serializedFluidOutputs);
                     return JsonConvert.SerializeObject(serializedItemRecipe);
-                case RecipeType.PassiveItem:
+                case RecipeType.Passive:
                     PassiveItemRecipe passiveItemRecipe = (PassiveItemRecipe)itemRecipe;
                     SerializedPassiveItemRecipe serializedPassiveItemRecipe = new SerializedPassiveItemRecipe(
                         serializedSolidOutputs, 
@@ -80,7 +90,7 @@ namespace Recipe.Data
                         generatorItemRecipe.EnergyOutputPerTick
                     );
                     return JsonConvert.SerializeObject(serializedGeneratorItem);
-                case RecipeType.EnergyItem:
+                case RecipeType.Machine:
                     ItemEnergyRecipe itemEnergyRecipe = (ItemEnergyRecipe)itemRecipe;
                     SerializedItemEnergyRecipe serializedItemEnergyRecipe = new SerializedItemEnergyRecipe(
                         serializedSolidOutputs,
@@ -90,6 +100,16 @@ namespace Recipe.Data
                         itemEnergyRecipe.EnergyCostPerTick
                     );
                     return JsonConvert.SerializeObject(serializedItemEnergyRecipe);
+                case RecipeType.Burner:
+                    BurnerItemRecipe burnerItemRecipe = (BurnerItemRecipe)itemRecipe;
+                    SerializedBurnerItemRecipe serializedBurnerItemRecipe = new SerializedBurnerItemRecipe(
+                        serializedSolidOutputs,
+                        serializedFluidOutputs,
+                        burnerItemRecipe.InitalTicks,
+                        burnerItemRecipe.RemainingTicks,
+                        burnerItemRecipe.PassiveSpeed
+                    );
+                    return JsonConvert.SerializeObject(serializedBurnerItemRecipe);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
@@ -106,14 +126,17 @@ namespace Recipe.Data
                     case RecipeType.Item:
                         serializedItemRecipe = JsonConvert.DeserializeObject<SerializedItemRecipe>(serializedOutputs);
                         break;
-                    case RecipeType.PassiveItem:
+                    case RecipeType.Passive:
                         serializedItemRecipe = JsonConvert.DeserializeObject<SerializedPassiveItemRecipe>(serializedOutputs);
                         break;
                     case RecipeType.Generator:
                         serializedItemRecipe = JsonConvert.DeserializeObject<SerializedGeneratorItemRecipe>(serializedOutputs);
                         break;
-                    case RecipeType.EnergyItem:
+                    case RecipeType.Machine:
                         serializedItemRecipe = JsonConvert.DeserializeObject<SerializedItemEnergyRecipe>(serializedOutputs);
+                        break;
+                    case RecipeType.Burner:
+                        serializedItemRecipe = JsonConvert.DeserializeObject<SerializedBurnerItemRecipe>(serializedOutputs);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
@@ -124,8 +147,7 @@ namespace Recipe.Data
                 Debug.LogError(e);
                 return default;
             }
-
-  
+            
             try
             {
                 var solidOutputs = ItemSlotFactory.Deserialize(serializedItemRecipe.ItemOutputs);
@@ -134,15 +156,41 @@ namespace Recipe.Data
                 {
                     case RecipeType.Item:
                         return new ItemRecipe(solidOutputs,fluidOutputs) as T;
-                    case RecipeType.PassiveItem:
+                    case RecipeType.Passive:
                         SerializedPassiveItemRecipe serializedPassiveItemRecipe = (SerializedPassiveItemRecipe) serializedItemRecipe;
-                        return new PassiveItemRecipe(solidOutputs,fluidOutputs, serializedPassiveItemRecipe.InitalTicks, serializedPassiveItemRecipe.RemainingTicks) as T;
+                        return new PassiveItemRecipe(
+                            solidOutputs,
+                            fluidOutputs, 
+                            serializedPassiveItemRecipe.InitalTicks, 
+                            serializedPassiveItemRecipe.RemainingTicks
+                        ) as T;
                     case RecipeType.Generator:
                         SerializedGeneratorItemRecipe serializedGeneratorItemRecipe = (SerializedGeneratorItemRecipe) serializedItemRecipe;
-                        return new GeneratorItemRecipe(solidOutputs,fluidOutputs, serializedGeneratorItemRecipe.InitalTicks, serializedGeneratorItemRecipe.RemainingTicks, serializedGeneratorItemRecipe.EnergyOutputPerTick) as T;
-                    case RecipeType.EnergyItem:
+                        return new GeneratorItemRecipe(
+                            solidOutputs,
+                            fluidOutputs, 
+                            serializedGeneratorItemRecipe.InitalTicks, 
+                            serializedGeneratorItemRecipe.RemainingTicks, 
+                            serializedGeneratorItemRecipe.EnergyOutputPerTick
+                        ) as T;
+                    case RecipeType.Machine:
                         SerializedItemEnergyRecipe serializedItemEnergyRecipe = (SerializedItemEnergyRecipe) serializedItemRecipe;
-                        return new ItemEnergyRecipe(solidOutputs,fluidOutputs, serializedItemEnergyRecipe.InitialEnergy, serializedItemEnergyRecipe.Energy, serializedItemEnergyRecipe.EnergyCostPerTick) as T;
+                        return new ItemEnergyRecipe(
+                            solidOutputs,
+                            fluidOutputs, 
+                            serializedItemEnergyRecipe.InitialEnergy, 
+                            serializedItemEnergyRecipe.Energy, 
+                            serializedItemEnergyRecipe.EnergyCostPerTick
+                        ) as T;
+                    case RecipeType.Burner:
+                        SerializedBurnerItemRecipe sBurnerRecipe = (SerializedBurnerItemRecipe) serializedItemRecipe;
+                        return new BurnerItemRecipe(
+                            solidOutputs, 
+                            fluidOutputs, 
+                            sBurnerRecipe.InitalTicks, 
+                            sBurnerRecipe.RemainingTicks, 
+                            sBurnerRecipe.PassiveSpeed
+                        ) as T;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
                 }
@@ -174,6 +222,15 @@ namespace Recipe.Data
         {
             InitalTicks = initalTicks;
             RemainingTicks = remainingTicks;
+        }
+    }
+
+    public class SerializedBurnerItemRecipe : SerializedPassiveItemRecipe
+    {
+        public float PassiveSpeed;
+        public SerializedBurnerItemRecipe(string itemOutputs, string fluidOutputs, double initalTicks, double remainingTicks, float passiveSpeed) : base(itemOutputs, fluidOutputs, initalTicks, remainingTicks)
+        {
+            PassiveSpeed = passiveSpeed;
         }
     }
 

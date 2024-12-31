@@ -97,9 +97,7 @@ namespace Chunks.Systems {
             IConduitSystemManager manager = ConduitSystemManagerFactory.CreateManager(
                 conduitType: conduitType,
                 conduits: GetConduits(conduitType,tileEntityPorts),
-                size: GetSize(),
-                chunkConduitPorts: tileEntityPorts,
-                referencePosition: GetBottomLeftCorner()
+                chunkConduitPorts: tileEntityPorts
             );
             conduitSystemManagersDict[conduitMapType] = manager;
         }

@@ -5,12 +5,16 @@ using Conduits.Ports;
 using UnityEngine;
 using Items.Inventory;
 using Newtonsoft.Json;
+using Recipe.Data;
+using RecipeModule;
 using TileEntity.Instances.Machine;
+using TileEntity.Instances.Machine.Instances.Passive;
+using TileEntity.Instances.Machine.UI;
 
 namespace TileEntity {
     public class MachineItemInventory : IItemConduitInteractable
     {
-        public MachineItemInventory(ITileEntityInstance parent, List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
+        public MachineItemInventory(IMachineInstance parent, List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
             this.parent = parent;
             this.itemInputs = itemInputs;
@@ -18,14 +22,23 @@ namespace TileEntity {
             this.fluidInputs = fluidInputs;
             this.fluidOutputs = fluidOutputs;
         }
-
-        protected ITileEntityInstance parent;
+        
+        protected IMachineInstance parent;
+        public IMachineInstance Parent => parent;
         public List<ItemSlot> itemInputs;
         public List<ItemSlot> itemOutputs;
         public List<ItemSlot> fluidInputs;
         public List<ItemSlot> fluidOutputs;
         
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            ItemSlot extracted = ExtractFromInventory(state);
+            if (ItemSlotHelper.IsItemSlotNull(extracted)) return null;
+            parent.InventoryUpdate(0);
+            return extracted;
+        }
+
+        private ItemSlot ExtractFromInventory(ItemState state)
         {
             return state switch
             {
@@ -40,7 +53,7 @@ namespace TileEntity {
             switch (state)
             {
                 case ItemState.Solid:
-                    ItemSlotHelper.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize);
+                    if(ItemSlotHelper.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
                     break;
                 case ItemState.Fluid:
                     Tier tier = Tier.Basic;
@@ -48,17 +61,27 @@ namespace TileEntity {
                     {
                         tier = tieredTileEntity.GetTier();
                     }
-                    ItemSlotHelper.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage());
+                    if(ItemSlotHelper.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
         }
+
+        public void TryOutputRecipe(ItemRecipe itemRecipe)
+        {
+            ItemSlotHelper.InsertInventoryIntoInventory(itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
+            ItemSlotHelper.InsertInventoryIntoInventory(fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
+            bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
+            if (!recipeConsumed) return;
+            parent.ResetRecipe();
+            parent.InventoryUpdate(0);
+        }
     }
 
     public class MachineEnergyInventory : IEnergyConduitInteractable
     {
-        public MachineEnergyInventory(ulong energy, ITileEntityInstance parent)
+        public MachineEnergyInventory(ulong energy, IMachineInstance parent)
         {
             Energy = energy;
             this.parent = parent;
@@ -72,14 +95,14 @@ namespace TileEntity {
         }
 
         public ulong Energy;
-        private ITileEntityInstance parent;
+        private IMachineInstance parent;
         private ulong maxEnergy;
         public ulong InsertEnergy(ulong amount, Vector2Int portPosition)
         {
-            
             if (Energy >= maxEnergy) {
                 return 0;
             }
+            parent.InventoryUpdate(0);
             ulong sum = Energy+=amount;
             if (sum > maxEnergy) {
                 Energy = maxEnergy;
@@ -111,7 +134,7 @@ namespace TileEntity {
 
     public static class MachineInventoryFactory
     {
-        public static MachineItemInventory InitializeItemInventory(ITileEntityInstance parent, MachineLayoutObject layoutObject)
+        public static MachineItemInventory InitializeItemInventory(IMachineInstance parent, MachineLayoutObject layoutObject)
         {
             return new MachineItemInventory(
                 parent,
@@ -142,14 +165,46 @@ namespace TileEntity {
 
         public static string SerializedEnergyMachineInventory(MachineEnergyInventory machineInventory)
         {
-            if (machineInventory == null)
-            {
-                return null;
-            }
-            return JsonConvert.SerializeObject(machineInventory.Energy);
+            return machineInventory == null ? null : JsonConvert.SerializeObject(machineInventory.Energy);
         }
 
-        public static MachineItemInventory DeserializeMachineInventory(string json, ITileEntityInstance parent)
+        public static string SerializeMachineBurnerInventory(BurnerFuelInventory burnerFuelInventory)
+        {
+            if (burnerFuelInventory == null) return null;
+
+            try
+            {
+                SerializedBurnerData serializedBurnerData = new SerializedBurnerData(
+                    ItemSlotFactory.serializeList(burnerFuelInventory.BurnerSlots),
+                    burnerFuelInventory.InitialDuration,
+                    burnerFuelInventory.RemainingDuration
+                );
+                return JsonConvert.SerializeObject(serializedBurnerData);
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.LogWarning("Could not serialize burner inventory: " + e);
+                return null;
+            }
+        }
+
+        public static BurnerFuelInventory DeserializeMachineBurnerInventory(BurnerMachineInstance parent, string json)
+        {
+            if (json == null) return null;
+            try
+            {
+                SerializedBurnerData serializedBurnerData = JsonConvert.DeserializeObject<SerializedBurnerData>(json);
+                var burnerSlots = ItemSlotFactory.Deserialize(serializedBurnerData.SerializedItems);
+                return new BurnerFuelInventory(parent, burnerSlots,serializedBurnerData.InitalDuration, serializedBurnerData.RemainingDuration);;
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogWarning(e);
+                return null;
+            }
+        }
+
+        public static MachineItemInventory DeserializeMachineInventory(string json, IMachineInstance parent)
         {
             if (json == null)
             {
@@ -172,7 +227,7 @@ namespace TileEntity {
             }
         }
 
-        public static MachineEnergyInventory DeserializeEnergyMachineInventory(string json, ITileEntityInstance parent)
+        public static MachineEnergyInventory DeserializeEnergyMachineInventory(string json, IMachineInstance parent)
         {
             if (json == null)
             {
@@ -204,6 +259,20 @@ namespace TileEntity {
                 SerializedSolidOutputs = serializedSolidOutputs;
                 SerializedFluidInputs = serializedFluidInputs;
                 SerializedFluidOutputs = serializedFluidOutputs;
+            }
+        }
+
+        private class SerializedBurnerData
+        {
+            public string SerializedItems;
+            public uint InitalDuration;
+            public uint RemainingDuration;
+
+            public SerializedBurnerData(string serializedItems, uint initalDuration, uint remainingDuration)
+            {
+                SerializedItems = serializedItems;
+                InitalDuration = initalDuration;
+                RemainingDuration = remainingDuration;
             }
         }
     }

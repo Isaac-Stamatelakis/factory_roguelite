@@ -31,7 +31,6 @@ namespace Chunks.Partitions {
     {
         protected bool tickLoaded;
         protected Dictionary<ConduitType, IConduit[,]> conduits;
-        private Dictionary<TileMapLayer, IConduit[,]> conduitArrayDict = new Dictionary<TileMapLayer, IConduit[,]>();
         public ConduitChunkPartition(WorldTileConduitData data, Vector2Int position, IChunk parent) : base(data, position, parent)
         {
         }
@@ -150,16 +149,12 @@ namespace Chunks.Partitions {
                     }
                     IConduit conduit = ConduitFactory.DeserializeConduit(
                         cellPosition: cellPosition,
-                        referencePosition: referenceChunk,
                         conduitItem: conduitItem,
                         conduitOptionData: data.conduitOptions[x,y],
                         tileEntity : tileEntity,
                         portType: port
                     );
-                    int systemX = x+partitionOffset.x-referenceChunk.x;
-                    int systemY = y+partitionOffset.y-referenceChunk.y;
-                    Vector2Int systemPosition = new Vector2Int(systemX, systemY);
-                    conduitDict[systemPosition] = conduit;
+                    conduitDict[cellPosition] = conduit;
                 }
             }
         }
@@ -252,9 +247,7 @@ namespace Chunks.Partitions {
 
         private void place(string id, string sConduitOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
-            if (conduitItem == null) {
-                return;
-            }
+            if (ReferenceEquals(conduitItem, null)) return;
             ITileMap tileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
             tileGridMap.placeItemTileAtLocation(
                 realPosition,

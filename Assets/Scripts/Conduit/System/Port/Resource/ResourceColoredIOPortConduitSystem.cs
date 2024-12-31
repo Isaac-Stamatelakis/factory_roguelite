@@ -17,7 +17,7 @@ namespace Conduits.Systems
         }
 
         protected bool activeThisTick;
-        public override void TickUpdate()
+        public override void SystemTickUpdate()
         {
             activeThisTick = false;
             foreach (var (color, list) in coloredOutputPorts) {
@@ -30,6 +30,15 @@ namespace Conduits.Systems
         }
         
         protected abstract void IterateTickUpdate(TTileEntityPort outputPort,List<TTileEntityPort> inputPorts, int color);
+        protected override void SetActive(bool state)
+        {
+            if (!state)
+            {
+                return;
+            }
+            activeDisplayTicks = 50;
+            manager.RefreshSystemTiles(this);
+        }
     }
     
     

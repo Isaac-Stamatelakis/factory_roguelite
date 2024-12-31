@@ -53,16 +53,18 @@ namespace TileEntity.Instances.Machines
                 double loss = (double)space/currentRecipe.EnergyOutputPerTick;
                 currentRecipe.RemainingTicks -= loss;
             }
-            
             if (!(currentRecipe.RemainingTicks <= 0)) return;
-            currentRecipe = null;
-            InventoryUpdate(0);
-
+            Inventory.TryOutputRecipe(currentRecipe);
         }
         
 
         public override void InventoryUpdate(int n) {
             if (currentRecipe != null) {
+                bool complete = currentRecipe.RemainingTicks == 0;
+                if (complete)
+                {
+                    Inventory.TryOutputRecipe(currentRecipe);
+                }
                 return;
             }
             currentRecipe = RecipeRegistry.GetProcessorInstance(TileEntityObject.RecipeProcessor).GetRecipe<GeneratorItemRecipe>(

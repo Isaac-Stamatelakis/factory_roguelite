@@ -119,7 +119,7 @@ namespace TileMaps.Previewer {
             
 
             int previewState = manager.GetNewState((Vector2Int)position, ConduitPlacementMode.Any, itemObject.id);
-            bool showAllStates = previewState == 0 && manager.GetIConduitAtRelativeCellPosition((Vector2Int)position) == null;
+            bool showAllStates = previewState == 0 && manager.GetConduitAtCellPosition((Vector2Int)position) == null;
             if (showAllStates) // If no connections nearby show all directions cause it looks nicer
             {
                 previewState = 15;
@@ -129,7 +129,7 @@ namespace TileMaps.Previewer {
             for (int i = 0; i < directions.Count; i++)
             {
                 Vector3Int direction = directions[i];
-                IConduit conduit = manager.GetIConduitAtRelativeCellPosition((Vector2Int)position+(Vector2Int)direction);
+                IConduit conduit = manager.GetConduitAtCellPosition((Vector2Int)position+(Vector2Int)direction);
                 if (conduit == null || conduit.GetId() != conduitItem.id) continue;
                 
                 ConduitStateTile adjStateTile = conduitItem.Tile;

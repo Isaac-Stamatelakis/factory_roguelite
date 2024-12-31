@@ -43,7 +43,7 @@ namespace TileEntity.Instances.Machine.Instances
 
         public abstract void tickUpdate();
         
-        public void onRightClick()
+        public virtual void onRightClick()
         {
             GameObject uiPrefab = TileEntityObject.RecipeProcessor.UIPrefab;
             GameObject ui = Object.Instantiate(uiPrefab);
@@ -127,6 +127,11 @@ namespace TileEntity.Instances.Machine.Instances
             RecipeProcessor processor = tileEntityObject.RecipeProcessor;
             if (processor == null) return 0;
             return 0;
+        }
+
+        public void ResetRecipe()
+        {
+            currentRecipe = null;
         }
 
         public abstract void PlaceInitialize();

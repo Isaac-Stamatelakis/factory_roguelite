@@ -7,6 +7,7 @@ namespace PlayerModule {
         private static PlayerContainer instance;
         private PlayerInventory playerInventory;
         private GameObject player;
+        
         private PlayerRobot playerRobot;
         private PlayerContainer() {
             player = GameObject.Find("Player");

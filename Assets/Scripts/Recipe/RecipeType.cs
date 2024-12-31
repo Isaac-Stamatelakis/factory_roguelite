@@ -5,8 +5,9 @@ namespace Recipe
     public enum RecipeType 
     {
         Item,
-        PassiveItem,
+        Passive,
         Generator,
-        EnergyItem
+        Machine,
+        Burner,
     }
 }

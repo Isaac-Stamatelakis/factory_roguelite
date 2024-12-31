@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Machines
                 Mode,
                 MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
                 MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
-                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.EnergyItem)
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Machine)
             );
             return JsonConvert.SerializeObject(serializedProcessingMachine);
         }
@@ -40,7 +40,7 @@ namespace TileEntity.Instances.Machines
             Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
             currentRecipe = RecipeSerializationFactory.Deserialize<ItemEnergyRecipe>(
                 serializedProcessingMachine.SerializedGeneratorRecipe, 
-                RecipeType.EnergyItem
+                RecipeType.Machine
             );
             EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             InventoryUpdate(0);
@@ -48,25 +48,16 @@ namespace TileEntity.Instances.Machines
 
         public override void tickUpdate()
         {
-            if (currentRecipe == null || EnergyInventory.Energy == 0 || currentRecipe.InputEnergy == 0) return;
+            if (ReferenceEquals(currentRecipe?.InputEnergy,null) || EnergyInventory.Energy == 0) return;
 
             ulong energyToUse = EnergyInventory.Energy < currentRecipe.EnergyCostPerTick ? EnergyInventory.Energy : currentRecipe.EnergyCostPerTick;
             EnergyInventory.Energy -= energyToUse;
             currentRecipe.InputEnergy -= energyToUse;
             if (currentRecipe.InputEnergy > 0) return;
-            TryInsertOutput();
+            Inventory.TryOutputRecipe(currentRecipe);
         }
 
-        private void TryInsertOutput()
-        {
-            ItemSlotHelper.InsertInventoryIntoInventory(Inventory.itemOutputs, currentRecipe.SolidOutputs, Global.MaxSize);
-            ItemSlotHelper.InsertInventoryIntoInventory(Inventory.fluidOutputs,currentRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
-            bool recipeConsumed = RecipeUtils.OutputsUsed(currentRecipe);
-            if (!recipeConsumed) return;
-            
-            currentRecipe = null;
-            InventoryUpdate(0);
-        }
+        
 
         public override void InventoryUpdate(int n) {
             if (currentRecipe != null)
@@ -74,9 +65,8 @@ namespace TileEntity.Instances.Machines
                 bool complete = currentRecipe.InputEnergy == 0;
                 if (complete)
                 {
-                    TryInsertOutput();
+                    Inventory.TryOutputRecipe(currentRecipe);
                 }
-                
                 return;
             }
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor);

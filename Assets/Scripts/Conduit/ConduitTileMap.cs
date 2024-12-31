@@ -29,7 +29,12 @@ namespace TileMaps.Conduit {
         protected override void SetTile(int x, int y, ConduitItem conduitItem)
         {
             var tile = conduitItem.Tile;
-            IConduit conduit = conduitSystemManager.GetIConduitAtRelativeCellPosition(new Vector2Int(x,y));
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(new Vector2Int(x,y));
+            if (ReferenceEquals(conduit, null))
+            {
+                Debug.LogError($"Tried to place conduit which was null in system at position {new Vector2Int(x,y)}.");
+                return;
+            }
             var stateTile = tile.getTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }
@@ -40,7 +45,7 @@ namespace TileMaps.Conduit {
             bool tilePlaced = tilemap.GetTile(cellPosition);
             if (!tilePlaced) return;
             
-            IConduit conduit = conduitSystemManager.GetIConduitAtRelativeCellPosition(new Vector2Int(x,y));
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(new Vector2Int(x,y));
             if (conduit == null) return;
             
             var conduitItem = conduit.GetConduitItem();

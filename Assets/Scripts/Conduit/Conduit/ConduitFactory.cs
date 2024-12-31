@@ -14,19 +14,18 @@ using UnityEditor.Hardware;
 
 namespace Conduits {
     public static class ConduitFactory {
-        public static IConduit DeserializeConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
+        public static IConduit DeserializeConduit(Vector2Int cellPosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
             ConduitType type = conduitItem.GetConduitType();
-            cellPosition -= referencePosition;
             return type switch
             {
                 ConduitType.Item or ConduitType.Fluid or ConduitType.Energy or ConduitType.Signal =>
-                    DeserializePortConduit(cellPosition, referencePosition, conduitItem, conduitOptionData, tileEntity, portType),
-                ConduitType.Matrix => DeserializeMatrixConduit(cellPosition, referencePosition, conduitItem, conduitOptionData, tileEntity),
+                    DeserializePortConduit(cellPosition, conduitItem, conduitOptionData, tileEntity, portType),
+                ConduitType.Matrix => DeserializeMatrixConduit(cellPosition, conduitItem, conduitOptionData, tileEntity),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
         
-        private static IConduit DeserializePortConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
+        private static IConduit DeserializePortConduit(Vector2Int cellPosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity, EntityPortType? portType) {
             ConduitType conduitType = conduitItem.GetConduitType();
             if (conduitOptionData == null)
             {
@@ -50,7 +49,7 @@ namespace Conduits {
             };
         }
 
-        private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, Vector2Int referencePosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity)
+        private static IConduit DeserializeMatrixConduit(Vector2Int cellPosition, ConduitItem conduitItem, string conduitOptionData, ITileEntityInstance tileEntity)
         {
             int state = 15;
             if (conduitOptionData != null)
@@ -109,8 +108,6 @@ namespace Conduits {
                 case ConduitType.Energy:
                 case ConduitType.Signal:
                     IConduitPort port = ConduitPortFactory.CreateDefault(conduitType, portType, tileEntity, conduitItem, new Vector2Int(x,y));
-                    Debug.Log($"PORT NULL: {port == null}");
-                    Debug.Log($"TILE ENTITY NULL: {tileEntity == null}");
                     return CreatePortConduit(conduitItem, x, y, state, tileEntity, port);
                 case ConduitType.Matrix:
                     return CreateMatrix(conduitItem, portType, x, y, state, tileEntity);
@@ -167,11 +164,6 @@ namespace Conduits {
                     );
                 case ConduitType.Signal:
                     SignalTileEntityPort signalTileEntityPort = port as SignalTileEntityPort;
-                    if (signalTileEntityPort != null)
-                    {
-                        Debug.Log(signalTileEntityPort.HasConnection(PortConnectionType.Input));
-                    }
-                    
                     return new SignalConduit(
                         x: x,
                         y: y,

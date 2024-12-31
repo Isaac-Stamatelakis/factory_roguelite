@@ -140,7 +140,7 @@ namespace PlayerModule.Mouse {
             }
             if (conduitSystemManager is PortConduitSystemManager portConduitSystemManager) {
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-                IPortConduit conduit = portConduitSystemManager.getConduitWithPort(cellPosition);
+                IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
                 if (conduit == null) {
                     return false;
                 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Items;
+using Recipe.Collection;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
@@ -16,6 +17,8 @@ namespace Recipe {
     {
         private static Dictionary<RecipeProcessor, RecipeProcessorInstance> processorDict;
         private static List<RecipeProcessorInstance> processors;
+        private static BurnableItemRegistry burnableItemRegistry;
+        public static BurnableItemRegistry BurnableItemRegistry => burnableItemRegistry;
         private static RecipeRegistry instance;
         private RecipeRegistry() {
             processors = new List<RecipeProcessorInstance>();
@@ -26,27 +29,51 @@ namespace Recipe {
             if (instance != null) {
                 yield break;
             }
+            
             instance = new RecipeRegistry();
+            
             var handle = Addressables.LoadAssetsAsync<RecipeProcessor>("recipe_processor", null);
+            var burnableCollectionHandle = Addressables.LoadAssetAsync<BurnableItemCollection>("Assets/Objects/Recipe/BurnRegistry.asset");
             yield return handle;
-            if (handle.Status == AsyncOperationStatus.Succeeded) {
-                foreach (var asset in handle.Result)
-                {
-                    var processorInstance = new RecipeProcessorInstance(asset);
-                    processors.Add(processorInstance);
-                    processorDict[asset] = processorInstance;
-                }
-                int count = 0;
-                foreach (RecipeProcessorInstance processorInstance in processors)
-                {
-                    count += processorInstance.GetCount();
-                }
-                Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + count + " recipes");
-            }
-            else {
-                Debug.LogError("Failed to load assets from group: " + handle.OperationException);
-            }
+            yield return burnableCollectionHandle;
+            LoadProcessors(handle);
+            LoadBurnableHandle(burnableCollectionHandle);
         }
+
+        private static void LoadProcessors(AsyncOperationHandle<IList<RecipeProcessor>> processorHandles)
+        {
+            if (processorHandles.Status != AsyncOperationStatus.Succeeded)
+            {
+                Debug.LogError("Failed to load recipe processors from addressables: " + processorHandles.OperationException);
+                return;
+            }
+            foreach (var asset in processorHandles.Result)
+            {
+                var processorInstance = new RecipeProcessorInstance(asset);
+                processors.Add(processorInstance);
+                processorDict[asset] = processorInstance;
+            }
+            int count = 0;
+            foreach (RecipeProcessorInstance processorInstance in processors)
+            {
+                count += processorInstance.GetCount();
+            }
+            Debug.Log("Recipe registry loaded " + processors.Count + " recipe processors and " + count + " recipes");
+        }
+        
+
+        private static void LoadBurnableHandle(AsyncOperationHandle<BurnableItemCollection> burnableHandle)
+        {
+            if (burnableHandle.Status != AsyncOperationStatus.Succeeded)
+            {
+                Debug.LogError("Failed to load burnable recipe collections: " + burnableHandle.OperationException);
+                return;
+            }
+            var collection = burnableHandle.Result;
+            burnableItemRegistry = new BurnableItemRegistry(collection);
+            Debug.Log($"Burnable item registry loaded with {burnableItemRegistry.MaterialCount} materials and {burnableItemRegistry.ItemCount} items");
+        }
+        
         public static RecipeRegistry GetInstance() {
             if (instance == null) {
                 throw new NullReferenceException("Tried to access null recipe registry");
