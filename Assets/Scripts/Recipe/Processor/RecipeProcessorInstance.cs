@@ -118,8 +118,7 @@ namespace Recipe.Processor
                 var transmutableItems = new List<ItemSlot>();
                 foreach (ItemSlot itemSlot in solidItems)
                 {
-                    if (itemSlot == null || itemSlot.itemObject == null ||
-                        itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.itemObject is not TransmutableItemObject)
                     {
                         continue;
                     }
@@ -127,8 +126,7 @@ namespace Recipe.Processor
                 }
                 foreach (ItemSlot itemSlot in fluidItems)
                 {
-                    if (itemSlot == null || itemSlot.itemObject == null ||
-                        itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.itemObject is not TransmutableItemObject)
                     {
                         continue;
                     }
@@ -309,7 +307,7 @@ namespace Recipe.Processor
     {
         public static ItemRecipe CreateRecipe(RecipeType recipeType, ItemRecipeObject recipeObject)
         {
-            List<ItemSlot> outputCopy = ItemSlotFactory.FromEditorObjects(recipeObject.Outputs);
+            List<ItemSlot> outputCopy = ItemSlotFactory.FromRandomEditorObjects(recipeObject.Outputs);
             ItemSlotUtils.sortInventoryByState(outputCopy,out var solidOutputs, out var fluidOutputs);
             switch (recipeType)
             {

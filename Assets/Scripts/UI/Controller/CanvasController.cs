@@ -56,7 +56,6 @@ namespace UI
             }
             DisplayedUIInfo top = uiObjectStack.Pop();
             Destroy(top.gameObject);
-            ToolTipController.Instance.HideToolTip();
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();

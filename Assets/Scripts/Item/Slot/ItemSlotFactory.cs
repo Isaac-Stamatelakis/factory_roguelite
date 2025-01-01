@@ -7,6 +7,8 @@ using Items.Tags;
 using System;
 using System.Linq;
 using Item.Slot;
+using Recipe.Objects;
+using Random = UnityEngine.Random;
 
 public enum ItemSlotOption {
 
@@ -190,6 +192,19 @@ public static class ItemSlotFactory
         foreach (var itemSlotObject in itemSlotObjects)
         {
             itemSlots.Add(FromEditorObject(itemSlotObject));
+        }
+
+        return itemSlots;
+    }
+
+    public static List<ItemSlot> FromRandomEditorObjects(List<RandomEditorItemSlot> randomEditorItemSlots)
+    {
+        List<ItemSlot> itemSlots = new List<ItemSlot>();
+        foreach (var randomEditorSlot in randomEditorItemSlots)
+        {
+            float ran = Random.value; // random value in interval [0,1]
+            if (ran >= randomEditorSlot.Chance) continue;
+            itemSlots.Add(FromEditorObject(randomEditorSlot));
         }
 
         return itemSlots;

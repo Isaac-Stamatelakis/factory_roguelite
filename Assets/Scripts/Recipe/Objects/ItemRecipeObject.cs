@@ -11,7 +11,7 @@ namespace Recipe.Objects
     public class ItemRecipeObject : RecipeObject
     {
         public List<EditorItemSlot> Inputs;
-        public List<EditorItemSlot> Outputs;
+        public List<RandomEditorItemSlot> Outputs;
     }
 
     public class ItemRecipeObjectInstance
@@ -23,6 +23,12 @@ namespace Recipe.Objects
             ItemRecipeObject = itemRecipeObject;
             Inputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Inputs);
         }
+    }
+
+    [System.Serializable]
+    public class RandomEditorItemSlot : EditorItemSlot
+    {
+        [Range(0, 1)] public float Chance = 1f;
     }
 }
 
