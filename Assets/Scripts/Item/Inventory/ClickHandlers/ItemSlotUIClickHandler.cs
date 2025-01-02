@@ -57,7 +57,7 @@ namespace Item.Inventory
         {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
             if (!EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-            ToolTipController.Instance.ShowToolTip(transform.position+new Vector3(60,0),itemSlot.itemObject.name);
+            ToolTipController.Instance.ShowToolTip(transform.position,itemSlot.itemObject);
         }
 
         public void OnPointerExit(PointerEventData eventData)

@@ -54,5 +54,33 @@ namespace Items.Transmutable
                 null
             );
         }
+
+        public static string FormatChemicalFormula(string chemicalFormula)
+        {
+            string returnText = "";
+            bool sub = false;
+            foreach (char c in chemicalFormula)
+            {
+                if (IsSubscript(c) && !sub)
+                {
+                    sub = true;
+                    returnText += "<sub>";
+                }
+
+                if (!IsSubscript(c) && sub)
+                {
+                    sub = false;
+                    returnText += "</sub>";
+                }
+                returnText += c;
+            }
+            if (sub) return returnText + "</sub>";
+            return returnText;
+        }
+
+        private static bool IsSubscript(char c)
+        {
+            return char.IsDigit(c) || c == '*';
+        }
     }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Item.Slot;
 using Recipe.Objects;
+using TileEntity;
 using Random = UnityEngine.Random;
 
 public enum ItemSlotOption {
@@ -193,7 +194,6 @@ public static class ItemSlotFactory
         {
             itemSlots.Add(FromEditorObject(itemSlotObject));
         }
-
         return itemSlots;
     }
 
