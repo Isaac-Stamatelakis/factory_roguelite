@@ -7,8 +7,8 @@ namespace Item.GameStage
         Tiered,
         UnTiered
     }
-    public class GameStageObject : ScriptableObject
+    public abstract class GameStageObject : ScriptableObject
     {
-        
+        public abstract string GetGameStageId();
     }
 }
