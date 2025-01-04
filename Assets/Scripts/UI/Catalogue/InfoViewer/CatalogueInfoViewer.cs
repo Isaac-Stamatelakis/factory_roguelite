@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Item.Burnables;
 using Item.GameStage;
 using Item.Transmutation.Info;
 using Recipe.Viewer;
 using UI.Catalogue.InfoViewer.Indicator;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UI.Catalogue.InfoViewer
@@ -12,7 +14,8 @@ namespace UI.Catalogue.InfoViewer
     public enum CatalogueInfoDisplayType
     {
         Recipe,
-        TransmutableMaterial
+        TransmutableMaterial,
+        Burnable
     }
     public class CatalogueInfoViewer : MonoBehaviour
     {
@@ -21,7 +24,8 @@ namespace UI.Catalogue.InfoViewer
         [SerializeField] private CatalogueNavigator pageNavigator;
         [SerializeField] private VerticalLayoutGroup contentList;
         [SerializeField] private ProcessorInfoPageUI processorUIPrefab;
-        [SerializeField] private TransmutationMaterialInfoUI materialInfoUI;
+        [FormerlySerializedAs("materialInfoUI")] [SerializeField] private TransmutationMaterialInfoUI materialInfoUIPrefab;
+        [SerializeField] private BurnableCatalogueUI burnableCatalogueUIPrefab;
         public List<CatalogueElementData> CatalogueElements;
         private CatalogueInfoUI displayedElementUI;
         private int currentElementIndex;
@@ -88,7 +92,9 @@ namespace UI.Catalogue.InfoViewer
                 case CatalogueInfoDisplayType.Recipe:
                     return processorUIPrefab;
                 case CatalogueInfoDisplayType.TransmutableMaterial:
-                    return materialInfoUI;
+                    return materialInfoUIPrefab;
+                case CatalogueInfoDisplayType.Burnable:
+                    return burnableCatalogueUIPrefab;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
