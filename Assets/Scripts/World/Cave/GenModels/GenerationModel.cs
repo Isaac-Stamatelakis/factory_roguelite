@@ -13,7 +13,7 @@ namespace WorldModule.Caves {
     public abstract class GenerationModel : ScriptableObject, IGenerationModel
     {
         public abstract SeralizedWorldData GenerateBase(int seed);
-        public abstract int[,] GenerateGrid(int seed,Vector2Int size);
+        public abstract int[][] GenerateGrid(int seed,Vector2Int size);
         [Header("X Interval in Chunks")]
         [SerializeField] public Vector2Int xInterval = new Vector2Int(-10,10);
         [Header("Y Interval in Chunks")]

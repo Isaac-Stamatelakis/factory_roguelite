@@ -77,7 +77,12 @@ namespace Tiles {
             if (!tileOptions.StaticOptions.hasStates && !tileOptions.StaticOptions.rotatable) {
                 return null;
             }
-            return JsonConvert.SerializeObject(tileOptions.SerializedTileOptions);
+            return Serialize(tileOptions.SerializedTileOptions);
+        }
+
+        public static string Serialize(SerializedTileOptions serializedTileOptions)
+        {
+            return JsonConvert.SerializeObject(serializedTileOptions);
         }
         public static TileOptions deserialize(string data, TileItem tileItem) {
             if (data == null) {
@@ -98,6 +103,23 @@ namespace Tiles {
                 Debug.LogError("TileOptionFactory method 'deserialize' error: " + ex);
                 return getDefault(tileItem);
             }
+        }
+
+        public static SerializedTileOptions Deserialize(string data, TileItem tileItem)
+        {
+            if (data == null)
+            {
+                return tileItem.tileOptions.SerializedTileOptions;
+            }
+            try
+            {
+                return JsonConvert.DeserializeObject<SerializedTileOptions>(data);
+            }
+            catch (JsonSerializationException)
+            {
+                return tileItem.tileOptions.SerializedTileOptions;
+            }
+            
             
         }
         public static TileOptions getDefault(TileItem tileItem) {

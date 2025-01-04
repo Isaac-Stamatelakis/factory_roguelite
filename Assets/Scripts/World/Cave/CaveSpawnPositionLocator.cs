@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
      public class CaveSpawnPositionSearcher {
@@ -32,10 +34,14 @@ namespace WorldModule.Caves {
             
         }
 
-        public Vector2Int search() {
+        public Vector2Int search()
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             FindSpawnPosition(origin);
+            stopwatch.Stop();
             if (found) {
-                Debug.Log($"Found cave spawn position {result} after {seen.Count} searchs");
+                Debug.Log($"Found cave spawn position {result} after {seen.Count} searchs in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
             } else {
                 Debug.LogWarning("Cave spawn position search could not find alternative position to origin");
             }
