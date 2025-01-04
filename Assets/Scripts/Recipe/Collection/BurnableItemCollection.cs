@@ -8,12 +8,14 @@ namespace Recipe.Collection
     [CreateAssetMenu(fileName = "RecipeCollection", menuName = "Crafting/Burnables")]
     public class BurnableItemCollection : ScriptableObject
     {
+        public Sprite BurnableRegistryImage;
         public List<EditorKVP<ItemObject, uint>> ItemBurnDurations;
         public List<EditorKVP<TransmutableItemMaterial, uint>> MaterialBurnDurations;
     }
 
     public class BurnableItemRegistry
     {
+        public Sprite BurnableRegistryImage;
         private Dictionary<string, uint> itemBurnDurations;
         private Dictionary<TransmutableItemMaterial, uint> materialBurnDurations;
         
@@ -32,6 +34,8 @@ namespace Recipe.Collection
             {
                 materialBurnDurations[tuple.Item1] = tuple.Item2;
             }
+
+            BurnableRegistryImage = collection.BurnableRegistryImage;
         }
 
         public bool IsBurnable(ItemObject itemObject)

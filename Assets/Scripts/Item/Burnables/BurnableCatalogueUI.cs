@@ -87,7 +87,7 @@ namespace Item.Burnables
 
         public Sprite GetSprite()
         {
-            return null;
+            return RecipeRegistry.BurnableItemRegistry.BurnableRegistryImage;
         }
 
         public string GetPageIndicatorString(int pageIndex)
