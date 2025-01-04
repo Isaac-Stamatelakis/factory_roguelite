@@ -517,7 +517,7 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
                 case RecipeType.Machine:
-                    ulong usage = TierUtils.GetMaxEnergyUsage(material.tier);
+                    ulong usage = material.tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO change this
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
                 default:
