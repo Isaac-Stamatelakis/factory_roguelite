@@ -13,33 +13,21 @@ using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machine.UI;
 
 namespace TileEntity {
-    public class MachineItemInventory : IItemConduitInteractable
-    {
-        public MachineItemInventory(IMachineInstance parent, List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
+    public class TileEntityInventory {
+        public List<ItemSlot> itemInputs;
+        public List<ItemSlot> itemOutputs;
+        public List<ItemSlot> fluidInputs;
+        public List<ItemSlot> fluidOutputs;
+
+        public TileEntityInventory(List<ItemSlot> itemInputs, List<ItemSlot> itemOutputs, List<ItemSlot> fluidInputs, List<ItemSlot> fluidOutputs)
         {
-            this.parent = parent;
             this.itemInputs = itemInputs;
             this.itemOutputs = itemOutputs;
             this.fluidInputs = fluidInputs;
             this.fluidOutputs = fluidOutputs;
         }
         
-        protected IMachineInstance parent;
-        public IMachineInstance Parent => parent;
-        public List<ItemSlot> itemInputs;
-        public List<ItemSlot> itemOutputs;
-        public List<ItemSlot> fluidInputs;
-        public List<ItemSlot> fluidOutputs;
-        
-        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
-        {
-            ItemSlot extracted = ExtractFromInventory(state);
-            if (ItemSlotUtils.IsItemSlotNull(extracted)) return null;
-            parent.InventoryUpdate(0);
-            return extracted;
-        }
-
-        private ItemSlot ExtractFromInventory(ItemState state)
+        public ItemSlot ExtractFromInventory(ItemState state, ItemFilter itemFilter)
         {
             return state switch
             {
@@ -48,13 +36,39 @@ namespace TileEntity {
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
+        
+    }
+    public class MachineItemInventory : IItemConduitInteractable
+    {
+        public MachineItemInventory(IMachineInstance parent, TileEntityInventory tileEntityInventory)
+        {
+            this.parent = parent;
+            this.tileEntityInventory = tileEntityInventory;
+        }
+
+        public TileEntityInventory Content => tileEntityInventory;
+
+        private TileEntityInventory tileEntityInventory;
+        
+        protected IMachineInstance parent;
+        public IMachineInstance Parent => parent;
+        
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            ItemSlot extracted = tileEntityInventory.ExtractFromInventory(state,filter);
+            if (ItemSlotUtils.IsItemSlotNull(extracted)) return null;
+            parent.InventoryUpdate(0);
+            return extracted;
+        }
+
+        
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
             switch (state)
             {
                 case ItemState.Solid:
-                    if(ItemSlotUtils.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
+                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
                     break;
                 case ItemState.Fluid:
                     Tier tier = Tier.Basic;
@@ -62,7 +76,7 @@ namespace TileEntity {
                     {
                         tier = tieredTileEntity.GetTier();
                     }
-                    if(ItemSlotUtils.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
+                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -71,8 +85,8 @@ namespace TileEntity {
 
         public void TryOutputRecipe(ItemRecipe itemRecipe)
         {
-            ItemSlotUtils.InsertInventoryIntoInventory(itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
-            ItemSlotUtils.InsertInventoryIntoInventory(fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
+            ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
+            ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
             bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
             if (!recipeConsumed) return;
             parent.ResetRecipe();
@@ -132,30 +146,42 @@ namespace TileEntity {
             Energy = maxEnergy;
         }
     }
-
-    public static class MachineInventoryFactory
-    {
-        public static MachineItemInventory InitializeItemInventory(IMachineInstance parent, MachineLayoutObject layoutObject)
+    public static class TileEntityInventoryFactory {
+        public static TileEntityInventory Deserialize(string json, TileEntityLayoutObject layoutObject)
         {
-            return new MachineItemInventory(
-                parent,
-                ItemSlotFactory.createEmptyInventory(layoutObject.SolidInputs.GetIntSize()),
-                ItemSlotFactory.createEmptyInventory(layoutObject.SolidOutputs.GetIntSize()),
-                ItemSlotFactory.createEmptyInventory(layoutObject.FluidInputs.GetIntSize()),
-                ItemSlotFactory.createEmptyInventory(layoutObject.FluidOutputs.GetIntSize())
-            );
+            if (json == null)
+            {
+                return Initialize(layoutObject);
+            }
+            try
+            {
+                SerializedTileEntityInventory sInventory = JsonConvert.DeserializeObject<SerializedTileEntityInventory>(json);
+                
+                var solidInputs = ItemSlotFactory.Deserialize(sInventory.SerializedSolidInputs);
+                var solidOutputs = ItemSlotFactory.Deserialize(sInventory.SerializedSolidOutputs);
+                var fluidInputs = ItemSlotFactory.Deserialize(sInventory.SerializedFluidInputs);
+                var fluidOutputs = ItemSlotFactory.Deserialize(sInventory.SerializedFluidOutputs);
+                return new TileEntityInventory(solidInputs, solidOutputs, fluidInputs, fluidOutputs);;
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogWarning(e);
+                return Initialize(layoutObject);
+            }
         }
-        public static string SerializeItemMachineInventory(MachineItemInventory machineInventory)
+        
+        public static string Serialize(TileEntityInventory inventory)
         {
             try
             {
-                SerializedMachineData serializedMachineData = new SerializedMachineData(
-                    ItemSlotFactory.serializeList(machineInventory.itemInputs),
-                    ItemSlotFactory.serializeList(machineInventory.itemOutputs),
-                    ItemSlotFactory.serializeList(machineInventory.fluidInputs),
-                    ItemSlotFactory.serializeList(machineInventory.fluidOutputs)
+                SerializedTileEntityInventory sInventory = new SerializedTileEntityInventory(
+                    ItemSlotFactory.serializeList(inventory.itemInputs),
+                    ItemSlotFactory.serializeList(inventory.itemOutputs),
+                    ItemSlotFactory.serializeList(inventory.fluidInputs),
+                    ItemSlotFactory.serializeList(inventory.fluidOutputs)
                 );
-                return JsonConvert.SerializeObject(serializedMachineData);
+                
+                return JsonConvert.SerializeObject(sInventory);
             }
             catch (NullReferenceException e)
             {
@@ -163,7 +189,34 @@ namespace TileEntity {
                 return null;
             }
         }
+        
+        public static TileEntityInventory Initialize(TileEntityLayoutObject layoutObject)
+        {
+            return new TileEntityInventory(
+                ItemSlotFactory.createEmptyInventory(layoutObject.SolidInputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.SolidOutputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.FluidInputs.GetIntSize()),
+                ItemSlotFactory.createEmptyInventory(layoutObject.FluidOutputs.GetIntSize())
+            );
+        }
+        private class SerializedTileEntityInventory
+        {
+            public string SerializedSolidInputs;
+            public string SerializedSolidOutputs;
+            public string SerializedFluidInputs;
+            public string SerializedFluidOutputs;
 
+            public SerializedTileEntityInventory(string serializedSolidInputs, string serializedSolidOutputs, string serializedFluidInputs, string serializedFluidOutputs)
+            {
+                SerializedSolidInputs = serializedSolidInputs;
+                SerializedSolidOutputs = serializedSolidOutputs;
+                SerializedFluidInputs = serializedFluidInputs;
+                SerializedFluidOutputs = serializedFluidOutputs;
+            }
+        }
+    }
+    public static class MachineInventoryFactory
+    {
         public static string SerializedEnergyMachineInventory(MachineEnergyInventory machineInventory)
         {
             return machineInventory == null ? null : JsonConvert.SerializeObject(machineInventory.Energy);
@@ -204,30 +257,7 @@ namespace TileEntity {
                 return null;
             }
         }
-
-        public static MachineItemInventory DeserializeMachineInventory(string json, IMachineInstance parent)
-        {
-            if (json == null)
-            {
-                return null;
-            }
-            try
-            {
-                SerializedMachineData serializedMachineData =
-                    JsonConvert.DeserializeObject<SerializedMachineData>(json);
-                var solidInputs = ItemSlotFactory.Deserialize(serializedMachineData.SerializedSolidInputs);
-                var solidOutputs = ItemSlotFactory.Deserialize(serializedMachineData.SerializedSolidOutputs);
-                var fluidInputs = ItemSlotFactory.Deserialize(serializedMachineData.SerializedFluidInputs);
-                var fluidOutputs = ItemSlotFactory.Deserialize(serializedMachineData.SerializedFluidOutputs);
-                return new MachineItemInventory(parent,solidInputs, solidOutputs, fluidInputs, fluidOutputs);;
-            }
-            catch (JsonSerializationException e)
-            {
-                Debug.LogWarning(e);
-                return null;
-            }
-        }
-
+        
         public static MachineEnergyInventory DeserializeEnergyMachineInventory(string json, IMachineInstance parent)
         {
             if (json == null)
@@ -246,23 +276,7 @@ namespace TileEntity {
             }
             
         }
-
-        private class SerializedMachineData
-        {
-            public string SerializedSolidInputs;
-            public string SerializedSolidOutputs;
-            public string SerializedFluidInputs;
-            public string SerializedFluidOutputs;
-
-            public SerializedMachineData(string serializedSolidInputs, string serializedSolidOutputs, string serializedFluidInputs, string serializedFluidOutputs)
-            {
-                SerializedSolidInputs = serializedSolidInputs;
-                SerializedSolidOutputs = serializedSolidOutputs;
-                SerializedFluidInputs = serializedFluidInputs;
-                SerializedFluidOutputs = serializedFluidOutputs;
-            }
-        }
-
+        
         private class SerializedBurnerData
         {
             public string SerializedItems;

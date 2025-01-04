@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Item.Slot;
+using Items;
 using Items.Inventory;
 using Recipe.Viewer;
 using TileEntity.Instances.Machines;
@@ -15,7 +17,7 @@ namespace TileEntity.Instances.Machine.UI
     public interface IMachineInstance : ITileEntityInstance, IInventoryListener
     {
         public float GetProgressPercent();
-        public MachineLayoutObject GetMachineLayout();
+        public TileEntityLayoutObject GetMachineLayout();
         public MachineItemInventory GetItemInventory();
         public MachineEnergyInventory GetEnergyInventory();
         public void SetMode(int mode);
@@ -32,7 +34,8 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private ArrowProgressController progressController;
         [SerializeField] private Scrollbar energyScrollbar;
         [SerializeField] private TextMeshProUGUI modeText;
-        [SerializeField] private MachineInventoryUI machineInventoryUI;
+        [SerializeField] private TileEntityInventoryUI tileEntityInventoryUI;
+        [SerializeField] private InventoryUI batteryInventoryUI;
 
         private MachineEnergyInventory machineEnergyInventory;
         private IMachineInstance displayedInstance;
@@ -50,7 +53,16 @@ namespace TileEntity.Instances.Machine.UI
             energyScrollbar.gameObject.SetActive(machineEnergyInventory!=null);
             
             InitializeModeDisplay();
-            machineInventoryUI.Display(machineInstance.GetItemInventory());
+            tileEntityInventoryUI.Display(machineInstance.GetItemInventory().Content,machineInstance.GetMachineLayout(),machineInstance);
+            if (machineInstance is not IBatterySlotMachine batterySlotMachine)
+            {
+                batteryInventoryUI.gameObject.SetActive(false);
+            }
+            else
+            {
+                batteryInventoryUI.DisplayInventory(batterySlotMachine.GetBatteryInventory());
+                batteryInventoryUI.AddListener(machineInstance);
+            }
         }
 
         
@@ -94,7 +106,8 @@ namespace TileEntity.Instances.Machine.UI
         {
             titleText.gameObject.SetActive(false);
             energyScrollbar.gameObject.SetActive(false);
-            machineInventoryUI.DisplayRecipe(recipe);
+            tileEntityInventoryUI.DisplayRecipe(recipe);
+            batteryInventoryUI.gameObject.SetActive(false);
         }
     }
 }

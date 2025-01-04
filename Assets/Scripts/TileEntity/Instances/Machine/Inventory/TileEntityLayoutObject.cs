@@ -3,7 +3,7 @@ using UnityEngine;
 namespace TileEntity.Instances.Machine
 {
     [CreateAssetMenu(fileName = "New Machine Layout", menuName = "Tile Entity/Machine/Layout")]
-    public class MachineLayoutObject : ScriptableObject
+    public class TileEntityLayoutObject : ScriptableObject
     {
         public MachineInventoryOptions SolidInputs;
         public MachineInventoryOptions SolidOutputs;
@@ -14,8 +14,6 @@ namespace TileEntity.Instances.Machine
     [System.Serializable]
     public class MachineInventoryOptions
     {
-        public bool DefaultOffset = true;
-        public Vector2Int Offset;
         public Vector2Int Size;
 
         public int GetIntSize()

@@ -126,7 +126,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         {
             SerializedBurnerMachine serializedBurnerMachine = new SerializedBurnerMachine(
                 Mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                TileEntityInventoryFactory.Serialize(Inventory.Content),
                 MachineInventoryFactory.SerializeMachineBurnerInventory(BurnerFuelInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Burner)
             );
@@ -137,7 +137,10 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         {
             SerializedBurnerMachine serializedBurnerMachine = JsonConvert.DeserializeObject<SerializedBurnerMachine>(data);
             Mode = serializedBurnerMachine.Mode;
-            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedBurnerMachine.SerializedMachineInventory, this);
+            Inventory = new MachineItemInventory(
+                this, 
+                TileEntityInventoryFactory.Deserialize(serializedBurnerMachine.SerializedMachineInventory,GetMachineLayout())
+            );
             currentRecipe = RecipeSerializationFactory.Deserialize<BurnerItemRecipe>(
                 serializedBurnerMachine.SerializedBurnerRecipe, 
                 RecipeType.Machine
@@ -163,8 +166,8 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             }
             currentRecipe = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor).GetRecipe<BurnerItemRecipe>(
                 Mode, 
-                Inventory.itemInputs, 
-                Inventory.fluidInputs
+                Inventory.Content.itemInputs, 
+                Inventory.Content.fluidInputs
             );
             if (currentRecipe == null) return;
             if (!BurnerFuelInventory.Active()) BurnerFuelInventory.TryConsumeFuel();
@@ -179,7 +182,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         public override void PlaceInitialize()
         {
             BurnerFuelInventory = new BurnerFuelInventory(this,new List<ItemSlot>{null},0,0);
-            Inventory = MachineInventoryFactory.InitializeItemInventory(this,GetMachineLayout());
+            Inventory = new MachineItemInventory(this, TileEntityInventoryFactory.Initialize(GetMachineLayout()));
         }
 
         public BurnerFuelInventory GetBurnerInventory()

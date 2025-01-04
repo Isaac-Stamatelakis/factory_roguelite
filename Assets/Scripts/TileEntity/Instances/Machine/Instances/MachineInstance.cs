@@ -30,8 +30,7 @@ namespace TileEntity.Instances.Machine.Instances
         {
             if (Inventory != null) return;
             var layoutObject = GetMachineLayout();
-            if (layoutObject == null) return;
-            Inventory = MachineInventoryFactory.InitializeItemInventory(this, layoutObject);
+            Inventory = new MachineItemInventory(this, TileEntityInventoryFactory.Initialize(layoutObject));
         }
 
         protected void InitializeEnergyInventory()
@@ -85,15 +84,12 @@ namespace TileEntity.Instances.Machine.Instances
         public abstract void InventoryUpdate(int n);
 
         public abstract float GetProgressPercent();
-        public MachineLayoutObject GetMachineLayout()
+        public TileEntityLayoutObject GetMachineLayout()
         {
-            MachineRecipeProcessor recipeProcessor = tileEntityObject.RecipeProcessor;
-            if (recipeProcessor == null)
-            {
-                Debug.LogWarning($"Tried to initialize inventory of MachineInstance with null recipe processor: {tileEntityObject.name}");
-                return null;
-            }
-            return recipeProcessor.MachineLayout;
+            RecipeProcessor recipeProcessor = tileEntityObject.RecipeProcessor;
+            if (!ReferenceEquals(recipeProcessor, null)) return recipeProcessor.LayoutObject;
+            Debug.LogWarning($"Tried to initialize inventory of MachineInstance with null recipe processor: {tileEntityObject.name}");
+            return null;
         }
 
         public MachineItemInventory GetItemInventory()

@@ -6,6 +6,7 @@ using UnityEngine;
 using Chunks;
 using Newtonsoft.Json;
 using Conduits.Ports;
+using Item.Slot;
 using UnityEngine.Tilemaps;
 using RecipeModule;
 using Items.Inventory;
@@ -17,8 +18,13 @@ using UI;
 
 namespace TileEntity.Instances.Machines
 {
-    public class ProcessingMachineInstance : MachineInstance<ProcessingMachine, ItemEnergyRecipe>
+    public interface IBatterySlotMachine
     {
+        public List<ItemSlot> GetBatteryInventory();
+    }
+    public class ProcessingMachineInstance : MachineInstance<ProcessingMachine, ItemEnergyRecipe>, IBatterySlotMachine
+    {
+        public List<ItemSlot> BatteryInventory;
         public ProcessingMachineInstance(ProcessingMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
@@ -27,9 +33,10 @@ namespace TileEntity.Instances.Machines
         {
             SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
                 Mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                TileEntityInventoryFactory.Serialize(Inventory.Content),
                 MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
-                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Machine)
+                RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Machine),
+                ItemSlotFactory.serializeList(BatteryInventory)
             );
             return JsonConvert.SerializeObject(serializedProcessingMachine);
         }
@@ -37,17 +44,26 @@ namespace TileEntity.Instances.Machines
         public override void unserialize(string data)
         {
             SerializedProcessingMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedProcessingMachine>(data);
-            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            Mode = serializedProcessingMachine.Mode;
+            Inventory = new MachineItemInventory(
+                this, 
+                TileEntityInventoryFactory.Deserialize(serializedProcessingMachine.SerializedMachineInventory,GetMachineLayout())
+            );
             currentRecipe = RecipeSerializationFactory.Deserialize<ItemEnergyRecipe>(
                 serializedProcessingMachine.SerializedGeneratorRecipe, 
                 RecipeType.Machine
             );
             EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
+            BatteryInventory = ItemSlotFactory.Deserialize(serializedProcessingMachine.SerializedBatteryInventory);
             InventoryUpdate(0);
         }
 
         public override void tickUpdate()
         {
+            if (BatteryInventory?.Count > 0 && !ItemSlotUtils.IsItemSlotNull(BatteryInventory[0]))
+            {
+                // TODO draw energy from battery
+            }
             if (ReferenceEquals(currentRecipe?.InputEnergy,null) || EnergyInventory.Energy == 0) return;
 
             ulong energyToUse = EnergyInventory.Energy < currentRecipe.EnergyCostPerTick ? EnergyInventory.Energy : currentRecipe.EnergyCostPerTick;
@@ -75,7 +91,7 @@ namespace TileEntity.Instances.Machines
                 Debug.LogError("Null recipe processor instance");
                 return;
             }
-            currentRecipe = recipeProcessorInstance.GetRecipe<ItemEnergyRecipe>(Mode, Inventory.itemInputs, Inventory.fluidInputs);
+            currentRecipe = recipeProcessorInstance.GetRecipe<ItemEnergyRecipe>(Mode, Inventory.Content.itemInputs, Inventory.Content.fluidInputs);
         }
 
         public override float GetProgressPercent()
@@ -88,23 +104,33 @@ namespace TileEntity.Instances.Machines
         {
             InitializeItemInventory();
             InitializeEnergyInventory();
+            BatteryInventory = new List<ItemSlot> { null };
         }
-
+        
+        public List<ItemSlot> GetBatteryInventory()
+        {
+            return BatteryInventory;
+        }
+        
         private class SerializedProcessingMachine
         {
             public int Mode;
             public string SerializedMachineInventory;
             public string SerializedEnergyInventory;
             public string SerializedGeneratorRecipe;
+            public string SerializedBatteryInventory;
 
-            public SerializedProcessingMachine(int mode, string serializedMachineInventory, string serializedEnergyInventory, string serializedGeneratorRecipe)
+            public SerializedProcessingMachine(int mode, string serializedMachineInventory, string serializedEnergyInventory, string serializedGeneratorRecipe, string serializedBatteryInventory)
             {
                 Mode = mode;
                 SerializedMachineInventory = serializedMachineInventory;
                 SerializedEnergyInventory = serializedEnergyInventory;
                 SerializedGeneratorRecipe = serializedGeneratorRecipe;
+                SerializedBatteryInventory = serializedBatteryInventory;
             }
         }
+
+        
     }
 }
 
