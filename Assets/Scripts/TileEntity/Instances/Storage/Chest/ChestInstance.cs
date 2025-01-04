@@ -6,6 +6,7 @@ using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Items.Inventory;
 using Entities;
+using Item.Slot;
 using UI;
 
 namespace TileEntity.Instances
@@ -80,7 +81,7 @@ namespace TileEntity.Instances
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            ItemSlotHelper.InsertIntoInventory(items, toInsert, Global.MaxSize);
+            ItemSlotUtils.InsertIntoInventory(items, toInsert, Global.MaxSize);
         }
     }
 }

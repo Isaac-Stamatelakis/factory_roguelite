@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Conduits.Ports;
+using Item.Slot;
 using UnityEngine;
 using Items.Inventory;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace TileEntity {
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             ItemSlot extracted = ExtractFromInventory(state);
-            if (ItemSlotHelper.IsItemSlotNull(extracted)) return null;
+            if (ItemSlotUtils.IsItemSlotNull(extracted)) return null;
             parent.InventoryUpdate(0);
             return extracted;
         }
@@ -42,8 +43,8 @@ namespace TileEntity {
         {
             return state switch
             {
-                ItemState.Solid => ItemSlotHelper.ExtractFromInventory(itemOutputs),
-                ItemState.Fluid => ItemSlotHelper.ExtractFromInventory(fluidOutputs),
+                ItemState.Solid => ItemSlotUtils.ExtractFromInventory(itemOutputs),
+                ItemState.Fluid => ItemSlotUtils.ExtractFromInventory(fluidOutputs),
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
@@ -53,7 +54,7 @@ namespace TileEntity {
             switch (state)
             {
                 case ItemState.Solid:
-                    if(ItemSlotHelper.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
+                    if(ItemSlotUtils.InsertIntoInventory(itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
                     break;
                 case ItemState.Fluid:
                     Tier tier = Tier.Basic;
@@ -61,7 +62,7 @@ namespace TileEntity {
                     {
                         tier = tieredTileEntity.GetTier();
                     }
-                    if(ItemSlotHelper.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
+                    if(ItemSlotUtils.InsertIntoInventory(fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -70,8 +71,8 @@ namespace TileEntity {
 
         public void TryOutputRecipe(ItemRecipe itemRecipe)
         {
-            ItemSlotHelper.InsertInventoryIntoInventory(itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
-            ItemSlotHelper.InsertInventoryIntoInventory(fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
+            ItemSlotUtils.InsertInventoryIntoInventory(itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
+            ItemSlotUtils.InsertInventoryIntoInventory(fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
             bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
             if (!recipeConsumed) return;
             parent.ResetRecipe();

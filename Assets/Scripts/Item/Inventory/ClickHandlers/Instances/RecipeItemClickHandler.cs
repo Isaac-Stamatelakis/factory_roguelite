@@ -1,4 +1,6 @@
+using Item.Slot;
 using Recipe.Viewer;
+using UI.Catalogue.InfoViewer;
 
 namespace Item.Inventory.ClickHandlers.Instances
 {
@@ -7,10 +9,10 @@ namespace Item.Inventory.ClickHandlers.Instances
         protected override void LeftClick()
         {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (itemSlot == null) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 return;
             }
-            RecipeViewerHelper.DisplayCraftingOfItem(itemSlot);
+            InfoViewUtils.DisplayItemInformation(itemSlot);
         }
 
         protected override void MiddleClick()
@@ -21,10 +23,10 @@ namespace Item.Inventory.ClickHandlers.Instances
         protected override void RightClick()
         {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (itemSlot == null) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 return;
             }
-            RecipeViewerHelper.DisplayUsesOfItem(itemSlot);
+            InfoViewUtils.DisplayItemUses(itemSlot);
         }
 
     

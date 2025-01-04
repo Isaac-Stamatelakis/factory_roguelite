@@ -10,6 +10,7 @@ namespace Recipe.Processor {
         public GameObject UIPrefab;
         public RecipeType RecipeType;
         public List<RecipeModeCollection> RecipeCollections;
+        public Sprite Sprite;
     }
 
     

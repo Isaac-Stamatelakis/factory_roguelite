@@ -48,7 +48,7 @@ namespace UI.QuestBook {
             displayed = new HashSet<int>();
             Dictionary<int, QuestBookNode> idNodeMap = questBookPageUI.Library.IdNodeMap;
 
-            // Display nodes in connections first so they are easier to remove
+            // DisplayNewElement nodes in connections first so they are easier to remove
             foreach (int id in node.Prerequisites) {
                 if (nodeMatchSearch(idNodeMap[id],currentSearch)) {
                     displayConnection(id);

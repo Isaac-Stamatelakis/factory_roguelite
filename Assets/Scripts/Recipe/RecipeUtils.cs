@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using Item.Slot;
 using Items;
 using Items.Transmutable;
 using Recipe;
@@ -15,85 +16,13 @@ namespace RecipeModule
 {
     
 public static class RecipeUtils {
-        public static bool MatchInputs(List<ItemSlot> inputs, List<ItemSlot> recipeItems) {
-            if (inputs == null) {
-                if (recipeItems.Count == 0) {
-                    return true;
-                }
-                return false;
-            }
-            // Check recipes O(n+m)
-            var inputItemAmounts = new Dictionary<string, uint>();
-            foreach (ItemSlot itemSlot in inputs) {
-                if (itemSlot == null || itemSlot.itemObject == null) {
-                    continue;
-                }
-                if (inputItemAmounts.ContainsKey(itemSlot.itemObject.id)) {
-                    inputItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
-                } else {
-                    inputItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
-                }
-                
-            }
-            var recipeItemAmounts = new Dictionary<string, uint>();
-            foreach (ItemSlot itemSlot in recipeItems) {
-                if (itemSlot.itemObject != null) {
-                    if (recipeItemAmounts.ContainsKey(itemSlot.itemObject.id)) {
-                        recipeItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
-                    } else {
-                        recipeItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
-                    }
-                }
-            }
-            foreach (string id in inputItemAmounts.Keys) {
-                if (recipeItemAmounts.ContainsKey(id)) {
-                    recipeItemAmounts[id] -= inputItemAmounts[id];
-                }
-            }
-            bool success = true;
-            foreach (int amount in recipeItemAmounts.Values) {
-                if (amount > 0) {
-                    success = false;
-                    break;
-                }
-            }
-            return success;
-        }
-        public static bool SpaceInOutput(List<ItemSlot> inventorySlotOfState, List<ItemSlot> recipeItemsOfState) {
-            if (inventorySlotOfState == null) {
-                if (recipeItemsOfState.Count == 0) {
-                    return true;
-                }
-                return false;
-            }
-            Dictionary<string, ItemSlot> outputDict = new Dictionary<string, ItemSlot>();
-            foreach (ItemSlot itemSlot in recipeItemsOfState) {
-                outputDict[itemSlot.itemObject.id] = itemSlot;
-            }
-            int clearSpaces = 0;
-            foreach (ItemSlot itemSlot in inventorySlotOfState) {
-                if (itemSlot == null || itemSlot.itemObject == null) {
-                    clearSpaces++;
-                    continue;
-                }
-                string id = itemSlot.itemObject.id;
-                if (!outputDict.ContainsKey(id)) {
-                    continue;
-                }
-                if (outputDict[id].amount + itemSlot.amount <= Global.MaxSize) { // TODO NBT MATCH
-                    outputDict.Remove(id);
-                }
-            }
-            int remaining = outputDict.Count;
-            return remaining <= clearSpaces;
-        }
+    
 
         public static bool OutputsUsed(ItemRecipe itemRecipe)
         {
-            return ItemSlotHelper.IsEmpty(itemRecipe.SolidOutputs) && ItemSlotHelper.IsEmpty(itemRecipe.FluidOutputs);
+            return ItemSlotUtils.IsEmpty(itemRecipe.SolidOutputs) && ItemSlotUtils.IsEmpty(itemRecipe.FluidOutputs);
         }
         
-    
         
         public static void InsertValidRecipes(RecipeProcessor recipeProcessor, RecipeObject recipeObject, List<ItemRecipeObject> itemRecipes, Dictionary<TransmutableItemState, TransmutableRecipeObject> transmutableRecipes)
         {
@@ -165,11 +94,7 @@ public static class RecipeUtils {
             for (int i = 0; i < inputs.Count; i++)
             {
                 ItemSlot itemSlot = inputs[i];
-                if (ReferenceEquals(itemSlot?.itemObject,null) || included.Contains(itemSlot.itemObject.id))
-                {
-                    continue;
-                }
-                included.Add(itemSlot.itemObject.id);
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || !included.Add(itemSlot.itemObject.id)) continue;
                 ulong sum = 0;
                 foreach (char c in itemSlot.itemObject.id)
                 {

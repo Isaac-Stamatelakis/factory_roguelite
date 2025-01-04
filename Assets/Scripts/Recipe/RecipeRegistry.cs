@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using Recipe.Collection;
 using Recipe.Data;
@@ -121,7 +122,7 @@ namespace Recipe {
 
         public List<DisplayableRecipe> GetRecipeProcessorRecipes(RecipeProcessor recipeProcessor)
         {
-            return !processorDict.ContainsKey(recipeProcessor) ? null : processorDict[recipeProcessor].GetAllRecipes();
+            return !processorDict.ContainsKey(recipeProcessor) ? null : processorDict[recipeProcessor].GetAllRecipesToDisplay();
         }
 
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
 using Items;
 using Newtonsoft.Json;
 using Recipe.Objects;

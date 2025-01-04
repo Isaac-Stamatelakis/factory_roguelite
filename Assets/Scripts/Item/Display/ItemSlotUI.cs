@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,12 +10,30 @@ using Items.Transmutable;
 using UnityEngine.Serialization;
 
 namespace Items {
-    public struct ItemDisplay
+    public class ItemDisplayList
+    {
+        public ItemDisplay[] Elements;
+        public int RefreshRate;
+
+        public ItemDisplayList(ItemDisplay[] elements, int refreshRate)
+        {
+            Elements = elements;
+            RefreshRate = refreshRate;
+        }
+
+        public ItemDisplay GetItemToDisplay(int counter)
+        {
+            int index = (counter/RefreshRate) % Elements.Length;
+            return Elements[index];
+        }
+        
+    }
+    public class ItemDisplay
     {
         public Sprite Sprite;
         public Color Color;
 
-        public ItemDisplay(Sprite sprite = null, Color color = default)
+        public ItemDisplay(Sprite sprite, Color color)
         {
             Sprite = sprite;
             Color = color;
@@ -28,11 +47,11 @@ namespace Items {
         public TextMeshProUGUI AmountText;
         public Transform TagBehindContainer;
         public Transform TagFrontContainer;
-        private ItemDisplay[] toDisplay;
+        private ItemDisplayList currentDisplayList;
         private int counter;
         private ItemSlot displayedSlot;
         public void FixedUpdate() {
-            if (toDisplay == null || toDisplay.Length == 0)
+            if (currentDisplayList == null)
             {
                 return;
             }
@@ -42,15 +61,27 @@ namespace Items {
 
         public void RefreshDisplay()
         {
-            if (ReferenceEquals(displayedSlot?.itemObject,null) || displayedSlot.amount == 0)
+            bool displayingItemSlot = displayedSlot != null;
+            if (displayingItemSlot)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(displayedSlot))
+                {
+                    AmountText.text = string.Empty;
+                    ItemImage.gameObject.SetActive(false);
+                    return;
+                }
+
+                AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+            }
+
+            if (currentDisplayList == null)
             {
                 AmountText.text = string.Empty;
                 ItemImage.gameObject.SetActive(false);
                 return;
             }
-            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
-            int index = (counter/ItemDisplayUtils.AnimationSpeed) % toDisplay.Length;
-            ItemDisplay display = toDisplay[index];
+            
+            ItemDisplay display = currentDisplayList.GetItemToDisplay(counter);
             ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
             ItemImage.color = display.Color;
         }
@@ -67,15 +98,9 @@ namespace Items {
         
         public void Display(ItemSlot itemSlot)
         {
-            if (ReferenceEquals(itemSlot?.itemObject,null)) {
-                if (ItemImage.IsActive()) Unload();
-                displayedSlot = null;
-                return;
-            }
-
-            if (!ReferenceEquals(displayedSlot?.itemObject, null) &&
-                itemSlot.itemObject.id == displayedSlot.itemObject.id)
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
+                Unload();
                 return;
             }
             Sprite[] sprites = itemSlot.itemObject.getSprites();
@@ -87,13 +112,15 @@ namespace Items {
             
             displayedSlot = itemSlot;
             AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
-            toDisplay = new ItemDisplay[sprites.Length];
+            
+            var toDisplay = new ItemDisplay[sprites.Length];
             Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
             for (int i = 0; i < toDisplay.Length; i++)
             {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
 
+            currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
             counter = 0;
             RefreshDisplay();
             ItemImage.gameObject.SetActive(true);
@@ -101,10 +128,9 @@ namespace Items {
             DisplayTagVisuals(itemSlot);
         }
 
-        public void Display(ItemDisplay[] itemsToDisplay)
+        public void DisplayFormattedList(ItemDisplayList itemDisplayList, string text)
         {
-            ItemImage.gameObject.SetActive(true);
-            toDisplay = itemsToDisplay;
+            currentDisplayList = itemDisplayList;
             displayedSlot = null;
             DisableItemSlotVisuals();
             counter = 0;
@@ -123,7 +149,7 @@ namespace Items {
         }
         public void Unload()
         {
-            toDisplay = null;
+            currentDisplayList = null;
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
         }

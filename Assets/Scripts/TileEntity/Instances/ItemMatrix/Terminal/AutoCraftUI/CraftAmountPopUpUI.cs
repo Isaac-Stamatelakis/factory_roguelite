@@ -8,6 +8,7 @@ using Items.Inventory;
 using UI;
 using System.Threading.Tasks;
 using System;
+using Item.Slot;
 
 namespace TileEntity.Instances.Matrix {
     public class CraftAmountPopUpUI : MonoBehaviour, IAmountIteratorListener

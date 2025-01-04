@@ -7,6 +7,7 @@ using PlayerModule;
 using Items;
 using Items.Inventory;
 using Entities;
+using Item.Slot;
 
 namespace TileEntity.Instances.Storage {
     public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
@@ -101,10 +102,10 @@ namespace TileEntity.Instances.Storage {
                 loadVisual();
             } else {
                 if (
-                    ItemSlotHelper.AreEqual(itemSlot,playerItemSlot) &&
-                    ItemSlotHelper.CanInsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize)
+                    ItemSlotUtils.AreEqual(itemSlot,playerItemSlot) &&
+                    ItemSlotUtils.CanInsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize)
                 ) {
-                    ItemSlotHelper.InsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize);
+                    ItemSlotUtils.InsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize);
                     if (playerItemSlot.amount <= 0) {
                         playerInventory.removeSelectedItemSlot();
                         loadVisual();
@@ -173,16 +174,16 @@ namespace TileEntity.Instances.Storage {
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            if (ItemSlotHelper.IsItemSlotNull(itemSlot)) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 itemSlot = ItemSlotFactory.Copy(toInsert);
                 toInsert.amount = 0;
                 loadVisual();
                 return;
             }
 
-            if (!ItemSlotHelper.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize))
+            if (!ItemSlotUtils.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize))
                 return;
-            ItemSlotHelper.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize);
+            ItemSlotUtils.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize);
             loadVisual();
         }
     }

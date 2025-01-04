@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Dimensions;
+using Item.Slot;
 using PlayerModule;
 using Items;
 using Recipe.Data;

@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Items;
+using Items.Transmutable;
 using UnityEngine;
 
 namespace UI.ToolTip {
     public class ToolTipController : MonoBehaviour
     {
+        private readonly Vector2 offset = new Vector2(60, 0);
         [SerializeField] private ToolTipUI toolTipPrefab;
         private static ToolTipController instance;
 
@@ -14,14 +17,25 @@ namespace UI.ToolTip {
             instance = this;
         }
 
-        public void showToolTip(Vector2 position, string text) {
-            hideToolTip();
-            ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab);
-            newToolTip.setText(text);
-            newToolTip.transform.SetParent(transform,false);
-            newToolTip.transform.position = position;
+        public void ShowToolTip(Vector2 position, ItemObject itemObject)
+        {
+            if (ReferenceEquals(itemObject, null)) return;
+            string text = itemObject.name;
+            if (itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                TransmutableItemMaterial material = transmutableItemObject.getMaterial();
+                text += '\n' + TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula);
+            }
+            ShowToolTip(position, text);
         }
-        public void hideToolTip() {
+        
+        public void ShowToolTip(Vector2 position, string text) {
+            HideToolTip();
+            ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
+            newToolTip.setText(text);
+            newToolTip.transform.position = position+offset;
+        }
+        public void HideToolTip() {
             GlobalHelper.deleteAllChildren(transform);
         }
     }

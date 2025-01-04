@@ -8,6 +8,7 @@ using Chunks;
 using Dimensions;
 using Chunks.Systems;
 using Conduits;
+using Item.Slot;
 using UI;
 
 namespace TileEntity.Instances.CompactMachines {

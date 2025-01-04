@@ -1,47 +1,92 @@
+using System;
 using System.Collections.Generic;
+using Item.Slot;
+using Items;
+using Items.Transmutable;
+using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
 using UI;
+using UI.Catalogue.InfoViewer;
+using UnityEngine;
 
 namespace Recipe.Viewer {
     public static class RecipeViewerHelper
     {
-        public static void DisplayUsesOfItem(ItemSlot itemSlot) {
+        public static List<CatalogueElementData> GetRecipesWithItem(ItemSlot itemSlot) {
             RecipeRegistry recipeRegistry = RecipeRegistry.GetInstance();
             var recipesWithItemInInput = recipeRegistry.GetRecipesWithItemInInput(itemSlot);
-            // If is processor, show recipes it makes
-            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileEntity is IProcessorTileEntity tileEntityProcessor) {
+            if (itemSlot.itemObject is TileItem { tileEntity: IProcessorTileEntity tileEntityProcessor }) { // If is processor, show recipes it makes
                 RecipeProcessor processor = tileEntityProcessor.GetRecipeProcessor();
                 recipesWithItemInInput[processor] = recipeRegistry.GetRecipeProcessorRecipes(processor);
             }
-            if (recipesWithItemInInput.Count == 0) {
-                return;
+            List<CatalogueElementData> elements = FormatProcessorInfo(recipesWithItemInInput);
+            return elements;
+        }
+        
+        public static List<CatalogueElementData> GetRecipesOfItem(ItemSlot itemSlot) {
+            RecipeRegistry recipeRegistry = RecipeRegistry.GetInstance();
+            var recipesWithOutput = recipeRegistry.GetRecipesWithItemInOutput(itemSlot);
+            List<CatalogueElementData> elements = FormatProcessorInfo(recipesWithOutput);
+            return elements;
+        }
+        
+        private static List<CatalogueElementData> FormatProcessorInfo(Dictionary<RecipeProcessor, List<DisplayableRecipe>> dict)
+        {
+            List<CatalogueElementData> elements = new List<CatalogueElementData>();
+            foreach (var (recipeProcessor, recipes) in dict)
+            {
+                if (recipes.Count == 0) continue;
+                RecipeProcessorInstance instance = RecipeRegistry.GetProcessorInstance(recipeProcessor);
+                elements.Add(new CatalogueElementData(new RecipeProcessorDisplayInfo(instance,recipes),CatalogueInfoDisplayType.Recipe));
             }
-            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
-            viewer.show(recipesWithItemInInput);
-            CanvasController.Instance.DisplayObject(viewer.gameObject);
+            return elements;
         }
-        public static void DisplayCraftingOfItem(ItemSlot itemSlot) {
-            var recipesWithItemInOutput = RecipeRegistry.GetInstance().GetRecipesWithItemInOutput(itemSlot);
-            if (recipesWithItemInOutput.Count == 0) {
-                return;
+
+        public static List<string> GetCostStrings(RecipeObject recipeObject, RecipeType recipeType)
+        {
+            switch (recipeType)
+            {
+                case RecipeType.Item:
+                    return null;
+                case RecipeType.Passive:
+                    if (recipeObject is PassiveItemRecipeObject passiveRecipe)
+                        return new List<string>
+                        {
+                            $"Time:{passiveRecipe.Ticks / 50f:F2} Secs",
+                        };
+                    Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
+                    return null;
+                case RecipeType.Generator:
+                    if (recipeObject is GeneratorItemRecipeObject generatorRecipe)
+                        return new List<string>
+                        {
+                            $"Total:{(ulong)generatorRecipe.Ticks * generatorRecipe.EnergyPerTick}",
+                            $"J/t:{generatorRecipe.EnergyPerTick}",
+                            $"Time:{generatorRecipe.Ticks / 50f:F2} Secs",
+
+                        };
+                    Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
+                    return null;
+                case RecipeType.Machine:
+                    if (recipeObject is ItemEnergyRecipeObject itemEnergyRecipe)
+                        return new List<string>
+                        {
+                            $"Total:{itemEnergyRecipe.TotalInputEnergy}",
+                            $"J/t:{itemEnergyRecipe.MinimumEnergyPerTick}",
+                            $"Time:{(double)itemEnergyRecipe.TotalInputEnergy / itemEnergyRecipe.MinimumEnergyPerTick:F2} Secs",
+                        };
+                    Debug.LogWarning("Passive item recipe object is not a PassiveItemRecipeObject");
+                    return null;
+                case RecipeType.Burner:
+                    return null;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
-
-            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
-            viewer.show(recipesWithItemInOutput);
-            CanvasController.Instance.DisplayObject(viewer.gameObject);
         }
 
-        public static void DisplayUsesOfProcessor(RecipeProcessor processor) {
-            List<DisplayableRecipe> recipes = RecipeRegistry.GetInstance().GetRecipeProcessorRecipes(processor);
-            var recipesOfProcessor = new Dictionary<RecipeProcessor, List<DisplayableRecipe>>
-                {
-                    [processor] = recipes
-                };
-            RecipeViewer viewer = MainCanvasController.TInstance.DisplayUIElement<RecipeViewer>(MainSceneUIElement.RecipeViewer);
-            viewer.show(recipesOfProcessor);
-            CanvasController.Instance.DisplayObject(viewer.gameObject);
-        }
     }
+    
+    
 }
 

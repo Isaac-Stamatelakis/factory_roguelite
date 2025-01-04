@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Items;
 using Items.Inventory;
 using System;
+using Item.Slot;
 
 namespace UI {
 

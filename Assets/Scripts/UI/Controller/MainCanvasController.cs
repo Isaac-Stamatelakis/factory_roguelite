@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Conduit.Port.UI;
 using Recipe.Viewer;
+using UI.Catalogue.InfoViewer;
 using UI.PauseScreen;
 using UI.PlayerInvUI;
 using Unity.VisualScripting;
@@ -12,16 +13,16 @@ namespace UI
     public enum MainSceneUIElement
     {
         PauseScreen,
-        RecipeViewer,
-        IOPortViewer
+        IOPortViewer,
+        CatalogueInfo,
     }
     public class MainCanvasController : CanvasController
     {
         public static MainCanvasController TInstance => instance as MainCanvasController; 
         [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
-        [SerializeField] private RecipeViewer recipeViewerPrefab;
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
+        [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -78,8 +79,8 @@ namespace UI
             return mainSceneUIElement switch
             {
                 MainSceneUIElement.PauseScreen => Instantiate(pauseScreenUIPrefab).gameObject,
-                MainSceneUIElement.RecipeViewer => Instantiate(recipeViewerPrefab).gameObject,
                 MainSceneUIElement.IOPortViewer => Instantiate(ioConduitPortUIPrefab).gameObject,
+                MainSceneUIElement.CatalogueInfo => Instantiate(catalogueInfoViewerPrefab).gameObject,
                 _ => throw new ArgumentOutOfRangeException(nameof(mainSceneUIElement), mainSceneUIElement, null)
             };
         }

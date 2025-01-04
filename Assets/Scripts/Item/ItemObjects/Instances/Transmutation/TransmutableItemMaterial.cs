@@ -14,7 +14,8 @@ namespace Items.Transmutable {
         public string id;
         public Tier tier;
         public Color color;
-
+        public string chemicalFormula;
+        
         public TransmutableMaterialOptions MaterialOptions;
         public virtual List<TransmutableStateOptions> GetStates()
         {

@@ -48,7 +48,7 @@ namespace Dimensions {
             }
             
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.showAll();
+            catalogueControllers.ShowAll();
             yield return itemLoad;
             string path = Path.Combine(Application.persistentDataPath,WorldManager.getInstance().getWorldPath());
             Debug.Log($"Loading world from path {path}");

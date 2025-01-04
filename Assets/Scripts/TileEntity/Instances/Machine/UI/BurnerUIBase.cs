@@ -6,12 +6,14 @@ using Items.Inventory;
 using Recipe.Viewer;
 using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machines;
+using TMPro;
 using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
 {
     public class BurnerUIBase : MonoBehaviour, ITileEntityUI<BurnerMachineInstance>, IRecipeProcessorUI
     {
+        [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private MachineInventoryUI machineInventoryUI;
         [SerializeField] private InventoryUI burnerInventoryUI;
         [SerializeField] private ArrowProgressController burnerProgress;
@@ -20,6 +22,7 @@ namespace TileEntity.Instances.Machine.UI
         public void DisplayTileEntityInstance(BurnerMachineInstance tileEntityInstance)
         {
             displayedInstance = tileEntityInstance;
+            title.text = tileEntityInstance.getName();
             machineInventoryUI.Display(tileEntityInstance.GetItemInventory());
             burnerInventoryUI.DisplayInventory(tileEntityInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddListener(tileEntityInstance);

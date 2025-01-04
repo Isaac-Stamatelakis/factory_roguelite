@@ -1,3 +1,4 @@
+using Item.Slot;
 using Items;
 using UnityEngine;
 

@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using System;
+using Item.Slot;
 using RecipeModule;
 using Items;
 

@@ -16,13 +16,16 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
 using Dimensions;
+using Item.Slot;
+using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
+using UnityEngine.Analytics;
 
 namespace Items {
     public class ItemRegistry {
         private static Dictionary<string,ItemObject> items;
-        private static Dictionary<RecipeProcessor, List<TileItem>> tileEntityProcessorDict;
+        private static List<TransmutableItemMaterial> materials;
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
@@ -37,21 +40,31 @@ namespace Items {
             instance = new ItemRegistry();
             var handle = Addressables.LoadAssetsAsync<ItemObject>("item", null);
             yield return handle;
+            HashSet<TransmutableItemMaterial> materialSet = new HashSet<TransmutableItemMaterial>();
             if (handle.Status == AsyncOperationStatus.Succeeded) {
                 IList<ItemObject> loadedAssets = handle.Result;
                 foreach (ItemObject asset in loadedAssets)
                 {
-                    AddToDict(asset);
+                    AddToDict(asset, materialSet);
                 }
             }
             else {
                 Debug.LogError("Failed to load assets from group: " + handle.OperationException);
             }
-            Debug.Log($"Loaded {items.Count} Items");
+            materials = materialSet.ToList();
+            Debug.Log($"Loaded {items.Count} Items and {materials.Count} Materials");
             yield return null;
         }
 
-        private static bool AddToDict(ItemObject itemObject) {
+        private static bool AddToDict(ItemObject itemObject, HashSet<TransmutableItemMaterial> materialSet) {
+            if (itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                var material = transmutableItemObject.getMaterial();
+                if (!ReferenceEquals(material, null))
+                {
+                    materialSet.Add(material);
+                }
+            }
             if (!items.TryGetValue(itemObject.id, out var contained)) {
                 items[itemObject.id] = itemObject;
                 return true;
@@ -76,6 +89,18 @@ namespace Items {
         public List<ItemObject> GetAllItemsWithPrefix(string idPrefix) {
             List<ItemObject> list = items.Values.ToList();
             return list.Where(item => item.id.StartsWith(idPrefix)).ToList();
+        }
+
+        public List<TransmutableItemMaterial> GetAllMaterials()
+        {
+            HashSet<TransmutableItemMaterial> materials = new HashSet<TransmutableItemMaterial>();
+            foreach (ItemObject itemObject in items.Values)
+            {
+                if (itemObject is not TransmutableItemObject transmutableItemObject) continue;
+                materials.Add(transmutableItemObject.getMaterial());
+            }
+
+            return materials.ToList();
         }
         ///
         /// Returns tileItem if id maps to tile item, null otherwise
@@ -199,11 +224,6 @@ namespace Items {
                 }
             }
             return queried;
-        }
-
-        public static List<TileItem> getTileEntitiesOfProcessor(RecipeProcessorInstance processor)
-        {
-            return tileEntityProcessorDict.GetValueOrDefault(processor.RecipeProcessorObject);
         }
     }
 }

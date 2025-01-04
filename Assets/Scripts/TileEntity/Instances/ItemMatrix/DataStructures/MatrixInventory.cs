@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using Items.Tags;
 using Items.Tags.Matrix;
@@ -38,7 +39,7 @@ namespace TileEntity.Instances.Matrix {
             (ItemSlot,uint) value = notFull.Pop();
             ItemSlot driveSlot = value.Item1;
             uint amountBefore = itemSlot.amount;
-            ItemSlotHelper.InsertIntoSlot(driveSlot,itemSlot,value.Item2);
+            ItemSlotUtils.InsertIntoSlot(driveSlot,itemSlot,value.Item2);
             uint difference = amountBefore-itemSlot.amount;
             totalAmount += difference;
             if (driveSlot.amount == value.Item2) {
@@ -61,7 +62,7 @@ namespace TileEntity.Instances.Matrix {
             while (spliced.amount < amount && notFull.Count > 0) {
                 (ItemSlot,uint) driveValue = notFull.Pop();
                 ItemSlot driveItem = driveValue.Item1;
-                ItemSlotHelper.InsertIntoSlot(spliced,driveItem,amount);
+                ItemSlotUtils.InsertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     notFull.Push(driveValue);
                     break;
@@ -70,7 +71,7 @@ namespace TileEntity.Instances.Matrix {
             while (spliced.amount < amount && full.Count > 0) {
                 (ItemSlot,uint) driveValue = full.Pop();
                 ItemSlot driveItem = driveValue.Item1;
-                ItemSlotHelper.InsertIntoSlot(spliced,driveItem,amount);
+                ItemSlotUtils.InsertIntoSlot(spliced,driveItem,amount);
                 if (driveItem.itemObject != null && driveItem.amount > 0) {
                     full.Push(driveValue);
                     break;

@@ -8,6 +8,7 @@ using TileMaps.Type;
 using UnityEngine.Tilemaps;
 using Chunks.Systems;
 using Entities;
+using Item.Slot;
 using Newtonsoft.Json;
 using UI;
 

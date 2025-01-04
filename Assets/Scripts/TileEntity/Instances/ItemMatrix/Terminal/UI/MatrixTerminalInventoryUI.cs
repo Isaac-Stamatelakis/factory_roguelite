@@ -416,7 +416,7 @@ namespace TileEntity.Instances.Matrix {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             ItemSlot inventorySlot = slotUIElement.GetItemSlot();
-            if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotHelper.AreEqual(grabbedSlot,inventorySlot)) {
+            if (grabbedSlot == null || grabbedSlot.itemObject == null || ItemSlotUtils.AreEqual(grabbedSlot,inventorySlot)) {
                 GiveAmountToGrabbedItem(inventorySlot,grabbedItemProperties,slotUIElement,1);
             } else {
                 ItemSlot spliced = ItemSlotFactory.Splice(grabbedSlot,1);

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Conduits.Systems;
+using Item.Slot;
 using Items;
 using UnityEngine;
 using Newtonsoft.Json;
