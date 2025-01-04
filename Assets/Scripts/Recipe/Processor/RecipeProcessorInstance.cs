@@ -8,22 +8,143 @@ using Recipe.Objects;
 using Recipe.Viewer;
 using RecipeModule;
 using TileEntity;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 namespace Recipe.Processor
 {
+    public class ItemRecipeCollection
+    {
+        private RecipeData[] recipes;
+        private Dictionary<string, ushort[]> outputItemRecipes;
+        private Dictionary<string, ushort[]> inputItemRecipes;
+        private Dictionary<TransmutableItemState, ushort[]> inputStateRecipes;
+        private Dictionary<TransmutableItemState, ushort[]> outputStateRecipes;
+
+        public ItemRecipeCollection(RecipeProcessorInstance recipeProcessorInstance)
+        {
+            var tempRecipes = new List<RecipeData>();
+            var tempOutput = new Dictionary<string, List<ushort>>();
+            var tempInput = new Dictionary<string, List<ushort>>();
+            var tempOutputStateRecipes = new Dictionary<TransmutableItemState, List<ushort>>();
+            var tempInputStateRecipes = new Dictionary<TransmutableItemState,List<ushort>>();
+            
+            
+            foreach (RecipeModeCollection recipeModeCollection in recipeProcessorInstance.RecipeProcessorObject.RecipeCollections)
+            {
+                foreach (RecipeObject recipeObject in recipeModeCollection.RecipeCollection.Recipes)
+                {
+                    tempRecipes.Add(new RecipeData(recipeModeCollection.Mode,recipeObject,recipeProcessorInstance));
+                    ushort recipeIndex = (ushort)(tempRecipes.Count - 1);
+                    switch (recipeObject)
+                    {
+                        case ItemRecipeObject itemRecipeObject:
+                            PlaceRecipeIndex(itemRecipeObject.Inputs,tempInput,recipeIndex);
+                            PlaceRecipeIndex(itemRecipeObject.Outputs,tempOutput,recipeIndex);
+                            break;
+                        case TransmutableRecipeObject transmutableRecipeObject:
+                            PlaceTransmutationState(transmutableRecipeObject.InputState,tempInputStateRecipes,recipeIndex);
+                            PlaceTransmutationState(transmutableRecipeObject.OutputState,tempOutputStateRecipes,recipeIndex);
+                            break;
+                    }
+                }
+            }
+
+            recipes = tempRecipes.ToArray();
+            outputItemRecipes = ToArrayDict(tempOutput);
+            inputItemRecipes = ToArrayDict(tempInput);
+            outputStateRecipes = ToArrayDict(tempOutputStateRecipes);
+            inputStateRecipes = ToArrayDict(tempInputStateRecipes);
+        }
+
+        private void PlaceTransmutationState(TransmutableItemState state, Dictionary<TransmutableItemState, List<ushort>> dict, ushort recipeIndex)
+        {
+            if (!dict.ContainsKey(state))
+            {
+                dict[state] = new List<ushort>();
+            }
+            dict[state].Add(recipeIndex);
+        }
+        
+        private void PlaceRecipeIndex<T>(List<T> slots, Dictionary<string, List<ushort>> dict, ushort recipeIndex) where T : EditorItemSlot
+        {
+            var includedIds = new HashSet<string>();
+            foreach (var slot in slots)
+            {
+                if (ReferenceEquals(slot?.ItemObject, null)) continue;
+                string id = slot.ItemObject.id;
+                if (!includedIds.Add(id)) continue;
+                if (!dict.ContainsKey(id))
+                {
+                    dict[id] = new List<ushort>();
+                }
+                dict[id].Add(recipeIndex);
+            }
+        }
+
+        private Dictionary<T, ushort[]> ToArrayDict<T>(Dictionary<T, List<ushort>> tempDict)
+        {
+            Dictionary<T, ushort[]> dict = new Dictionary<T, ushort[]>();
+            foreach (var kvp in tempDict)
+            {
+                dict[kvp.Key] = kvp.Value.ToArray();
+            }
+
+            return dict;
+        }
+
+        public List<RecipeData> GetInputRecipes(ItemSlot itemSlot)
+        {
+            return FromDict(itemSlot, inputItemRecipes, inputStateRecipes);
+        }
+
+        public List<RecipeData> GetOutputRecipes(ItemSlot itemSlot)
+        {
+            return FromDict(itemSlot, outputItemRecipes, outputStateRecipes);
+        }
+
+        private List<RecipeData> FromDict(ItemSlot itemSlot, Dictionary<string, ushort[]> itemDict,  Dictionary<TransmutableItemState, ushort[]> transmutationDict)
+        {
+            if (ReferenceEquals(itemSlot?.itemObject,null)) return null;
+            
+            var validRecipes = new List<RecipeData>();
+            if (itemDict.TryGetValue(itemSlot.itemObject.id, out var itemIndices))
+            {
+                foreach (ushort index in itemIndices)
+                {
+                    validRecipes.Add(recipes[index]);
+                }
+            }
+            
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject 
+                && transmutationDict.TryGetValue(transmutableItemObject.getState(), out var stateRecipeIndices)
+                )
+            {
+                foreach (ushort index in stateRecipeIndices)
+                {
+                    validRecipes.Add(recipes[index]);
+                }
+                
+            }
+            return validRecipes;
+        }
+
+    }
     public class RecipeProcessorInstance
     {
         private RecipeProcessor recipeProcessorObject;
         public RecipeProcessor RecipeProcessorObject => recipeProcessorObject;
         private Dictionary<int, Dictionary<ulong, ItemRecipeObjectInstance[]>> modeRecipeDict;
-        private Dictionary<string, List<DisplayableRecipe>> outputItemRecipes;
-        private Dictionary<string, List<DisplayableRecipe>> inputItemRecipes;
         private Dictionary<int, Dictionary<TransmutableItemState, TransmutableRecipeObject>> modeRecipeTransmutation;
+        private ItemRecipeCollection collection;
+        
+        
         public RecipeProcessorInstance(RecipeProcessor recipeProcessorObject)
         {
             this.recipeProcessorObject = recipeProcessorObject;
             InitializeModeRecipeDict();
+            collection = new ItemRecipeCollection(this);
         }
         
         private void InitializeModeRecipeDict()
@@ -240,25 +361,29 @@ namespace Recipe.Processor
         }
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
         {
-            if (itemSlot == null || itemSlot.itemObject == null)
+            List<DisplayableRecipe> displayableRecipes = new List<DisplayableRecipe>();
+            
+            foreach (RecipeData recipeData in collection.GetOutputRecipes(itemSlot))
             {
-                return null;
+                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
             }
-            string id = itemSlot.itemObject.id;
-            return outputItemRecipes.GetValueOrDefault(id);
+
+            return displayableRecipes;
         }
         
         public List<DisplayableRecipe> GetRecipesWithItem(ItemSlot itemSlot)
         {
-            if (itemSlot == null || itemSlot.itemObject == null)
+            List<DisplayableRecipe> displayableRecipes = new List<DisplayableRecipe>();
+            
+            foreach (RecipeData recipeData in collection.GetInputRecipes(itemSlot))
             {
-                return null;
+                displayableRecipes.Add(RecipeFactory.ToDisplayableRecipe(recipeData, itemSlot));
             }
-            string id = itemSlot.itemObject.id;
-            return inputItemRecipes.GetValueOrDefault(id);
-        }
 
-        public List<DisplayableRecipe> GetAllRecipes()
+            return displayableRecipes;
+        }
+        
+        public List<DisplayableRecipe> GetAllRecipesToDisplay()
         {
             List<DisplayableRecipe> recipes = new List<DisplayableRecipe>();
             foreach (var kvp in modeRecipeDict)
@@ -266,9 +391,13 @@ namespace Recipe.Processor
                 int mode = kvp.Key;
                 foreach (var recipeKvp in kvp.Value)
                 {
-                    foreach (ItemRecipeObjectInstance recipe in recipeKvp.Value)
+                    foreach (ItemRecipeObjectInstance recipeInstance in recipeKvp.Value)
                     {
-                        recipes.Add(new DisplayableRecipe(mode, recipe.ItemRecipeObject, this));
+                        var outputs = ItemSlotFactory.FromEditorObjects(recipeInstance.ItemRecipeObject.Outputs);
+                        ItemSlotUtils.sortInventoryByState(recipeInstance.Inputs,out var solidInputs, out var fluidInputs);
+                        ItemSlotUtils.sortInventoryByState(outputs,out var solidOutputs, out var fluidOutputs);
+                        RecipeData recipeData = new RecipeData(mode, recipeInstance.ItemRecipeObject, this);
+                        recipes.Add(new ItemDisplayableRecipe(recipeData, solidInputs,solidOutputs,fluidInputs,fluidOutputs));
                     }
                 }
             }
@@ -276,13 +405,50 @@ namespace Recipe.Processor
             foreach (var kvp in modeRecipeTransmutation)
             {
                 int mode = kvp.Key;
-                foreach (var transRecipe in kvp.Value)
+                foreach (var (inputState, transRecipe) in kvp.Value)
                 {
-                    recipes.Add(new DisplayableRecipe(mode, transRecipe.Value, this));
+                    List<TransmutableItemMaterial> materials = ItemRegistry.GetInstance().GetAllMaterials();
+                    List<ItemSlot> inputs = new List<ItemSlot>();
+                    List<ItemSlot> outputs = new List<ItemSlot>();
+                    foreach (TransmutableItemMaterial material in materials)
+                    {
+                        bool inputMatch = false;
+                        bool outputMatch = false;
+                        foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
+                        {
+                            
+                            var state = stateOptions.state;
+                            if (state == transRecipe.InputState)
+                            {
+                                inputMatch = true;
+                            }
+
+                            if (state == transRecipe.OutputState)
+                            {
+                                outputMatch = true;
+                            }
+
+                            if (inputMatch && outputMatch)
+                            {
+                                TransmutableItemObject inputItem = TransmutableItemUtils.GetMaterialItem(material, transRecipe.InputState);
+                                TransmutableItemObject outputItem = TransmutableItemUtils.GetMaterialItem(material, transRecipe.OutputState);
+                                break;
+                            }
+                        }
+                    }
+                    if (inputs.Count == 0 || outputs.Count == 0) continue;
+                    RecipeData recipeData = new RecipeData(mode, transRecipe, this);
+                    
+                    recipes.Add(new TransmutationDisplayableRecipe(recipeData, inputs,outputs,inputState.getMatterState(),transRecipe.OutputState.getMatterState()));
                 }
             }
 
             return recipes;
+        }
+
+        public void GetTransmutationDisplayRecipe()
+        {
+            
         }
 
         public int GetCount()
@@ -329,6 +495,7 @@ namespace Recipe.Processor
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
         }
+        
         public static ItemRecipe GetTransmutationRecipe(RecipeType recipeType, TransmutableItemMaterial material, TransmutableItemState outputState, ItemSlot output)
         {
             List<ItemSlot> solid = null;
@@ -356,6 +523,70 @@ namespace Recipe.Processor
                 default:
                     throw new ArgumentOutOfRangeException(nameof(recipeType), recipeType, null);
             }
+        }
+
+        public static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, ItemSlot itemSlot)
+        {
+            
+            switch (recipeData.Recipe)
+            {
+                case ItemRecipeObject itemRecipeObject:
+                    return ToDisplayableRecipe(recipeData, itemRecipeObject);
+                case TransmutableRecipeObject transmutableRecipeObject:
+                    if (itemSlot.itemObject is not TransmutableItemObject transmutableItemObject)
+                    {
+                        Debug.LogWarning("Tried to get transmutable item displayable recipe for non transmutable item");
+                        return null;
+                    }
+                    return ToDisplayableRecipe(recipeData, transmutableRecipeObject,transmutableItemObject);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(recipeData.Recipe), recipeData.Recipe, null);
+            }
+        }
+
+        private static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, ItemRecipeObject itemRecipeObject)
+        {
+            var inputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Inputs);
+            var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
+            ItemSlotUtils.sortInventoryByState(inputs,out var solidInputs, out var fluidInputs);
+            ItemSlotUtils.sortInventoryByState(outputs,out var solidOutputs, out var fluidOutputs);
+            return new ItemDisplayableRecipe(recipeData, solidInputs, solidOutputs, fluidInputs, fluidOutputs);
+        }
+
+        private static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, TransmutableRecipeObject transmutableRecipeObject, TransmutableItemObject inputItem)
+        {
+            var inputMatterState = transmutableRecipeObject.InputState.getMatterState();
+            var outputMatterState = transmutableRecipeObject.OutputState.getMatterState();
+            List<ItemSlot> solidInput = null;
+            List<ItemSlot> solidOutput = null;
+            List<ItemSlot> fluidInput = null;
+            List<ItemSlot> fluidOutput = null;
+            ItemSlot input = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.OutputState, transmutableRecipeObject.InputState);
+            ItemSlot output = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            switch (inputMatterState)
+            {
+                case ItemState.Solid:
+                    solidInput = new List<ItemSlot> { input };
+                    break;
+                case ItemState.Fluid:
+                    fluidInput = new List<ItemSlot> { input };
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            switch (outputMatterState)
+            {
+                case ItemState.Solid:
+                    solidOutput = new List<ItemSlot> { output };
+                    break;
+                case ItemState.Fluid:
+                    fluidOutput = new List<ItemSlot> { output };
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return new ItemDisplayableRecipe(recipeData, solidInput, solidOutput, fluidInput, fluidOutput);
         }
     }
 }

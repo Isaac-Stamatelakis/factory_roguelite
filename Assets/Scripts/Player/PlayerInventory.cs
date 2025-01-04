@@ -40,6 +40,11 @@ namespace PlayerModule {
         public void Initalize() {
             GetComponent<PlayerIO>().initRead();
             inventory = ItemSlotFactory.Deserialize(GetComponent<PlayerIO>().getPlayerInventoryData());
+            if (inventory == null)
+            {
+                Debug.LogError("Error deserializing player inventory");
+                inventory = ItemSlotFactory.createEmptyInventory(40);
+            }
             playerInventoryGrid.DisplayInventory(inventory,10);
         }
         

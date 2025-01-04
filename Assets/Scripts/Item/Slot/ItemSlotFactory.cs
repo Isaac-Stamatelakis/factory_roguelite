@@ -187,7 +187,7 @@ public static class ItemSlotFactory
         }
     }
 
-    public static List<ItemSlot> FromEditorObjects(List<EditorItemSlot> itemSlotObjects)
+    public static List<ItemSlot> FromEditorObjects<T>(List<T> itemSlotObjects) where T : EditorItemSlot
     {
         List<ItemSlot> itemSlots = new List<ItemSlot>();
         foreach (var itemSlotObject in itemSlotObjects)

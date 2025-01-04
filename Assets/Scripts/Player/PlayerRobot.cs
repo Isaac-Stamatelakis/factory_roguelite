@@ -136,8 +136,8 @@ namespace PlayerModule {
                 rb = GetComponent<Rigidbody2D>();
             }
             if (robotItemSlot == null || robotItemSlot.itemObject == null || robotItemSlot.itemObject is not RobotItem robotItem) {
-                Debug.LogError("Tried to set invalid robot");
-                return;
+                Debug.LogWarning("Tried to set invalid robot");
+                robotItem = ItemRegistry.GetInstance().GetRobotItem("happy_mk1");
             }
             this.currentRobot = robotItem.robot;
             this.robotItemSlot = robotItemSlot;

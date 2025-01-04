@@ -4,7 +4,6 @@ using Items.Inventory;
 using LibNoise.Operator;
 using Recipe.Data;
 using Recipe.Processor;
-using RecipeModule.Viewer;
 using TileEntity;
 using TileEntity.Instances.Machine.UI;
 using UI;

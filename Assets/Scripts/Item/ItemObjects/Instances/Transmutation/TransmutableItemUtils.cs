@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
+using Recipe.Objects;
+using Recipe.Viewer;
 using TileEntity;
 using UnityEngine;
 
@@ -48,9 +50,9 @@ namespace Items.Transmutable
 
         public static ItemSlot Transmute(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState)
         {
-            TransmutableItemObject transmutableItemObject = TransmutableItemUtils.GetMaterialItem(material, outputState);
+            TransmutableItemObject transmutableItemObject = GetMaterialItem(material, outputState);
             return new ItemSlot(transmutableItemObject, 
-                TransmutableItemUtils.GetTransmutationRatio(inputState,outputState), 
+                GetTransmutationRatio(inputState,outputState), 
                 null
             );
         }

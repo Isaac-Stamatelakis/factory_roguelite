@@ -1,6 +1,13 @@
 using System.Collections.Generic;
 using Item.Slot;
+using Items;
 using Items.Inventory;
+using JetBrains.Annotations;
+using Recipe.Data;
+using Recipe.Objects;
+using Recipe.Processor;
+using Recipe.Viewer;
+using RecipeModule;
 using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
@@ -30,6 +37,23 @@ namespace TileEntity.Instances.Machine.UI
             InitializeInventoryUI(fluidOutputUI, machineItemInventory.fluidOutputs,layoutObject.FluidOutputs);
             
         }
+
+        public void DisplayRecipe(DisplayableRecipe recipe)
+        {
+            if (recipe.RecipeData.ProcessorInstance.RecipeProcessorObject is not MachineRecipeProcessor machineRecipeProcessor)
+            {
+                Debug.LogWarning("Displaying machine inventory ui with non machine recipe processor");
+                return;
+            }
+            MachineLayoutObject layoutObject = machineRecipeProcessor.MachineLayout;
+            if (recipe is ItemDisplayableRecipe itemDisplayableRecipe)
+            {
+                InitializeInventoryUIRecipe(solidInputUI, itemDisplayableRecipe.SolidInputs, layoutObject.SolidInputs);
+                InitializeInventoryUIRecipe(solidOutputUI, itemDisplayableRecipe.SolidOutputs, layoutObject.SolidOutputs);
+                InitializeInventoryUIRecipe(fluidInputUI, itemDisplayableRecipe.FluidInputs, layoutObject.FluidInputs);
+                InitializeInventoryUIRecipe(fluidOutputUI, itemDisplayableRecipe.FluidOutputs, layoutObject.FluidOutputs);
+            }
+        }
         public void FixedUpdate()
         {
             solidInputUI.RefreshSlots();
@@ -58,6 +82,18 @@ namespace TileEntity.Instances.Machine.UI
             }
             inventoryUI.DisplayInventory(inventory);
             inventoryUI.AddListener(displayedInventory.Parent);
+        }
+
+        private void InitializeInventoryUIRecipe(InventoryUI inventoryUI, List<ItemSlot> items, MachineInventoryOptions inventoryOptions)
+        {
+            int size = inventoryOptions.GetIntSize();
+            if (size == 0)
+            {
+                inventoryUI.gameObject.SetActive(false);
+                return;
+            }
+            inventoryUI.DisplayInventory(items,size);
+            inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
     }
 }

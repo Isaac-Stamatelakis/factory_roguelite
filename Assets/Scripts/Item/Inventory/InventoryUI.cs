@@ -9,6 +9,12 @@ using TMPro;
 using Items;
 
 namespace Items.Inventory {
+    public enum InventoryInteractMode
+    {
+        Standard,
+        Recipe,
+        UnInteractable
+    }
     public interface IInventoryListener
     {
         public void InventoryUpdate(int n);
@@ -21,6 +27,7 @@ namespace Items.Inventory {
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
         private int highlightedSlot = -1;
         private bool refresh;
+        public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
         
         public void Awake()
         {
@@ -50,6 +57,11 @@ namespace Items.Inventory {
             DisplayInventory(displayInventory, displayAmount, clear:clear);
         }
 
+        public void SetInteractMode(InventoryInteractMode mode)
+        {
+            InventoryInteractMode = mode;
+        }
+
         public void DisplayInventory(List<ItemSlot> displayInventory, int displayAmount, bool clear = true)
         {
             if (clear)
@@ -73,7 +85,43 @@ namespace Items.Inventory {
 
             for (int i = 0; i < displayAmount; i++)
             {
-                slots[i].Display(displayInventory[i]);
+                slots[i].Display(itemSlot: i < displayInventory.Count ? displayInventory[i] : null);
+            }
+        }
+        
+        public void DisplayImages(List<ItemDisplayList> itemDisplayLists, List<string> strings, bool clear = true)
+        {
+            int displayAmount = itemDisplayLists?.Count ?? 0;
+            DisplayImages(itemDisplayLists, strings, displayAmount, clear:clear);
+        }
+
+        public void DisplayImages(List<ItemDisplayList> itemDisplayLists, List<string> strings, int displayAmount, bool clear = true)
+        {
+            InventoryInteractMode = InventoryInteractMode.Recipe;
+            if (clear)
+            {
+                slots.Clear();
+                GlobalHelper.deleteAllChildren(transform);
+            }
+            while (slots.Count < displayAmount)
+            {
+                AddSlot();
+            }
+            while (slots.Count > displayAmount)
+            {
+                PopSlot();
+            }
+            
+            for (int i = 0; i < displayAmount; i++)
+            {
+                if (i < itemDisplayLists.Count)
+                {
+                    slots[i].DisplayFormattedList(itemDisplayLists[i],strings[i]);
+                }
+                else
+                {
+                    slots[i].DisplayFormattedList(null,null);
+                }
             }
         }
         

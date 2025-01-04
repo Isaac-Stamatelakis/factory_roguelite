@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Machine.UI
         public void ResetRecipe();
     }
     
-    public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener
+    public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener, IRecipeProcessorUI
     {
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         [SerializeField] private TextMeshProUGUI titleText;
@@ -70,11 +70,6 @@ namespace TileEntity.Instances.Machine.UI
         
         
 
-        public void DisplayProcessor(DisplayableRecipe displayableRecipe)
-        {
-            
-        }
-
         public void Update()
         {
             if (machineEnergyInventory != null)
@@ -93,6 +88,13 @@ namespace TileEntity.Instances.Machine.UI
         public void iterate(int amount)
         {
             displayedInstance.IterateMode(amount);
+        }
+
+        public void DisplayRecipe(DisplayableRecipe recipe)
+        {
+            titleText.gameObject.SetActive(false);
+            energyScrollbar.gameObject.SetActive(false);
+            machineInventoryUI.DisplayRecipe(recipe);
         }
     }
 }

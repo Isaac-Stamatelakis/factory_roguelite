@@ -70,23 +70,18 @@ namespace PlayerModule.KeyPress {
         }
 
         private void inventoryKeyPresses() {
+            GameObject current = EventSystem.current.currentSelectedGameObject;
+            if (ReferenceEquals(current, null)) return;
+            
             if (Input.GetKey(KeyCode.R)) {
-                GameObject current = EventSystem.current.currentSelectedGameObject;
-                if (current != null) {
-                    ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
-                    if (clickHandler != null) {
-                        clickHandler.ShowRecipes();
-                    } 
-                }
+                ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+                clickHandler?.ShowRecipes();
             }
-            if (Input.GetKey(KeyCode.U)) {
-                GameObject current = EventSystem.current.currentSelectedGameObject;
-                if (current != null) {
-                    ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
-                    if (clickHandler != null) {
-                        clickHandler.ShowUses();
-                    } 
-                }
+
+            if (Input.GetKey(KeyCode.U))
+            {
+                ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+                clickHandler?.ShowUses();
             }
         }
 

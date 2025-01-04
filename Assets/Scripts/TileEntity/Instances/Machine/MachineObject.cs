@@ -1,5 +1,6 @@
 using Conduits.Ports;
 using Recipe.Processor;
+using TileEntity.Instances.WorkBenchs;
 
 namespace TileEntity.Instances.Machine
 {
@@ -10,9 +11,13 @@ namespace TileEntity.Instances.Machine
         Generator,
         Processor,
     }
-    public abstract class MachineObject : TileEntityObject
+    public abstract class MachineObject : TileEntityObject, IProcessorTileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
         public MachineRecipeProcessor RecipeProcessor;
+        public RecipeProcessor GetRecipeProcessor()
+        {
+            return RecipeProcessor;
+        }
     }
 }
