@@ -50,7 +50,7 @@ namespace TMPro.Examples
                     m_textMeshPro.font = TMProFont;
 
                 //m_textMeshPro.font = Resources.Load("Fonts & Materials/Anton SDF", typeof(TextMeshProFont)) as TextMeshProFont; // Make sure the Anton SDF exists before calling this...           
-                //m_textMeshPro.fontSharedMaterial = Resources.Load("Fonts & Materials/Anton SDF", typeof(Material)) as Material; // Same as above make sure this material exists.
+                //m_textMeshPro.fontSharedMaterial = Resources.Load("Fonts & Materials/Anton SDF", typeof(Material)) as Material; // Same as above make sure this Material exists.
 
                 m_textMeshPro.fontSize = 48;
                 m_textMeshPro.alignment = TextAlignmentOptions.Center;
@@ -77,12 +77,12 @@ namespace TMPro.Examples
                 if (TextMeshFont != null)
                 {
                     m_textMesh.font = TextMeshFont;
-                    //m_textMesh.renderer.sharedMaterial = m_textMesh.font.material;
+                    //m_textMesh.renderer.sharedMaterial = m_textMesh.font.Material;
                 }
                 else
                 {
                     //m_textMesh.font = Resources.Load("Fonts/ARIAL", typeof(Font)) as Font;
-                    //m_textMesh.renderer.sharedMaterial = m_textMesh.font.material;
+                    //m_textMesh.renderer.sharedMaterial = m_textMesh.font.Material;
                 }
 
                 m_textMesh.fontSize = 48;

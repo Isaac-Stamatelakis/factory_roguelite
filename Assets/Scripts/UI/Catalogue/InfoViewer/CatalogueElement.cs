@@ -11,6 +11,11 @@ namespace UI.Catalogue.InfoViewer
         public int GetPageCount();
     }
 
+    public interface IColorableCatalogueElement
+    {
+        public Color GetColor();
+    }
+
     public interface ICatalogueElementPage
     {
         

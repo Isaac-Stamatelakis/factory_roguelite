@@ -7,6 +7,7 @@ namespace Items.Transmutable
     [CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item/Instances/Transmutable/Options")]
     public class TransmutableMaterialOptions : ScriptableObject
     {
+        public TransmutableItemState BaseState = TransmutableItemState.Ingot;
         public List<TransmutableStateOptions> States;
     }
     

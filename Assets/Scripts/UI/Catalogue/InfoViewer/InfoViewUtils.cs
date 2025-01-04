@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Item.Slot;
+using Item.Transmutation.Info;
 using Items.Transmutable;
 using Recipe.Viewer;
 using UnityEngine;
@@ -17,7 +18,8 @@ namespace UI.Catalogue.InfoViewer
 
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
-                // TODO material info if transmutation
+                TransmutationMaterialInfo materialInfo = new TransmutationMaterialInfo(transmutableItemObject.getMaterial());
+                elements.Add(new CatalogueElementData(materialInfo,CatalogueInfoDisplayType.TransmutableMaterial));
             }
             DisplayCatalogue(elements);
 

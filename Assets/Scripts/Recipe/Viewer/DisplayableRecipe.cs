@@ -7,12 +7,6 @@ using Recipe.Processor;
 
 namespace Recipe.Viewer
 {
-    public enum DisplayableRecipeType
-    {
-        Standard,
-        Transmutations
-    }
-
     public class RecipeData
     {
         public int Mode;

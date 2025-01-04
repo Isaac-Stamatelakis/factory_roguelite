@@ -101,7 +101,7 @@ namespace Recipe.Viewer {
                     if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
                     {
                         ulong usage = 32;
-                        //ulong usage = material.tier.GetMaxEnergyUsage();
+                        //ulong usage = Material.tier.GetMaxEnergyUsage();
                         ulong cost = 32 * usage; // TODO change this
                         return new List<string>
                         {

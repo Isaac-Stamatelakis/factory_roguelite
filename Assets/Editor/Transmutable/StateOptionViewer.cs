@@ -20,11 +20,11 @@ public class StateOptionViewer : Editor
         /*
         if (!enableDetailedView) {
             EditorGUILayout.PrefixLabel("States", EditorStyles.boldLabel);
-            for (int i = 0; i < material.states.Count; i++) {
-                material.states[i].state = (TransmutableItemState)EditorGUILayout.EnumPopup($"State {i+1}", material.states[i].state);
+            for (int i = 0; i < Material.states.Count; i++) {
+                Material.states[i].state = (TransmutableItemState)EditorGUILayout.EnumPopup($"State {i+1}", Material.states[i].state);
             }
         } else {
-            for (int i = 0; i < material.states.Count; i++) {
+            for (int i = 0; i < Material.states.Count; i++) {
                 SerializedProperty myElement = statesProp.GetArrayElementAtIndex(i);
                 EditorGUILayout.PropertyField(myElement,includeChildren:true);
             }

@@ -19,6 +19,7 @@ namespace Item.Display.ClickHandlers
         }
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (ReferenceEquals(inventoryUI, null)) return;
             switch (inventoryUI.InventoryInteractMode)
             {
                 case InventoryInteractMode.Standard:
@@ -83,6 +84,7 @@ namespace Item.Display.ClickHandlers
     
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (ReferenceEquals(inventoryUI, null)) return;
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
             if (!EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             ToolTipController.Instance.ShowToolTip(transform.position,itemSlot.itemObject);

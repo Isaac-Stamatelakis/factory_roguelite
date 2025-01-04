@@ -14,6 +14,14 @@ namespace UI.Catalogue.InfoViewer.Indicator
         public void Display(ICatalogueElement catalogueElement, int elementIndex, Action<int> parentCallback)
         {
             image.sprite = catalogueElement.GetSprite();
+            if (catalogueElement is IColorableCatalogueElement colorableCatalogueElement)
+            {
+                image.color = colorableCatalogueElement.GetColor();
+            }
+            else
+            {
+                image.color = Color.white;
+            }
             index = elementIndex;
             callback = parentCallback;
         }

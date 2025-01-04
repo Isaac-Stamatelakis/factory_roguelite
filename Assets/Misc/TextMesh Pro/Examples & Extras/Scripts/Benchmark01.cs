@@ -44,7 +44,7 @@ namespace TMPro.Examples
                     m_textMeshPro.font = TMProFont;
 
                 //m_textMeshPro.font = Resources.Load("Fonts & Materials/Anton SDF", typeof(TextMeshProFont)) as TextMeshProFont; // Make sure the Anton SDF exists before calling this...
-                //m_textMeshPro.fontSharedMaterial = Resources.Load("Fonts & Materials/Anton SDF", typeof(Material)) as Material; // Same as above make sure this material exists.
+                //m_textMeshPro.fontSharedMaterial = Resources.Load("Fonts & Materials/Anton SDF", typeof(Material)) as Material; // Same as above make sure this Material exists.
 
                 m_textMeshPro.fontSize = 48;
                 m_textMeshPro.alignment = TextAlignmentOptions.Center;
