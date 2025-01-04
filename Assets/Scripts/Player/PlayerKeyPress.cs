@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
 using UI.ToolTip;
+using Unity.VisualScripting;
 
 
 namespace PlayerModule.KeyPress {
@@ -70,20 +71,38 @@ namespace PlayerModule.KeyPress {
             }
         }
 
-        private void inventoryKeyPresses() {
-            GameObject current = EventSystem.current.currentSelectedGameObject;
-            if (ReferenceEquals(current, null)) return;
+        private void inventoryKeyPresses()
+        {
+            if (!EventSystem.current.IsPointerOverGameObject()) return;
             
-            if (Input.GetKey(KeyCode.R)) {
-                ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+            if (Input.GetKeyDown(KeyCode.R)) {
+                ItemSlotUIClickHandler clickHandler = GetPointerOverComponent<ItemSlotUIClickHandler>();
                 clickHandler?.ShowRecipes();
             }
 
-            if (Input.GetKey(KeyCode.U))
+            if (Input.GetKeyDown(KeyCode.U))
             {
-                ItemSlotUIClickHandler clickHandler = current.GetComponent<ItemSlotUIClickHandler>();
+                ItemSlotUIClickHandler clickHandler = GetPointerOverComponent<ItemSlotUIClickHandler>();
                 clickHandler?.ShowUses();
             }
+        }
+
+        private T GetPointerOverComponent<T>() where T : Component
+        {
+            PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, results);
+            if (results.Count <= 0) return null;
+            
+            GameObject hoveredElement = results[0].gameObject;
+            T component = hoveredElement.GetComponent<T>();
+            if (!ReferenceEquals(component, null)) return component;
+            component = hoveredElement.GetComponentInParent<T>();
+            return component;
+
         }
 
         private void controls() {
