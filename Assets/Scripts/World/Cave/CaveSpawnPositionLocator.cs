@@ -31,6 +31,7 @@ namespace WorldModule.Caves {
                 Vector2Int.right
             };
             shuffle<Vector2Int>(directions, new System.Random());
+            directions.RemoveAt(0);
             
         }
 

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Item.Inventory;
 using Item.Slot;
 using Items;
 using Items.Inventory;
@@ -8,6 +10,7 @@ using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
 using RecipeModule;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
@@ -53,6 +56,41 @@ namespace TileEntity.Instances.Machine.UI
                 InitializeInventoryUIRecipe(fluidInputUI, itemDisplayableRecipe.FluidInputs, layoutObject.FluidInputs);
                 InitializeInventoryUIRecipe(fluidOutputUI, itemDisplayableRecipe.FluidOutputs, layoutObject.FluidOutputs);
             }
+
+            if (recipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
+            {
+                var inputs = new List<List<ItemSlot>>();
+                foreach (ItemSlot inputSlot in transmutationDisplayableRecipe.Inputs)
+                {
+                    inputs.Add(new List<ItemSlot>{ inputSlot});
+                }
+                var outputs = new List<List<ItemSlot>>();
+                foreach (ItemSlot outputSlot in transmutationDisplayableRecipe.Outputs)
+                {
+                    outputs.Add(new List<ItemSlot>{outputSlot});
+                }
+                InitializeTransmutationSwitchUIRecipe(
+                    solidInputUI, 
+                    transmutationDisplayableRecipe.InputState == ItemState.Solid ? inputs : null, 
+                    layoutObject.SolidInputs
+                );
+                InitializeTransmutationSwitchUIRecipe(
+                    fluidInputUI, 
+                    transmutationDisplayableRecipe.InputState == ItemState.Fluid ? inputs : null, 
+                    layoutObject.FluidInputs
+                );
+                InitializeTransmutationSwitchUIRecipe(
+                    solidOutputUI, 
+                    transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
+                    layoutObject.SolidOutputs
+                );
+                InitializeTransmutationSwitchUIRecipe(
+                    fluidOutputUI, 
+                    transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
+                    layoutObject.FluidOutputs
+                );
+                
+            }
         }
         public void FixedUpdate()
         {
@@ -93,6 +131,23 @@ namespace TileEntity.Instances.Machine.UI
                 return;
             }
             inventoryUI.DisplayInventory(items,size);
+            inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+        }
+
+        private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
+        {
+            int size = inventoryOptions.GetIntSize();
+            if (size == 0)
+            {
+                inventoryUI.gameObject.SetActive(false);
+                return;
+            }
+            InventoryUIRotator rotator = inventoryUI.GetComponent<InventoryUIRotator>();
+            if (ReferenceEquals(rotator, null))
+            {
+                rotator = inventoryUI.AddComponent<InventoryUIRotator>();
+            }
+            rotator.Initialize(inventories,size,100);
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
     }

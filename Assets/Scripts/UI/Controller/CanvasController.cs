@@ -48,6 +48,14 @@ namespace UI
             }
         }
 
+        public void ClearStack()
+        {
+            while (uiObjectStack.Count > 0)
+            {
+                DisplayedUIInfo top = uiObjectStack.Pop();
+                Destroy(top.gameObject);
+            }
+        }
         public void PopStack()
         {
             if (uiObjectStack.Count == 0)
@@ -61,6 +69,12 @@ namespace UI
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
             }
+        }
+
+        public bool TopHasComponent<T>() where T : Component
+        {
+            if (uiObjectStack.Count == 0) return false;
+            return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
         public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true)

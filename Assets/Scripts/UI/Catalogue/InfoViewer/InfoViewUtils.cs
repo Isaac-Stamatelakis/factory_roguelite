@@ -12,7 +12,7 @@ namespace UI.Catalogue.InfoViewer
         public static void DisplayItemInformation(ItemSlot itemSlot)
         {
             var elements = new List<CatalogueElementData>();
-            var recipeToCreate = RecipeViewerHelper.GetRecipesOfItem(itemSlot);
+            var recipeToCreate = RecipeViewerHelper.GetRecipesForItem(itemSlot);
             elements.AddRange(recipeToCreate);
 
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
@@ -33,8 +33,12 @@ namespace UI.Catalogue.InfoViewer
         private static void DisplayCatalogue(List<CatalogueElementData> elements)
         {
             if (elements.Count == 0) return;
-            
-            CatalogueInfoViewer catalogueInfoViewer = MainCanvasController.TInstance.DisplayUIElement<CatalogueInfoViewer>(MainSceneUIElement.CatalogueInfo);
+            MainCanvasController mainCanvasController = MainCanvasController.TInstance;
+            if (mainCanvasController.TopHasComponent<CatalogueInfoViewer>())
+            {
+                mainCanvasController.PopStack();
+            }
+            CatalogueInfoViewer catalogueInfoViewer = mainCanvasController.DisplayUIElement<CatalogueInfoViewer>(MainSceneUIElement.CatalogueInfo);
             catalogueInfoViewer.Initialize(elements);
         }
     }

@@ -1,14 +1,12 @@
 using System;
 using Item.Slot;
 using Items.Inventory;
-using Recipe.Viewer;
-using UI;
 using UI.Catalogue.InfoViewer;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Item.Inventory
+namespace Item.Display.ClickHandlers
 {
     public abstract class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {

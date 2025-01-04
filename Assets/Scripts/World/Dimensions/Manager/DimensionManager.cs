@@ -12,6 +12,7 @@ using Items;
 using RecipeModule;
 using PlayerModule;
 using Recipe;
+using UI;
 using UI.JEI;
 using UnityEngine.Rendering;
 
@@ -139,6 +140,7 @@ namespace Dimensions {
             playerPosition.x = tpPosition.x/2f;
             playerPosition.y = tpPosition.y/2f;
             player.transform.position = playerPosition;
+            CanvasController.Instance.ClearStack();
             newSystem.instantCacheChunksNearPlayer();
             newSystem.playerPartitionUpdate();
         }

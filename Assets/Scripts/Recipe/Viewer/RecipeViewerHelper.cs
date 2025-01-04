@@ -24,7 +24,7 @@ namespace Recipe.Viewer {
             return elements;
         }
         
-        public static List<CatalogueElementData> GetRecipesOfItem(ItemSlot itemSlot) {
+        public static List<CatalogueElementData> GetRecipesForItem(ItemSlot itemSlot) {
             RecipeRegistry recipeRegistry = RecipeRegistry.GetInstance();
             var recipesWithOutput = recipeRegistry.GetRecipesWithItemInOutput(itemSlot);
             List<CatalogueElementData> elements = FormatProcessorInfo(recipesWithOutput);

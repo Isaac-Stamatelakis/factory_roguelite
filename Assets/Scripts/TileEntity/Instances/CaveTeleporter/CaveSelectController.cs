@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -10,6 +11,7 @@ using WorldModule;
 using System.IO;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Debug = UnityEngine.Debug;
 
 namespace TileEntity.Instances {
     public class CaveSelectController : MonoBehaviour
@@ -119,15 +121,19 @@ namespace TileEntity.Instances {
             }
             WorldLoadUtils.createDimFolder(-1);
             SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(-2147483648,2147483647));
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             WorldGenerationFactory.SaveToJson(
                 worldTileData,
                 caveInstance.getChunkCaveSize(),
                 -1,
                 WorldLoadUtils.getDimPath(-1)
             );
+            Debug.Log($"Serialized cave data in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
+            stopwatch.Stop();
             IntervalVector coveredArea = caveInstance.getChunkCoveredArea();
             Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
-            CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,10000);
+            CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             Debug.Log("Teleporting to " + currentCave.name);
             Transform playerTransform = PlayerContainer.getInstance().getTransform();
