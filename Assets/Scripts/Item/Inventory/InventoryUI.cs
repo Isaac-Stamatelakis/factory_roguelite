@@ -198,9 +198,8 @@ namespace Items.Inventory {
         
         protected void InitClickHandler(Transform slot, int n) {
             ItemSlotUIClickHandler clickHandler = slot.GetComponent<ItemSlotUIClickHandler>();
-            if (clickHandler != null) {
-                clickHandler.Initialize(this,n);
-            }
+            clickHandler?.Initialize(this,n);
+            
         }
         
         public virtual void SetItem(int n, ItemSlot data) {

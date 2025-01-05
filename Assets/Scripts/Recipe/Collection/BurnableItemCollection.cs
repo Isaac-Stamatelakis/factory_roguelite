@@ -76,20 +76,22 @@ namespace Recipe.Collection
             return displayList;
         }
 
-        public List<BurnableMaterialDisplay> GetAllMaterialsToDisplay()
+        public List<BurnableItemDisplay> GetAllMaterialsToDisplay()
         {
-            List<BurnableMaterialDisplay> displayList = new List<BurnableMaterialDisplay>();
+            List<BurnableItemDisplay> displayList = new List<BurnableItemDisplay>();
             foreach (var material in materialBurnDurations.Keys)
             {
-                displayList.Add(new BurnableMaterialDisplay(material));
+                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                displayList.Add(new BurnableItemDisplay(defaultItemSlot));
             }
 
             return displayList;
         }
 
-        public List<BurnableDisplay> GetRandomDisplay()
+        public List<ItemSlot> GetRandomBurnableItems()
         {
-            List<BurnableDisplay> displayList = new List<BurnableDisplay>();
+            List<ItemSlot> displayList = new List<ItemSlot>();
             int itemAmount = Random.Range(0, RANDOM_SAMPLE_AMOUNT+1);
             int materialAmount = RANDOM_SAMPLE_AMOUNT - itemAmount;
             
@@ -102,14 +104,16 @@ namespace Recipe.Collection
             {
                 var item = itemRegistry.GetItemObject(id);
                 if (ReferenceEquals(item, null)) continue;
-                displayList.Add(new BurnableItemDisplay(new ItemSlot(item, 1, null)));
+                displayList.Add(new ItemSlot(item, 1, null));
             }
             
             var materials = materialBurnDurations.Keys.ToList();
             var shuffledMaterials = materials.OrderBy(_ => random.Next()).Take(materialAmount);
             foreach (var material in shuffledMaterials)
             {
-                displayList.Add(new BurnableMaterialDisplay(material));
+                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                displayList.Add(defaultItemSlot);
             }
             
             return displayList;

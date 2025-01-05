@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Item.Burnables;
+using Item.Inventory;
 using Item.Inventory.ClickHandlers.Instances;
+using Item.Slot;
 using Items;
 using Items.Inventory;
+using Recipe;
 using Recipe.Viewer;
 using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machines;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
@@ -28,9 +33,24 @@ namespace TileEntity.Instances.Machine.UI
             burnerInventoryUI.AddListener(tileEntityInstance);
         }
 
-        public void DisplayRecipe(DisplayableRecipe recipes)
+        public void DisplayRecipe(DisplayableRecipe recipe)
         {
-            throw new System.NotImplementedException();
+            title.gameObject.SetActive(false);
+            tileEntityInventoryUI.DisplayRecipe(recipe);
+            InventoryUIRotator burnerRotator = burnerInventoryUI.GetComponent<InventoryUIRotator>();
+            if (ReferenceEquals(burnerRotator, null))
+            {
+                burnerRotator = burnerInventoryUI.AddComponent<InventoryUIRotator>();
+            }
+
+            List<ItemSlot> randomBurnables = RecipeRegistry.BurnableItemRegistry.GetRandomBurnableItems(); 
+            List<List<ItemSlot>> burnableInventories = new List<List<ItemSlot>>();
+            foreach (ItemSlot itemSlot in randomBurnables)
+            {
+                burnableInventories.Add(new List<ItemSlot> { itemSlot });
+            }
+            burnerRotator.Initialize(burnableInventories,1,100);
+            burnerInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
 
         public void FixedUpdate()

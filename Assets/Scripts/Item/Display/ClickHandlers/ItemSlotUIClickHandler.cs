@@ -17,6 +17,7 @@ namespace Item.Display.ClickHandlers
             this.inventoryUI = parent;
             this.index = index;
         }
+        
         public void OnPointerClick(PointerEventData eventData)
         {
             if (ReferenceEquals(inventoryUI, null)) return;
