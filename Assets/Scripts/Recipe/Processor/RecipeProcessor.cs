@@ -11,6 +11,7 @@ namespace Recipe.Processor {
         public RecipeType RecipeType;
         public List<RecipeModeCollection> RecipeCollections;
         public Sprite Sprite;
+        public TileEntityLayoutObject LayoutObject;
     }
 
     

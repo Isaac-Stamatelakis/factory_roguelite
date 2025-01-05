@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Machines
         {
             SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
                 Mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                TileEntityInventoryFactory.Serialize(Inventory.Content),
                 MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Generator)
             );
@@ -69,8 +69,8 @@ namespace TileEntity.Instances.Machines
             }
             currentRecipe = RecipeRegistry.GetProcessorInstance(TileEntityObject.RecipeProcessor).GetRecipe<GeneratorItemRecipe>(
                 Mode, 
-            Inventory.itemInputs,
-            Inventory.fluidInputs
+            Inventory.Content.itemInputs,
+            Inventory.Content.fluidInputs
             );
         }
 
@@ -89,7 +89,10 @@ namespace TileEntity.Instances.Machines
         public override void unserialize(string data)
         {
             SerializedGeneratorData serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedGeneratorData>(data);
-            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            Inventory = new MachineItemInventory(
+                this,
+                TileEntityInventoryFactory.Deserialize(serializedProcessingMachine.SerializedMachineInventory, GetMachineLayout())
+            );
             EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             currentRecipe = RecipeSerializationFactory.Deserialize<GeneratorItemRecipe>(
                 serializedProcessingMachine.SerializedGeneratorRecipe, 

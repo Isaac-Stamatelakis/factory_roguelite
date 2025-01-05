@@ -32,8 +32,8 @@ namespace Recipe.Viewer
 
         private void DisplayRecipeCost(DisplayableRecipe displayableRecipe)
         {
-            var costString = RecipeViewerHelper.GetCostStrings(
-                displayableRecipe.RecipeData.Recipe,
+            var costString = RecipeViewerHelper.GetRecipeCostStrings(
+                displayableRecipe,
                 recipeProcessorDisplayInfo.RecipeProcessorInstance.RecipeProcessorObject.RecipeType
             );
             bool costUICreated = !ReferenceEquals(recipeCostUI, null);

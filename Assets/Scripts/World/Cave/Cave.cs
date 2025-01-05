@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using Misc.Audio;
 using UnityEngine.AddressableAssets;
+using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
     public interface IGeneratedArea {
@@ -34,19 +36,38 @@ namespace WorldModule.Caves {
         }
 
         public SeralizedWorldData generate(int seed) {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            double total = 0;
             UnityEngine.Random.InitState(seed);
             SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed);
+            
+            double modelTime = stopwatch.Elapsed.TotalSeconds;
+            
+            total += modelTime;
+            
             Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
             IntervalVector coveredArea = getChunkCoveredArea();
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.ChunkSize;
+            stopwatch.Restart();
             foreach (CaveTileGenerator generator in caveElements.TileGenerators) {
                 generator.distribute(worldTileData,size.x,size.y,bottomLeft);
             }
-            if (caveElements.EntityDistributor != null) {
+            double tileDistributionTime = stopwatch.Elapsed.TotalSeconds;
+            total += tileDistributionTime;
+            double entityDistributionTime = 0;
+            if (!ReferenceEquals(caveElements.EntityDistributor,null)) {
+                stopwatch.Restart();
                 caveElements.EntityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+                entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
+                total += entityDistributionTime;
             }
+            
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
             MusicTrackController.Instance.setSong(caveElements.Songs);
+            stopwatch.Stop();
+            Debug.Log($"Cave generated completed in {total:F2} seconds. Model Generation of {caveElements.GenerationModel.GetType().Name} Time: {modelTime:F2} seconds." +
+                      $"Tile Distribution Time: {tileDistributionTime:F2} seconds. Entity Distribution Time: {entityDistributionTime:F2} seconds.");
             return worldTileData;
         }
         public UnityEngine.Vector2Int getChunkCaveSize() {

@@ -17,7 +17,12 @@ namespace WorldModule.Caves {
         }
         public static void smoothNatureTiles(SeralizedWorldData worldTileData, int width, int height) {
 
-            BlockState?[,] states = new BlockState?[width,height];
+            BlockState?[][] states = new BlockState?[width][];
+            for (int index = 0; index < width; index++)
+            {
+                states[index] = new BlockState?[height];
+            }
+
             SerializedBaseTileData serializedTileData = worldTileData.baseData;
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = 0; x < width; x++) {
@@ -27,25 +32,24 @@ namespace WorldModule.Caves {
                         continue;
                     }
                     TileItem tileItem = itemRegistry.GetTileItem(id);
-                    if (tileItem == null) {
+                    if (ReferenceEquals(tileItem,null)) {
                         continue;
                     }
                     if (tileItem.tile is not NatureTile natureTile) {
                         if (tileItem.tile is Tile tile) {
                             if (tile.colliderType == Tile.ColliderType.Sprite) {
-                                states[x,y] = BlockState.Other;
+                                states[x][y] = BlockState.Other;
                                 continue;
                             }
                         }
-                        states[x,y] = BlockState.Square;
+                        states[x][y] = BlockState.Square;
                         continue;
                     }
                     
                     if (y+1 >= height || y -1 < 0 || x + 1 >= width || x - 1 < 0) {
                         continue;
                     }
-                    TileItem itemCopy = GameObject.Instantiate(tileItem);
-                    TileOptionFactory.deserialize(serializedTileData.sTileOptions[x,y],itemCopy);
+                    SerializedTileOptions serializedTileOptions = TileOptionFactory.Deserialize(serializedTileData.sTileOptions[x,y],tileItem);
                     int state = 0;
                     int rotation = 0;
                     bool mirror = false;
@@ -64,113 +68,35 @@ namespace WorldModule.Caves {
                         if (upID == null && leftID == null) {
                             state = natureTile.getRandomSlantState();
                             rotation = 0;
-                            /*
-                            rotation = 0;
-                            */
                         }
                         else if (upID == null && rightID == null) {
                             state = natureTile.getRandomSlantState();
                             rotation = 3;
-                            /*
-                            mirror = true;
-                            */
                         }
                         else if (downID == null && rightID == null) {
                             state = natureTile.getRandomSlantState();
                             rotation = 2;
-                            /*
-                            rotation = 90;
-                            mirror = true;
-                            */
                         }
                         else if (downID == null && leftID == null) {
                             state = natureTile.getRandomSlantState();
                             rotation = 1;
-                            /*
-                            rotation = 180;
-                            mirror = true;
-                            */
                         }
                     }
                     if (nullCount == 3) {
                         serializedTileData.ids[x,y] = null;
                         continue;
                     }
-                    /*
-                    if (nullCount == 3) {
-                        if (upID != null) {
-                            state = natureTile.getRandomNatureSlabState();
-                            rotation = 180;
-                        }
-                        else if (downID != null) {
-                            state = natureTile.getRandomNatureSlabState();
-                            rotation = 0;
-                        }
-                        else if (leftID != null) {
-                            state = natureTile.getRandomNatureSlabState();
-                            rotation = 270;
-                        }
-                        else if (rightID != null) {
-                            state = natureTile.getRandomNatureSlabState();
-                            rotation = 90;
-                        }
-                    }
-                    */
-                    SerializedTileOptions sTileOptions = itemCopy.tileOptions.SerializedTileOptions;
-                    sTileOptions.state = state;
-                    sTileOptions.rotation = rotation;
-                    sTileOptions.mirror = mirror;
-                    itemCopy.tileOptions.SerializedTileOptions = sTileOptions;
-                    serializedTileData.sTileOptions[x,y] = TileOptionFactory.serialize(itemCopy.tileOptions); 
+                    serializedTileOptions.state = state;
+                    serializedTileOptions.rotation = rotation;
+                    serializedTileOptions.mirror = mirror;
+                    serializedTileData.sTileOptions[x,y] = TileOptionFactory.Serialize(serializedTileOptions); 
                     if (state > 0) {
-                        states[x,y] = BlockState.Slant;
+                        states[x][y] = BlockState.Slant;
                     } else {
-                        states[x,y] = BlockState.Square;
+                        states[x][y] = BlockState.Square;
                     }
                 }
             }
-            /*
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    BlockState? state = states[x,y];
-                    if (state == null) {
-                        continue;   
-                    }
-                    if (state == BlockState.Slant) {
-                        continue;
-                    }
-                    string id = serializedTileData.ids[x,y];
-                    if (id == null) {
-                        continue;
-                    }
-                    TileItem tileItem = itemRegistry.getTileItem(id);
-                    if (tileItem == null) {
-                        continue;
-                    }
-                    if (tileItem.tile is not NatureTile natureTile) {
-                        continue;
-                    }
-                    if (y+1 >= height || y -1 < 0 || x + 1 >= width || x - 1 < 0) {
-                        continue;
-                    }
-                    BlockState? up = states[x,y+1];
-                    BlockState? down = states[x,y-1];
-                    BlockState? left = states[x-1,y];
-                    BlockState? right = states[x+1,y];
-                    if (up == null && left != null && right != null && left != BlockState.Slant && right != BlockState.Slant) {
-                        TileItem copy = GameObject.Instantiate(tileItem);
-                        SerializedTileOptions sTileOptions = copy.tileOptions.SerializedTileOptions;
-                        sTileOptions.state = natureTile.getRandomNatureSlabState();
-                        sTileOptions.rotation = 0;
-                        sTileOptions.mirror = false;
-                        copy.tileOptions.SerializedTileOptions = sTileOptions;
-                        serializedTileData.sTileOptions[x,y] = TileOptionFactory.serialize(copy.tileOptions); 
-                        states[x,y] = BlockState.Slab;
-                    } 
-
-                }
-            }
-            */
         }
         
     }

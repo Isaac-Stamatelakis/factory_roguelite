@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Machine.UI
     public class BurnerUIBase : MonoBehaviour, ITileEntityUI<BurnerMachineInstance>, IRecipeProcessorUI
     {
         [SerializeField] private TextMeshProUGUI title;
-        [SerializeField] private MachineInventoryUI machineInventoryUI;
+        [SerializeField] private TileEntityInventoryUI tileEntityInventoryUI;
         [SerializeField] private InventoryUI burnerInventoryUI;
         [SerializeField] private ArrowProgressController burnerProgress;
         [SerializeField] private ArrowProgressController machineProgress;
@@ -23,7 +23,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             displayedInstance = tileEntityInstance;
             title.text = tileEntityInstance.getName();
-            machineInventoryUI.Display(tileEntityInstance.GetItemInventory());
+            tileEntityInventoryUI.Display(tileEntityInstance.GetItemInventory().Content,tileEntityInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(tileEntityInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddListener(tileEntityInstance);
         }

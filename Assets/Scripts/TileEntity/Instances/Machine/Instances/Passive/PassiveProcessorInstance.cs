@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Machines {
         {
             SerializedPassiveMachine serializedGeneratorData = new SerializedPassiveMachine(
                 Mode,
-                MachineInventoryFactory.SerializeItemMachineInventory(Inventory),
+                TileEntityInventoryFactory.Serialize(Inventory.Content),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Passive)
             );
             return JsonConvert.SerializeObject(serializedGeneratorData);
@@ -51,7 +51,8 @@ namespace TileEntity.Instances.Machines {
                 return;
             }
 
-            currentRecipe = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor).GetRecipe<PassiveItemRecipe>(Mode, Inventory.itemInputs, Inventory.fluidInputs);
+            currentRecipe = RecipeRegistry.GetProcessorInstance(tileEntityObject.RecipeProcessor).GetRecipe<PassiveItemRecipe>(
+                Mode, Inventory.Content.itemInputs, Inventory.Content.fluidInputs);
             
         }
 
@@ -72,7 +73,10 @@ namespace TileEntity.Instances.Machines {
         public override void unserialize(string data)
         {
             SerializedPassiveMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedPassiveMachine>(data);
-            Inventory = MachineInventoryFactory.DeserializeMachineInventory(serializedProcessingMachine.SerializedMachineInventory, this);
+            Inventory = new MachineItemInventory(
+                this, 
+                TileEntityInventoryFactory.Deserialize(serializedProcessingMachine.SerializedMachineInventory,GetMachineLayout())
+            );
             currentRecipe = RecipeSerializationFactory.Deserialize<PassiveItemRecipe>(
                 serializedProcessingMachine.SerializedRecipe, 
                 RecipeType.Passive

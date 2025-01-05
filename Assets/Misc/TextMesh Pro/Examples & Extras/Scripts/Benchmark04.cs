@@ -16,7 +16,7 @@ namespace TMPro.Examples
 
         private Transform m_Transform;
         //private TextMeshProFloatingText floatingText_Script;
-        //public Material material;
+        //public Material Material;
 
 
         void Start()
@@ -40,7 +40,7 @@ namespace TMPro.Examples
 
                     TextMeshPro textMeshPro = go.AddComponent<TextMeshPro>();
 
-                    //textMeshPro.fontSharedMaterial = material;
+                    //textMeshPro.fontSharedMaterial = Material;
                     //textMeshPro.font = Resources.Load("Fonts & Materials/LiberationSans SDF", typeof(TextMeshProFont)) as TextMeshProFont;
                     //textMeshPro.anchor = AnchorPositions.Left;
                     textMeshPro.rectTransform.pivot = new Vector2(0, 0.5f);
@@ -68,7 +68,7 @@ namespace TMPro.Examples
                                        
                     TextMesh textMesh = go.AddComponent<TextMesh>();
                     textMesh.font = Resources.Load("Fonts/ARIAL", typeof(Font)) as Font;
-                    textMesh.renderer.sharedMaterial = textMesh.font.material;
+                    textMesh.renderer.sharedMaterial = textMesh.font.Material;
                     textMesh.anchor = TextAnchor.MiddleLeft;
                     textMesh.fontSize = i * 10;
 

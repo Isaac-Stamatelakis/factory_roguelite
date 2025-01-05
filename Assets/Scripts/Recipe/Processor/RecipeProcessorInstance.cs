@@ -428,12 +428,12 @@ namespace Recipe.Processor
                                 outputMatch = true;
                             }
 
-                            if (inputMatch && outputMatch)
-                            {
-                                TransmutableItemObject inputItem = TransmutableItemUtils.GetMaterialItem(material, transRecipe.InputState);
-                                TransmutableItemObject outputItem = TransmutableItemUtils.GetMaterialItem(material, transRecipe.OutputState);
-                                break;
-                            }
+                            if (!inputMatch || !outputMatch) continue;
+                            ItemSlot input = TransmutableItemUtils.Transmute(material,transRecipe.OutputState,transRecipe.InputState);
+                            ItemSlot output = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState);
+                            inputs.Add(input);
+                            outputs.Add(output);
+                            break;
                         }
                     }
                     if (inputs.Count == 0 || outputs.Count == 0) continue;
@@ -517,7 +517,7 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
                 case RecipeType.Machine:
-                    ulong usage = TierUtils.GetMaxEnergyUsage(material.tier);
+                    ulong usage = material.tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO change this
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
                 default:

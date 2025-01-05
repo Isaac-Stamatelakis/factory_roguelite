@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Machine
     public abstract class MachineObject : TileEntityObject, IProcessorTileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
-        public MachineRecipeProcessor RecipeProcessor;
+        public RecipeProcessor RecipeProcessor;
         public RecipeProcessor GetRecipeProcessor()
         {
             return RecipeProcessor;
