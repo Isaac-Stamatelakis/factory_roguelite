@@ -9,6 +9,7 @@ namespace UI.Catalogue.InfoViewer
         public abstract Sprite GetSprite();
         public string GetPageIndicatorString(int pageIndex);
         public int GetPageCount();
+        public void DisplayAllElements();
     }
 
     public interface IColorableCatalogueElement

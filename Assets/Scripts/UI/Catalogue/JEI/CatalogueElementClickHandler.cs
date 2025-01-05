@@ -22,7 +22,7 @@ namespace UI.JEI {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 switch (catalogueController.Mode) {
                     case CatalogueMode.Recipe:
-                        InfoViewUtils.DisplayItemInformation(itemSlot);
+                        CatalogueInfoUtils.DisplayItemInformation(itemSlot);
                         break;
                     case CatalogueMode.Cheat:
                         ItemSlot copy = ItemSlotFactory.Splice(itemSlot,Global.MaxSize);
@@ -33,7 +33,7 @@ namespace UI.JEI {
             } else if (eventData.button == PointerEventData.InputButton.Right) {
                 switch (catalogueController.Mode) {
                     case CatalogueMode.Recipe:
-                        InfoViewUtils.DisplayItemUses(itemSlot);
+                        CatalogueInfoUtils.DisplayItemUses(itemSlot);
                         break;
                     case CatalogueMode.Cheat:
                         ItemSlot copy = ItemSlotFactory.Splice(itemSlot,1);

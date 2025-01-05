@@ -100,6 +100,17 @@ namespace Item.Burnables
             return BurnableItems.Count;
         }
 
+        public void DisplayAllElements()
+        {
+            BurnableItemRegistry burnableItemRegistry = RecipeRegistry.BurnableItemRegistry;
+            List<BurnableDisplay> toDisplay = new List<BurnableDisplay>();
+            toDisplay.AddRange(burnableItemRegistry.GetAllItemsToDisplay());
+            toDisplay.AddRange(burnableItemRegistry.GetAllMaterialsToDisplay());
+            BurnableInfo burnableInfo = new BurnableInfo(toDisplay);
+            CatalogueElementData catalogueElementData = new CatalogueElementData(burnableInfo, CatalogueInfoDisplayType.Burnable);
+            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData});
+        }
+
         public BurnableInfo(List<BurnableDisplay> burnableItems)
         {
             BurnableItems = burnableItems;

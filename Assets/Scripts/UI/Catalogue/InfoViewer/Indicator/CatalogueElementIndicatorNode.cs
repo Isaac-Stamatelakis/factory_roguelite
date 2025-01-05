@@ -10,9 +10,11 @@ namespace UI.Catalogue.InfoViewer.Indicator
         [SerializeField] Image image;
         private int index;
         private Action<int> callback;
+        private ICatalogueElement catalogueElement;
 
         public void Display(ICatalogueElement catalogueElement, int elementIndex, Action<int> parentCallback)
         {
+            this.catalogueElement = catalogueElement;
             image.sprite = catalogueElement.GetSprite();
             if (catalogueElement is IColorableCatalogueElement colorableCatalogueElement)
             {
@@ -28,7 +30,17 @@ namespace UI.Catalogue.InfoViewer.Indicator
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            callback.Invoke(index);
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    callback.Invoke(index);
+                    break;
+                case PointerEventData.InputButton.Right:
+                    catalogueElement.DisplayAllElements();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
