@@ -18,10 +18,16 @@ namespace TileEntity.Instances.Workbench.UI
             mCraftButton.gameObject.SetActive(false);
         }
 
-        public void DisplayForCraft(ItemDisplayableRecipe recipe)
+        public void DisplayForCraft(DisplayableRecipe recipe)
         {
             mTileEntityInventoryUI.DisplayRecipe(recipe);
-            mTitleText.text = recipe.SolidOutputs[0].itemObject.name;
+            mTitleText.text = recipe switch
+            {
+                ItemDisplayableRecipe itemDisplayableRecipe => itemDisplayableRecipe.SolidOutputs[0].itemObject.name,
+                TransmutationDisplayableRecipe transmutationDisplayableRecipe => transmutationDisplayableRecipe
+                    .RecipeData.Recipe.name,
+                _ => mTitleText.text
+            };
         }
 
         public void Initialize(WorkBenchUI workBenchUI)

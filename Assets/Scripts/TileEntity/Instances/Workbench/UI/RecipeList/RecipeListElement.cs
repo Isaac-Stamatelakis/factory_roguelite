@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using Item.Inventory;
 using Item.Slot;
 using Items;
+using Items.Inventory;
 using Recipe.Objects;
 using Recipe.Viewer;
 using TMPro;
@@ -12,22 +14,41 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
 {
     public class RecipeListElement : MonoBehaviour, IPointerClickHandler
     {
-        [SerializeField] private ItemSlotUI mItemSlotUI;
+        [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private TextMeshProUGUI mNameText;
         private RecipeLookUpList recipeLookUpListParent;
         private int mode;
         private int index;
         private RecipeListHeader header;
         public bool HeaderActive => header.ElementsVisible;
-
-        public void Display(ItemSlot output, RecipeObject recipeObject, RecipeLookUpList recipeLookUpList, RecipeListHeader header, int mode, int index)
+        
+        public void Display(List<ItemSlot> outputs, RecipeObject recipeObject, RecipeLookUpList recipeLookUpList, RecipeListHeader header, int mode, int index)
         {
             recipeLookUpListParent = recipeLookUpList;
             this.mode = mode;
             this.index = index;
-            mItemSlotUI.Display(output);
-            mNameText.text = output.itemObject.name;
             this.header = header;
+            
+            if (outputs.Count == 1)
+            {
+                mInventoryUI.DisplayInventory(new List<ItemSlot>{outputs[0]},false);
+                mNameText.text = outputs[0].itemObject.name;
+                return;
+            }
+            InventoryUIRotator rotator = mInventoryUI.GetComponent<InventoryUIRotator>();
+            if (ReferenceEquals(rotator, null))
+            {
+                rotator = mInventoryUI.gameObject.AddComponent<InventoryUIRotator>();
+            }
+
+            List<List<ItemSlot>> inventoriesList = new List<List<ItemSlot>>();
+            foreach (ItemSlot itemSlot in outputs)
+            {
+                inventoriesList.Add(new List<ItemSlot>{itemSlot});
+            }
+            rotator.Initialize(inventoriesList,1,100,false);
+            mNameText.text = recipeObject.name;
+            
         }
 
         public void SetColor(Color color)

@@ -38,11 +38,11 @@ public static class ItemSlotFactory
         return listCopy;
     }
     public static List<ItemSlot> Deserialize(string json) {
-        ItemRegistry itemRegister = ItemRegistry.GetInstance();
-        List<ItemSlot> itemSlots = new List<ItemSlot>();
         if (json == null) {
             return null;
         }
+        List<ItemSlot> itemSlots = new List<ItemSlot>();
+        
         List<SerializedItemSlot> serializedItems = JsonConvert.DeserializeObject<List<SerializedItemSlot>>(json);
         foreach (SerializedItemSlot serializedItemSlot in serializedItems) {
             itemSlots.Add(deseralizeItemSlot(serializedItemSlot));

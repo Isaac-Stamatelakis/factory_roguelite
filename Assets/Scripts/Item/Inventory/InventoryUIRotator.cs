@@ -14,7 +14,7 @@ namespace Item.Inventory
         private int updateTime;
         private List<List<ItemSlot>> inventories;
         private int displaySize;
-        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch)
+        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true)
         {
             this.inventories = inventories;
             this.displaySize = displaySize;
@@ -25,8 +25,7 @@ namespace Item.Inventory
                 Debug.LogError("InventoryUIRotator must be placed on an inventory ui");
                 return;
             }
-            
-            inventoryUI.DisplayInventory(inventories[0],displaySize);
+            inventoryUI.DisplayInventory(inventories[index],displaySize,clear);
         }
 
         public void FixedUpdate()
