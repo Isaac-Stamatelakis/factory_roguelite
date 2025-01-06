@@ -9,6 +9,8 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
     {
         [SerializeField] private TextMeshProUGUI mHeaderText;
         [SerializeField] private Button mToggleButton;
+        private bool elementsVisible = true;
+        public bool ElementsVisible => elementsVisible;
 
         public void Display(RecipeLookUpList recipeLookUpList, string headerName, int mode)
         {
@@ -22,6 +24,7 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
 
         private void ToggleButtonImage()
         {
+            elementsVisible = !elementsVisible;
             // Might have to change this later
             mToggleButton.transform.Rotate(0f, 0f, 180f);
         }

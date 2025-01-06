@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Item.Slot;
 using Items;
+using Recipe.Objects;
 using Recipe.Viewer;
 using TMPro;
 using UnityEngine;
@@ -15,36 +17,27 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
         private RecipeLookUpList recipeLookUpListParent;
         private int mode;
         private int index;
+        private RecipeListHeader header;
+        public bool HeaderActive => header.ElementsVisible;
 
-        public void Display(DisplayableRecipe displayableRecipe, RecipeLookUpList recipeLookUpList, int mode, int index)
+        public void Display(ItemSlot output, RecipeObject recipeObject, RecipeLookUpList recipeLookUpList, RecipeListHeader header, int mode, int index)
         {
             recipeLookUpListParent = recipeLookUpList;
-            if (displayableRecipe is not ItemDisplayableRecipe itemDisplayableRecipe)
-            {
-                Debug.LogError($"Recipe tried to display non item display recipe: {displayableRecipe.RecipeData.Recipe.name}");
-                return;
-            }
-
-            if (itemDisplayableRecipe.SolidOutputs.Count == 0)
-            {
-                Debug.LogError($"Recipe list tried to display empty  recipe: {displayableRecipe.RecipeData.Recipe.name}");
-                return;
-            }
-            
-            if (itemDisplayableRecipe.SolidOutputs.Count > 1)
-            {
-                Debug.LogWarning($"Recipe list recipe has more than one output: {displayableRecipe.RecipeData.Recipe.name}");
-            }
             this.mode = mode;
             this.index = index;
-            ItemSlot output = itemDisplayableRecipe.SolidOutputs[0];
             mItemSlotUI.Display(output);
             mNameText.text = output.itemObject.name;
+            this.header = header;
         }
 
         public void SetColor(Color color)
         {
             GetComponent<Image>().color = color;
+        }
+
+        public bool Filter(string text)
+        {
+            return mNameText.text.ToLower().Contains(text.ToLower());
         }
 
         public void OnPointerClick(PointerEventData eventData)
