@@ -131,7 +131,7 @@ namespace TileEntity.Instances.Machine.UI
         private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
         {
             if (ReferenceEquals(inventoryUI, null)) return;
-            int size = GetSize(inventoryOptions, inventories[0]);
+            int size = inventories == null || inventories.Count == 0 ? 0 : GetSize(inventoryOptions, inventories[0]);
             if (size == 0)
             {
                 inventoryUI.gameObject.SetActive(false);

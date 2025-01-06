@@ -21,12 +21,13 @@ namespace TileEntity.Instances.WorkBench {
         [SerializeField] private WorkbenchProcessorUI mWorkbenchProcessorUI;
         [SerializeField] private RecipeLookUpList recipeLookUpList;
         [SerializeField] private InventoryUI mPlayerInventoryUI;
-        private RecipeProcessor recipeProcessor;
 
         public void TryCraftItem()
         {
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
-            var itemRecipeObject = recipeLookUpList.GetCurrentRecipe() as ItemRecipeObject;
+            if (recipeLookUpList.GetCurrentRecipe() is not ItemRecipeObject itemRecipeObject) return;
+            var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
+            if (!ItemSlotUtils.CanInsertIntoInventory(playerInventory.Inventory, outputs, Global.MaxSize)) return;
             ItemRecipeObjectInstance itemRecipeObjectInstance = new ItemRecipeObjectInstance(itemRecipeObject);
             var itemRecipe = RecipeUtils.TryCraftRecipe<ItemRecipe>(itemRecipeObjectInstance, playerInventory.Inventory, null, RecipeType.Item);
             if (itemRecipe == null) return;
@@ -37,7 +38,6 @@ namespace TileEntity.Instances.WorkBench {
         public void DisplayTileEntityInstance(WorkBenchInstance tileEntityInstance)
         {
             mWorkbenchProcessorUI.Initialize(this);
-            recipeProcessor = tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor;
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);

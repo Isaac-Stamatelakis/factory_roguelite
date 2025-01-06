@@ -9,6 +9,7 @@ namespace TileEntity.Instances.Workbench.UI
 {
     public class WorkbenchProcessorUI : MonoBehaviour, IRecipeProcessorUI
     {
+        [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private TileEntityInventoryUI mTileEntityInventoryUI;
         [SerializeField] private Button mCraftButton;
         public void DisplayRecipe(DisplayableRecipe recipe)
@@ -20,6 +21,7 @@ namespace TileEntity.Instances.Workbench.UI
         public void DisplayForCraft(ItemDisplayableRecipe recipe)
         {
             mTileEntityInventoryUI.DisplayRecipe(recipe);
+            mTitleText.text = recipe.SolidOutputs[0].itemObject.name;
         }
 
         public void Initialize(WorkBenchUI workBenchUI)

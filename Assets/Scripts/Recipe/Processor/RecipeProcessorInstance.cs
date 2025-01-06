@@ -261,20 +261,21 @@ namespace Recipe.Processor
                     var transItemObject = transmutableItem.itemObject as TransmutableItemObject;
                     var state = transItemObject!.getState();
                     if (!stateRecipeDict.TryGetValue(state, out var transmutableRecipe)) continue;
-                    float ratio = TransmutableItemUtils.GetTransmutationRatio(transmutableRecipe.InputState,transmutableRecipe.OutputState);
+                    float efficency = 1f;
                     switch (transmutableRecipe.Efficency)
                     {
                         case TransmutationEfficency.Half:
-                            ratio *= 2;
+                            efficency *= 1/2f;
                             break;
                     }
-                    uint requiredAmount = (uint)Mathf.CeilToInt(ratio);
+
+                    uint requiredAmount = TransmutableItemUtils.GetTransmutationRatio(transmutableRecipe.OutputState, transmutableRecipe.InputState, efficency);
                     if (transmutableItem.amount < requiredAmount)
                     {
                         continue;
                     }
                     transmutableItem.amount -= requiredAmount;
-                    ItemSlot output = TransmutableItemUtils.Transmute(transItemObject.getMaterial(), transmutableRecipe.InputState, transmutableRecipe.OutputState);
+                    var output = TransmutableItemUtils.TransmuteOutput(transItemObject.getMaterial(), transmutableRecipe.InputState, transmutableRecipe.OutputState);
                     return (T)RecipeFactory.GetTransmutationRecipe(recipeProcessorObject.RecipeType,transItemObject.getMaterial(), state, output);
                 }
             }
@@ -363,8 +364,7 @@ namespace Recipe.Processor
                             }
 
                             if (!inputMatch || !outputMatch) continue;
-                            ItemSlot input = TransmutableItemUtils.Transmute(material,transRecipe.OutputState,transRecipe.InputState);
-                            ItemSlot output = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState);
+                            var (input,output) = TransmutableItemUtils.Transmute(material,transRecipe.InputState,transRecipe.OutputState);
                             inputs.Add(input);
                             outputs.Add(output);
                             break;
@@ -395,6 +395,11 @@ namespace Recipe.Processor
             }
 
             return displayableRecipesByMode;
+        }
+
+        public bool HasModeName(int mode)
+        {
+            return modeNameDict.ContainsKey(mode);
         }
         public string GetModeName(int mode)
         {
@@ -516,8 +521,7 @@ namespace Recipe.Processor
             List<ItemSlot> solidOutput = null;
             List<ItemSlot> fluidInput = null;
             List<ItemSlot> fluidOutput = null;
-            ItemSlot input = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.OutputState, transmutableRecipeObject.InputState);
-            ItemSlot output = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
             switch (inputMatterState)
             {
                 case ItemState.Solid:
