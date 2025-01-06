@@ -4,6 +4,6 @@ namespace Recipe.Viewer
 {
     public interface IRecipeProcessorUI
     {
-        public void DisplayRecipe(DisplayableRecipe recipes);
+        public void DisplayRecipe(DisplayableRecipe recipe);
     }
 }

@@ -88,6 +88,7 @@ namespace TileEntity.Instances.Machine.UI
         
         private void InitializeInventoryUI(InventoryUI inventoryUI, List<ItemSlot> inventory, MachineInventoryOptions inventoryOptions)
         {
+            if (ReferenceEquals(inventoryUI, null)) return;
             int size = inventoryOptions.GetIntSize();
             if (size == 0)
             {
@@ -110,6 +111,7 @@ namespace TileEntity.Instances.Machine.UI
 
         private void InitializeInventoryUIRecipe(InventoryUI inventoryUI, List<ItemSlot> items, MachineInventoryOptions inventoryOptions)
         {
+            if (ReferenceEquals(inventoryUI, null)) return;
             int size = inventoryOptions.GetIntSize();
             if (size == 0)
             {
@@ -122,6 +124,7 @@ namespace TileEntity.Instances.Machine.UI
 
         private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
         {
+            if (ReferenceEquals(inventoryUI, null)) return;
             int size = inventoryOptions.GetIntSize();
             if (size == 0)
             {

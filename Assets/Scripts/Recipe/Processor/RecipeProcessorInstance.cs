@@ -137,6 +137,7 @@ namespace Recipe.Processor
         public RecipeProcessor RecipeProcessorObject => recipeProcessorObject;
         private Dictionary<int, Dictionary<ulong, ItemRecipeObjectInstance[]>> modeRecipeDict;
         private Dictionary<int, Dictionary<TransmutableItemState, TransmutableRecipeObject>> modeRecipeTransmutation;
+        private Dictionary<int, string> modeNameDict;
         private ItemRecipeCollection collection;
         
         
@@ -145,6 +146,11 @@ namespace Recipe.Processor
             this.recipeProcessorObject = recipeProcessorObject;
             InitializeModeRecipeDict();
             collection = new ItemRecipeCollection(this);
+            modeNameDict = new Dictionary<int, string>();
+            foreach (var modeNameKVP in recipeProcessorObject.ModeNamesMap)
+            {
+                modeNameDict[modeNameKVP.Mode] = modeNameKVP.Name;
+            }
         }
         
         private void InitializeModeRecipeDict()
@@ -296,7 +302,6 @@ namespace Recipe.Processor
 
         }
         
-
         private Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candiateRecipe)
         {
             var requiredItemAmounts = new Dictionary<string, long>();
@@ -446,9 +451,47 @@ namespace Recipe.Processor
             return recipes;
         }
 
-        public void GetTransmutationDisplayRecipe()
+        public Dictionary<int, List<DisplayableRecipe>> GetRecipesToDisplayByMode()
         {
-            
+            var displayableRecipes = GetAllRecipesToDisplay();
+            var displayableRecipesByMode = new Dictionary<int, List<DisplayableRecipe>>();
+            foreach (DisplayableRecipe displayableRecipe in displayableRecipes)
+            {
+                int mode = displayableRecipe.RecipeData.Mode;
+                if (!displayableRecipesByMode.ContainsKey(mode))
+                {
+                    displayableRecipesByMode[mode] = new List<DisplayableRecipe>();
+                }
+                displayableRecipesByMode[mode].Add(displayableRecipe);
+            }
+
+            return displayableRecipesByMode;
+        }
+
+        public Dictionary<string, List<DisplayableRecipe>> GetRecipesToDisplayByModeName()
+        {
+            var recipesByMode = GetRecipesToDisplayByMode();
+            var recipesByModeName = new Dictionary<string, List<DisplayableRecipe>>();
+            foreach (var (mode, recipes) in recipesByMode)
+            {
+                if (!modeNameDict.TryGetValue(mode, value: out var value))
+                {
+                    value = mode.ToString();
+                }
+                recipesByModeName[value] = recipes;
+            }
+
+            return recipesByModeName;
+        }
+
+        public string GetModeName(int mode)
+        {
+            if (!modeNameDict.TryGetValue(mode, value: out var value))
+            {
+                value = mode.ToString();
+            }
+
+            return value;
         }
 
         public int GetCount()
