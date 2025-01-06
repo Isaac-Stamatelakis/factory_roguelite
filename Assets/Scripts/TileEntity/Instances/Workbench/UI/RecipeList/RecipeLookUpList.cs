@@ -17,10 +17,10 @@ namespace TileEntity.Instances.Workbench.UI
         [SerializeField] private VerticalLayoutGroup mContentList;
         [SerializeField] private RecipeListHeader headerPrefab;
         [SerializeField] private RecipeListElement listElementPrefab;
+        [SerializeField] private Color highLightColor;
         private Dictionary<int, List<DisplayableRecipe>> modeRecipes;
         private Dictionary<int, (RecipeListHeader, List<RecipeListElement>)> modeElementDict;
         private int currentMode = -1;
-        public int CurrentMode => currentMode;
         private int currentIndex = -1;
         private Color defaultElementColor;
         private  IRecipeProcessorUI recipeProcessorUI;
@@ -55,8 +55,9 @@ namespace TileEntity.Instances.Workbench.UI
         }
         public void Select(int mode, int index)
         {
+            if (mode == currentMode && index == currentIndex) return;
             var (header, recipeElements) = modeElementDict[mode];
-            recipeElements[index].SetColor(Color.yellow);
+            recipeElements[index].SetColor(highLightColor);
             if (currentIndex >= 0 && currentMode >= 0)
             {
                 modeElementDict[currentMode].Item2[currentIndex].SetColor(defaultElementColor);
@@ -64,6 +65,17 @@ namespace TileEntity.Instances.Workbench.UI
             currentIndex = index;
             currentMode = mode;
             recipeProcessorUI.DisplayRecipe(modeRecipes[mode][index]);
+        }
+
+        public void ToggleHeader(int mode)
+        {
+            var (header, recipeElements) = modeElementDict[mode];
+            if (recipeElements.Count == 0) return;
+            bool toggleState = !recipeElements[0].gameObject.activeInHierarchy;
+            foreach (RecipeListElement recipeElement in recipeElements)
+            {
+                recipeElement.gameObject.SetActive(toggleState);
+            }
         }
     }
 }

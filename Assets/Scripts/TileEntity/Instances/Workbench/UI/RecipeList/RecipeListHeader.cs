@@ -9,12 +9,21 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
     {
         [SerializeField] private TextMeshProUGUI mHeaderText;
         [SerializeField] private Button mToggleButton;
-        private int mode;
 
         public void Display(RecipeLookUpList recipeLookUpList, string headerName, int mode)
         {
-            this.mode = mode;
             this.mHeaderText.text = headerName;
+            mToggleButton.onClick.AddListener(() =>
+            {
+                ToggleButtonImage();
+                recipeLookUpList.ToggleHeader(mode);
+            });
+        }
+
+        private void ToggleButtonImage()
+        {
+            // Might have to change this later
+            mToggleButton.transform.Rotate(0f, 0f, 180f);
         }
         
     }

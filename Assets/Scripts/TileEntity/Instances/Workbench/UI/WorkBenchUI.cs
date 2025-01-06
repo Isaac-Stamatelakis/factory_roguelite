@@ -36,6 +36,7 @@ namespace TileEntity.Instances.WorkBench {
 
         public void DisplayTileEntityInstance(WorkBenchInstance tileEntityInstance)
         {
+            mWorkbenchProcessorUI.Initialize(this);
             recipeProcessor = tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor;
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
@@ -45,7 +46,7 @@ namespace TileEntity.Instances.WorkBench {
 
         public void DisplayRecipe(DisplayableRecipe recipe)
         {
-            mWorkbenchProcessorUI.DisplayForCraft((ItemDisplayableRecipe)recipe,this);
+            mWorkbenchProcessorUI.DisplayForCraft((ItemDisplayableRecipe)recipe);
         }
     }
 }
