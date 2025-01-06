@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Item.Slot;
@@ -8,6 +9,7 @@ using Recipe.Processor;
 using Recipe.Viewer;
 using TileEntity.Instances.WorkBench;
 using TileEntity.Instances.Workbench.UI.RecipeList;
+using TileEntity.Instances.WorkBenchs;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -32,11 +34,14 @@ namespace TileEntity.Instances.Workbench.UI
         private int currentIndex = -1;
         private Color defaultElementColor;
         private IRecipeProcessorUI recipeProcessorUI;
-        private string currentSearch = string.Empty;
-        public void Initialize(RecipeProcessorInstance recipeProcessor, IRecipeProcessorUI recipeProcessorUI)
+        private WorkBenchData workBenchData;
+       
+        public void Initialize(RecipeProcessorInstance recipeProcessor, IRecipeProcessorUI recipeProcessorUI, WorkBenchData workBenchData)
         {
+            this.workBenchData = workBenchData;
             GlobalHelper.deleteAllChildren(mContentList.transform);
             modeRecipes = recipeProcessor.GetRecipesToDisplayByMode();
+            mSearchField.text = this.workBenchData.CurrentSearch;
             mSearchField.onValueChanged.AddListener(FilterResults);
             
             modeElementDict = new Dictionary<int, (RecipeListHeader, List<RecipeListElement>)>();
@@ -62,6 +67,7 @@ namespace TileEntity.Instances.Workbench.UI
             mResetButton.onClick.AddListener(ResetCategories);
             
             Select(0,0);
+            FilterResults(this.workBenchData.CurrentSearch);
         }
 
         private void InitializeDropdown(RecipeProcessorInstance recipeProcessorInstance)
@@ -88,7 +94,7 @@ namespace TileEntity.Instances.Workbench.UI
                 header.gameObject.SetActive(setActive);
                 foreach (RecipeListElement recipeElement in elementList)
                 {
-                    bool newState = setActive && recipeElement.Filter(currentSearch);
+                    bool newState = setActive && recipeElement.Filter(workBenchData.CurrentSearch);
                     recipeElement.gameObject.SetActive(newState);
                 }
             }
@@ -102,15 +108,14 @@ namespace TileEntity.Instances.Workbench.UI
                 header.gameObject.SetActive(true);
                 foreach (RecipeListElement recipeElement in elementList)
                 {
-                    bool newState = recipeElement.Filter(currentSearch);
+                    bool newState = recipeElement.Filter(workBenchData.CurrentSearch);
                     recipeElement.gameObject.SetActive(newState);
                 }
             }
         }
         private void FilterResults(string text)
         {
-            bool larger = currentSearch.Length > text.Length;
-            currentSearch = text;
+            workBenchData.CurrentSearch = text;
             foreach (var (itemName, elementList) in itemNameElementDict)
             {
                 bool passesFilter = itemName.ToLower().Contains(text.ToLower());
@@ -192,10 +197,14 @@ namespace TileEntity.Instances.Workbench.UI
             bool toggleState = header.ElementsVisible;
             foreach (RecipeListElement recipeElement in recipeElements)
             {
-                bool newState = toggleState && recipeElement.Filter(currentSearch);
+                bool newState = toggleState && recipeElement.Filter(workBenchData.CurrentSearch);
                 recipeElement.gameObject.SetActive(newState);
             }
         }
-        
+
+        public void OnDestroy()
+        {
+            
+        }
     }
 }

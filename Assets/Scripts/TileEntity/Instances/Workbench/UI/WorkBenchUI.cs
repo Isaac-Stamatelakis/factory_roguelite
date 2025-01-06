@@ -41,7 +41,7 @@ namespace TileEntity.Instances.WorkBench {
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);
-            recipeLookUpList.Initialize(recipeProcessorInstance,this); // Note this displays the first recipe
+            recipeLookUpList.Initialize(recipeProcessorInstance,this, tileEntityInstance.WorkBenchData); // Note this displays the first recipe
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)
