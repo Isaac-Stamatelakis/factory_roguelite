@@ -396,6 +396,11 @@ namespace Recipe.Processor
 
             return displayableRecipesByMode;
         }
+
+        public bool HasModeName(int mode)
+        {
+            return modeNameDict.ContainsKey(mode);
+        }
         public string GetModeName(int mode)
         {
             if (!modeNameDict.TryGetValue(mode, value: out var value))

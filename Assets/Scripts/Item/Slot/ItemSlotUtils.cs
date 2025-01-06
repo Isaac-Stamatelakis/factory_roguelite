@@ -137,6 +137,19 @@ namespace Item.Slot
             return false;
         }
 
+        public static bool CanInsertIntoInventory(List<ItemSlot> to, List<ItemSlot> from, uint maxAmount)
+        {
+            if (to == null || from == null) return false;
+            foreach (ItemSlot toInsert in from) {
+                if (!CanInsertIntoInventory(to,toInsert,maxAmount))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static bool CanInsertIntoSlot(ItemSlot itemSlot, ItemSlot toInsert, uint maxAmount)
         {
             if (IsItemSlotNull(toInsert)) return false;

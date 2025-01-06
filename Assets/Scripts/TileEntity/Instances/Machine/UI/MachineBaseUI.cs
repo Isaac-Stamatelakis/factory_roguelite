@@ -104,10 +104,18 @@ namespace TileEntity.Instances.Machine.UI
 
         public void DisplayRecipe(DisplayableRecipe recipe)
         {
-            titleText.gameObject.SetActive(false);
+            string modeDisplay = $"Mode: {recipe.RecipeData.Mode}";
+            if (recipe.RecipeData.ProcessorInstance.HasModeName(recipe.RecipeData.Mode))
+            {
+                string modeString = recipe.RecipeData.ProcessorInstance.GetModeName(recipe.RecipeData.Mode);
+                modeDisplay += $" ({modeString})";
+            }
+
+            titleText.text = modeDisplay;
             energyScrollbar.gameObject.SetActive(false);
             tileEntityInventoryUI.DisplayRecipe(recipe);
             batteryInventoryUI.gameObject.SetActive(false);
+            amountIteratorUI.gameObject.SetActive(false);
         }
     }
 }
