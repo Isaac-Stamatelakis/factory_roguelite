@@ -176,7 +176,7 @@ namespace Recipe.Processor
                 {
                     RecipeUtils.InsertValidRecipes(recipeProcessorObject, recipeObject, itemRecipes,modeRecipeTransmutation[mode]);
                 }
-                
+                Debug.Log($"MODE : {mode}| COUNT {itemRecipes.Count}");
                 foreach (ItemRecipeObject itemRecipeObject in itemRecipes)
                 {
                     var inputs = new List<ItemSlot>();
@@ -209,18 +209,14 @@ namespace Recipe.Processor
                     modeRecipeDict[mode] = new Dictionary<ulong, ItemRecipeObjectInstance[]>();
                 }
                 
-                foreach (var hashDict in tempModeRecipeDict.Values)
+                foreach (var (hash, list) in kvp.Value)
                 {
-                    foreach (var hashKvp in hashDict)
+                    var recipeObjectInstances = new ItemRecipeObjectInstance[list.Count];
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        var hash = hashKvp.Key;
-                        var recipeObjectInstances = new ItemRecipeObjectInstance[hashKvp.Value.Count];
-                        for (int i = 0; i < hashKvp.Value.Count; i++)
-                        {
-                            recipeObjectInstances[i] = new ItemRecipeObjectInstance(hashKvp.Value[i]);
-                        }
-                        modeRecipeDict[mode][hash] = recipeObjectInstances;
+                        recipeObjectInstances[i] = new ItemRecipeObjectInstance(list[i]);
                     }
+                    modeRecipeDict[mode][hash] = recipeObjectInstances;
                 }
             }
     
@@ -400,23 +396,6 @@ namespace Recipe.Processor
 
             return displayableRecipesByMode;
         }
-
-        public Dictionary<string, List<DisplayableRecipe>> GetRecipesToDisplayByModeName()
-        {
-            var recipesByMode = GetRecipesToDisplayByMode();
-            var recipesByModeName = new Dictionary<string, List<DisplayableRecipe>>();
-            foreach (var (mode, recipes) in recipesByMode)
-            {
-                if (!modeNameDict.TryGetValue(mode, value: out var value))
-                {
-                    value = mode.ToString();
-                }
-                recipesByModeName[value] = recipes;
-            }
-
-            return recipesByModeName;
-        }
-
         public string GetModeName(int mode)
         {
             if (!modeNameDict.TryGetValue(mode, value: out var value))
