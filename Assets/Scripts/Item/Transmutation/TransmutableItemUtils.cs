@@ -43,18 +43,44 @@ namespace Items.Transmutable
             string outputID = TransmutableItemUtils.GetStateId(material, stateOption);
             return ItemRegistry.GetInstance().GetTransmutableItemObject(outputID);
         }
-
-        public static uint GetTransmutationRatio(TransmutableItemState from, TransmutableItemState to) {
-            return (uint)(from.getRatio()/to.getRatio());
+        public static (ItemSlot,ItemSlot) Transmute(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
+        {
+            TransmutableItemObject inputItem = GetMaterialItem(material, inputState);
+            TransmutableItemObject outputItem = GetMaterialItem(material, outputState);
+            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
+            uint inputAmount = (uint)(gcd * inputState.getRatio() / efficency);
+            uint outputAmount = (uint)(gcd * outputState.getRatio());
+            ItemSlot input = new ItemSlot(inputItem, inputAmount, null);
+            ItemSlot output = new ItemSlot(outputItem, outputAmount, null);
+            return (input, output);
         }
 
-        public static ItemSlot Transmute(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState)
+        public static uint GetTransmutationRatio(TransmutableItemState inputState, TransmutableItemState outputState,
+            float efficency = 1f)
         {
-            TransmutableItemObject transmutableItemObject = GetMaterialItem(material, outputState);
-            return new ItemSlot(transmutableItemObject, 
-                GetTransmutationRatio(inputState,outputState), 
-                null
-            );
+            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
+            return (uint)(gcd * inputState.getRatio()*efficency);
+        }
+        
+        public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
+        {
+            TransmutableItemObject outputItem = GetMaterialItem(material, outputState);
+            uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
+            uint outputAmount = (uint)(gcd * outputState.getRatio() * efficency);
+            ItemSlot output = new ItemSlot(outputItem, outputAmount, null);
+            return (output);
+        }
+        
+        private static uint GetGcd(uint a, uint b)
+        {
+            while (b != 0)
+            {
+                uint temp = b;
+                b = a % b;
+                a = temp;
+            }
+
+            return a;
         }
 
         public static string FormatChemicalFormula(string chemicalFormula)
