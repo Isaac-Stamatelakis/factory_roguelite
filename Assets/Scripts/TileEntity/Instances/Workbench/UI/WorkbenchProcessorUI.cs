@@ -17,7 +17,7 @@ namespace TileEntity.Instances.Workbench.UI
             mCraftButton.gameObject.SetActive(false);
         }
 
-        public void DisplayForCraft(DisplayableRecipe recipe, WorkBenchUI workBenchUIParent)
+        public void DisplayForCraft(ItemDisplayableRecipe recipe, WorkBenchUI workBenchUIParent)
         {
             mTileEntityInventoryUI.DisplayRecipe(recipe);
             mCraftButton.onClick.AddListener(workBenchUIParent.TryCraftItem);

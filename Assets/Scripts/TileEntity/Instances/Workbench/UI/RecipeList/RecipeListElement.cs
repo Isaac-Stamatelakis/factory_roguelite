@@ -4,6 +4,7 @@ using Recipe.Viewer;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace TileEntity.Instances.Workbench.UI.RecipeList
 {
@@ -17,6 +18,7 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
 
         public void Display(DisplayableRecipe displayableRecipe, RecipeLookUpList recipeLookUpList, int mode, int index)
         {
+            recipeLookUpListParent = recipeLookUpList;
             if (displayableRecipe is not ItemDisplayableRecipe itemDisplayableRecipe)
             {
                 Debug.LogError($"Recipe tried to display non item display recipe: {displayableRecipe.RecipeData.Recipe.name}");
@@ -38,6 +40,11 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
             ItemSlot output = itemDisplayableRecipe.SolidOutputs[0];
             mItemSlotUI.Display(output);
             mNameText.text = output.itemObject.name;
+        }
+
+        public void SetColor(Color color)
+        {
+            GetComponent<Image>().color = color;
         }
 
         public void OnPointerClick(PointerEventData eventData)

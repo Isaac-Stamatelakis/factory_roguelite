@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using Recipe;
 using Recipe.Data;
+using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
+using TileEntity.Instances.WorkBench;
 using TileEntity.Instances.Workbench.UI.RecipeList;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,11 +18,20 @@ namespace TileEntity.Instances.Workbench.UI
         [SerializeField] private RecipeListHeader headerPrefab;
         [SerializeField] private RecipeListElement listElementPrefab;
         private Dictionary<int, List<DisplayableRecipe>> modeRecipes;
-        public void Initialize(RecipeProcessorInstance recipeProcessor)
+        private Dictionary<int, (RecipeListHeader, List<RecipeListElement>)> modeElementDict;
+        private int currentMode = -1;
+        public int CurrentMode => currentMode;
+        private int currentIndex = -1;
+        private Color defaultElementColor;
+        private  IRecipeProcessorUI recipeProcessorUI;
+        public void Initialize(RecipeProcessorInstance recipeProcessor, IRecipeProcessorUI recipeProcessorUI)
         {
+            GlobalHelper.deleteAllChildren(mContentList.transform);
             modeRecipes = recipeProcessor.GetRecipesToDisplayByMode();
+            modeElementDict = new Dictionary<int, (RecipeListHeader, List<RecipeListElement>)>();
             foreach (var (mode, recipes) in modeRecipes)
             {
+                List<RecipeListElement> elements = new List<RecipeListElement>();
                 string modeName = recipeProcessor.GetModeName(mode);
                 RecipeListHeader header = Instantiate(headerPrefab, mContentList.transform);
                 header.Display(this,modeName,mode);
@@ -27,13 +39,31 @@ namespace TileEntity.Instances.Workbench.UI
                 {
                     RecipeListElement recipeListElement = Instantiate(listElementPrefab, mContentList.transform);
                     recipeListElement.Display(recipes[i],this,mode,i);
+                    elements.Add(recipeListElement);
                 }
+                modeElementDict[mode] = (header,elements);
             }
+
+            defaultElementColor = listElementPrefab.GetComponent<Image>().color;
+            this.recipeProcessorUI = recipeProcessorUI;
+            Select(0,0);
         }
 
+        public RecipeObject GetCurrentRecipe()
+        {
+            return modeRecipes[currentMode][currentIndex].RecipeData.Recipe;
+        }
         public void Select(int mode, int index)
         {
-            Debug.Log($"MODE: {mode} INDEX: {index}");
+            var (header, recipeElements) = modeElementDict[mode];
+            recipeElements[index].SetColor(Color.yellow);
+            if (currentIndex >= 0 && currentMode >= 0)
+            {
+                modeElementDict[currentMode].Item2[currentIndex].SetColor(defaultElementColor);
+            }
+            currentIndex = index;
+            currentMode = mode;
+            recipeProcessorUI.DisplayRecipe(modeRecipes[mode][index]);
         }
     }
 }

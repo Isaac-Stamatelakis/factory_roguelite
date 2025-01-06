@@ -291,79 +291,12 @@ namespace Recipe.Processor
             {
                 return default;
             }
-            foreach (ItemRecipeObjectInstance itemRecipeInstance in recipeObjects)
-            {
-                if (TryConsumeItemRecipe(itemRecipeInstance, solidItems, fluidItems))
-                {
-                    return (T)RecipeFactory.CreateRecipe(RecipeProcessorObject.RecipeType, itemRecipeInstance.ItemRecipeObject);
-                }
-            }
-            return default;
+
+            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
+            
 
         }
         
-        private Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candiateRecipe)
-        {
-            var requiredItemAmounts = new Dictionary<string, long>();
-            foreach (ItemSlot itemSlot in candiateRecipe.Inputs)
-            {
-                if (ReferenceEquals(itemSlot?.itemObject,null)) continue;
-                if (requiredItemAmounts.ContainsKey(itemSlot.itemObject.id))
-                {
-                    requiredItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
-                }
-                else
-                {
-                    requiredItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
-                }
-            }
-
-            return requiredItemAmounts;
-        }
-
-        private bool TryConsumeItemRecipe(ItemRecipeObjectInstance candiateRecipe, List<ItemSlot> solids, List<ItemSlot> fluids)
-        {
-            var requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
-
-            DeiterateRequiredAmount(solids, requiredItemAmounts);
-            DeiterateRequiredAmount(fluids, requiredItemAmounts);
-            
-            foreach (var kvp in requiredItemAmounts)
-            {
-                if (kvp.Value > 0) return false;
-            }
-
-            requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
-            
-            DeiterateInputs(solids, requiredItemAmounts);
-            DeiterateInputs(fluids, requiredItemAmounts);
-            return true;
-        }
-
-        private void DeiterateRequiredAmount(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
-        {
-            foreach (ItemSlot input in inputs)
-            {
-                if (ReferenceEquals(input?.itemObject,null)) continue;
-                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
-                requiredItemAmounts[input.itemObject.id] -= input.amount;
-            }
-        }
-
-        private void DeiterateInputs(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
-        {
-            foreach (ItemSlot input in inputs)
-            {
-                if (ReferenceEquals(input?.itemObject,null)) continue;
-                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
-                uint requiredRemoval = (uint) requiredItemAmounts[input.itemObject.id];
-                if (requiredRemoval == 0) continue;
-                uint removal = requiredRemoval > Global.MaxSize ? Global.MaxSize : requiredRemoval;
-                requiredRemoval -= removal;
-                requiredItemAmounts[input.itemObject.id] = requiredRemoval;
-                input.amount -= removal;
-            }
-        }
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
         {
             List<DisplayableRecipe> displayableRecipes = new List<DisplayableRecipe>();
