@@ -79,8 +79,15 @@ namespace Recipe.Viewer
         {
             return Pages.Count;
         }
-        
-        
+
+        public void DisplayAllElements()
+        {
+            List<DisplayableRecipe> recipes = RecipeProcessorInstance.GetAllRecipesToDisplay();
+            RecipeProcessorDisplayInfo recipeProcessorDisplayInfo = new RecipeProcessorDisplayInfo(RecipeProcessorInstance, recipes);
+            CatalogueElementData catalogueElementData = new CatalogueElementData(recipeProcessorDisplayInfo, CatalogueInfoDisplayType.Recipe);
+            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData});
+            
+        }
     }
     
 }

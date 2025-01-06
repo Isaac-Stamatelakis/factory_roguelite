@@ -77,6 +77,8 @@ namespace UI.Catalogue.InfoViewer
             displayedElementUI.Display(CatalogueElements[currentElementIndex].CatalogueElement);
             elementIndicator.DisplayNodes();
             elementNavigator.SetText(catalogueElementData.CatalogueElement.GetName());
+            currentPageIndex = 0;
+            pageNavigator.SetText(catalogueElementData.CatalogueElement.GetPageIndicatorString(currentPageIndex));
         }
 
         private CatalogueInfoUI InstantiateElementUI(CatalogueInfoDisplayType type)

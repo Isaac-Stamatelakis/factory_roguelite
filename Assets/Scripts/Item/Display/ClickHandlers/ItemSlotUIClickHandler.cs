@@ -17,6 +17,7 @@ namespace Item.Display.ClickHandlers
             this.inventoryUI = parent;
             this.index = index;
         }
+        
         public void OnPointerClick(PointerEventData eventData)
         {
             if (ReferenceEquals(inventoryUI, null)) return;
@@ -71,12 +72,12 @@ namespace Item.Display.ClickHandlers
         public void ShowRecipes() {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-            InfoViewUtils.DisplayItemInformation(itemSlot);
+            CatalogueInfoUtils.DisplayItemInformation(itemSlot);
         }
         public void ShowUses() {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-            InfoViewUtils.DisplayItemUses(itemSlot);
+            CatalogueInfoUtils.DisplayItemUses(itemSlot);
         }
         protected abstract void LeftClick();
         protected abstract void RightClick();

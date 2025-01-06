@@ -85,6 +85,11 @@ namespace Item.Transmutation.Info
             return 3;
         }
 
+        public void DisplayAllElements()
+        {
+            // Do nothing for now. Maybe show all materials ?
+        }
+
         public Color GetColor()
         {
             return Material.color;

@@ -10,7 +10,7 @@ using LinqUtility = Unity.VisualScripting.LinqUtility;
 
 namespace UI.Catalogue.InfoViewer
 {
-    public static class InfoViewUtils
+    public static class CatalogueInfoUtils
     {
         public static void DisplayItemInformation(ItemSlot itemSlot)
         {
@@ -40,7 +40,7 @@ namespace UI.Catalogue.InfoViewer
             DisplayCatalogue(elements);
         }
 
-        private static void DisplayCatalogue(List<CatalogueElementData> elements)
+        public static void DisplayCatalogue(List<CatalogueElementData> elements)
         {
             if (elements.Count == 0) return;
             MainCanvasController mainCanvasController = MainCanvasController.TInstance;

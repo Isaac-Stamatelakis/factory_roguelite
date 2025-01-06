@@ -10,6 +10,7 @@ namespace Recipe.Processor {
         public GameObject UIPrefab;
         public RecipeType RecipeType;
         public List<RecipeModeCollection> RecipeCollections;
+        public List<ModeNameKVP> ModeNamesMap;
         public Sprite Sprite;
         public TileEntityLayoutObject LayoutObject;
     }
@@ -21,5 +22,12 @@ namespace Recipe.Processor {
     {
         public int Mode;
         public RecipeCollection RecipeCollection;
+    }
+
+    [System.Serializable]
+    public class ModeNameKVP
+    {
+        public int Mode;
+        public string Name;
     }
 }

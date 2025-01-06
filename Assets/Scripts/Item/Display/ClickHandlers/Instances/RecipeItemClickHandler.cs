@@ -13,7 +13,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 return;
             }
-            InfoViewUtils.DisplayItemInformation(itemSlot);
+            CatalogueInfoUtils.DisplayItemInformation(itemSlot);
         }
 
         protected override void MiddleClick()
@@ -27,7 +27,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 return;
             }
-            InfoViewUtils.DisplayItemUses(itemSlot);
+            CatalogueInfoUtils.DisplayItemUses(itemSlot);
         }
 
     

@@ -137,6 +137,7 @@ namespace Recipe.Processor
         public RecipeProcessor RecipeProcessorObject => recipeProcessorObject;
         private Dictionary<int, Dictionary<ulong, ItemRecipeObjectInstance[]>> modeRecipeDict;
         private Dictionary<int, Dictionary<TransmutableItemState, TransmutableRecipeObject>> modeRecipeTransmutation;
+        private Dictionary<int, string> modeNameDict;
         private ItemRecipeCollection collection;
         
         
@@ -145,6 +146,11 @@ namespace Recipe.Processor
             this.recipeProcessorObject = recipeProcessorObject;
             InitializeModeRecipeDict();
             collection = new ItemRecipeCollection(this);
+            modeNameDict = new Dictionary<int, string>();
+            foreach (var modeNameKVP in recipeProcessorObject.ModeNamesMap)
+            {
+                modeNameDict[modeNameKVP.Mode] = modeNameKVP.Name;
+            }
         }
         
         private void InitializeModeRecipeDict()
@@ -285,80 +291,12 @@ namespace Recipe.Processor
             {
                 return default;
             }
-            foreach (ItemRecipeObjectInstance itemRecipeInstance in recipeObjects)
-            {
-                if (TryConsumeItemRecipe(itemRecipeInstance, solidItems, fluidItems))
-                {
-                    return (T)RecipeFactory.CreateRecipe(RecipeProcessorObject.RecipeType, itemRecipeInstance.ItemRecipeObject);
-                }
-            }
-            return default;
+
+            return RecipeUtils.TryCraftRecipe<T>(recipeObjects, solidItems, fluidItems, recipeProcessorObject.RecipeType);
+            
 
         }
         
-
-        private Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candiateRecipe)
-        {
-            var requiredItemAmounts = new Dictionary<string, long>();
-            foreach (ItemSlot itemSlot in candiateRecipe.Inputs)
-            {
-                if (ReferenceEquals(itemSlot?.itemObject,null)) continue;
-                if (requiredItemAmounts.ContainsKey(itemSlot.itemObject.id))
-                {
-                    requiredItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
-                }
-                else
-                {
-                    requiredItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
-                }
-            }
-
-            return requiredItemAmounts;
-        }
-
-        private bool TryConsumeItemRecipe(ItemRecipeObjectInstance candiateRecipe, List<ItemSlot> solids, List<ItemSlot> fluids)
-        {
-            var requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
-
-            DeiterateRequiredAmount(solids, requiredItemAmounts);
-            DeiterateRequiredAmount(fluids, requiredItemAmounts);
-            
-            foreach (var kvp in requiredItemAmounts)
-            {
-                if (kvp.Value > 0) return false;
-            }
-
-            requiredItemAmounts = GetRequiredAmounts(candiateRecipe);
-            
-            DeiterateInputs(solids, requiredItemAmounts);
-            DeiterateInputs(fluids, requiredItemAmounts);
-            return true;
-        }
-
-        private void DeiterateRequiredAmount(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
-        {
-            foreach (ItemSlot input in inputs)
-            {
-                if (ReferenceEquals(input?.itemObject,null)) continue;
-                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
-                requiredItemAmounts[input.itemObject.id] -= input.amount;
-            }
-        }
-
-        private void DeiterateInputs(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
-        {
-            foreach (ItemSlot input in inputs)
-            {
-                if (ReferenceEquals(input?.itemObject,null)) continue;
-                if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
-                uint requiredRemoval = (uint) requiredItemAmounts[input.itemObject.id];
-                if (requiredRemoval == 0) continue;
-                uint removal = requiredRemoval > Global.MaxSize ? Global.MaxSize : requiredRemoval;
-                requiredRemoval -= removal;
-                requiredItemAmounts[input.itemObject.id] = requiredRemoval;
-                input.amount -= removal;
-            }
-        }
         public List<DisplayableRecipe> GetRecipesForItem(ItemSlot itemSlot)
         {
             List<DisplayableRecipe> displayableRecipes = new List<DisplayableRecipe>();
@@ -446,9 +384,47 @@ namespace Recipe.Processor
             return recipes;
         }
 
-        public void GetTransmutationDisplayRecipe()
+        public Dictionary<int, List<DisplayableRecipe>> GetRecipesToDisplayByMode()
         {
-            
+            var displayableRecipes = GetAllRecipesToDisplay();
+            var displayableRecipesByMode = new Dictionary<int, List<DisplayableRecipe>>();
+            foreach (DisplayableRecipe displayableRecipe in displayableRecipes)
+            {
+                int mode = displayableRecipe.RecipeData.Mode;
+                if (!displayableRecipesByMode.ContainsKey(mode))
+                {
+                    displayableRecipesByMode[mode] = new List<DisplayableRecipe>();
+                }
+                displayableRecipesByMode[mode].Add(displayableRecipe);
+            }
+
+            return displayableRecipesByMode;
+        }
+
+        public Dictionary<string, List<DisplayableRecipe>> GetRecipesToDisplayByModeName()
+        {
+            var recipesByMode = GetRecipesToDisplayByMode();
+            var recipesByModeName = new Dictionary<string, List<DisplayableRecipe>>();
+            foreach (var (mode, recipes) in recipesByMode)
+            {
+                if (!modeNameDict.TryGetValue(mode, value: out var value))
+                {
+                    value = mode.ToString();
+                }
+                recipesByModeName[value] = recipes;
+            }
+
+            return recipesByModeName;
+        }
+
+        public string GetModeName(int mode)
+        {
+            if (!modeNameDict.TryGetValue(mode, value: out var value))
+            {
+                value = mode.ToString();
+            }
+
+            return value;
         }
 
         public int GetCount()

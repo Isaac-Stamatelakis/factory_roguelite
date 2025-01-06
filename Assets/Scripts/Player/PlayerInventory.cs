@@ -47,6 +47,11 @@ namespace PlayerModule {
             }
             playerInventoryGrid.DisplayInventory(inventory,10);
         }
+
+        public void Refresh()
+        {
+            playerInventoryGrid.RefreshSlots();
+        }
         
         
         void Update()

@@ -16,7 +16,93 @@ namespace RecipeModule
 {
     
 public static class RecipeUtils {
+
+    public static T TryCraftRecipe<T>(ItemRecipeObjectInstance[] recipeObjects,List<ItemSlot> solids, List<ItemSlot> fluids, RecipeType recipeType)
+        where T : ItemRecipe
+    {
+        foreach (ItemRecipeObjectInstance itemRecipeInstance in recipeObjects)
+        {
+            if (TryConsumeItemRecipe(itemRecipeInstance, solids, fluids))
+            {
+                return (T)RecipeFactory.CreateRecipe(recipeType, itemRecipeInstance.ItemRecipeObject);
+            }
+        }
+        return default;
+    }
+    public static T TryCraftRecipe<T>(ItemRecipeObjectInstance candidateRecipe, List<ItemSlot> solids,
+        List<ItemSlot> fluids,  RecipeType recipeType) where T : ItemRecipe
+    {
+        if (TryConsumeItemRecipe(candidateRecipe, solids, fluids))
+        {
+            return (T)RecipeFactory.CreateRecipe(recipeType, candidateRecipe.ItemRecipeObject);
+        }
+
+        return default;
+    }
     
+    public static Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candidateRecipe)
+    {
+        var requiredItemAmounts = new Dictionary<string, long>();
+        foreach (ItemSlot itemSlot in candidateRecipe.Inputs)
+        {
+            if (ReferenceEquals(itemSlot?.itemObject,null)) continue;
+            if (requiredItemAmounts.ContainsKey(itemSlot.itemObject.id))
+            {
+                requiredItemAmounts[itemSlot.itemObject.id] += itemSlot.amount;
+            }
+            else
+            {
+                requiredItemAmounts[itemSlot.itemObject.id] = itemSlot.amount;
+            }
+        }
+
+        return requiredItemAmounts;
+    }
+    public static bool TryConsumeItemRecipe(ItemRecipeObjectInstance candidateRecipe, List<ItemSlot> solids, List<ItemSlot> fluids)
+    {
+        var requiredItemAmounts = GetRequiredAmounts(candidateRecipe);
+
+        DeiterateRequiredAmount(solids, requiredItemAmounts);
+        DeiterateRequiredAmount(fluids, requiredItemAmounts);
+            
+        foreach (var kvp in requiredItemAmounts)
+        {
+            if (kvp.Value > 0) return false;
+        }
+
+        requiredItemAmounts = GetRequiredAmounts(candidateRecipe);
+            
+        DeiterateInputs(solids, requiredItemAmounts);
+        DeiterateInputs(fluids, requiredItemAmounts);
+        return true;
+    }
+
+    public static void DeiterateRequiredAmount(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
+    {
+        if (inputs == null) return;
+        foreach (ItemSlot input in inputs)
+        {
+            if (ItemSlotUtils.IsItemSlotNull(input)) continue;
+            if (!requiredItemAmounts.ContainsKey(input.itemObject.id)) continue;
+            requiredItemAmounts[input.itemObject.id] -= input.amount;
+        }
+    }
+
+    public static void DeiterateInputs(List<ItemSlot> inputs, Dictionary<string, long> requiredItemAmounts)
+    {
+        if (inputs == null) return;
+        foreach (ItemSlot input in inputs)
+        {
+            if (ItemSlotUtils.IsItemSlotNull(input)) continue;
+            if (!requiredItemAmounts.TryGetValue(input.itemObject.id, out var amount)) continue;
+            uint requiredRemoval = (uint) amount;
+            if (requiredRemoval == 0) continue;
+            uint removal = requiredRemoval > Global.MaxSize ? Global.MaxSize : requiredRemoval;
+            requiredRemoval -= removal;
+            requiredItemAmounts[input.itemObject.id] = requiredRemoval;
+            input.amount -= removal;
+        }
+    }
 
         public static bool OutputsUsed(ItemRecipe itemRecipe)
         {
@@ -89,6 +175,7 @@ public static class RecipeUtils {
         
         public static ulong HashItemInputs(List<ItemSlot> inputs, HashSet<string> included = null)
         {
+            if (inputs == null) return 0;
             ulong hash = 0;
             included ??= new HashSet<string>();
             for (int i = 0; i < inputs.Count; i++)

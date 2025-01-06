@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
+using Item.Burnables;
+using Item.Slot;
 using Items;
 using Items.Transmutable;
 using UnityEngine;
@@ -15,6 +18,7 @@ namespace Recipe.Collection
 
     public class BurnableItemRegistry
     {
+        public static readonly int RANDOM_SAMPLE_AMOUNT = 10;
         public Sprite BurnableRegistryImage;
         private Dictionary<string, uint> itemBurnDurations;
         private Dictionary<TransmutableItemMaterial, uint> materialBurnDurations;
@@ -56,6 +60,64 @@ namespace Recipe.Collection
             var state = transmutableItemObject.getState();
             float stateRatio = state.getRatio();
             return (uint) (matDuration / stateRatio);
+        }
+
+        public List<BurnableItemDisplay> GetAllItemsToDisplay()
+        {
+            List<BurnableItemDisplay> displayList = new List<BurnableItemDisplay>();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            foreach (string id in itemBurnDurations.Keys)
+            {
+                var item = itemRegistry.GetItemObject(id);
+                if (ReferenceEquals(item, null)) continue;
+                displayList.Add(new BurnableItemDisplay(new ItemSlot(item,1,null)));
+            }
+
+            return displayList;
+        }
+
+        public List<BurnableItemDisplay> GetAllMaterialsToDisplay()
+        {
+            List<BurnableItemDisplay> displayList = new List<BurnableItemDisplay>();
+            foreach (var material in materialBurnDurations.Keys)
+            {
+                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                displayList.Add(new BurnableItemDisplay(defaultItemSlot));
+            }
+
+            return displayList;
+        }
+
+        public List<ItemSlot> GetRandomBurnableItems()
+        {
+            List<ItemSlot> displayList = new List<ItemSlot>();
+            int itemAmount = Random.Range(0, RANDOM_SAMPLE_AMOUNT+1);
+            int materialAmount = RANDOM_SAMPLE_AMOUNT - itemAmount;
+            
+            var ids = itemBurnDurations.Keys.ToList();
+            System.Random random = new System.Random();
+            var shuffledKeys = ids.OrderBy(_ => random.Next()).Take(itemAmount);
+            
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            foreach (string id in shuffledKeys)
+            {
+                var item = itemRegistry.GetItemObject(id);
+                if (ReferenceEquals(item, null)) continue;
+                displayList.Add(new ItemSlot(item, 1, null));
+            }
+            
+            var materials = materialBurnDurations.Keys.ToList();
+            var shuffledMaterials = materials.OrderBy(_ => random.Next()).Take(materialAmount);
+            foreach (var material in shuffledMaterials)
+            {
+                ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
+                ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
+                displayList.Add(defaultItemSlot);
+            }
+            
+            return displayList;
+            
         }
         
         

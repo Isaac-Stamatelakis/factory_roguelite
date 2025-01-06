@@ -41,7 +41,7 @@ namespace TileEntity {
         public GameObject getUIElement() {
             return uiElementPrefab;
         }
-        public void display<T, C>(T tileEntityInstance) where T : ITileEntityInstance where C : ITileEntityUI<T>{
+        public void display<TInstance, TUIElement>(TInstance tileEntityInstance) where TInstance : ITileEntityInstance where TUIElement : ITileEntityUI<TInstance>{
             if (AssetReference == null) {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: No asset reference");
                 return;
@@ -51,13 +51,13 @@ namespace TileEntity {
                 return;
             }
             GameObject instantiated = GameObject.Instantiate(uiElementPrefab);
-            C uiComponent = instantiated.GetComponent<C>();
+            TUIElement uiComponent = instantiated.GetComponent<TUIElement>();
             if (uiComponent == null) {
-                Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: Prefab doesn't have component {typeof(C).Name}");
+                Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: Prefab doesn't have component {typeof(TUIElement).Name}");
                 return;
             }
             uiComponent.DisplayTileEntityInstance(tileEntityInstance);
-            MainCanvasController.Instance.DisplayObject(instantiated.gameObject);
+            CanvasController.Instance.DisplayObject(instantiated.gameObject);
         }
     }
 }

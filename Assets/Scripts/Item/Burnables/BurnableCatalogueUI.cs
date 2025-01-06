@@ -31,12 +31,6 @@ namespace Item.Burnables
                 case BurnableItemDisplay burnableItemDisplay:
                     DisplayItemSlot(burnableItemDisplay.ItemSlot);
                     break;
-                case BurnableMaterialDisplay burnableMaterialDisplay:
-                    TransmutableItemMaterial material = burnableMaterialDisplay.Material;
-                    ItemObject defaultItem = TransmutableItemUtils.GetMaterialItem(material, material.MaterialOptions.BaseState);
-                    ItemSlot defaultItemSlot = new ItemSlot(defaultItem, 1,null);
-                    DisplayItemSlot(defaultItemSlot);
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -66,17 +60,7 @@ namespace Item.Burnables
             ItemSlot = itemSlot;
         }
     }
-
-    public class BurnableMaterialDisplay : BurnableDisplay
-    {
-        public TransmutableItemMaterial Material;
-
-        public BurnableMaterialDisplay(TransmutableItemMaterial material)
-        {
-            Material = material;
-        }
-    }
-
+    
     public class BurnableInfo : ICatalogueElement
     {
         public List<BurnableDisplay> BurnableItems;
@@ -98,6 +82,17 @@ namespace Item.Burnables
         public int GetPageCount()
         {
             return BurnableItems.Count;
+        }
+
+        public void DisplayAllElements()
+        {
+            BurnableItemRegistry burnableItemRegistry = RecipeRegistry.BurnableItemRegistry;
+            List<BurnableDisplay> toDisplay = new List<BurnableDisplay>();
+            toDisplay.AddRange(burnableItemRegistry.GetAllItemsToDisplay());
+            toDisplay.AddRange(burnableItemRegistry.GetAllMaterialsToDisplay());
+            BurnableInfo burnableInfo = new BurnableInfo(toDisplay);
+            CatalogueElementData catalogueElementData = new CatalogueElementData(burnableInfo, CatalogueInfoDisplayType.Burnable);
+            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData});
         }
 
         public BurnableInfo(List<BurnableDisplay> burnableItems)
