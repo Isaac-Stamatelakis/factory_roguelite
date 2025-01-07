@@ -23,19 +23,30 @@ namespace Items {
         private ItemSlot itemSlot;
         private bool mouseDown = false;
         private bool listenMouse = false;
-        
+        private ItemSlotDoubleClickEvent doubleClickEvent;
         private ItemSlotUIDragEvent dragEvent;
         
         void Update()
         {
             Vector2 position = Input.mousePosition;
             transform.position = position;
-            if (Input.GetMouseButtonDown(0) && !ItemSlotUtils.IsItemSlotNull(itemSlot))
+            bool mouseClick = Input.GetMouseButtonDown(0);
+            if (mouseClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
                 listenMouse = true;
                 dragEvent = new ItemSlotUIDragEvent(itemSlot);
             }
-            
+
+            if (mouseClick)
+            {
+                TryAddDoubleClick();
+            }
+            if (doubleClickEvent != null)
+            {
+                doubleClickEvent.Tick();
+                if (doubleClickEvent.Expired()) doubleClickEvent = null;
+            }
+
         }
 
         private void FixedUpdate()
@@ -51,11 +62,38 @@ namespace Items {
                 listenMouse = false;
                 if (dragEvent != null)
                 {
-                    dragEvent.Release();
+                    if (dragEvent.Release())
+                    {
+                        doubleClickEvent = new ItemSlotDoubleClickEvent(PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>());
+                    }
                     dragEvent = null;
                 }
                 
             }
+        }
+
+        private void TryAddDoubleClick()
+        {
+            ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();
+            if (ReferenceEquals(clickHandler, null)) return;
+            if (doubleClickEvent != null && clickHandler.Equals(doubleClickEvent.ClickHandler))
+            {
+                List<ItemSlot> inventory = clickHandler.InventoryUI.GetInventory();
+                for (int i = 0; i < inventory.Count; i++)
+                {
+                    if (i == clickHandler.Index) continue;
+                    if (!ItemSlotUtils.AreEqual(inventory[i],itemSlot)) continue;
+                    ItemSlotUtils.InsertIntoSlot(itemSlot,inventory[i],Global.MaxSize);
+                    if (itemSlot.amount < Global.MaxSize) continue;
+                    doubleClickEvent = null;
+                    return;
+                }
+                doubleClickEvent = null;
+                return;
+            }
+            ItemSlot clickedSlot = clickHandler.GetInventoryItem();
+            if (ItemSlotUtils.IsItemSlotNull(clickedSlot)) return;
+            doubleClickEvent = new ItemSlotDoubleClickEvent(clickHandler);
         }
 
         public void SetItemSlot(ItemSlot itemSlot) {
@@ -117,6 +155,7 @@ namespace Items {
             if (!slotNull) totalSum += clickHandlerSlot.amount;
             uint amount = totalSum / (uint)(toSplit.Count+1);
             if (amount == 0) return; // Adding another to split will cause amount to be zero so don't add
+            
             toSplit.Add(clickHandler);
             ItemSlot temp = new ItemSlot(grabbedSlot.itemObject, amount, grabbedSlot.tags);
             foreach (ItemSlotUIClickHandler draggedSlot in toSplit)
@@ -144,6 +183,7 @@ namespace Items {
                 draggedSlot.SetInventoryItem(newSlot);
             }
             grabbedSlot.amount -= GetAmountFromGrabbed();
+            ItemSlotUtils.InsertIntoSlot(lastDragged.GetInventoryItem(),grabbedSlot,Global.MaxSize);
         }
 
         private uint GetAmountFromGrabbed()
@@ -151,18 +191,43 @@ namespace Items {
             return (grabbedSlot.amount / (uint) toSplit.Count) * (uint)toSplit.Count; 
         }
 
-        public void Release()
+        public bool Release()
         {
-            if (toSplit.Count < 2) return;
+            if (toSplit.Count < 2) return false;
             ItemSlot lastDraggedSlot = lastDragged.GetInventoryItem();
             if (ItemSlotUtils.IsItemSlotNull(lastDraggedSlot) || ItemSlotUtils.AreEqual(lastDraggedSlot, grabbedSlot))
             {
                 Split();
+                return false;
             }
             else
             {
                 Reset();
+                return true;
             }
+        }
+    }
+
+    public class ItemSlotDoubleClickEvent
+    {
+        public ItemSlotUIClickHandler ClickHandler;
+        private ItemSlot doubleClickSlot;
+        private static readonly float lifeTime = 0.33f;
+        private float time;
+        public ItemSlotDoubleClickEvent(ItemSlotUIClickHandler clickHandler)
+        {
+            this.ClickHandler = clickHandler;
+        }
+
+        public void Tick()
+        {
+            time += Time.deltaTime;
+        }
+        
+
+        public bool Expired()
+        {
+            return time > lifeTime;
         }
     }
 }

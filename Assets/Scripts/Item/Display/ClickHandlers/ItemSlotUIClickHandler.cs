@@ -13,7 +13,9 @@ namespace Item.Display.ClickHandlers
     {
         public bool EnableToolTip;
         protected InventoryUI inventoryUI;
+        public InventoryUI InventoryUI => inventoryUI;
         protected int index;
+        public int Index => index;
         public ItemSlotUI ItemSlotUI;
         public void Initialize(InventoryUI parent, int index) {
             this.inventoryUI = parent;
