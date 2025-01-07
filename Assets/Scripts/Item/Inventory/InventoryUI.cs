@@ -29,6 +29,8 @@ namespace Items.Inventory {
         private int highlightedSlot = -1;
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
+        private InventoryUI connection;
+        public InventoryUI Connection => connection;
         
         public void Awake()
         {
@@ -63,6 +65,11 @@ namespace Items.Inventory {
             InventoryInteractMode = mode;
         }
 
+        public void SetConnection(InventoryUI connection)
+        {
+            this.connection = connection;
+        }
+
         public void DisplayInventory(List<ItemSlot> displayInventory, int displayAmount, bool clear = true)
         {
             if (clear)
@@ -90,41 +97,6 @@ namespace Items.Inventory {
             }
         }
         
-        public void DisplayImages(List<ItemDisplayList> itemDisplayLists, List<string> strings, bool clear = true)
-        {
-            int displayAmount = itemDisplayLists?.Count ?? 0;
-            DisplayImages(itemDisplayLists, strings, displayAmount, clear:clear);
-        }
-
-        public void DisplayImages(List<ItemDisplayList> itemDisplayLists, List<string> strings, int displayAmount, bool clear = true)
-        {
-            InventoryInteractMode = InventoryInteractMode.Recipe;
-            if (clear)
-            {
-                slots.Clear();
-                GlobalHelper.deleteAllChildren(transform);
-            }
-            while (slots.Count < displayAmount)
-            {
-                AddSlot();
-            }
-            while (slots.Count > displayAmount)
-            {
-                PopSlot();
-            }
-            
-            for (int i = 0; i < displayAmount; i++)
-            {
-                if (i < itemDisplayLists.Count)
-                {
-                    slots[i].DisplayFormattedList(itemDisplayLists[i],strings[i]);
-                }
-                else
-                {
-                    slots[i].DisplayFormattedList(null,null);
-                }
-            }
-        }
         
         public void AddListener(IInventoryListener listener) {
             listeners.Add(listener);

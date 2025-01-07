@@ -145,26 +145,21 @@ namespace TileEntity.Instances.Workbench.UI
 
         private void InitializeRecipeElement(DisplayableRecipe displayableRecipe, RecipeListHeader header, int mode, int index, List<RecipeListElement> elements)
         {
-            if (displayableRecipe is not ItemDisplayableRecipe itemDisplayableRecipe)
+            RecipeListElement recipeListElement = Instantiate(listElementPrefab, mContentList.transform);
+            string itemName = string.Empty;
+            if (displayableRecipe is ItemDisplayableRecipe itemDisplayableRecipe)
             {
-                Debug.LogError($"Recipe tried to display non item display recipe: {displayableRecipe.RecipeData.Recipe.name}");
-                return;
+                ItemSlot output = itemDisplayableRecipe.SolidOutputs[0];
+                recipeListElement.Display(new List<ItemSlot>{output}, displayableRecipe.RecipeData.Recipe,this,header,mode,index);
+                itemName = output.itemObject.name;
             }
 
-            if (itemDisplayableRecipe.SolidOutputs.Count == 0)
+            if (displayableRecipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
             {
-                Debug.LogError($"Recipe list tried to display empty  recipe: {displayableRecipe.RecipeData.Recipe.name}");
-                return;
+                recipeListElement.Display(transmutationDisplayableRecipe.Outputs, displayableRecipe.RecipeData.Recipe,this,header,mode,index);
+                itemName = transmutationDisplayableRecipe.RecipeData.Recipe.name;
             }
-            
-            if (itemDisplayableRecipe.SolidOutputs.Count > 1)
-            {
-                Debug.LogWarning($"Recipe list recipe has more than one output: {displayableRecipe.RecipeData.Recipe.name}");
-            }
-            RecipeListElement recipeListElement = Instantiate(listElementPrefab, mContentList.transform);
-            ItemSlot output = itemDisplayableRecipe.SolidOutputs[0];
-            recipeListElement.Display(output, displayableRecipe.RecipeData.Recipe,this,header,mode,index);
-            string itemName = output.itemObject.name;
+
             if (!itemNameElementDict.ContainsKey(itemName))
             {
                 itemNameElementDict[itemName] = new List<RecipeListElement>();
@@ -179,7 +174,9 @@ namespace TileEntity.Instances.Workbench.UI
         public void Select(int mode, int index)
         {
             if (mode == currentMode && index == currentIndex) return;
+            if (!modeElementDict.ContainsKey(mode)) return;
             var (header, recipeElements) = modeElementDict[mode];
+            if (recipeElements.Count < 0 || index >= recipeElements.Count) return;
             recipeElements[index].SetColor(highLightColor);
             if (currentIndex >= 0 && currentMode >= 0)
             {

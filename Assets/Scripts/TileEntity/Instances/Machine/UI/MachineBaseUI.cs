@@ -14,6 +14,11 @@ using UnityEngine.UI;
 namespace TileEntity.Instances.Machine.UI
 {
 
+    public interface IInventoryUITileEntityUI
+    {
+        public InventoryUI GetInput();
+        public InventoryUI GetOutput();
+    }
     public interface IMachineInstance : ITileEntityInstance, IInventoryListener
     {
         public float GetProgressPercent();
@@ -27,7 +32,7 @@ namespace TileEntity.Instances.Machine.UI
         public void ResetRecipe();
     }
     
-    public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener, IRecipeProcessorUI
+    public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener, IRecipeProcessorUI, IInventoryUITileEntityUI
     {
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         [SerializeField] private TextMeshProUGUI titleText;
@@ -116,6 +121,16 @@ namespace TileEntity.Instances.Machine.UI
             tileEntityInventoryUI.DisplayRecipe(recipe);
             batteryInventoryUI.gameObject.SetActive(false);
             amountIteratorUI.gameObject.SetActive(false);
+        }
+
+        public InventoryUI GetInput()
+        {
+            return tileEntityInventoryUI.solidInputUI;
+        }
+
+        public InventoryUI GetOutput()
+        {
+            return tileEntityInventoryUI.solidOutputUI;
         }
     }
 }

@@ -176,7 +176,7 @@ namespace Recipe.Processor
                 {
                     RecipeUtils.InsertValidRecipes(recipeProcessorObject, recipeObject, itemRecipes,modeRecipeTransmutation[mode]);
                 }
-                Debug.Log($"MODE : {mode}| COUNT {itemRecipes.Count}");
+                
                 foreach (ItemRecipeObject itemRecipeObject in itemRecipes)
                 {
                     var inputs = new List<ItemSlot>();
@@ -261,22 +261,8 @@ namespace Recipe.Processor
                     var transItemObject = transmutableItem.itemObject as TransmutableItemObject;
                     var state = transItemObject!.getState();
                     if (!stateRecipeDict.TryGetValue(state, out var transmutableRecipe)) continue;
-                    float efficency = 1f;
-                    switch (transmutableRecipe.Efficency)
-                    {
-                        case TransmutationEfficency.Half:
-                            efficency *= 1/2f;
-                            break;
-                    }
-
-                    uint requiredAmount = TransmutableItemUtils.GetTransmutationRatio(transmutableRecipe.OutputState, transmutableRecipe.InputState, efficency);
-                    if (transmutableItem.amount < requiredAmount)
-                    {
-                        continue;
-                    }
-                    transmutableItem.amount -= requiredAmount;
-                    var output = TransmutableItemUtils.TransmuteOutput(transItemObject.getMaterial(), transmutableRecipe.InputState, transmutableRecipe.OutputState);
-                    return (T)RecipeFactory.GetTransmutationRecipe(recipeProcessorObject.RecipeType,transItemObject.getMaterial(), state, output);
+                    var result = RecipeUtils.TryCraftTransmutableRecipe<T>(transmutableRecipe,transmutableItem,transItemObject.getMaterial(),recipeProcessorObject.RecipeType);
+                    if (result != null) return result;
                 }
             }
             if (!modeRecipeDict.TryGetValue(mode, out var recipeDict))

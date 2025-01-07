@@ -17,10 +17,10 @@ namespace TileEntity.Instances.Machine.UI
 {
     public class TileEntityInventoryUI : MonoBehaviour
     {
-        [SerializeField] protected InventoryUI solidInputUI;
-        [SerializeField] protected InventoryUI solidOutputUI;
-        [SerializeField] protected InventoryUI fluidInputUI;
-        [SerializeField] protected InventoryUI fluidOutputUI;
+        [SerializeField] public InventoryUI solidInputUI;
+        [SerializeField] public InventoryUI solidOutputUI;
+        [SerializeField] public InventoryUI fluidInputUI;
+        [SerializeField] public InventoryUI fluidOutputUI;
         private ITileEntityInstance displayedTileEntity;
         
         public void Display(TileEntityInventory machineItemInventory, TileEntityLayoutObject layoutObject, ITileEntityInstance tileEntityInstance)
@@ -58,22 +58,22 @@ namespace TileEntity.Instances.Machine.UI
                 InitializeTransmutationSwitchUIRecipe(
                     solidInputUI, 
                     transmutationDisplayableRecipe.InputState == ItemState.Solid ? inputs : null, 
-                    layoutObject.SolidInputs
+                    layoutObject?.SolidInputs
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     fluidInputUI, 
                     transmutationDisplayableRecipe.InputState == ItemState.Fluid ? inputs : null, 
-                    layoutObject.FluidInputs
+                    layoutObject?.FluidInputs
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     solidOutputUI, 
                     transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
-                    layoutObject.SolidOutputs
+                    layoutObject?.SolidOutputs
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     fluidOutputUI, 
                     transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
-                    layoutObject.FluidOutputs
+                    layoutObject?.FluidOutputs
                 );
                 
             }

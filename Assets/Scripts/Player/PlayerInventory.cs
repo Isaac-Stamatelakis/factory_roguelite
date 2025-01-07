@@ -30,7 +30,7 @@ namespace PlayerModule {
         private bool expanded = false;
 
         public List<ItemSlot> Inventory { get => inventory; set => inventory = value; }
-
+        public InventoryUI InventoryUI => playerInventoryGrid;
         // Start is called before the first frame update
         void Start()
         {

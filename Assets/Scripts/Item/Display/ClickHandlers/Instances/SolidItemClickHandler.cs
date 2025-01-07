@@ -15,6 +15,15 @@ namespace Item.Inventory.ClickHandlers.Instances
         protected override void RightClick() {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             var inventory = inventoryUI.GetInventory();
+            if (ItemSlotUtils.IsItemSlotNull(inventory[index]))
+            {
+                ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
+                if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
+                ItemSlot newSlot = new ItemSlot(grabbedSlot.itemObject, 1, grabbedSlot.tags);
+                inventoryUI.SetItem(index,newSlot);
+                grabbedSlot.amount--;
+                return;
+            }
             if (!grabbedItemProperties.SetItemSlotFromInventory(inventory,index)) {
                 grabbedItemProperties.AddItemSlotFromInventory(inventory,index);
             }
@@ -46,10 +55,29 @@ namespace Item.Inventory.ClickHandlers.Instances
                     inventorySlot.amount = sum;
                     grabbedItemProperties.SetItemSlot(null);
                 }
-            } else {    
-                // Swap
-                inventory[index] = grabbedItemProperties.ItemSlot;
-                grabbedItemProperties.SetItemSlot(inventorySlot);
+            } else {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    
+                    if (ReferenceEquals(inventoryUI.Connection, null))
+                    {
+                        return;
+                    }
+                    var connectionInventory = inventoryUI.Connection.GetInventory();
+                    if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory,inventory[index],Global.MaxSize))
+                    {
+                        ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], Global.MaxSize);
+                        inventoryUI.Connection.RefreshSlots();
+                        inventoryUI.Connection.CallListeners(0);
+                    }
+                }
+                else
+                {
+                    // Swap
+                    inventory[index] = grabbedItemProperties.ItemSlot;
+                    grabbedItemProperties.SetItemSlot(inventorySlot);
+                }
+                
             }
 
             inventoryUI.DisplayItem(index);

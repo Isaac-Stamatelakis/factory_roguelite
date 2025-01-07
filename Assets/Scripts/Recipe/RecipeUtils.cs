@@ -39,6 +39,17 @@ public static class RecipeUtils {
 
         return default;
     }
+
+    public static T TryCraftTransmutableRecipe<T>(TransmutableRecipeObject transmutableRecipe, ItemSlot inputItem, TransmutableItemMaterial material, RecipeType recipeType)
+    where T : ItemRecipe
+    {
+        float efficency = transmutableRecipe.Efficency.Value();
+        uint requiredAmount = TransmutableItemUtils.GetTransmutationRatio(transmutableRecipe.OutputState, transmutableRecipe.InputState, efficency);
+        if (inputItem.amount < requiredAmount) return default;
+        inputItem.amount -= requiredAmount;
+        var output = TransmutableItemUtils.TransmuteOutput(material, transmutableRecipe.InputState, transmutableRecipe.OutputState);
+        return (T)RecipeFactory.GetTransmutationRecipe(recipeType,material, transmutableRecipe.OutputState, output);
+    }
     
     public static Dictionary<string, long> GetRequiredAmounts(ItemRecipeObjectInstance candidateRecipe)
     {

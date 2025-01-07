@@ -87,7 +87,7 @@ namespace PlayerModule.KeyPress {
             }
         }
 
-        private T GetPointerOverComponent<T>() where T : Component
+        public static T GetPointerOverComponent<T>() where T : Component
         {
             PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
             {
@@ -102,8 +102,8 @@ namespace PlayerModule.KeyPress {
             if (!ReferenceEquals(component, null)) return component;
             component = hoveredElement.GetComponentInParent<T>();
             return component;
-
         }
+        
 
         private void controls() {
 

@@ -68,7 +68,12 @@ namespace Items.Transmutable
             uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
             uint outputAmount = (uint)(gcd * outputState.getRatio() * efficency);
             ItemSlot output = new ItemSlot(outputItem, outputAmount, null);
-            return (output);
+            return output;
+        }
+
+        public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableRecipeObject recipeObject)
+        {
+            return TransmuteOutput(material,recipeObject.InputState,recipeObject.OutputState,recipeObject.Efficency.Value());
         }
         
         private static uint GetGcd(uint a, uint b)
