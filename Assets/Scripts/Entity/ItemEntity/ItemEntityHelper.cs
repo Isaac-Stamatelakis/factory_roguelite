@@ -8,7 +8,7 @@ namespace Entities {
     public static class ItemEntityHelper
     {
         public static GameObject spawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
-            if (itemSlot == null || itemSlot.itemObject == null) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 return null;
             }
             GameObject tileItemEntity = new GameObject();
@@ -23,7 +23,7 @@ namespace Entities {
 
         public static GameObject spawnItemEntityWithVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2 velocity) {
             GameObject tileItemEntity = spawnItemEntity(position,itemSlot,entityContainer);
-            if (tileItemEntity == null) {
+            if (ReferenceEquals(tileItemEntity, null)) {
                 return null;
             }
             tileItemEntity.GetComponent<Rigidbody2D>().velocity = velocity;

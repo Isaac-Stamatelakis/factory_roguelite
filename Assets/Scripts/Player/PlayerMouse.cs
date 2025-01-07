@@ -18,6 +18,7 @@ using Dimensions;
 using Items;
 using TileEntity;
 using Entities;
+using Item.GrabbedItem;
 using PlayerModule.IO;
 using UI;
 
