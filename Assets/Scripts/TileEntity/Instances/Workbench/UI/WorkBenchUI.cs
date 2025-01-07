@@ -11,6 +11,7 @@ using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
 using Recipe.Viewer;
+using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Workbench;
 using TileEntity.Instances.Workbench.UI;
 using TileEntity.Instances.WorkBenchs;
@@ -106,7 +107,13 @@ namespace TileEntity.Instances.WorkBench {
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);
             mRecipeLookUpList.Initialize(recipeProcessorInstance,this, tileEntityInstance.WorkBenchData); // Note this displays the first recipe
             mInventoryUIGroup.gameObject.SetActive(tileEntityInstance.Inventory!=null);
-            if (tileEntityInstance.Inventory != null) mInventoryUI.DisplayInventory(tileEntityInstance.Inventory);
+            if (!ReferenceEquals(mInventoryUI, null))
+            {
+                mInventoryUI.DisplayInventory(tileEntityInstance.Inventory);
+                mInventoryUI.SetConnection(mPlayerInventoryUI);
+                mPlayerInventoryUI.SetConnection(mInventoryUI);
+            }
+        
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)

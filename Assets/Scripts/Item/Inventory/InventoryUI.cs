@@ -29,6 +29,8 @@ namespace Items.Inventory {
         private int highlightedSlot = -1;
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
+        private InventoryUI connection;
+        public InventoryUI Connection => connection;
         
         public void Awake()
         {
@@ -61,6 +63,11 @@ namespace Items.Inventory {
         public void SetInteractMode(InventoryInteractMode mode)
         {
             InventoryInteractMode = mode;
+        }
+
+        public void SetConnection(InventoryUI connection)
+        {
+            this.connection = connection;
         }
 
         public void DisplayInventory(List<ItemSlot> displayInventory, int displayAmount, bool clear = true)

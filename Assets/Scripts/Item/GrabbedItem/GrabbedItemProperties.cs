@@ -104,6 +104,11 @@ namespace Items {
         public void UpdateSprite() {
             ItemSlotUI.Display(itemSlot);
         }
+
+        public void DisplayTemp(ItemSlot tempSlot)
+        {
+            ItemSlotUI.Display(tempSlot);
+        }
         
         public bool SetItemSlotFromInventory(List<ItemSlot> inventory, int n)
         {
@@ -120,11 +125,11 @@ namespace Items {
             if (!ItemSlotUtils.AreEqual(ItemSlot,inventorySlot)) {
                 return;
             }
-            if (ItemSlot.amount >= Global.MaxSize) {
+            if (inventorySlot.amount >= Global.MaxSize) {
                 return;
             }
-            inventorySlot.amount--;
-            this.ItemSlot.amount += 1;
+            inventorySlot.amount++;
+            this.ItemSlot.amount--;
             UpdateSprite();
         }
     }
@@ -162,6 +167,7 @@ namespace Items {
             {
                 draggedSlot.ItemSlotUI.Display(temp);
             }
+            GrabbedItemProperties.Instance.DisplayTemp(temp);
             
         }
 
@@ -172,6 +178,7 @@ namespace Items {
                 ItemSlot clickHandlerSlot = draggedSlot.GetInventoryItem();
                 draggedSlot.ItemSlotUI.Display(clickHandlerSlot);
             }
+            GrabbedItemProperties.Instance.UpdateSprite();
         }
 
         public void Split()
@@ -195,16 +202,17 @@ namespace Items {
         {
             if (toSplit.Count < 2) return false;
             ItemSlot lastDraggedSlot = lastDragged.GetInventoryItem();
-            if (ItemSlotUtils.IsItemSlotNull(lastDraggedSlot) || ItemSlotUtils.AreEqual(lastDraggedSlot, grabbedSlot))
+            bool split = ItemSlotUtils.IsItemSlotNull(lastDraggedSlot) || ItemSlotUtils.AreEqual(lastDraggedSlot, grabbedSlot);
+            if (split)
             {
                 Split();
-                return false;
             }
             else
             {
                 Reset();
-                return true;
             }
+            GrabbedItemProperties.Instance.UpdateSprite();
+            return !split;
         }
     }
 

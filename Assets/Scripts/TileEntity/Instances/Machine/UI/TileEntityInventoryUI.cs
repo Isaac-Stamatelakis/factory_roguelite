@@ -17,10 +17,10 @@ namespace TileEntity.Instances.Machine.UI
 {
     public class TileEntityInventoryUI : MonoBehaviour
     {
-        [SerializeField] protected InventoryUI solidInputUI;
-        [SerializeField] protected InventoryUI solidOutputUI;
-        [SerializeField] protected InventoryUI fluidInputUI;
-        [SerializeField] protected InventoryUI fluidOutputUI;
+        [SerializeField] public InventoryUI solidInputUI;
+        [SerializeField] public InventoryUI solidOutputUI;
+        [SerializeField] public InventoryUI fluidInputUI;
+        [SerializeField] public InventoryUI fluidOutputUI;
         private ITileEntityInstance displayedTileEntity;
         
         public void Display(TileEntityInventory machineItemInventory, TileEntityLayoutObject layoutObject, ITileEntityInstance tileEntityInstance)

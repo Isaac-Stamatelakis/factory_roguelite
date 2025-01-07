@@ -1,6 +1,7 @@
 using System;
 using Items.Inventory;
 using PlayerModule;
+using TileEntity.Instances.Machine.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,23 +15,18 @@ namespace UI.PlayerInvUI
         public void Start()
         {
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
-            GridLayoutGroup gridLayoutGroup = playerInventoryUI.GetComponent<GridLayoutGroup>();
-            int width = GetSize((int)gridLayoutGroup.cellSize.x, (int)gridLayoutGroup.spacing.x, 10)+100;
-            int height = GetSize((int)gridLayoutGroup.cellSize.y, (int)gridLayoutGroup.spacing.y, 4)+50;
-            RectTransform playerRectTransform = playerInventoryContainer.transform as RectTransform;
-            playerRectTransform!.sizeDelta = new Vector2(0, height);
-            RectTransform rectTransform = transform as RectTransform;
-            rectTransform!.sizeDelta = new Vector2(width, 0);
             playerInventoryUI.DisplayInventory(playerInventory.Inventory);
-        }
-
-        private int GetSize(int gridSize, int spacing, int count)
-        {
-            return gridSize * count + spacing * (count - 1);
         }
 
         public void DisplayWithPlayerInventory(GameObject uiObject, bool below)
         {
+            IInventoryUITileEntityUI inventoryUIAggregator = uiObject.GetComponent<IInventoryUITileEntityUI>();
+            if (!ReferenceEquals(inventoryUIAggregator, null))
+            {
+                playerInventoryUI.SetConnection(inventoryUIAggregator.GetInput());
+                inventoryUIAggregator.GetInput().SetConnection(playerInventoryUI);
+                inventoryUIAggregator.GetOutput().SetConnection(playerInventoryUI);
+            }
             uiObject.transform.SetParent(transform,false);
             if (!below)
             {
