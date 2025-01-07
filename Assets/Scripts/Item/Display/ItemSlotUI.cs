@@ -48,6 +48,7 @@ namespace Items {
         public Transform TagBehindContainer;
         public Transform TagFrontContainer;
         private ItemDisplayList currentDisplayList;
+        
         private int counter;
         private ItemSlot displayedSlot;
         public void FixedUpdate() {
@@ -127,15 +128,7 @@ namespace Items {
             
             DisplayTagVisuals(itemSlot);
         }
-
-        public void DisplayFormattedList(ItemDisplayList itemDisplayList, string text)
-        {
-            currentDisplayList = itemDisplayList;
-            displayedSlot = null;
-            DisableItemSlotVisuals();
-            counter = 0;
-            RefreshDisplay();
-        }
+        
         
         public ItemSlot GetDisplayedSlot() {
             return displayedSlot;

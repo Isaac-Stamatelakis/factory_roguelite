@@ -1,5 +1,6 @@
 using System;
 using Item.Slot;
+using Items;
 using Items.Inventory;
 using UI.Catalogue.InfoViewer;
 using UI.ToolTip;
@@ -13,10 +14,13 @@ namespace Item.Display.ClickHandlers
         public bool EnableToolTip;
         protected InventoryUI inventoryUI;
         protected int index;
+        public ItemSlotUI ItemSlotUI;
         public void Initialize(InventoryUI parent, int index) {
             this.inventoryUI = parent;
             this.index = index;
+            ItemSlotUI = GetComponent<ItemSlotUI>();
         }
+        
         
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -78,6 +82,16 @@ namespace Item.Display.ClickHandlers
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             CatalogueInfoUtils.DisplayItemUses(itemSlot);
+        }
+
+        public ItemSlot GetInventoryItem()
+        {
+            return inventoryUI?.GetItemSlot(index);
+        }
+
+        public void SetInventoryItem(ItemSlot itemSlot)
+        {
+            inventoryUI?.SetItem(index,itemSlot);
         }
         protected abstract void LeftClick();
         protected abstract void RightClick();
