@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
 using Items.Inventory;
+using Items.Transmutable;
 using UnityEngine;
 using RecipeModule;
 using PlayerModule;
@@ -25,31 +26,87 @@ namespace TileEntity.Instances.WorkBench {
         [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private InventoryUI mPlayerInventoryUI;
 
+        private WorkBenchInstance workBenchInstance;
         public void TryCraftItem()
         {
-            PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
-            if (mRecipeLookUpList.GetCurrentRecipe() is not ItemRecipeObject itemRecipeObject) return;
-            var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
-            if (!ItemSlotUtils.CanInsertIntoInventory(playerInventory.Inventory, outputs, Global.MaxSize)) return;
-            ItemRecipeObjectInstance itemRecipeObjectInstance = new ItemRecipeObjectInstance(itemRecipeObject);
-            var itemRecipe = RecipeUtils.TryCraftRecipe<ItemRecipe>(itemRecipeObjectInstance, playerInventory.Inventory, null, RecipeType.Item);
-            if (itemRecipe == null) return;
-            ItemSlotUtils.InsertInventoryIntoInventory(playerInventory.Inventory,itemRecipe.SolidOutputs, Global.MaxSize);
-            playerInventory.Refresh();
+            RecipeObject recipeObject = mRecipeLookUpList.GetCurrentRecipe();
+            var sourceInventoryUI = workBenchInstance.Inventory == null
+                ? PlayerContainer.getInstance().getInventory().InventoryUI
+                : mInventoryUI;
+            List<ItemSlot> sourceInventory = workBenchInstance.Inventory ?? PlayerContainer.getInstance().getInventory().Inventory;
+            if (recipeObject is ItemRecipeObject itemRecipeObject)
+            {
+                var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
+                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, outputs, Global.MaxSize)) return;
+                ItemRecipeObjectInstance itemRecipeObjectInstance = new ItemRecipeObjectInstance(itemRecipeObject);
+                var itemRecipe = RecipeUtils.TryCraftRecipe<ItemRecipe>(itemRecipeObjectInstance, sourceInventory, null, RecipeType.Item);
+                if (itemRecipe == null) return;
+                ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MaxSize);
+            }
+
+            if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
+            {
+                TryCraftTransmutableRecipe(transmutableRecipeObject, sourceInventory);
+            }
+            
+            sourceInventoryUI.RefreshSlots();
+        }
+
+        private void TryCraftTransmutableRecipe(TransmutableRecipeObject transmutableRecipeObject, List<ItemSlot> sourceInventory)
+        {
+            foreach (ItemSlot itemSlot in sourceInventory)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                if (itemSlot.itemObject is not TransmutableItemObject transmutableItemObject) continue;
+                if (transmutableItemObject.getState() != transmutableRecipeObject.InputState) continue;
+                var output = TransmutableItemUtils.TransmuteOutput(transmutableItemObject.getMaterial(), transmutableRecipeObject);
+                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, output, Global.MaxSize)) continue;
+                
+                var itemRecipe = RecipeFactory.GetTransmutationRecipe(
+                    workBenchInstance.TileEntityObject.WorkBenchRecipeProcessor.RecipeType,
+                    transmutableItemObject.getMaterial(),
+                    transmutableRecipeObject.OutputState,
+                    output
+                );
+                
+                var result = RecipeUtils.TryCraftTransmutableRecipe<ItemRecipe>(
+                    transmutableRecipeObject,
+                    itemSlot,
+                    transmutableItemObject.getMaterial(),
+                    RecipeType.Item
+                );
+                if (result != null)
+                {
+                    ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MaxSize);
+                    return;
+                }
+            }
+        }
+
+        private List<ItemSlot> GetSourceInventory()
+        {
+            return workBenchInstance.Inventory ?? PlayerContainer.getInstance().getInventory().Inventory;
+        }
+        public void TryCraftItemRecipe()
+        {
+            
+        }
+
+        public void TryCraftTransmutationRecipe()
+        {
+            
         }
 
         public void DisplayTileEntityInstance(WorkBenchInstance tileEntityInstance)
         {
+            workBenchInstance = tileEntityInstance;
             mWorkbenchProcessorUI.Initialize(this);
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);
             mRecipeLookUpList.Initialize(recipeProcessorInstance,this, tileEntityInstance.WorkBenchData); // Note this displays the first recipe
             mInventoryUIGroup.gameObject.SetActive(tileEntityInstance.Inventory!=null);
-            if (tileEntityInstance.Inventory != null)
-            {
-                mInventoryUI.DisplayInventory(tileEntityInstance.Inventory);
-            }
+            if (tileEntityInstance.Inventory != null) mInventoryUI.DisplayInventory(tileEntityInstance.Inventory);
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)

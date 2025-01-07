@@ -41,25 +41,27 @@ namespace Item.Slot
             if (contained == null) {
                 return false;
             }
+
+            int firstNullIndex = -1;
+            // First pass look for matches
             for (int i = 0; i < contained.Count; i++) {
                 ItemSlot inputSlot = contained[i];
-                if (IsItemSlotNull(inputSlot)) {
-                    contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
-                    toInsert.amount=0;
-                    return true;
-                }
-                if (!AreEqual(inputSlot,toInsert)) {
+                if (IsItemSlotNull(inputSlot))
+                {
+                    if (firstNullIndex < 0) firstNullIndex = i;
                     continue;
                 }
-            
-                if (inputSlot.amount >= maxSize) {
+                if (!AreEqual(inputSlot,toInsert) || inputSlot.amount >= maxSize) {
                     continue;
                 }
-                // Success
                 InsertIntoSlot(inputSlot,toInsert,maxSize);
                 return true;
             }
-            return false;
+
+            if (firstNullIndex < 0) return false;
+            contained[firstNullIndex] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
+            toInsert.amount=0;
+            return true;
         }
 
         public static bool IsItemSlotNull(ItemSlot itemSlot)

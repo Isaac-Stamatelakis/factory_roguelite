@@ -24,6 +24,7 @@ namespace TileEntity.Instances.WorkBenchs {
 
         public string serialize()
         {
+            WorkBenchData.SInventory = ItemSlotFactory.serializeList(Inventory);
             return JsonConvert.SerializeObject(WorkBenchData);
         }
 
@@ -31,6 +32,10 @@ namespace TileEntity.Instances.WorkBenchs {
         {
             WorkBenchData = JsonConvert.DeserializeObject<WorkBenchData>(data);
             Inventory = ItemSlotFactory.Deserialize(WorkBenchData.SInventory);
+            if (Inventory == null && tileEntityObject.HasInventory)
+            {
+                Inventory = ItemSlotFactory.createEmptyInventory(10);
+            }
         }
 
         public void PlaceInitialize()

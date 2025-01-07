@@ -1,3 +1,4 @@
+using System;
 using Recipe.Data;
 using UnityEngine;
 
@@ -15,5 +16,21 @@ namespace Recipe.Objects
     {
         Max,
         Half
+    }
+
+    public static class TransmutableExtension
+    {
+        public static float Value(this TransmutationEfficency efficency)
+        {
+            switch (efficency)
+            {
+                case TransmutationEfficency.Max:
+                    return 0.5f;
+                case TransmutationEfficency.Half:
+                    return 1f;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(efficency), efficency, null);
+            }
+        }
     }
 }
