@@ -6,7 +6,7 @@ using UnityEngine.Experimental.Rendering.Universal;
 public enum CameraViewSize {
     Small,
     Medium,
-    Large
+    Large,
 }
 public class CameraView : MonoBehaviour
 {
@@ -29,19 +29,19 @@ public class CameraView : MonoBehaviour
         pixelPerfectCamera.enabled = true;
         switch (cameraViewSize) {
             case CameraViewSize.Small:
-                pixelPerfectCamera.refResolutionX = 400;
-                pixelPerfectCamera.refResolutionY = 100;
+                pixelPerfectCamera.refResolutionX = 480;
+                pixelPerfectCamera.refResolutionY = 270;
                 chunkPartitionLoadRange = new Vector2Int(5,4);
                 break;
             case CameraViewSize.Medium:
                 chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5);
-                pixelPerfectCamera.refResolutionX = 614;
-                pixelPerfectCamera.refResolutionY = 200;
+                pixelPerfectCamera.refResolutionX = 640;
+                pixelPerfectCamera.refResolutionY = 360;
                 break;
             case CameraViewSize.Large:
                 chunkPartitionLoadRange = new Vector2Int(8,6);
-                pixelPerfectCamera.refResolutionX = 614;
-                pixelPerfectCamera.refResolutionY = 400;
+                pixelPerfectCamera.refResolutionX = 960;
+                pixelPerfectCamera.refResolutionY = 540;
                 break;    
         }
         StartCoroutine(setCameraSizeDelayed());

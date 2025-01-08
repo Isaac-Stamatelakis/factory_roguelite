@@ -124,6 +124,8 @@ namespace Recipe.Viewer {
             TransmutableRecipeObject transmutableRecipeObject = (TransmutableRecipeObject)displayableRecipe.RecipeData.Recipe;
             switch (recipeType)
             {
+                case RecipeType.Item:
+                    return new List<string>();
                 case RecipeType.Machine:
                     return new List<string>
                     {

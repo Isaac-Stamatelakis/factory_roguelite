@@ -11,6 +11,8 @@ using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
 using System.Linq;
+using Item.Slot;
+using Items;
 using UnityEngine.AddressableAssets;
 
 #if UNITY_EDITOR 
@@ -71,29 +73,18 @@ namespace DevTools.Structures {
                 generationOption.apply(dimData);
             }
             WorldGenerationFactory.SaveToJson(dimData,caveSize,0,structureDimPath);
-
-
-            List<SerializedItemSlot> inventory = new List<SerializedItemSlot>();
-            inventory.Add(new SerializedItemSlot(
-                parameterId,
-                999,
-                null
-            ));
-            inventory.Add(new SerializedItemSlot(
-                fillId,
-                999,
-                null
-            ));
-            for (int i = 0; i < 38; i++) {
-               inventory.Add(new SerializedItemSlot(null,0,null)); 
-            }
-            string seralizedInv = Newtonsoft.Json.JsonConvert.SerializeObject(inventory);
+            PlayerInventoryData playerInventoryData = PlayerInventoryFactory.GetDefault();
+            playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(parameterId),
+                Global.MaxSize, null);
+            playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(parameterId),
+                Global.MaxSize, null);
+            
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
                 playerRobot: RobotDataFactory.getDefaultRobotString(true),
                 name: "Izakio",
-                inventoryJson: seralizedInv
+                sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             string playerDataPath = Path.Combine(path,"player_data.json");

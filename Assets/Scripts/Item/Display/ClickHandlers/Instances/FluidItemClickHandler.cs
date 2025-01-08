@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Item.Display.ClickHandlers;
+using Item.GrabbedItem;
 using Item.Slot;
 using Items;
 using Items.Tags;
@@ -80,6 +81,11 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
 
         protected override void MiddleClick()
+        {
+            
+        }
+
+        public override void MiddleMouseScroll()
         {
             
         }

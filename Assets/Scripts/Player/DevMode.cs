@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,12 @@ using TileMaps.Layer;
 
 public class DevMode : MonoBehaviour
 {
+    private static DevMode instance;
+    public static DevMode Instance => instance;
+    public void Awake()
+    {
+        instance = this;
+    }
 
     [SerializeField] public bool noClip;
     [SerializeField] public bool flight;

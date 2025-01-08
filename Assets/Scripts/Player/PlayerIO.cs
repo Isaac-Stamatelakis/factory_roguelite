@@ -30,7 +30,6 @@ namespace PlayerModule.IO {
             string playerJsonPath = WorldLoadUtils.getPlayerDataPath();
             string json = File.ReadAllText(playerJsonPath);
             playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
-            //transform.position = new Vector3(playerData.x,playerData.y,transform.position.z);
             ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerData.playerRobot);
             GetComponent<PlayerRobot>().setRobot(playerRobotItem);
             tilePlacePreviewController.Toggle();
@@ -45,7 +44,7 @@ namespace PlayerModule.IO {
             playerData.x = transform.position.x;
             playerData.y = transform.position.y;
             playerData.dim = DimensionManager.Instance.getPlayerDimension(transform);
-            playerData.inventoryJson = GetComponent<PlayerInventory>().getJson();
+            playerData.sInventoryData = PlayerInventoryFactory.Serialize(GetComponent<PlayerInventory>().PlayerInventoryData);
             string playerJsonPath =  WorldLoadUtils.getPlayerDataPath();
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             if (robotItem == null) {
@@ -57,26 +56,26 @@ namespace PlayerModule.IO {
         }
         
         public string getPlayerInventoryData() {
-            return playerData.inventoryJson;
+            return playerData.sInventoryData;
         }
 
     }
 
     [System.Serializable]
     public class PlayerData {
-        public PlayerData(float x, float y, string playerRobot, string name, string inventoryJson) {
+        public PlayerData(float x, float y, string playerRobot, string name, string sInventoryData) {
             this.x = x;
             this.y = y;
             this.playerRobot = playerRobot;
             this.name = name;
-            this.inventoryJson = inventoryJson;
+            this.sInventoryData = sInventoryData;
         }
         public float x;
         public float y;
         public int dim;
         public string playerRobot;
         public string name;
-        public string inventoryJson;
+        public string sInventoryData;
         public int stage;
     }
 }

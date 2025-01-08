@@ -14,6 +14,7 @@ using DevTools.Structures;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Newtonsoft.Json;
+using PlayerModule;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -39,7 +40,7 @@ namespace WorldModule {
                 y: 0,
                 playerRobot: RobotDataFactory.getDefaultRobotString(false),
                 name: "Izakio",
-                inventoryJson: ItemSlotFactory.createEmptySerializedInventory(40)
+                sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault())
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             File.WriteAllText(path,json);

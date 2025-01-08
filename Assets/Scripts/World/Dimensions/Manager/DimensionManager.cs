@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Tiles;
 using Items;
+using Player.Tool;
 using RecipeModule;
 using PlayerModule;
 using Recipe;
@@ -40,8 +41,10 @@ namespace Dimensions {
         {
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
+            Coroutine toolLoad = StartCoroutine(PlayerToolRegistry.LoadTools());
             yield return itemLoad;
             yield return recipeLoad;
+            yield return toolLoad;
             
             PlayerInventory [] playerInventories = GameObject.FindObjectsOfType<PlayerInventory>();
             foreach (PlayerInventory inventory in playerInventories) {
