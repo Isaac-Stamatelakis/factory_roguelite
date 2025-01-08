@@ -1,14 +1,24 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Player.Mouse;
+using PlayerModule.Mouse;
 using TileMaps.Layer;
 using UnityEngine;
 
 namespace Player.Tool
 {
-    public abstract class PlayerTool
+    public enum MouseButtonKey
+    {
+        Left = 0,
+        Right = 1
+    }
+    public abstract class PlayerTool : IPlayerClickHandler
     {
         public abstract Sprite GetSprite();
+
+        public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
+        public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
 
     public class LaserDrill : PlayerTool
@@ -37,6 +47,21 @@ namespace Player.Tool
                     return null;
             }
         }
+
+        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            if (mouseButtonKey != MouseButtonKey.Left) return;
+            MouseUtils.HitTileLayer(Layer, mousePosition);
+        }
+
+        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        {
+            Debug.Log($"RATE {HitRate} TIME {time}");
+            
+            if (time < HitRate) return false;
+            ClickUpdate(mousePosition, mouseButtonKey);
+            return true;
+        }
     }
 
     public class LaserGun : PlayerTool
@@ -55,6 +80,16 @@ namespace Player.Tool
         public override Sprite GetSprite()
         {
             return null;
+        }
+
+        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -78,6 +113,16 @@ namespace Player.Tool
         {
             return null;
         }
+
+        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        {
+            throw new NotImplementedException();
+        }
     }
     public enum BuildinatorMode
     {
@@ -98,6 +143,16 @@ namespace Player.Tool
         public override Sprite GetSprite()
         {
             return null;
+        }
+
+        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
+        {
+            throw new NotImplementedException();
         }
     }
 

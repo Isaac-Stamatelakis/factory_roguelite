@@ -34,8 +34,9 @@ namespace PlayerModule {
         public PlayerInventoryData PlayerInventoryData => playerInventoryData;
         public List<ItemSlot> Inventory => playerInventoryData.Inventory;
         public List<PlayerTool> PlayerTools => playerInventoryData.PlayerTools;
-        
         public InventoryUI InventoryUI => playerInventoryGrid;
+        public InventoryDisplayMode Mode => mode;
+        public PlayerTool CurrentTool => playerInventoryData.PlayerTools[selectedTool];
         // Start is called before the first frame update
         void Start()
         {
@@ -80,7 +81,7 @@ namespace PlayerModule {
                     playerInventoryGrid.HighlightSlot(slot);
                     break;
                 case InventoryDisplayMode.Tools:
-                    selectedTool = slot;
+                    selectedTool = slot % PlayerTools.Count;
                     playerToolListUI.IterateSelectedTool(selectedTool);
                     break;
             }
