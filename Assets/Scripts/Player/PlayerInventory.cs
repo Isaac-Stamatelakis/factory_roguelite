@@ -160,13 +160,9 @@ namespace PlayerModule {
             }
         }
 
-        public string getSelectedId() {
-            if (playerInventoryData.Inventory == null) {
-                return null;
-            }
-            if (playerInventoryData.Inventory[selectedSlot] == null || playerInventoryData.Inventory[selectedSlot].itemObject == null) {
-                return null;
-            }
+        public string getSelectedId()
+        {
+            if (ItemSlotUtils.IsItemSlotNull(playerInventoryData.Inventory[selectedSlot])) return null;
             return playerInventoryData.Inventory[selectedSlot].itemObject.id;
         }
 

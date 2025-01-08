@@ -16,19 +16,42 @@ namespace Item.Inventory.ClickHandlers.Instances
         protected override void RightClick() {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             var inventory = inventoryUI.GetInventory();
-            if (ItemSlotUtils.IsItemSlotNull(inventory[index]))
+            ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
+            ItemSlot inventorySlot = inventory[index];
+            if (ItemSlotUtils.IsItemSlotNull(inventorySlot))
             {
-                ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
                 if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
                 ItemSlot newSlot = new ItemSlot(grabbedSlot.itemObject, 1, grabbedSlot.tags);
                 inventoryUI.SetItem(index,newSlot);
+                grabbedItemProperties.SetDeIterateSlot(null);
                 grabbedSlot.amount--;
                 return;
             }
-            if (!grabbedItemProperties.SetItemSlotFromInventory(inventory,index)) {
-                grabbedItemProperties.AddItemSlotFromInventory(inventory,index);
+            if (ItemSlotUtils.IsItemSlotNull(grabbedSlot))
+            {
+                inventorySlot.amount--;
+                ItemSlot newSlot = new ItemSlot(inventorySlot.itemObject, 1, inventorySlot.tags);
+                grabbedItemProperties.SetItemSlot(newSlot);
+                grabbedItemProperties.SetDeIterateSlot(this);
+                inventoryUI.CallListeners(index);
+                inventoryUI.DisplayItem(index);
+                return;
             }
             
+            if (!ItemSlotUtils.AreEqual(inventorySlot, grabbedSlot)) return;
+            
+            if (grabbedItemProperties.HaveTakenFromSlot(this))
+            {
+                inventorySlot.amount--; 
+                grabbedSlot.amount++;
+            }
+            else
+            {
+                inventorySlot.amount++;
+                grabbedSlot.amount--;
+            }
+            
+            grabbedItemProperties.UpdateSprite();
             inventoryUI.CallListeners(index);
             inventoryUI.DisplayItem(index);
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Item.Display.ClickHandlers;
+using Item.Inventory.ClickHandlers.Instances;
 using Item.Slot;
 using Items;
 using PlayerModule.KeyPress;
@@ -21,19 +22,23 @@ namespace Item.GrabbedItem {
         private bool listenMouse = false;
         private ItemSlotDoubleClickEvent doubleClickEvent;
         private ItemSlotUIDragEvent dragEvent;
+        private ItemSlotUIClickHandler takeRightClickSlot;
+        
         
         void Update()
         {
             Vector2 position = Input.mousePosition;
             transform.position = position;
-            bool mouseClick = Input.GetMouseButtonDown(0);
-            if (mouseClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
+            bool leftClick = Input.GetMouseButtonDown(0);
+            bool rightClick = Input.GetMouseButtonUp(0);
+            
+            if (leftClick && !ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
                 listenMouse = true;
                 dragEvent = new ItemSlotUIDragEvent(itemSlot);
             }
 
-            if (mouseClick)
+            if (leftClick)
             {
                 TryAddDoubleClick();
             }
@@ -42,7 +47,6 @@ namespace Item.GrabbedItem {
                 doubleClickEvent.Tick();
                 if (doubleClickEvent.Expired()) doubleClickEvent = null;
             }
-
         }
 
         private void FixedUpdate()
@@ -50,7 +54,7 @@ namespace Item.GrabbedItem {
             mouseDown = listenMouse && Input.GetMouseButton(0);
             if (mouseDown)
             {
-                ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();
+                SolidItemClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>();
                 dragEvent.DragNewSlot(clickHandler);
             }
             else
@@ -60,7 +64,7 @@ namespace Item.GrabbedItem {
                 {
                     if (dragEvent.Release())
                     {
-                        doubleClickEvent = new ItemSlotDoubleClickEvent(PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>());
+                        doubleClickEvent = new ItemSlotDoubleClickEvent(PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>());
                     }
                     dragEvent = null;
                 }
@@ -68,9 +72,19 @@ namespace Item.GrabbedItem {
             }
         }
 
+        public void SetDeIterateSlot(ItemSlotUIClickHandler itemSlotUIClickHandler)
+        {
+            takeRightClickSlot = itemSlotUIClickHandler;
+        }
+
+        public bool HaveTakenFromSlot(ItemSlotUIClickHandler itemSlotUIClickHandler)
+        {
+            return !ReferenceEquals(takeRightClickSlot, null) && takeRightClickSlot.Equals(itemSlotUIClickHandler);
+        }
+
         private void TryAddDoubleClick()
         {
-            ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();
+            SolidItemClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<SolidItemClickHandler>();
             if (ReferenceEquals(clickHandler, null)) return;
             if (doubleClickEvent != null && clickHandler.Equals(doubleClickEvent.ClickHandler))
             {

@@ -113,7 +113,6 @@ namespace PlayerModule.Mouse {
             {
                 rightClickHandler = null;
             }
-            Debug.Log(scroll);
             
             if (eventSystem.IsPointerOverGameObject())
             {
