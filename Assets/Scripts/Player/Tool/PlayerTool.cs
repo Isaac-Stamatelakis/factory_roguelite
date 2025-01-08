@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Player.Mouse;
+using Player.Tool.Object;
+using PlayerModule;
 using PlayerModule.Mouse;
 using TileMaps.Layer;
 using UnityEngine;
@@ -17,6 +19,8 @@ namespace Player.Tool
     {
         public abstract Sprite GetSprite();
 
+        public abstract void BeginClickHold();
+        public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
@@ -26,6 +30,7 @@ namespace Player.Tool
         public TileMapLayer Layer;
         public float HitRate;
         public int HitDamage;
+        private LineRenderer lineRenderer;
 
         public LaserDrill(TileMapLayer layer, float hitRate, int hitDamage)
         {
@@ -36,31 +41,54 @@ namespace Player.Tool
 
         public override Sprite GetSprite()
         {
-            PlayerToolObject playerToolObject = PlayerToolRegistry.GetInstance().GetToolObject(PlayerToolType.LaserDrill);
+            PlayerDrillObject playerToolObject = PlayerToolRegistry.GetInstance().GetToolObject<PlayerDrillObject>(PlayerToolType.LaserDrill);
             switch (Layer)
             {
                 case TileMapLayer.Base:
-                    return playerToolObject.Sprites[0];
+                    return playerToolObject.BaseLayerSprite;
                 case TileMapLayer.Background:
-                    return playerToolObject.Sprites[1];
+                    return playerToolObject.BackgroundLayerSprite;
                 default:
                     return null;
             }
         }
 
+        public override void BeginClickHold()
+        {
+            PlayerDrillObject playerDrillObject = PlayerToolRegistry.GetInstance().GetToolObject<PlayerDrillObject>(PlayerToolType.LaserDrill);
+            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+            lineRenderer = GameObject.Instantiate(playerDrillObject.LineRendererPrefab,playerTransform);
+        }
+
+        public override void TerminateClickHold()
+        {
+            GameObject.Destroy(lineRenderer.gameObject);
+        }
+
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
+            UpdateLineRenderer(mousePosition);
             MouseUtils.HitTileLayer(Layer, mousePosition);
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            Debug.Log($"RATE {HitRate} TIME {time}");
-            
-            if (time < HitRate) return false;
+            if (mouseButtonKey != MouseButtonKey.Left) return false;
+            bool pass = time >= HitRate;
+            if (!pass)
+            {
+                UpdateLineRenderer(mousePosition);
+                return false;
+            }
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
+        }
+
+        private void UpdateLineRenderer(Vector2 mousePosition)
+        {
+            Vector2 dif =  mousePosition - (Vector2) PlayerContainer.getInstance().getTransform().position;
+            lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
         }
     }
 
@@ -80,6 +108,16 @@ namespace Player.Tool
         public override Sprite GetSprite()
         {
             return null;
+        }
+
+        public override void BeginClickHold()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TerminateClickHold()
+        {
+            throw new NotImplementedException();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
@@ -114,6 +152,16 @@ namespace Player.Tool
             return null;
         }
 
+        public override void BeginClickHold()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TerminateClickHold()
+        {
+            throw new NotImplementedException();
+        }
+
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             throw new NotImplementedException();
@@ -143,6 +191,16 @@ namespace Player.Tool
         public override Sprite GetSprite()
         {
             return null;
+        }
+
+        public override void BeginClickHold()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TerminateClickHold()
+        {
+            throw new NotImplementedException();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)

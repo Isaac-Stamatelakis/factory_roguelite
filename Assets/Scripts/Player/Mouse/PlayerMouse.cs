@@ -19,17 +19,21 @@ using Dimensions;
 using Items;
 using TileEntity;
 using Entities;
+using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
 using Player.Mouse;
 using Player.Tool;
 using PlayerModule.IO;
+using PlayerModule.KeyPress;
 using UI;
 
 namespace PlayerModule.Mouse {
 
     public interface IPlayerClickHandler
     {
+        public void BeginClickHold();
+        public void TerminateClickHold();
         public void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
@@ -43,6 +47,7 @@ namespace PlayerModule.Mouse {
         {
             this.clickHandler = clickHandler;
             this.mouseIndex = (int)mouseButtonKey;
+            clickHandler.BeginClickHold();
         }
 
         public void Tick(Vector2 mousePosition)
@@ -54,7 +59,7 @@ namespace PlayerModule.Mouse {
             
             if (DevMode.Instance.noBreakCooldown)
             {
-                clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+                clickHandler.HoldClickUpdate(mousePosition, mouseButtonKey, int.MaxValue);
                 return;
             }
             counter += Time.deltaTime;
@@ -62,6 +67,11 @@ namespace PlayerModule.Mouse {
             {
                 counter = 0f;
             }
+        }
+
+        public void Terminate()
+        {
+            clickHandler.TerminateClickHold();
         }
     }
     /// <summary>
@@ -87,27 +97,40 @@ namespace PlayerModule.Mouse {
         void Update()
         {   
             InventoryControlUpdate();
+            
             bool leftClick = Input.GetMouseButton(0);
             bool rightClick = Input.GetMouseButton(1);
+            bool scroll = Input.mouseScrollDelta.y != 0;
+            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            
             if (!leftClick && leftClickHandler != null)
             {
+                leftClickHandler.Terminate();
                 leftClickHandler = null;
             }
             
-
             if (!rightClick && rightClickHandler != null)
             {
                 rightClickHandler = null;
             }
-            if (!leftClick && !rightClick) {
+            Debug.Log(scroll);
+            
+            if (eventSystem.IsPointerOverGameObject())
+            {
+                if (scroll)
+                {
+                    MouseScrollUIUpdate(mousePosition);
+                }
                 return;
             }
+            if (!leftClick && !rightClick) return;
+            
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return;
             }
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
-            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            
             if (leftClick) {
                 LeftClickUpdate(mousePosition,systemOffset);
             }
@@ -115,6 +138,21 @@ namespace PlayerModule.Mouse {
                 RightClickUpdate(mousePosition,systemOffset);
             }
             
+        }
+
+        private void MouseScrollUpdate(Vector2 mousePosition)
+        {
+            if (eventSystem.IsPointerOverGameObject())
+            {
+                MouseScrollUIUpdate(mousePosition);
+            }
+            // More after?
+        }
+
+        private void MouseScrollUIUpdate(Vector2 mousePosition)
+        {
+            ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();
+            clickHandler?.MiddleMouseScroll();
         }
 
         public static ILoadedChunk GetChunk(Vector2 mousePosition) {

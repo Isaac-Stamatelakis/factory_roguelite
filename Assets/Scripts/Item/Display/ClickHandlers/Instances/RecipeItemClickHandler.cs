@@ -21,6 +21,11 @@ namespace Item.Inventory.ClickHandlers.Instances
             // Does nothing
         }
 
+        public override void MiddleMouseScroll()
+        {
+            
+        }
+
         protected override void RightClick()
         {
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);

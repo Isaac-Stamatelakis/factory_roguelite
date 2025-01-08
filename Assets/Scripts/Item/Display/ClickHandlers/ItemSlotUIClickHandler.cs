@@ -98,6 +98,7 @@ namespace Item.Display.ClickHandlers
         protected abstract void LeftClick();
         protected abstract void RightClick();
         protected abstract void MiddleClick();
+        public abstract void MiddleMouseScroll();
     
         public void OnPointerEnter(PointerEventData eventData)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Player.Tool.Object;
 using Recipe.Collection;
 using Recipe.Processor;
 using UnityEngine;
@@ -14,11 +15,11 @@ namespace Player.Tool
         private static PlayerToolRegistry instance;
         private static Dictionary<PlayerToolType, PlayerToolObject> ToolDict;
 
-        public PlayerToolObject GetToolObject(PlayerToolType playerToolType)
+        public T GetToolObject<T>(PlayerToolType playerToolType) where T : PlayerToolObject
         {
             if (ToolDict.TryGetValue(playerToolType, out PlayerToolObject toolObject))
             {
-                return toolObject;
+                return toolObject as T;
             }
             Debug.LogWarning($"Tried to access tool not in dict {playerToolType}");
             return null;
@@ -42,12 +43,10 @@ namespace Player.Tool
             ToolDict = new Dictionary<PlayerToolType, PlayerToolObject>();
             foreach (var asset in handle.Result)
             {
-                PlayerToolType type = asset.ToolType;
-                if (ToolDict.TryGetValue(type, out var value))
+                if (asset is PlayerDrillObject playerDrillObject)
                 {
-                    Debug.LogWarning($"Duplicate tool objects of type {type}: {asset.name} and {value.name}");
+                    ToolDict[PlayerToolType.LaserDrill] = playerDrillObject;
                 }
-                ToolDict[type] = asset;
             }
         }
 

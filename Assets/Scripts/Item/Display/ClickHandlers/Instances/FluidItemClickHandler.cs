@@ -84,5 +84,10 @@ namespace Item.Inventory.ClickHandlers.Instances
         {
             
         }
+
+        public override void MiddleMouseScroll()
+        {
+            
+        }
     }
 }
