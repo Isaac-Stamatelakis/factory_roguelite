@@ -23,7 +23,7 @@ namespace UI.Chat {
                     return;
                 }
                 ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(robotItem,1);
-                PlayerContainer.getInstance().getPlayerRobot().setRobot(itemSlot);
+                PlayerManager.Instance.GetPlayer().PlayerRobot.setRobot(itemSlot);
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
             }

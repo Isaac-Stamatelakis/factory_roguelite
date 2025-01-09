@@ -2,30 +2,30 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Player.Mouse;
+using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
 using TileMaps.Layer;
 using UnityEngine;
 
-namespace Player.Tool
+namespace Robot.Tool
 {
     public enum MouseButtonKey
     {
         Left = 0,
         Right = 1
     }
-    public abstract class PlayerTool : IPlayerClickHandler
+    public abstract class RobotTool : IPlayerClickHandler
     {
         public abstract Sprite GetSprite();
-
         public abstract void BeginClickHold();
         public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
 
-    public class LaserDrill : PlayerTool
+    public class LaserDrill : RobotTool
     {
         public TileMapLayer Layer;
         public float HitRate;
@@ -41,13 +41,13 @@ namespace Player.Tool
 
         public override Sprite GetSprite()
         {
-            PlayerDrillObject playerToolObject = PlayerToolRegistry.GetInstance().GetToolObject<PlayerDrillObject>(PlayerToolType.LaserDrill);
+            RobotDrillObject robotToolObject = PlayerToolRegistry.GetInstance().GetToolObject<RobotDrillObject>(RobotToolType.LaserDrill);
             switch (Layer)
             {
                 case TileMapLayer.Base:
-                    return playerToolObject.BaseLayerSprite;
+                    return robotToolObject.BaseLayerSprite;
                 case TileMapLayer.Background:
-                    return playerToolObject.BackgroundLayerSprite;
+                    return robotToolObject.BackgroundLayerSprite;
                 default:
                     return null;
             }
@@ -55,9 +55,9 @@ namespace Player.Tool
 
         public override void BeginClickHold()
         {
-            PlayerDrillObject playerDrillObject = PlayerToolRegistry.GetInstance().GetToolObject<PlayerDrillObject>(PlayerToolType.LaserDrill);
-            Transform playerTransform = PlayerContainer.getInstance().getTransform();
-            lineRenderer = GameObject.Instantiate(playerDrillObject.LineRendererPrefab,playerTransform);
+            RobotDrillObject robotDrillObject = PlayerToolRegistry.GetInstance().GetToolObject<RobotDrillObject>(RobotToolType.LaserDrill);
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            lineRenderer = GameObject.Instantiate(robotDrillObject.LineRendererPrefab,playerTransform);
         }
 
         public override void TerminateClickHold()
@@ -87,12 +87,12 @@ namespace Player.Tool
 
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
-            Vector2 dif =  mousePosition - (Vector2) PlayerContainer.getInstance().getTransform().position;
+            Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
         }
     }
 
-    public class LaserGun : PlayerTool
+    public class LaserGun : RobotTool
     {
         public float FireRate;
         public float Damage;
@@ -136,7 +136,7 @@ namespace Player.Tool
         Standard,
         Disconnect
     }
-    public class ConduitSlicer : PlayerTool
+    public class ConduitSlicer : RobotTool
     {
         public TileMapLayer Layer;
         public ConduitBreakMode BreakMode;
@@ -179,7 +179,7 @@ namespace Player.Tool
         Hammer
     }
 
-    public class Buildinator : PlayerTool
+    public class Buildinator : RobotTool
     {
         public BuildinatorMode Mode;
 
@@ -216,28 +216,28 @@ namespace Player.Tool
 
     public static class PlayerToolFactory
     {
-        public static PlayerTool GetDefault(PlayerToolType toolType)
+        public static RobotTool GetDefault(RobotToolType toolType)
         {
             switch (toolType)
             {
-                case PlayerToolType.LaserGun:
+                case RobotToolType.LaserGun:
                     return new LaserGun(1f, 1f, 1f);
-                case PlayerToolType.LaserDrill:
+                case RobotToolType.LaserDrill:
                     return new LaserDrill(TileMapLayer.Base, 1f, 1);
-                case PlayerToolType.ConduitSlicers:
+                case RobotToolType.ConduitSlicers:
                     return new ConduitSlicer(TileMapLayer.Item, ConduitBreakMode.Standard);
-                case PlayerToolType.Buildinator:
+                case RobotToolType.Buildinator:
                     return new Buildinator(BuildinatorMode.Hammer);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(toolType), toolType, null);
             }
         }
 
-        public static List<PlayerTool> GetDefaults()
+        public static List<RobotTool> GetDefaults()
         {
-            List<PlayerToolType> defaultTypes = GetDefaultTypes();
-            List<PlayerTool> defaults = new List<PlayerTool>();
-            foreach (PlayerToolType defaultType in defaultTypes)
+            List<RobotToolType> defaultTypes = GetDefaultTypes();
+            List<RobotTool> defaults = new List<RobotTool>();
+            foreach (RobotToolType defaultType in defaultTypes)
             {
                 defaults.Add(GetDefault(defaultType));
             }
@@ -245,51 +245,51 @@ namespace Player.Tool
             return defaults;
         }
 
-        public static List<PlayerToolType> GetDefaultTypes()
+        public static List<RobotToolType> GetDefaultTypes()
         {
-            return new List<PlayerToolType>
+            return new List<RobotToolType>
             {
-                PlayerToolType.LaserGun,
-                PlayerToolType.LaserDrill,
-                PlayerToolType.ConduitSlicers,
-                PlayerToolType.Buildinator
+                RobotToolType.LaserGun,
+                RobotToolType.LaserDrill,
+                RobotToolType.ConduitSlicers,
+                RobotToolType.Buildinator
             };
         }
 
-        public static PlayerToolType GetType(PlayerTool playerTool)
+        public static RobotToolType GetType(RobotTool robotTool)
         {
-            return playerTool switch
+            return robotTool switch
             {
-                LaserDrill => PlayerToolType.LaserDrill,
-                LaserGun => PlayerToolType.LaserGun,
-                ConduitSlicer => PlayerToolType.ConduitSlicers,
-                Buildinator => PlayerToolType.Buildinator,
-                _ => throw new ArgumentOutOfRangeException(nameof(playerTool), playerTool, null)
+                LaserDrill => RobotToolType.LaserDrill,
+                LaserGun => RobotToolType.LaserGun,
+                ConduitSlicer => RobotToolType.ConduitSlicers,
+                Buildinator => RobotToolType.Buildinator,
+                _ => throw new ArgumentOutOfRangeException(nameof(robotTool), robotTool, null)
             };
         }
 
-        public static List<PlayerTool> Deserialize(List<string> serializedTools, string serializedTypes)
+        public static List<RobotTool> Deserialize(List<string> serializedTools, string serializedTypes)
         {
-            List<PlayerTool> tools = new List<PlayerTool>();
-            List<PlayerToolType> types = DeserializeTypes(serializedTypes);
+            List<RobotTool> tools = new List<RobotTool>();
+            List<RobotToolType> types = DeserializeTypes(serializedTypes);
             for (int i = 0; i < types.Count; i++)
             {
-                PlayerTool playerTool = DeserializeTool(serializedTools[i], types[i]);
-                tools.Add(playerTool);
+                RobotTool robotTool = DeserializeTool(serializedTools[i], types[i]);
+                tools.Add(robotTool);
             }
             return tools;
         }
 
-        public static List<PlayerToolType> DeserializeTypes(string serializedTypes)
+        public static List<RobotToolType> DeserializeTypes(string serializedTypes)
         {
             if (serializedTypes == null) return GetDefaultTypes();
             try
             {
                 List<int> intTypes = JsonConvert.DeserializeObject<List<int>>(serializedTypes);
-                List<PlayerToolType> types = new List<PlayerToolType>();
+                List<RobotToolType> types = new List<RobotToolType>();
                 foreach (int type in intTypes)
                 {
-                    types.Add((PlayerToolType)type);
+                    types.Add((RobotToolType)type);
                 }
 
                 return types;
@@ -300,20 +300,20 @@ namespace Player.Tool
                 return GetDefaultTypes();
             }
         }
-        public static PlayerTool DeserializeTool(string serializedTool, PlayerToolType toolType)
+        public static RobotTool DeserializeTool(string serializedTool, RobotToolType toolType)
         {
             if (serializedTool == null) return GetDefault(toolType);
             try
             {
                 switch (toolType)
                 {
-                    case PlayerToolType.LaserGun:
+                    case RobotToolType.LaserGun:
                         return JsonConvert.DeserializeObject<LaserGun>(serializedTool);
-                    case PlayerToolType.LaserDrill:
+                    case RobotToolType.LaserDrill:
                         return JsonConvert.DeserializeObject<LaserDrill>(serializedTool);
-                    case PlayerToolType.ConduitSlicers:
+                    case RobotToolType.ConduitSlicers:
                         return JsonConvert.DeserializeObject<ConduitSlicer>(serializedTool);
-                    case PlayerToolType.Buildinator:
+                    case RobotToolType.Buildinator:
                         return JsonConvert.DeserializeObject<Buildinator>(serializedTool);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(toolType), toolType, null);
@@ -326,10 +326,10 @@ namespace Player.Tool
             }
         }
 
-        public static List<string> SerializeList(List<PlayerTool> tools)
+        public static List<string> SerializeList(List<RobotTool> tools)
         {
             List<string> serializedTools = new List<string>();
-            foreach (PlayerTool tool in tools)
+            foreach (RobotTool tool in tools)
             {
                 serializedTools.Add(JsonConvert.SerializeObject(tool));
             }

@@ -20,7 +20,7 @@ namespace UI.Chat {
                 string id = parameters[0];
                 uint amount = Convert.ToUInt32(parameters[1]);
                 amount = GlobalHelper.Clamp(amount, 1, Global.MaxSize);
-                PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
+                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
                 ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
                 ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
                 if (toGive == null) {

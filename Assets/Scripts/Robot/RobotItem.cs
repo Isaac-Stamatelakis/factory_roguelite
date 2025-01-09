@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using RobotModule;
 using Items.Tags;
+using Robot;
+using Robot.Tool.Object;
 
 namespace Items {
-    [CreateAssetMenu(fileName ="I~New Robot Item",menuName="Item/Instances/Robot")]
+    [CreateAssetMenu(fileName ="I~New RobotObject Item",menuName="Item/Instances/RobotObject")]
     public class RobotItem : ItemObject, ITaggableItem
     {
-        public Robot robot;
+        public RobotObject robot;
+        public RobotToolObjectCollection Tools;
 
         public override ItemDisplayType? getDisplayType()
         {

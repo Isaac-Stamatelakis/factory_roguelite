@@ -14,7 +14,7 @@ namespace UI.PlayerInvUI
 
         public void Start()
         {
-            PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             playerInventoryUI.DisplayInventory(playerInventory.Inventory);
         }
 

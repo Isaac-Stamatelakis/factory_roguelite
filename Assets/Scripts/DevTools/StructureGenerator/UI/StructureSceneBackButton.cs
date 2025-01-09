@@ -11,7 +11,6 @@ namespace DevTools.Structures {
         public void OnPointerClick(PointerEventData eventData)
         {
             SceneManager.LoadScene("DevTools");
-            PlayerContainer.reset();
         }
     }
 }

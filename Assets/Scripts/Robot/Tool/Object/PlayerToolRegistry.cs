@@ -13,15 +13,15 @@ namespace Player.Tool
     public class PlayerToolRegistry
     {
         private static PlayerToolRegistry instance;
-        private static Dictionary<PlayerToolType, PlayerToolObject> ToolDict;
+        private static Dictionary<RobotToolType, RobotToolObject> ToolDict;
 
-        public T GetToolObject<T>(PlayerToolType playerToolType) where T : PlayerToolObject
+        public T GetToolObject<T>(RobotToolType robotToolType) where T : RobotToolObject
         {
-            if (ToolDict.TryGetValue(playerToolType, out PlayerToolObject toolObject))
+            if (ToolDict.TryGetValue(robotToolType, out RobotToolObject toolObject))
             {
                 return toolObject as T;
             }
-            Debug.LogWarning($"Tried to access tool not in dict {playerToolType}");
+            Debug.LogWarning($"Tried to access tool not in dict {robotToolType}");
             return null;
         }
         public static IEnumerator LoadTools()
@@ -32,7 +32,7 @@ namespace Player.Tool
             
             instance = new PlayerToolRegistry();
             
-            var handle = Addressables.LoadAssetsAsync<PlayerToolObject>("tool", null);
+            var handle = Addressables.LoadAssetsAsync<RobotToolObject>("tool", null);
             yield return handle;
             if (handle.Status != AsyncOperationStatus.Succeeded)
             {
@@ -40,12 +40,12 @@ namespace Player.Tool
                 yield break;
             }
 
-            ToolDict = new Dictionary<PlayerToolType, PlayerToolObject>();
+            ToolDict = new Dictionary<RobotToolType, RobotToolObject>();
             foreach (var asset in handle.Result)
             {
-                if (asset is PlayerDrillObject playerDrillObject)
+                if (asset is RobotDrillObject playerDrillObject)
                 {
-                    ToolDict[PlayerToolType.LaserDrill] = playerDrillObject;
+                    ToolDict[RobotToolType.LaserDrill] = playerDrillObject;
                 }
             }
         }

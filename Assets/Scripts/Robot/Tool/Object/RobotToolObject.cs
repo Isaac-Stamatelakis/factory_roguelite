@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Player.Tool
 {
-    public enum PlayerToolType
+    public enum RobotToolType
     {
         LaserGun,
         LaserDrill,
@@ -10,7 +10,7 @@ namespace Player.Tool
         Buildinator
     }
     
-    public abstract class PlayerToolObject : ScriptableObject
+    public abstract class RobotToolObject : ScriptableObject
     {
         
     }

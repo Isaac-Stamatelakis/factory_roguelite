@@ -32,9 +32,9 @@ namespace TileEntity.Instances.WorkBench {
         {
             RecipeObject recipeObject = mRecipeLookUpList.GetCurrentRecipe();
             var sourceInventoryUI = workBenchInstance.Inventory == null
-                ? PlayerContainer.getInstance().getInventory().InventoryUI
+                ? PlayerManager.Instance.GetPlayer().PlayerInventory.InventoryUI
                 : mInventoryUI;
-            List<ItemSlot> sourceInventory = workBenchInstance.Inventory ?? PlayerContainer.getInstance().getInventory().Inventory;
+            List<ItemSlot> sourceInventory = workBenchInstance.Inventory ?? PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory;
             if (recipeObject is ItemRecipeObject itemRecipeObject)
             {
                 var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
@@ -86,7 +86,7 @@ namespace TileEntity.Instances.WorkBench {
 
         private List<ItemSlot> GetSourceInventory()
         {
-            return workBenchInstance.Inventory ?? PlayerContainer.getInstance().getInventory().Inventory;
+            return workBenchInstance.Inventory ?? PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory;
         }
         public void TryCraftItemRecipe()
         {
@@ -102,7 +102,7 @@ namespace TileEntity.Instances.WorkBench {
         {
             workBenchInstance = tileEntityInstance;
             mWorkbenchProcessorUI.Initialize(this);
-            PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
             RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);
             mRecipeLookUpList.Initialize(recipeProcessorInstance,this, tileEntityInstance.WorkBenchData); // Note this displays the first recipe

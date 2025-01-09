@@ -6,9 +6,14 @@ using Chunks.Systems;
 
 public class CameraBounds : MonoBehaviour
 {
-    [SerializeField] private float yOffset;
     private FloatIntervalVector bounds;
     private ClosedChunkSystem closedChunkSystem;
+    private float yOffset;
+
+    public void Awake()
+    {
+        yOffset = transform.localPosition.y;
+    }
     public void setSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
         this.closedChunkSystem = closedChunkSystem;
         if (!bound) {
@@ -23,8 +28,8 @@ public class CameraBounds : MonoBehaviour
                 intervalVector.X.UpperBound+worldChunkSize
             ),
             new Interval<float>(
-                intervalVector.Y.LowerBound-worldChunkSize/2+2*yOffset,
-                intervalVector.Y.UpperBound+worldChunkSize/2+2*yOffset
+                intervalVector.Y.LowerBound-worldChunkSize/2,
+                intervalVector.Y.UpperBound+worldChunkSize/2
             )
         );
     }
@@ -104,7 +109,6 @@ public class CameraBounds : MonoBehaviour
             position.y = 0;
         }
         position += new Vector3(0,yOffset,0);
-
         transform.localPosition = position;
 
         checkPartitionAndChunk();

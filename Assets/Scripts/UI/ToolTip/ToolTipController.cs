@@ -35,7 +35,9 @@ namespace UI.ToolTip {
             newToolTip.setText(text);
             newToolTip.transform.position = position+offset;
         }
-        public void HideToolTip() {
+        public void HideToolTip()
+        {
+            if (transform.childCount == 0) return;
             GlobalHelper.deleteAllChildren(transform);
         }
     }

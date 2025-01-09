@@ -3,8 +3,8 @@ using UnityEngine.Serialization;
 
 namespace Player.Tool.Object
 {
-    [CreateAssetMenu(fileName = "New Drill", menuName = "Player/Tools/Drill")]
-    public class PlayerDrillObject : PlayerToolObject
+    [CreateAssetMenu(fileName = "New Drill", menuName = "RobotObject/Tools/Drill")]
+    public class RobotDrillObject : RobotToolObject
     {
         public Sprite BaseLayerSprite;
         public Sprite BackgroundLayerSprite;

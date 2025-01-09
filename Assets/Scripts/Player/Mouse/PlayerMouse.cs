@@ -26,7 +26,9 @@ using Player.Mouse;
 using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
+using Robot.Tool;
 using UI;
+using UI.ToolTip;
 
 namespace PlayerModule.Mouse {
 
@@ -90,7 +92,7 @@ namespace PlayerModule.Mouse {
         {
             mainCamera = Camera.main;
             playerInventory = GetComponent<PlayerInventory>();
-            playerTransform = PlayerContainer.getInstance().getTransform();
+            playerTransform = transform;
             eventSystem = EventSystem.current;
         }
         
@@ -116,12 +118,14 @@ namespace PlayerModule.Mouse {
             
             if (eventSystem.IsPointerOverGameObject())
             {
+                
                 if (scroll)
                 {
                     MouseScrollUIUpdate(mousePosition);
                 }
                 return;
             }
+            ToolTipController.Instance.HideToolTip();
             if (!leftClick && !rightClick) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
@@ -154,8 +158,9 @@ namespace PlayerModule.Mouse {
             clickHandler?.MiddleMouseScroll();
         }
 
-        public static ILoadedChunk GetChunk(Vector2 mousePosition) {
-            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+        public static ILoadedChunk GetChunk(Vector2 mousePosition)
+        {
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return null;
@@ -185,7 +190,7 @@ namespace PlayerModule.Mouse {
             }
             if (leftClickHandler == null)
             {
-                PlayerTool currentTool = playerInventory.CurrentTool;
+                RobotTool currentTool = playerInventory.CurrentTool;
                 leftClickHandler = new HoldClickHandler(currentTool,MouseButtonKey.Left);
             }
             leftClickHandler.Tick(mousePosition);
@@ -211,7 +216,7 @@ namespace PlayerModule.Mouse {
                     handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
                     break;
                 case InventoryDisplayMode.Tools:
-                    PlayerTool currentTool = playerInventory.CurrentTool;
+                    RobotTool currentTool = playerInventory.CurrentTool;
                     /*
                     switch (expression)
                     {

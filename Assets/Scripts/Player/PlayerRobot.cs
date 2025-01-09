@@ -1,23 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using RobotModule;
-using Items;
 using Chunks.Systems;
-using Chunks;
-using TileMaps;
-using TileEntity;
-using UnityEngine.EventSystems;
 using Dimensions;
 using Item.Slot;
+using Items;
+using Robot;
+using RobotModule;
+using TileEntity;
+using TileMaps;
 using UI;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
-namespace PlayerModule {
+namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
-        [SerializeField] private PlayerPlatformDetector playerFeet;
+        [SerializeField] private PlayerModule.PlayerPlatformDetector playerFeet;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
         private bool onGround;
@@ -25,7 +25,7 @@ namespace PlayerModule {
         public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
         private bool climbing;
         [SerializeField] public ItemSlot robotItemSlot;
-        private Robot currentRobot;
+        private RobotObject currentRobot;
         private RobotItemData robotItemData;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();

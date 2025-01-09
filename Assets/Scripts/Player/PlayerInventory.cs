@@ -12,7 +12,10 @@ using UnityEngine.UI;
 using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
+using Player;
 using Player.Tool;
+using Robot;
+using Robot.Tool;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -33,10 +36,10 @@ namespace PlayerModule {
         private bool expanded = false;
         public PlayerInventoryData PlayerInventoryData => playerInventoryData;
         public List<ItemSlot> Inventory => playerInventoryData.Inventory;
-        public List<PlayerTool> PlayerTools => playerInventoryData.PlayerTools;
+        public List<RobotTool> PlayerTools => playerInventoryData.PlayerTools;
         public InventoryUI InventoryUI => playerInventoryGrid;
         public InventoryDisplayMode Mode => mode;
-        public PlayerTool CurrentTool => playerInventoryData.PlayerTools[selectedTool];
+        public RobotTool CurrentTool => playerInventoryData.PlayerTools[selectedTool];
         // Start is called before the first frame update
         void Start()
         {
@@ -47,6 +50,7 @@ namespace PlayerModule {
             GetComponent<PlayerIO>().initRead();
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().getPlayerInventoryData());
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
+            //RobotObject robotObject = ItemRegistry.GetInstance().GetRobotItem()
             playerToolListUI.Initialize(playerInventoryData.PlayerTools);
         }
 
@@ -191,9 +195,9 @@ namespace PlayerModule {
     public class PlayerInventoryData
     {
         public List<ItemSlot> Inventory;
-        public List<PlayerTool> PlayerTools;
+        public List<RobotTool> PlayerTools;
 
-        public PlayerInventoryData(List<ItemSlot> inventory, List<PlayerTool> playerTools)
+        public PlayerInventoryData(List<ItemSlot> inventory, List<RobotTool> playerTools)
         {
             Inventory = inventory;
             PlayerTools = playerTools;
@@ -207,7 +211,7 @@ namespace PlayerModule {
             string sInventory = ItemSlotFactory.serializeList(playerInventory.Inventory);
             List<int> toolTypes = new List<int>();
             List<string> sTools = PlayerToolFactory.SerializeList(playerInventory.PlayerTools);
-            foreach (PlayerTool playerTool in playerInventory.PlayerTools)
+            foreach (RobotTool playerTool in playerInventory.PlayerTools)
             {
                 toolTypes.Add((int)PlayerToolFactory.GetType(playerTool));
                 sTools.Add(JsonConvert.SerializeObject(playerTool));
@@ -226,7 +230,7 @@ namespace PlayerModule {
                 SerializedPlayerInventory sPlayerInventoryData = JsonConvert.DeserializeObject<SerializedPlayerInventory>(json);
                 List<ItemSlot> inventory = ItemSlotFactory.Deserialize(sPlayerInventoryData.SInventory);
                 if (inventory == null) inventory = GetDefaultItemInventory();
-                List<PlayerTool> tools = PlayerToolFactory.Deserialize(sPlayerInventoryData.STools,sPlayerInventoryData.SToolTypes);
+                List<RobotTool> tools = PlayerToolFactory.Deserialize(sPlayerInventoryData.STools,sPlayerInventoryData.SToolTypes);
                 return new PlayerInventoryData(inventory, tools);
             }
             catch (JsonSerializationException e)
