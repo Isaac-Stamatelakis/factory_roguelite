@@ -11,7 +11,7 @@ using Conduits.Ports;
 public class TileEntityConduitGenerator : EditorWindow {
     private TileEntityObject tileEntity;
     private GameObject tilemapPrefab;
-    [MenuItem("Tools/TileEntity/SetPorts")]
+    [MenuItem("ToolCollection/TileEntity/SetPorts")]
     public static void ShowWindow()
     {
         TileEntityConduitGenerator window = (TileEntityConduitGenerator)EditorWindow.GetWindow(typeof(TileEntityConduitGenerator));

@@ -4,7 +4,10 @@ using Chunks.Systems;
 using Dimensions;
 using Item.Slot;
 using Items;
+using Items.Tags;
+using Player.Tool;
 using Robot;
+using Robot.Tool;
 using RobotModule;
 using TileEntity;
 using TileMaps;
@@ -27,18 +30,14 @@ namespace Player {
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
         private RobotItemData robotItemData;
+        public List<IRobotToolInstance> RobotTools;
+        private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
         }
 
         public void FixedUpdate() {
-            if (currentRobot == null) {
-                return;
-            }
-            if (EventSystem.current.currentSelectedGameObject != null) {
-                return;
-            }
             canStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
@@ -49,23 +48,11 @@ namespace Player {
             int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
             onGround = raycastHit.collider != null;            
-            if (!MainCanvasController.Instance.IsActive) {
-                if (currentRobot == null) {
-                    handleEngineerMovement();
-                } else {
-                    currentRobot.handleMovement(transform);
-                }
+            if (!CanvasController.Instance.IsActive) {
+                currentRobot.handleMovement(transform);
             }
         }
-
-        private void handleEngineerMovement() {
-            
-        }
-
-        private IEnumerator jumpDownPlatform() {
-            yield return null;
-        }
-
+        
         private void canStartClimbing() {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
@@ -127,38 +114,49 @@ namespace Player {
             }
             rb.velocity = velocity;
         }
-
-        public void setRobot(ItemSlot robotItemSlot) {
-            if (spriteRenderer == null) {
-                spriteRenderer = GetComponent<SpriteRenderer>();
-            }
-            if (rb == null) {
-                rb = GetComponent<Rigidbody2D>();
-            }
-            if (robotItemSlot == null || robotItemSlot.itemObject == null || robotItemSlot.itemObject is not RobotItem robotItem) {
+        
+        public void setRobot(ItemSlot robotItemSlot)
+        {
+            
+            if (ItemSlotUtils.IsItemSlotNull(this.robotItemSlot) || robotItemSlot.itemObject is not RobotItem robotItem) {
                 Debug.LogWarning("Tried to set invalid robot");
-                robotItem = ItemRegistry.GetInstance().GetRobotItem("happy_mk1");
+                robotItemSlot = RobotDataFactory.GetDefaultRobot(false);
+                robotItem = robotItemSlot.itemObject as RobotItem;
             }
             this.currentRobot = robotItem.robot;
             this.robotItemSlot = robotItemSlot;
+            InitializeTools(robotItemSlot);
             
-            if (currentRobot == null) {
-                // Play as engineer
-            } else {
-                currentRobot.init(gameObject);
-                spriteRenderer.sprite = currentRobot.defaultSprite;
-            }
-        }
-        void OnCollisionEnter2D(Collision2D collision)
-        {
-            /*
-            if (collision.gameObject.layer == LayerMask.NameToLayer("Block"))
-            {
-                Debug.Log(true);
-            }
-            */
+            
+            currentRobot.init(gameObject);
+            spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 
+        private void InitializeTools(ItemSlot robotItemSlot)
+        {
+            ItemTagCollection tags = this.robotItemSlot.tags;
+            if (!tags.Dict.ContainsKey(ItemTag.RobotData))
+            {
+                Debug.LogWarning("Tried to initialize robot with invalid tool data");
+            }
+
+            if (!tags.Dict.ContainsKey(ItemTag.RobotData))
+            {
+                Debug.LogWarning("Tried to initialize robot with invalid tool data");
+                
+            }
+            this.robotItemData = tags.Dict[ItemTag.RobotData] as RobotItemData;
+            ItemRobotToolData itemRobotToolData = robotItemData.ToolData;
+            currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
+            RobotTools = new List<IRobotToolInstance>();
+            for (int i = 0; i < itemRobotToolData.Tools.Count; i++)
+            {
+                var type = itemRobotToolData.Types[i];
+                var data = itemRobotToolData.Tools[i];
+                RobotTools.Add(RobotToolFactory.GetInstance(type,currentRobotToolObjects[type],data));
+            }
+        }
+        
         protected void rebuildCollider() {
             Sprite sprite = spriteRenderer.sprite;
             polygonCollider.pathCount = sprite.GetPhysicsShapeCount();

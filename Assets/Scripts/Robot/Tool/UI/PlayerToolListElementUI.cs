@@ -7,7 +7,7 @@ namespace Player.Tool.UI
     public class PlayerToolListElementUI : MonoBehaviour
     {
         [SerializeField] private Image mImage;
-        public void Display(RobotTool robotTool)
+        public void Display(IRobotToolInstance robotTool)
         {
             mImage.sprite = robotTool.GetSprite();
         }

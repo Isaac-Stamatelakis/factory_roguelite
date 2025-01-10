@@ -22,7 +22,7 @@ public class AssignFolderAddressableUtil : EditorWindow {
     private string folderPath;
     AddressableAssetGroup group;
     AddressableTypeRestriction typeRestriction;
-    [MenuItem("Tools/Addressables/Folder")]
+    [MenuItem("ToolCollection/Addressables/Folder")]
     public static void ShowWindow()
     {
         AssignFolderAddressableUtil window = (AssignFolderAddressableUtil)EditorWindow.GetWindow(typeof(AssignFolderAddressableUtil));

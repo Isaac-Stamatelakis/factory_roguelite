@@ -26,7 +26,7 @@ namespace Items.Tags {
     public static class ItemTagExtension {
         public static string serialize(this ItemTag tag, ItemTagCollection tagCollection) {
             if (!tagCollection.Dict.ContainsKey(tag)) {
-                Debug.LogError("Attempted to deseralize " + tag + " which was not in TagCollection");
+                Debug.LogError("Attempted to Deserialize " + tag + " which was not in TagCollection");
                 return null;
             }
             
@@ -92,7 +92,7 @@ namespace Items.Tags {
                 logInvalidType(ItemTag.RobotData);
                 return null;
             }
-            return RobotDataFactory.seralize(robotItemData);
+            return RobotDataFactory.Serialize(robotItemData);
         }
 
         private static string seralizeEncodedRecipe(object tagData) {
@@ -180,7 +180,7 @@ namespace Items.Tags {
                 ItemTag.CompactMachine => data,
                 ItemTag.StorageDrive => ItemSlotFactory.Deserialize(data),
                 ItemTag.EncodedRecipe => EncodedRecipeFactory.deseralize(data),
-                ItemTag.RobotData => RobotDataFactory.deseralize(data),
+                ItemTag.RobotData => RobotDataFactory.Deserialize(data),
                 _ => deserializeDefaultSwitchCase(tag)
             };
         }
@@ -199,7 +199,7 @@ namespace Items.Tags {
             };
         }
         private static object deserializeDefaultSwitchCase(ItemTag tag) {
-            Debug.LogError("ItemTagExtension method 'deseralize' did not cover case for " + tag);
+            Debug.LogError("ItemTagExtension method 'Deserialize' did not cover case for " + tag);
             return null;
         }
 

@@ -1,5 +1,7 @@
+using Robot.Tool.Object;
 using RobotModule;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Robot {
     /// <summary>
@@ -9,6 +11,7 @@ namespace Robot {
     /// </summary>
     public abstract class RobotObject : ScriptableObject, IRobot
     {
+        [FormerlySerializedAs("Tools")] public RobotToolObjectCollection ToolCollection;
         public Sprite defaultSprite;
         public abstract void handleMovement(Transform playerTransform);
         public abstract void init(GameObject playerGameObject);

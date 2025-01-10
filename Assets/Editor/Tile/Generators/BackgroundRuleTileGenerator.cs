@@ -8,7 +8,7 @@ using System.IO;
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/Background")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Background")]
     public static void ShowWindow()
     {
         BackgroundGeneratorWindow window = (BackgroundGeneratorWindow)EditorWindow.GetWindow(typeof(BackgroundGeneratorWindow));

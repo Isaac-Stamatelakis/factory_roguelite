@@ -9,14 +9,14 @@ public class PlayerToolListUI : MonoBehaviour
 {
     private int offset;
     PlayerToolListElementUI[] elements;
-    private List<RobotTool> tools;
+    private List<IRobotToolInstance> tools;
 
     public void Start()
     {
         elements = GetComponentsInChildren<PlayerToolListElementUI>();
     }
 
-    public void Initialize(List<RobotTool> tools)
+    public void Initialize(List<IRobotToolInstance> tools)
     {
         this.tools = tools;
         Display();

@@ -8,7 +8,7 @@ using System.IO;
 public class RuleTileGenerator : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/RuleTile")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/RuleTile")]
     public static void ShowWindow()
     {
         RuleTileGenerator window = (RuleTileGenerator)EditorWindow.GetWindow(typeof(RuleTileGenerator));

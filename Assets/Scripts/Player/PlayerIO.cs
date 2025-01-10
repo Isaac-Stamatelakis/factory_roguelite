@@ -27,20 +27,13 @@ namespace PlayerModule.IO {
             tilePlacePreviewController = GameObject.Find("PlacePreviewController").GetComponent<TilePlacePreviewController>();
         }
 
-        public void initRead() {
+        public void Deserialize() {
             string playerJsonPath = WorldLoadUtils.getPlayerDataPath();
             string json = File.ReadAllText(playerJsonPath);
-            playerData = Newtonsoft.Json.JsonConvert.DeserializeObject<PlayerData>(json);
-            ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerData.playerRobot);
-            GetComponent<PlayerRobot>().setRobot(playerRobotItem);
+            playerData = JsonConvert.DeserializeObject<PlayerData>(json);
             tilePlacePreviewController.Toggle();
         }
-
-    
-        public Vector2 getPlayerPosition() {
-            return new Vector2(playerData.x,playerData.y);
-        }
-
+        
         void OnDestroy() {
             playerData.x = transform.position.x;
             playerData.y = transform.position.y;
@@ -48,15 +41,11 @@ namespace PlayerModule.IO {
             playerData.sInventoryData = PlayerInventoryFactory.Serialize(GetComponent<PlayerInventory>().PlayerInventoryData);
             string playerJsonPath =  WorldLoadUtils.getPlayerDataPath();
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
-            if (robotItem == null) {
-                playerData.playerRobot = null;
-            } else {
-                playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
-            }
+            playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
             File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));
         }
         
-        public string getPlayerInventoryData() {
+        public string GetPlayerInventoryData() {
             return playerData.sInventoryData;
         }
 

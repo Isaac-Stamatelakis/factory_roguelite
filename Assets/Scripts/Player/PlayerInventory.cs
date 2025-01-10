@@ -36,22 +36,24 @@ namespace PlayerModule {
         private bool expanded = false;
         public PlayerInventoryData PlayerInventoryData => playerInventoryData;
         public List<ItemSlot> Inventory => playerInventoryData.Inventory;
-        public List<RobotTool> PlayerTools => playerInventoryData.PlayerTools;
         public InventoryUI InventoryUI => playerInventoryGrid;
+        public IRobotToolInstance CurrentTool => playerRobot.RobotTools[selectedTool];
         public InventoryDisplayMode Mode => mode;
-        public RobotTool CurrentTool => playerInventoryData.PlayerTools[selectedTool];
         // Start is called before the first frame update
         void Start()
         {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
         }
 
-        public void Initalize() {
-            GetComponent<PlayerIO>().initRead();
-            playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().getPlayerInventoryData());
+        public void Initialize() {
+            playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().GetPlayerInventoryData());
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
-            //RobotObject robotObject = ItemRegistry.GetInstance().GetRobotItem()
-            playerToolListUI.Initialize(playerInventoryData.PlayerTools);
+            
+        }
+
+        public void InitializeToolDisplay()
+        {
+            playerToolListUI.Initialize(playerRobot.RobotTools);
         }
 
         public void Refresh()
@@ -85,7 +87,7 @@ namespace PlayerModule {
                     playerInventoryGrid.HighlightSlot(slot);
                     break;
                 case InventoryDisplayMode.Tools:
-                    selectedTool = slot % PlayerTools.Count;
+                    selectedTool = slot % playerRobot.RobotTools.Count;
                     playerToolListUI.IterateSelectedTool(selectedTool);
                     break;
             }
@@ -195,12 +197,10 @@ namespace PlayerModule {
     public class PlayerInventoryData
     {
         public List<ItemSlot> Inventory;
-        public List<RobotTool> PlayerTools;
-
-        public PlayerInventoryData(List<ItemSlot> inventory, List<RobotTool> playerTools)
+        
+        public PlayerInventoryData(List<ItemSlot> inventory)
         {
             Inventory = inventory;
-            PlayerTools = playerTools;
         }
     }
 
@@ -209,16 +209,8 @@ namespace PlayerModule {
         public static string Serialize(PlayerInventoryData playerInventory)
         {
             string sInventory = ItemSlotFactory.serializeList(playerInventory.Inventory);
-            List<int> toolTypes = new List<int>();
-            List<string> sTools = PlayerToolFactory.SerializeList(playerInventory.PlayerTools);
-            foreach (RobotTool playerTool in playerInventory.PlayerTools)
-            {
-                toolTypes.Add((int)PlayerToolFactory.GetType(playerTool));
-                sTools.Add(JsonConvert.SerializeObject(playerTool));
-            }
-
-            string sToolTypes = JsonConvert.SerializeObject(toolTypes);
-            SerializedPlayerInventory serializedPlayerInventory = new SerializedPlayerInventory(sInventory, sTools, sToolTypes);
+            
+            SerializedPlayerInventory serializedPlayerInventory = new SerializedPlayerInventory(sInventory);
             return JsonConvert.SerializeObject(serializedPlayerInventory);
         }
 
@@ -230,8 +222,7 @@ namespace PlayerModule {
                 SerializedPlayerInventory sPlayerInventoryData = JsonConvert.DeserializeObject<SerializedPlayerInventory>(json);
                 List<ItemSlot> inventory = ItemSlotFactory.Deserialize(sPlayerInventoryData.SInventory);
                 if (inventory == null) inventory = GetDefaultItemInventory();
-                List<RobotTool> tools = PlayerToolFactory.Deserialize(sPlayerInventoryData.STools,sPlayerInventoryData.SToolTypes);
-                return new PlayerInventoryData(inventory, tools);
+                return new PlayerInventoryData(inventory);
             }
             catch (JsonSerializationException e)
             {
@@ -242,7 +233,7 @@ namespace PlayerModule {
 
         public static PlayerInventoryData GetDefault()
         {
-            return new PlayerInventoryData(GetDefaultItemInventory(), PlayerToolFactory.GetDefaults());
+            return new PlayerInventoryData(GetDefaultItemInventory());
         }
 
         public static List<ItemSlot> GetDefaultItemInventory()
@@ -253,14 +244,10 @@ namespace PlayerModule {
         private class SerializedPlayerInventory
         {
             public string SInventory;
-            public List<string> STools;
-            public string SToolTypes;
 
-            public SerializedPlayerInventory(string sInventory, List<string> sTools, string sToolTypes)
+            public SerializedPlayerInventory(string sInventory)
             {
                 SInventory = sInventory;
-                STools = sTools;
-                SToolTypes = sToolTypes;
             }
         }
     }

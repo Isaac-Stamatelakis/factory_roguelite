@@ -11,8 +11,7 @@ namespace Items {
     public class RobotItem : ItemObject, ITaggableItem
     {
         public RobotObject robot;
-        public RobotToolObjectCollection Tools;
-
+        
         public override ItemDisplayType? getDisplayType()
         {
             return ItemDisplayType.Stack;

@@ -25,7 +25,7 @@ public class StandardHammerTileGenerator : EditorWindow {
     private string tileName;
     private bool stateRotation = true;
     private bool show = false;
-    [MenuItem("Tools/Item Constructors/Tile/Hammer")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Hammer")]
     public static void ShowWindow()
     {
         StandardHammerTileGenerator window = (StandardHammerTileGenerator)EditorWindow.GetWindow(typeof(StandardHammerTileGenerator));

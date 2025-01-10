@@ -10,7 +10,7 @@ public class SpriteRuleSetter : EditorWindow {
     public bool readWrite = false;
     public bool spriteSheet = false;
 
-    [MenuItem("Tools/Sprite/Setter")]
+    [MenuItem("ToolCollection/Sprite/Setter")]
     public static void ShowWindow()
     {
         SpriteRuleSetter window = (SpriteRuleSetter)EditorWindow.GetWindow(typeof(SpriteRuleSetter));

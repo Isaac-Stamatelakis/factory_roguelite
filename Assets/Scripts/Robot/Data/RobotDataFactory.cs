@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -5,40 +6,43 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Items;
 using Items.Tags;
+using Player.Tool;
+using Recipe.Objects;
+using Robot.Tool;
+using Robot.Tool.Object;
 
 namespace RobotModule {
     public static class RobotDataFactory
     {
-        public static string seralize(RobotItemData robotItemData) {
+        public static string Serialize(RobotItemData robotItemData) {
             SeralizedRobotItemData seralizedRobotItemData = new SeralizedRobotItemData(
-                tools: ItemSlotFactory.serializeList(robotItemData.Equipment),
-                accessories: ItemSlotFactory.serializeList(robotItemData.Accessories),
-                robotItemData.Name
+                RobotToolFactory.Serialize(robotItemData.ToolData)
             );
             return JsonConvert.SerializeObject(seralizedRobotItemData);
         }
-        public static RobotItemData deseralize(string data) {
+        public static RobotItemData Deserialize(string data) {
             SeralizedRobotItemData seralizedRobotItemData = JsonConvert.DeserializeObject<SeralizedRobotItemData>(data);
             return new RobotItemData(
-                equipment: ItemSlotFactory.Deserialize(seralizedRobotItemData.tools),
-                accessories: ItemSlotFactory.Deserialize(seralizedRobotItemData.accessories),
-                seralizedRobotItemData.name
+                RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData)
             );
         }
-        public static ItemSlot getDefaultRobot(bool creative) {
+        public static ItemSlot GetDefaultRobot(bool creative) {
             string id = creative ? "happy_inf" : "happy_mk1";
-            ItemObject robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
-            if (robotItem == null) {
-                Debug.LogWarning("Tried to get default robot which was null");
+            RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
+            if (ReferenceEquals(robotItem,null))
+            {
+                throw new NullReferenceException("Tried to get default robot which was null");
             }
+            
+            List<RobotToolType> defaultTypes = new List<RobotToolType> { RobotToolType.LaserDrill };
+            List<RobotToolData> defaultData = new List<RobotToolData>();
+            foreach (RobotToolType robotToolType in defaultTypes)
+            {
+                defaultData.Add(RobotToolFactory.GetDefault(robotToolType));
+            }
+            ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData);
             RobotItemData robotItemData = new RobotItemData(
-                new List<ItemSlot>{
-
-                },
-                new List<ItemSlot>{
-                    
-                },
-                "Bob"
+                defaultToolData
             );
             Dictionary<ItemTag,object> dict = new Dictionary<ItemTag, object>();
             dict[ItemTag.RobotData] = robotItemData;
@@ -52,19 +56,15 @@ namespace RobotModule {
             );
         }
 
-        public static string getDefaultRobotString(bool creative) {
-            return ItemSlotFactory.seralizeItemSlot(getDefaultRobot(creative));
+        public static string GetDefaultRobotData(bool creative) {
+            return ItemSlotFactory.seralizeItemSlot(GetDefaultRobot(creative));
         }
 
         private class SeralizedRobotItemData
         {
-            public string tools;
-            public string accessories;
-            public string name;
-            public SeralizedRobotItemData(string tools, string accessories, string name) {
-                this.tools = tools;
-                this.accessories = accessories;
-                this.name = name;
+            public string SerializedToolData;
+            public SeralizedRobotItemData(string serializedToolData) {
+                this.SerializedToolData = serializedToolData;
             }
         }
     }

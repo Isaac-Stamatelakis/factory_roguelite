@@ -8,7 +8,7 @@ using System.IO;
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
     private Texture2D texture;
-    [MenuItem("Tools/Item Constructors/Tile/Multi-Standard")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Multi-Standard")]
     public static void ShowWindow()
     {
         TileMultiGeneratorWindow window = (TileMultiGeneratorWindow)EditorWindow.GetWindow(typeof(TileMultiGeneratorWindow));

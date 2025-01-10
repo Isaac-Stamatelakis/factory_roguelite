@@ -1,4 +1,5 @@
 using System;
+using Item.Slot;
 using PlayerModule;
 using PlayerModule.IO;
 using UnityEngine;
@@ -26,10 +27,11 @@ namespace Player
 
         public void Initialize()
         {
-            
+            playerIO.Deserialize();
+            playerInventory.Initialize();
+            ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerIO.playerData.playerRobot);
+            playerRobot.setRobot(playerRobotItem);
+            playerInventory.InitializeToolDisplay();
         }
-
-        
-            
     }
 }

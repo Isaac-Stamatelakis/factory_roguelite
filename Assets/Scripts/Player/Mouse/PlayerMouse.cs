@@ -22,6 +22,7 @@ using Entities;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
+using Player;
 using Player.Mouse;
 using Player.Tool;
 using PlayerModule.IO;
@@ -84,6 +85,7 @@ namespace PlayerModule.Mouse {
         private HoldClickHandler leftClickHandler;
         private HoldClickHandler rightClickHandler;
         private PlayerInventory playerInventory;
+        private PlayerRobot playerRobot;
         private Transform playerTransform;
         private Camera mainCamera;
         private EventSystem eventSystem;
@@ -92,6 +94,7 @@ namespace PlayerModule.Mouse {
         {
             mainCamera = Camera.main;
             playerInventory = GetComponent<PlayerInventory>();
+            playerRobot = GetComponent<PlayerRobot>();
             playerTransform = transform;
             eventSystem = EventSystem.current;
         }
@@ -190,7 +193,7 @@ namespace PlayerModule.Mouse {
             }
             if (leftClickHandler == null)
             {
-                RobotTool currentTool = playerInventory.CurrentTool;
+                IRobotToolInstance currentTool = playerInventory.CurrentTool;
                 leftClickHandler = new HoldClickHandler(currentTool,MouseButtonKey.Left);
             }
             leftClickHandler.Tick(mousePosition);
@@ -216,13 +219,7 @@ namespace PlayerModule.Mouse {
                     handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
                     break;
                 case InventoryDisplayMode.Tools:
-                    RobotTool currentTool = playerInventory.CurrentTool;
-                    /*
-                    switch (expression)
-                    {
-                        
-                    }
-                    */
+                    IRobotToolInstance currentTool = playerInventory.CurrentTool;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

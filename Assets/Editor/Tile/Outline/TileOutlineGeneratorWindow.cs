@@ -25,7 +25,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
     private static HammerTileValues hammerTileValues;
     private Vector2Int sliceSize = new Vector2Int(16,16);
 
-    [MenuItem("Tools/Item Constructors/Tile/Outline")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Outline")]
     public static void ShowWindow()
     {
         TileOutlineGeneratorWindow window = (TileOutlineGeneratorWindow)EditorWindow.GetWindow(typeof(TileOutlineGeneratorWindow));

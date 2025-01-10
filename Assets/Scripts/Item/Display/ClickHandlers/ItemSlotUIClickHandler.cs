@@ -104,7 +104,6 @@ namespace Item.Display.ClickHandlers
         {
             if (ReferenceEquals(inventoryUI, null)) return;
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            Debug.Log(ItemSlotUtils.IsItemSlotNull(itemSlot));
             if (!EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             ToolTipController.Instance.ShowToolTip(transform.position,itemSlot.itemObject);
         }
