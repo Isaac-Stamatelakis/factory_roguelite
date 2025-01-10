@@ -38,7 +38,7 @@ namespace WorldModule {
             PlayerData playerData = new PlayerData(
                 x: 0,
                 y: 0,
-                playerRobot: RobotDataFactory.GetDefaultRobotData(false),
+                playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 name: "Izakio",
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault())
             );

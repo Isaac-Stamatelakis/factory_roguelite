@@ -47,10 +47,44 @@ namespace Player {
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
             int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
-            onGround = raycastHit.collider != null;            
-            if (!CanvasController.Instance.IsActive) {
+            onGround = !ReferenceEquals(raycastHit.collider, null);
+            if (CanvasController.Instance.IsActive) return;
+            
+            if (DevMode.Instance.flight)
+            {
+                FlightMovementUpdate(transform);
+            }
+            else
+            {
                 currentRobot.handleMovement(transform);
             }
+        }
+
+        public void SetFlightProperties()
+        {
+            rb.bodyType = DevMode.Instance.flight ? RigidbodyType2D.Static : RigidbodyType2D.Dynamic;
+        }
+
+        private void FlightMovementUpdate(Transform playerTransform)
+        {
+            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
+            Vector3 position = playerTransform.position;
+            float speed = DevMode.Instance.FlightSpeed;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+                position.x -= speed;
+                spriteRenderer.flipX = true;
+            }
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+                position.x += speed;
+                spriteRenderer.flipX = false;
+            }
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
+                position.y += speed;
+            }
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
+                position.y -= speed;
+            }
+            playerTransform.position = position;
         }
         
         private void canStartClimbing() {
@@ -115,12 +149,12 @@ namespace Player {
             rb.velocity = velocity;
         }
         
-        public void setRobot(ItemSlot robotItemSlot)
+        public void SetRobot(ItemSlot robotItemSlot)
         {
             
             if (ItemSlotUtils.IsItemSlotNull(this.robotItemSlot) || robotItemSlot.itemObject is not RobotItem robotItem) {
                 Debug.LogWarning("Tried to set invalid robot");
-                robotItemSlot = RobotDataFactory.GetDefaultRobot(false);
+                robotItemSlot = RobotDataFactory.GetDefaultRobot();
                 robotItem = robotItemSlot.itemObject as RobotItem;
             }
             this.currentRobot = robotItem.robot;
@@ -129,6 +163,7 @@ namespace Player {
             
             
             currentRobot.init(gameObject);
+            SetFlightProperties();
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 

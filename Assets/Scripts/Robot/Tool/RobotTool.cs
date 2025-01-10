@@ -16,10 +16,17 @@ namespace Robot.Tool
         Left = 0,
         Right = 1
     }
+
+    public enum MoveDirection
+    {
+        Left,
+        Right
+    }
     
     public interface IRobotToolInstance : IPlayerClickHandler
     {
         public Sprite GetSprite();
+        //public void SwitchMode(MoveDirection direction);
     }
     public abstract class RobotToolInstance<TData, TObject> : IRobotToolInstance 
         where TData : RobotToolData 

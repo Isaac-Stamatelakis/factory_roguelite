@@ -21,6 +21,7 @@ namespace UI.Chat {
             { "tp", (parameters, ui) => new TeleportCommand(parameters, ui) },
             { "setrobot", (parameters, ui) => new SetRobotCommand(parameters, ui) },
             { "camera", (parameters, ui) => new CameraViewCommand(parameters, ui) },
+            { "flight", (parameters, ui) => new FlightCommand(parameters, ui) },
             
         };
 

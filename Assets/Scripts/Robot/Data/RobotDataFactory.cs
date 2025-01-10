@@ -14,6 +14,7 @@ using Robot.Tool.Object;
 namespace RobotModule {
     public static class RobotDataFactory
     {
+        private static readonly string DEFAULT_ROBOT_ID = "happy_mk1";
         public static string Serialize(RobotItemData robotItemData) {
             SeralizedRobotItemData seralizedRobotItemData = new SeralizedRobotItemData(
                 RobotToolFactory.Serialize(robotItemData.ToolData)
@@ -26,9 +27,9 @@ namespace RobotModule {
                 RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData)
             );
         }
-        public static ItemSlot GetDefaultRobot(bool creative) {
-            string id = creative ? "happy_inf" : "happy_mk1";
-            RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
+        public static ItemSlot GetDefaultRobot()
+        {
+            RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(DEFAULT_ROBOT_ID);
             if (ReferenceEquals(robotItem,null))
             {
                 throw new NullReferenceException("Tried to get default robot which was null");
@@ -56,8 +57,8 @@ namespace RobotModule {
             );
         }
 
-        public static string GetDefaultRobotData(bool creative) {
-            return ItemSlotFactory.seralizeItemSlot(GetDefaultRobot(creative));
+        public static string GetDefaultRobotData() {
+            return ItemSlotFactory.seralizeItemSlot(GetDefaultRobot());
         }
 
         private class SeralizedRobotItemData

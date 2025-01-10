@@ -30,7 +30,7 @@ namespace Player
             playerIO.Deserialize();
             playerInventory.Initialize();
             ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerIO.playerData.playerRobot);
-            playerRobot.setRobot(playerRobotItem);
+            playerRobot.SetRobot(playerRobotItem);
             playerInventory.InitializeToolDisplay();
         }
     }
