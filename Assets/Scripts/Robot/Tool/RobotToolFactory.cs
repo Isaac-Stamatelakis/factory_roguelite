@@ -45,7 +45,7 @@ namespace Robot.Tool
                     return null;
                 //return new LaserGun(1f, 1f, 1f);
                 case RobotToolType.LaserDrill:
-                    return new LaserDrillData(TileMapLayer.Base, 1f, 1);
+                    return new LaserDrillData(TileMapLayer.Base, 0.125f, 1);
                 case RobotToolType.ConduitSlicers:
                     return null;
                 //return new ConduitSlicer(TileMapLayer.Item, ConduitBreakMode.Standard);

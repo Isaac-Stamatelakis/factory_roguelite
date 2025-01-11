@@ -38,6 +38,7 @@ namespace PlayerModule {
         public List<ItemSlot> Inventory => playerInventoryData.Inventory;
         public InventoryUI InventoryUI => playerInventoryGrid;
         public IRobotToolInstance CurrentTool => playerRobot.RobotTools[selectedTool];
+        public RobotToolType CurrentToolType => playerRobot.ToolTypes[selectedTool];
         public InventoryDisplayMode Mode => mode;
         // Start is called before the first frame update
         void Start()

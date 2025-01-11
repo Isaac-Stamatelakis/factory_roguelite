@@ -33,15 +33,17 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override void BeginClickHold()
+        public override void BeginClickHold(Vector2 mousePosition)
         {
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             lineRenderer = GameObject.Instantiate(robotObject.LineRendererPrefab,playerTransform);
+            UpdateLineRenderer(mousePosition);
         }
 
         public override void TerminateClickHold()
         {
             GameObject.Destroy(lineRenderer.gameObject);
+            
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)

@@ -40,7 +40,7 @@ namespace Robot.Tool
         protected TData toolData;
         protected TObject robotObject;
         public abstract Sprite GetSprite();
-        public abstract void BeginClickHold();
+        public abstract void BeginClickHold(Vector2 mousePosition);
         public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);

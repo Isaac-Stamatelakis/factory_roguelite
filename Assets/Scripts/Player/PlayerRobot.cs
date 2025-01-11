@@ -32,6 +32,7 @@ namespace Player {
         private RobotItemData robotItemData;
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
+        public List<RobotToolType> ToolTypes => robotItemData.ToolData.Types;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();

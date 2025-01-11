@@ -20,7 +20,7 @@ namespace Dimensions {
             base.Awake();
         }
         public void FixedUpdate() {
-            if (dim0System == null) {
+            if (ReferenceEquals(dim0System,null)) {
                 return;
             }
             dim0System.TickUpdate();
