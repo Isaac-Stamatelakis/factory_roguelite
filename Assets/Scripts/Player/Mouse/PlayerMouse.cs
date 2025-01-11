@@ -22,17 +22,20 @@ using Entities;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
+using Player;
 using Player.Mouse;
 using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
+using Robot.Tool;
 using UI;
+using UI.ToolTip;
 
 namespace PlayerModule.Mouse {
 
     public interface IPlayerClickHandler
     {
-        public void BeginClickHold();
+        public void BeginClickHold(Vector2 mousePosition);
         public void TerminateClickHold();
         public void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
@@ -43,17 +46,30 @@ namespace PlayerModule.Mouse {
         private readonly IPlayerClickHandler clickHandler;
         private readonly int mouseIndex;
         private MouseButtonKey mouseButtonKey;
+        private bool active;
+        private float lastUse;
         public HoldClickHandler(IPlayerClickHandler clickHandler, MouseButtonKey mouseButtonKey)
         {
             this.clickHandler = clickHandler;
             this.mouseIndex = (int)mouseButtonKey;
-            clickHandler.BeginClickHold();
+            lastUse = Time.time;
         }
 
         public void Tick(Vector2 mousePosition)
         {
-            if (Input.GetMouseButtonDown(mouseIndex)) {
-                clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+            if (!active)
+            {
+                clickHandler.BeginClickHold(mousePosition);
+                active = true;
+                float timeSinceLastUse = Time.time - lastUse;
+                counter += timeSinceLastUse;
+                Debug.Log(counter);
+                if (counter <= 0)
+                {
+                    clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+                    counter = 0;
+                }
+                
                 return;
             }
             
@@ -72,6 +88,8 @@ namespace PlayerModule.Mouse {
         public void Terminate()
         {
             clickHandler.TerminateClickHold();
+            lastUse = Time.time;
+            active = false;
         }
     }
     /// <summary>
@@ -79,18 +97,19 @@ namespace PlayerModule.Mouse {
     /// </summary>
     public class PlayerMouse : MonoBehaviour
     {
-        private HoldClickHandler leftClickHandler;
-        private HoldClickHandler rightClickHandler;
         private PlayerInventory playerInventory;
+        private PlayerRobot playerRobot;
         private Transform playerTransform;
         private Camera mainCamera;
         private EventSystem eventSystem;
+        private ClickHandlerCollection clickHandlerCollection = new ClickHandlerCollection();
         
         void Start()
         {
             mainCamera = Camera.main;
             playerInventory = GetComponent<PlayerInventory>();
-            playerTransform = PlayerContainer.getInstance().getTransform();
+            playerRobot = GetComponent<PlayerRobot>();
+            playerTransform = transform;
             eventSystem = EventSystem.current;
         }
         
@@ -103,25 +122,26 @@ namespace PlayerModule.Mouse {
             bool scroll = Input.mouseScrollDelta.y != 0;
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             
-            if (!leftClick && leftClickHandler != null)
+            if (!leftClick)
             {
-                leftClickHandler.Terminate();
-                leftClickHandler = null;
+                clickHandlerCollection.Terminate(MouseButtonKey.Left);
             }
             
-            if (!rightClick && rightClickHandler != null)
+            if (!rightClick)
             {
-                rightClickHandler = null;
+                clickHandlerCollection.Terminate(MouseButtonKey.Right);
             }
             
             if (eventSystem.IsPointerOverGameObject())
             {
+                
                 if (scroll)
                 {
                     MouseScrollUIUpdate(mousePosition);
                 }
                 return;
             }
+            ToolTipController.Instance.HideToolTip();
             if (!leftClick && !rightClick) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
@@ -154,8 +174,9 @@ namespace PlayerModule.Mouse {
             clickHandler?.MiddleMouseScroll();
         }
 
-        public static ILoadedChunk GetChunk(Vector2 mousePosition) {
-            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+        public static ILoadedChunk GetChunk(Vector2 mousePosition)
+        {
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return null;
@@ -183,11 +204,8 @@ namespace PlayerModule.Mouse {
             if (drop) {
                 return;
             }
-            if (leftClickHandler == null)
-            {
-                PlayerTool currentTool = playerInventory.CurrentTool;
-                leftClickHandler = new HoldClickHandler(currentTool,MouseButtonKey.Left);
-            }
+
+            var leftClickHandler = clickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, MouseButtonKey.Left, playerInventory.CurrentTool);
             leftClickHandler.Tick(mousePosition);
 
         }
@@ -211,13 +229,7 @@ namespace PlayerModule.Mouse {
                     handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
                     break;
                 case InventoryDisplayMode.Tools:
-                    PlayerTool currentTool = playerInventory.CurrentTool;
-                    /*
-                    switch (expression)
-                    {
-                        
-                    }
-                    */
+                    IRobotToolInstance currentTool = playerInventory.CurrentTool;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -400,6 +412,41 @@ namespace PlayerModule.Mouse {
                     playerInventory.iterateSelectedTile(-1);
                 }
             }
+        }
+    }
+
+    public class ClickHandlerCollection
+    {
+        private Dictionary<MouseButtonKey, HoldClickHandler> recentlyUsed = new Dictionary<MouseButtonKey, HoldClickHandler>();
+       
+        private Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>> clickHandlerDict =
+            new Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>>();
+        public HoldClickHandler GetOrAddTool(RobotToolType robotToolType, MouseButtonKey mouseButtonKey, IRobotToolInstance toolInstance)
+        {
+            if (!clickHandlerDict.ContainsKey(robotToolType))
+            {
+                clickHandlerDict.Add(robotToolType, new Dictionary<MouseButtonKey, HoldClickHandler>());
+            }
+
+            if (!clickHandlerDict[robotToolType].ContainsKey(mouseButtonKey))
+            {
+                clickHandlerDict[robotToolType][mouseButtonKey] = new HoldClickHandler(toolInstance,mouseButtonKey) ;
+            
+            }
+            var handler = clickHandlerDict[robotToolType][mouseButtonKey];
+            recentlyUsed[mouseButtonKey] = handler;
+            return handler;
+        }
+
+        public void Terminate(MouseButtonKey mouseButtonKey)
+        {
+            if (!recentlyUsed.TryGetValue(mouseButtonKey, out var handler)) return;
+            handler.Terminate();
+            recentlyUsed.Remove(mouseButtonKey);
+        }
+
+        public ClickHandlerCollection()
+        {
         }
     }
 }

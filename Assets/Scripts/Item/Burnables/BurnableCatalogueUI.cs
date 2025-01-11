@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Item.Slot;
 using Items;
+using Items.Inventory;
 using Items.Transmutable;
 using Recipe;
 using Recipe.Collection;
@@ -15,7 +16,7 @@ namespace Item.Burnables
     {
         [SerializeField] private TextMeshProUGUI mNameText;
         [SerializeField] private TextMeshProUGUI mBurnTimeText;
-        [SerializeField] private ItemSlotUI mItemSlotUI;
+        [SerializeField] private InventoryUI mItemSlotInventoryUI;
         private BurnableInfo burnableInfo;
         public override void Display(ICatalogueElement element)
         {
@@ -38,7 +39,8 @@ namespace Item.Burnables
 
         private void DisplayItemSlot(ItemSlot itemSlot)
         {
-            mItemSlotUI.Display(itemSlot);
+            mItemSlotInventoryUI.DisplayInventory(new List<ItemSlot>{itemSlot},clear:false);
+            mItemSlotInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
             ItemObject itemObject = itemSlot.itemObject;
             mNameText.text = $"Name: {itemObject.name}";
             uint burnTicks = RecipeRegistry.BurnableItemRegistry.GetBurnDuration(itemObject);

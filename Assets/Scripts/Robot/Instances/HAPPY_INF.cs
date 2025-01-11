@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Robot;
 using UnityEngine;
 
 namespace RobotModule.Instances {
@@ -8,7 +9,7 @@ namespace RobotModule.Instances {
     /// The starter robot
     /// <summary>   
     [CreateAssetMenu(fileName = "RB~New Happy INF", menuName = "Robots/HAPPYINF")]
-    public class HAPPY_INF : Robot
+    public class HAPPY_INF : RobotObject
     {
         [SerializeField] public float speed;
         public override void handleMovement(Transform playerTransform)

@@ -2,20 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using Player.Tool;
 using Player.Tool.UI;
+using Robot.Tool;
 using UnityEngine;
 
 public class PlayerToolListUI : MonoBehaviour
 {
     private int offset;
     PlayerToolListElementUI[] elements;
-    private List<PlayerTool> tools;
+    private List<IRobotToolInstance> tools;
 
     public void Start()
     {
         elements = GetComponentsInChildren<PlayerToolListElementUI>();
     }
 
-    public void Initialize(List<PlayerTool> tools)
+    public void Initialize(List<IRobotToolInstance> tools)
     {
         this.tools = tools;
         Display();

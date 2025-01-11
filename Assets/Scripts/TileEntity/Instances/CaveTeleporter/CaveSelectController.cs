@@ -136,7 +136,7 @@ namespace TileEntity.Instances {
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             Debug.Log("Teleporting to " + currentCave.name);
-            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.getDimController(-1);
             caveController.setCurrentCave(caveInstance);

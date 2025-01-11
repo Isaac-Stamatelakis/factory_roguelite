@@ -38,7 +38,8 @@ namespace Player.Mouse
                 RaycastHitBlock(mousePosition,layer);
                 return;
             }
-            Transform playerTransform = PlayerContainer.getInstance().getTransform();
+
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
                 ITileMap tileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(tileMapType);
                 if (tileMap is not IHitableTileMap hitableTileMap) continue;

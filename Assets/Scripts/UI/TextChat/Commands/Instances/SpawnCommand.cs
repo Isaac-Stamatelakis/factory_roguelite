@@ -16,9 +16,9 @@ namespace UI.Chat {
         public override void execute()
         {
             try {
-                Vector3 playerPosition = PlayerContainer.getInstance().getTransform().position;
+                Vector3 playerPosition = PlayerManager.Instance.GetPlayer().transform.position;
                 string id = parameters[0];
-                Transform player = PlayerContainer.getInstance().getTransform();
+                Transform player = PlayerManager.Instance.GetPlayer().transform;
                 int dim = DimensionManager.Instance.getPlayerDimension(player);
                 DimController dimController = DimensionManager.Instance.getDimController(dim);
                 EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,dimController.EntityContainer);

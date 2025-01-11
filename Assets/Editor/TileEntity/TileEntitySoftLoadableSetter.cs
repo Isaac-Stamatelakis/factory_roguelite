@@ -10,7 +10,7 @@ using System.Reflection;
 
 public class TileEntitySoftLoadableSetter : EditorWindow {
     private string folderPath = "Assets/ScriptableObjects/Items";
-    [MenuItem("Tools/TileEntity/SoftLoad")]
+    [MenuItem("ToolCollection/TileEntity/SoftLoad")]
     public static void ShowWindow()
     {
         TileEntitySoftLoadableSetter window = (TileEntitySoftLoadableSetter)EditorWindow.GetWindow(typeof(TileEntitySoftLoadableSetter));

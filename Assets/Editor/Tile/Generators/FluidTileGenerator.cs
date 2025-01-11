@@ -14,7 +14,7 @@ public class FluidTileGeneratorWindow : EditorWindow {
     private bool invertedGravity = false;
     private int viscosity = 5;
     private string path;
-    [MenuItem("Tools/Item Constructors/Tile/Fluid")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Fluid")]
     public static void ShowWindow()
     {
         FluidTileGeneratorWindow window = (FluidTileGeneratorWindow)EditorWindow.GetWindow(typeof(FluidTileGeneratorWindow));

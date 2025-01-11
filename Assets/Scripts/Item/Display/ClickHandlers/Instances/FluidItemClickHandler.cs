@@ -58,7 +58,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 }
                 return;
             }
-            List<ItemSlot> playerInventory =  PlayerContainer.getInstance().getInventory().Inventory;
+            List<ItemSlot> playerInventory =  PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory;
             ItemSlot newItemSlot = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
             if (!ItemSlotUtils.CanInsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage())) {
                 return;

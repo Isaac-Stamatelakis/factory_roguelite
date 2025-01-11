@@ -62,10 +62,6 @@ namespace TileEntity.Instances.Matrix {
 
         }
 
-        public void OnDestroy() {
-            PlayerContainer.getInstance().getInventory().showUI(); 
-        }
-
         private void encodeButtonClick() {
             if (ItemSlotUtils.InventoryAllNull(recipeEncoder.RecipeInputs)) {
                 return;

@@ -15,7 +15,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class TransmutableItemGenerator : EditorWindow
 {
     private string GEN_PATH = "Items";
-    [MenuItem("Tools/Item Constructors/Transmutable Materials")]
+    [MenuItem("ToolCollection/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
         TransmutableItemGenerator window = (TransmutableItemGenerator)EditorWindow.GetWindow(typeof(TransmutableItemGenerator));

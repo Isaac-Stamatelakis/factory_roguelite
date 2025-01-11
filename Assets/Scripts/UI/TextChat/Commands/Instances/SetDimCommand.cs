@@ -17,7 +17,7 @@ namespace UI.Chat {
         {
             try {
                 int dim = ChatCommandParameterParser.parseInt(parameters,0,"dim");
-                Transform player = PlayerContainer.getInstance().getTransform();
+                Transform player = PlayerManager.Instance.GetPlayer().transform;
                 Vector2 position = player.transform.position;
                 if (parameters.Length > 1) {
                     position.x = ChatCommandParameterParser.parseInt(parameters,1,"x");

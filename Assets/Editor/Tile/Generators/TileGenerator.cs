@@ -11,7 +11,7 @@ public class TileGeneratorWindow : EditorWindow {
     private TileColliderType colliderType;
     private string tileName;
     private string path;
-    [MenuItem("Tools/Item Constructors/Tile/Standard")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Standard")]
     public static void ShowWindow()
     {
         TileGeneratorWindow window = (TileGeneratorWindow)EditorWindow.GetWindow(typeof(TileGeneratorWindow));

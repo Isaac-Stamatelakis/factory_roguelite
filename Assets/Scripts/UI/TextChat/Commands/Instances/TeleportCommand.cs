@@ -16,7 +16,7 @@ namespace UI.Chat {
             try {
                 int x = Convert.ToInt32(parameters[0]);
                 int y = Convert.ToInt32(parameters[1]);
-                Transform playerTransform = PlayerContainer.getInstance().getTransform();
+                Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
                 Vector3 playerPosition = playerTransform.position;
                 playerPosition.x = x;
                 playerPosition.y = y;

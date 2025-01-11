@@ -38,14 +38,14 @@ namespace Items.Inventory {
             for (int i = 0; i < transform.childCount; i++)
             {
                 ItemSlotUI itemSlotUI = transform.GetChild(i).GetComponent<ItemSlotUI>();
-                if (itemSlotUI == null)
+                if (ReferenceEquals(itemSlotUI,null))
                 {
                     toDestroy.Add(transform.gameObject);
+                    continue;
                 }
-                else
-                {
-                    slots.Add(itemSlotUI);
-                }
+                slots.Add(itemSlotUI);
+                ItemSlotUIClickHandler clickHandler = itemSlotUI.GetComponent<ItemSlotUIClickHandler>();
+                clickHandler?.Initialize(this,slots.Count-1);
             }
 
             foreach (GameObject go in toDestroy)

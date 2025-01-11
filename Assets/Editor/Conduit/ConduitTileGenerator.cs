@@ -19,7 +19,7 @@ public class ConduitTileGenerator : EditorWindow {
     private ConduitType conduitType;
 
     private static readonly int SIZE = 16;
-    [MenuItem("Tools/Item Constructors/Conduit")]
+    [MenuItem("ToolCollection/Item Constructors/Conduit")]
     public static void ShowWindow()
     {
         ConduitTileGenerator window = (ConduitTileGenerator)EditorWindow.GetWindow(typeof(ConduitTileGenerator));

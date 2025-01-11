@@ -13,7 +13,7 @@ public class DoorTileGenerator : EditorWindow {
     private Sprite rightClosed;
     private Sprite rightOpen;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/Special/Door")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Special/Door")]
     public static void ShowWindow()
     {
         DoorTileGenerator window = (DoorTileGenerator)EditorWindow.GetWindow(typeof(DoorTileGenerator));

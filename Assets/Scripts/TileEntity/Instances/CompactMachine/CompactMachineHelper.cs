@@ -164,7 +164,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath);
             dimensionManager.setPlayerSystem(
-                PlayerContainer.getInstance().getTransform(),
+                PlayerManager.Instance.GetPlayer().transform,
                 1,
                 compactMachine.getCellPosition(),
                 key:parentKey
@@ -186,7 +186,7 @@ namespace TileEntity.Instances.CompactMachines {
             path.Add(compactMachine.getCellPosition());
             CompactMachineTeleportKey key = new CompactMachineTeleportKey(path);
             dimensionManager.setPlayerSystem(
-                PlayerContainer.getInstance().getTransform(),
+                PlayerManager.Instance.GetPlayer().transform,
                 1,
                 compactMachine.Teleporter.getCellPosition() + Vector2Int.one,
                 key:key

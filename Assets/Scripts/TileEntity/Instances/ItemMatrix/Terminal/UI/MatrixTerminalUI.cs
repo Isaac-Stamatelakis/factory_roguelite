@@ -30,10 +30,7 @@ namespace TileEntity.Instances.Matrix {
         public static MatrixTerminalUI newInstance() {
             return GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalUI").GetComponent<MatrixTerminalUI>();
         }
-
-        public void OnDestroy() {
-            PlayerContainer.getInstance().getInventory().showUI(); 
-        }
+        
     }
 }
 

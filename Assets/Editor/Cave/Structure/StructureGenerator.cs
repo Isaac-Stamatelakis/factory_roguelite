@@ -28,7 +28,7 @@ public class StructureGenerator : EditorWindow {
     private bool updateExisting = false;
     private PresetStructure preset;
     private string assetPath;
-    [MenuItem("Tools/Caves/Structure")]
+    [MenuItem("ToolCollection/Caves/Structure")]
     public static void ShowWindow()
     {
         structureNames = StructureGeneratorHelper.getAllStructureFolders();

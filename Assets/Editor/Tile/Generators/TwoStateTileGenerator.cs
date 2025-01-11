@@ -10,7 +10,7 @@ public class TwoStateTileGenerator : EditorWindow
     private Sprite inactive;
     private Sprite active;
     private string tileName;
-    [MenuItem("Tools/Item Constructors/Tile/Special/TwoState")]
+    [MenuItem("ToolCollection/Item Constructors/Tile/Special/TwoState")]
     // Start is called before the first frame update
     public static void ShowWindow()
     {

@@ -94,7 +94,7 @@ namespace TileEntity.Instances.Storage {
 
         public void onRightClick()
         {
-            PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();   
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             ItemSlot playerItemSlot = playerInventory.getSelectedItemSlot();
             if (itemSlot == null || itemSlot.itemObject == null) {
                 itemSlot = playerItemSlot;
