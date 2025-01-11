@@ -10,7 +10,7 @@ using Items;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Conduit {
-    public class ConduitTileMap : AbstractTileMap<ConduitItem>
+    public class ConduitIWorldTileMap : AbstractIWorldTileMap<ConduitItem>
     {
         private IConduitSystemManager conduitSystemManager;
 

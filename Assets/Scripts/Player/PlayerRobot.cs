@@ -114,12 +114,12 @@ namespace Player {
             if (objHit.collider == null) {
                 return null;
             }
-            TileGridMap tileGridMap = objHit.collider.GetComponent<TileGridMap>();
-            if (tileGridMap == null) {
+            IWorldTileGridMap iWorldTileGridMap = objHit.collider.GetComponent<IWorldTileGridMap>();
+            if (iWorldTileGridMap == null) {
                 return null;
             }
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
-            TileItem tileItem = tileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
+            TileItem tileItem = iWorldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
             if (tileItem == null || tileItem.tileEntity == null) {
                 return null;
             }

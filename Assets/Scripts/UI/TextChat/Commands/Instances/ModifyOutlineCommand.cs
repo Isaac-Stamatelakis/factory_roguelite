@@ -25,8 +25,8 @@ namespace UI.Chat {
                     color = ChatCommandParameterParser.parseColor(parameters,1);
                 }
                 DimensionManager dimensionManager = DimensionManager.Instance;
-                OutlineTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineTileGridMap>();
-                foreach (OutlineTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+                OutlineIWorldTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineIWorldTileGridMap>();
+                foreach (OutlineIWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
                     outlineTileGridMap.setView(wireFrame,color);
                 }
             } catch (ChatParseException e) {

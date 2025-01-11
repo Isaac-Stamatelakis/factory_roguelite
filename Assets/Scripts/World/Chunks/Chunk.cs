@@ -28,7 +28,7 @@ namespace Chunks {
         public bool isChunkLoaded();
         public Transform getEntityContainer();
         public Transform getTileEntityContainer();
-        public ITileMap getTileMap(TileMapType type);
+        public IWorldTileMap getTileMap(TileMapType type);
         public ClosedChunkSystem getSystem();
         public HashSet<string> getEntityIds();
         
@@ -247,7 +247,7 @@ namespace Chunks {
             return this.partitions[position.x,position.y];
         }
 
-        public ITileMap getTileMap(TileMapType type)
+        public IWorldTileMap getTileMap(TileMapType type)
         {
             return closedChunkSystem.getTileMap(type);
         }

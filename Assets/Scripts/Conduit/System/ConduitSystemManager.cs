@@ -26,7 +26,7 @@ namespace Conduits.Systems {
         public int GetNewState(Vector2Int position, ConduitPlacementMode placementMode, string id);
         public void RefreshSystemTiles(IConduitSystem conduitSystem);
         public void RefreshConduitTile(IConduit conduit);
-        public void SetTileMap(ConduitTileMap conduitTileMap);
+        public void SetTileMap(ConduitIWorldTileMap conduitIWorldTileMap);
         public IConduit[,] GetConduitPartitionData(Vector2Int partitionPosition);
         public IConduit GetConduitAtCellPosition(Vector2Int position);
     }
@@ -39,7 +39,7 @@ namespace Conduits.Systems {
         protected ConduitType type;
         protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
-        protected ConduitTileMap conduitTileMap;
+        protected ConduitIWorldTileMap ConduitIWorldTileMap;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
@@ -157,7 +157,7 @@ namespace Conduits.Systems {
 
         public void RefreshSystemTiles(IConduitSystem conduitSystem)
         {
-            bool noTileMapLoaded = !conduitTileMap;
+            bool noTileMapLoaded = !ConduitIWorldTileMap;
             if (noTileMapLoaded)
             {
                 return;
@@ -170,17 +170,17 @@ namespace Conduits.Systems {
 
         public void RefreshConduitTile(IConduit conduit)
         {
-            bool noTileMapLoaded = !conduitTileMap;
+            bool noTileMapLoaded = !ConduitIWorldTileMap;
             if (noTileMapLoaded)
             {
                 return;
             }
-            conduitTileMap.RefreshTile(conduit.GetX(), conduit.GetY());
+            ConduitIWorldTileMap.RefreshTile(conduit.GetX(), conduit.GetY());
         }
 
-        public void SetTileMap(ConduitTileMap conduitTileMap)
+        public void SetTileMap(ConduitIWorldTileMap conduitIWorldTileMap)
         {
-            this.conduitTileMap = conduitTileMap;
+            this.ConduitIWorldTileMap = conduitIWorldTileMap;
         }
         
 

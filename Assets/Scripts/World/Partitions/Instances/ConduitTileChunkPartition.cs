@@ -175,7 +175,7 @@ namespace Chunks.Partitions {
             }
         }
         
-        protected override void iterateLoad(int x, int y, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition)
+        protected override void iterateLoad(int x, int y, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition)
         {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
             Vector2Int partitionPosition = new Vector2Int(x,y);
@@ -245,11 +245,11 @@ namespace Chunks.Partitions {
             }
         }
 
-        private void place(string id, string sConduitOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
+        private void place(string id, string sConduitOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition,TileMapLayer layer) {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (ReferenceEquals(conduitItem, null)) return;
-            ITileMap tileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
-            tileGridMap.placeItemTileAtLocation(
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
+            iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 conduitItem

@@ -19,7 +19,7 @@ namespace TileMaps {
         public void deleteTile(Vector2 position);
     }
 
-    public interface ITileMap {
+    public interface IWorldTileMap {
         public void addPartition(IChunkPartition partition);
         public IEnumerator removePartition(Vector2Int partitionPosition);
         public bool containsPartition(Vector2Int partitionPosition);
@@ -32,13 +32,14 @@ namespace TileMaps {
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
         public void addListener(ITileMapListener listener);
         public void setHighlight(bool on);
+        public Tilemap GetTilemap();
     }
 
     public interface ITileMapListener {
         void tileUpdate(Vector2Int position);
     }
     
-    public abstract class AbstractTileMap<TItem> : MonoBehaviour, IHitableTileMap, ITileMap where TItem : ItemObject
+    public abstract class AbstractIWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
     {
         public TileMapType type;
         protected Tilemap tilemap;
@@ -221,6 +222,11 @@ namespace TileMaps {
                 position.z = baseZValue;
                 transform.position = position;
             }
+        }
+
+        public Tilemap GetTilemap()
+        {
+            return tilemap;
         }
     }
 }

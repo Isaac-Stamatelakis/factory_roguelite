@@ -19,7 +19,7 @@ namespace TileMaps {
     public interface ITileGridMap {
         public TileItem getTileItem(Vector2Int cellPosition);
     }
-    public class TileGridMap : AbstractTileMap<TileItem>, ITileGridMap
+    public class IWorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  

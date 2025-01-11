@@ -41,8 +41,8 @@ namespace Player.Mouse
 
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                ITileMap tileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(tileMapType);
-                if (tileMap is not IHitableTileMap hitableTileMap) continue;
+                IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(tileMapType);
+                if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
                     hitableTileMap.deleteTile(mousePosition);
                 } else {
@@ -66,7 +66,7 @@ namespace Player.Mouse
             if (hitableTileMap == null) {
                 return false;
             }
-            if (hitableTileMap is TileGridMap tileGridMap) {
+            if (hitableTileMap is IWorldTileGridMap tileGridMap) {
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
                 ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
                 if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {

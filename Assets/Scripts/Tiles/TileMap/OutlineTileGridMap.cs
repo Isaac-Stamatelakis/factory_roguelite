@@ -7,7 +7,7 @@ using Tiles;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps {
-    public class OutlineTileGridMap : TileGridMap
+    public class OutlineIWorldTileGridMap : IWorldTileGridMap
     {
         private Tilemap outlineTileMap;
         public override void Start()

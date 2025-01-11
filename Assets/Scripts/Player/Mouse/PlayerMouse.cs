@@ -28,6 +28,7 @@ using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
+using Tiles.Highlight;
 using UI;
 using UI.ToolTip;
 using MoveDirection = Robot.Tool.MoveDirection;
@@ -103,6 +104,7 @@ namespace PlayerModule.Mouse {
         private Camera mainCamera;
         private EventSystem eventSystem;
         private ClickHandlerCollection clickHandlerCollection = new ClickHandlerCollection();
+        [SerializeField] private TileHighlighter tileHighlighter;
         
         void Start()
         {
@@ -153,6 +155,7 @@ namespace PlayerModule.Mouse {
             if (!closedChunkSystem) {
                 return;
             }
+            
             Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
             
             if (leftClick) {
@@ -162,6 +165,21 @@ namespace PlayerModule.Mouse {
                 RightClickUpdate(mousePosition,systemOffset);
             }
             
+        }
+
+        public void FixedUpdate()
+        {
+            Vector2 mouseScreenPosition = Input.mousePosition;
+            Vector2 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            if (ReferenceEquals(closedChunkSystem,null)) return;
+            
+            var tilemapContainer = closedChunkSystem.getTileMap(TileMapType.Block);
+            Vector2 distanceFromPlayer = mouseWorldPosition - (Vector2)transform.position;
+            float angle = Mathf.Atan2(distanceFromPlayer.y, distanceFromPlayer.x) * Mathf.Rad2Deg;
+            Debug.Log(angle);
+            var tilemap = tilemapContainer.GetTilemap();
+            tileHighlighter.Highlight(mouseWorldPosition, tilemap);
         }
 
         private void MouseScrollUpdate(Vector2 mousePosition)

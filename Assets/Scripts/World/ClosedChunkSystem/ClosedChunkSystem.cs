@@ -26,7 +26,7 @@ namespace Chunks.Systems {
 
     public abstract class ClosedChunkSystem : MonoBehaviour
     {
-        protected Dictionary<TileMapType, ITileMap> tileGridMaps = new Dictionary<TileMapType, ITileMap>();
+        protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
@@ -97,7 +97,7 @@ namespace Chunks.Systems {
             return tileGridMaps.ContainsKey(tileMapType);
         }
 
-        public ITileMap getTileMap(TileMapType tileMapType) {
+        public IWorldTileMap getTileMap(TileMapType tileMapType) {
             if (tileGridMaps.ContainsKey(tileMapType)) {
                 return tileGridMaps[tileMapType];
             }
