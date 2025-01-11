@@ -105,6 +105,8 @@ namespace PlayerModule.Mouse {
         private EventSystem eventSystem;
         private ClickHandlerCollection clickHandlerCollection = new ClickHandlerCollection();
         [SerializeField] private TileHighlighter tileHighlighter;
+        [SerializeField] private LineRenderer t1;
+        [SerializeField] private LineRenderer t2;
         
         void Start()
         {
@@ -175,11 +177,54 @@ namespace PlayerModule.Mouse {
             if (ReferenceEquals(closedChunkSystem,null)) return;
             
             var tilemapContainer = closedChunkSystem.getTileMap(TileMapType.Block);
-            Vector2 distanceFromPlayer = mouseWorldPosition - (Vector2)transform.position;
-            float angle = Mathf.Atan2(distanceFromPlayer.y, distanceFromPlayer.x) * Mathf.Rad2Deg;
-            Debug.Log(angle);
+            Vector2 distanceFromPlayer = (Vector2)transform.position - mouseWorldPosition;
+            float angle = (Mathf.Atan2(distanceFromPlayer.y, distanceFromPlayer.x));
+            Vector2 startPosition = transform.position;
+            float angleRange = 17*Mathf.Deg2Rad;
+            
+            Vector2 lowerBound = -new Vector2(Mathf.Cos(angle - angleRange), Mathf.Sin(angle - angleRange));
+            Vector2 upperBound = -new Vector2(Mathf.Cos(angle + angleRange), Mathf.Sin(angle + angleRange));
+            int maxSearchDistance = 10;
+            
+            Vector3[] positions = new Vector3[] { startPosition, startPosition + maxSearchDistance/2f * lowerBound };
+            t1.SetPositions(positions);
+            Vector3[] positions1 = new Vector3[] { startPosition, startPosition + maxSearchDistance/2f * upperBound };
+            t2.SetPositions(positions1);
             var tilemap = tilemapContainer.GetTilemap();
-            tileHighlighter.Highlight(mouseWorldPosition, tilemap);
+            
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 lowerBoundPosition = startPosition + lowerBound * i/2f;
+                Vector2 upperBoundPosition = startPosition + upperBound * i/2f;
+                Vector2 shortestHit = Vector2.zero;
+                float shortestDistance = float.PositiveInfinity;
+                
+                float xMin = lowerBoundPosition.x < upperBoundPosition.x ? lowerBoundPosition.x : upperBoundPosition.x;
+                float xMax = lowerBoundPosition.x > upperBoundPosition.x ? lowerBoundPosition.x : upperBoundPosition.x;
+                float yMin = lowerBoundPosition.y < upperBoundPosition.y ? lowerBoundPosition.y : upperBoundPosition.y;
+                float yMax = lowerBoundPosition.y > upperBoundPosition.y ? lowerBoundPosition.y : upperBoundPosition.y;
+                for (float x = xMin; x < xMax; x += Mathf.Cos(2*angleRange)/2f)
+                {
+                    for (float y = yMin; y < yMax; y += Mathf.Sin(2*angleRange)/2f)
+                    {
+                        Vector2 searchPosition = new Vector2(x,y);
+                        Vector2 dist = searchPosition - mouseWorldPosition;
+                        Vector3Int cellPosition = tilemap.WorldToCell(searchPosition);
+                        cellPosition.z = 0;
+                        if (ReferenceEquals(tilemap.GetTile(cellPosition), null)) continue;
+                        if (!(dist.magnitude < shortestDistance)) continue;
+                        shortestDistance = dist.magnitude;
+                        shortestHit = searchPosition;
+
+                    }
+                }
+
+                if (float.IsPositiveInfinity(shortestDistance)) continue;
+                tileHighlighter.Highlight(shortestHit, tilemap);
+                return;
+            }
+            
+            
         }
 
         private void MouseScrollUpdate(Vector2 mousePosition)
