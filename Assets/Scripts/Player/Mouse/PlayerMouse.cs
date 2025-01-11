@@ -30,6 +30,7 @@ using PlayerModule.KeyPress;
 using Robot.Tool;
 using UI;
 using UI.ToolTip;
+using MoveDirection = Robot.Tool.MoveDirection;
 
 namespace PlayerModule.Mouse {
 
@@ -63,7 +64,6 @@ namespace PlayerModule.Mouse {
                 active = true;
                 float timeSinceLastUse = Time.time - lastUse;
                 counter += timeSinceLastUse;
-                Debug.Log(counter);
                 if (counter <= 0)
                 {
                     clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
@@ -131,7 +131,12 @@ namespace PlayerModule.Mouse {
             {
                 clickHandlerCollection.Terminate(MouseButtonKey.Right);
             }
-            
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                playerInventory.CurrentTool.ModeSwitch(MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
+                playerInventory.PlayerRobotToolUI.Display();
+            }
             if (eventSystem.IsPointerOverGameObject())
             {
                 
@@ -417,7 +422,8 @@ namespace PlayerModule.Mouse {
 
     public class ClickHandlerCollection
     {
-        private Dictionary<MouseButtonKey, HoldClickHandler> recentlyUsed = new Dictionary<MouseButtonKey, HoldClickHandler>();
+        private Dictionary<MouseButtonKey, HoldClickHandler> recentlyUsed =
+            new Dictionary<MouseButtonKey, HoldClickHandler>();
        
         private Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>> clickHandlerDict =
             new Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>>();
@@ -440,8 +446,8 @@ namespace PlayerModule.Mouse {
 
         public void Terminate(MouseButtonKey mouseButtonKey)
         {
-            if (!recentlyUsed.TryGetValue(mouseButtonKey, out var handler)) return;
-            handler.Terminate();
+            if (!recentlyUsed.ContainsKey(mouseButtonKey)) return;
+            recentlyUsed[mouseButtonKey].Terminate();
             recentlyUsed.Remove(mouseButtonKey);
         }
 

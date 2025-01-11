@@ -150,17 +150,16 @@ namespace Player {
             rb.velocity = velocity;
         }
         
-        public void SetRobot(ItemSlot robotItemSlot)
+        public void SetRobot(ItemSlot newRobot)
         {
-            
-            if (ItemSlotUtils.IsItemSlotNull(this.robotItemSlot) || robotItemSlot.itemObject is not RobotItem robotItem) {
+            this.robotItemSlot = newRobot;
+            if (ItemSlotUtils.IsItemSlotNull(robotItemSlot) || robotItemSlot.itemObject is not RobotItem robotItem) {
                 Debug.LogWarning("Tried to set invalid robot");
                 robotItemSlot = RobotDataFactory.GetDefaultRobot();
                 robotItem = robotItemSlot.itemObject as RobotItem;
             }
             this.currentRobot = robotItem.robot;
-            this.robotItemSlot = robotItemSlot;
-            InitializeTools(robotItemSlot);
+            InitializeTools();
             
             
             currentRobot.init(gameObject);
@@ -168,20 +167,26 @@ namespace Player {
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 
-        private void InitializeTools(ItemSlot robotItemSlot)
+        private void InitializeTools()
         {
             ItemTagCollection tags = this.robotItemSlot.tags;
-            if (!tags.Dict.ContainsKey(ItemTag.RobotData))
+            if (tags?.Dict == null)
             {
-                Debug.LogWarning("Tried to initialize robot with invalid tool data");
+                tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
+            }
+            if (!tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
+            {
+                Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
+                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>());
+                RobotItemData newItemData = new RobotItemData(robotToolData);
+                tagData[ItemTag.RobotData] = newItemData;
+                ItemTagCollection itemTagCollection = new ItemTagCollection(tagData);
+                robotItemSlot.tags = itemTagCollection;
+
+                robotItemSlot.tags = itemTagCollection;
             }
 
-            if (!tags.Dict.ContainsKey(ItemTag.RobotData))
-            {
-                Debug.LogWarning("Tried to initialize robot with invalid tool data");
-                
-            }
-            this.robotItemData = tags.Dict[ItemTag.RobotData] as RobotItemData;
+            robotItemData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
             ItemRobotToolData itemRobotToolData = robotItemData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
             RobotTools = new List<IRobotToolInstance>();
@@ -189,7 +194,9 @@ namespace Player {
             {
                 var type = itemRobotToolData.Types[i];
                 var data = itemRobotToolData.Tools[i];
-                RobotTools.Add(RobotToolFactory.GetInstance(type,currentRobotToolObjects[type],data));
+                if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
+                
+                RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data));
             }
         }
         

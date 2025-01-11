@@ -6,6 +6,11 @@ using Dimensions;
 using Item.Slot;
 using PlayerModule;
 using Items;
+using Items.Tags;
+using Player.Tool;
+using Robot.Tool;
+using Robot.Tool.Instances;
+using RobotModule;
 
 namespace UI.Chat {
     public class SetRobotCommand : ChatCommand, IAutoFillChatCommand
@@ -17,13 +22,26 @@ namespace UI.Chat {
         {
             try {
                 string id = parameters[0];
-                RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
-                if (robotItem == null) {
-                    chatUI.sendMessage("Invalid id");
-                    return;
+                
+
+                if (id == "happy_mk1")
+                {
+                    PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(RobotDataFactory.GetDefaultRobot());
                 }
-                ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(robotItem,1);
-                PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(itemSlot);
+                else
+                {
+                    RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
+                    if (robotItem == null) {
+                        chatUI.sendMessage("Invalid id");
+                        return;
+                    }
+                    
+                    ItemSlot itemSlot = new ItemSlot(robotItem, 1, null);
+                    
+                    PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(itemSlot);
+                }
+                
+                
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
             }

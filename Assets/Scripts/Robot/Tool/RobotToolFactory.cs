@@ -19,9 +19,16 @@ namespace Robot.Tool
             if (ReferenceEquals(collection,null)) throw new NullReferenceException("Tried to get robot tool objects from a null collection");
             foreach (RobotToolObject robotToolObject in collection.Tools)
             {
-                if (robotToolObject is RobotDrillObject robotDrillObject)
+                switch (robotToolObject)
                 {
-                    dict[RobotToolType.LaserDrill] = robotDrillObject;
+                    case RobotDrillObject:
+                        dict[RobotToolType.LaserDrill] = robotToolObject;
+                        break;
+                    case RobotConduitCutterObject:
+                        dict[RobotToolType.ConduitSlicers] = robotToolObject;
+                        break;
+                    default:
+                        throw new ArgumentException();
                 }
             }
 
@@ -33,6 +40,8 @@ namespace Robot.Tool
             {
                 case RobotToolType.LaserDrill:
                     return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject);
+                case RobotToolType.ConduitSlicers:
+                    return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -41,17 +50,10 @@ namespace Robot.Tool
         {
             switch (toolType)
             {
-                case RobotToolType.LaserGun:
-                    return null;
-                //return new LaserGun(1f, 1f, 1f);
                 case RobotToolType.LaserDrill:
                     return new LaserDrillData(TileMapLayer.Base, 0.125f, 1);
                 case RobotToolType.ConduitSlicers:
-                    return null;
-                //return new ConduitSlicer(TileMapLayer.Item, ConduitBreakMode.Standard);
-                case RobotToolType.Buildinator:
-                    return null;
-                //return new Buildinator(BuildinatorMode.Hammer);
+                    return new ConduitCuttersData();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(toolType), toolType, null);
             }
@@ -107,6 +109,8 @@ namespace Robot.Tool
                 {
                     case RobotToolType.LaserDrill:
                         return JsonConvert.DeserializeObject<LaserDrillData>(toolData);
+                    case RobotToolType.ConduitSlicers:
+                        return JsonConvert.DeserializeObject<ConduitCuttersData>(toolData);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
