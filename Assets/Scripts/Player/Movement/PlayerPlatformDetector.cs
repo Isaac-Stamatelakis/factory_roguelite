@@ -40,11 +40,11 @@ namespace PlayerModule {
         }
 
         private bool getOnPlatform(Collider2D other) {
-            IWorldTileGridMap iWorldTileGridMap = other.GetComponent<IWorldTileGridMap>();
-            if (iWorldTileGridMap == null) {
+            WorldTileGridMap worldTileGridMap = other.GetComponent<WorldTileGridMap>();
+            if (worldTileGridMap == null) {
                 return false;
             }
-            return iWorldTileGridMap.type == TileMapType.Platform;
+            return worldTileGridMap.type == TileMapType.Platform;
         }
 
         void OnTriggerExit2D(Collider2D other)

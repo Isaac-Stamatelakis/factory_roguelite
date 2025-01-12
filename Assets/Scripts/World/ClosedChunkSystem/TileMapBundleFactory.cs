@@ -63,17 +63,17 @@ namespace Chunks.Systems {
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);
             if (tileType.isTile()) {
-                IWorldTileGridMap iWorldTileGridMap;
+                WorldTileGridMap worldTileGridMap;
                 if (tileType == TileMapType.Block) {
-                    iWorldTileGridMap = container.AddComponent<OutlineIWorldTileGridMap>();
+                    worldTileGridMap = container.AddComponent<OutlineWorldTileGridMap>();
                 } else if (tileType == TileMapType.Background) {
-                    iWorldTileGridMap = container.AddComponent<BackgroundIWorldTileMap>();
+                    worldTileGridMap = container.AddComponent<BackgroundWorldTileMap>();
                 } else {
-                    iWorldTileGridMap = container.AddComponent<IWorldTileGridMap>();
+                    worldTileGridMap = container.AddComponent<WorldTileGridMap>();
                 }
                 
-                iWorldTileGridMap.type = tileType;
-                tileGridMaps[tileType] = iWorldTileGridMap;
+                worldTileGridMap.type = tileType;
+                tileGridMaps[tileType] = worldTileGridMap;
             } else if (tileType.isConduit()) {
                 ConduitIWorldTileMap iWorldTileGridMap = container.AddComponent<ConduitIWorldTileMap>();
                 iWorldTileGridMap.type = tileType;

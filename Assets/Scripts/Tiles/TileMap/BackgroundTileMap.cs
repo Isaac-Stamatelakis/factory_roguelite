@@ -6,7 +6,7 @@ using UnityEngine;
 using Tiles;
 
 namespace TileMaps {
-    public class BackgroundIWorldTileMap : IWorldTileGridMap
+    public class BackgroundWorldTileMap : WorldTileGridMap
     {
         protected override Vector2Int GetHitTilePosition(Vector2 position) {
             Vector3Int cellPosition = tilemap.WorldToCell(position);

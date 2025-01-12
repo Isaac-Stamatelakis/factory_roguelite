@@ -213,7 +213,7 @@ namespace TileMaps.Place {
             if (tileItem.tileEntity != null) {
                 placeTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition);
             }
-            if (iWorldTileMap is not IWorldTileGridMap tileGridMap) {
+            if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
                 return;
             }
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);

@@ -66,7 +66,7 @@ namespace Player.Mouse
             if (hitableTileMap == null) {
                 return false;
             }
-            if (hitableTileMap is IWorldTileGridMap tileGridMap) {
+            if (hitableTileMap is WorldTileGridMap tileGridMap) {
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
                 ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
                 if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {

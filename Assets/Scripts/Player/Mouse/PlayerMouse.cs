@@ -116,19 +116,37 @@ namespace PlayerModule.Mouse {
             if (!closedChunkSystem) {
                 return;
             }
-
-            List<Tilemap> tilemaps = new List<Tilemap>
+            List<IWorldTileMap> tilemaps = new List<IWorldTileMap>
             {
-                //closedChunkSystem.getTileMap(TileMapType.Block).GetTilemap(),
-                closedChunkSystem.getTileMap(TileMapType.Object).GetTilemap()
+                closedChunkSystem.getTileMap(TileMapType.Object),
+                closedChunkSystem.getTileMap(TileMapType.Block),
             };
+            
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            var result = MousePositionTileMapSearcher.GetWorldPosition(mousePosition, tilemaps,
-                transform.position, TileSearcherMode.NearestToMouse, 15,10,t1,t2);
+            var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)
             {
-                (Vector2 position, Tilemap tilemap) = result.Value;
-                tileHighlighter.Highlight(position, tilemap);
+                (Vector2 position, IWorldTileMap tilemap) = result.Value;
+                if (tilemap is not WorldTileGridMap worldTileGridMap)
+                {
+                    Debug.Log("A");
+                    return;
+                }
+
+                Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
+                ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
+                Debug.Log(tileEntityInstance==null);
+                if (tileEntityInstance != null)
+                {
+                    Debug.Log(tileEntityInstance.getName());
+                }
+                if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity))
+                {
+                    Debug.Log("B");
+                    return;
+                }
+                Debug.Log("C");
+                tileHighlighter.Highlight(position, tilemap.GetTilemap());
             }
             else
             {
