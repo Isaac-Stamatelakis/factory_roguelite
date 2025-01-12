@@ -75,9 +75,9 @@ namespace Chunks.Systems {
                 worldTileGridMap.type = tileType;
                 tileGridMaps[tileType] = worldTileGridMap;
             } else if (tileType.isConduit()) {
-                ConduitIWorldTileMap iWorldTileGridMap = container.AddComponent<ConduitIWorldTileMap>();
-                iWorldTileGridMap.type = tileType;
-                tileGridMaps[tileType] = iWorldTileGridMap;
+                ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
+                tileGridMap.type = tileType;
+                tileGridMaps[tileType] = tileGridMap;
             } else if (tileType.isFluid()) {
                 FluidIWorldTileMap fluidIWorldTileMap = container.AddComponent<FluidIWorldTileMap>();
                 fluidIWorldTileMap.type = TileMapType.Fluid;

@@ -4,13 +4,15 @@ using UnityEngine;
 using System;
 using Conduits.Systems;
 using Chunks.Partitions;
+using Conduit.Conduit;
 using Conduits;
 using TileMaps.Type;
 using Items;
+using Tiles;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Conduit {
-    public class ConduitIWorldTileMap : AbstractIWorldTileMap<ConduitItem>
+    public class ConduitTileMap : AbstractIWorldTileMap<ConduitItem>
     {
         private IConduitSystemManager conduitSystemManager;
 
@@ -61,18 +63,100 @@ namespace TileMaps.Conduit {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             cellPosition.z = 0;
             Vector2Int vect = new Vector2Int(cellPosition.x,cellPosition.y);
-            if (mTileMap.GetTile(cellPosition) != null) {
-                IChunkPartition partition = GetPartitionAtPosition(vect);
-                if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
-                    Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
-                    return;
-                }
-                Vector2Int tilePositionInPartition = base.GetTilePositionInPartition(vect);
-                ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-                SpawnItemEntity(conduitItem,1,vect);
-                BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
-                conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
+            if (ReferenceEquals(mTileMap.GetTile(cellPosition), null)) return;
+            IChunkPartition partition = GetPartitionAtPosition(vect);
+            if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
+                return;
             }
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(vect);
+            ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
+            SpawnItemEntity(conduitItem,1,vect);
+            BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
+            conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
+        }
+
+        public void DisconnectConduits(Vector2 position)
+        {
+            if (conduitSystemManager == null) return;
+            Vector3Int cellPosition = mTileMap.WorldToCell(position);
+            cellPosition.z = 0;
+            Vector2Int vect2 = (Vector2Int)cellPosition;
+            if (ReferenceEquals(mTileMap.GetTile(cellPosition), null)) return;
+            IChunkPartition partition = GetPartitionAtPosition(vect2);
+            if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
+                return;
+            }
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(vect2);
+            if (conduit == null) return;
+            
+            Vector2 mouseOffset = position - (Vector2)tilemap.CellToWorld(cellPosition);
+            float CELL_SIZE = 0.5f;
+            int xDirection = GetAdjacentDirection(mouseOffset.x, CELL_SIZE-mouseOffset.y, conduitSystemManager.GetConduitType());
+           
+            
+            if (xDirection != 0)
+            {
+                Vector2Int xAdjacentPosition = vect2 + new Vector2Int(xDirection, 0);
+                ConduitDirectionState xDirectionState = xDirection == 1 ? ConduitDirectionState.Right : ConduitDirectionState.Left;
+                if (TryUpdateConduitDirectionState(conduit, vect2, xAdjacentPosition, xDirectionState)) return;
+            }
+            // Multiply by -1 opposite adjacent direction than x
+            int yDirection = -GetAdjacentDirection(CELL_SIZE-mouseOffset.y, mouseOffset.x, conduitSystemManager.GetConduitType());
+            if (yDirection != 0)
+            {
+                Vector2Int yAdjacentPosition = vect2 + new Vector2Int(0, yDirection);
+                ConduitDirectionState yDirectionState = yDirection == 1 ? ConduitDirectionState.Up : ConduitDirectionState.Down;
+                TryUpdateConduitDirectionState(conduit, vect2, yAdjacentPosition, yDirectionState);
+            }
+        }
+
+        private bool TryUpdateConduitDirectionState(IConduit conduit, Vector2Int position, Vector2Int adjacentPosition,
+            ConduitDirectionState direction)
+        {
+            IConduit adjConduit = conduitSystemManager.GetConduitAtCellPosition(adjacentPosition);
+            if (adjConduit == null) return false;
+            
+            var reverse = ConduitUtils.Reverse(direction);
+            if (conduit.ConnectsDirection(direction))
+            {
+                conduit.RemoveStateDirection(direction);
+                if (adjConduit.ConnectsDirection(reverse)) adjConduit.RemoveStateDirection(reverse);
+            }
+            else
+            {
+                conduit.AddStateDirection(direction);
+                if (!adjConduit.ConnectsDirection(reverse)) adjConduit.AddStateDirection(reverse);
+            }
+            conduit.GetConduitSystem().Rebuild();
+            adjConduit.GetConduitSystem().Rebuild();
+            RefreshTile(adjacentPosition.x, adjacentPosition.y);
+            RefreshTile(position.x, position.y);
+            return true;
+        }
+        
+
+        private int GetAdjacentDirection(float offset, float boundaryPos, ConduitType conduitType)
+        {
+            float CELL_SIZE = 0.5f;
+            float PIXELS_PER_CELL = 16f;
+            int ORIGIN_WIDTH = 4;
+            int pixel = (int)(offset/CELL_SIZE * PIXELS_PER_CELL);
+            int boundaryPixel = (int)(boundaryPos/CELL_SIZE*PIXELS_PER_CELL);
+            Debug.Log(boundaryPixel);
+            Dictionary<ConduitType, int> origins = new Dictionary<ConduitType, int>
+            {
+                [ConduitType.Matrix] = 2,
+                [ConduitType.Energy] = 4,
+                [ConduitType.Signal] = 6,
+                [ConduitType.Item] = 8,
+                [ConduitType.Fluid] = 10
+            };
+            int leftCorner = origins[conduitType];
+            int rightCorner = leftCorner + ORIGIN_WIDTH;
+            if (boundaryPixel < leftCorner || boundaryPixel > rightCorner) return 0;
+            return pixel >= leftCorner + ORIGIN_WIDTH/2 ? 1 : -1;
         }
         protected override Vector2Int GetHitTilePosition(Vector2 position)
         {

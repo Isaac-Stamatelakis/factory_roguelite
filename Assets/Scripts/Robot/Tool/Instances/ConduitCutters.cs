@@ -1,7 +1,10 @@
 using System;
+using Dimensions;
 using Items;
 using Player.Mouse;
 using Player.Tool.Object;
+using TileMaps;
+using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
 using UnityEngine;
@@ -45,7 +48,23 @@ namespace Robot.Tool.Instances
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
             UpdateLineRenderer(mousePosition);
-            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition);
+            switch (toolData.CutterMode)
+            {
+                case ConduitCutterMode.Standard:
+                    MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition);
+                    break;
+                case ConduitCutterMode.Disconnect:
+                    if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
+                    IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(
+                        PlayerManager.Instance.GetPlayer().transform).getTileMap(toolData.Type.ToTileMapType()
+                    );
+                    if (iWorldTileMap is not ConduitTileMap conduitTileMap) return;
+                    conduitTileMap.DisconnectConduits(mousePosition);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

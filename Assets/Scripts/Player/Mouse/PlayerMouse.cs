@@ -127,25 +127,13 @@ namespace PlayerModule.Mouse {
             if (result != null)
             {
                 (Vector2 position, IWorldTileMap tilemap) = result.Value;
-                if (tilemap is not WorldTileGridMap worldTileGridMap)
-                {
-                    Debug.Log("A");
-                    return;
-                }
-
+                if (tilemap is not WorldTileGridMap worldTileGridMap) return;
+                
                 Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
                 ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
-                Debug.Log(tileEntityInstance==null);
-                if (tileEntityInstance != null)
-                {
-                    Debug.Log(tileEntityInstance.getName());
-                }
-                if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity))
-                {
-                    Debug.Log("B");
-                    return;
-                }
-                Debug.Log("C");
+
+                if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity)) return;
+                
                 tileHighlighter.Highlight(position, tilemap.GetTilemap());
             }
             else

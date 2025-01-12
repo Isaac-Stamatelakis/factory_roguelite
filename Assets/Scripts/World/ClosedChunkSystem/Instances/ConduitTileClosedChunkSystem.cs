@@ -77,12 +77,12 @@ namespace Chunks.Systems {
 
         private void syncConduitTileMap(TileMapType tileMapType) {
             IWorldTileMap iWorldTileMap = tileGridMaps[tileMapType];
-            if (iWorldTileMap is not ConduitIWorldTileMap) {
+            if (iWorldTileMap is not ConduitTileMap) {
                 Debug.LogError("Attempted to assign conduit manager to a non conduit tile map");
             }
-            ConduitIWorldTileMap conduitIWorldTileMap = (ConduitIWorldTileMap) iWorldTileMap;
-            conduitIWorldTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
-            conduitSystemManagersDict[tileMapType].SetTileMap(conduitIWorldTileMap);
+            ConduitTileMap conduitTileMap = (ConduitTileMap) iWorldTileMap;
+            conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
+            conduitSystemManagersDict[tileMapType].SetTileMap(conduitTileMap);
         }
         public override IEnumerator unloadChunkPartition(IChunkPartition chunkPartition)
         {

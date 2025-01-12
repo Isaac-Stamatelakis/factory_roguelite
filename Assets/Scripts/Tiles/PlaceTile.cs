@@ -50,7 +50,7 @@ namespace TileMaps.Place {
                 }
                 TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                 IWorldTileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
-                if (conduitMap == null || conduitMap is not ConduitIWorldTileMap) {
+                if (conduitMap == null || conduitMap is not ConduitTileMap) {
                     return false;
                 }
                 if (checkConditions && !conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {

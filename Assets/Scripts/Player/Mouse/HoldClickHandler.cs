@@ -33,19 +33,18 @@ namespace Player.Mouse
                 clickHandler.BeginClickHold(mousePosition);
                 active = true;
                 float timeSinceLastUse = Time.time - lastUse;
-                counter += timeSinceLastUse;
-                if (counter <= 0)
-                {
-                    clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
-                    counter = 0;
-                }
+                counter -= timeSinceLastUse;
+                if (!(counter <= 0)) return;
                 
+                if (Input.GetMouseButtonDown((int)mouseButtonKey)) clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+                counter = 0;
                 return;
             }
             
             if (DevMode.Instance.noBreakCooldown)
             {
                 clickHandler.HoldClickUpdate(mousePosition, mouseButtonKey, int.MaxValue);
+                counter = 0;
                 return;
             }
             counter += Time.deltaTime;
