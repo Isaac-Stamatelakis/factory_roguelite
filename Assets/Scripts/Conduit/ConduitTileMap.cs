@@ -123,16 +123,17 @@ namespace TileMaps.Conduit {
             {
                 conduit.RemoveStateDirection(direction);
                 if (adjConduit.ConnectsDirection(reverse)) adjConduit.RemoveStateDirection(reverse);
+                conduitSystemManager.ConduitDisconnectUpdate(conduit, adjConduit);
             }
             else
             {
                 conduit.AddStateDirection(direction);
                 if (!adjConduit.ConnectsDirection(reverse)) adjConduit.AddStateDirection(reverse);
+                conduitSystemManager.ConduitJoinUpdate(conduit,adjConduit);
             }
-            conduit.GetConduitSystem().Rebuild();
-            adjConduit.GetConduitSystem().Rebuild();
-            RefreshTile(adjacentPosition.x, adjacentPosition.y);
-            RefreshTile(position.x, position.y);
+
+            RefreshTile(position.x,position.y);
+            RefreshTile(adjacentPosition.x,adjacentPosition.y);
             return true;
         }
         
@@ -144,7 +145,6 @@ namespace TileMaps.Conduit {
             int ORIGIN_WIDTH = 4;
             int pixel = (int)(offset/CELL_SIZE * PIXELS_PER_CELL);
             int boundaryPixel = (int)(boundaryPos/CELL_SIZE*PIXELS_PER_CELL);
-            Debug.Log(boundaryPixel);
             Dictionary<ConduitType, int> origins = new Dictionary<ConduitType, int>
             {
                 [ConduitType.Matrix] = 2,
