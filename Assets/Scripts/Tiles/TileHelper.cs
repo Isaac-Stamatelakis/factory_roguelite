@@ -32,12 +32,12 @@ public class TileHelper
     public static float getRealTileCenter(float n) {
         return Mathf.FloorToInt(2*n)/2f+0.25f;
     }
-    public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, TileGridMap tileGridMap)
+    public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, WorldTileGridMap worldTileGridMap)
         {
-            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.up),item);
-            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.down),item);
-            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.left),item);
-            callTileEntityPlaceListener(tileGridMap.getTileEntityAtPosition(position+Vector2Int.right),item);
+            callTileEntityPlaceListener(worldTileGridMap.getTileEntityAtPosition(position+Vector2Int.up),item);
+            callTileEntityPlaceListener(worldTileGridMap.getTileEntityAtPosition(position+Vector2Int.down),item);
+            callTileEntityPlaceListener(worldTileGridMap.getTileEntityAtPosition(position+Vector2Int.left),item);
+            callTileEntityPlaceListener(worldTileGridMap.getTileEntityAtPosition(position+Vector2Int.right),item);
         }
 
     public static void callTileEntityPlaceListener(ITileEntityInstance tileEntity, TileItem tileItem) {

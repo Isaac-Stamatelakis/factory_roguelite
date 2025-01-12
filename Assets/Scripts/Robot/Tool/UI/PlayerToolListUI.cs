@@ -19,11 +19,10 @@ public class PlayerToolListUI : MonoBehaviour
     public void Initialize(List<IRobotToolInstance> tools)
     {
         this.tools = tools;
-        Display();
     }
     public void Display()
     {
-        
+        if (tools.Count == 0) return;
         for (int i = 0; i < elements.Length; i++)
         {
             elements[i].Display(tools[(i+offset)%tools.Count]);

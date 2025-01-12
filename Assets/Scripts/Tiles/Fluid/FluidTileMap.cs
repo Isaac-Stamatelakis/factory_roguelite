@@ -8,7 +8,7 @@ using Items;
 using System.Linq;
 
 namespace Fluids {
-    public class FluidTileMap : AbstractTileMap<FluidTileItem>, ITileMapListener
+    public class FluidIWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
         private Dictionary<Vector2Int,ActiveFluidPartitionData> partitionFluidData = new Dictionary<Vector2Int, ActiveFluidPartitionData>();
         private Dictionary<Vector2Int, int> fluidUpdates = new Dictionary<Vector2Int, int>();

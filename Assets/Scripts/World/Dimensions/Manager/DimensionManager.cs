@@ -84,7 +84,7 @@ namespace Dimensions {
         public void setPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
             DimController controller = getDimController(dim);
             ClosedChunkSystem newSystem = null;
-            Vector2Int systemPosition = getNextSystemPosition();
+            Vector2Int systemPosition = GetNextSystemPosition();
             Vector2Int offset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
 
             if (controller is ISingleSystemController singleSystemController) {
@@ -125,15 +125,12 @@ namespace Dimensions {
                 }
             }
             Vector2Int systemOffset = activeSystems[newSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
-            Debug.Log($"{player.name} system set to {newSystem.name}");
             playerWorldData[player].chunkPos = null;
             playerWorldData[player].partitionPos = null;
-            if (BackgroundImageController.Instance != null) {
-                BackgroundImageController.Instance.setOffset(new Vector2(
-                    -systemOffset.x/2f,
-                    -systemOffset.y/2f
-                ));
-            }
+            BackgroundImageController.Instance?.setOffset(new Vector2(
+                -systemOffset.x/2f,
+                -systemOffset.y/2f
+            ));
             
             Vector2Int tpPosition = (teleportPosition-systemOffset);
             Vector3 playerPosition = player.transform.position;
@@ -145,7 +142,7 @@ namespace Dimensions {
             newSystem.playerPartitionUpdate();
         }
         
-        protected Vector2Int getNextSystemPosition() {
+        protected Vector2Int GetNextSystemPosition() {
             int count = activeSystems.Count;
             if (count == 0) {
                 return Vector2Int.zero;

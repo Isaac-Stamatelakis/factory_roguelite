@@ -71,9 +71,9 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
+        public virtual IEnumerator load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
             tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            foreach (ITileMap tileGridMap in tileGridMaps.Values) {
+            foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
                     tileGridMap.addPartition(this);
@@ -121,7 +121,7 @@ namespace Chunks.Partitions {
             yield return null;
         }
 
-        protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition);
+        protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
 
         public abstract void save();
 
@@ -130,10 +130,10 @@ namespace Chunks.Partitions {
             scheduledForUnloading = val;
         }
 
-        public virtual IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public virtual IEnumerator unloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             save();
             Vector2Int realPosition = getRealPosition();
-            foreach (ITileMap tileMap in tileGridMaps.Values) {
+            foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
                 yield return tileMap.removePartition(realPosition);
             }
         }
@@ -158,7 +158,7 @@ namespace Chunks.Partitions {
             }
             data.entityData = entityData;
         }
-        public virtual IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public virtual IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return unloadTiles(tileGridMaps);
         }
 

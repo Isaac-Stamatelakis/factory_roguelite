@@ -19,11 +19,11 @@ namespace Conduits.PortViewer {
             this.tilemap = GetComponent<Tilemap>();
         }
         public bool Active {get => systemManager != null;}
-        private TileMaps.ITileMap conduitTileMap;
-        public void display(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.ITileMap conduitTileMap) {
+        private TileMaps.IWorldTileMap conduitIWorldTileMap;
+        public void display(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.IWorldTileMap conduitIWorldTileMap) {
             this.systemManager = systemManager;
-            this.conduitTileMap = conduitTileMap;
-            conduitTileMap.setHighlight(true);
+            this.conduitIWorldTileMap = conduitIWorldTileMap;
+            conduitIWorldTileMap.setHighlight(true);
             tilemap.color = color;
             foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPortData>> kvp in systemManager.GetTileEntityPorts()) {
                 foreach (TileEntityPortData portData in kvp.Value) {
@@ -37,7 +37,7 @@ namespace Conduits.PortViewer {
             if (!gameObject.activeInHierarchy || systemManager == null) {
                 return;
             }
-            conduitTileMap.setHighlight(false);
+            conduitIWorldTileMap.setHighlight(false);
             tilemap.ClearAllTiles();
             gameObject.SetActive(false);
             

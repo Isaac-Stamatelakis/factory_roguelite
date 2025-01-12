@@ -39,6 +39,8 @@ namespace TileMaps.Type {
                     return TileMapLayer.Energy;
                 case TileMapType.SignalConduit:
                     return TileMapLayer.Signal;
+                case TileMapType.MatrixConduit:
+                    return TileMapLayer.Matrix;
                 default:
                     Debug.LogError("TileMapTypeExtension method toLayer did not handle switch case for " + type.ToString());
                     return TileMapLayer.Base;

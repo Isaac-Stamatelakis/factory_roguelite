@@ -19,12 +19,12 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator load(Dictionary<TileMapType, ITileMap> tileGridMaps, Direction direction,Vector2Int systemOffset)
+        public override IEnumerator load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,Vector2Int systemOffset)
         {
             if (tileEntities == null) {
                 tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
-            fluidTileMap = (FluidTileMap)tileGridMaps[TileMapType.Fluid];
+            fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.load(tileGridMaps,direction,systemOffset);
             if (parent is ILoadedChunk loadedChunk) {
                 foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
@@ -34,7 +34,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             data.entityData = new List<SeralizedEntityData>(); // Prevents duplication
             
         }
-        private FluidTileMap fluidTileMap;
+        private FluidIWorldTileMap fluidIWorldTileMap;
 
         public override void save()
         {
@@ -63,11 +63,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        public override IEnumerator unload(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public override IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return base.unload(tileGridMaps);
         }
 
-        public override IEnumerator unloadTiles(Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public override IEnumerator unloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return base.unloadTiles(tileGridMaps);
             if (tileEntities != null) {
                 int removalsPerNumeration = 5;
@@ -106,7 +106,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             return true;
         }
 
-        protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition) {
+        protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);
             string baseId = data.baseData.ids[x,y];
             if (baseId != null) {
@@ -144,13 +144,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+        private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.GetTileItem(id);
             if (tileItem == null) {
                 return;
             }
-            ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
-            tileGridMap.placeItemTileAtLocation(
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
+            iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem
@@ -158,19 +158,19 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             
         }
 
-        private void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
+        private void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
             FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
             if (fluidTileItem == null) {
                 return;
             }
-            ITileMap tileGridMap = tileGridMaps[TileMapType.Fluid];
-            tileGridMap.placeItemTileAtLocation(
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[TileMapType.Fluid];
+            iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 fluidTileItem
             );
         }
-        private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, ITileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+        private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.GetTileItem(id);
             if (tileItem == null) {
                 return;
@@ -192,8 +192,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             if (tileItem.tile is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(options.SerializedTileOptions.state);
             }
-            ITileMap tileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
-            tileGridMap.placeItemTileAtLocation(
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
+            iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem

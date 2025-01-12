@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,5 +27,13 @@ public static class GlobalHelper
     public static uint Clamp(uint val, uint min, uint max)
     {
         return val < min ? min : val > max ? max : val;
+    }
+
+    public static T ShiftEnum<T>(int amount, T enumValue) where T : Enum
+    {
+        int enumCount = Enum.GetValues(typeof(T)).Length;
+        int value = Convert.ToInt32(enumValue);
+        int shiftedValue = (value + amount + enumCount) % enumCount;
+        return (T)Enum.ToObject(typeof(T), shiftedValue);
     }
 }

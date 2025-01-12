@@ -26,7 +26,7 @@ namespace Robot.Tool
     public interface IRobotToolInstance : IPlayerClickHandler
     {
         public Sprite GetSprite();
-        //public void SwitchMode(MoveDirection direction);
+        public void ModeSwitch(MoveDirection moveDirection, bool subMode);
     }
     public abstract class RobotToolInstance<TData, TObject> : IRobotToolInstance 
         where TData : RobotToolData 
@@ -44,6 +44,7 @@ namespace Robot.Tool
         public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
+        public abstract void ModeSwitch(MoveDirection moveDirection, bool subMode);
     }
 
     public abstract class RobotToolData

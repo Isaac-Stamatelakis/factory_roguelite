@@ -35,12 +35,13 @@ namespace RobotModule {
                 throw new NullReferenceException("Tried to get default robot which was null");
             }
             
-            List<RobotToolType> defaultTypes = new List<RobotToolType> { RobotToolType.LaserDrill };
+            List<RobotToolType> defaultTypes = new List<RobotToolType> { RobotToolType.LaserDrill, RobotToolType.ConduitSlicers };
             List<RobotToolData> defaultData = new List<RobotToolData>();
             foreach (RobotToolType robotToolType in defaultTypes)
             {
                 defaultData.Add(RobotToolFactory.GetDefault(robotToolType));
             }
+            Debug.Log(defaultData.Count);
             ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData);
             RobotItemData robotItemData = new RobotItemData(
                 defaultToolData

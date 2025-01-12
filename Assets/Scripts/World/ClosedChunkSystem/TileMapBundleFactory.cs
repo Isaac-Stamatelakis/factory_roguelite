@@ -28,7 +28,7 @@ namespace Chunks.Systems {
             };
         }
 
-        public static void loadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public static void loadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.name = "Tiles";
             container.transform.SetParent(systemTransform);
@@ -41,7 +41,7 @@ namespace Chunks.Systems {
             
         }
 
-        public static void loadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        public static void loadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.name = "Conduits";
             container.transform.SetParent(systemTransform);
@@ -52,7 +52,7 @@ namespace Chunks.Systems {
             }
         }
 
-        private static void initTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, ITileMap> tileGridMaps) {
+        private static void initTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
             container.name = tileType.ToString();
@@ -63,25 +63,25 @@ namespace Chunks.Systems {
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);
             if (tileType.isTile()) {
-                TileGridMap tileGridMap;
+                WorldTileGridMap worldTileGridMap;
                 if (tileType == TileMapType.Block) {
-                    tileGridMap = container.AddComponent<OutlineTileGridMap>();
+                    worldTileGridMap = container.AddComponent<OutlineWorldTileGridMap>();
                 } else if (tileType == TileMapType.Background) {
-                    tileGridMap = container.AddComponent<BackgroundTileMap>();
+                    worldTileGridMap = container.AddComponent<BackgroundWorldTileMap>();
                 } else {
-                    tileGridMap = container.AddComponent<TileGridMap>();
+                    worldTileGridMap = container.AddComponent<WorldTileGridMap>();
                 }
                 
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
+                worldTileGridMap.type = tileType;
+                tileGridMaps[tileType] = worldTileGridMap;
             } else if (tileType.isConduit()) {
                 ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
                 tileGridMap.type = tileType;
                 tileGridMaps[tileType] = tileGridMap;
             } else if (tileType.isFluid()) {
-                FluidTileMap fluidTileMap = container.AddComponent<FluidTileMap>();
-                fluidTileMap.type = TileMapType.Fluid;
-                tileGridMaps[tileType] = fluidTileMap;
+                FluidIWorldTileMap fluidIWorldTileMap = container.AddComponent<FluidIWorldTileMap>();
+                fluidIWorldTileMap.type = TileMapType.Fluid;
+                tileGridMaps[tileType] = fluidIWorldTileMap;
             }
         }
     }

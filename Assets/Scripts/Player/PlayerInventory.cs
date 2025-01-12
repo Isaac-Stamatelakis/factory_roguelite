@@ -40,6 +40,7 @@ namespace PlayerModule {
         public IRobotToolInstance CurrentTool => playerRobot.RobotTools[selectedTool];
         public RobotToolType CurrentToolType => playerRobot.ToolTypes[selectedTool];
         public InventoryDisplayMode Mode => mode;
+        public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
         // Start is called before the first frame update
         void Start()
         {

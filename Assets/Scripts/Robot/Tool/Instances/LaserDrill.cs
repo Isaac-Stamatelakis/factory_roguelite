@@ -66,6 +66,11 @@ namespace Robot.Tool.Instances
             return true;
         }
 
+        public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
+        {
+            toolData.Layer = toolData.Layer == TileMapLayer.Base ? TileMapLayer.Background : TileMapLayer.Base;
+        }
+
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
             Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;

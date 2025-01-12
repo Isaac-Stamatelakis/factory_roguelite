@@ -87,7 +87,7 @@ namespace TileEntity {
 
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
-            TileMaps.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
+            TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
 
             // Switch to open/closed
@@ -99,7 +99,7 @@ namespace TileEntity {
 
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMaps.ITileMap newMap = loadedChunk.getTileMap(newType);
+            TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
 
@@ -128,12 +128,12 @@ namespace TileEntity {
             serializedTileOptions.state = state;
             tileOptions.SerializedTileOptions = serializedTileOptions;
             TileMapType tileMapType = switchType.getStateType(oldState);
-            TileMaps.ITileMap tilemap = loadedChunk.getTileMap(tileMapType);
+            TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMaps.ITileMap newMap = loadedChunk.getTileMap(newType);
+            TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
             newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
         }
 

@@ -29,6 +29,8 @@ namespace Conduits.Systems {
         public void SetTileMap(ConduitTileMap conduitTileMap);
         public IConduit[,] GetConduitPartitionData(Vector2Int partitionPosition);
         public IConduit GetConduitAtCellPosition(Vector2Int position);
+        public void ConduitJoinUpdate(IConduit conduit, IConduit adj);
+        public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj);
     }
 
     public interface ITickableConduitSystem {
@@ -39,7 +41,7 @@ namespace Conduits.Systems {
         protected ConduitType type;
         protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
-        protected ConduitTileMap conduitTileMap;
+        protected ConduitTileMap ConduitTileMap;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
@@ -157,7 +159,7 @@ namespace Conduits.Systems {
 
         public void RefreshSystemTiles(IConduitSystem conduitSystem)
         {
-            bool noTileMapLoaded = !conduitTileMap;
+            bool noTileMapLoaded = !ConduitTileMap;
             if (noTileMapLoaded)
             {
                 return;
@@ -170,17 +172,17 @@ namespace Conduits.Systems {
 
         public void RefreshConduitTile(IConduit conduit)
         {
-            bool noTileMapLoaded = !conduitTileMap;
+            bool noTileMapLoaded = !ConduitTileMap;
             if (noTileMapLoaded)
             {
                 return;
             }
-            conduitTileMap.RefreshTile(conduit.GetX(), conduit.GetY());
+            ConduitTileMap.RefreshTile(conduit.GetX(), conduit.GetY());
         }
 
         public void SetTileMap(ConduitTileMap conduitTileMap)
         {
-            this.conduitTileMap = conduitTileMap;
+            this.ConduitTileMap = conduitTileMap;
         }
         
 
@@ -293,6 +295,33 @@ namespace Conduits.Systems {
             conduitSystems.Add(system);
             BfsConduit(conduit,system);
             RefreshSystemTiles(system);
+        }
+
+        public void ConduitJoinUpdate(IConduit conduit, IConduit adj)
+        {
+            BfsConduit(conduit,conduit.GetConduitSystem());
+        }
+
+        public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj)
+        {
+            IConduitSystem conduitSystem = conduit.GetConduitSystem();
+            BfsConduit(conduit,null);
+            bool stillConnected = adj.GetConduitSystem() == null;
+            if (stillConnected)
+            {
+                BfsConduit(conduit,conduitSystem);
+                return;
+            }
+            conduitSystems.Remove((TSystem)conduitSystem);
+            
+            IConduitSystem firstNew = ConduitSystemFactory.Create(conduit,this);
+            BfsConduit(conduit,firstNew);
+            conduitSystems.Add((TSystem)firstNew);
+            
+            IConduitSystem secondNew = ConduitSystemFactory.Create(adj,this);
+            BfsConduit(adj,secondNew);
+            conduitSystems.Add((TSystem)secondNew);
+            
         }
         
 
