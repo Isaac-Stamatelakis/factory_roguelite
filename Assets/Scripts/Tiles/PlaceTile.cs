@@ -210,9 +210,8 @@ namespace TileMaps.Place {
                 placePosition += offset;
             }
             iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
-            if (tileItem.tileEntity != null) {
-                placeTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition);
-            }
+            if (!ReferenceEquals(tileItem.tileEntity,null)) placeTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition);
+            
             if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
                 return;
             }
@@ -238,9 +237,8 @@ namespace TileMaps.Place {
             }
             
             TileEntityObject tileEntity = tileItem.tileEntity;
-            if (tileEntity == null) {
-                return;
-            }
+            if (ReferenceEquals(tileEntity, null)) return;
+            
             ITileEntityInstance tileEntityInstance = TileEntityHelper.placeTileEntity(tileItem,positionInChunk,chunk,true);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.addTileEntity(layer,tileEntityInstance,positionInPartition);

@@ -7,7 +7,7 @@ using TileMaps.Type;
 namespace PlayerModule {
     public class PlayerPlatformDetector : MonoBehaviour
     {
-        [SerializeField] private CapsuleCollider2D physicCollider;
+        [SerializeField] private BoxCollider2D physicCollider;
         [SerializeField] private Rigidbody2D rb;
         private bool onPlatform;
         public bool OnPlatform {get => onPlatform;}

@@ -27,6 +27,9 @@ namespace Robot.Tool
                     case RobotConduitCutterObject:
                         dict[RobotToolType.ConduitSlicers] = robotToolObject;
                         break;
+                    case BuildinatorObject:
+                        dict[RobotToolType.Buildinator] = robotToolObject;
+                        break;
                     default:
                         throw new ArgumentException();
                 }
@@ -42,6 +45,8 @@ namespace Robot.Tool
                     return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject);
                 case RobotToolType.ConduitSlicers:
                     return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject);
+                case RobotToolType.Buildinator:
+                    return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -54,6 +59,8 @@ namespace Robot.Tool
                     return new LaserDrillData(TileMapLayer.Base, 0.125f, 1);
                 case RobotToolType.ConduitSlicers:
                     return new ConduitCuttersData();
+                case RobotToolType.Buildinator:
+                    return new BuildinatorData(BuildinatorMode.Rotator);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(toolType), toolType, null);
             }
@@ -111,6 +118,8 @@ namespace Robot.Tool
                         return JsonConvert.DeserializeObject<LaserDrillData>(toolData);
                     case RobotToolType.ConduitSlicers:
                         return JsonConvert.DeserializeObject<ConduitCuttersData>(toolData);
+                    case RobotToolType.Buildinator:
+                        return JsonConvert.DeserializeObject<BuildinatorData>(toolData);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }

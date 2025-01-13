@@ -13,13 +13,29 @@ using Chunks.Systems;
 using Tiles;
 using Items;
 using Entities;
+using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
 
 namespace TileMaps {
     public interface ITileGridMap {
         public TileItem getTileItem(Vector2Int cellPosition);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap
+
+    public interface IChiselableTileMap
+    {
+        public void IterateChiselTile(Vector2Int position, int direction);
+    }
+
+    public interface IRotatableTileMap
+    {
+        public void IterateRotatableTile(Vector2Int position, int direction);
+    }
+
+    public interface IHammerTileMap
+    {
+        public void IterateHammerTile(Vector2Int position, int direction);
+    }
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  
@@ -116,6 +132,8 @@ namespace TileMaps {
             CallListeners(position);
         }
 
+        
+
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
@@ -139,6 +157,8 @@ namespace TileMaps {
                 return false;
             }
             TileItem tileItem = getTileItem(cellPosition);
+            if (ReferenceEquals(tileItem, null)) return false;
+            
             DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
             dynamicTileOptions.hardness--;
             tileOptions.DynamicTileOptions = dynamicTileOptions;
@@ -175,14 +195,14 @@ namespace TileMaps {
                     );
                 } else {
                     Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
+                    int rotation = 90 * tileOptions.SerializedTileOptions.rotation;
                     transformMatrix.SetTRS(Vector3.zero,
                         tileOptions.SerializedTileOptions.mirror
-                            ? Quaternion.Euler(0f, 180f, tileOptions.SerializedTileOptions.rotation)
-                            : Quaternion.Euler(0f, 0f, tileOptions.SerializedTileOptions.rotation), Vector3.one);
+                            ? Quaternion.Euler(0f, 180f, rotation)
+                            : Quaternion.Euler(0f, 0f, rotation), Vector3.one);
                     tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
                 }
             }
-
         }
 
         public override void hitTile(Vector2 position) {
@@ -230,6 +250,56 @@ namespace TileMaps {
             Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
             TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
             return tileItem;
+        }
+        
+        public void IterateChiselTile(Vector2Int position, int direction)
+        {
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return;
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
+            
+            TileItem tileItem = getTileItem(position);
+            if (tileItem is not ChiselTileItem chiselTileItem) return;
+            
+            ChiselTileItem newChiselTileItem = ChiselItemUtils.Iterate(direction, chiselTileItem);
+            SetTile(position.x,position.y,newChiselTileItem);
+            WriteTile(partition,tilePositionInPartition,newChiselTileItem);
+        }
+
+        public void IterateRotatableTile(Vector2Int position, int direction)
+        {
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return;
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
+            
+            TileItem tileItem = getTileItem(position);
+            if (!tileItem.tileOptions.StaticOptions.rotatable) return;
+            TileOptions tileOptions = getOptionsAtPosition(position);
+            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
+            const int ROTATION_COUNT = 4;
+            int newRotation = ((serializedTileOptions.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
+            serializedTileOptions.rotation = newRotation;
+            tileOptions.SerializedTileOptions = serializedTileOptions;
+            SetTile(position.x,position.y,tileItem);
+        }
+
+        public void IterateHammerTile(Vector2Int position, int direction)
+        {
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return;
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
+            
+            TileItem tileItem = getTileItem(position);
+            if (tileItem.tile is not HammerTile hammerTile) return;
+            
+            TileOptions tileOptions = getOptionsAtPosition(position);
+            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
+            int stateCount = hammerTile.getStateAmount();
+            int newState = ((serializedTileOptions.state+direction) % stateCount + stateCount) % stateCount;
+            Debug.Log(newState);
+            serializedTileOptions.state = newState;
+            tileOptions.SerializedTileOptions = serializedTileOptions;
+            SetTile(position.x,position.y,tileItem);
         }
     }
 }
