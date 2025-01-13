@@ -391,9 +391,9 @@ namespace PlayerModule.Mouse {
             if (Input.mouseScrollDelta.y != 0) {
                 float y = Input.mouseScrollDelta.y;
                 if (y < 0) {
-                    playerInventory.iterateSelectedTile(1);
+                    playerInventory.IterateSelectedTile(1);
                 } else {
-                    playerInventory.iterateSelectedTile(-1);
+                    playerInventory.IterateSelectedTile(-1);
                 }
             }
         }

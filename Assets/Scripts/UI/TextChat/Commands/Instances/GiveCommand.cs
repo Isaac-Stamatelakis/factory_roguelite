@@ -27,7 +27,7 @@ namespace UI.Chat {
                     chatUI.sendMessage("Invalid id");
                     return;
                 }
-                playerInventory.give(toGive);
+                playerInventory.Give(toGive);
             } catch (IndexOutOfRangeException) {
                 chatUI.sendMessage("Invalid parameter format");
             } catch (FormatException) {

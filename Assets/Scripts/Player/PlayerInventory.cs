@@ -67,9 +67,17 @@ namespace PlayerModule {
         void Update()
         {
             raycastHitTileEntities();
+            
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
-                mode = (InventoryDisplayMode)(((int)mode + 1) % Enum.GetValues(typeof(InventoryDisplayMode)).Length);
+                mode = InventoryDisplayMode.Tools;
+                playerToolListUI.Highlight(true);
+            }
+
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                mode = InventoryDisplayMode.Inventory;
+                playerToolListUI.Highlight(false);
             }
         }
 
@@ -150,13 +158,26 @@ namespace PlayerModule {
             playerInventoryGrid.DisplayItem(selectedSlot);
         }
 
-        public void iterateSelectedTile(int iterator) {
-            selectedSlot += iterator;
-            selectedSlot = (int) Global.modInt(selectedSlot,COLUMNS);
-            ChangeSelectedSlot(selectedSlot); 
+        public void IterateSelectedTile(int iterator) {
+            switch (mode)
+            {
+                case InventoryDisplayMode.Inventory:
+                    selectedSlot += iterator;
+                    selectedSlot = (int) Global.modInt(selectedSlot,COLUMNS);
+                    ChangeSelectedSlot(selectedSlot); 
+                    break;
+                case InventoryDisplayMode.Tools:
+                    selectedTool += iterator;
+                    selectedTool = (int) Global.modInt(selectedTool,playerRobot.RobotTools.Count);
+                    ChangeSelectedSlot(selectedTool); 
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
         }
 
-        public void give(ItemSlot itemSlot) {
+        public void Give(ItemSlot itemSlot) {
             if (!ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MaxSize)) {
                 IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
                 if (chunk is not ILoadedChunk loadedChunk) {

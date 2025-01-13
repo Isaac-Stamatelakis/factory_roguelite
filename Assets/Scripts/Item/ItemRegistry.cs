@@ -16,6 +16,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
 using Dimensions;
+using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
 using Recipe.Objects;
 using Recipe.Processor;
@@ -26,6 +27,7 @@ namespace Items {
     public class ItemRegistry {
         private static Dictionary<string,ItemObject> items;
         private static List<TransmutableItemMaterial> materials;
+        
         private static ItemRegistry instance;
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();

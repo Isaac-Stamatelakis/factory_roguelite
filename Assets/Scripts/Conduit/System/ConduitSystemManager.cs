@@ -299,6 +299,8 @@ namespace Conduits.Systems {
 
         public void ConduitJoinUpdate(IConduit conduit, IConduit adj)
         {
+            if (ReferenceEquals(conduit.GetConduitSystem(),adj.GetConduitSystem())) return;
+            conduitSystems.Remove((TSystem)adj.GetConduitSystem());
             BfsConduit(conduit,conduit.GetConduitSystem());
         }
 

@@ -13,13 +13,19 @@ using Chunks.Systems;
 using Tiles;
 using Items;
 using Entities;
+using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
 
 namespace TileMaps {
     public interface ITileGridMap {
         public TileItem getTileItem(Vector2Int cellPosition);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap
+
+    public interface IChiselableTileMap
+    {
+        public void IterateChiselTile(Vector2Int position, int direction);
+    }
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  
@@ -116,6 +122,20 @@ namespace TileMaps {
             CallListeners(position);
         }
 
+        public void IterateChiselTile(Vector2Int position, int direction)
+        {
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return;
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
+            
+            TileItem tileItem = getTileItem(position);
+            if (tileItem is not ChiselTileItem chiselTileItem) return;
+            
+            ChiselTileItem newChiselTileItem = ChiselItemUtils.Iterate(direction, chiselTileItem);
+            SetTile(position.x,position.y,newChiselTileItem);
+            WriteTile(partition,tilePositionInPartition,newChiselTileItem);
+        }
+
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
@@ -139,6 +159,8 @@ namespace TileMaps {
                 return false;
             }
             TileItem tileItem = getTileItem(cellPosition);
+            if (ReferenceEquals(tileItem, null)) return false;
+            
             DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
             dynamicTileOptions.hardness--;
             tileOptions.DynamicTileOptions = dynamicTileOptions;

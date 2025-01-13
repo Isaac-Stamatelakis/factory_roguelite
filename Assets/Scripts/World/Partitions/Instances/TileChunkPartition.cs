@@ -232,10 +232,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         public override void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem)
         {
             SeralizedWorldData tileData = (SeralizedWorldData) getData();
-            string id = null;
-            if (tileItem != null) {
-                id = tileItem.id;
-            }
+            string id = tileItem?.id;
             switch (layer) {
                 case TileMapLayer.Base:
                     tileData.baseData.ids[position.x,position.y] = id;
