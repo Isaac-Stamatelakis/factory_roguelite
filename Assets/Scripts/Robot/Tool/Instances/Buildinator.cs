@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dimensions;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Newtonsoft.Json;
 using Player.Mouse;
@@ -7,7 +8,9 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using TileMaps;
 using TileMaps.Layer;
+using TileMaps.Type;
 using UnityEngine;
 
 
@@ -49,16 +52,25 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
+            if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(TileMapType.Block);
+            Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
+            int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
+            
             switch (toolData.Mode)
             {
                 case BuildinatorMode.Chisel:
-                    if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
-                    int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
-                    ChiselItemUtils.TryIterateChiselItem(mousePosition, direction);
+                    if (iWorldTileMap is not IChiselableTileMap chiselableTileMap) return;
+                    chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);
                     break;
                 case BuildinatorMode.Rotator:
+                    if (iWorldTileMap is not IRotatableTileMap rotatableTileMap) return;
+                    rotatableTileMap.IterateRotatableTile((Vector2Int)cellPosition, direction);
                     break;
                 case BuildinatorMode.Hammer:
+                    if (iWorldTileMap is not IHammerTileMap stateTile) return;
+                    stateTile.IterateHammerTile((Vector2Int)cellPosition, direction);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
