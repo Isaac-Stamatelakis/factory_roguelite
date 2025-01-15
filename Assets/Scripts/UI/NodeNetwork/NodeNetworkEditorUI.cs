@@ -16,7 +16,9 @@ namespace UI.NodeNetwork {
             addNode.onClick.AddListener(addButtonClick);
             toggleConnectionMode.onClick.AddListener(() => {
                 NodeNetworkUIMode mode = nodeNetworkUI.getMode();
-                mode ++;
+                mode = mode == NodeNetworkUIMode.EditConnection
+                    ? NodeNetworkUIMode.View
+                    : NodeNetworkUIMode.EditConnection;
                 nodeNetworkUI.setMode(mode);
                 switch (mode) {
                     case NodeNetworkUIMode.View:

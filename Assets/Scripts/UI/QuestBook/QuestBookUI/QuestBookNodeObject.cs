@@ -11,11 +11,11 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
     {
-        [SerializeField] private ItemSlotUI itemSlotUI;
         protected override void setImage()
         {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(node.ImageSeralizedItemSlot);
-            itemSlotUI.Display(itemSlot);
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            ItemDisplayUtils.DisplayItemSprite(image,itemSlot.itemObject,0);
         }
 
         protected override void openContent()

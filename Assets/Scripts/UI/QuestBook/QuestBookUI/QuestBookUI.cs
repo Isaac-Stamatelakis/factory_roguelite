@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Serialization;
 
 namespace UI.QuestBook {
 
@@ -14,7 +15,7 @@ namespace UI.QuestBook {
     {
         [SerializeField] public UIAssetManager AssetManager;
         [SerializeField] private QuestBookPageUI pageUI;
-        [SerializeField] private GridLayoutGroup chapterGridGroup;
+        [SerializeField] private VerticalLayoutGroup mChapterList;
         [SerializeField] private Button addChapter;
         [SerializeField] private Button backButton;
         [SerializeField] private QuestPageChapterButton chapterButtonPrefab;
@@ -46,12 +47,12 @@ namespace UI.QuestBook {
         }
 
         public void loadPageChapters() {
-            for (int i = 0; i < chapterGridGroup.transform.childCount; i++) {
-                GameObject.Destroy(chapterGridGroup.transform.GetChild(i).gameObject);
+            for (int i = 0; i < mChapterList.transform.childCount; i++) {
+                GameObject.Destroy(mChapterList.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < questBook.Pages.Count; i++) {
                 QuestPageChapterButton chapterButton = GameObject.Instantiate(chapterButtonPrefab);
-                chapterButton.transform.SetParent(chapterGridGroup.transform,false);
+                chapterButton.transform.SetParent(mChapterList.transform,false);
                 chapterButton.init(this,questBook.Pages[i],i);
             }
         }

@@ -23,7 +23,7 @@ namespace UI.QuestBook {
                     checkMarkTaskUI.init((CheckMarkQuestTask)task,taskPageUI);
                     return checkMarkTaskUI.gameObject;
                 case QuestTaskType.Dimension:
-                    VisitDimensionTaskUI visitDimensionTaskUI = assetManager.cloneElement<VisitDimensionTaskUI>("CHECKMARK_TASK");
+                    VisitDimensionTaskUI visitDimensionTaskUI = assetManager.cloneElement<VisitDimensionTaskUI>("DIM_TASK");
                     visitDimensionTaskUI.init((VisitDimensionQuestTask)task,taskPageUI);
                     return visitDimensionTaskUI.gameObject;
             }
