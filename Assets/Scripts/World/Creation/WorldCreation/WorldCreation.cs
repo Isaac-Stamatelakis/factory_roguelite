@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,9 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Newtonsoft.Json;
 using PlayerModule;
+using TileEntity;
+using World.Serialization;
+using Object = UnityEngine.Object;
 
 namespace WorldModule {
     public static class WorldCreation
@@ -25,6 +29,8 @@ namespace WorldModule {
             string path = WorldLoadUtils.getFullWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
+            
+            InitializeMetaData(WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta));
             string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
@@ -33,6 +39,16 @@ namespace WorldModule {
             WorldLoadUtils.createDimFolder(1);
         }
 
+        public static void InitializeMetaData(string path)
+        {
+            WorldMetaData worldMetaData =
+                new WorldMetaData(DateTime.Now, DateTime.Now, new List<string>
+                {
+                    Tier.Basic.ToString()
+                });
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
+            File.WriteAllText(path, json);
+        }
 
         private static void InitPlayerData(string path) {
             PlayerData playerData = new PlayerData(

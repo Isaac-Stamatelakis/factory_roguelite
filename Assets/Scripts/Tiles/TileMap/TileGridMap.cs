@@ -259,6 +259,8 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             
             TileItem tileItem = getTileItem(position);
+            if (ReferenceEquals(tileItem, null)) return;
+            
             if (tileItem is not ChiselTileItem chiselTileItem) return;
             
             ChiselTileItem newChiselTileItem = ChiselItemUtils.Iterate(direction, chiselTileItem);
@@ -273,6 +275,8 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             
             TileItem tileItem = getTileItem(position);
+            if (ReferenceEquals(tileItem, null)) return;
+            
             if (!tileItem.tileOptions.StaticOptions.rotatable) return;
             TileOptions tileOptions = getOptionsAtPosition(position);
             SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
@@ -290,13 +294,13 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             
             TileItem tileItem = getTileItem(position);
+            if (ReferenceEquals(tileItem, null)) return;
             if (tileItem.tile is not HammerTile hammerTile) return;
             
             TileOptions tileOptions = getOptionsAtPosition(position);
             SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
             int stateCount = hammerTile.getStateAmount();
             int newState = ((serializedTileOptions.state+direction) % stateCount + stateCount) % stateCount;
-            Debug.Log(newState);
             serializedTileOptions.state = newState;
             tileOptions.SerializedTileOptions = serializedTileOptions;
             SetTile(position.x,position.y,tileItem);

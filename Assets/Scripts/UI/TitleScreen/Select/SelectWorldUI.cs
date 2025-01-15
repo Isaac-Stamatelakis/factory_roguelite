@@ -4,6 +4,7 @@ using System.IO;
 using UI.ConfirmPopup;
 using UnityEngine;
 using UnityEngine.UI;
+using World.Serialization;
 using WorldModule;
 
 namespace UI.TitleScreen.Select
@@ -110,7 +111,8 @@ namespace UI.TitleScreen.Select
         private void DisplayWorld(string worldName, int index)
         {
             SelectWorldElement worldElement = Instantiate(selectWorldElementPrefab,elementList);
-            WorldDisplayData worldDisplayData = new WorldDisplayData(worldName, DateTime.Now, DateTime.Now);
+            WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
+            WorldDisplayData worldDisplayData = new WorldDisplayData(worldName,worldMetaData.CreationDate, worldMetaData.LastAccessDate);
             worldElement.Initalize(index,ClickWorldElement,worldDisplayData);
             worldElements.Add(worldElement);
         }

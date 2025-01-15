@@ -8,5 +8,12 @@ namespace World.Serialization
         public DateTime CreationDate;
         public DateTime LastAccessDate;
         public List<string> UnlockedGameStages;
+
+        public WorldMetaData(DateTime creationDate, DateTime lastAccessDate, List<string> unlockedGameStages)
+        {
+            CreationDate = creationDate;
+            LastAccessDate = lastAccessDate;
+            UnlockedGameStages = unlockedGameStages;
+        }
     }
 }
