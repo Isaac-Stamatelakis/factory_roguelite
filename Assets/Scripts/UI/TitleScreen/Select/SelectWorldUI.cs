@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UI.ConfirmPopup;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,12 +70,27 @@ namespace UI.TitleScreen.Select
             SetButtonInteractility(false);
             backButton.onClick.AddListener(CanvasController.Instance.PopStack);
             string[] worlds = GetWorlds();
+            string[] formattedWorlds = new string[worlds.Length];
+            WorldMetaData[] metaDataArray = new WorldMetaData[worlds.Length];
             for (int i = 0; i < worlds.Length; i++)
             {
                 string worldName = Path.GetFileName(worlds[i].TrimEnd(Path.DirectorySeparatorChar));
+                formattedWorlds[i] = worldName;
+                WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
+                metaDataArray[i] = worldMetaData;
+                
+            }
+            var combined = formattedWorlds.Zip(metaDataArray, (world, meta) => new { World = world, Meta = meta });
+            var sorted = combined.OrderByDescending(x => x.Meta.LastAccessDate);
+            var sortedList = sorted.ToList();
+            for (int i = 0; i < sortedList.Count(); i++)
+            {
+                string worldName = sortedList[i].World;
+                Debug.Log(worldName);
                 worldNames.Add(worldName);
                 DisplayWorld(worldName,i);
             }
+            
         }
 
         private void DeleteWorld(int index)

@@ -30,6 +30,11 @@ namespace WorldModule {
         }
         public void setWorldPath(string path) {
             worldPath = path;
+            
+        }
+
+        public void InitializeMetaData()
+        {
             string metaDataPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta);
             if (!File.Exists(metaDataPath))
             {
