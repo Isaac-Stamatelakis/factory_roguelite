@@ -49,7 +49,7 @@ public class CameraView : MonoBehaviour
 
     private IEnumerator setCameraSizeDelayed() {
         yield return new WaitForEndOfFrame();
-        GetComponent<CameraBounds>().setSize();
+        GetComponent<CameraBounds>().SetSize();
     }
 
     public void setDebugRange(float cameraSize) {

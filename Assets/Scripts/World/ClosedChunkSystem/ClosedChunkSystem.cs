@@ -132,7 +132,7 @@ namespace Chunks.Systems {
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
 
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
-            cameraBounds.setSystem(this,dimController.BoundCamera);
+            cameraBounds.SetSystem(this,dimController.BoundCamera);
             
             GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }

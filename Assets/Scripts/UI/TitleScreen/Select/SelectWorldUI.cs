@@ -86,7 +86,6 @@ namespace UI.TitleScreen.Select
             for (int i = 0; i < sortedList.Count(); i++)
             {
                 string worldName = sortedList[i].World;
-                Debug.Log(worldName);
                 worldNames.Add(worldName);
                 DisplayWorld(worldName,i);
             }
