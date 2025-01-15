@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -153,7 +154,24 @@ namespace UI.Chat {
                 if (chatCommand == null) {
                     return;
                 }
-                chatCommand.execute();
+
+                try
+                {
+                    chatCommand.execute();
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    sendMessage("Invalid parameter format");
+                }
+                catch (ChatParseException e)
+                {
+                    sendMessage(e.Message);
+                }
+                catch (FormatException e) {
+                    sendMessage(e.Message);
+                } catch (OverflowException e) {
+                    sendMessage(e.Message);
+                }
                 return;
             }
             if (recordedMessages.Count > 50) {

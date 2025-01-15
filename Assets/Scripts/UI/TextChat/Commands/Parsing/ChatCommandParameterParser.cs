@@ -31,8 +31,8 @@ namespace UI.Chat {
             { "brown", new Color(0.65f, 0.16f, 0.16f) } // Brown
         };
 
-        public static readonly HashSet<string> TrueValues = new HashSet<string>{"true","True","1","on","On"};
-        public static readonly HashSet<string> FalseValues = new HashSet<string>{"false","False","0","off","Off"};
+        public static readonly HashSet<string> TrueValues = new HashSet<string>{"true","1","on",};
+        public static readonly HashSet<string> FalseValues = new HashSet<string>{"false","0","off"};
         public static int parseInt(string[] parameters, int index, string parameterName, int lowerBound = int.MinValue, int upperBound = int.MaxValue) {
             string parameter = parseParameter(parameters,index,parameterName);
             try {
@@ -50,7 +50,7 @@ namespace UI.Chat {
         }
 
         public static bool parseBool(string[] parameters, int index, string parameterName) {
-            string parameter = parseParameter(parameters,index,parameterName);
+            string parameter = parseParameter(parameters,index,parameterName).ToLower();
             if (TrueValues.Contains(parameter)) {
                 return true;
             }

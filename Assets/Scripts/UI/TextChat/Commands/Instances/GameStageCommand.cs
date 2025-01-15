@@ -14,28 +14,19 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            try {
-                string mode = parameters[0].ToLower();
-                string stage = parameters[1];
-                switch (mode)
-                {
-                    case "add":
-                        WorldManager.getInstance().UnlockGameStage(stage);
-                        break;
-                    case "remove":
-                        WorldManager.getInstance().RemoveGameStage(stage);
-                        break;
-                    default:
-                        TextChatUI.Instance.sendMessage("Invalid mode. Use 'add' or 'remove'.");
-                        break;
-                }
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
-            }
-            catch (FormatException e) {
-                TextChatUI.Instance.sendMessage(e.ToString());
-            } catch (OverflowException e) {
-                TextChatUI.Instance.sendMessage(e.ToString());
+            string mode = parameters[0].ToLower();
+            string stage = parameters[1];
+            switch (mode)
+            {
+                case "add":
+                    WorldManager.getInstance().UnlockGameStage(stage);
+                    break;
+                case "remove":
+                    WorldManager.getInstance().RemoveGameStage(stage);
+                    break;
+                default:
+                    TextChatUI.Instance.sendMessage("Invalid mode. Use 'add' or 'remove'.");
+                    break;
             }
         }
 

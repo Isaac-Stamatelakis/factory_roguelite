@@ -13,30 +13,21 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            try {
-                string sizeName = parameters[0];
-                #if UNITY_EDITOR
-                    if (sizeName == "debug") {
-                        double debugSize = System.Convert.ToDouble(parameters[1]);
-                        CameraView.Instance.setDebugRange((float)debugSize);
-                        return;
-                    }
-                        
-                #endif
-                Dictionary<string, CameraViewSize> dict = getNameDict();
-                if (!dict.ContainsKey(sizeName)) {
-                    chatUI.sendMessage($"{sizeName} is not a valid camera size");
-                    return;
-                }
-                CameraViewSize size = dict[sizeName];
-                CameraView.Instance.setLoadRange(size);
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
-            } catch (FormatException) {
-                chatUI.sendMessage("Amount is not a number");
-            } catch (OverflowException) {
-                chatUI.sendMessage("Amount is too large");
+            string sizeName = parameters[0];
+#if UNITY_EDITOR
+            if (sizeName == "debug") {
+                double debugSize = System.Convert.ToDouble(parameters[1]);
+                CameraView.Instance.setDebugRange((float)debugSize);
+                return;
             }
+#endif
+            Dictionary<string, CameraViewSize> dict = getNameDict();
+            if (!dict.ContainsKey(sizeName)) {
+                chatUI.sendMessage($"{sizeName} is not a valid camera size");
+                return;
+            }
+            CameraViewSize size = dict[sizeName];
+            CameraView.Instance.setLoadRange(size);
         }
 
         public List<string> getAutoFill(int paramIndex)

@@ -18,19 +18,15 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            try {
-                bool wireFrame = ChatCommandParameterParser.parseBool(parameters,0,"wireframe");
-                Color? color = null;
-                if (parameters.Length > 1) {
-                    color = ChatCommandParameterParser.parseColor(parameters,1);
-                }
-                DimensionManager dimensionManager = DimensionManager.Instance;
-                OutlineWorldTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineWorldTileGridMap>();
-                foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
-                    outlineTileGridMap.setView(wireFrame,color);
-                }
-            } catch (ChatParseException e) {
-                chatUI.sendMessage(e.Message);
+            bool wireFrame = ChatCommandParameterParser.parseBool(parameters,0,"wireframe");
+            Color? color = null;
+            if (parameters.Length > 1) {
+                color = ChatCommandParameterParser.parseColor(parameters,1);
+            }
+            DimensionManager dimensionManager = DimensionManager.Instance;
+            OutlineWorldTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineWorldTileGridMap>();
+            foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+                outlineTileGridMap.setView(wireFrame,color);
             }
         }
 
