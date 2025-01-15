@@ -78,6 +78,18 @@ namespace Item.Slot
             return null;
         }
 
+        public static uint AmountOf(ItemSlot itemSlot, List<ItemSlot> inventory)
+        {
+            if (inventory == null || IsItemSlotNull(itemSlot)) return 0;
+            uint count = 0;
+            foreach (ItemSlot inventorySlot in inventory)
+            {
+                if (!AreEqual(inventorySlot,itemSlot)) continue;
+                count += inventorySlot.amount;
+            }
+            return count;
+        }
+
         public static List<ItemSlot> CreateNullInventory(int count) {
             List<ItemSlot> inventory = new List<ItemSlot>();
             for (int i = 0; i < count; i++) {

@@ -91,10 +91,10 @@ namespace Items {
         {
             Panel.color = color;
         }
-
-        public void SetText(string text)
+        
+        public virtual void SetAmountText()
         {
-            AmountText.text = text;
+            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
         }
         
         public void Display(ItemSlot itemSlot)
@@ -112,7 +112,6 @@ namespace Items {
             }
             
             displayedSlot = itemSlot;
-            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
             
             var toDisplay = new ItemDisplay[sprites.Length];
             Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
@@ -157,9 +156,8 @@ namespace Items {
                 ItemTag itemTag = keyValuePair.Key;
                 object data = keyValuePair.Value;
                 GameObject visualElement = itemTag.getVisualElement(itemSlot,data);
-                if (visualElement == null) {
-                    continue;
-                }
+                if (ReferenceEquals(visualElement,null)) continue;
+                
                 bool inFront = itemTag.getVisualLayer();
                 visualElement.transform.SetParent(inFront ? TagFrontContainer : TagBehindContainer, false);
             }

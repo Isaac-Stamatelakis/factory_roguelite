@@ -10,47 +10,25 @@ using UI;
 using Items.Inventory;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : MonoBehaviour, IPointerClickHandler, IItemListReloadable
+    public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable
     {
-        [SerializeField] private ItemSlotUI itemSlotUI;
-        [SerializeField] private TextMeshProUGUI itemName;
-        [SerializeField] private TextMeshProUGUI amount;
-        [SerializeField] private Transform itemUIContainer;
+        [SerializeField] private TextMeshProUGUI mItemName;
         private QuestBookPageUI questBookUI;
-        private uint gottenAmount;
         private ItemQuestTask itemQuestTask;
+        private uint gottenAmount;
         private SerializedItemSlot ItemSlot {get => itemQuestTask.Items[index];}
         private ItemQuestTaskUI taskUI;
         private int index;
         
 
-        public void init(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookPageUI questBookUI) {
+        public void Initialize(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookPageUI questBookUI) {
             this.itemQuestTask = itemQuestTask;
             this.questBookUI = questBookUI;
             this.taskUI = taskUI;
             this.index = index;
-            load();
+            reload();
         }
-
-        private void load() {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
-            if (this == null) {
-                return;
-            }
-            itemSlotUI.Display(itemSlot);
-            itemName.text = itemSlot.itemObject.name;
-            gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
-            if (gottenAmount == itemSlot.amount) {
-                amount.color = Color.green;
-            } else {
-                amount.color = Color.red;
-            }
-            string amountText = gottenAmount + "/" + itemSlot.amount;
-            amount.text = amountText;
-        }
+        
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
@@ -70,12 +48,29 @@ namespace UI.QuestBook {
 
         public void reload()
         {
-            load();
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+
+            if (!ReferenceEquals(PlayerManager.Instance, null))
+            {
+                gottenAmount = ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
+            }
+            
+            gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
+            Display(itemSlot);
+        }
+
+        public override void SetAmountText()
+        {
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
+            AmountText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
+            AmountText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
+                              ItemDisplayUtils.FormatAmountText(itemSlot.amount,oneInvisible:false);
         }
 
         public void reloadAll()
         {
-            taskUI.display();
+            taskUI.Display();
         }
 
         

@@ -10,14 +10,9 @@ using Items;
 using Items.Inventory;
 
 namespace UI.QuestBook {
-    public class RewardListElement : MonoBehaviour, IPointerClickHandler,  IItemListReloadable
+    public class RewardListElement : ItemSlotUI, IItemListReloadable
     {
-        [SerializeField] private ItemSlotUI itemSlotUI;
-        [SerializeField] private TextMeshProUGUI itemName;
-        [SerializeField] private TextMeshProUGUI itemAmount;
-        [SerializeField] private Image radioButtonImage;
-        [SerializeField] private Transform itemContainer;
-        private SerializedItemSlot ItemSlot {get => itemSlots[index];}
+        [SerializeField] private TextMeshProUGUI mNameText;
         private List<SerializedItemSlot> itemSlots;
         private QuestBookTaskPageUI questBookTaskPageUI;
         private int index;
@@ -25,57 +20,50 @@ namespace UI.QuestBook {
         
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookHelper.EditMode) {
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left when QuestBookHelper.EditMode:
+                {
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = questBookTaskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
                     serializedItemSlotEditorUI.Init(itemSlots,index,this,questBookTaskPageUI.gameObject);
                     serializedItemSlotEditorUI.transform.SetParent(questBookTaskPageUI.transform,false);
-                } else {
+                    break;
+                }
+                case PointerEventData.InputButton.Left:
+                {
                     if (questBookTaskPageUI.RewardsSelectable) {
                         if (Selected) {
-                            questBookTaskPageUI.removeReward(index);
+                            questBookTaskPageUI.RemoveReward(index);
                         } else {
-                            questBookTaskPageUI.addReward(index);
+                            questBookTaskPageUI.AddReward(index);
                         }
                     }
-                    
-                }
-            } else if (eventData.button == PointerEventData.InputButton.Right) {
 
+                    break;
+                }
+                case PointerEventData.InputButton.Right:
+                    break;
             }
         }
 
-        public void Init(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookTaskPageUI questBookTaskPageUI) {
+        public void Initialize(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookTaskPageUI questBookTaskPageUI) {
             this.itemSlots = serializedItemSlots;
             this.index = index;
             this.questBookTaskPageUI = questBookTaskPageUI;
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemSlots[index]);
-            Display();
+            reload();
         }
 
-        public void Display() {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemSlots[index]);
-            itemAmount.text = itemSlot.amount.ToString();
-            itemName.text = itemSlot.itemObject.name;
-            itemSlotUI.Display(itemSlot);
-            DisplayRadioButton();  
-        }
-
-        private void DisplayRadioButton() {
-            if (!questBookTaskPageUI.RewardsSelectable) {
-                radioButtonImage.gameObject.SetActive(false);
-            }
-            radioButtonImage.color = Selected ? Color.green : Color.white;
-        }
-
+        
         public void reload()
         {
-            Display();
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemSlots[index]);
+            mNameText.text = itemSlot?.itemObject?.name;
+            Display(itemSlot);
         }
 
         public void reloadAll()
         {
-            questBookTaskPageUI.displayRewards();
+            questBookTaskPageUI.DisplayRewards();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace UI.QuestBook {
         {
             UIAssetManager assetManager = nodeNetwork.QuestBookUI.AssetManager;
             QuestBookTaskPageUI pageUI = assetManager.cloneElement<QuestBookTaskPageUI>("TASK_PAGE");
-            pageUI.init(node,nodeNetwork);
+            pageUI.Initialize(node,nodeNetwork);
             pageUI.transform.SetParent(nodeNetwork.QuestBookUI.transform,false);
         }
     }
