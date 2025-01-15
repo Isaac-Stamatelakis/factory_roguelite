@@ -71,8 +71,7 @@ namespace Items {
                     ItemImage.gameObject.SetActive(false);
                     return;
                 }
-
-                AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+                SetAmountText();
             }
 
             if (currentDisplayList == null)

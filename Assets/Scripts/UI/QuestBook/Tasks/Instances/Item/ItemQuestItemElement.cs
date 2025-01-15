@@ -10,7 +10,7 @@ using UI;
 using Items.Inventory;
 
 namespace UI.QuestBook {
-    public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable
+    public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mItemName;
         private QuestBookPageUI questBookUI;
@@ -43,14 +43,16 @@ namespace UI.QuestBook {
             UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
             serializedItemSlotEditorUI.Init(itemQuestTask.Items,index,this,gameObject);
-            serializedItemSlotEditorUI.transform.SetParent(questBookUI.transform,false);
+            serializedItemSlotEditorUI.transform.SetParent(taskUI.QuestBookTaskPageUI.transform,false);
         }
 
         public void reload()
         {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
+            
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-
+            mItemName.text = itemSlot.itemObject.name;
+            
             if (!ReferenceEquals(PlayerManager.Instance, null))
             {
                 gottenAmount = ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);

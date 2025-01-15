@@ -10,7 +10,7 @@ using Items;
 using Items.Inventory;
 
 namespace UI.QuestBook {
-    public class RewardListElement : ItemSlotUI, IItemListReloadable
+    public class RewardListElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mNameText;
         private List<SerializedItemSlot> itemSlots;
