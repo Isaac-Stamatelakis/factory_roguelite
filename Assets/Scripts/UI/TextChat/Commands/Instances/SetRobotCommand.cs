@@ -20,30 +20,24 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            try {
-                string id = parameters[0];
+            string id = parameters[0];
                 
 
-                if (id == "happy_mk1")
-                {
-                    PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(RobotDataFactory.GetDefaultRobot());
+            if (id == "happy_mk1")
+            {
+                PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(RobotDataFactory.GetDefaultRobot());
+            }
+            else
+            {
+                RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
+                if (robotItem == null) {
+                    chatUI.sendMessage("Invalid id");
+                    return;
                 }
-                else
-                {
-                    RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
-                    if (robotItem == null) {
-                        chatUI.sendMessage("Invalid id");
-                        return;
-                    }
                     
-                    ItemSlot itemSlot = new ItemSlot(robotItem, 1, null);
+                ItemSlot itemSlot = new ItemSlot(robotItem, 1, null);
                     
-                    PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(itemSlot);
-                }
-                
-                
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
+                PlayerManager.Instance.GetPlayer().PlayerRobot.SetRobot(itemSlot);
             }
         }
 

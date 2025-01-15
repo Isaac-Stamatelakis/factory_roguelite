@@ -35,13 +35,14 @@ namespace Items {
 
         public static string FormatAmountText(uint amount,bool oneInvisible = true)
         {
-            if (amount == 0) return string.Empty;
-            if (amount == 1 && oneInvisible) {
-                return string.Empty;
+            switch (amount)
+            {
+                case <= 1 when oneInvisible:
+                    return string.Empty;
+                case < 10000:
+                    return amount.ToString();
             }
-            if (amount < 10000) {
-                return amount.ToString();
-            }
+
             int i = 0;
             float fAmount = amount/1000f;
             while (i < suffixes.Length-1 && fAmount >= 1000) {

@@ -31,7 +31,7 @@ namespace TileEntity.Instances.Matrix {
         private int driveRebuildIndex;
         private Dictionary<string, Dictionary<ItemTagKey, (ItemSlot,MatrixTerminalItemSlotUI,EncodedRecipe)>> idTagItemSlotDict;
         private MatrixTerminalUI matrixTerminalUI;
-        public void init(ItemMatrixControllerInstance controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
+        public void Initialize(ItemMatrixControllerInstance controller, Transform itemContainer, MatrixTerminalUI matrixTerminalUI) {
             this.controller = controller;
             this.itemContainer = itemContainer;
             this.matrixTerminalUI = matrixTerminalUI;
@@ -340,7 +340,7 @@ namespace TileEntity.Instances.Matrix {
                 return false;
             }
             CraftAmountPopUpUI craftAmountPopUpUI = AssetManager.cloneElement<CraftAmountPopUpUI>("CRAFT_POPUP");
-            craftAmountPopUpUI.init(controller,inventorySlot,encodedRecipe);
+            craftAmountPopUpUI.Initialize(controller,inventorySlot,encodedRecipe);
             MainCanvasController.Instance.DisplayObject(craftAmountPopUpUI.gameObject);
             return true;
         }

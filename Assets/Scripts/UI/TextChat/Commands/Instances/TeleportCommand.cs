@@ -13,22 +13,13 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            try {
-                int x = Convert.ToInt32(parameters[0]);
-                int y = Convert.ToInt32(parameters[1]);
-                Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-                Vector3 playerPosition = playerTransform.position;
-                playerPosition.x = x;
-                playerPosition.y = y;
-                playerTransform.position = playerPosition;
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
-            }
-            catch (FormatException e) {
-                TextChatUI.Instance.sendMessage(e.ToString());
-            } catch (OverflowException e) {
-                TextChatUI.Instance.sendMessage(e.ToString());
-            }
+            int x = Convert.ToInt32(parameters[0]);
+            int y = Convert.ToInt32(parameters[1]);
+            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            Vector3 playerPosition = playerTransform.position;
+            playerPosition.x = x;
+            playerPosition.y = y;
+            playerTransform.position = playerPosition;
         }
 
         public override string getDescription()

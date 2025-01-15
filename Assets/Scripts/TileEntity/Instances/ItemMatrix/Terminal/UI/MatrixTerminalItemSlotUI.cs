@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Matrix {
         private IMatrixTerminalItemClickReciever reciever;
         private uint amount;
         private ItemObject itemObject;
-        public void init(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever){
+        public void Initialize(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever){
             SetItemSlot(itemSlot);
             this.reciever = reciever;
         }
@@ -31,7 +31,7 @@ namespace TileEntity.Instances.Matrix {
 
         public static MatrixTerminalItemSlotUI newInstance(ItemSlot itemSlot, IMatrixTerminalItemClickReciever reciever) {
             MatrixTerminalItemSlotUI itemSlotUI = GlobalHelper.instantiateFromResourcePath("UI/Matrix/Terminal/MatrixTerminalItemUIPanel").GetComponent<MatrixTerminalItemSlotUI>();
-            itemSlotUI.init(itemSlot, reciever);
+            itemSlotUI.Initialize(itemSlot, reciever);
             return itemSlotUI;
         }
 

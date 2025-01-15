@@ -7,7 +7,7 @@ using TMPro;
 namespace UI.QuestBook {
     public class EditConnectionsPageUI : MonoBehaviour
     {
-        [SerializeField] private GridLayoutGroup connectionList;
+        [SerializeField] private VerticalLayoutGroup connectionList;
         [SerializeField] private TMP_InputField searchBar;
         [SerializeField] private ScrollRect scrollView;
         [SerializeField] private Button backButton;

@@ -15,17 +15,12 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            try {
-                Vector3 playerPosition = PlayerManager.Instance.GetPlayer().transform.position;
-                string id = parameters[0];
-                Transform player = PlayerManager.Instance.GetPlayer().transform;
-                int dim = DimensionManager.Instance.getPlayerDimension(player);
-                DimController dimController = DimensionManager.Instance.getDimController(dim);
-                EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,dimController.EntityContainer);
-                
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
-            }
+            Vector3 playerPosition = PlayerManager.Instance.GetPlayer().transform.position;
+            string id = parameters[0];
+            Transform player = PlayerManager.Instance.GetPlayer().transform;
+            int dim = DimensionManager.Instance.getPlayerDimension(player);
+            DimController dimController = DimensionManager.Instance.getDimController(dim);
+            EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,dimController.EntityContainer);
         }
 
         public List<string> getAutoFill(int paramIndex)

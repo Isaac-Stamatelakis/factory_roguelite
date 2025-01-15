@@ -16,25 +16,17 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            try {
-                string id = parameters[0];
-                uint amount = Convert.ToUInt32(parameters[1]);
-                amount = GlobalHelper.Clamp(amount, 1, Global.MaxSize);
-                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
-                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
-                ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
-                if (toGive == null) {
-                    chatUI.sendMessage("Invalid id");
-                    return;
-                }
-                playerInventory.Give(toGive);
-            } catch (IndexOutOfRangeException) {
-                chatUI.sendMessage("Invalid parameter format");
-            } catch (FormatException) {
-                chatUI.sendMessage("Amount is not a number");
-            } catch (OverflowException) {
-                chatUI.sendMessage("Amount is too large");
+            string id = parameters[0];
+            uint amount = Convert.ToUInt32(parameters[1]);
+            amount = GlobalHelper.Clamp(amount, 1, Global.MaxSize);
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
+            ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
+            if (toGive == null) {
+                chatUI.sendMessage("Invalid id");
+                return;
             }
+            playerInventory.Give(toGive);
         }
 
         public List<string> getAutoFill(int paramIndex)

@@ -19,7 +19,7 @@ namespace TileEntity.Instances.Matrix {
 
         public void init(MatrixTerminalInstance matrixTerminal) {
             /*
-            inventoryUI.init(matrixTerminal.Controller,itemContainer.transform,this);
+            inventoryUI.Initialize(matrixTerminal.Controller,itemContainer.transform,this);
             PlayerInventory playerInventory = PlayerContainer.getInstance().getInventory();
             playerInventory.cloneInventoryUI(playerInventoryContainer.transform);
             playerInventory.hideUI();

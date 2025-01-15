@@ -77,7 +77,7 @@ namespace WorldModule {
         
         public static IEnumerator InitDim0() {
             if (WorldLoadUtils.dimExists(0)) {
-                Debug.LogError("Attempted to init dim 0 when already exists");
+                Debug.LogError("Attempted to Initialize dim 0 when already exists");
                 yield break;
             }
             WorldLoadUtils.createDimFolder(0);
@@ -86,7 +86,7 @@ namespace WorldModule {
             yield return handle;
             List<Structure> structures = AddressableUtils.validateHandle<Structure>(handle);
             if (structures.Count == 0) {
-                Debug.LogError("Could not init dim 0. No structure with tags 'dim0' and 'structure'");
+                Debug.LogError("Could not Initialize dim 0. No structure with tags 'dim0' and 'structure'");
                 yield break;
             }
             if (structures.Count > 1) {

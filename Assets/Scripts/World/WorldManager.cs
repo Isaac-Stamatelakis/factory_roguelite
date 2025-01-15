@@ -59,8 +59,17 @@ namespace WorldModule {
 
         public void UnlockGameStage(GameStageObject gameStageObject)
         {
-            string id = gameStageObject.GetGameStageId();
+            UnlockGameStage(gameStageObject.GetGameStageId());
+        }
+        
+        public void UnlockGameStage(string id)
+        {
             unlockedGameStages.Add(id);
+        }
+
+        public void RemoveGameStage(string id)
+        {
+            unlockedGameStages.Remove(id);
         }
 
         public bool HasGameStage(GameStageObject gameStageObject)
