@@ -15,6 +15,7 @@ The player starts off trapped in a cave. This cave serves as their primary base 
 * Item Catalogue for searching up items, viewing recipes for items and item usages in recipes, and item information.
 * Compact machines which "shrink space" allowing players to build inside of them and transfer materials in and out. They support a recursive depth of up to 7.
 * Questbook that guides players through the game and rewards them for completing quests such as item retrieval, visiting a cave, and more.
+* In game text chat and many commands the player can use if their world has cheat mode enabled.
 * (In-Progress) Matrix item system supporting a massive centralized item storage, item IO and auto crafting. 
 * Many Unity editor tools for generating assets as well as in game developer tools for editing questbooks, and building structures. 
 
