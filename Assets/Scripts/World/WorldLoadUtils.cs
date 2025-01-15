@@ -1,16 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Newtonsoft.Json;
+using World.Serialization;
 
 
 namespace WorldModule {
+    public enum WorldFileType
+    {
+        Meta,
+        DimensionFolder,
+        Player
+    }
+    
+    
     public static class WorldLoadUtils
     {
-        private readonly static string defaultWorldFolder = "worlds"; 
-        private readonly static string playerDataName = "player_data.json";
-        private readonly static string dimensionFolderName = "Dimensions";
-        private readonly static string dimFolderPrefix = "dim";
+        private static readonly string defaultWorldFolder = "worlds"; 
+        private static readonly string playerDataName = "player_data.json";
+        private static readonly string dimensionFolderName = "Dimensions";
+        private static readonly string dimFolderPrefix = "dim";
+        private static readonly string META_DATA_PATH = "meta.json";
 
         public static string DefaultWorldFolder => defaultWorldFolder;
 
@@ -20,6 +32,39 @@ namespace WorldModule {
 
         public static string getFullWorldPath() {
             return getFullWorldPath(WorldManager.getInstance().getWorldPath());
+        }
+        public static string GetWorldFilePath(WorldFileType worldFileType)
+        {
+            string value = GetWorldFileValue(worldFileType);
+            string worldPath = getFullWorldPath();
+            return Path.Combine(worldPath, value);
+        }
+
+        private static string GetWorldFileValue(WorldFileType worldFileType)
+        {
+            switch (worldFileType)
+            {
+                case WorldFileType.Meta:
+                    return META_DATA_PATH;
+                case WorldFileType.DimensionFolder:
+                    return DimensionFolderName;
+                case WorldFileType.Player:
+                    return playerDataName;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null);
+            }
+        }
+
+        public static WorldMetaData GetWorldMetaData(string worldName)
+        {
+            string worldPath = GetWorldPath(worldName);
+            string metaDataPath = Path.Combine(worldPath, GetWorldFileValue(WorldFileType.Meta));
+            if (!File.Exists(metaDataPath))
+            {
+                WorldCreation.InitializeMetaData(metaDataPath);
+            }
+            WorldMetaData worldMetaData = JsonConvert.DeserializeObject<WorldMetaData>(File.ReadAllText(metaDataPath));
+            return worldMetaData;
         }
         public static string getFullWorldPath(string path) {
             return Path.Combine(Application.persistentDataPath,path);
@@ -66,10 +111,7 @@ namespace WorldModule {
             return pathExists(worldPath);
         }
         public static bool defaultWorldExists(string worldName) {
-            return pathExists(getDefaultWorldPath(worldName));
-        }
-        public static string getDefaultWorldPath(string worldName) {
-            return getFullWorldPath(Path.Combine(DefaultWorldFolder,worldName));
+            return pathExists(GetWorldPath(worldName));
         }
         public static bool pathExists(string path) {
             return Directory.Exists(path) || File.Exists(path);

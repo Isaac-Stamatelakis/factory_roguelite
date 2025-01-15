@@ -51,7 +51,7 @@ public static class FindTileAtLocation
         }
         // Mathematically impossible to ever get here if maxSearchDist is infinity.
         // Since the biggest tile I'm probably ever gonna put in the game is 16x16, will never get here.
-        Debug.LogError("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
+        Debug.LogWarning("FindTileAtLocation reached impossible to reach code. Something has gone very wrong!");
         return null;
     }
 

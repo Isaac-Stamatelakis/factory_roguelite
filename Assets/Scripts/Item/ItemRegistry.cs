@@ -22,6 +22,7 @@ using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
 using UnityEngine.Analytics;
+using WorldModule;
 
 namespace Items {
     public class ItemRegistry {
@@ -216,11 +217,14 @@ namespace Items {
             // TODO options to put certain tag items in here
             List<ItemSlot> queried = new List<ItemSlot>();
             int i = 0;
+            bool enforceGameStages = DevMode.Instance.EnableGameStages;
+            WorldManager worldManager = WorldManager.getInstance();
             foreach (ItemObject itemObject in items.Values) {
                 if (i >= limit) {
                     break;
                 }
                 if (itemObject.name.ToLower().Contains(search.ToLower())) {
+                    if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !worldManager.HasGameStage(itemObject.gameStage))) continue;
                     queried.Add(ItemSlotFactory.CreateNewItemSlot(itemObject,1));
                     i ++;
                 }

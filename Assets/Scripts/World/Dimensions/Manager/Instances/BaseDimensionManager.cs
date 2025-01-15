@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
 using Chunks.Systems;
+using World.Serialization;
 
 namespace Dimensions {
     public enum Dimension {
@@ -45,6 +47,11 @@ namespace Dimensions {
         {
             overworldDimController.softLoadSystem();
             compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);
+        }
+
+        public void OnDestroy()
+        {
+            WorldManager.getInstance().SaveMetaData();
         }
     }
 }

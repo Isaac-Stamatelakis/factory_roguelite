@@ -13,8 +13,9 @@ public class CameraBounds : MonoBehaviour
     public void Awake()
     {
         yOffset = transform.localPosition.y;
+        Debug.Log(yOffset);
     }
-    public void setSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
+    public void SetSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
         this.closedChunkSystem = closedChunkSystem;
         if (!bound) {
             bounds = null;
@@ -28,9 +29,10 @@ public class CameraBounds : MonoBehaviour
                 intervalVector.X.UpperBound+worldChunkSize
             ),
             new Interval<float>(
-                intervalVector.Y.LowerBound-worldChunkSize/2,
-                intervalVector.Y.UpperBound+worldChunkSize/2
+                intervalVector.Y.LowerBound,
+                intervalVector.Y.UpperBound+worldChunkSize
             )
+            
         );
     }
     private float height;
@@ -38,7 +40,7 @@ public class CameraBounds : MonoBehaviour
     private Vector2Int lastPartition = new Vector2Int(int.MinValue,int.MinValue);
     private Vector2Int lastChunk = new Vector2Int(int.MinValue,int.MinValue);
 
-    public void setSize() {
+    public void SetSize() {
         Vector3[] frustumCorners = new Vector3[4];
         Camera camera = GetComponent<Camera>();
         camera.CalculateFrustumCorners(
@@ -50,16 +52,16 @@ public class CameraBounds : MonoBehaviour
         // Determine the area covered by the camera
         height = 2f * camera.orthographicSize;
         width = height * camera.aspect;
-        if (closedChunkSystem != null) {
+        if (!ReferenceEquals(closedChunkSystem,null)) {
             closedChunkSystem.playerChunkUpdate();
             closedChunkSystem.playerPartitionUpdate();
         }
     }
 
-    private void checkPartitionAndChunk() {
-        if (closedChunkSystem == null) {
-            return;
-        }
+    private void CheckPartitionAndChunk()
+    {
+        if (ReferenceEquals(closedChunkSystem, null)) return;
+        
         Vector3 position = transform.position;
         int worldPartitionSize = Global.ChunkPartitionSize >> 1;
         int px = (int) position.x / worldPartitionSize % Global.PartitionsPerChunk;
@@ -69,8 +71,7 @@ public class CameraBounds : MonoBehaviour
         }
         closedChunkSystem.playerPartitionUpdate();
         lastPartition = new Vector2Int(px,py);
-
-        int worldChunkSize = Global.PartitionsPerChunk >> 1;
+        
         int cx = (int) position.x / (Global.PartitionsPerChunk/2);
         int cy = (int) position.y / (Global.PartitionsPerChunk/2);
         
@@ -84,7 +85,7 @@ public class CameraBounds : MonoBehaviour
 
     public void Update() {
         if (bounds == null) {
-            checkPartitionAndChunk();
+            CheckPartitionAndChunk();
             return;
         }
         // TODO CHANGE THIS SO ITS ONLY CALLED WHEN THE PLAYER MOVES
@@ -99,19 +100,20 @@ public class CameraBounds : MonoBehaviour
         } else {
             position.x = 0;
         }
-        bool outBottom = playerTransform.position.y - height/2 < bounds.Y.LowerBound;
-        bool outTop = playerTransform.position.y + height/2 > bounds.Y.UpperBound;
+        bool outBottom = playerTransform.position.y - height/2 - yOffset < bounds.Y.LowerBound;
+        bool outTop = playerTransform.position.y + height/2 + yOffset > bounds.Y.UpperBound;
         if (outTop) {
-            position.y = bounds.Y.UpperBound-height/2 - playerTransform.position.y;
+            position.y = bounds.Y.UpperBound-height/2 - playerTransform.position.y - yOffset;
         } else if (outBottom) {
-            position.y = bounds.Y.LowerBound+height/2 - playerTransform.position.y;
+            position.y = bounds.Y.LowerBound+height/2 - playerTransform.position.y + yOffset;
         } else {
             position.y = 0;
         }
-        position += new Vector3(0,yOffset,0);
+
+        position += Vector3.up * yOffset;
         transform.localPosition = position;
 
-        checkPartitionAndChunk();
+        CheckPartitionAndChunk();
     }
 }
 

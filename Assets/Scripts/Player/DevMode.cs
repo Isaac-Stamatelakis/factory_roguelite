@@ -27,6 +27,7 @@ public class DevMode : MonoBehaviour
     [SerializeField] public bool placePreview;
     [SerializeField] public bool spawnItem;
     [SerializeField] public string spawnItemID;
+    public bool EnableGameStages = true;
     public float FlightSpeed = 5f;
 
 

@@ -30,8 +30,8 @@ namespace UI.TitleScreen.Select
         public void DisplayData(WorldDisplayData worldDisplayData)
         {
             nameText.text = worldDisplayData.Name;
-            createDateText.text = worldDisplayData.CreateTime.ToString("MM/dd/yyyy");
-            lastAccessDateText.text = worldDisplayData.LastAccessTime.ToString("MM/dd/yyyy");
+            createDateText.text = worldDisplayData.CreateTime.ToString("MM/dd/yyyy HH:mm");
+            lastAccessDateText.text = worldDisplayData.LastAccessTime.ToString("MM/dd/yyyy HH:mm");
         }
 
         public void SetHighlight(Color? color)

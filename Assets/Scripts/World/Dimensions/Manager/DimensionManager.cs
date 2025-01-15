@@ -40,11 +40,12 @@ namespace Dimensions {
         }
         public IEnumerator initalLoad()
         {
+            WorldManager.getInstance().InitializeMetaData();
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
             yield return recipeLoad;
-
+            
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             playerScript.Initialize();
             
