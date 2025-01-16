@@ -5,6 +5,7 @@ using Recipe.Viewer;
 using UI.Catalogue.InfoViewer;
 using UI.PauseScreen;
 using UI.PlayerInvUI;
+using UI.QuestBook;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace UI
         PauseScreen,
         IOPortViewer,
         CatalogueInfo,
+        Questbook
     }
     public class MainCanvasController : CanvasController
     {
@@ -23,6 +25,7 @@ namespace UI
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
         [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
+        public GameObject QuestBookUI;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -74,13 +77,14 @@ namespace UI
             }
         }
 
-        private GameObject GetMainSceneUIElement(MainSceneUIElement mainSceneUIElement)
+        public GameObject GetMainSceneUIElement(MainSceneUIElement mainSceneUIElement)
         {
             return mainSceneUIElement switch
             {
                 MainSceneUIElement.PauseScreen => Instantiate(pauseScreenUIPrefab).gameObject,
                 MainSceneUIElement.IOPortViewer => Instantiate(ioConduitPortUIPrefab).gameObject,
                 MainSceneUIElement.CatalogueInfo => Instantiate(catalogueInfoViewerPrefab).gameObject,
+                MainSceneUIElement.Questbook => QuestBookUI,
                 _ => throw new ArgumentOutOfRangeException(nameof(mainSceneUIElement), mainSceneUIElement, null)
             };
         }

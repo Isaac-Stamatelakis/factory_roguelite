@@ -12,7 +12,8 @@ namespace WorldModule {
     {
         Meta,
         DimensionFolder,
-        Player
+        Player,
+        Questbook
     }
     
     
@@ -23,6 +24,7 @@ namespace WorldModule {
         private static readonly string dimensionFolderName = "Dimensions";
         private static readonly string dimFolderPrefix = "dim";
         private static readonly string META_DATA_PATH = "meta.json";
+        private static readonly string QUESTBOOK_PATH = "questbook.json";
 
         public static string DefaultWorldFolder => defaultWorldFolder;
 
@@ -50,6 +52,8 @@ namespace WorldModule {
                     return DimensionFolderName;
                 case WorldFileType.Player:
                     return playerDataName;
+                case WorldFileType.Questbook:
+                    return QUESTBOOK_PATH;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null);
             }

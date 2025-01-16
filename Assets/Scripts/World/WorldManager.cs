@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using Item.GameStage;
 using Newtonsoft.Json;
+using UI;
+using UI.QuestBook;
 using UnityEngine;
 using World.Serialization;
 
@@ -15,6 +17,7 @@ namespace WorldModule {
         private string worldPath;
         private WorldMetaData metaData;
         private HashSet<string> unlockedGameStages = new HashSet<string>();
+        private QuestBookLibrary questBookLibrary;
         private WorldManager() {
             worldPath = "worlds/world0"; // Default
         }
@@ -48,6 +51,15 @@ namespace WorldModule {
             }
         }
 
+        public void InitializeQuestBook()
+        {
+            string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
+            string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            
+            questBookLibrary = QuestBookLibraryFactory.deseralize(questBookJson);
+            MainCanvasController.TInstance.GetMainSceneUIElement(MainSceneUIElement.Questbook).GetComponent<QuestBookSelectorUI>().Initialize(questBookLibrary);
+        }
+
         public void SaveMetaData()
         {
             metaData.LastAccessDate = DateTime.Now;
@@ -55,6 +67,13 @@ namespace WorldModule {
             string json = JsonConvert.SerializeObject(metaData);
             string metaDataPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta);
             File.WriteAllText(metaDataPath, json);
+        }
+
+        public void SaveQuestBook()
+        {
+            string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
+            string json = QuestBookLibraryFactory.seralize(questBookLibrary);
+            File.WriteAllText(questBookPath, json);
         }
 
         public void UnlockGameStage(GameStageObject gameStageObject)

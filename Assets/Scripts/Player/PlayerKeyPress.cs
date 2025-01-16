@@ -5,6 +5,8 @@ using Item.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using UI;
+using UI.QuestBook;
 using UI.ToolTip;
 using Unity.VisualScripting;
 
@@ -33,6 +35,11 @@ namespace PlayerModule.KeyPress {
             }
             */
 
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                GameObject questBookUI = MainCanvasController.TInstance.GetMainSceneUIElement(MainSceneUIElement.Questbook);
+                questBookUI.SetActive(!questBookUI.activeInHierarchy);
+            }
             inventoryNavigationKeys();
             inventoryKeyPresses();
 

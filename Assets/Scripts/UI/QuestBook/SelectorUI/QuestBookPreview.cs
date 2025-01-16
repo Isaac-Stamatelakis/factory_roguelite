@@ -20,7 +20,7 @@ namespace UI.QuestBook {
             this.questBookSelectorUI = questBookSelectorUI;
             this.library = library;
             this.index = index;
-            this.image.sprite = questBookSelectorUI.getSprite(questBook.SpritePath);
+            this.image.sprite = questBookSelectorUI.GetSprite(questBook.SpritePath);
             this.title.text = questBook.Title;
             button.onClick.AddListener(navigatePress);
         }

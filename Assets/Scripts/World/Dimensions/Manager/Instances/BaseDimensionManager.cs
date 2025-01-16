@@ -52,6 +52,7 @@ namespace Dimensions {
         public void OnDestroy()
         {
             WorldManager.getInstance().SaveMetaData();
+            WorldManager.getInstance().SaveQuestBook();
         }
     }
 }

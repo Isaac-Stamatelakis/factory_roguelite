@@ -22,6 +22,7 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
         [FormerlySerializedAs("addRewardButton")] [SerializeField] private Button mAddRewardButton;
+        [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
         private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}

@@ -41,10 +41,19 @@ namespace UI.NodeNetwork {
         private NodeNetworkUIMode mode = NodeNetworkUIMode.View;
         private INodeUI selectedNode;
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
-        public void SelectNode(INodeUI nodeUI) {
-            if (CurrentSelected != null) {
-                CurrentSelected.SetSelect(false);
-            }
+        private float moveCounter = 0;
+
+        private readonly Dictionary<KeyCode, Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode, Direction>
+        {
+            { KeyCode.LeftArrow, Direction.Left },
+            { KeyCode.RightArrow, Direction.Right },
+            { KeyCode.DownArrow, Direction.Down },
+            { KeyCode.UpArrow , Direction.Up}
+        };
+        public void SelectNode(INodeUI nodeUI)
+        {
+            CurrentSelected?.SetSelect(false);
+
             CurrentSelected = nodeUI;
             CurrentSelected.SetSelect(true);
         }
@@ -55,6 +64,7 @@ namespace UI.NodeNetwork {
         public void Display() {
             GlobalHelper.deleteAllChildren(nodeContainer);
             GlobalHelper.deleteAllChildren(lineContainer);
+            nodeUIDict = new Dictionary<TNode, INodeUI>();
             foreach (TNode node in nodeNetwork.getNodes()) {
                 INodeUI nodeUI = GenerateNode(node);
                 nodeUIDict[node] = nodeUI;
@@ -66,6 +76,7 @@ namespace UI.NodeNetwork {
 
         public void DeleteNode(TNode node)
         {
+            CurrentSelected = null;
             nodeNetwork.getNodes().Remove(node);
             INodeUI nodeUI = nodeUIDict[node];
             GameObject.Destroy(nodeUI.GetGameObject());
@@ -126,23 +137,22 @@ namespace UI.NodeNetwork {
             {
                 DeleteNode((TNode)selectedNode.GetNode());
             }
-
+            const float delay = 0.2f;
+            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
+            {
+                if (!Input.GetKeyDown(keycode)) continue;
+                moveCounter += delay;
+                break;
+            }
+            moveCounter += Time.deltaTime;
             
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (moveCounter < delay) return;
+            
+            moveCounter = 0;
+            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
             {
-                MoveNode((TNode)selectedNode?.GetNode(),Direction.Left);
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                MoveNode((TNode)selectedNode?.GetNode(),Direction.Right);
-            }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                MoveNode((TNode)selectedNode?.GetNode(),Direction.Up);
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                MoveNode((TNode)selectedNode?.GetNode(),Direction.Down);
+                if (!Input.GetKey(keycode)) continue;
+                MoveNode((TNode)selectedNode?.GetNode(),direction);
             }
         }
 

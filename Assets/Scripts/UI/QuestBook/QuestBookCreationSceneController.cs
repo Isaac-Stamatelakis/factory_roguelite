@@ -74,7 +74,7 @@ namespace UI.QuestBook {
             rectTransform.sizeDelta = new Vector2(0,0);
 
             QuestBookSelectorUI questBookSelectorUI = GameObject.Instantiate(questBookSelectorUIPrefab);
-            questBookSelectorUI.init(library);
+            questBookSelectorUI.Initialize(library);
             
             questBookSelectorUI.transform.SetParent(container.transform,false);
             Button backButton = GameObject.Instantiate(backButtonPrefab);
@@ -85,11 +85,6 @@ namespace UI.QuestBook {
                 GameObject.Destroy(container);
                 GameObject.Destroy(gameObject);
             });
-        }
-
-        private IEnumerator setButtonPos(RectTransform rectTransform) {
-            yield return null;
-            
         }
 
         void OnDestroy() {

@@ -59,7 +59,7 @@ namespace UI.QuestBook {
         private void BackButtonPress() {
             QuestBookSelectorUI selectorUI = AssetManager.cloneElement<QuestBookSelectorUI>("TITLE");
             selectorUI.transform.SetParent(transform.parent,false);
-            selectorUI.init(library);
+            selectorUI.Initialize(library);
             GameObject.Destroy(gameObject);
         }
         

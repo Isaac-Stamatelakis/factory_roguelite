@@ -17,6 +17,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Newtonsoft.Json;
 using PlayerModule;
 using TileEntity;
+using UI.QuestBook;
 using World.Serialization;
 using Object = UnityEngine.Object;
 
@@ -31,6 +32,7 @@ namespace WorldModule {
             Debug.Log("World Folder Created at " + path);
             
             InitializeMetaData(WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta));
+            InitializeQuestBook(WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook));
             
             string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
             Directory.CreateDirectory(dimensionFolderPath);
@@ -49,6 +51,12 @@ namespace WorldModule {
                 });
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
             File.WriteAllText(path, json);
+        }
+
+        public static void InitializeQuestBook(string path)
+        {
+            string defaultJson = File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            File.WriteAllText(path,defaultJson);
         }
 
         private static void InitPlayerData(string path) {
