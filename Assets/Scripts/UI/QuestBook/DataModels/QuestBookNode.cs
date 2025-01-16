@@ -39,6 +39,12 @@ namespace UI.QuestBook {
             return new Vector3(x,y,0);
         }
 
+        public void SetPosition(Vector3 pos)
+        {
+            x = pos.x;
+            y = pos.y;
+        }
+
         public int getId()
         {
             return id;

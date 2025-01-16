@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -71,6 +72,40 @@ namespace UI.NodeNetwork {
             DisplayLines();
         }
 
+        public void MoveNode(TNode node, Direction direction)
+        {
+            INodeUI nodeUI = nodeUIDict[node];
+            const int change = 64;
+            Vector3 position = node.getPosition();
+            Vector3 changeVector = Vector3.zero;
+            switch (direction)
+            {
+                case Direction.Left:
+                    changeVector = -new Vector3(change, 0);
+                    break;
+                case Direction.Right:
+                    changeVector = new Vector3(change, 0);
+                    break;
+                case Direction.Down:
+                    changeVector = -new Vector3(0, change);
+                    break;
+                case Direction.Up:
+                    changeVector = new Vector3(0, change);
+                    break;
+                case Direction.Center:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+
+            node.SetPosition(position+changeVector);
+            Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
+            nodeUIPosition += changeVector;
+            nodeUI.GetGameObject().transform.position = nodeUIPosition;
+            DisplayLines();
+
+        }
+
         public abstract void DisplayLines();
 
         protected abstract bool nodeDiscovered(TNode node);
@@ -81,9 +116,28 @@ namespace UI.NodeNetwork {
 
         public void Update() {
             HandleZoom();
-            if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)) && selectedNode != null)
+            if (selectedNode == null) return;
+            if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
             {
                 DeleteNode((TNode)selectedNode.GetNode());
+            }
+
+            
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                MoveNode((TNode)selectedNode?.GetNode(),Direction.Left);
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                MoveNode((TNode)selectedNode?.GetNode(),Direction.Right);
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                MoveNode((TNode)selectedNode?.GetNode(),Direction.Up);
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                MoveNode((TNode)selectedNode?.GetNode(),Direction.Down);
             }
         }
 
@@ -132,19 +186,28 @@ namespace UI.NodeNetwork {
             if (CurrentSelected == null) {
                 return;
             }
-            INode selectedNode = CurrentSelected.GetNode();
-            if (selectedNode == null) {
+            INode selectedNodeElement = CurrentSelected.GetNode();
+            if (selectedNodeElement == null) {
                 return;
             }
-            if (selectedNode.getId() == clickedNode.getId()) {
+            if (selectedNodeElement.getId() == clickedNode.getId()) {
                 return;
             }
-            HashSet<int> preReq = CurrentSelected.GetNode().getPrerequisites();
-            if (!preReq.Contains(clickedNode.getId())) {
-                preReq.Add(clickedNode.getId());
-            } else {
-                preReq.Remove(clickedNode.getId());
+
+            HashSet<int> clickedPreReqs = clickedNode.getPrerequisites();
+            HashSet<int> selectedPreReqs = CurrentSelected.GetNode().getPrerequisites();
+            
+            bool connected = clickedPreReqs.Contains(selectedNodeElement.getId()) || selectedPreReqs.Contains(clickedNode.getId());
+            if (connected)
+            {
+                clickedPreReqs.Remove(selectedNodeElement.getId());
+                selectedPreReqs.Remove(clickedNode.getId());
             }
+            else
+            {
+                selectedPreReqs.Add(clickedNode.getId());
+            }
+            
             
             DisplayLines();
         }
