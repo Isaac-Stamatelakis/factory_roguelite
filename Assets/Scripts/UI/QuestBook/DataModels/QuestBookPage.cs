@@ -7,20 +7,17 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookPage : INodeNetwork<QuestBookNode>
     {
-        private string title;
-        private List<QuestBookNode> nodes;
-
-        public List<QuestBookNode> Nodes { get => nodes; set => nodes = value; }
-        public string Title { get => title; set => title = value; }
+        public string Title;
+        public List<QuestBookNode> Nodes;
 
         public QuestBookPage(string title, List<QuestBookNode> nodes) {
-            this.title = title;
-            this.nodes = nodes;
+            this.Title = title;
+            this.Nodes = nodes;
         }
 
         public List<QuestBookNode> getNodes()
         {
-            return nodes;
+            return Nodes;
         }
     }
 

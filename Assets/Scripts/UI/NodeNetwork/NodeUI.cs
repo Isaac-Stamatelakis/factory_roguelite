@@ -6,8 +6,10 @@ using UnityEngine.EventSystems;
 
 namespace UI.NodeNetwork {
     public interface INodeUI {
-        public void setSelect(bool val);
-        public INode getNode();
+        public void SetSelect(bool val);
+        public INode GetNode();
+        public GameObject GetGameObject();
+        public void DisplayImage();
     }
     public abstract class NodeUI<Node,NetworkUI> : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, ILongClickable, INodeUI
     where Node : INode where NetworkUI : INodeNetworkUI
@@ -19,30 +21,28 @@ namespace UI.NodeNetwork {
         protected Node node;
         protected NetworkUI nodeNetwork;
         
-        public void init(Node node, NetworkUI nodeNetwork) {
+        public void Init(Node node, NetworkUI nodeNetwork) {
             this.node = node;
             this.nodeNetwork = nodeNetwork;
             holdClickInstance = new LongClickHandler(this);
-            setImage();
+            DisplayImage();
             transform.position = node.getPosition();
             
         }
 
-        protected abstract void setImage();
-        public void Update() {
-            if (holdClickInstance != null) {
-                holdClickInstance.checkHoldStatus();
-            }
-            
+        public abstract void DisplayImage();
+        public void Update()
+        {
+            holdClickInstance?.checkHoldStatus();
         }
 
-        public void setSelect(bool val) {
+        public void SetSelect(bool val) {
             panel.color = val == false ? new Color(192f/255f,192f/255f,192f/255f,1f) : Color.magenta;
         }
 
         public void longClick()
         {
-            nodeNetwork.selectNode(this);
+            nodeNetwork.SelectNode(this);
         }
 
         public void OnDestroy() {
@@ -51,12 +51,12 @@ namespace UI.NodeNetwork {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                switch (nodeNetwork.getMode()) {
+                switch (nodeNetwork.GetMode()) {
                     case NodeNetworkUIMode.View:
                         openContent();
                         break;
                     case NodeNetworkUIMode.EditConnection:
-                        nodeNetwork.modifyConnection(node);
+                        nodeNetwork.ModifyConnection(node);
                         break;
                 }
                 
@@ -67,24 +67,23 @@ namespace UI.NodeNetwork {
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (holdClickInstance == null) {
-                return;
-            }
-            holdClickInstance.click();
+            holdClickInstance?.click();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (holdClickInstance == null) {
-                return;
-            }
-            holdClickInstance.release();
+            holdClickInstance?.release();
         }
         protected abstract void openContent();
 
-        public INode getNode()
+        public INode GetNode()
         {
             return node;
+        }
+
+        public GameObject GetGameObject()
+        {
+            return gameObject;
         }
     }
 }

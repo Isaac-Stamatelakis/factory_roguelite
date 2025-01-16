@@ -13,7 +13,6 @@ public class CameraBounds : MonoBehaviour
     public void Awake()
     {
         yOffset = transform.localPosition.y;
-        Debug.Log(yOffset);
     }
     public void SetSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
         this.closedChunkSystem = closedChunkSystem;

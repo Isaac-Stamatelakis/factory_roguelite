@@ -15,7 +15,9 @@ namespace UI.QuestBook {
         public QuestBook QuestBook {get => questBook;}
         private QuestBookUI questBookUI;
         public QuestBookUI QuestBookUI {get => questBookUI;}
-        public void init(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI) {
+        public void Initialize(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI)
+        {
+            CurrentSelected = null;
             this.NodeNetwork = questBookPage;
             this.questBook = questBook;
             this.library = questBookLibrary;
@@ -24,7 +26,7 @@ namespace UI.QuestBook {
                 initEditMode();
             }
         }
-        public override void displayLines()
+        public override void DisplayLines()
         {
             GlobalHelper.deleteAllChildren(LineContainer);
             HashSet<int> pageIds = new HashSet<int>();
@@ -39,15 +41,16 @@ namespace UI.QuestBook {
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
                     bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.generateLine(questBookNode.Position,otherNode.Position,LineContainer,discovered,linePrefab);
+                    QuestBookUIFactory.GenerateLine(questBookNode.getPosition(),otherNode.getPosition(),LineContainer,discovered,linePrefab);
                 }
             }
         }
-        protected override void generateNode(QuestBookNode node)
+        protected override INodeUI GenerateNode(QuestBookNode node)
         {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
-            nodeObject.init(node,this);
-            nodeObject.transform.SetParent(nodeContainer,false);
+            nodeObject.Init(node,this);
+            nodeObject.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
+            return nodeObject;
         }
 
         protected override void initEditMode()
@@ -60,6 +63,7 @@ namespace UI.QuestBook {
         {
             
             foreach (int prereqID in node.Prerequisites) {
+                if (!library.IdNodeMap.ContainsKey(prereqID)) continue;
                 bool preReqComplete = library.IdNodeMap[prereqID].Content.Task.getComplete();
                 if (node.RequireAllPrerequisites && !preReqComplete)  {
                     return false;
@@ -74,32 +78,33 @@ namespace UI.QuestBook {
             return node.RequireAllPrerequisites;
         }
 
-        public override void addNode(INodeUI nodeUI)
+        public override void AddNode(INodeUI nodeUI)
         {
-            throw new System.NotImplementedException();
+            
         }
 
-        public override void placeNewNode(Vector2 position)
+        public override void PlaceNewNode(Vector2 position)
         {
+            SerializedItemSlot slot = new SerializedItemSlot("stone", 1, null);
             QuestBookNode node = new QuestBookNode(
-                    position,
-                    null,
-                    new QuestBookNodeContent(
-                        new CheckMarkQuestTask(),
-                        "Empty Description",
-                        "New Task",
-                        new List<SerializedItemSlot>(),
-                        9999
-                    ),
-                    new HashSet<int>(),
-                    library.getSmallestNewID(),
-                    true
-                );
-                nodeNetwork.Nodes.Add(node);
-                library.addNode(node);
+                position,
+                slot,
+                new QuestBookNodeContent(
+                    new CheckMarkQuestTask(),
+                    "Empty Description",
+                    "New Task",
+                    new QuestBookItemRewards(new List<SerializedItemSlot>(), int.MaxValue),
+                    new QuestBookCommandRewards(new List<QuestBookCommandReward>())
+                ),
+                new HashSet<int>(),
+                library.GetSmallestNewID(),
+                true
+            );
+            nodeNetwork.Nodes.Add(node);
+            library.AddNode(node);
         }
 
-        public override GameObject generateNewNodeObject()
+        public override GameObject GenerateNewNodeObject()
         {
             return GameObject.Instantiate(questBookNodeObjectPrefab).gameObject;
         }

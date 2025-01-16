@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Newtonsoft.Json;
+using UI.QuestBook.Tasks.Rewards;
 using UnityEngine.Serialization;
 
 
@@ -20,24 +22,21 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
         [FormerlySerializedAs("addRewardButton")] [SerializeField] private Button mAddRewardButton;
-        [SerializeField] private RewardListElement rewardListElementPrefab;
-
+        [SerializeField] private Button mCheckSubmissionButton;
+        [SerializeField] private Button mEditImageButton;
+        [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
         private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
         private QuestBookPageUI questBookPageUI;
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
-        public List<int> SelectedRewards { get => selectedRewards; set => selectedRewards = value; }
-
-        private List<int> selectedRewards = new List<int>();
-
-        public bool RewardsSelectable {get => Content.Rewards.Count > Content.NumberOfRewards;}
-
+        
         public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI) {
             this.node = node;
             this.mTitleField.text = Content.Title;
             this.mDescriptionField.text = Content.Description;
             this.questBookPageUI = questBookPageUI;
             this.node = node;
+            
 
             AssetManager.load();
 
@@ -46,6 +45,8 @@ namespace UI.QuestBook {
             } else {
                 SetTaskContent();
             }
+            
+            mQuestBookRewardUI.Initialize(node.Content,this);
             mTitleField.interactable = QuestBookHelper.EditMode;
             mDescriptionField.interactable = QuestBookHelper.EditMode;
             DisplayRewards();
@@ -65,27 +66,48 @@ namespace UI.QuestBook {
                 mChangeTaskDropDown.value = currentTaskIndex;
                 mChangeTaskDropDown.onValueChanged.AddListener(DropDownValueChanged);
             }
-            mAddRewardButton.onClick.AddListener(() => {
-                Content.Rewards.Add(new SerializedItemSlot("stone",1,null));
-                DisplayRewards();
-            });
+            
             mBackButton.onClick.AddListener(() => {
                 questBookPageUI.gameObject.SetActive(true);
                 GameObject.Destroy(gameObject);
             });
-            mEditButton.onClick.AddListener(() => {
-                EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
-                connectionsPageUI.init(node,questBookPageUI);
-                Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
-                connectionsPageUI.transform.SetParent(canvas.transform,false);
-            });
+            
             if (!QuestBookHelper.EditMode)
             {
-                mChangeTaskDropDown.gameObject.SetActive(false);
+                mChangeTaskDropDown.interactable = false;
                 mAddRewardButton.gameObject.SetActive(false);
+                mEditImageButton.gameObject.SetActive(false);
             }
-        }
+            else
+            {
+                mEditButton.onClick.AddListener(() => {
+                    EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
+                    connectionsPageUI.init(node,questBookPageUI);
+                    Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
+                    connectionsPageUI.transform.SetParent(canvas.transform,false);
+                }); 
+                mEditImageButton.onClick.AddListener(() => {
+                    SerializedItemSlotEditorUI serializedItemSlotEditor = AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
+                    if (node.ImageSeralizedItemSlot == null)
+                    {
+                        node.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
+                    }
 
+                    void Callback(SerializedItemSlot itemSlot) // Experimenting with inline function definitions
+                    {
+                        node.ImageSeralizedItemSlot = itemSlot;
+                        questBookPageUI.RefreshNode(node);
+                    }
+
+                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,
+                        gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
+                    serializedItemSlotEditor.transform.SetParent(transform,false);
+                }); 
+            }
+            
+        }
+        
+        
         private void SetTaskContent() {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
@@ -114,26 +136,16 @@ namespace UI.QuestBook {
             SetTaskContent();
         }
 
-        public void AddReward(int index) {
-            if (selectedRewards.Count < Content.NumberOfRewards) {
-                selectedRewards.Add(index);
-            } else {
-                selectedRewards.RemoveAt(0);
-                selectedRewards.Add(index);
-            }
-        }
-
-        public void RemoveReward(int index) {
-            selectedRewards.RemoveAt(index);
-        }
-
+        
         public void DisplayRewards() {
+            /*
             GlobalHelper.deleteAllChildren(mRewardsList.transform);
             Content.Rewards ??= new List<SerializedItemSlot>();
             for (int i = 0; i < Content.Rewards.Count; i++) {
                 RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab, mRewardsList.transform, false);
                 rewardListElement.Initialize(Content.Rewards,i,this);
             }
+            */
         }
     }
 }

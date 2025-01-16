@@ -9,7 +9,7 @@ namespace Item.GameStage
         public Tier Tier;
         public override string GetGameStageId()
         {
-            return Tier.ToString();
+            return ((int)Tier).ToString();
         }
     }
 }

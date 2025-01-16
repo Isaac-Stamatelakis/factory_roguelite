@@ -16,6 +16,7 @@ using PlayerModule;
 using Recipe;
 using UI;
 using UI.JEI;
+using UI.QuestBook;
 using UnityEngine.Rendering;
 
 namespace Dimensions {
@@ -51,7 +52,9 @@ namespace Dimensions {
             
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.ShowAll();
-            yield return itemLoad;
+            
+            WorldManager.getInstance().InitializeQuestBook();
+            
             string path = Path.Combine(Application.persistentDataPath,WorldManager.getInstance().getWorldPath());
             Debug.Log($"Loading world from path {path}");
 

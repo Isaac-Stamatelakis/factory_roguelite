@@ -20,7 +20,7 @@ namespace UI.QuestBook {
             this.questBookSelectorUI = questBookSelectorUI;
             this.library = library;
             this.index = index;
-            this.image.sprite = questBookSelectorUI.getSprite(questBook.SpriteKey);
+            this.image.sprite = questBookSelectorUI.GetSprite(questBook.SpritePath);
             this.title.text = questBook.Title;
             button.onClick.AddListener(navigatePress);
         }
@@ -41,7 +41,7 @@ namespace UI.QuestBook {
             GameObject.Destroy(questBookSelectorUI.gameObject);
             QuestBookUI questBookUI = questBookSelectorUI.AssetManager.cloneElement<QuestBookUI>("QUEST_BOOK");
             questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
-            questBookUI.init(questBook,library,questBookSelectorUI.gameObject);
+            questBookUI.Initialize(questBook,library,questBookSelectorUI.gameObject);
         }
     }
 }

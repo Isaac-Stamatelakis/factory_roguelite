@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,81 +7,163 @@ using TMPro;
 
 namespace UI.NodeNetwork {
     public interface INodeNetworkUI {
-        public void selectNode(INodeUI nodeUI);
-        public NodeNetworkUIMode getMode();
-        public void setMode(NodeNetworkUIMode mode);
-        public void modifyConnection(INode node);
-        public void display();
-        public void displayLines();
-        public void addNode(INodeUI nodeUI);
-        public Transform getContentContainer();
-        public void placeNewNode(Vector2 position);
-        public GameObject generateNewNodeObject();
-        public Transform getNodeContainer();
+        public void SelectNode(INodeUI nodeUI);
+        public NodeNetworkUIMode GetMode();
+        public void SetMode(NodeNetworkUIMode mode);
+        public void ModifyConnection(INode node);
+        public void Display();
+        public void DisplayLines();
+        public void AddNode(INodeUI nodeUI);
+        public Transform GetContentContainer();
+        public void PlaceNewNode(Vector2 position);
+        public GameObject GenerateNewNodeObject();
+        public Transform GetNodeContainer();
     }
     public enum NodeNetworkUIMode {
         View,
         EditConnection
     }
-    public abstract class NodeNetworkUI<Node,Network,EditorUI> : MonoBehaviour, INodeNetworkUI 
-        where Node : INode where EditorUI : INodeNetworkEditController where Network : INodeNetwork<Node>
+    public abstract class NodeNetworkUI<TNode,TNetwork,TEditorUI> : MonoBehaviour, INodeNetworkUI 
+        where TNode : INode where TEditorUI : INodeNetworkEditController where TNetwork : INodeNetwork<TNode>
     {
         [SerializeField] protected Transform nodeContainer;
         [SerializeField] protected Transform lineContainer;
         [SerializeField] protected Transform contentMaskContainer;
-        private EditorUI editController;
+        private TEditorUI editController;
         public Transform NodeContainer { get => nodeContainer;}
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => transform;}
         public Transform ContentMaskContainer {get => contentMaskContainer;}
-        public Network NodeNetwork { get => nodeNetwork; set => nodeNetwork = value; }
+        public TNetwork NodeNetwork { get => nodeNetwork; set => nodeNetwork = value; }
         public NodeNetworkUIMode Mode { get => mode; set => mode = value; }
         public INodeUI CurrentSelected { get => selectedNode; set => selectedNode = value; }
-        protected Network nodeNetwork;
+        protected TNetwork nodeNetwork;
         private NodeNetworkUIMode mode = NodeNetworkUIMode.View;
         private INodeUI selectedNode;
-        public void selectNode(INodeUI nodeUI) {
-            if (CurrentSelected != null) {
-                CurrentSelected.setSelect(false);
-            }
+        private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
+        private float moveCounter = 0;
+
+        private readonly Dictionary<KeyCode, Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode, Direction>
+        {
+            { KeyCode.LeftArrow, Direction.Left },
+            { KeyCode.RightArrow, Direction.Right },
+            { KeyCode.DownArrow, Direction.Down },
+            { KeyCode.UpArrow , Direction.Up}
+        };
+        public void SelectNode(INodeUI nodeUI)
+        {
+            CurrentSelected?.SetSelect(false);
+
             CurrentSelected = nodeUI;
-            CurrentSelected.setSelect(true);
+            CurrentSelected.SetSelect(true);
         }
         /// <summary>
         /// Displays the network
         /// Ensure that the network is initalized prior to calling
         /// </summary>
-        public void display() {
+        public void Display() {
             GlobalHelper.deleteAllChildren(nodeContainer);
             GlobalHelper.deleteAllChildren(lineContainer);
-            foreach (Node node in nodeNetwork.getNodes()) {
-                generateNode(node);
+            nodeUIDict = new Dictionary<TNode, INodeUI>();
+            foreach (TNode node in nodeNetwork.getNodes()) {
+                INodeUI nodeUI = GenerateNode(node);
+                nodeUIDict[node] = nodeUI;
             }
-            displayLines();
+            DisplayLines();
         }
 
-        protected abstract void generateNode(Node node);
+        protected abstract INodeUI GenerateNode(TNode node);
 
-        public abstract void displayLines();
+        public void DeleteNode(TNode node)
+        {
+            CurrentSelected = null;
+            nodeNetwork.getNodes().Remove(node);
+            INodeUI nodeUI = nodeUIDict[node];
+            GameObject.Destroy(nodeUI.GetGameObject());
+            DisplayLines();
+        }
 
-        protected abstract bool nodeDiscovered(Node node);
+        public void RefreshNode(TNode node)
+        {
+            nodeUIDict[node].DisplayImage();
+        }
+
+        public void MoveNode(TNode node, Direction direction)
+        {
+            INodeUI nodeUI = nodeUIDict[node];
+            const int change = 64;
+            Vector3 position = node.getPosition();
+            Vector3 changeVector = Vector3.zero;
+            switch (direction)
+            {
+                case Direction.Left:
+                    changeVector = -new Vector3(change, 0);
+                    break;
+                case Direction.Right:
+                    changeVector = new Vector3(change, 0);
+                    break;
+                case Direction.Down:
+                    changeVector = -new Vector3(0, change);
+                    break;
+                case Direction.Up:
+                    changeVector = new Vector3(0, change);
+                    break;
+                case Direction.Center:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+
+            node.SetPosition(position+changeVector);
+            Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
+            nodeUIPosition += changeVector * transform.localScale.x;
+            nodeUI.GetGameObject().transform.position = nodeUIPosition;
+            DisplayLines();
+
+        }
+
+        public abstract void DisplayLines();
+
+        protected abstract bool nodeDiscovered(TNode node);
 
         public void FixedUpdate() {
-            handleRightClick();
+            HandleRightClick();
         }
 
         public void Update() {
-            handleZoom();
+            HandleZoom();
+            if (selectedNode == null) return;
+            if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
+            {
+                DeleteNode((TNode)selectedNode.GetNode());
+            }
+            const float delay = 0.2f;
+            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
+            {
+                if (!Input.GetKeyDown(keycode)) continue;
+                moveCounter += delay;
+                break;
+            }
+            moveCounter += Time.deltaTime;
+            
+            if (moveCounter < delay) return;
+            
+            moveCounter = 0;
+            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
+            {
+                if (!Input.GetKey(keycode)) continue;
+                MoveNode((TNode)selectedNode?.GetNode(),direction);
+            }
         }
 
         protected abstract void initEditMode();
-        private void handleZoom() {
+        private void HandleZoom() {
             float scrollInput = Input.GetAxis("Mouse ScrollWheel");
             if (scrollInput != 0)
             {
                 Vector3 mousePosition = Input.mousePosition;
                 Transform containerTransform = ContentContainer;
-                Vector3 newScale = containerTransform.localScale + Vector3.one * scrollInput * NodeNetworkConfig.ZOOMSPEED;
+                Vector3 newScale = containerTransform.localScale + Vector3.one * (scrollInput * NodeNetworkConfig.ZOOMSPEED);
                 newScale = new Vector3(
                     Mathf.Clamp(newScale.x, NodeNetworkConfig.MINSCALE, NodeNetworkConfig.MAXSCALE),
                     Mathf.Clamp(newScale.y, NodeNetworkConfig.MINSCALE, NodeNetworkConfig.MAXSCALE),
@@ -93,7 +176,7 @@ namespace UI.NodeNetwork {
             }
         }
 
-        private void handleRightClick() {
+        private void HandleRightClick() {
             if (!Input.GetMouseButton(1)) {
                 return;
             }
@@ -109,32 +192,41 @@ namespace UI.NodeNetwork {
             transform.position = new Vector3(clampedX,clampedY);
         }
 
-        public NodeNetworkUIMode getMode()
+        public NodeNetworkUIMode GetMode()
         {
             return mode;
         }
-        public void modifyConnection(INode clickedNode)
+        public void ModifyConnection(INode clickedNode)
         {
             if (CurrentSelected == null) {
                 return;
             }
-            INode selectedNode = CurrentSelected.getNode();
-            if (selectedNode == null) {
+            INode selectedNodeElement = CurrentSelected.GetNode();
+            if (selectedNodeElement == null) {
                 return;
             }
-            if (selectedNode.getId() == clickedNode.getId()) {
+            if (selectedNodeElement.getId() == clickedNode.getId()) {
                 return;
             }
-            HashSet<int> preReq = CurrentSelected.getNode().getPrerequisites();
-            if (!preReq.Contains(clickedNode.getId())) {
-                preReq.Add(clickedNode.getId());
-            } else {
-                preReq.Remove(clickedNode.getId());
+
+            HashSet<int> clickedPreReqs = clickedNode.getPrerequisites();
+            HashSet<int> selectedPreReqs = CurrentSelected.GetNode().getPrerequisites();
+            
+            bool connected = clickedPreReqs.Contains(selectedNodeElement.getId()) || selectedPreReqs.Contains(clickedNode.getId());
+            if (connected)
+            {
+                clickedPreReqs.Remove(selectedNodeElement.getId());
+                selectedPreReqs.Remove(clickedNode.getId());
+            }
+            else
+            {
+                selectedPreReqs.Add(clickedNode.getId());
             }
             
-            displayLines();
+            
+            DisplayLines();
         }
-        public void setMode(NodeNetworkUIMode mode)
+        public void SetMode(NodeNetworkUIMode mode)
         {
             this.mode = mode;
             switch (mode) {
@@ -145,16 +237,16 @@ namespace UI.NodeNetwork {
             }
         }
 
-        public abstract void addNode(INodeUI nodeUI);
+        public abstract void AddNode(INodeUI nodeUI);
 
-        public Transform getContentContainer()
+        public Transform GetContentContainer()
         {
             return transform;
         }
-        public abstract void placeNewNode(Vector2 position);
-        public abstract GameObject generateNewNodeObject();
+        public abstract void PlaceNewNode(Vector2 position);
+        public abstract GameObject GenerateNewNodeObject();
 
-        public Transform getNodeContainer()
+        public Transform GetNodeContainer()
         {
             return nodeContainer;
         }

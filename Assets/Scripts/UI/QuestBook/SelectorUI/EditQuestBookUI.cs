@@ -43,7 +43,7 @@ namespace UI.QuestBook {
                 library.QuestBooks[index] = library.QuestBooks[newIndex];
                 library.QuestBooks[newIndex] = swap;
                 index = newIndex;
-                selectorUI.display();
+                selectorUI.Display();
             });
             rightButton.onClick.AddListener(() => {
                 int newIndex = Global.modInt(index+1,library.QuestBooks.Count);
@@ -51,12 +51,12 @@ namespace UI.QuestBook {
                 library.QuestBooks[index] = library.QuestBooks[newIndex];
                 library.QuestBooks[newIndex] = swap;
                 index = newIndex;
-                selectorUI.display();
+                selectorUI.Display();
             });
             deleteButton.onClick.AddListener(() => {
                 if (confirmDelete.text == questBook.Title) {
                     library.QuestBooks.RemoveAt(index);
-                    selectorUI.display();
+                    selectorUI.Display();
                     GameObject.Destroy(gameObject);
                     return;
                 }
@@ -64,7 +64,7 @@ namespace UI.QuestBook {
             });
             editTitle.onValueChanged.AddListener((string value) => {
                 questBook.Title = value;
-                selectorUI.display();
+                selectorUI.Display();
             });
         }
 
@@ -92,7 +92,7 @@ namespace UI.QuestBook {
             }
         }
         public void loadSpritePanelColors() {
-            selectorUI.display();
+            selectorUI.Display();
             foreach (EditQuestBookSpriteElementUI element in listElements) {
                 element.setPanelColor();
             }

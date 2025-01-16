@@ -8,15 +8,15 @@ using UnityEngine.EventSystems;
 using UI;
 using Items;
 using Items.Inventory;
+using UI.QuestBook.Tasks.Rewards;
 
 namespace UI.QuestBook {
     public class RewardListElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mNameText;
         private List<SerializedItemSlot> itemSlots;
-        private QuestBookTaskPageUI questBookTaskPageUI;
+        private QuestBookRewardUI questBookRewardUI;
         private int index;
-        private bool Selected {get => questBookTaskPageUI.SelectedRewards.Contains(index);}
         
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -24,19 +24,18 @@ namespace UI.QuestBook {
             {
                 case PointerEventData.InputButton.Left when QuestBookHelper.EditMode:
                 {
-                    SerializedItemSlotEditorUI serializedItemSlotEditorUI = questBookTaskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    serializedItemSlotEditorUI.Init(itemSlots,index,this,questBookTaskPageUI.gameObject);
-                    serializedItemSlotEditorUI.transform.SetParent(questBookTaskPageUI.transform,false);
+                    QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
+                    SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
+                    serializedItemSlotEditorUI.Init(itemSlots,index,this,taskPageUI.gameObject);
+                    serializedItemSlotEditorUI.transform.SetParent(taskPageUI.transform,false);
                     break;
                 }
                 case PointerEventData.InputButton.Left:
                 {
-                    if (questBookTaskPageUI.RewardsSelectable) {
-                        if (Selected) {
-                            questBookTaskPageUI.RemoveReward(index);
-                        } else {
-                            questBookTaskPageUI.AddReward(index);
-                        }
+                    if (questBookRewardUI.SelectedRewards.Contains(index)) {
+                        questBookRewardUI.RemoveReward(index);
+                    } else {
+                        questBookRewardUI.AddReward(index);
                     }
 
                     break;
@@ -46,10 +45,10 @@ namespace UI.QuestBook {
             }
         }
 
-        public void Initialize(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookTaskPageUI questBookTaskPageUI) {
+        public void Initialize(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookRewardUI questBookRewardUI) {
             this.itemSlots = serializedItemSlots;
             this.index = index;
-            this.questBookTaskPageUI = questBookTaskPageUI;
+            this.questBookRewardUI = questBookRewardUI;
             reload();
         }
 
@@ -63,7 +62,7 @@ namespace UI.QuestBook {
 
         public void reloadAll()
         {
-            questBookTaskPageUI.DisplayRewards();
+            questBookRewardUI.Display();
         }
     }
 }

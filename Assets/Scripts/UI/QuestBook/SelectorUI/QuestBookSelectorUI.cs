@@ -26,7 +26,7 @@ namespace UI.QuestBook {
         private int BooksPerPage = 3;
 
         private int page = 0;
-        public void init(QuestBookLibrary library) {
+        public void Initialize(QuestBookLibrary library) {
             if (!ItemRegistry.IsLoaded) {
                 StartCoroutine(ItemRegistry.LoadItems());
             }
@@ -36,46 +36,48 @@ namespace UI.QuestBook {
                 spriteDict[spriteKey.Key] = spriteKey.Sprite;
             }
             AssetManager.load();
-            leftButton.onClick.AddListener(leftButtonClick);
-            rightButton.onClick.AddListener(rightButtonClick);
-            display();
+            leftButton.onClick.AddListener(LeftButtonClick);
+            rightButton.onClick.AddListener(RightButtonClick);
+            Display();
             addButton.onClick.AddListener(() => {
                 library.QuestBooks.Add(new QuestBook(
                     new List<QuestBookPage>(),
                     "New Book",
                     ""
                 ));
-                display();
+                Display();
             });
             addButton.gameObject.SetActive(QuestBookHelper.EditMode);
             
         }
 
-        private void leftButtonClick() {
+        private void LeftButtonClick() {
             if (page <= 0) {
                 return;
             }
             page --;
-            display();
+            Display();
         }
 
-        private void rightButtonClick() {
+        private void RightButtonClick() {
             if (page >= PageCount) {
                 return;
             }
             page ++;
-            display();
+            Display();
 
         }
 
-        public Sprite getSprite(string key) {
+        public Sprite GetSprite(string key)
+        {
+            if (key == null) return null;
             if (spriteDict.ContainsKey(key)) {
                 return spriteDict[key];
             }
             return null;
         }
 
-        public void display() {
+        public void Display() {
             for (int i = 0; i < layoutGroup.transform.childCount; i++) {
                 GameObject.Destroy(layoutGroup.transform.GetChild(i).gameObject);
             }

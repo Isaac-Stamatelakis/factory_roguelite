@@ -114,7 +114,7 @@ namespace Items {
                 case ItemDisplayType.Stack:
                     Image[] images = image.GetComponentsInChildren<Image>();
                     Sprite[] stackSprites = itemObject.getSprites();
-                    for (int i = 0; i < stackSprites.Length; i++) {
+                    for (int i = 1; i < stackSprites.Length; i++) {
                         int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
                         SetImageItemSprite(images[imageIndex],stackSprites[i]);
                     }

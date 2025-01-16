@@ -13,7 +13,7 @@ namespace UI.QuestBook {
         private string path;
         private QuestBook questBook;
         private EditQuestBookUI editQuestBookUI;
-        private bool Selected {get => questBook.SpriteKey == path;}
+        private bool Selected {get => questBook.SpritePath == path;}
 
         public void init(QuestBook questBook, EditQuestBookUI editQuestBookUI, Sprite sprite, string path) {
             this.image.sprite = sprite;
@@ -30,7 +30,7 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (!Selected) {
-                    questBook.SpriteKey = path;
+                    questBook.SpritePath = path;
                     editQuestBookUI.loadSpritePanelColors();
                 } 
             }
