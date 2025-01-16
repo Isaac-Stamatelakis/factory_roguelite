@@ -41,7 +41,7 @@ namespace UI.QuestBook {
             GameObject.Destroy(questBookSelectorUI.gameObject);
             QuestBookUI questBookUI = questBookSelectorUI.AssetManager.cloneElement<QuestBookUI>("QUEST_BOOK");
             questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
-            questBookUI.init(questBook,library,questBookSelectorUI.gameObject);
+            questBookUI.Initialize(questBook,library,questBookSelectorUI.gameObject);
         }
     }
 }

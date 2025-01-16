@@ -13,9 +13,9 @@ namespace UI.QuestBook {
     {
         protected override void setImage()
         {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(node.ImageSeralizedItemSlot);
-            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-            ItemDisplayUtils.DisplayItemSprite(image,itemSlot.itemObject,0);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
+            if (ReferenceEquals(itemObject,null)) return;
+            ItemDisplayUtils.DisplayItemSprite(image,itemObject,0);
         }
 
         protected override void openContent()

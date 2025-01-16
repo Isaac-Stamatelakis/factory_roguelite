@@ -26,11 +26,11 @@ namespace UI.QuestBook {
         private GameObject selectorObject;
         private QuestBookPage currentPage;
         private QuestBookLibrary library;
-        public void init(QuestBook questBook, QuestBookLibrary library, GameObject selectorObject) {
+        public void Initialize(QuestBook questBook, QuestBookLibrary library, GameObject selectorObject) {
             this.questBook = questBook;
             this.selectorObject = selectorObject;
             this.library = library;
-            this.backButton.onClick.AddListener(backButtonPress);
+            this.backButton.onClick.AddListener(BackButtonPress);
 
             AssetManager.load();
             
@@ -39,45 +39,44 @@ namespace UI.QuestBook {
             } else {
                 addChapter.onClick.AddListener(() => {
                     questBook.Pages.Add(new QuestBookPage("New Page", new List<QuestBookNode>()));
-                    loadPageChapters();
+                    LoadPageChapters();
                 });
             }
-            loadPageChapters();
-            displayPageIndex(0);
+            LoadPageChapters();
+            DisplayPageIndex(0);
         }
 
-        public void loadPageChapters() {
+        public void LoadPageChapters() {
             for (int i = 0; i < mChapterList.transform.childCount; i++) {
                 GameObject.Destroy(mChapterList.transform.GetChild(i).gameObject);
             }
             for (int i = 0; i < questBook.Pages.Count; i++) {
-                QuestPageChapterButton chapterButton = GameObject.Instantiate(chapterButtonPrefab);
-                chapterButton.transform.SetParent(mChapterList.transform,false);
+                QuestPageChapterButton chapterButton = GameObject.Instantiate(chapterButtonPrefab, mChapterList.transform, false);
                 chapterButton.init(this,questBook.Pages[i],i);
             }
         }
 
-        private void backButtonPress() {
+        private void BackButtonPress() {
             QuestBookSelectorUI selectorUI = AssetManager.cloneElement<QuestBookSelectorUI>("TITLE");
             selectorUI.transform.SetParent(transform.parent,false);
             selectorUI.init(library);
             GameObject.Destroy(gameObject);
         }
         
-        public void displayPageIndex(int index) {
+        public void DisplayPageIndex(int index) {
             if (index < 0 || index >= questBook.Pages.Count) {
                 return;
             }
-            displayPage(questBook.Pages[index]);
+            DisplayPage(questBook.Pages[index]);
         }
 
-        private void displayPage(QuestBookPage page) {
+        private void DisplayPage(QuestBookPage page) {
             currentPage = page;
-            pageUI.init(page,questBook,library,this);
-            pageUI.display();
+            pageUI.Initialize(page,questBook,library,this);
+            pageUI.Display();
         }
-        public void displayCurrentPage() {
-            displayPage(currentPage);
+        public void DisplayCurrentPage() {
+            DisplayPage(currentPage);
         }
     }
     

@@ -22,7 +22,7 @@ namespace UI.QuestBook {
             this.node = node;
             this.questBookPageUI = questBookPageUI;
             backButton.onClick.AddListener(() => {
-                questBookPageUI.displayLines();
+                questBookPageUI.DisplayLines();
                 GameObject.Destroy(gameObject);
             });
 

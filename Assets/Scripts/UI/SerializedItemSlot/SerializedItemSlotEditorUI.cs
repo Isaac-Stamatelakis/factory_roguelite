@@ -147,7 +147,8 @@ namespace UI {
                 itemSlots[index].tags
             );
             itemSlots[index] = serializedItemSlot;
-            reloadable.reload();
+      
+            reloadable?.reload();
             SetImage();
         }
 

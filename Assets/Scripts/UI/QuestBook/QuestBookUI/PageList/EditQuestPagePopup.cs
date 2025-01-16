@@ -24,7 +24,7 @@ namespace UI.QuestBook {
             this.questBookUI = questBookUI;
             QuestBookPage page = pages[index];
             inputField.text = page.Title;
-            inputField.onValueChanged.AddListener((string value) => {page.Title = value;questBookUI.loadPageChapters();});
+            inputField.onValueChanged.AddListener((string value) => {page.Title = value;questBookUI.LoadPageChapters();});
             upButton.onClick.AddListener(moveUp);
             downButton.onClick.AddListener(moveDown);
             backButton.onClick.AddListener(backButtonPress);
@@ -51,7 +51,7 @@ namespace UI.QuestBook {
             pages[index] = pages[newIndex];
             pages[newIndex] = swap;
             index = newIndex;
-            questBookUI.loadPageChapters();
+            questBookUI.LoadPageChapters();
         }
 
         private void moveDown() {
@@ -60,14 +60,14 @@ namespace UI.QuestBook {
             pages[index] = pages[newIndex];
             pages[newIndex] = swap;
             index = newIndex;
-            questBookUI.loadPageChapters();
+            questBookUI.LoadPageChapters();
         }
 
         private void deleteButtonPress() {
             
             if (timeSinceLastDeletePress <= 1f) {
                 pages.RemoveAt(index);
-                questBookUI.loadPageChapters();
+                questBookUI.LoadPageChapters();
                 GameObject.Destroy(gameObject);
             }
             timeSinceLastDeletePress = 0;

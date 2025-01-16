@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace UI.QuestBook {
     public static class QuestBookUIFactory
     {
-        public static void generateLine(Vector2 nodeAPosition, Vector2 nodeBPosition, Transform container, bool discovered, GameObject linePrefab) {
+        public static void GenerateLine(Vector2 nodeAPosition, Vector2 nodeBPosition, Transform container, bool discovered, GameObject linePrefab) {
             GameObject line = GameObject.Instantiate(linePrefab);
             RectTransform rectTransform = line.GetComponent<RectTransform>();
             line.transform.position = (nodeAPosition+nodeBPosition)/2f;
@@ -17,7 +17,7 @@ namespace UI.QuestBook {
             Vector2 direction = (nodeBPosition - nodeAPosition).normalized;
             Quaternion rotation = Quaternion.FromToRotation(Vector2.up, direction);
             line.transform.rotation = rotation;
-            line.transform.SetParent(container,false);
+            line.transform.SetParent(container,false); // Even though rider suggests changing this it is wrong to
         }
     }
 }

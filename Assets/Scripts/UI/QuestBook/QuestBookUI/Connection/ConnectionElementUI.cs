@@ -21,11 +21,8 @@ namespace UI.QuestBook {
         public void init(HashSet<int> nodeConnections, QuestBookNode node) {
             this.node = node;
             this.nodeConnections = nodeConnections;
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(node.ImageSeralizedItemSlot);
-            if (itemSlot != null)
-            {
-                mImage.sprite = itemSlot.itemObject?.getSprite();
-            }
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);
+            mImage.sprite = itemObject?.getSprite();
             nameText.text = node.Content.Title;
             idText.text = "#" + node.Id.ToString();
             setColor();

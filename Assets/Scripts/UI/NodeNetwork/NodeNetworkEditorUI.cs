@@ -15,11 +15,11 @@ namespace UI.NodeNetwork {
             this.nodeNetworkUI = nodeNetworkUI;
             addNode.onClick.AddListener(addButtonClick);
             toggleConnectionMode.onClick.AddListener(() => {
-                NodeNetworkUIMode mode = nodeNetworkUI.getMode();
+                NodeNetworkUIMode mode = nodeNetworkUI.GetMode();
                 mode = mode == NodeNetworkUIMode.EditConnection
                     ? NodeNetworkUIMode.View
                     : NodeNetworkUIMode.EditConnection;
-                nodeNetworkUI.setMode(mode);
+                nodeNetworkUI.SetMode(mode);
                 switch (mode) {
                     case NodeNetworkUIMode.View:
                         toggleConnectionPanel.color = new Color(0,1f,0f,200f/255f);
@@ -36,8 +36,8 @@ namespace UI.NodeNetwork {
         }
         
         private void addButtonClick() {
-            spawnedNodeObject = nodeNetworkUI.generateNewNodeObject();
-            spawnedNodeObject.transform.SetParent(nodeNetworkUI.getNodeContainer(),false);
+            spawnedNodeObject = nodeNetworkUI.GenerateNewNodeObject();
+            spawnedNodeObject.transform.SetParent(nodeNetworkUI.GetNodeContainer(),false);
         }
 
         public void Update() {
@@ -49,12 +49,12 @@ namespace UI.NodeNetwork {
                 return;
             }
             Vector2 mousePosition = Input.mousePosition;
-            Transform contentContainer = nodeNetworkUI.getContentContainer();
+            Transform contentContainer = nodeNetworkUI.GetContentContainer();
             Vector2 gridPosition = snapGrid(mousePosition,contentContainer.position,contentContainer.localScale.x);
             spawnedNodeObject.transform.position = gridPosition;
             if (Input.GetMouseButton(0)) {
-                nodeNetworkUI.placeNewNode(spawnedNodeObject.transform.localPosition);
-                nodeNetworkUI.display();
+                nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
+                nodeNetworkUI.Display();
                 spawnedNodeObject = null;
             }
         }

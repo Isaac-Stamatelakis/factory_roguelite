@@ -42,7 +42,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                questBookUI.displayPageIndex(index);
+                questBookUI.DisplayPageIndex(index);
             } else if (eventData.button == PointerEventData.InputButton.Right) {
                 handleRightClick();
             }

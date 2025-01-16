@@ -98,7 +98,7 @@ namespace UI.QuestBook {
             return new SerializedQuestBookNode(
                 questBookNode.X,
                 questBookNode.Y,
-                questBookNode.ImageSeralizedItemSlot,
+                JsonConvert.SerializeObject(questBookNode.ImageSeralizedItemSlot),
                 convertQuestBookNodeContent(questBookNode.Content),
                 questBookNode.Prerequisites,
                 questBookNode.Id,
@@ -113,6 +113,7 @@ namespace UI.QuestBook {
                 content.Description,
                 content.Title,
                 JsonConvert.SerializeObject(content.Rewards),
+                JsonConvert.SerializeObject(content.CommandRewards),
                 content.NumberOfRewards
             );
         }
@@ -154,7 +155,7 @@ namespace UI.QuestBook {
         private static QuestBookNode deseralizeNode(SerializedQuestBookNode node) {
             return new QuestBookNode(
                 new Vector2(node.x,node.y), 
-                node.itemImageID,
+                JsonConvert.DeserializeObject<SerializedItemSlot>(node.serializedItemImage),
                 deseralizeContent(node.content),
                 node.connections,
                 node.id,
@@ -169,6 +170,7 @@ namespace UI.QuestBook {
                 content.description,
                 content.title,
                 JsonConvert.DeserializeObject<List<SerializedItemSlot>>(content.rewards),
+                JsonConvert.DeserializeObject<List<QuestBookCommandReward>>(content.commandRewards),
                 content.numberOfRewards
             );
         }
@@ -203,17 +205,17 @@ namespace UI.QuestBook {
 
         private class SerializedQuestBookNode {
             public HashSet<int> connections;
-            public string itemImageID;
+            public string serializedItemImage;
             public float x;
             public float y;
             public int id;
             public SerializedQuestBookContent content;
             public bool requireAllPrerequisites;
 
-            public SerializedQuestBookNode(float x, float y, string itemImageID, SerializedQuestBookContent content, HashSet<int> connections, int id, bool requireAllPrerequisites) {
+            public SerializedQuestBookNode(float x, float y, string serializedItemImage, SerializedQuestBookContent content, HashSet<int> connections, int id, bool requireAllPrerequisites) {
                 this.x = x;
                 this.y = y;
-                this.itemImageID = itemImageID;
+                this.serializedItemImage = serializedItemImage;
                 this.connections = connections;
                 this.content = content;
                 this.id = id;
@@ -227,11 +229,13 @@ namespace UI.QuestBook {
             public string title;
             public int numberOfRewards;
             public string rewards;
-            public SerializedQuestBookContent(string task, string description, string title, string rewards, int numberOfRewards) {
+            public string commandRewards;
+            public SerializedQuestBookContent(string task, string description, string title, string rewards, string commandRewards, int numberOfRewards) {
                 this.task = task;
                 this.description = description;
                 this.title = title;
                 this.rewards = rewards;
+                this.commandRewards = commandRewards;
                 this.numberOfRewards = numberOfRewards;
             }
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Newtonsoft.Json;
 using UnityEngine.Serialization;
 
 
@@ -20,6 +21,7 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
         [FormerlySerializedAs("addRewardButton")] [SerializeField] private Button mAddRewardButton;
+        [SerializeField] private Button mEditImageButton;
         [SerializeField] private RewardListElement rewardListElementPrefab;
 
         private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
@@ -73,17 +75,28 @@ namespace UI.QuestBook {
                 questBookPageUI.gameObject.SetActive(true);
                 GameObject.Destroy(gameObject);
             });
-            mEditButton.onClick.AddListener(() => {
-                EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
-                connectionsPageUI.init(node,questBookPageUI);
-                Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
-                connectionsPageUI.transform.SetParent(canvas.transform,false);
-            });
+            
             if (!QuestBookHelper.EditMode)
             {
-                mChangeTaskDropDown.gameObject.SetActive(false);
+                mChangeTaskDropDown.interactable = false;
                 mAddRewardButton.gameObject.SetActive(false);
+                mEditImageButton.gameObject.SetActive(false);
             }
+            else
+            {
+                mEditButton.onClick.AddListener(() => {
+                    EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
+                    connectionsPageUI.init(node,questBookPageUI);
+                    Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
+                    connectionsPageUI.transform.SetParent(canvas.transform,false);
+                }); 
+                mEditImageButton.onClick.AddListener(() => {
+                    SerializedItemSlotEditorUI serializedItemSlotEditor = AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
+                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,gameObject);
+                    serializedItemSlotEditor.transform.SetParent(transform,false);
+                }); 
+            }
+            
         }
 
         private void SetTaskContent() {
