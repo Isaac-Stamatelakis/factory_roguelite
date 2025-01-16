@@ -83,7 +83,7 @@ namespace UI.QuestBook {
 
         private void displayConnection(int id) {
             ConnectionElementUI connectionElementUI = GameObject.Instantiate(connectionElementUIPrefab);
-            connectionElementUI.init(node.Prerequisites,questBookPageUI.Library.getNode(id));
+            connectionElementUI.init(node.Prerequisites,questBookPageUI.Library.GetNode(id));
             connectionElementUI.transform.SetParent(connectionList.transform,false);
         }
     }

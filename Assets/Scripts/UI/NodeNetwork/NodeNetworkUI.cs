@@ -105,7 +105,7 @@ namespace UI.NodeNetwork {
 
             node.SetPosition(position+changeVector);
             Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
-            nodeUIPosition += changeVector;
+            nodeUIPosition += changeVector * transform.localScale.x;
             nodeUI.GetGameObject().transform.position = nodeUIPosition;
             DisplayLines();
 

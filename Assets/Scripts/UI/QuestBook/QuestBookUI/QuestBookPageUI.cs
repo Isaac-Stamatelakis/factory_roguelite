@@ -41,7 +41,7 @@ namespace UI.QuestBook {
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
                     bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.GenerateLine(questBookNode.Position,otherNode.Position,LineContainer,discovered,linePrefab);
+                    QuestBookUIFactory.GenerateLine(questBookNode.getPosition(),otherNode.getPosition(),LineContainer,discovered,linePrefab);
                 }
             }
         }
@@ -93,16 +93,15 @@ namespace UI.QuestBook {
                     new CheckMarkQuestTask(),
                     "Empty Description",
                     "New Task",
-                    new List<SerializedItemSlot>(),
-                    new List<QuestBookCommandReward>(),
-                    int.MaxValue
+                    new QuestBookItemRewards(new List<SerializedItemSlot>(), int.MaxValue),
+                    new QuestBookCommandRewards(new List<QuestBookCommandReward>())
                 ),
                 new HashSet<int>(),
-                library.getSmallestNewID(),
+                library.GetSmallestNewID(),
                 true
             );
             nodeNetwork.Nodes.Add(node);
-            library.addNode(node);
+            library.AddNode(node);
         }
 
         public override GameObject GenerateNewNodeObject()

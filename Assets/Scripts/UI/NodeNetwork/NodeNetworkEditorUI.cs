@@ -13,24 +13,32 @@ namespace UI.NodeNetwork {
         protected INodeNetworkUI nodeNetworkUI;
         public void init(INodeNetworkUI nodeNetworkUI) {
             addNode.onClick.RemoveAllListeners();
+            toggleConnectionMode.onClick.RemoveAllListeners();
             
             this.nodeNetworkUI = nodeNetworkUI;
             addNode.onClick.AddListener(addButtonClick);
+            SetConnectionButtonColor();
             toggleConnectionMode.onClick.AddListener(() => {
                 NodeNetworkUIMode mode = nodeNetworkUI.GetMode();
                 mode = mode == NodeNetworkUIMode.EditConnection
                     ? NodeNetworkUIMode.View
                     : NodeNetworkUIMode.EditConnection;
                 nodeNetworkUI.SetMode(mode);
-                switch (mode) {
-                    case NodeNetworkUIMode.View:
-                        toggleConnectionPanel.color = new Color(0,1f,0f,200f/255f);
-                        break;
-                    case NodeNetworkUIMode.EditConnection:
-                        toggleConnectionPanel.color = new Color(1f,0f,0f,200f/255f);
-                        break;
-                }
+                SetConnectionButtonColor();
             });
+        }
+
+        private void SetConnectionButtonColor()
+        {
+            NodeNetworkUIMode mode = nodeNetworkUI.GetMode();
+            switch (mode) {
+                case NodeNetworkUIMode.View:
+                    toggleConnectionPanel.color = new Color(0,1f,0f,200f/255f);
+                    break;
+                case NodeNetworkUIMode.EditConnection:
+                    toggleConnectionPanel.color = new Color(1f,0f,0f,200f/255f);
+                    break;
+            }
         }
 
         public void OnDestroy() {

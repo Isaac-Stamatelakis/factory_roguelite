@@ -5,27 +5,18 @@ using UnityEngine;
 namespace UI.QuestBook {
     public class QuestBookNodeContent
     {
-        private QuestBookTask task;
-        private string description;
-        private string title;
+        public QuestBookTask Task;
+        public string Description;
+        public string Title;
         private List<SerializedItemSlot> rewards;
-        private List<QuestBookCommandReward> commandRewards;
-        private int numberOfRewards;
-
-        public QuestBookTask Task { get => task; set => task = value; }
-        public string Description { get => description; set => description = value; }
-        public string Title { get => title; set => title = value; }
-        public List<SerializedItemSlot> Rewards { get => rewards; set => rewards = value; }
-        public List<QuestBookCommandReward> CommandRewards { get => commandRewards; set => commandRewards = value; }
-        public int NumberOfRewards { get => numberOfRewards; set => numberOfRewards = value; }
-
-        public QuestBookNodeContent(QuestBookTask task, string description, string title, List<SerializedItemSlot> rewards, List<QuestBookCommandReward> commandRewards, int numberOfRewards) {
-            this.task = task;
-            this.description = description;
-            this.title = title;
-            this.rewards = rewards;
-            this.commandRewards = commandRewards;
-            this.numberOfRewards = numberOfRewards;
+        public QuestBookItemRewards ItemRewards;
+        public QuestBookCommandRewards CommandRewards;
+        public QuestBookNodeContent(QuestBookTask task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards) {
+            this.Task = task;
+            this.Description = description;
+            this.Title = title;
+            this.ItemRewards = itemRewards;
+            this.CommandRewards = commandRewards;
         }
     }
 
@@ -38,6 +29,33 @@ namespace UI.QuestBook {
         {
             Description = description;
             Command = command;
+        }
+    }
+
+    public class QuestBookReward
+    {
+        public bool Claimed;
+    }
+
+    public class QuestBookItemRewards : QuestBookReward
+    {
+        public int Selectable;
+        public List<SerializedItemSlot> Rewards;
+
+        public QuestBookItemRewards(List<SerializedItemSlot> rewards, int selectable)
+        {
+            Rewards = rewards;
+            Selectable = selectable;
+        }
+    }
+
+    public class QuestBookCommandRewards : QuestBookReward
+    {
+        public List<QuestBookCommandReward> CommandRewards;
+
+        public QuestBookCommandRewards(List<QuestBookCommandReward> commandRewards)
+        {
+            CommandRewards = commandRewards;
         }
     }
 

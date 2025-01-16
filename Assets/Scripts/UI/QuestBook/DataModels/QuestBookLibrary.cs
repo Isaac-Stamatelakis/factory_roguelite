@@ -9,22 +9,21 @@ namespace UI.QuestBook {
     /// </summary>
     public class QuestBookLibrary
     {
-        private List<QuestBook> questBooks;
-
-        public List<QuestBook> QuestBooks { get => questBooks; set => questBooks = value; }
+        public List<QuestBook> QuestBooks;
         [JsonIgnore] public Dictionary<int, QuestBookNode> IdNodeMap { get => idNodeMap;}
-
+        [JsonIgnore] private Dictionary<int, QuestBookNode> idNodeMap;
+        
         public QuestBookLibrary(List<QuestBook> books) {
-            this.questBooks = books;
-            initIdNodeMap();
+            this.QuestBooks = books;
+            InitializeIdNodeMap();
         }
-        private void initIdNodeMap() {
+        public void InitializeIdNodeMap() {
             idNodeMap = new Dictionary<int, QuestBookNode>();
-            foreach (QuestBook questBook in questBooks) {
+            foreach (QuestBook questBook in QuestBooks) {
                 foreach (QuestBookPage page in questBook.Pages) {
                     foreach (QuestBookNode node in page.Nodes) {
-                        if (idNodeMap.ContainsKey(node.Id)) {
-                            Debug.LogWarning("Nodes " + node.Content.Title + " and " + idNodeMap[node.Id].Content.Title+ " have duplicate id:" + node.Id);
+                        if (idNodeMap.TryGetValue(node.Id, out var value)) {
+                            Debug.LogWarning("Nodes " + node.Content.Title + " and " + value.Content.Title+ " have duplicate id:" + node.Id);
                             continue;
                         }
                         idNodeMap[node.Id] = node;
@@ -33,7 +32,7 @@ namespace UI.QuestBook {
             }
         }
 
-        public int getSmallestNewID() {
+        public int GetSmallestNewID() {
             int smallestNewID = 0;
             while (idNodeMap.ContainsKey(smallestNewID)) {
                 smallestNewID++;
@@ -41,29 +40,26 @@ namespace UI.QuestBook {
             return smallestNewID;
         }
 
-        public void addNode(QuestBookNode node) {
+        public void AddNode(QuestBookNode node) {
             idNodeMap[node.Id] = node;
         }
 
-        public QuestBookNode getNode(int id) {
+        public QuestBookNode GetNode(int id) {
             if (idNodeMap.ContainsKey(id)) {
                 return idNodeMap[id];
             }
             return null;
         }
-
-        public void removeNode(QuestBookNode node) {
+        public void RemoveNode(QuestBookNode node) {
             if (idNodeMap.ContainsKey(node.Id)) {
                 idNodeMap.Remove(node.Id);
             }
         }
-
-        
-        [JsonIgnore] private Dictionary<int, QuestBookNode> idNodeMap;
     }
-
+    
     public static class QuestBookLibraryFactory {
-        public static string seralize(QuestBookLibrary library) {
+        public static string seralize(QuestBookLibrary library)
+        {
             List<SerializedQuestBook> serializedBooks = new List<SerializedQuestBook>();
             foreach (QuestBook questBook in library.QuestBooks) {
                 serializedBooks.Add(convertQuestBook(questBook));
@@ -71,6 +67,7 @@ namespace UI.QuestBook {
             SerializedQuestBookLibrary serializedQuestBookLibrary = new SerializedQuestBookLibrary(serializedBooks);
             return JsonConvert.SerializeObject(serializedQuestBookLibrary);
         }
+        
         private static SerializedQuestBook convertQuestBook(QuestBook questBook) {
             List<SerializedQuestBookPage> pages = new List<SerializedQuestBookPage>();
             foreach (QuestBookPage page in questBook.Pages) {
@@ -79,7 +76,7 @@ namespace UI.QuestBook {
             return new SerializedQuestBook(
                 pages,
                 questBook.Title,
-                questBook.SpriteKey
+                questBook.SpritePath
             );
         }
 
@@ -112,9 +109,8 @@ namespace UI.QuestBook {
                 seralizedTask,
                 content.Description,
                 content.Title,
-                JsonConvert.SerializeObject(content.Rewards),
-                JsonConvert.SerializeObject(content.CommandRewards),
-                content.NumberOfRewards
+                content.ItemRewards,
+                content.CommandRewards
             );
         }
 
@@ -154,7 +150,7 @@ namespace UI.QuestBook {
 
         private static QuestBookNode deseralizeNode(SerializedQuestBookNode node) {
             return new QuestBookNode(
-                new Vector2(node.x,node.y), 
+                new Vector2(node.x,node.y),
                 JsonConvert.DeserializeObject<SerializedItemSlot>(node.serializedItemImage),
                 deseralizeContent(node.content),
                 node.connections,
@@ -169,9 +165,8 @@ namespace UI.QuestBook {
                 task,
                 content.description,
                 content.title,
-                JsonConvert.DeserializeObject<List<SerializedItemSlot>>(content.rewards),
-                JsonConvert.DeserializeObject<List<QuestBookCommandReward>>(content.commandRewards),
-                content.numberOfRewards
+                content.ItemRewards,
+                content.CommandRewards
             );
         }
 
@@ -228,17 +223,18 @@ namespace UI.QuestBook {
             public string description;
             public string title;
             public int numberOfRewards;
-            public string rewards;
-            public string commandRewards;
-            public SerializedQuestBookContent(string task, string description, string title, string rewards, string commandRewards, int numberOfRewards) {
+            public QuestBookItemRewards ItemRewards;
+            public QuestBookCommandRewards CommandRewards;
+            public SerializedQuestBookContent(string task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards) {
                 this.task = task;
                 this.description = description;
                 this.title = title;
-                this.rewards = rewards;
-                this.commandRewards = commandRewards;
-                this.numberOfRewards = numberOfRewards;
+                this.ItemRewards = itemRewards;
+                this.CommandRewards = commandRewards;
             }
         }
+    
     }
+
 }
 

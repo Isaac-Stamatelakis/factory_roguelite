@@ -68,7 +68,9 @@ namespace UI.QuestBook {
 
         }
 
-        public Sprite getSprite(string key) {
+        public Sprite getSprite(string key)
+        {
+            if (key == null) return null;
             if (spriteDict.ContainsKey(key)) {
                 return spriteDict[key];
             }

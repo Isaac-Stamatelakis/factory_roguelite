@@ -18,14 +18,15 @@ namespace UI.QuestBook {
         void Start()
         {
             Debug.Log(Application.persistentDataPath);
-            string json = "null";
+            string json = null;
             if (File.Exists(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH)) {
                 json = File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
             }
-            try {
+            try
+            {
                 library = QuestBookLibraryFactory.deseralize(json);
             } catch (Exception e)  {
-                Debug.LogWarning(e);
+                Debug.LogError(e);
                 library = null;
             }
             
@@ -62,6 +63,7 @@ namespace UI.QuestBook {
                 };
                 library = new QuestBookLibrary(books);
             }
+            
             GameObject container = new GameObject();
             RectTransform rectTransform = container.AddComponent<RectTransform>();
             rectTransform.anchorMin = new Vector2(0,0);
