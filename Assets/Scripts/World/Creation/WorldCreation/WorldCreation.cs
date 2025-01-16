@@ -31,6 +31,7 @@ namespace WorldModule {
             Debug.Log("World Folder Created at " + path);
             
             InitializeMetaData(WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta));
+            
             string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
@@ -44,7 +45,7 @@ namespace WorldModule {
             WorldMetaData worldMetaData =
                 new WorldMetaData(DateTime.Now, DateTime.Now, new List<string>
                 {
-                    Tier.Basic.ToString()
+                    "0"
                 });
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
             File.WriteAllText(path, json);

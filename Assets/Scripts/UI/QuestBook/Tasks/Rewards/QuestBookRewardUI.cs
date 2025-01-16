@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UI.QuestBook.Tasks.Rewards.Command;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -19,8 +20,10 @@ namespace UI.QuestBook.Tasks.Rewards
         [SerializeField] private VerticalLayoutGroup mElementContainer;
         [SerializeField] private Button mClaimButton;
         [SerializeField] private Button mAddButton;
-        
+
+        [SerializeField] private QuestCommandEditorUI questCommandEditorUIPrefab;
         [SerializeField] private RewardListElement rewardListElementPrefab;
+        [SerializeField] private CommandRewardListElement commandRewardListElementPrefab;
         [SerializeField] private TextMeshProUGUI textPrefab;
         
         private RewardPage currentPage = RewardPage.Items;
@@ -107,6 +110,11 @@ namespace UI.QuestBook.Tasks.Rewards
                     }
                     break;
                 case RewardPage.Commands:
+                    QuestBookCommandRewards commandRewards = content.CommandRewards;
+                    for (int i = 0; i < commandRewards.CommandRewards.Count; i++) {
+                        CommandRewardListElement commandRewardListElement = GameObject.Instantiate(commandRewardListElementPrefab, mElementContainer.transform, false);
+                        commandRewardListElement.Initialize(this,commandRewards,i);
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -132,13 +140,14 @@ namespace UI.QuestBook.Tasks.Rewards
             {
                 case RewardPage.Items:
                     content.ItemRewards.Rewards.Add(new SerializedItemSlot("stone",1,null));
-                    Display();
                     break;
                 case RewardPage.Commands:
+                    content.CommandRewards.CommandRewards.Add(new QuestBookCommandReward("Empty Description", "/help"));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            Display();
         }
         
         public void AddReward(int index) {
@@ -152,6 +161,13 @@ namespace UI.QuestBook.Tasks.Rewards
 
         public void RemoveReward(int index) {
             SelectedRewards.RemoveAt(index);
+        }
+
+        public void DisplayCommandRewardEditor(int index)
+        {
+            QuestCommandEditorUI editorUI = Instantiate(questCommandEditorUIPrefab, parentUI.transform, false);
+            editorUI.Initialize(content.CommandRewards,this,index);
+            
         }
     }
 }
