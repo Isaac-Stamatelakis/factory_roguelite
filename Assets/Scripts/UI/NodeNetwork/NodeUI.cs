@@ -9,6 +9,7 @@ namespace UI.NodeNetwork {
         public void SetSelect(bool val);
         public INode GetNode();
         public GameObject GetGameObject();
+        public void DisplayImage();
     }
     public abstract class NodeUI<Node,NetworkUI> : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, ILongClickable, INodeUI
     where Node : INode where NetworkUI : INodeNetworkUI
@@ -24,12 +25,12 @@ namespace UI.NodeNetwork {
             this.node = node;
             this.nodeNetwork = nodeNetwork;
             holdClickInstance = new LongClickHandler(this);
-            setImage();
+            DisplayImage();
             transform.position = node.getPosition();
             
         }
 
-        protected abstract void setImage();
+        public abstract void DisplayImage();
         public void Update()
         {
             holdClickInstance?.checkHoldStatus();

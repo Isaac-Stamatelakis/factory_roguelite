@@ -92,13 +92,26 @@ namespace UI.QuestBook {
                 }); 
                 mEditImageButton.onClick.AddListener(() => {
                     SerializedItemSlotEditorUI serializedItemSlotEditor = AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,gameObject);
+                    if (node.ImageSeralizedItemSlot == null)
+                    {
+                        node.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
+                    }
+
+                    void Callback(SerializedItemSlot itemSlot) // Experimenting with inline function definitions
+                    {
+                        node.ImageSeralizedItemSlot = itemSlot;
+                        questBookPageUI.RefreshNode(node);
+                    }
+
+                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,
+                        gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 
             }
             
         }
-
+        
+        
         private void SetTaskContent() {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);

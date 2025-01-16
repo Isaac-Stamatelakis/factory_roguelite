@@ -15,7 +15,9 @@ namespace UI.QuestBook {
         public QuestBook QuestBook {get => questBook;}
         private QuestBookUI questBookUI;
         public QuestBookUI QuestBookUI {get => questBookUI;}
-        public void Initialize(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI) {
+        public void Initialize(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI)
+        {
+            CurrentSelected = null;
             this.NodeNetwork = questBookPage;
             this.questBook = questBook;
             this.library = questBookLibrary;

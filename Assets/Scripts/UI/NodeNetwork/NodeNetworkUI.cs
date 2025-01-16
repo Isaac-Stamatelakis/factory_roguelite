@@ -72,6 +72,11 @@ namespace UI.NodeNetwork {
             DisplayLines();
         }
 
+        public void RefreshNode(TNode node)
+        {
+            nodeUIDict[node].DisplayImage();
+        }
+
         public void MoveNode(TNode node, Direction direction)
         {
             INodeUI nodeUI = nodeUIDict[node];

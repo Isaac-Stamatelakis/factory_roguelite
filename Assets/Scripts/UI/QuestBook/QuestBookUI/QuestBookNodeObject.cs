@@ -11,7 +11,7 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
     {
-        protected override void setImage()
+        public override void DisplayImage()
         {
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
             if (ReferenceEquals(itemObject,null)) return;

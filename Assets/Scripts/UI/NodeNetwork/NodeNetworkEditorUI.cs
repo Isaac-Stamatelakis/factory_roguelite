@@ -12,6 +12,8 @@ namespace UI.NodeNetwork {
         private GameObject spawnedNodeObject;
         protected INodeNetworkUI nodeNetworkUI;
         public void init(INodeNetworkUI nodeNetworkUI) {
+            addNode.onClick.RemoveAllListeners();
+            
             this.nodeNetworkUI = nodeNetworkUI;
             addNode.onClick.AddListener(addButtonClick);
             toggleConnectionMode.onClick.AddListener(() => {

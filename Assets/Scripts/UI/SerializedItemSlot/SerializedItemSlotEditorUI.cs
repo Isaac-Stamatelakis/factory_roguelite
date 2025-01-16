@@ -41,20 +41,23 @@ namespace UI {
         private IItemListReloadable reloadable;
         private float timeSinceLastDeletePress = 2f;
         private Type itemType;
+        private Action<SerializedItemSlot> callback;
         public void Init(
             List<SerializedItemSlot> serializedItemSlots, int index, IItemListReloadable reloadable, GameObject goBackTo, 
-            Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true
+            Type itemType = null, bool displayTags = true, bool displayArrows = true, bool displayAmount = true, bool displayTrash = true, Action<SerializedItemSlot> callback = null
         ) {
             this.itemSlots = serializedItemSlots;
             this.initalSize = scrollRect.content.sizeDelta.y;
             this.index = index;
             this.reloadable = reloadable;
             this.itemType = itemType;
+            this.callback = callback;
 
             upButton.gameObject.SetActive(displayArrows);
             downButton.gameObject.SetActive(displayArrows);
             tagInput.gameObject.SetActive(displayTags);
             amountField.gameObject.SetActive(displayAmount);
+            deleteButton.gameObject.SetActive(displayTrash);
             SetImage();
             
             backButton.onClick.AddListener(() => {
@@ -147,7 +150,7 @@ namespace UI {
                 itemSlots[index].tags
             );
             itemSlots[index] = serializedItemSlot;
-      
+            callback?.Invoke(serializedItemSlot);
             reloadable?.reload();
             SetImage();
         }
