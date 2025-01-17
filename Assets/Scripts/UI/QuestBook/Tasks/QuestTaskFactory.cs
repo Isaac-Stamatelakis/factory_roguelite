@@ -10,7 +10,7 @@ namespace UI.QuestBook {
         public static string seralizeList(List<QuestBookTask> tasks) {
             List<SerializedTaskQuest> seralized = new List<SerializedTaskQuest>();
             foreach (QuestBookTask task in tasks) {
-                QuestTaskType taskType = task.getTaskType();
+                QuestTaskType taskType = task.GetTaskType();
                 string taskJson = JsonConvert.SerializeObject(task);
                 seralized.Add(new SerializedTaskQuest(taskJson,taskType.ToString()));
             }
@@ -21,7 +21,7 @@ namespace UI.QuestBook {
             if (task == null) {
                 return null;
             }
-            QuestTaskType taskType = task.getTaskType();
+            QuestTaskType taskType = task.GetTaskType();
             string taskJson = JsonConvert.SerializeObject(task);
             return JsonConvert.SerializeObject(new SerializedTaskQuest(taskJson,taskType.ToString()));
         }

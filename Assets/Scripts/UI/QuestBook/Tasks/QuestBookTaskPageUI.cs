@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UI.QuestBook.Tasks.Rewards;
 using UnityEngine.Serialization;
@@ -47,9 +48,11 @@ namespace UI.QuestBook {
             }
             
             mQuestBookRewardUI.Initialize(node.Content,this);
+            
             mTitleField.interactable = QuestBookHelper.EditMode;
             mDescriptionField.interactable = QuestBookHelper.EditMode;
             DisplayRewards();
+            mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
             if (QuestBookHelper.EditMode) {
                 mTitleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
                 mDescriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
@@ -61,7 +64,7 @@ namespace UI.QuestBook {
                 }
                 mChangeTaskDropDown.AddOptions(options);
 
-                QuestTaskType? currentTask = Content.Task == null ? null : Content.Task.getTaskType();
+                QuestTaskType? currentTask = Content.Task == null ? null : Content.Task.GetTaskType();
                 int currentTaskIndex = currentTask == null ? 0 : (int) currentTask;
                 mChangeTaskDropDown.value = currentTaskIndex;
                 mChangeTaskDropDown.onValueChanged.AddListener(DropDownValueChanged);
@@ -77,6 +80,7 @@ namespace UI.QuestBook {
                 mChangeTaskDropDown.interactable = false;
                 mAddRewardButton.gameObject.SetActive(false);
                 mEditImageButton.gameObject.SetActive(false);
+                mEditButton.gameObject.SetActive(false);
             }
             else
             {
@@ -104,7 +108,42 @@ namespace UI.QuestBook {
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 
             }
+
+            UpdateSubmissionButton();
+            mCheckSubmissionButton.onClick.AddListener(CheckTask);
             
+        }
+
+        private void CheckTask()
+        {
+            var task = Content.Task;
+            if (!QuestBookHelper.EditMode)
+            {
+                ICompletionCheckQuest completionCheckQuest = task as ICompletionCheckQuest; // Should always be as button only visible when completion question
+                completionCheckQuest?.CheckCompletion();
+            }
+            else
+            {
+                task.SetCompletion(!task.IsComplete());
+            }
+
+            UpdateSubmissionButton();
+        }
+
+        private void UpdateSubmissionButton()
+        {
+            
+            var task = Content.Task;
+            if (task is not ICompletionCheckQuest)
+            {
+                mCheckSubmissionButton.gameObject.SetActive(false);
+                return;
+            }
+            var complete = task.IsComplete();
+            mCheckSubmissionButton.interactable = !complete && !QuestBookHelper.EditMode;
+            mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
+                complete ? "Submit" : "Quest Completed";
+            mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;
         }
         
         
@@ -112,14 +151,14 @@ namespace UI.QuestBook {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            this.mTitleField.text = Content.Task.getTaskType().ToString().Replace("_"," ");
+            this.mTitleField.text = Content.Task.GetTaskType().ToString().Replace("_"," ");
             GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }
 
         private void DropDownValueChanged(int value) {
             QuestTaskType selectedTaskType = (QuestTaskType)Enum.Parse(typeof(QuestTaskType), mChangeTaskDropDown.options[value].text);
-            if (Content.Task != null && Content.Task.getTaskType() == selectedTaskType) {
+            if (Content.Task != null && Content.Task.GetTaskType() == selectedTaskType) {
                 return;
             }
             switch (selectedTaskType) {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -11,11 +12,27 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
     {
+        private int counter;
+        private ItemObject itemObject;
+        public override void Init(QuestBookNode node, QuestBookPageUI nodeNetwork)
+        {
+            base.Init(node, nodeNetwork);
+            itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
+        }
+
         public override void DisplayImage()
         {
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
+            
             if (ReferenceEquals(itemObject,null)) return;
-            ItemDisplayUtils.DisplayItemSprite(image,itemObject,0);
+            ItemDisplayUtils.DisplayItemSprite(image,itemObject,counter);
+            bool small = image.transform.localScale is { x: 0.5f, y: 0.5f };
+            if (small) image.transform.localScale = Vector3.one;
+        }
+
+        public void FixedUpdate()
+        {
+            counter++;
+            DisplayImage();
         }
 
         protected override void openContent()

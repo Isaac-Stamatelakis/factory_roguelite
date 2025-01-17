@@ -51,16 +51,19 @@ namespace Items {
             }
             return fAmount.ToString("0.#" + suffixes[i]);
         }
-        public static Vector2 getItemScale(Sprite sprite) {
+        public static Vector2 GetItemScale(Sprite sprite) {
             Vector2 size = getItemSize(sprite);
             if (size == Vector2.zero) {
                 return Vector2.one;
             }
             Vector2 vector = size.x >= size.y ? new Vector2(1,size.y/size.x) : new Vector2(size.x/size.y,1);
-            if (size.x == 32) {
+            bool smallX = (int)size.x == 32;
+            bool smallY = (int)size.y == 32;
+            
+            if (smallX) {
                 vector.x = 0.5f;
             }
-            if (size.y == 32) {
+            if (smallY) {
                 vector.y = 0.5f;
             }
             return vector;
@@ -80,7 +83,7 @@ namespace Items {
         }
 
         public static Vector2 getItemSize(Sprite sprite) {
-            if (sprite == null) {
+            if (!sprite) {
                 return Vector2.zero;
             }
             Vector2 adjustedSpriteSize = sprite.bounds.size/0.5f;
@@ -102,7 +105,7 @@ namespace Items {
         public static void SetImageItemSprite(Image image, Sprite sprite)
         {
             image.sprite = sprite;
-            image.transform.localScale = getItemScale(sprite);
+            image.transform.localScale = GetItemScale(sprite);
         }
 
         public static void DisplayItemSprite(Image image, ItemObject itemObject, int counter)

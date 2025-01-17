@@ -64,7 +64,7 @@ namespace UI.QuestBook {
             
             foreach (int prereqID in node.Prerequisites) {
                 if (!library.IdNodeMap.ContainsKey(prereqID)) continue;
-                bool preReqComplete = library.IdNodeMap[prereqID].Content.Task.getComplete();
+                bool preReqComplete = library.IdNodeMap[prereqID].Content.Task.IsComplete();
                 if (node.RequireAllPrerequisites && !preReqComplete)  {
                     return false;
                 }

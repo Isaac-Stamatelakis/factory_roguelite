@@ -8,24 +8,19 @@ namespace UI.QuestBook {
         private bool clicked;
         public bool Clicked { get => clicked; set => clicked = value; }
 
-        public override bool getComplete()
+        public override bool IsComplete()
         {
             return clicked;
         }
 
-        public override QuestTaskType getTaskType()
+        public override QuestTaskType GetTaskType()
         {
             return QuestTaskType.Checkmark;
         }
 
-        public override void setComplete()
+        public override void SetCompletion(bool state)
         {
-            clicked = true;
-        }
-
-        public override void setUnComplete()
-        {
-            clicked = false;
+            clicked = state;
         }
     }
 
