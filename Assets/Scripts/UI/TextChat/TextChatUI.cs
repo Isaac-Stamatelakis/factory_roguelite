@@ -149,29 +149,7 @@ namespace UI.Chat {
                 return;
             }
             if (text.StartsWith("/")) {
-                ChatCommandToken commandToken = ChatTokenizer.tokenize(text);
-                ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
-                if (chatCommand == null) {
-                    return;
-                }
-
-                try
-                {
-                    chatCommand.execute();
-                }
-                catch (IndexOutOfRangeException)
-                {
-                    sendMessage("Invalid parameter format");
-                }
-                catch (ChatParseException e)
-                {
-                    sendMessage(e.Message);
-                }
-                catch (FormatException e) {
-                    sendMessage(e.Message);
-                } catch (OverflowException e) {
-                    sendMessage(e.Message);
-                }
+                ExecuteCommand(text);
                 return;
             }
             if (recordedMessages.Count > 50) {
@@ -180,6 +158,26 @@ namespace UI.Chat {
             addMessageToList(text,messageDisplayDuration);
         }
 
+        public void ExecuteCommand(string command, bool printErrors = true)
+        {
+            ChatCommandToken commandToken = ChatTokenizer.tokenize(command);
+            ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
+            if (chatCommand == null) {
+                return;
+            }
+            try
+            {
+                chatCommand.execute();
+            }
+            catch (IndexOutOfRangeException)
+            {
+                if (printErrors) sendMessage("<color=red>Invalid parameter format</color>");
+            }
+            catch (Exception e) when (e is ChatParseException or FormatException or OverflowException)
+            {
+                sendMessage("<color=red>" + e.Message + "</color>");
+            }
+        }
         private void addMessageToList(string text, float time) {
             TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab);
             newMessage.init(text,this,time);

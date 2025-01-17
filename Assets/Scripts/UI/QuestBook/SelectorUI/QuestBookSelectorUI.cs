@@ -22,7 +22,6 @@ namespace UI.QuestBook {
         private int PageCount {get => Mathf.CeilToInt(library.QuestBooks.Count/((float)BooksPerPage));}
         public QuestBookLibrary Library { get => library; set => library = value; }
         private Dictionary<string, Sprite> spriteDict;
-
         private int BooksPerPage = 3;
 
         private int page = 0;

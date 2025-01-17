@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
+using PlayerModule;
 using TMPro;
+using UI.Chat;
 using UI.QuestBook.Tasks.Rewards.Command;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -126,12 +129,38 @@ namespace UI.QuestBook.Tasks.Rewards
             switch (currentPage)
             {
                 case RewardPage.Items:
+                    var itemRewards = content.ItemRewards;
+                    if (itemRewards.Claimed) return;
+                    bool limitedSelection = itemRewards.Rewards.Count >= itemRewards.Selectable;
+                    if (limitedSelection && SelectedRewards.Count < itemRewards.Selectable) return;
+                    
+                    PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+                    for (int i = 0; i < itemRewards.Rewards.Count; i++)
+                    {
+                        if (limitedSelection && !SelectedRewards.Contains(i)) continue;
+                        
+                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemRewards.Rewards[i]);
+                        if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                        
+                        playerInventory.Give(itemSlot);
+                    }
+                    itemRewards.Claimed = true;
+                    
                     break;
                 case RewardPage.Commands:
+                    if (content.CommandRewards.Claimed) return;
+
+                    foreach (var commandReward in content.CommandRewards.CommandRewards)
+                    {
+                        TextChatUI.Instance.ExecuteCommand(commandReward.Command, printErrors: false);
+                    }
+
+                    content.CommandRewards.Claimed = true;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            
         }
 
         public void AddButtonPress()

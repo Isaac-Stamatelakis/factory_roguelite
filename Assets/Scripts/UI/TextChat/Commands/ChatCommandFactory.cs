@@ -23,6 +23,8 @@ namespace UI.Chat {
             { "camera", (parameters, ui) => new CameraViewCommand(parameters, ui) },
             { "flight", (parameters, ui) => new FlightCommand(parameters, ui) },
             { "gamestage", (parameters, ui) => new GameStageCommand(parameters, ui) },
+            { "quest_cheat", (parameters, ui) => new QuestCheatCommand(parameters, ui) },
+            { "quest_set", (parameters, ui) => new QuestResetCommand(parameters, ui) },
             
         };
 

@@ -16,7 +16,6 @@ namespace UI
         PauseScreen,
         IOPortViewer,
         CatalogueInfo,
-        Questbook
     }
     public class MainCanvasController : CanvasController
     {
@@ -25,7 +24,6 @@ namespace UI
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
         [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
-        public GameObject QuestBookUI;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -84,7 +82,6 @@ namespace UI
                 MainSceneUIElement.PauseScreen => Instantiate(pauseScreenUIPrefab).gameObject,
                 MainSceneUIElement.IOPortViewer => Instantiate(ioConduitPortUIPrefab).gameObject,
                 MainSceneUIElement.CatalogueInfo => Instantiate(catalogueInfoViewerPrefab).gameObject,
-                MainSceneUIElement.Questbook => QuestBookUI,
                 _ => throw new ArgumentOutOfRangeException(nameof(mainSceneUIElement), mainSceneUIElement, null)
             };
         }
