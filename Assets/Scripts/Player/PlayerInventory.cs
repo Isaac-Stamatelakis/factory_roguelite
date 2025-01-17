@@ -178,15 +178,15 @@ namespace PlayerModule {
         }
 
         public void Give(ItemSlot itemSlot) {
-            if (!ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MaxSize)) {
-                IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
-                if (chunk is not ILoadedChunk loadedChunk) {
-                    return;
-                }
-                ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
-            } else {
+            if (ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory, itemSlot, Global.MaxSize))
+            {
                 ItemSlotUtils.InsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MaxSize);
+                Refresh();
+                return;
             }
+            IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
+            if (chunk is not ILoadedChunk loadedChunk) return;
+            ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
         }
 
         public string getSelectedId()

@@ -40,7 +40,6 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            Debug.Log(parameters.Length);
             string stage = parameters[0];
             if (parameters.Length < 2)
             {
