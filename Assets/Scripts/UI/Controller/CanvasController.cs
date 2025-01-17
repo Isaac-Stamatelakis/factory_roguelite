@@ -11,6 +11,7 @@ namespace UI
         public static CanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
+        private bool canTerminate;
         public void Awake()
         {
             instance = this;
@@ -23,6 +24,11 @@ namespace UI
 
         public void Update()
         {
+            if (!canTerminate) // Prevents instant terminating if key to activate ui element is the same that destroys it
+            {
+                canTerminate = true;
+                return;
+            }
             
             if (uiObjectStack.Count == 0)
             {
@@ -40,7 +46,7 @@ namespace UI
             
             foreach (KeyCode key in additionalTerminators)
             {
-                if (Input.GetKey(key))
+                if (Input.GetKeyDown(key))
                 {
                     PopStack();
                     return;
@@ -63,7 +69,17 @@ namespace UI
                 return;
             }
             DisplayedUIInfo top = uiObjectStack.Pop();
-            Destroy(top.gameObject);
+            if (ReferenceEquals(top.originalParent, null))
+            {
+                Destroy(top.gameObject);
+            }
+            else
+            {
+                Transform topObject = transform.GetChild(transform.childCount-1); // Use this as top.gameObject may be destroyed and top is always last in the heirarchy
+                topObject.SetParent(top.originalParent,false);
+                topObject.gameObject.SetActive(false);
+            }
+            
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
@@ -77,9 +93,9 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -98,6 +114,8 @@ namespace UI
                     uiObjectStack.Pop();
                 }
             }
+
+            canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
         }
@@ -109,13 +127,15 @@ namespace UI
         public List<KeyCode> additionalTerminators;
         public bool hideOnStack;
         public bool hideParent;
+        public Transform originalParent;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
             this.hideOnStack = hideOnStack;
             this.hideParent = hideParent;
+            this.originalParent = originalParent;
         }
     }
     

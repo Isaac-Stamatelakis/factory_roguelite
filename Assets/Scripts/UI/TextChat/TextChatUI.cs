@@ -161,16 +161,16 @@ namespace UI.Chat {
                 }
                 catch (IndexOutOfRangeException)
                 {
-                    sendMessage("Invalid parameter format");
+                    sendMessage("<color=red>Invalid parameter format</color>");
                 }
                 catch (ChatParseException e)
                 {
-                    sendMessage(e.Message);
+                    sendMessage("<color=red>" + e.Message + "</color>");
                 }
                 catch (FormatException e) {
-                    sendMessage(e.Message);
+                    sendMessage("<color=red>" + e.Message + "</color>");
                 } catch (OverflowException e) {
-                    sendMessage(e.Message);
+                    sendMessage("<color=red>" + e.Message + "</color>");
                 }
                 return;
             }

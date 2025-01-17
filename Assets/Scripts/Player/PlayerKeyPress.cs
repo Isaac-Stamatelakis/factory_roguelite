@@ -34,12 +34,7 @@ namespace PlayerModule.KeyPress {
                 playerInventory.toggleToolAndInventory();
             }
             */
-
-            if (Input.GetKeyDown(KeyCode.L))
-            {
-                GameObject questBookUI = MainCanvasController.TInstance.GetMainSceneUIElement(MainSceneUIElement.Questbook);
-                questBookUI.SetActive(!questBookUI.activeInHierarchy);
-            }
+            
             inventoryNavigationKeys();
             inventoryKeyPresses();
 

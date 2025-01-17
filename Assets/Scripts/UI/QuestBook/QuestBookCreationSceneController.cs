@@ -24,7 +24,7 @@ namespace UI.QuestBook {
             }
             try
             {
-                library = QuestBookLibraryFactory.deseralize(json);
+                library = QuestBookLibraryFactory.Deseralize(json);
             } catch (Exception e)  {
                 Debug.LogError(e);
                 library = null;
@@ -88,7 +88,7 @@ namespace UI.QuestBook {
         }
 
         void OnDestroy() {
-            string json = QuestBookLibraryFactory.seralize(library);
+            string json = QuestBookLibraryFactory.Serialize(library);
             File.WriteAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH,json);
         }
         void Awake()

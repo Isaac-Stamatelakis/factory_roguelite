@@ -9,6 +9,7 @@ using UI;
 using UI.QuestBook;
 using UnityEngine;
 using World.Serialization;
+using Object = UnityEngine.Object;
 
 namespace WorldModule {
     public class WorldManager
@@ -51,13 +52,20 @@ namespace WorldModule {
             }
         }
 
+        public void SetQuestBookFromJson(string json)
+        {
+            questBookLibrary = QuestBookLibraryFactory.Deseralize(json);
+            QuestBookUIManager.Instance.Initialize(questBookLibrary);
+        }
+
         public void InitializeQuestBook()
         {
             string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
             string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            SetQuestBookFromJson(questBookJson);
             
-            questBookLibrary = QuestBookLibraryFactory.deseralize(questBookJson);
-            MainCanvasController.TInstance.GetMainSceneUIElement(MainSceneUIElement.Questbook).GetComponent<QuestBookSelectorUI>().Initialize(questBookLibrary);
+            
+            
         }
 
         public void SaveMetaData()
@@ -72,7 +80,7 @@ namespace WorldModule {
         public void SaveQuestBook()
         {
             string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
-            string json = QuestBookLibraryFactory.seralize(questBookLibrary);
+            string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
             File.WriteAllText(questBookPath, json);
         }
 
