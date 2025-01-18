@@ -35,7 +35,6 @@ namespace UI.Chat {
             }
         }
         public void destroy() {
-            textChatUI.recordMessage(textUI.text);
             GameObject.Destroy(gameObject);
         }
         public void setFade(bool fade) {

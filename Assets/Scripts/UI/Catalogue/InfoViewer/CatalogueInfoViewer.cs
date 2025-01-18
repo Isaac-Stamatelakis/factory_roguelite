@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Item.Burnables;
 using Item.GameStage;
+using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Transmutation.Info;
 using Recipe.Viewer;
 using UI.Catalogue.InfoViewer.Indicator;
@@ -15,7 +16,8 @@ namespace UI.Catalogue.InfoViewer
     {
         Recipe,
         TransmutableMaterial,
-        Burnable
+        Burnable,
+        Chisel
     }
     public class CatalogueInfoViewer : MonoBehaviour
     {
@@ -26,6 +28,7 @@ namespace UI.Catalogue.InfoViewer
         [SerializeField] private ProcessorInfoPageUI processorUIPrefab;
         [FormerlySerializedAs("materialInfoUI")] [SerializeField] private TransmutationMaterialInfoUI materialInfoUIPrefab;
         [SerializeField] private BurnableCatalogueUI burnableCatalogueUIPrefab;
+        [SerializeField] private ChiselCatalogueInfoUI chiselCatalogueInfoUIPrefab;
         public List<CatalogueElementData> CatalogueElements;
         private CatalogueInfoUI displayedElementUI;
         private int currentElementIndex;
@@ -97,6 +100,8 @@ namespace UI.Catalogue.InfoViewer
                     return materialInfoUIPrefab;
                 case CatalogueInfoDisplayType.Burnable:
                     return burnableCatalogueUIPrefab;
+                case CatalogueInfoDisplayType.Chisel:
+                    return chiselCatalogueInfoUIPrefab;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }

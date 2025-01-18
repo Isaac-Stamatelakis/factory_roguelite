@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using PlayerModule.KeyPress;
 using UnityEngine;
 
 namespace UI.QuestBook
@@ -23,7 +24,7 @@ namespace UI.QuestBook
         }
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.L) && transform.childCount > 0)
+            if (Input.GetKeyDown(KeyCode.L) && !PlayerKeyPressUtils.BlockKeyInput && transform.childCount > 0)
             {
                 Transform child = transform.GetChild(0);
                 child.gameObject.SetActive(true);

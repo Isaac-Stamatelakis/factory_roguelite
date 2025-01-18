@@ -16,6 +16,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using PlayerModule;
 using UI.JEI;
 using Dimensions;
+using Item.GameStage;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
 using Recipe.Objects;
@@ -82,11 +83,25 @@ namespace Items {
             }
             return instance;
         }
-
         
 
         public List<ItemObject> GetAllItems() {
             return items.Values.ToList();
+        }
+
+        public List<ItemObject> GetAllKnownItems()
+        {
+            if (!DevMode.Instance.EnableGameStages) return GetAllItems();
+            List<ItemObject> knownItems = new List<ItemObject>();
+            WorldManager worldManager = WorldManager.getInstance();
+            
+            foreach (ItemObject itemObject in items.Values)
+            {
+                if (!worldManager.HasGameStage(itemObject.gameStage)) continue;
+                knownItems.Add(itemObject);
+            }
+
+            return knownItems;
         }
 
         public List<ItemObject> GetAllItemsWithPrefix(string idPrefix) {

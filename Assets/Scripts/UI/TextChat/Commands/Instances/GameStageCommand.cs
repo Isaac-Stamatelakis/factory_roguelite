@@ -15,14 +15,26 @@ namespace UI.Chat {
         public override void execute()
         {
             string mode = parameters[0].ToLower();
-            string stage = parameters[1];
+            
             switch (mode)
             {
                 case "add":
-                    WorldManager.getInstance().UnlockGameStage(stage);
-                    break;
                 case "remove":
-                    WorldManager.getInstance().RemoveGameStage(stage);
+                    string stage = parameters[1];
+                    if (mode == "add")
+                    {
+                        WorldManager.getInstance().UnlockGameStage(stage);
+                    }
+                    else
+                    {
+                        WorldManager.getInstance().RemoveGameStage(stage);
+                    }
+                    break;
+                case "enable":
+                    DevMode.Instance.EnableGameStages = true;
+                    break;
+                case "disable":
+                    DevMode.Instance.EnableGameStages = false;
                     break;
                 default:
                     TextChatUI.Instance.sendMessage("Invalid mode. Use 'add' or 'remove'.");

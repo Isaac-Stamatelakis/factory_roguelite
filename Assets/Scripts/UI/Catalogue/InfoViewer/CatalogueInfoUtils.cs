@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Item.Burnables;
+using Item.ItemObjects.Instances.Tile.Chisel;
+using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Slot;
 using Item.Transmutation.Info;
 using Items.Transmutable;
@@ -36,6 +38,13 @@ namespace UI.Catalogue.InfoViewer
                 BurnableItemDisplay burnableItemDisplay = new BurnableItemDisplay(itemSlot);
                 BurnableInfo burnableInfo = new BurnableInfo(new List<BurnableDisplay>{burnableItemDisplay});
                 elements.Add(new CatalogueElementData(burnableInfo,CatalogueInfoDisplayType.Burnable));
+            }
+
+            if (itemSlot.itemObject is ChiselTileItem chiselTileItem)
+            {
+                ChiselCatalogueInfo chiselCatalogueInfo = new ChiselCatalogueInfo(new List<ChiselDisplayData>
+                    { new ChiselDisplayData(chiselTileItem.Collection) });
+                elements.Add(new CatalogueElementData(chiselCatalogueInfo,CatalogueInfoDisplayType.Chisel));
             }
             DisplayCatalogue(elements);
         }

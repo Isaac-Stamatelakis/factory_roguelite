@@ -18,6 +18,7 @@ namespace UI.QuestBook {
         {
             base.Init(node, nodeNetwork);
             itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
+            DisplayImage();
         }
 
         public override void DisplayImage()

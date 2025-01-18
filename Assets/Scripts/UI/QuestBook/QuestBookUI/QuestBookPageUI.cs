@@ -41,7 +41,7 @@ namespace UI.QuestBook {
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
                     bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.GenerateLine(questBookNode.getPosition(),otherNode.getPosition(),LineContainer,discovered,linePrefab);
+                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,discovered,linePrefab);
                 }
             }
         }
