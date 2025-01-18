@@ -39,7 +39,7 @@ public class StandardHammerTileGenerator : EditorWindow {
             await hammerTileValues.load();
         }
         if (natureOutline == null) {
-            natureOutline = await Addressables.LoadAssetAsync<TileBase>("Assets/Tiles/Outline/nature_Outline.asset").Task;
+            natureOutline = await Addressables.LoadAssetAsync<TileBase>("Assets/Objects/Tiles/Outline/nature_Outline.asset").Task;
         }
         show = true;
         
@@ -133,12 +133,15 @@ public class StandardHammerTileGenerator : EditorWindow {
         Tile baseTile = generateBase(hammerTileValues.Texture,path);
         Tile slab = generateVariation(hammerTileValues.Texture,path,"slab",hammerTileValues.Slab.GetPixels(0,0,16,16));
         Tile slanted = generateVariation(hammerTileValues.Texture,path,"slant",hammerTileValues.Slant.GetPixels(0,0,16,16));
-
+        Tile stairs = generateVariation(hammerTileValues.Texture,path,"stair",hammerTileValues.Stairs.GetPixels(0,0,16,16));
+        
         HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
         hammerTile.id = ItemEditorFactory.formatId(tileName);
         hammerTile.baseTile = baseTile;
         hammerTile.cleanSlab = slab;
         hammerTile.cleanSlant = slanted;
+        hammerTile.stairs = stairs;
+        
         string hammerTilePath = Path.Combine(path,"T~"+tileName +"_Hammer" + ".asset");
         AssetDatabase.CreateAsset(hammerTile,hammerTilePath);
         AssetDatabase.Refresh();
@@ -155,7 +158,10 @@ public class StandardHammerTileGenerator : EditorWindow {
 
         Tile slanted = generateVariation(hammerTileValues.Texture,path,"slant",hammerTileValues.Slant.GetPixels(0,0,16,16));
         natureTile.cleanSlant = slanted;
-
+        
+        Tile stairs = generateVariation(hammerTileValues.Texture,path,"stair",hammerTileValues.Stairs.GetPixels(0,0,16,16));
+        natureTile.stairs = stairs;
+        
         Tile[] natureSlabs = generateVariations(hammerTileValues.Texture,path,"nature_slabs",hammerTileValues.NatureSlabs);
         natureTile.natureSlabs = natureSlabs;
     
