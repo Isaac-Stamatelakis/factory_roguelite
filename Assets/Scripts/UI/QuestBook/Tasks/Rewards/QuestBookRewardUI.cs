@@ -97,6 +97,7 @@ namespace UI.QuestBook.Tasks.Rewards
         public void Display()
         {
             GlobalHelper.deleteAllChildren(mElementContainer.transform);
+            UpdateClaimButtonImage();
             switch (currentPage)
             {
                 case RewardPage.Items:
@@ -124,8 +125,31 @@ namespace UI.QuestBook.Tasks.Rewards
             }
         }
 
+        private bool RewardClaimed()
+        {
+            switch (currentPage)
+            {
+                case RewardPage.Items:
+                    return content.ItemRewards.Claimed;
+                case RewardPage.Commands:
+                    return content.CommandRewards.Claimed;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        public void UpdateClaimButtonImage()
+        {
+            bool rewardClaimed = RewardClaimed();
+            bool canClaim = !rewardClaimed && content.Task.IsComplete();
+            mClaimButton.GetComponent<Image>().color = canClaim ? Color.green : Color.gray;
+            mClaimButton.interactable = canClaim;
+            
+        }
+
         public void ClaimPress()
         {
+            if (!content.Task.IsComplete()) return;
+            
             switch (currentPage)
             {
                 case RewardPage.Items:

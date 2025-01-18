@@ -212,17 +212,18 @@ namespace UI.NodeNetwork {
             HashSet<int> clickedPreReqs = clickedNode.getPrerequisites();
             HashSet<int> selectedPreReqs = CurrentSelected.GetNode().getPrerequisites();
             
-            bool connected = clickedPreReqs.Contains(selectedNodeElement.getId()) || selectedPreReqs.Contains(clickedNode.getId());
-            if (connected)
+            bool clickPreReq = clickedPreReqs.Contains(selectedNodeElement.getId());
+            bool connectPreReq = selectedPreReqs.Contains(clickedNode.getId());
+            
+            if (clickPreReq)
             {
                 clickedPreReqs.Remove(selectedNodeElement.getId());
                 selectedPreReqs.Remove(clickedNode.getId());
-            }
-            else
+            } else
             {
-                selectedPreReqs.Add(clickedNode.getId());
+                selectedPreReqs.Remove(clickedNode.getId());
+                clickedPreReqs.Add(selectedNodeElement.getId());
             }
-            
             
             DisplayLines();
         }

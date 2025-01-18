@@ -6,6 +6,7 @@ using TileMaps.Place;
 using TileMaps.Layer;
 using TileMaps.Type;
 using TileEntity.Instances.SimonSays;
+using UnityEngine.Serialization;
 
 namespace Tiles {
     
@@ -17,6 +18,7 @@ namespace Tiles {
         [SerializeField] public Tile baseTile;
         [SerializeField] public Tile cleanSlab;
         [SerializeField] public Tile cleanSlant;
+        [SerializeField] public Tile stairs;
         
         public Sprite getDefaultSprite()
         {
@@ -35,18 +37,18 @@ namespace Tiles {
 
         public TileBase getTileAtState(int state)
         {
-            if (state == 0) {
-                return baseTile;
-            } else if (state == 1) {
-                return cleanSlab;
-            } else if (state == 2) {
-                return cleanSlant;
-            }
-            return null;
+            return state switch
+            {
+                0 => baseTile,
+                1 => cleanSlab,
+                2 => cleanSlant,
+                3 => stairs,
+                _ => null
+            };
         }
         public int getStateAmount()
         {
-            return 3;
+            return 4;
         }
     }
 }

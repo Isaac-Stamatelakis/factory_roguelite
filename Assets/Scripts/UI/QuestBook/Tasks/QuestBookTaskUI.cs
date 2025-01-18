@@ -11,7 +11,7 @@ namespace UI.QuestBook {
 
     public static class QuestBookTaskUIFactory {
         public static GameObject getContent(QuestBookTask task, QuestBookTaskPageUI taskPageUI) {
-            QuestTaskType taskType = task.getTaskType();
+            QuestTaskType taskType = task.GetTaskType();
             UIAssetManager assetManager = taskPageUI.QuestBookPageUI.QuestBookUI.AssetManager;
             switch (taskType) {
                 case QuestTaskType.Item:

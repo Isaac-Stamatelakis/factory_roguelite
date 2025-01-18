@@ -7,14 +7,14 @@ namespace UI.QuestBook {
     {
         protected List<SerializedItemSlot> rewards;
         public List<SerializedItemSlot> Rewards { get => rewards; set => rewards = value; }
-        public bool RewardsClaimed { get => rewardsClaimed; set => rewardsClaimed = value; }
+        public abstract QuestTaskType GetTaskType();
+        public abstract bool IsComplete();
+        public abstract void SetCompletion(bool state);
+    }
 
-        protected bool rewardsClaimed = false;
-
-        public abstract QuestTaskType getTaskType();
-        public abstract bool getComplete();
-        public abstract void setComplete();
-        public abstract void setUnComplete();
+    public interface ICompletionCheckQuest
+    {
+        public void CheckCompletion();
     }
 }
 

@@ -26,6 +26,7 @@ namespace UI.Chat {
         private List<string> recordedMessages;
         private List<string> sentMessages;
         private bool typing = false;
+        public bool IsTyping => inputField.isFocused;
         
         private readonly float hintBlinkTime = 0.4f;
         private float hintBlinkCounter = 0f;
@@ -75,7 +76,7 @@ namespace UI.Chat {
             }
         }
 
-        public void recordMessage(string message) {
+        public void RecordMessage(string message) {
             this.recordedMessages.Add(message);
         }
 
@@ -148,13 +149,15 @@ namespace UI.Chat {
             if (text.Length == 0) {
                 return;
             }
+            if (recordedMessages.Count > 50) {
+                recordedMessages.RemoveAt(0);
+            }
+            RecordMessage(text);
             if (text.StartsWith("/")) {
                 ExecuteCommand(text);
                 return;
             }
-            if (recordedMessages.Count > 50) {
-                recordedMessages.RemoveAt(0);
-            }
+            
             addMessageToList(text,messageDisplayDuration);
         }
 
@@ -163,6 +166,7 @@ namespace UI.Chat {
             ChatCommandToken commandToken = ChatTokenizer.tokenize(command);
             ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
             if (chatCommand == null) {
+                if (printErrors) sendMessage("<color=red>" + $"unknown command: '{command}'" + "</color>");
                 return;
             }
             try

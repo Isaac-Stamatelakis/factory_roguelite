@@ -13,7 +13,7 @@ namespace UI.QuestBook {
             float width = rectTransform.sizeDelta.x; // width is set by prefab
             rectTransform.sizeDelta = new Vector2(width,(nodeAPosition-nodeBPosition).magnitude);
             Image image = line.GetComponent<Image>();
-            image.color = discovered ? new Color(1f, 0.8431f, 0f) : new Color(0.10196f, 0.10196f, 0.10196f);
+            image.color = discovered ? new Color(1f, 0.8431f, 0f,1f) : new Color(105/255f,105/255f,105/255f,1f);
             Vector2 direction = (nodeBPosition - nodeAPosition).normalized;
             Quaternion rotation = Quaternion.FromToRotation(Vector2.up, direction);
             line.transform.rotation = rotation;

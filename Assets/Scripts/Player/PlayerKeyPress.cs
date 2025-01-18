@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
 using UI;
+using UI.Chat;
 using UI.QuestBook;
 using UI.ToolTip;
 using Unity.VisualScripting;
@@ -13,6 +14,10 @@ using Unity.VisualScripting;
 
 namespace PlayerModule.KeyPress {
 
+    public static class PlayerKeyPressUtils
+    {
+        public static bool BlockKeyInput => CanvasController.Instance.IsActive || TextChatUI.Instance.IsTyping;
+    }
     public class PlayerKeyPress : MonoBehaviour
     {
         private PlayerInventory playerInventory;
@@ -25,6 +30,8 @@ namespace PlayerModule.KeyPress {
         // Update is called once per frame
         void Update()
         {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            
             if (Input.GetKeyDown(KeyCode.E)) {
                 ToolTipController.Instance.HideToolTip();
                 playerInventory.toggleInventory();

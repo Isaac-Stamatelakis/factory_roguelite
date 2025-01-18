@@ -6,6 +6,7 @@ using Item.Slot;
 using Items;
 using Items.Tags;
 using Player.Tool;
+using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
 using RobotModule;
@@ -49,7 +50,8 @@ namespace Player {
             int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
-            if (CanvasController.Instance.IsActive) return;
+            
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             
             if (DevMode.Instance.flight)
             {

@@ -16,6 +16,7 @@ namespace Tiles {
         [SerializeField] public Tile baseTile;
         [SerializeField] public Tile cleanSlab;
         [SerializeField] public Tile cleanSlant;
+        [SerializeField] public Tile stairs;
         [SerializeField] public Tile[] natureSlants;
         [SerializeField] public Tile[] natureSlabs;
         
@@ -23,12 +24,7 @@ namespace Tiles {
         {
             return baseTile.sprite;
         }
-
-        public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-        {
-            base.GetTileData(position, tilemap, ref tileData);
-        }
-
+        
         public string getId()
         {
             return id;
@@ -39,11 +35,6 @@ namespace Tiles {
             this.id = id;
         }
 
-        public int getRandomNatureSlabState() {
-            int ran = Random.Range(0,natureSlabs.Length);
-            return 3 + natureSlants.Length + ran;
-        }
-
         public int getRandomSlantState() {
             int ran = Random.Range(0,natureSlants.Length);
             return 3 + ran;
@@ -51,14 +42,18 @@ namespace Tiles {
 
         public TileBase getTileAtState(int state)
         {
-            if (state == 0) {
-                return baseTile;
-            } else if (state == 1) {
-                return cleanSlab;
-            } else if (state == 2) {
-                return cleanSlant;
+            switch (state)
+            {
+                case 0:
+                    return baseTile;
+                case 1:
+                    return cleanSlab;
+                case 2:
+                    return cleanSlant;
+                case 3:
+                    return stairs;
             }
-            int tempState = state-3;
+            int tempState = state-4;
             if (tempState < natureSlants.Length) {
                 return natureSlants[tempState];
             }
@@ -68,23 +63,10 @@ namespace Tiles {
             }
             return null;
         }
-
-        private int getStateType(int state) {
-            if (state < 3) {
-                return state;
-            }
-            if (state < natureSlants.Length) {
-                return 3;
-            }
-            if (state < natureSlabs.Length) {
-                return 4;
-            }
-            return -1;
-            
-        }
+        
         public int getStateAmount()
         {
-            return 3+natureSlants.Length+natureSlabs.Length;
+            return 4+natureSlants.Length+natureSlabs.Length;
         }
     }
 }
