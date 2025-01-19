@@ -8,8 +8,8 @@ namespace Chunks.Loaders {
     {
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
-            if (value.getFarLoaded()) {
-                value.setScheduledForFarLoading(false);
+            if (value.GetFarLoaded()) {
+                value.SetScheduledForFarLoading(false);
                 return false;
             }
             return true;
@@ -22,7 +22,7 @@ namespace Chunks.Loaders {
 
         public override void update(IChunkPartition value)
         {
-            value.loadFarLoadTileEntities();
+            value.LoadFarLoadTileEntities();
         }
     }
 

@@ -64,8 +64,9 @@ namespace TileMaps {
             }
             IChunkPartition partition = GetPartitionAtPosition(realTilePosition);
             Vector2Int tilePositionInPartition = base.GetTilePositionInPartition(realTilePosition);
-            return partition.getTileOptions(tilePositionInPartition);
+            return partition.GetTileItem(tilePositionInPartition,TileMapLayer.Base).tileOptions;
         }
+        
         protected override Vector2Int GetHitTilePosition(Vector2 position)
         {
             Vector2Int hitPosition = worldToTileMapPosition(position);
@@ -123,7 +124,7 @@ namespace TileMaps {
             ITileEntityInstance tileEntity = getTileEntityAtPosition(position);
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
-                partition.breakTileEntity(layer,tilePositionInPartition);
+                partition.BreakTileEntity(layer,tilePositionInPartition);
                 deleteTileEntityFromConduit(position);
             }
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
@@ -149,27 +150,21 @@ namespace TileMaps {
         }
 
         protected bool hitHardness(Vector2Int cellPosition) {
-            TileOptions tileOptions = getOptionsAtPosition(cellPosition);
-            if (tileOptions == null) {
-                return false;
-            }
-            if (!tileOptions.StaticOptions.hitable) { // uninteractable
-                return false;
-            }
             TileItem tileItem = getTileItem(cellPosition);
-            if (ReferenceEquals(tileItem, null)) return false;
+            if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.hitable) return false;
+        
+            IChunkPartition partition = GetPartitionAtPosition(cellPosition);
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(cellPosition);
             
-            DynamicTileOptions dynamicTileOptions = tileOptions.DynamicTileOptions;
-            dynamicTileOptions.hardness--;
-            tileOptions.DynamicTileOptions = dynamicTileOptions;
-            bool broken = dynamicTileOptions.hardness == 0;
-            if (tileItem.tile is Tile tile && tile.colliderType == Tile.ColliderType.Grid) {
-                if (!broken) {
-                    float breakRatio = 1f-((float)dynamicTileOptions.hardness)/tileItem.tileOptions.DynamicTileOptions.hardness;
-                    closedChunkSystem.BreakIndicator.setBreak(breakRatio,cellPosition);
-                } else {
-                    closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
-                }
+            bool broken = partition.DeIncrementHardness(tilePositionInPartition);
+            if (tileItem.tile is not Tile { colliderType: Tile.ColliderType.Grid }) return broken;
+            
+            if (!broken) {
+                int hardness = partition.GetHardness(tilePositionInPartition);
+                float breakRatio = 1f - ((float)hardness) / tileItem.tileOptions.hardness;
+                closedChunkSystem.BreakIndicator.setBreak(breakRatio,cellPosition);
+            } else {
+                closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
             }
             return broken;
         }
@@ -178,31 +173,32 @@ namespace TileMaps {
             TileBase tileBase = tileItem.tile;
             if (ReferenceEquals(tileBase,null)) return;
             
+            Vector2Int position = new Vector2Int(x, y);
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            Vector2Int positionInPartition = GetTilePositionInPartition(position);
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            
             if (tileBase is IStateTile stateTile) {
-                TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
-                Vector2 pos = new Vector2(x/2f+0.25f,y/2f+0.25f);
-                tileBase = stateTile.getTileAtState(tileOptions.SerializedTileOptions.state);
+                tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
             tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
-            if (tileItem.tileOptions is not { StaticOptions: { rotatable: true } }) return;
-            {
-                TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
-                
-                if (tileBase is IStateRotationTile stateRotationTile) {
-                    tilemap.SetTile(
-                        new Vector3Int(x,y,0), 
-                        stateRotationTile.getTile(tileOptions.SerializedTileOptions.rotation,tileOptions.SerializedTileOptions.mirror)
-                    );
-                } else {
-                    Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
-                    int rotation = 90 * tileOptions.SerializedTileOptions.rotation;
-                    transformMatrix.SetTRS(Vector3.zero,
-                        tileOptions.SerializedTileOptions.mirror
-                            ? Quaternion.Euler(0f, 180f, rotation)
-                            : Quaternion.Euler(0f, 0f, rotation), Vector3.one);
-                    tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
-                }
+            if (!tileItem.tileOptions.rotatable) return;
+            
+            if (tileBase is IStateRotationTile stateRotationTile) {
+                tilemap.SetTile(
+                    new Vector3Int(x,y,0), 
+                    stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
+                );
+            } else {
+                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
+                int rotation = 90 * baseTileData.rotation;
+                transformMatrix.SetTRS(Vector3.zero,
+                    baseTileData.mirror
+                        ? Quaternion.Euler(0f, 180f, rotation)
+                        : Quaternion.Euler(0f, 0f, rotation), Vector3.one);
+                tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
             }
+            
         }
 
         public override void hitTile(Vector2 position) {
@@ -211,25 +207,25 @@ namespace TileMaps {
             TileOptions tileOptions = getOptionsAtPosition(hitTilePosition);
             if (hitHardness(hitTilePosition)) {
                 TileItem tileItem = getTileItem(hitTilePosition);
-                if (tileItem.tileOptions == null || tileItem.tileOptions.StaticOptions == null || tileItem.tileOptions.StaticOptions.dropOptions.Count == 0) {
+                var dropOptions = tileItem.tileOptions.dropOptions;
+                if (dropOptions.Count == 0) {
                     SpawnItemEntity(tileItem,1,hitTilePosition);
-                } else {
+                } else
+                {
                     int totalWeight = 0;
-                    foreach (DropOption dropOption in tileItem.tileOptions.StaticOptions.dropOptions) {
+                    foreach (DropOption dropOption in dropOptions) {
                         totalWeight += dropOption.weight;
                     }
                     int ran = UnityEngine.Random.Range(0,totalWeight);
                     totalWeight = 0;
-                    foreach (DropOption dropOption in tileItem.tileOptions.StaticOptions.dropOptions) {
+                    foreach (DropOption dropOption in dropOptions) {
                         totalWeight += dropOption.weight;
-                        if (totalWeight >= ran) {
-                            if (dropOption.itemObject != null) {
-                                uint amount = (uint)UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
-                                amount = GlobalHelper.MaxUInt(1, amount);
-                                SpawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
-                            }
-                            
-                        }
+                        if (totalWeight < ran) continue;
+                        if (ReferenceEquals(dropOption.itemObject, null)) continue;
+                        
+                        uint amount = (uint)UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
+                        amount = GlobalHelper.MaxUInt(1, amount);
+                        SpawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
                     }
                 }
                 
@@ -239,7 +235,7 @@ namespace TileMaps {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int position, TileItem item)
         {
-            partition?.setTile(position,getType().toLayer(),item);
+            partition?.SetTile(position,getType().toLayer(),item);
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {
@@ -277,13 +273,12 @@ namespace TileMaps {
             TileItem tileItem = getTileItem(position);
             if (ReferenceEquals(tileItem, null)) return;
             
-            if (!tileItem.tileOptions.StaticOptions.rotatable) return;
-            TileOptions tileOptions = getOptionsAtPosition(position);
-            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
+            if (!tileItem.tileOptions.rotatable) return;
+            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             const int ROTATION_COUNT = 4;
-            int newRotation = ((serializedTileOptions.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
-            serializedTileOptions.rotation = newRotation;
-            tileOptions.SerializedTileOptions = serializedTileOptions;
+            int newRotation = ((baseTileData.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
+            baseTileData.rotation = newRotation;
+         
             SetTile(position.x,position.y,tileItem);
         }
 
@@ -297,12 +292,11 @@ namespace TileMaps {
             if (ReferenceEquals(tileItem, null)) return;
             if (tileItem.tile is not HammerTile hammerTile) return;
             
-            TileOptions tileOptions = getOptionsAtPosition(position);
-            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
+            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             int stateCount = hammerTile.getStateAmount();
-            int newState = ((serializedTileOptions.state+direction) % stateCount + stateCount) % stateCount;
-            serializedTileOptions.state = newState;
-            tileOptions.SerializedTileOptions = serializedTileOptions;
+            int newState = ((baseTileData.state+direction) % stateCount + stateCount) % stateCount;
+            baseTileData.state = newState;
+ 
             SetTile(position.x,position.y,tileItem);
         }
     }

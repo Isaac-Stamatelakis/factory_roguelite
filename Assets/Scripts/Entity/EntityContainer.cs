@@ -35,7 +35,7 @@ namespace Entities {
                 Vector2Int partitionPosition = Global.getPartitionFromWorld(position) - chunkPosition*Global.PartitionsPerChunk;
 
                 IChunkPartition partition = chunk.getPartition(partitionPosition);
-                IChunkPartitionData partitionData = partition.getData();
+                IChunkPartitionData partitionData = partition.GetData();
                 if (partitionData is not SeralizedWorldData serializedTileData) {
                     continue;
                 }

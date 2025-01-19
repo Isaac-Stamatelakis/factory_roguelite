@@ -75,7 +75,7 @@ namespace Chunks {
         {
             List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
             foreach (IChunkPartition chunkPartition in partitions) {
-                dataList.Add(chunkPartition.getData());
+                dataList.Add(chunkPartition.GetData());
             }
             return dataList;
         }

@@ -5,7 +5,9 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntity;
- public enum TileColliderType {
+using Tiles;
+
+public enum TileColliderType {
     Tile,
     Sprite
 }
@@ -22,11 +24,6 @@ public static class ItemEditorFactory
         tileItem.name = tileName;
         tileItem.tile = tile;
         tileItem.outline = outline;
-        tileItem.tileOptions.StaticOptions.hitable = true;
-        
-        var options = tileItem.tileOptions.DynamicTileOptions;
-        options.hardness = 8;
-        tileItem.tileOptions.DynamicTileOptions = options;
         
         if (tileEntity != null) {
             tileItem.tileEntity = tileEntity;

@@ -82,9 +82,10 @@ namespace TileEntity {
             }
             IChunkPartition chunkPartition = tileEntity.getPartition();
             Vector2Int positionInPartition = tileEntity.getPositionInPartition();
-            TileOptions tileOptions = chunkPartition.getTileOptions(positionInPartition);
-            int state = tileOptions.SerializedTileOptions.state;
-
+            
+            BaseTileData baseTileData = chunkPartition.GetBaseData(positionInPartition);
+            int state = baseTileData.state;
+            
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
             TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
@@ -92,11 +93,9 @@ namespace TileEntity {
 
             // Switch to open/closed
             state += iterationAmount; 
-            state = state % stateTile.getStateAmount();
-            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
-            serializedTileOptions.state = state;
-            tileOptions.SerializedTileOptions = serializedTileOptions;
-
+            state %= stateTile.getStateAmount();
+            baseTileData.state = state;
+            
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
@@ -119,14 +118,11 @@ namespace TileEntity {
             }
             IChunkPartition chunkPartition = tileEntity.getPartition();
             Vector2Int positionInPartition = tileEntity.getPositionInPartition();
-            TileOptions tileOptions = chunkPartition.getTileOptions(positionInPartition);
-            if (tileOptions == null) {
-                return;
-            }
-            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
-            int oldState = serializedTileOptions.state;
-            serializedTileOptions.state = state;
-            tileOptions.SerializedTileOptions = serializedTileOptions;
+            
+            BaseTileData baseTileData = chunkPartition.GetBaseData(positionInPartition);
+            int oldState = baseTileData.state;
+            baseTileData.state = state;
+            
             TileMapType tileMapType = switchType.getStateType(oldState);
             TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
             tilemap.removeForSwitch(tileEntity.getCellPosition());

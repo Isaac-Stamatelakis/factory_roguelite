@@ -69,7 +69,7 @@ namespace DevTools.Structures {
                     return;
                 }
                 StructureGenerationOption generationOption = StructureGeneratorOptionFactory.createOption(genOption,itemSlots[0].id);
-                StructureGeneratorHelper.newStructure(nameField.text,generationOption,bounds);
+                StructureGeneratorHelper.NewStructure(nameField.text,generationOption,bounds);
                 controllerUI.displayList();
                 GameObject.Destroy(gameObject);
             });

@@ -49,7 +49,8 @@ namespace WorldModule.Caves {
                     if (y+1 >= height || y -1 < 0 || x + 1 >= width || x - 1 < 0) {
                         continue;
                     }
-                    SerializedTileOptions serializedTileOptions = TileOptionFactory.Deserialize(serializedTileData.sTileOptions[x,y],tileItem);
+
+                    BaseTileData baseTileData = serializedTileData.sTileOptions[x, y];
                     int state = 0;
                     int rotation = 0;
                     bool mirror = false;
@@ -86,10 +87,10 @@ namespace WorldModule.Caves {
                         serializedTileData.ids[x,y] = null;
                         continue;
                     }
-                    serializedTileOptions.state = state;
-                    serializedTileOptions.rotation = rotation;
-                    serializedTileOptions.mirror = mirror;
-                    serializedTileData.sTileOptions[x,y] = TileOptionFactory.Serialize(serializedTileOptions); 
+                    baseTileData.state = state;
+                    baseTileData.rotation = rotation;
+                    baseTileData.mirror = mirror;
+                    serializedTileData.sTileOptions[x, y] = baseTileData;
                     if (state > 0) {
                         states[x][y] = BlockState.Slant;
                     } else {

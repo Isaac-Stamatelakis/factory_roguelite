@@ -139,12 +139,12 @@ public class StructureGenerator : EditorWindow {
         bool[,] perimeter = new bool[size.x,size.y];
         foreach (SoftLoadedConduitTileChunk softLoadedConduitTileChunk in chunks) {
             foreach (IChunkPartition partition in softLoadedConduitTileChunk.Partitions) {
-                SeralizedWorldData data = partition.getData();
+                SeralizedWorldData data = partition.GetData();
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                         string baseId = data.baseData.ids[x,y];
                         if (baseId == StructureGeneratorHelper.ParimeterId) {
-                            Vector2Int normalizedPosition = partition.getRealPosition()*Global.ChunkPartitionSize+new Vector2Int(x,y)-offset;
+                            Vector2Int normalizedPosition = partition.GetRealPosition()*Global.ChunkPartitionSize+new Vector2Int(x,y)-offset;
                             perimeter[normalizedPosition.x,normalizedPosition.y] = true;
                         }
                     }
@@ -196,7 +196,7 @@ public class StructureGenerator : EditorWindow {
                 IChunk chunk = chunkDict[chunkPosition];
                 Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PartitionsPerChunk;
                 IChunkPartition partition = chunk.getPartition(partitionPosition);
-                WorldTileConduitData partitionData = (WorldTileConduitData) partition.getData();
+                WorldTileConduitData partitionData = (WorldTileConduitData) partition.GetData();
                 Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
                 Vector2Int posInArea = vector-areaOffset;
                 WorldGenerationFactory.MapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);

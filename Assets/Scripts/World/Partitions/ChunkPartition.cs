@@ -21,7 +21,9 @@ namespace Chunks.Partitions {
         protected Vector2Int position;
         protected T data;
         public ITileEntityInstance[,] tileEntities;
-        public TileOptions[,] tileOptionsArray;
+
+        protected int[,] baseTileHardnessArray;
+        //public TileOptions[,] tileOptionsArray;
         public List<ITickableTileEntity> tickableTileEntities;
         protected IChunk parent;
 
@@ -31,19 +33,19 @@ namespace Chunks.Partitions {
             this.parent = parent;
         }
 
-        public float distanceFrom(Vector2Int target)
+        public float DistanceFrom(Vector2Int target)
         {
-            Vector2Int realPosition = getRealPosition();
+            Vector2Int realPosition = GetRealPosition();
             return Mathf.Pow(target.x-realPosition.x,2) + Mathf.Pow(target.y-realPosition.y,2);
         }
 
-        public SeralizedWorldData getData()
+        public SeralizedWorldData GetData()
         {
             return data;
         }
 
 
-        public void tick() {
+        public void Tick() {
             if (tickableTileEntities == null) {
                 return;
             }
@@ -53,34 +55,35 @@ namespace Chunks.Partitions {
             }
         }
 
-        public UnityEngine.Vector2Int getRealPosition()
+        public UnityEngine.Vector2Int GetRealPosition()
         {
             return parent.getPosition()*Global.PartitionsPerChunk + position;
         }
 
-        public bool getScheduledForUnloading()
+        public bool GetScheduledForUnloading()
         {
             return scheduledForUnloading;
         }
 
-        public bool inRange(Vector2Int target, int xRange, int yRange)
+        public bool InRange(Vector2Int target, int xRange, int yRange)
         {
-            Vector2Int rPosition = getRealPosition();
+            Vector2Int rPosition = GetRealPosition();
             return Mathf.Abs(target.x-rPosition.x) <= xRange && Mathf.Abs(target.y-rPosition.y) <= yRange;
         }
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
-            tileOptionsArray = new TileOptions[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
-                UnityEngine.Vector2Int realPartitionPosition = getRealPosition();
+                UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
                     tileGridMap.addPartition(this);
                 }
             }
+            
+            baseTileHardnessArray = new int[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            Vector2Int realPosition = getRealPosition();
+            Vector2Int realPosition = GetRealPosition();
 
             switch (direction) {
                 case Direction.Left:
@@ -117,29 +120,29 @@ namespace Chunks.Partitions {
                     break;
             }
             
-            setTileLoaded(true);
+            SetTileLoaded(true);
             yield return null;
         }
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
 
-        public abstract void save();
+        public abstract void Save();
 
-        public void setScheduleForUnloading(bool val)
+        public void SetScheduleForUnloading(bool val)
         {
             scheduledForUnloading = val;
         }
 
-        public virtual IEnumerator unloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            save();
-            Vector2Int realPosition = getRealPosition();
+        public virtual IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+            Save();
+            Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
                 yield return tileMap.removePartition(realPosition);
             }
         }
-        public void unloadEntities() {
+        public void UnloadEntities() {
             int size = Global.ChunkPartitionSize/2;
-            Vector2 castPosition = (getRealPosition()+Vector2.one/2f) * size;
+            Vector2 castPosition = (GetRealPosition()+Vector2.one/2f) * size;
             RaycastHit2D[] hits = Physics2D.BoxCastAll(
                 castPosition, 
                 new Vector2(size,size),
@@ -159,10 +162,10 @@ namespace Chunks.Partitions {
             data.entityData = entityData;
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            yield return unloadTiles(tileGridMaps);
+            yield return UnloadTiles(tileGridMaps);
         }
 
-        public void addTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
+        public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
             if (layer != TileMapLayer.Base) return;
             if (tileEntity is ILoadableTileEntity entity) {
@@ -174,7 +177,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void breakTileEntity(TileMapLayer layer, Vector2Int position)
+        public void BreakTileEntity(TileMapLayer layer, Vector2Int position)
         {
             if (layer != TileMapLayer.Base) {
                 return;
@@ -194,7 +197,7 @@ namespace Chunks.Partitions {
             
         }
 
-        public bool clickTileEntity(Vector2Int position)
+        public bool ClickTileEntity(Vector2Int position)
         {
             ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
             if (tileEntity == null) {
@@ -207,25 +210,16 @@ namespace Chunks.Partitions {
             return false;
         }
 
-        public bool getLoaded()
+        public bool GetLoaded()
         {
             return loaded;
         }
 
-        public void setTileLoaded(bool val)
+        public void SetTileLoaded(bool val)
         {
             loaded = val;
         }
-
-        public TileOptions getTileOptions(Vector2Int position)
-        {
-            if (tileOptionsArray == null) {
-                return null;
-            }
-            return tileOptionsArray[position.x,position.y];
-        }
-
-
+        
         public ITileEntityInstance GetTileEntity(Vector2Int position)
         {
             if (tileEntities == null) {
@@ -236,26 +230,48 @@ namespace Chunks.Partitions {
 
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
 
-        public abstract void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
+        public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
-        public abstract PartitionFluidData getFluidData();
-        public abstract bool getFarLoaded();
-        public abstract void loadFarLoadTileEntities();
-        public abstract void unloadFarLoadTileEntities();
+        public abstract PartitionFluidData GetFluidData();
+        public abstract bool GetFarLoaded();
+        public abstract void LoadFarLoadTileEntities();
+        public abstract void UnloadFarLoadTileEntities();
 
-        public void setFarLoaded(bool state)
+        public void SetFarLoaded(bool state)
         {
             this.farLoaded = state;
         }
 
-        public bool getScheduledForFarLoading()
+        public bool GetScheduledForFarLoading()
         {
             return scheduledForFarLoading;
         }
 
-        public void setScheduledForFarLoading(bool state)
+        public void SetScheduledForFarLoading(bool state)
         {
             this.scheduledForFarLoading = state;
+        }
+
+        public BaseTileData GetBaseData(Vector2Int position)
+        {
+            if (data.baseData.sTileOptions[position.x, position.y] == null)
+            {
+                data.baseData.sTileOptions[position.x, position.y] = new BaseTileData(0, 0, false);
+            }
+            return data.baseData.sTileOptions[position.x,position.y];
+        }
+
+        
+
+        public bool DeIncrementHardness(Vector2Int position)
+        {
+            baseTileHardnessArray[position.x, position.y]--;
+            return baseTileHardnessArray[position.x, position.y] == 0;
+        }
+
+        public int GetHardness(Vector2Int positionInPartition)
+        {
+            return baseTileHardnessArray[position.x, position.y];
         }
     }
 }
