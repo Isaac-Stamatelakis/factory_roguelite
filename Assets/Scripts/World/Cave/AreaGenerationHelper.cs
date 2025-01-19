@@ -66,19 +66,19 @@ namespace WorldModule.Caves {
 
                     if (nullCount == 2) {
                         if (upID == null && leftID == null) {
-                            state = natureTile.getRandomSlantState();
+                            state = natureTile.GetRandomSlantState();
                             rotation = 0;
                         }
                         else if (upID == null && rightID == null) {
-                            state = natureTile.getRandomSlantState();
+                            state = natureTile.GetRandomSlantState();
                             rotation = 3;
                         }
                         else if (downID == null && rightID == null) {
-                            state = natureTile.getRandomSlantState();
+                            state = natureTile.GetRandomSlantState();
                             rotation = 2;
                         }
                         else if (downID == null && leftID == null) {
-                            state = natureTile.getRandomSlantState();
+                            state = natureTile.GetRandomSlantState();
                             rotation = 1;
                         }
                     }
