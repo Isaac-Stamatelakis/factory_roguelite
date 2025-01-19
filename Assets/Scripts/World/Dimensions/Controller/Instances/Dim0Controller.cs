@@ -27,7 +27,7 @@ namespace Dimensions {
         }
 
         public void softLoadSystem() {
-            string path = WorldLoadUtils.getDimPath(0);
+            string path = WorldLoadUtils.GetDimPath(0);
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
             dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
             dim0System.softLoad();

@@ -98,7 +98,7 @@ namespace Chunks.IO {
         }
         
         public static string getPath(Vector2Int chunkPosition, int dim) {
-            return Path.Combine(WorldLoadUtils.getDimPath(dim),getName(chunkPosition));
+            return Path.Combine(WorldLoadUtils.GetDimPath(dim),getName(chunkPosition));
         }
 
         public static string getPath(IChunk chunk) {

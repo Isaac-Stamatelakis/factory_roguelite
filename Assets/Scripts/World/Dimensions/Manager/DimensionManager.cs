@@ -54,8 +54,8 @@ namespace Dimensions {
             catalogueControllers.ShowAll();
             
             WorldManager.getInstance().InitializeQuestBook();
-            
-            string path = Path.Combine(Application.persistentDataPath,WorldManager.getInstance().getWorldPath());
+
+            string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");
 
             softLoadSystems();

@@ -31,14 +31,14 @@ public class StructureGenerator : EditorWindow {
     [MenuItem("ToolCollection/Caves/Structure")]
     public static void ShowWindow()
     {
-        structureNames = StructureGeneratorHelper.getAllStructureFolders();
+        structureNames = StructureGeneratorHelper.GetAllStructureFolders();
         StructureGenerator window = (StructureGenerator)EditorWindow.GetWindow(typeof(StructureGenerator));
         window.titleContent = new GUIContent("Structure Generator");
     }
 
     private void OnEnable()
     {
-        structureNames = StructureGeneratorHelper.getAllStructureFolders();
+        structureNames = StructureGeneratorHelper.GetAllStructureFolders();
     }
 
     void OnGUI()
@@ -120,7 +120,7 @@ public class StructureGenerator : EditorWindow {
         structure.name = structureName;
         
         string path = StructureGeneratorHelper.getPath(structureName);
-        string dimPath = WorldLoadUtils.getDimPath(path, 0);
+        string dimPath = WorldLoadUtils.GetDimPath(path, 0);
 
         List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
         Dictionary<Vector2Int, SoftLoadedConduitTileChunk> chunkDict = new Dictionary<Vector2Int, SoftLoadedConduitTileChunk>();

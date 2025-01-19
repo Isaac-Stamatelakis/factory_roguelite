@@ -27,18 +27,18 @@ namespace WorldModule {
     {
         public static IEnumerator CreateWorld(string name) {
             yield return ItemRegistry.LoadItems();
-            WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
-            string path = WorldLoadUtils.getFullWorldPath();
+            WorldManager.getInstance().SetWorldName(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
+            string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
             
-            InitializeMetaData(WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta));
-            InitializeQuestBook(WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook));
-            
-            string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
+            InitializeMetaData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta));
+            InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
+
+            string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
-            InitPlayerData(WorldLoadUtils.getPlayerDataPath());
+            InitPlayerData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player));
             yield return InitDim0();
             WorldLoadUtils.createDimFolder(1);
         }
@@ -86,7 +86,7 @@ namespace WorldModule {
 
         
         public static IEnumerator InitDim0() {
-            if (WorldLoadUtils.dimExists(0)) {
+            if (WorldLoadUtils.DimExists(0)) {
                 Debug.LogError("Attempted to Initialize dim 0 when already exists");
                 yield break;
             }
@@ -119,7 +119,7 @@ namespace WorldModule {
             WorldTileConduitData dim0Data = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
             IntervalVector dim0Bounds = GetDim0Bounds();
             //WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
-            WorldGenerationFactory.SaveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
+            WorldGenerationFactory.SaveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.GetDimPath(0));
         }
 
         public static IntervalVector GetDim0Bounds() {

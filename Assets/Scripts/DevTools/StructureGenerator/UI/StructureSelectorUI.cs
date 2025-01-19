@@ -30,7 +30,7 @@ namespace DevTools.Structures {
             });
             GetComponent<Button>().onClick.AddListener(() => {
                 string path = StructureGeneratorHelper.getPath(this.title.text);
-                WorldManager.getInstance().setWorldPath(path);
+                WorldManager.getInstance().SetWorldName(path);
                 SceneManager.LoadScene("StructureGenerator");
             });
         }
@@ -39,13 +39,13 @@ namespace DevTools.Structures {
             if (newTitle.Equals(title.text)) {
                 return;
             }
-            string oldPath = Path.Combine(StructureGeneratorHelper.getFolderPath(),title.text);
-            string newPath = Path.Combine(StructureGeneratorHelper.getFolderPath(),newTitle);
+            string oldPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text);
+            string newPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),newTitle);
             Directory.Move(oldPath, newPath);
             structureDevControllerUI.displayList();
         }
         public void deleteSelf() {
-            Directory.Delete(Path.Combine(StructureGeneratorHelper.getFolderPath(),title.text),true);
+            Directory.Delete(Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text),true);
             structureDevControllerUI.displayList();
         }
         public string getTitle() {

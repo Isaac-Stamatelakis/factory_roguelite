@@ -26,7 +26,7 @@ namespace DevTools.Structures {
         public ClosedChunkSystem activateSystem(Vector2Int dimPositionOffset)
         {
             if (system == null) {
-                string path = WorldLoadUtils.getDimPath(0);
+                string path = WorldLoadUtils.GetDimPath(0);
                 List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
                 system = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
                 system.softLoad();

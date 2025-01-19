@@ -28,7 +28,7 @@ namespace PlayerModule.IO {
         }
 
         public void Deserialize() {
-            string playerJsonPath = WorldLoadUtils.getPlayerDataPath();
+            string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             string json = File.ReadAllText(playerJsonPath);
             playerData = JsonConvert.DeserializeObject<PlayerData>(json);
             tilePlacePreviewController.Toggle();
@@ -39,7 +39,7 @@ namespace PlayerModule.IO {
             playerData.y = transform.position.y;
             playerData.dim = DimensionManager.Instance.getPlayerDimension(transform);
             playerData.sInventoryData = PlayerInventoryFactory.Serialize(GetComponent<PlayerInventory>().PlayerInventoryData);
-            string playerJsonPath =  WorldLoadUtils.getPlayerDataPath();
+            string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
             File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));

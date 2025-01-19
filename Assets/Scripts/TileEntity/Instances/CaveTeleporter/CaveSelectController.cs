@@ -115,8 +115,8 @@ namespace TileEntity.Instances {
         public delegate void CaveCallback(CaveInstance caveInstance);
 
         public void generateAndTeleportToCave(CaveInstance caveInstance) {
-            if (WorldLoadUtils.dimExists(-1)) {
-                string path = WorldLoadUtils.getDimPath(-1);
+            if (WorldLoadUtils.DimExists(-1)) {
+                string path = WorldLoadUtils.GetDimPath(-1);
                 Directory.Delete(path, true);
             }
             WorldLoadUtils.createDimFolder(-1);
@@ -127,7 +127,7 @@ namespace TileEntity.Instances {
                 worldTileData,
                 caveInstance.getChunkCaveSize(),
                 -1,
-                WorldLoadUtils.getDimPath(-1)
+                WorldLoadUtils.GetDimPath(-1)
             );
             Debug.Log($"Serialized cave data in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
             stopwatch.Stop();

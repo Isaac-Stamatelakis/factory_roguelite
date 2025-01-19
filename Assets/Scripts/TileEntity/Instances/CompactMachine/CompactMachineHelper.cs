@@ -140,7 +140,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
         public static string getPositionFolderPath(List<Vector2Int> path) {
-            string systemPath = WorldLoadUtils.getDimPath(1);
+            string systemPath = WorldLoadUtils.GetDimPath(1);
             foreach (Vector2Int position in path) {
                 systemPath = Path.Combine(systemPath,$"{position.x},{position.y}");
             }
