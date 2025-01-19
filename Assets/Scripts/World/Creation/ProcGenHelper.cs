@@ -6,6 +6,7 @@ using System;
 using Entities;
 using Chunks.Partitions;
 using Chunks;
+using Tiles;
 using WorldModule.Caves;
 
 namespace WorldModule {
@@ -51,7 +52,7 @@ namespace WorldModule {
             SerializedBaseTileData baseTileData = new SerializedBaseTileData();
             baseTileData.ids = new string[size.x,size.y];
             baseTileData.sTileEntityOptions = new string[size.x,size.y];
-            baseTileData.sTileOptions = new string[size.x,size.y];
+            baseTileData.sTileOptions = new BaseTileData[size.x,size.y];
 
             SerializedBackgroundTileData backgroundTileData = new SerializedBackgroundTileData();
             backgroundTileData.ids = new string[size.x,size.y];
@@ -145,7 +146,7 @@ namespace WorldModule {
             }
             SerializedBaseTileData baseData = new SerializedBaseTileData();
             baseData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            baseData.sTileOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            baseData.sTileOptions = new BaseTileData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             baseData.sTileEntityOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
 
             SerializedBackgroundTileData backgroundData = new SerializedBackgroundTileData();

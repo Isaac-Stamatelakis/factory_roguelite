@@ -17,6 +17,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Newtonsoft.Json;
 using PlayerModule;
 using TileEntity;
+using Tiles;
 using UI.QuestBook;
 using World.Serialization;
 using Object = UnityEngine.Object;
@@ -215,34 +216,32 @@ namespace WorldModule {
             SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width,height);
             return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
         }
-        private static SerializedBaseTileData TileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            //Debug.Log("Generating SerializedChunkTileData for Base");
-            SerializedBaseTileData data = new SerializedBaseTileData();
-            string[,] ids = new string[width,height];
-            string[,] sTileEntityOptions = new string[width,height];
-            string[,] sTileOptions = new string[width,height];
-        
-            BoundsInt bounds = tilemap.cellBounds;
-            for (int x = 0; x < width; x++)
+    private static SerializedBaseTileData TileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
+        SerializedBaseTileData data = new SerializedBaseTileData();
+        string[,] ids = new string[width,height];
+        string[,] sTileEntityOptions = new string[width,height];
+        BaseTileData[,] sTileOptions = new BaseTileData[width,height];
+    
+        BoundsInt bounds = tilemap.cellBounds;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
             {
-                for (int y = 0; y < height; y++)
+                Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
+                if (tilemap.HasTile(tilePosition))
                 {
-                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                    if (tilemap.HasTile(tilePosition))
-                    {
-                        TileBase tile = tilemap.GetTile(tilePosition);
-                        if (tile is IIDTile) {
-                            string id = ((IIDTile) tile).getId();
-                            if (string.IsNullOrEmpty(id)) {
-                                continue;
-                            }
-                            ids[x,y]= id;
+                    TileBase tile = tilemap.GetTile(tilePosition);
+                    if (tile is IIDTile) {
+                        string id = ((IIDTile) tile).getId();
+                        if (string.IsNullOrEmpty(id)) {
+                            continue;
                         }
+                        ids[x,y]= id;
                     }
                 }
-                
             }
+            
+        }
         data.ids = ids;
         data.sTileEntityOptions = sTileEntityOptions;
         data.sTileOptions = sTileOptions;

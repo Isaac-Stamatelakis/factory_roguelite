@@ -121,7 +121,7 @@ namespace Chunks.Partitions {
 
         private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            Vector2Int partitionOffset = getRealPosition()*Global.ChunkPartitionSize;
+            Vector2Int partitionOffset = GetRealPosition()*Global.ChunkPartitionSize;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                 for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                     string id = data.ids[x,y];
@@ -159,10 +159,10 @@ namespace Chunks.Partitions {
             }
         }
 
-        public override void save()
+        public override void Save()
         {
-            base.save();
-            WorldTileConduitData data = (WorldTileConduitData) getData();
+            base.Save();
+            WorldTileConduitData data = (WorldTileConduitData) GetData();
 
             if (conduits == null) return;
             foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
@@ -179,7 +179,7 @@ namespace Chunks.Partitions {
         {
             base.iterateLoad(x, y, itemRegistry, tileGridMaps, realPosition);
             Vector2Int partitionPosition = new Vector2Int(x,y);
-            WorldTileConduitData data = (WorldTileConduitData) getData();
+            WorldTileConduitData data = (WorldTileConduitData) GetData();
             string itemID = data.itemConduitData.ids[x,y];
             if (itemID != null) {
                 place(
@@ -285,7 +285,7 @@ namespace Chunks.Partitions {
             if (item != null) {
                 id = item.id;
             }
-            WorldTileConduitData serializedTileConduitData = (WorldTileConduitData)getData();
+            WorldTileConduitData serializedTileConduitData = (WorldTileConduitData)GetData();
             switch (type) {
                 case ConduitType.Item:
                     serializedTileConduitData.itemConduitData.ids[position.x,position.y] = id;

@@ -56,7 +56,7 @@ namespace DevTools.Structures {
             return directoryNames;
         }
       
-        public static void newStructure(string name, StructureGenerationOption generationOption, IntervalVector bounds) {
+        public static void NewStructure(string name, StructureGenerationOption generationOption, IntervalVector bounds) {
             string folderPath = getFolderPath();
             string path = Path.Combine(folderPath,name);
             Directory.CreateDirectory(path);

@@ -5,6 +5,7 @@ using Chunks.IO;
 using Entities;
 using LibNoise;
 using LibNoise.Generator;
+using Tiles;
 
 namespace WorldModule.Caves {
     public enum RandomType {
@@ -174,7 +175,7 @@ namespace WorldModule.Caves {
             SerializedBaseTileData baseTileData = new SerializedBaseTileData();
             baseTileData.ids = new string[width,height];
             baseTileData.sTileEntityOptions = new string[width,height];
-            baseTileData.sTileOptions = new string[width,height];
+            baseTileData.sTileOptions = new BaseTileData[width,height];
 
             SerializedBackgroundTileData backgroundTileData = new SerializedBackgroundTileData();
             backgroundTileData.ids = new string[width,height];

@@ -65,7 +65,7 @@ namespace TileMaps {
         }
         
         public virtual void addPartition(IChunkPartition partition) {
-            partitions.Add(partition.getRealPosition());
+            partitions.Add(partition.GetRealPosition());
         }
         public virtual IEnumerator removePartition(Vector2Int partitionPosition) {
             if (!containsPartition(partitionPosition)) {

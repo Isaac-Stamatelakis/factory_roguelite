@@ -237,10 +237,10 @@ namespace Chunks.Systems {
                     Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
                     foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
                         IConduitSystemManager manager = kvp.Value;
-                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.getRealPosition());
+                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
-                    partition.save();
+                    partition.Save();
                 }
                 ChunkIO.writeChunk(chunk,path:savePath,directory:true);
             }
@@ -254,7 +254,7 @@ namespace Chunks.Systems {
             }
             foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
-                    partition.tick();
+                    partition.Tick();
                 }
             }
         }

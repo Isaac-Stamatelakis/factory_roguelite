@@ -241,7 +241,7 @@ namespace TileMaps.Place {
             
             ITileEntityInstance tileEntityInstance = TileEntityHelper.placeTileEntity(tileItem,positionInChunk,chunk,true);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
-            partition.addTileEntity(layer,tileEntityInstance,positionInPartition);
+            partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
             }

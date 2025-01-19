@@ -10,6 +10,7 @@ using Chunks.Systems;
 using WorldModule;
 using System;
 using Chunks.Partitions;
+using Tiles;
 
 namespace Chunks.IO {
     public class ChunkIO {
@@ -133,7 +134,7 @@ namespace Chunks.IO {
     [System.Serializable]
     public class SerializedBaseTileData {
         public string[,] ids;
-        public string[,] sTileOptions;
+        public BaseTileData[,] sTileOptions;
         public string[,] sTileEntityOptions;
     }
 
@@ -178,7 +179,7 @@ namespace Chunks.IO {
             SerializedBaseTileData serializedBaseTileData = new SerializedBaseTileData();
             serializedBaseTileData.ids = new string[width,height];
             serializedBaseTileData.sTileEntityOptions = new string[width,height];
-            serializedBaseTileData.sTileOptions = new string[width,height];
+            serializedBaseTileData.sTileOptions = new BaseTileData[width,height];
             return serializedBaseTileData;
         }
     }

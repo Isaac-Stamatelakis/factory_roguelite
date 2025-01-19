@@ -126,7 +126,7 @@ namespace Chunks {
         {
             List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
             foreach (IChunkPartition chunkPartition in partitions) {
-                dataList.Add(chunkPartition.getData());
+                dataList.Add(chunkPartition.GetData());
             }
             return dataList;
         }
@@ -147,10 +147,10 @@ namespace Chunks {
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (partition.getLoaded()) {
+                if (partition.GetLoaded()) {
                     continue;
                 }
-                Vector2Int position = partition.getRealPosition();
+                Vector2Int position = partition.GetRealPosition();
                 Vector2Int dif = position-target;
                 if (dif.x < -1) {
                     dif.x *= -1;
@@ -170,8 +170,8 @@ namespace Chunks {
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (!partition.getFarLoaded() && !partition.getScheduledForFarLoading() && partition.inRange(target,range.x,range.y)) {
-                    partition.setScheduledForFarLoading(true);
+                if (!partition.GetFarLoaded() && !partition.GetScheduledForFarLoading() && partition.InRange(target,range.x,range.y)) {
+                    partition.SetScheduledForFarLoading(true);
                     close.Add(partition);
                 } 
             }
@@ -192,8 +192,8 @@ namespace Chunks {
         {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (partition.getLoaded() && !partition.getScheduledForUnloading() && !partition.inRange(target,range.x,range.y)) {
-                    partition.setScheduleForUnloading(true);
+                if (partition.GetLoaded() && !partition.GetScheduledForUnloading() && !partition.InRange(target,range.x,range.y)) {
+                    partition.SetScheduleForUnloading(true);
                     far.Add(partition);
                 } 
             }
@@ -204,7 +204,7 @@ namespace Chunks {
         {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
-                if (partition.getFarLoaded() && !partition.inRange(target,range.x,range.y)) {
+                if (partition.GetFarLoaded() && !partition.InRange(target,range.x,range.y)) {
                     far.Add(partition);
                 } 
             }
@@ -235,7 +235,7 @@ namespace Chunks {
         public bool partionsAreAllUnloaded()
         {
             foreach (IChunkPartition partition in partitions) {
-                    if (partition.getLoaded() || partition.getScheduledForUnloading()) {
+                    if (partition.GetLoaded() || partition.GetScheduledForUnloading()) {
                         return false;
                     }
                 }
@@ -261,7 +261,7 @@ namespace Chunks {
         {
             HashSet<string> entityIds = new HashSet<string>();
             foreach (IChunkPartition partition in partitions) {
-                IChunkPartitionData data = partition.getData();
+                IChunkPartitionData data = partition.GetData();
                 if (data is not SeralizedWorldData serializedTileData) {
                     continue;
                 }

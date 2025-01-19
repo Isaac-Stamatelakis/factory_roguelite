@@ -47,7 +47,7 @@ namespace TileMaps {
         {
             base.SetTile(x, y, tileItem);
             TileBase outlineTile = tileItem.outline;
-            if (outlineTile == null) {
+            if (ReferenceEquals(outlineTile,null)) {
                 return;
             }
             if (outlineTile is not IStateTile stateTile) {
@@ -55,25 +55,24 @@ namespace TileMaps {
                 return;
             }
             Vector3Int vec3 = new Vector3Int(x,y,0);
-            TileOptions tileOptions = getOptionsAtPosition(new Vector2Int(x,y));
-            SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
-            int state = serializedTileOptions.state;
+            Vector2Int tilePosition = new Vector2Int(x, y);
+            IChunkPartition partition = GetPartitionAtPosition(tilePosition);
+            Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
+            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
+            int state = baseTileData.state;
 
             TileBase stateOutlineTile = stateTile.getTileAtState(state);
             outlineTileMap.SetTile(vec3,stateOutlineTile);
 
-            int rotation = serializedTileOptions.rotation;
-            bool mirror = serializedTileOptions.mirror;
+            int rotation = baseTileData.rotation;
+            bool mirror = baseTileData.mirror;
             bool rotate = rotation > 0 || mirror;
             if (!rotate) {
                 return;
             }
             Matrix4x4 transformMatrix = outlineTileMap.GetTransformMatrix(vec3);
-            if (!mirror) {
-                transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 0f, 90*rotation), Vector3.one);
-            } else {
-                transformMatrix.SetTRS(Vector3.zero, Quaternion.Euler(0f, 180f, 90*rotation), Vector3.one);
-            }
+            transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation),
+                Vector3.one);
             outlineTileMap.SetTransformMatrix(vec3,transformMatrix);
         }
     }

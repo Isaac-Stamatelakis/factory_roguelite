@@ -44,8 +44,8 @@ namespace Fluids {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
         {
-            Vector2Int realPosition = partition.getRealPosition()*Global.ChunkPartitionSize + position;
-            ActiveFluidPartitionData data = partitionFluidData[partition.getRealPosition()];
+            Vector2Int realPosition = partition.GetRealPosition()*Global.ChunkPartitionSize + position;
+            ActiveFluidPartitionData data = partitionFluidData[partition.GetRealPosition()];
             data.ids[position.x,position.y] = item.id;
             data.fill[position.x,position.y] = 8;
             addFluidUpdate(new Vector2Int(realPosition.x,realPosition.y));
@@ -60,7 +60,7 @@ namespace Fluids {
         public override void addPartition(IChunkPartition partition)
         {
             base.addPartition(partition);
-            partitionFluidData[partition.getRealPosition()] = new ActiveFluidPartitionData(partition.getFluidData()); 
+            partitionFluidData[partition.GetRealPosition()] = new ActiveFluidPartitionData(partition.GetFluidData()); 
         }
 
         public void FixedUpdate() {

@@ -19,13 +19,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,Vector2Int systemOffset)
+        public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,Vector2Int systemOffset)
         {
             if (tileEntities == null) {
                 tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
             }
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
-            yield return base.load(tileGridMaps,direction,systemOffset);
+            yield return base.Load(tileGridMaps,direction,systemOffset);
             if (parent is ILoadedChunk loadedChunk) {
                 foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
                     EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
@@ -36,10 +36,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
         private FluidIWorldTileMap fluidIWorldTileMap;
 
-        public override void save()
+        public override void Save()
         {
-            Vector2Int position = getRealPosition();
-            SeralizedWorldData data = (SeralizedWorldData) getData();
+            Vector2Int position = GetRealPosition();
+            SeralizedWorldData data = (SeralizedWorldData) GetData();
+            /*
             if (tileOptionsArray != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -48,6 +49,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     }
                 }
             }
+            */
             if (tileEntities != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {
@@ -67,8 +69,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             yield return base.unload(tileGridMaps);
         }
 
-        public override IEnumerator unloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            yield return base.unloadTiles(tileGridMaps);
+        public override IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+            yield return base.UnloadTiles(tileGridMaps);
             if (tileEntities != null) {
                 int removalsPerNumeration = 5;
                 int removals = 0;
@@ -110,11 +112,9 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             Vector2Int partitionPosition = new Vector2Int(x,y);
             string baseId = data.baseData.ids[x,y];
             if (baseId != null) {
-                string baseOptions = data.baseData.sTileOptions[x,y];
                 string baseTileEntityOptions = data.baseData.sTileEntityOptions[x,y];
-                placeBase(
+                PlaceBase(
                     id: baseId,
-                    tileOptionData: baseOptions,
                     tileEntityOptions: baseTileEntityOptions,
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
@@ -124,7 +124,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
             string backgroundID = data.backgroundData.ids[x,y];
             if (backgroundID != null) {
-                placeBackground(
+                PlaceBackground(
                     id: backgroundID,
                     itemRegistry: itemRegistry,
                     tileGridMaps: tileGridMaps,
@@ -144,9 +144,9 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        private void placeBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+        private static void PlaceBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.GetTileItem(id);
-            if (tileItem == null) {
+            if (ReferenceEquals(tileItem,null)) {
                 return;
             }
             IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
@@ -158,9 +158,9 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             
         }
 
-        private void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
+        private static void placeFluid(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition, Vector2Int positionInPartition) {
             FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
-            if (fluidTileItem == null) {
+            if (ReferenceEquals(fluidTileItem,null)) {
                 return;
             }
             IWorldTileMap iWorldTileGridMap = tileGridMaps[TileMapType.Fluid];
@@ -170,15 +170,15 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 fluidTileItem
             );
         }
-        private void placeBase(string id, string tileOptionData, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
+        private void PlaceBase(string id, string tileEntityOptions,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
             TileItem tileItem = itemRegistry.GetTileItem(id);
-            if (tileItem == null) {
-                return;
-            }
-            TileOptions options = TileOptionFactory.deserialize(tileOptionData,tileItem);
-            tileOptionsArray[positionInPartition.x,positionInPartition.y] = options;
-            if (tileItem.tileEntity != null ) {
-                placeTileEntityFromLoad(
+            
+            if (ReferenceEquals(tileItem,null)) return;
+
+            baseTileHardnessArray[positionInPartition.x, positionInPartition.y] = tileItem.tileOptions.hardness;
+            
+            if (!ReferenceEquals(tileItem.tileEntity,null)) {
+                PlaceTileEntityFromLoad(
                     tileItem,
                     tileEntityOptions,
                     positionInPartition,
@@ -188,10 +188,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 );
             }
             
-            TileBase tileBase = tileItem.tile;
-            if (tileItem.tile is IStateTile stateTile) {
-                tileBase = stateTile.getTileAtState(options.SerializedTileOptions.state);
-            }
             IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
             iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
@@ -200,7 +196,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             );
         }
 
-        protected virtual void placeTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y) {
+        protected virtual void PlaceTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y) {
             
             ITileEntityInstance tileEntityInstance = tileEntityArray[x,y];
             if (tileEntityInstance != null) {
@@ -229,53 +225,48 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        public override void setTile(Vector2Int position, TileMapLayer layer, TileItem tileItem)
+        public override void SetTile(Vector2Int tilePosition, TileMapLayer layer, TileItem tileItem)
         {
-            SeralizedWorldData tileData = (SeralizedWorldData) getData();
+            SeralizedWorldData tileData = (SeralizedWorldData) GetData();
             string id = tileItem?.id;
             switch (layer) {
                 case TileMapLayer.Base:
-                    tileData.baseData.ids[position.x,position.y] = id;
+                    tileData.baseData.ids[tilePosition.x,tilePosition.y] = id;
+                    BaseTileData baseTileData = new BaseTileData(0,0,false);
+                    if (tileItem is { tile: IRestrictedTile restrictedTile }) {
+                        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        baseTileData.state = restrictedTile.getStateAtPosition(mousePosition,MousePositionFactory.getVerticalMousePosition(mousePosition),MousePositionFactory.getHorizontalMousePosition(mousePosition));
+                    }
+                    tileData.baseData.sTileOptions[tilePosition.x, tilePosition.y] = baseTileData;
+                    
                     break;
                 case TileMapLayer.Background:
-                    tileData.backgroundData.ids[position.x,position.y] = id;
+                    tileData.backgroundData.ids[tilePosition.x,tilePosition.y] = id;
                     return;
                 case TileMapLayer.Fluid:
-                    tileData.fluidData.ids[position.x,position.y] = id;
+                    tileData.fluidData.ids[tilePosition.x,tilePosition.y] = id;
                     return;
             }
-            if (id == null) {
-                tileOptionsArray[position.x,position.y] = null;
-                return;
-            }
-            TileOptions tileOptions = TileOptionFactory.getDefault(tileItem);
-            if (tileItem.tile is IRestrictedTile restrictedTile) {
-                Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                SerializedTileOptions serializedTileOptions = tileOptions.SerializedTileOptions;
-                serializedTileOptions.state = restrictedTile.getStateAtPosition(mousePosition,MousePositionFactory.getVerticalMousePosition(mousePosition),MousePositionFactory.getHorizontalMousePosition(mousePosition));
-                tileOptions.SerializedTileOptions = serializedTileOptions;
-            }
-            tileOptionsArray[position.x,position.y] = tileOptions;
         }
 
-        public override PartitionFluidData getFluidData()
+        public override PartitionFluidData GetFluidData()
         {
-            SeralizedWorldData serializedTileData = (SeralizedWorldData) getData();
+            SeralizedWorldData serializedTileData = (SeralizedWorldData) GetData();
             return new PartitionFluidData(serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
         }
 
-        public override bool getFarLoaded()
+        public override bool GetFarLoaded()
         {
             return farLoaded;
         }
 
-        public override void loadFarLoadTileEntities()
+        public override void LoadFarLoadTileEntities()
         {
             if (tileEntities == null || farLoaded) {
                 return;
             }
             farLoaded = true;
-            SeralizedWorldData data = (SeralizedWorldData) getData();
+            SeralizedWorldData data = (SeralizedWorldData) GetData();
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             string[,] tileIds = data.baseData.ids;
             for (int x = 0; x < Global.ChunkPartitionSize; x++) {
@@ -302,7 +293,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        public override void unloadFarLoadTileEntities()
+        public override void UnloadFarLoadTileEntities()
         {
             if (tileEntities == null || !farLoaded) {
                 return;

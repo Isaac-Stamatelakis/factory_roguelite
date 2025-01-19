@@ -13,7 +13,7 @@ namespace Chunks.Loaders {
         private Vector2Int positionChange;
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
-            return !value.getLoaded();
+            return !value.GetLoaded();
         }
 
         public override Vector2Int getPlayerPosition()
@@ -23,9 +23,9 @@ namespace Chunks.Loaders {
 
         public override void update(IChunkPartition value)
         {
-            value.setTileLoaded(true);
+            value.SetTileLoaded(true);
             Vector2Int playerPosition = getPlayerPosition();
-            Vector2Int position = value.getRealPosition();
+            Vector2Int position = value.GetRealPosition();
             Vector2Int positionChange = closedChunkSystem.getPlayerPartitionChangeDifference();
             Direction loadDirection = Direction.Left;
             if (positionChange.x < 0) {

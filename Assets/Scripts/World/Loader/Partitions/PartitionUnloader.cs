@@ -14,13 +14,13 @@ namespace Chunks.Loaders {
         }
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
-            value.setScheduleForUnloading(false);
-            return value.getLoaded() && !value.inRange(playerPosition,CameraView.ChunkPartitionLoadRange.x,CameraView.ChunkPartitionLoadRange.y);
+            value.SetScheduleForUnloading(false);
+            return value.GetLoaded() && !value.InRange(playerPosition,CameraView.ChunkPartitionLoadRange.x,CameraView.ChunkPartitionLoadRange.y);
         }
 
         public override void update(IChunkPartition value)
         {
-            value.setTileLoaded(false);
+            value.SetTileLoaded(false);
             StartCoroutine(closedChunkSystem.unloadChunkPartition(value));
         }
 

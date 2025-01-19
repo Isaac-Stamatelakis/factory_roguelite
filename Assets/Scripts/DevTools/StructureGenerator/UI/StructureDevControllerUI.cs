@@ -23,10 +23,6 @@ namespace DevTools.Structures {
             displayList();
         }
 
-        public static StructureDevControllerUI newInstance() {
-            return AddressableLoader.getPrefabComponentInstantly<StructureDevControllerUI>("Assets/UI/DevTools/Structure/Structures.prefab");
-        }
-
         public void displayList() {
             GlobalHelper.deleteAllChildren(list.transform);
             string directoryPath = StructureGeneratorHelper.getFolderPath();

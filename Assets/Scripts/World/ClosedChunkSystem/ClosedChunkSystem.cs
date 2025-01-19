@@ -80,7 +80,7 @@ namespace Chunks.Systems {
         public void deactivateAllPartitions() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
-                    partition.setTileLoaded(false);
+                    partition.SetTileLoaded(false);
                 }
             }
         }
@@ -262,9 +262,9 @@ namespace Chunks.Systems {
         }
 
         public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
-            loadedPartitionBoundary.partitionLoaded(chunkPartition.getRealPosition());
-            yield return chunkPartition.load(tileGridMaps,direction,DimPositionOffset);
-            chunkPartition.setTileLoaded(true);
+            loadedPartitionBoundary.partitionLoaded(chunkPartition.GetRealPosition());
+            yield return chunkPartition.Load(tileGridMaps,direction,DimPositionOffset);
+            chunkPartition.SetTileLoaded(true);
             
         }
 
@@ -280,12 +280,12 @@ namespace Chunks.Systems {
             }
         }
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
-            chunkPartition.unloadEntities();
-            loadedPartitionBoundary.partitionUnloaded(chunkPartition.getRealPosition());
-            yield return StartCoroutine(chunkPartition.unloadTiles(tileGridMaps));
-            breakIndicator.unloadPartition(chunkPartition.getRealPosition());
-            chunkPartition.setTileLoaded(false);
-            chunkPartition.setFarLoaded(false);
+            chunkPartition.UnloadEntities();
+            loadedPartitionBoundary.partitionUnloaded(chunkPartition.GetRealPosition());
+            yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
+            breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
+            chunkPartition.SetTileLoaded(false);
+            chunkPartition.SetFarLoaded(false);
             
         }
 
@@ -305,8 +305,8 @@ namespace Chunks.Systems {
             partitionUnloader.clearQueue();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
-                    if (partition.getLoaded()) {
-                        partition.save();
+                    if (partition.GetLoaded()) {
+                        partition.Save();
                     }
                 }
                 ChunkIO.writeChunk(chunk);

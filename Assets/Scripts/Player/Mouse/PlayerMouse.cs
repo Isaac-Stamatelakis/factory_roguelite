@@ -310,7 +310,7 @@ namespace PlayerModule.Mouse {
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.ChunkPartitionSize;
             IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
-            if (chunkPartition.clickTileEntity(tilePositionInPartition)) {
+            if (chunkPartition.ClickTileEntity(tilePositionInPartition)) {
                 return true;
             }
             return false;

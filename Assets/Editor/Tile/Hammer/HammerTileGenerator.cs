@@ -131,8 +131,8 @@ namespace HammerTileEditor
             AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
             AssetDatabase.Refresh();
             TileItem tileItem = ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
-            tileItem.tileOptions.StaticOptions.rotatable = true;
-            tileItem.tileOptions.StaticOptions.hasStates = true;
+            tileItem.tileOptions.rotatable = true;
+            tileItem.tileOptions.hasStates = true;
             
             AssetDatabase.Refresh();
         }
@@ -262,7 +262,7 @@ namespace HammerTileEditor
                 for (int x = 0; x < columns; x++)
                 {
                     int index = y * columns + x;
-                    string spritePath = AssetDatabase.GetAssetPath(readAndCopySprite.CopySprite);
+                    string spritePath = AssetDatabase.GetAssetPath(readAndCopySprite.ReadSprite);
                     string spriteSavePath = Path.Combine(path, name + "_" + index.ToString() + ".png");
 
                     AssetDatabase.CopyAsset(spritePath, spriteSavePath);
@@ -278,7 +278,13 @@ namespace HammerTileEditor
                     byte[] bytes = modifiedTexture.EncodeToPNG();
                     File.WriteAllBytes(spriteSavePath, bytes);
                     
-                    
+                    TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(spriteSavePath);
+                    importer.isReadable = false;
+                    importer.spritePixelsPerUnit = 32;
+                    importer.filterMode = FilterMode.Point; 
+                    importer.textureCompression = TextureImporterCompression.Uncompressed;
+                    importer.SaveAndReimport();
+                    EditorUtility.SetDirty(importer); 
                     
                     sprites[index] = newSprite;
                     
