@@ -11,7 +11,7 @@ using TileEntity;
 }
 public static class ItemEditorFactory
 {
-    public static void generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
+    public static TileItem generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
         string path = savePath + tileName + "/";
         if (createFolder) {
             createDirectory(tileName,savePath);
@@ -22,6 +22,12 @@ public static class ItemEditorFactory
         tileItem.name = tileName;
         tileItem.tile = tile;
         tileItem.outline = outline;
+        tileItem.tileOptions.StaticOptions.hitable = true;
+        
+        var options = tileItem.tileOptions.DynamicTileOptions;
+        options.hardness = 8;
+        tileItem.tileOptions.DynamicTileOptions = options;
+        
         if (tileEntity != null) {
             tileItem.tileEntity = tileEntity;
         }
@@ -34,6 +40,8 @@ public static class ItemEditorFactory
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
         Debug.Log("Tile Created at Path: " + path);
         AssetDatabase.Refresh();
+        
+        return tileItem;
     }
 
     public static string formatId(string tileName) {

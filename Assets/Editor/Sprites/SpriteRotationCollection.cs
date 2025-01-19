@@ -6,10 +6,18 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SpriteRotationCollection", menuName = "Editor/SpriteRotationCollection")]
 public class SpriteRotationCollection : ScriptableObject
 {
-    public Sprite R0;
-    public Sprite R1;
-    public Sprite R2;
-    public Sprite R3;
+    public ReadAndCopySprite[] Sprites;
+
+    public Sprite GetDefaultReadSprite()
+    {
+        return Sprites[0].ReadSprite;
+    }
 }
 
+[System.Serializable]
+public class ReadAndCopySprite
+{
+    public Sprite CopySprite;
+    public Sprite ReadSprite;
+}
 #endif

@@ -46,7 +46,7 @@ public class HammerTileValues
     {
         return type switch
         {
-            NatureHammerTileType.Slab => NATURE_SLANT_PATH,
+            NatureHammerTileType.Slab => NATURE_SLAB_PATH,
             NatureHammerTileType.Slant => NATURE_SLANT_PATH,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
