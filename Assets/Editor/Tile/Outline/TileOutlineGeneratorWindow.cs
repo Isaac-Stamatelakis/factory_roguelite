@@ -87,9 +87,9 @@ public class TileOutlineGeneratorWindow : EditorWindow {
     {
         List<Sprite> sprites = new List<Sprite>();
         sprites.Add(generateFromTexture(texture, path, "", tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Slab.R0.texture,path,"slab_",tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Slant.R0.texture,path,"slant_",tileName));
-        sprites.Add(generateFromTexture(hammerTileValues.Stairs.R0.texture,path,"stair_",tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Slab.GetDefaultReadSprite().texture,path,"slab_",tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Slant.GetDefaultReadSprite().texture,path,"slant_",tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Stairs.GetDefaultReadSprite().texture,path,"stair_",tileName));
         
         Tile baseTile = ItemEditorFactory.createTile(sprites[0],tileName,path);
         Tile slabTile = ItemEditorFactory.createTile(sprites[1],$"slab_{tileName}",path);
@@ -107,14 +107,14 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         Tile[] natureSlabTiles = new Tile[hammerTileValues.NatureSlabs.Length];
         for (int i = 0; i < hammerTileValues.NatureSlabs.Length; i++)
         {
-            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlabs[i].R0.texture,path,$"nature_slab_{i}_",tileName);
+            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlabs[i].GetDefaultReadSprite().texture,path,$"nature_slab_{i}_",tileName);
             natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slab_{tileName}_{i}",path));
         }
         
         Tile[] natureSlantTiles = new Tile[hammerTileValues.NatureSlants.Length];
         for (int i = 0; i < hammerTileValues.NatureSlants.Length; i++)
         {
-            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlants[i].R0.texture,path,$"nature_slant_{i}_",tileName);
+            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlants[i].GetDefaultReadSprite().texture,path,$"nature_slant_{i}_",tileName);
             natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slant_{tileName}_{i}",path));
         }
 

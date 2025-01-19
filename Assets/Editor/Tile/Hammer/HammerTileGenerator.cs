@@ -31,7 +31,6 @@ namespace HammerTileEditor
         private static HammerTileValues hammerTileValues;
         private TileBase natureOutline;
         private string tileName;
-        private bool stateRotation = true;
         private bool show = false;
         private Texture2D texture;
         private MultiTileType multiType;
@@ -124,14 +123,17 @@ namespace HammerTileEditor
             HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
             hammerTile.id = ItemEditorFactory.formatId(tileName);
             hammerTile.baseTile = generateBase(texture, path);
-            hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, Path.Combine(path, "slab"), tileName, "slab");
-            hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant, Path.Combine(path, "slant"), tileName, "slant");
-            hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs, Path.Combine(path, "stair"), tileName, "stair");
+            hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
+            hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
+            hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs,path, tileName, "stair");
 
             string hammerTilePath = Path.Combine(path, "T~" + tileName + "_Hammer" + ".asset");
             AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
             AssetDatabase.Refresh();
-            ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
+            TileItem tileItem = ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
+            tileItem.tileOptions.StaticOptions.rotatable = true;
+            tileItem.tileOptions.StaticOptions.hasStates = true;
+            
             AssetDatabase.Refresh();
         }
 
@@ -207,38 +209,52 @@ namespace HammerTileEditor
         private static StateRotatableTile GenerateStateTile(Texture2D texture, MultiTileType multiTileType, SpriteRotationCollection sprites,
             string path, string name, string variation)
         {
+            string variationPath = Path.Combine(path, variation);
+            AssetDatabase.CreateFolder(path,variation);
             var tiles = new TileBase[4];
             string variationName = name + "_" + variation;
-            tiles[0] = GenerateTile(texture, multiTileType, sprites.R0, Path.Combine(path, "0R"),variationName);
-            tiles[1] = GenerateTile(texture, multiTileType,  sprites.R1, Path.Combine(path, "90R"),variationName);
-            tiles[2] = GenerateTile(texture, multiTileType, sprites.R2, Path.Combine(path, "180R"),variationName);
-            tiles[3] = GenerateTile(texture, multiTileType, sprites.R3, Path.Combine(path, "270R"),variationName);
+            var rotationNames = new List<string>
+            {
+                "0R", "90R", "180", "270"
+            };
+            if (sprites.Sprites.Length > 4)
+                throw new ArgumentOutOfRangeException($"SpriteRotationCollection: {sprites.name} does not have 4 sprites");
+            
+            for (var i = 0; i < rotationNames.Count; i++)
+            {
+                string rotationName = rotationNames[i];
+                string rotationPath = Path.Combine(variationPath, rotationName);
+                AssetDatabase.CreateFolder(variationPath,rotationName);
+                tiles[i] = GenerateTile(texture, multiTileType, sprites.Sprites[i], rotationPath, variationName);
+                tiles[i].name = variationName + "_" + rotationName;
+                AssetDatabase.CreateAsset(tiles[i], Path.Combine(rotationPath, tiles[i].name + ".asset"));
+            }
             
             StateRotatableTile stateTile = ScriptableObject.CreateInstance<StateRotatableTile>();
             stateTile.name = variationName;
             stateTile.Tiles = tiles;
-            string savePath = Path.Combine(path, variationName + ".asset");
+            string savePath = Path.Combine(variationPath, variationName + ".asset");
             AssetDatabase.CreateAsset(stateTile,savePath);
             AssetDatabase.Refresh();
             return AssetDatabase.LoadAssetAtPath<StateRotatableTile>(savePath);
         }
 
-        private static TileBase GenerateTile(Texture2D texture, MultiTileType type, Sprite copySprite, string path,
+        private static TileBase GenerateTile(Texture2D texture, MultiTileType type, ReadAndCopySprite readAndCopySprite, string path,
             string name)
         {
-            Sprite[] sprites = CopyTextureIntoSprite(texture, copySprite, path, name);
+            Sprite[] sprites = CopyTextureIntoSprite(texture, readAndCopySprite, path, name);
             return FromSprites(sprites, type);
 
         }
 
-        public static Sprite[] CopyTextureIntoSprite(Texture2D texture, Sprite copySprite, string path, string name)
+        public static Sprite[] CopyTextureIntoSprite(Texture2D texture, ReadAndCopySprite readAndCopySprite, string path, string name)
         {
             const int height = 16;
             const int width = 16;
 
             int rows = texture.height / height;
             int columns = texture.width / width;
-            Texture2D copySpriteTexture = copySprite.texture;
+            Texture2D copySpriteTexture = readAndCopySprite.ReadSprite.texture;
             Color[] shapePixels = copySpriteTexture.GetPixels();
             Sprite[] sprites = new Sprite[rows * columns];
             for (int y = 0; y < rows; y++)
@@ -246,8 +262,8 @@ namespace HammerTileEditor
                 for (int x = 0; x < columns; x++)
                 {
                     int index = y * columns + x;
-                    string spritePath = AssetDatabase.GetAssetPath(copySprite);
-                    string spriteSavePath = Path.Combine(path, name + "-" + index.ToString());
+                    string spritePath = AssetDatabase.GetAssetPath(readAndCopySprite.CopySprite);
+                    string spriteSavePath = Path.Combine(path, name + "_" + index.ToString() + ".png");
 
                     AssetDatabase.CopyAsset(spritePath, spriteSavePath);
                     
@@ -261,13 +277,11 @@ namespace HammerTileEditor
                     
                     byte[] bytes = modifiedTexture.EncodeToPNG();
                     File.WriteAllBytes(spriteSavePath, bytes);
-                    Texture2D spliteTexture = new Texture2D(width, height);
-                    spliteTexture.SetPixels(0, 0, width, height, pixels);
-
-                    byte[] pngBytes = spliteTexture.EncodeToPNG();
-                    File.WriteAllBytes(spriteSavePath + ".png", pngBytes);
+                    
+                    
                     
                     sprites[index] = newSprite;
+                    
                 }
             }
 
@@ -289,7 +303,7 @@ namespace HammerTileEditor
 
         private static TileBase FromSprites(Sprite[] sprites, MultiTileType type)
         {
-            if (sprites.Length == 0)
+            if (sprites.Length == 1)
             {
                 Tile tile = ScriptableObject.CreateInstance<Tile>();
                 tile.sprite = sprites[0];
