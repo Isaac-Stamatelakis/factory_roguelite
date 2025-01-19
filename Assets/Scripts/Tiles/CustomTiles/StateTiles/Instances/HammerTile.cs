@@ -35,7 +35,7 @@ namespace Tiles {
             this.id = id;
         }
 
-        public TileBase getTileAtState(int state)
+        public virtual TileBase getTileAtState(int state)
         {
             return state switch
             {
@@ -46,7 +46,7 @@ namespace Tiles {
                 _ => null
             };
         }
-        public int getStateAmount()
+        public virtual int getStateAmount()
         {
             return 4;
         }

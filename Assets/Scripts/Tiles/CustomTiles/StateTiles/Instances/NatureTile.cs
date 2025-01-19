@@ -10,37 +10,18 @@ using TileEntity.Instances.SimonSays;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~New Simon Says Tile",menuName="Tile/State/NatureHammer")]
-    public class NatureTile : TileBase, IIDTile, IStateTile
+    public class NatureTile : HammerTile, IIDTile, IStateTile
     {
-        [SerializeField] public string id;
-        [SerializeField] public Tile baseTile;
-        [SerializeField] public Tile cleanSlab;
-        [SerializeField] public Tile cleanSlant;
-        [SerializeField] public Tile stairs;
         [SerializeField] public Tile[] natureSlants;
         [SerializeField] public Tile[] natureSlabs;
         
-        public Sprite getDefaultSprite()
-        {
-            return baseTile.sprite;
-        }
         
-        public string getId()
-        {
-            return id;
-        }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
-
-        public int getRandomSlantState() {
+        public int GetRandomSlantState() {
             int ran = Random.Range(0,natureSlants.Length);
-            return 3 + ran;
+            return 4 + ran;
         }
 
-        public TileBase getTileAtState(int state)
+        public override TileBase getTileAtState(int state)
         {
             switch (state)
             {
@@ -64,7 +45,7 @@ namespace Tiles {
             return null;
         }
         
-        public int getStateAmount()
+        public override int getStateAmount()
         {
             return 4+natureSlants.Length+natureSlabs.Length;
         }

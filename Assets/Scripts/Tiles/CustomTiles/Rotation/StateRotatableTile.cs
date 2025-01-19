@@ -7,9 +7,9 @@ namespace Tiles {
     public class StateRotatableTile : Tile, IIDTile, IStateRotationTile
     {
         [SerializeField] private string id;
-        [SerializeField] private Tile[] tiles;
+        [SerializeField] private TileBase[] tiles;
         #if UNITY_EDITOR
-        public Tile[] Tiles {get => tiles; set=> tiles = value;}
+        public TileBase[] Tiles {get => tiles; set=> tiles = value;}
         #endif
         public string getId()
         {

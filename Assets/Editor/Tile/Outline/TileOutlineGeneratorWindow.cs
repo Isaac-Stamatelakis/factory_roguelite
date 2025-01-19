@@ -20,7 +20,6 @@ public class TileOutlineGeneratorWindow : EditorWindow {
     private string tileName;
     private Color outlineColor = Color.white;
     private bool spriteSheet = false;
-    private bool padding = true;
     private OutlineTileType outlineType;
     private static HammerTileValues hammerTileValues;
     private Vector2Int sliceSize = new Vector2Int(16,16);
@@ -32,24 +31,16 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         window.titleContent = new GUIContent("Outline Generator");
 
     }
-    private async void OnEnable()
+    private void OnEnable()
     {
-        if (hammerTileValues == null) {
-            hammerTileValues = new HammerTileValues();
-            await hammerTileValues.load();
-        }
-        
+        hammerTileValues ??= new HammerTileValues();
     }
     void OnGUI()
     {
-        if (hammerTileValues == null)
-        {
-            GUILayout.Label("Loading...");
-            return;
-        }
+        
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        hammerTileValues.Texture = EditorGUILayout.ObjectField("Texture", hammerTileValues.Texture, typeof(Texture2D), true) as Texture2D;
+        texture = EditorGUILayout.ObjectField("Texture",texture, typeof(Texture2D), true) as Texture2D;
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
 
@@ -69,20 +60,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-
-        if (outlineType == OutlineTileType.NatureTile) {
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            hammerTileValues.NatureSlabs = EditorGUILayout.ObjectField("Slabs", hammerTileValues.NatureSlabs, typeof(Texture2D), true) as Texture2D;
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            hammerTileValues.NatureSlants = EditorGUILayout.ObjectField("Slants", hammerTileValues.NatureSlants, typeof(Texture2D), true) as Texture2D;
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-        }
+        
         if (outlineType == OutlineTileType.Standard) {
             spriteSheet = EditorGUILayout.Toggle("SpriteSheet",spriteSheet);
             if (spriteSheet) {
@@ -92,58 +70,55 @@ public class TileOutlineGeneratorWindow : EditorWindow {
             }
         }
         
-        
         if (GUILayout.Button("Generate"))
         {
             generate();
         }
     }
     void generateStandard(string path) {
-        List<Sprite> sprites = generateFromTexture(hammerTileValues.Texture,spriteSheet,path,"");
-        if (sprites.Count == 1) {
-            Tile tile = ScriptableObject.CreateInstance<Tile>();
-            tile.name = tileName;
-            tile.sprite = sprites[0];
-            AssetDatabase.CreateAsset(tile,path + tile.name + ".asset");
-            return;
-        } 
-        Debug.LogError("Standard tile recieved spritesheet");
-        
-
+        Sprite sprite = generateFromTexture(texture,path,"", tileName);
+        Tile tile = ScriptableObject.CreateInstance<Tile>();
+        tile.name = tileName;
+        tile.sprite = sprite;
+        AssetDatabase.CreateAsset(tile,path + tile.name + ".asset");
     }
 
-    void generateHammer(string path) {
-        List<Sprite> sprites = generateFromTexture(hammerTileValues.Texture,false,path,"");
-        sprites.AddRange(generateFromTexture(hammerTileValues.Slab,false,path,"slab_"));
-        sprites.AddRange(generateFromTexture(hammerTileValues.Slant,false,path,"slant_"));
+    void generateHammer(string path)
+    {
+        List<Sprite> sprites = new List<Sprite>();
+        sprites.Add(generateFromTexture(texture, path, "", tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Slab.R0.texture,path,"slab_",tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Slant.R0.texture,path,"slant_",tileName));
+        sprites.Add(generateFromTexture(hammerTileValues.Stairs.R0.texture,path,"stair_",tileName));
+        
         Tile baseTile = ItemEditorFactory.createTile(sprites[0],tileName,path);
         Tile slabTile = ItemEditorFactory.createTile(sprites[1],$"slab_{tileName}",path);
         Tile slantTile = ItemEditorFactory.createTile(sprites[2],$"slant_{tileName}",path);
-        if (outlineType != OutlineTileType.NatureTile) {
-            HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
-            hammerTile.baseTile = baseTile;
-            hammerTile.cleanSlab = slabTile;
-            hammerTile.cleanSlant = slantTile;
-            hammerTile.name = $"{tileName}_hammer";
-            ItemEditorFactory.saveTile(hammerTile,path);
-            return;
+        Tile stairTile = ItemEditorFactory.createTile(sprites[3],$"stair_{tileName}",path);
+        HammerTile hammerTile = outlineType == OutlineTileType.HammerTile ? ScriptableObject.CreateInstance<HammerTile>() : CreateInstance<NatureTile>();
+        hammerTile.baseTile = baseTile;
+        hammerTile.cleanSlab = slabTile;
+        hammerTile.cleanSlant = slantTile;
+        hammerTile.stairs = stairTile;
+        hammerTile.name = $"{tileName}_hammer";
+        ItemEditorFactory.saveTile(hammerTile,path);
+        if (outlineType != OutlineTileType.NatureTile) return;
+        
+        Tile[] natureSlabTiles = new Tile[hammerTileValues.NatureSlabs.Length];
+        for (int i = 0; i < hammerTileValues.NatureSlabs.Length; i++)
+        {
+            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlabs[i].R0.texture,path,$"nature_slab_{i}_",tileName);
+            natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slab_{tileName}_{i}",path));
         }
-        List<Sprite> natureSlabs = generateFromTexture(hammerTileValues.NatureSlabs,true,path,"nature_slab");
-        Tile[] natureSlabTiles = new Tile[natureSlabs.Count];
-        for (int i = 0; i < natureSlabs.Count; i++) {
-            natureSlabTiles[i] = (ItemEditorFactory.createTile(natureSlabs[i],$"slab_{tileName}_{i}",path));
+        
+        Tile[] natureSlantTiles = new Tile[hammerTileValues.NatureSlants.Length];
+        for (int i = 0; i < hammerTileValues.NatureSlants.Length; i++)
+        {
+            Sprite sprite = generateFromTexture(hammerTileValues.NatureSlants[i].R0.texture,path,$"nature_slant_{i}_",tileName);
+            natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slant_{tileName}_{i}",path));
         }
 
-        List<Sprite> natureSlants = generateFromTexture(hammerTileValues.NatureSlants,true,path,"nature_slant");
-        Tile[] natureSlantTiles = new Tile[natureSlants.Count];
-        for (int i = 0; i < natureSlants.Count; i++) {
-            natureSlantTiles[i] = (ItemEditorFactory.createTile(natureSlants[i],$"slant_{tileName}_{i}",path));
-        }
-
-        NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
-        natureTile.baseTile = baseTile;
-        natureTile.cleanSlab = slabTile;
-        natureTile.cleanSlant = slantTile;
+        NatureTile natureTile = (NatureTile)hammerTile;
         natureTile.natureSlabs = natureSlabTiles;
         natureTile.natureSlants = natureSlantTiles;
         natureTile.name = $"nature_{tileName}";
@@ -167,42 +142,11 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         
     }
 
-    private List<Sprite> generateFromTexture(Texture2D texture, bool isSpriteSheet, string path, string prefix) {
-        Vector2Int iterations = Vector2Int.one;
-        if (isSpriteSheet) {
-            bool error = false;
-            
-            if (texture.width % sliceSize.x == 0) {
-                iterations.x = texture.width/sliceSize.x;
-            } else {
-                Debug.LogWarning($"Texture '{texture.name}' width is not divisible by slice slice {sliceSize.x}");
-                error = true;
-            }
-
-            if (texture.height % sliceSize.y == 0) {
-                iterations.y = texture.height/sliceSize.y;
-            } else {
-                Debug.LogWarning($"Texture '{texture.name}' height is not divisible by slice slice {sliceSize.y}");
-                error = true;
-            }
-            if (error) {
-                return null;
-            }
-        } else {
-            sliceSize = new Vector2Int(texture.width,texture.height);
-        }
-        List<Sprite> sprites = new List<Sprite>();
-        Color[] pixelList = texture.GetPixels();
-        for (int x = 0; x < iterations.x; x ++) {
-            for (int y = 0; y < iterations.y; y ++) {
-                Color[] pixelsArr = texture.GetPixels(sliceSize.x*x,sliceSize.y*y,sliceSize.x,sliceSize.y);
-                Color[,] pixels = EditorFactory.pixels1DTo2D(pixelsArr,sliceSize.x,sliceSize.y);
-                SpriteOutlineGenerator tileOutlineGenerator = new SpriteOutlineGenerator(padding,pixels,outlineColor);
-                Color[,] outlinePixels = tileOutlineGenerator.generate();
-                
-                sprites.Add(EditorFactory.saveSprite(outlinePixels,path,$"{prefix}_{tileName}[{x},{y}]"));
-            }
-        }
-        return sprites;
+    private static Sprite generateFromTexture(Texture2D texture, string path, string prefix, string tileName) {
+        Color[] pixelsArr = texture.GetPixels();
+        Color[,] pixels = EditorFactory.pixels1DTo2D(pixelsArr,texture.width,texture.height);
+        SpriteOutlineGenerator tileOutlineGenerator = new SpriteOutlineGenerator(true,pixels,Color.white);
+        Color[,] outlinePixels = tileOutlineGenerator.generate();
+        return EditorFactory.saveSprite(outlinePixels, path, $"{prefix}_{tileName}");
     }
 }

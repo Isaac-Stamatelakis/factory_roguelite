@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,259 +8,396 @@ using System.IO;
 using Tiles;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
-public enum TileVariation {
-    Slant,
-    Slab
-}
 
-public class StandardHammerTileGenerator : EditorWindow {
-    
-    
-    public enum HammerTileType {
-        Standard,
-        Nature
-    }
-    private HammerTileType hammerTileType;
-    private static HammerTileValues hammerTileValues;
-    private TileBase natureOutline;
-    private string tileName;
-    private bool stateRotation = true;
-    private bool show = false;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Hammer")]
-    public static void ShowWindow()
+namespace HammerTileEditor
+{
+    internal enum MultiTileType
     {
-        StandardHammerTileGenerator window = (StandardHammerTileGenerator)EditorWindow.GetWindow(typeof(StandardHammerTileGenerator));
-        window.titleContent = new GUIContent("Tile Generator");
+        Random,
+        Animated
     }
 
-    private async void OnEnable()
+    public class StandardHammerTileGenerator : EditorWindow
     {
-        if (hammerTileValues == null) {
-            hammerTileValues = new HammerTileValues();
-            await hammerTileValues.load();
-        }
-        if (natureOutline == null) {
-            natureOutline = await Addressables.LoadAssetAsync<TileBase>("Assets/Objects/Tiles/Outline/nature_Outline.asset").Task;
-        }
-        show = true;
-        
-    }
 
-    void OnGUI()
-    {
-        if (!show) {
-            return;
-        }
-        EditorGUILayout.Space();
-        EditorGUILayout.BeginHorizontal();
-        hammerTileValues.Texture = EditorGUILayout.ObjectField("Texture", hammerTileValues.Texture, typeof(Texture2D), true) as Texture2D;
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
 
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Tile Name:", GUILayout.Width(100));
-        tileName = EditorGUILayout.TextField(tileName);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-        
-        EditorGUILayout.Space();
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Hammer Type:", GUILayout.Width(100));
-        hammerTileType = (HammerTileType)EditorGUILayout.EnumPopup(hammerTileType);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.Space();
-
-        EditorGUILayout.Space();
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Use different tiles for rotation:", GUILayout.Width(200));
-        stateRotation = EditorGUILayout.Toggle(stateRotation);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.Space();
-        if (hammerTileType == HammerTileType.Nature) {
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            hammerTileValues.NatureSlabs = EditorGUILayout.ObjectField("Slabs", hammerTileValues.NatureSlabs, typeof(Texture2D), true) as Texture2D;
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-            hammerTileValues.NatureSlants = EditorGUILayout.ObjectField("Slants", hammerTileValues.NatureSlants, typeof(Texture2D), true) as Texture2D;
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
-
-            GUI.enabled = false;
-
-            var none = EditorGUILayout.ObjectField("Outline", natureOutline, typeof(Tile), true) as Tile;
-
-            GUI.enabled = true;
-        }
-
-        
-
-        if (GUILayout.Button("Generate Tile Item"))
+        internal enum HammerTileType
         {
-            createTileItem();
+            Standard,
+            Nature
         }
-    }
 
-    void createTileItem()
-    {
-        string path = Path.Combine("Assets/EditorCreations",tileName);
-        
-        if (AssetDatabase.IsValidFolder(path)) {
-            Debug.LogWarning("Replaced existing content at " + path);
-            Directory.Delete(path,true);
+        private HammerTileType hammerTileType;
+        private static HammerTileValues hammerTileValues;
+        private TileBase natureOutline;
+        private string tileName;
+        private bool stateRotation = true;
+        private bool show = false;
+        private Texture2D texture;
+        private MultiTileType multiType;
+
+        [MenuItem("ToolCollection/Item Constructors/Tile/Hammer")]
+        public static void ShowWindow()
+        {
+            StandardHammerTileGenerator window =
+                (StandardHammerTileGenerator)EditorWindow.GetWindow(typeof(StandardHammerTileGenerator));
+            window.titleContent = new GUIContent("Tile Generator");
         }
-        
-        AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        AssetDatabase.Refresh();
 
-
-        switch (hammerTileType) {
-            case HammerTileType.Standard:
-                formStandard(path);
-                break;
-            case HammerTileType.Nature:
-                formNature(path);
-                break;
-
-        }
-    }
-
-    private void formStandard(string path) {
-        Tile baseTile = generateBase(hammerTileValues.Texture,path);
-        Tile slab = generateVariation(hammerTileValues.Texture,path,"slab",hammerTileValues.Slab.GetPixels(0,0,16,16));
-        Tile slanted = generateVariation(hammerTileValues.Texture,path,"slant",hammerTileValues.Slant.GetPixels(0,0,16,16));
-        Tile stairs = generateVariation(hammerTileValues.Texture,path,"stair",hammerTileValues.Stairs.GetPixels(0,0,16,16));
-        
-        HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
-        hammerTile.id = ItemEditorFactory.formatId(tileName);
-        hammerTile.baseTile = baseTile;
-        hammerTile.cleanSlab = slab;
-        hammerTile.cleanSlant = slanted;
-        hammerTile.stairs = stairs;
-        
-        string hammerTilePath = Path.Combine(path,"T~"+tileName +"_Hammer" + ".asset");
-        AssetDatabase.CreateAsset(hammerTile,hammerTilePath);
-        AssetDatabase.Refresh();
-        ItemEditorFactory.generateTileItem(tileName,hammerTile,TileType.Block,createFolder:false);
-        AssetDatabase.Refresh();
-    }
-    private void formNature(string path) {
-        NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
-        Tile baseTile = generateBase(hammerTileValues.Texture,path);
-        natureTile.baseTile = baseTile;
-
-        Tile slab = generateVariation(hammerTileValues.Texture,path,"slab",hammerTileValues.Slab.GetPixels(0,0,16,16));
-        natureTile.cleanSlab = slab;
-
-        Tile slanted = generateVariation(hammerTileValues.Texture,path,"slant",hammerTileValues.Slant.GetPixels(0,0,16,16));
-        natureTile.cleanSlant = slanted;
-        
-        Tile stairs = generateVariation(hammerTileValues.Texture,path,"stair",hammerTileValues.Stairs.GetPixels(0,0,16,16));
-        natureTile.stairs = stairs;
-        
-        Tile[] natureSlabs = generateVariations(hammerTileValues.Texture,path,"nature_slabs",hammerTileValues.NatureSlabs);
-        natureTile.natureSlabs = natureSlabs;
-    
-        Tile[] natureSlants = generateVariations(hammerTileValues.Texture,path,"nature_slants",hammerTileValues.NatureSlants);
-        natureTile.natureSlants = natureSlants;
-
-        string hammerTilePath = Path.Combine(path,"T~"+tileName +"_Nature" + ".asset");
-        AssetDatabase.CreateAsset(natureTile,hammerTilePath);
-        AssetDatabase.Refresh();
-
-        ItemEditorFactory.generateTileItem(tileName,natureTile,TileType.Block,createFolder:false,outline:natureOutline);
-        AssetDatabase.Refresh();
-    }
-    private Tile generateBase(Texture2D texture, string path) {
-        int width = texture.width/16;
-        int height = texture.height/16;
-        if (width < 1 || height < 1) {
-            throw new System.Exception("Texture was less than 16 pixels wide and 16 pixels tall");
-        }
-        Tile tile = null;
-        Sprite[] sprites = EditorFactory.spritesFromTexture(texture,path,tileName,16,16);
-        if (sprites.Length == 1) {
-            tile = ScriptableObject.CreateInstance<Tile>();
-            tile.name = tileName;
-            tile.sprite = sprites[0];
-        } else {
-            IDRandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
-            randomTile.name = tileName;
-            randomTile.setID(ItemEditorFactory.formatId(tileName));
-            randomTile.sprite = sprites[0];
-            randomTile.m_Sprites = sprites;
-            tile = randomTile;
-        }
-        ItemEditorFactory.saveTileWithName(tile,tileName);
-        AssetDatabase.Refresh();
-        return tile;
-    }
-
-    private Tile generateVariation(Texture2D texture, string path, string variation, Color[] shape) {
-        string variationPath = Path.Combine(path,variation);
-        AssetDatabase.CreateFolder(path, variation);
-        AssetDatabase.Refresh();
-        int rotations = stateRotation ? 4 : 1;
-        Tile[] tiles = new Tile[rotations];
-        for (int r = 0; r < rotations; r++) {
-            string rotationName;
-            if (stateRotation) {
-                rotationName  = $"{tileName}_{variation}_R{r*90}";
-                AssetDatabase.CreateFolder(variationPath, rotationName);
-                AssetDatabase.Refresh();
-            } else {
-                rotationName = tileName;
+        private void OnEnable()
+        {
+            if (hammerTileValues == null)
+            {
+                hammerTileValues = new HammerTileValues();
             }
-            Sprite[] sprites = TileSpriteShapeFactory.generateSprites(texture,variationPath,rotationName,shape,r);
-            if (sprites.Length == 1) {
-                tiles[r] = ItemEditorFactory.standardTileCreator(sprites[0],TileColliderType.Sprite);
-                ItemEditorFactory.saveTileWithName(tiles[r],rotationName,path:variationPath);
-            } else {
-                RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
+
+            if (natureOutline == null)
+            {
+                //natureOutline = await Addressables.LoadAssetAsync<TileBase>("Assets/Objects/Tiles/Outline/nature_Outline.asset").Task;
+            }
+
+            show = true;
+
+        }
+
+        void OnGUI()
+        {
+            if (!show)
+            {
+                return;
+            }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            texture = EditorGUILayout.ObjectField("Texture", texture, typeof(Texture2D), true) as Texture2D;
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Tile Name:", GUILayout.Width(100));
+            tileName = EditorGUILayout.TextField(tileName);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Hammer Type:", GUILayout.Width(100));
+            hammerTileType = (HammerTileType)EditorGUILayout.EnumPopup(hammerTileType);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Generate Tile Item"))
+            {
+                createTileItem();
+            }
+        }
+
+        void createTileItem()
+        {
+            string path = Path.Combine("Assets/EditorCreations", tileName);
+
+            if (AssetDatabase.IsValidFolder(path))
+            {
+                Debug.LogWarning("Replaced existing content at " + path);
+                Directory.Delete(path, true);
+            }
+
+            AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
+            AssetDatabase.Refresh();
+
+
+            switch (hammerTileType)
+            {
+                case HammerTileType.Standard:
+                    formStandard(path);
+                    break;
+                case HammerTileType.Nature:
+                    formNature(path);
+                    break;
+
+            }
+        }
+
+        private void formStandard(string path)
+        {
+            HammerTile hammerTile = ScriptableObject.CreateInstance<HammerTile>();
+            hammerTile.id = ItemEditorFactory.formatId(tileName);
+            hammerTile.baseTile = generateBase(texture, path);
+            hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, Path.Combine(path, "slab"), tileName, "slab");
+            hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant, Path.Combine(path, "slant"), tileName, "slant");
+            hammerTile.stairs = GenerateStateTile(texture, multiType, hammerTileValues.Stairs, Path.Combine(path, "stair"), tileName, "stair");
+
+            string hammerTilePath = Path.Combine(path, "T~" + tileName + "_Hammer" + ".asset");
+            AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
+            AssetDatabase.Refresh();
+            ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
+            AssetDatabase.Refresh();
+        }
+
+        private void formNature(string path)
+        {
+            /*
+            NatureTile natureTile = ScriptableObject.CreateInstance<NatureTile>();
+            Tile baseTile = generateBase(hammerTileValues.Texture, path);
+            natureTile.baseTile = baseTile;
+
+            Tile slab = generateVariation(hammerTileValues.Texture, path, "slab",
+                hammerTileValues.Slab.GetPixels(0, 0, 16, 16));
+            natureTile.cleanSlab = slab;
+
+            Tile slanted = generateVariation(hammerTileValues.Texture, path, "slant",
+                hammerTileValues.Slant.GetPixels(0, 0, 16, 16));
+            natureTile.cleanSlant = slanted;
+
+            Tile stairs = generateVariation(hammerTileValues.Texture, path, "stair",
+                hammerTileValues.Stairs.GetPixels(0, 0, 16, 16));
+            natureTile.stairs = stairs;
+
+            Tile[] natureSlabs = generateVariations(hammerTileValues.Texture, path, "nature_slabs",
+                hammerTileValues.NatureSlabs);
+            natureTile.natureSlabs = natureSlabs;
+
+            Tile[] natureSlants = generateVariations(hammerTileValues.Texture, path, "nature_slants",
+                hammerTileValues.NatureSlants);
+            natureTile.natureSlants = natureSlants;
+
+            string hammerTilePath = Path.Combine(path, "T~" + tileName + "_Nature" + ".asset");
+            AssetDatabase.CreateAsset(natureTile, hammerTilePath);
+            AssetDatabase.Refresh();
+
+            ItemEditorFactory.generateTileItem(tileName, natureTile, TileType.Block, createFolder: false,
+                outline: natureOutline);
+            AssetDatabase.Refresh();
+            */
+        }
+
+        private Tile generateBase(Texture2D texture, string path)
+        {
+            int width = texture.width / 16;
+            int height = texture.height / 16;
+            if (width < 1 || height < 1)
+            {
+                throw new System.Exception("Texture was less than 16 pixels wide and 16 pixels tall");
+            }
+
+            Tile tile = null;
+            Sprite[] sprites = EditorFactory.spritesFromTexture(texture, path, tileName, 16, 16);
+            if (sprites.Length == 1)
+            {
+                tile = ScriptableObject.CreateInstance<Tile>();
+                tile.name = tileName;
+                tile.sprite = sprites[0];
+            }
+            else
+            {
+                IDRandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
+                randomTile.name = tileName;
+                randomTile.setID(ItemEditorFactory.formatId(tileName));
                 randomTile.sprite = sprites[0];
                 randomTile.m_Sprites = sprites;
-                string savePath = Path.Combine(path,variation);
-                ItemEditorFactory.saveTileWithName(randomTile,rotationName,path:savePath+"\\");
-                AssetDatabase.Refresh();
-                tiles[r] = randomTile;
+                tile = randomTile;
+            }
+
+            ItemEditorFactory.saveTileWithName(tile, tileName);
+            AssetDatabase.Refresh();
+            return tile;
+        }
+
+        private static StateRotatableTile GenerateStateTile(Texture2D texture, MultiTileType multiTileType, SpriteRotationCollection sprites,
+            string path, string name, string variation)
+        {
+            var tiles = new TileBase[4];
+            string variationName = name + "_" + variation;
+            tiles[0] = GenerateTile(texture, multiTileType, sprites.R0, Path.Combine(path, "0R"),variationName);
+            tiles[1] = GenerateTile(texture, multiTileType,  sprites.R1, Path.Combine(path, "90R"),variationName);
+            tiles[2] = GenerateTile(texture, multiTileType, sprites.R2, Path.Combine(path, "180R"),variationName);
+            tiles[3] = GenerateTile(texture, multiTileType, sprites.R3, Path.Combine(path, "270R"),variationName);
+            
+            StateRotatableTile stateTile = ScriptableObject.CreateInstance<StateRotatableTile>();
+            stateTile.name = variationName;
+            stateTile.Tiles = tiles;
+            string savePath = Path.Combine(path, variationName + ".asset");
+            AssetDatabase.CreateAsset(stateTile,savePath);
+            AssetDatabase.Refresh();
+            return AssetDatabase.LoadAssetAtPath<StateRotatableTile>(savePath);
+        }
+
+        private static TileBase GenerateTile(Texture2D texture, MultiTileType type, Sprite copySprite, string path,
+            string name)
+        {
+            Sprite[] sprites = CopyTextureIntoSprite(texture, copySprite, path, name);
+            return FromSprites(sprites, type);
+
+        }
+
+        public static Sprite[] CopyTextureIntoSprite(Texture2D texture, Sprite copySprite, string path, string name)
+        {
+            const int height = 16;
+            const int width = 16;
+
+            int rows = texture.height / height;
+            int columns = texture.width / width;
+            Texture2D copySpriteTexture = copySprite.texture;
+            Color[] shapePixels = copySpriteTexture.GetPixels();
+            Sprite[] sprites = new Sprite[rows * columns];
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < columns; x++)
+                {
+                    int index = y * columns + x;
+                    string spritePath = AssetDatabase.GetAssetPath(copySprite);
+                    string spriteSavePath = Path.Combine(path, name + "-" + index.ToString());
+
+                    AssetDatabase.CopyAsset(spritePath, spriteSavePath);
+                    
+                    Color[] pixels = texture.GetPixels(width * x, height * y, width, height);
+                    Sprite newSprite = AssetDatabase.LoadAssetAtPath<Sprite>(spriteSavePath);
+                    CopyShape(shapePixels, pixels);
+
+                    Texture2D modifiedTexture = new Texture2D(texture.width, texture.height);
+                    modifiedTexture.SetPixels(pixels);
+                    modifiedTexture.Apply();
+                    
+                    byte[] bytes = modifiedTexture.EncodeToPNG();
+                    File.WriteAllBytes(spriteSavePath, bytes);
+                    Texture2D spliteTexture = new Texture2D(width, height);
+                    spliteTexture.SetPixels(0, 0, width, height, pixels);
+
+                    byte[] pngBytes = spliteTexture.EncodeToPNG();
+                    File.WriteAllBytes(spriteSavePath + ".png", pngBytes);
+                    
+                    sprites[index] = newSprite;
+                }
+            }
+
+            return sprites;
+        }
+
+        private static void CopyShape(Color[] shape, Color[] pixels)
+        {
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 16; y++)
+                {
+                    int index = y * 16 + x;
+                    if (shape[index].a == 0) {
+                        pixels[y*16+x] = new Color(0,0,0,0);
+                    }
+                }
             }
         }
 
-        Tile tile = null;
-        if (stateRotation) {
-            StateRotatableTile stateRotatableTile = ScriptableObject.CreateInstance<StateRotatableTile>();
-            stateRotatableTile.Tiles = tiles;
-            stateRotatableTile.name = variation;
-            tile = stateRotatableTile;
-            ItemEditorFactory.saveTileWithName(tile,variation,path:path+"\\");
-        } else {
-            tile = tiles[0];
-        }
-        AssetDatabase.Refresh();
-        return tile;
-    }
+        private static TileBase FromSprites(Sprite[] sprites, MultiTileType type)
+        {
+            if (sprites.Length == 0)
+            {
+                Tile tile = ScriptableObject.CreateInstance<Tile>();
+                tile.sprite = sprites[0];
+                return tile;
+            }
 
-    private Tile[] generateVariations(Texture2D texture, string path, string variation, Texture2D shapes) {
-        if (shapes == null) {
-            return null;
-        }
-        AssetDatabase.CreateFolder(path,variation);
-        string variationPath = Path.Combine(path,variation);
-        int width = shapes.width/16;
-        int height = shapes.height/16;
-        Tile[] tiles = new Tile[width*height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Color[] shapePixels = shapes.GetPixels(16*x,16*y,16,16);
-                tiles[y+x*height] = generateVariation(texture,variationPath,$"{variation}[{x},{y}]",shapePixels);
+            switch (type)
+            {
+                case MultiTileType.Random:
+                    RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
+                    randomTile.sprite = sprites[0];
+                    randomTile.m_Sprites = sprites;
+                    return randomTile;
+                case MultiTileType.Animated:
+                    AnimatedTile animatedTile = ScriptableObject.CreateInstance<AnimatedTile>();
+                    animatedTile.m_AnimatedSprites = sprites;
+                    return animatedTile;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
-        return tiles;
+        
+        /*
+
+        private Tile generateVariation(Texture2D texture, string path, string variation, Color[] shape)
+        {
+            string variationPath = Path.Combine(path, variation);
+            AssetDatabase.CreateFolder(path, variation);
+            AssetDatabase.Refresh();
+            int rotations = stateRotation ? 4 : 1;
+            Tile[] tiles = new Tile[rotations];
+            for (int r = 0; r < rotations; r++)
+            {
+                string rotationName;
+                if (stateRotation)
+                {
+                    rotationName = $"{tileName}_{variation}_R{r * 90}";
+                    AssetDatabase.CreateFolder(variationPath, rotationName);
+                    AssetDatabase.Refresh();
+                }
+                else
+                {
+                    rotationName = tileName;
+                }
+
+                Sprite[] sprites =
+                    TileSpriteShapeFactory.generateSprites(texture, variationPath, rotationName, shape, r);
+                if (sprites.Length == 1)
+                {
+                    tiles[r] = ItemEditorFactory.standardTileCreator(sprites[0], TileColliderType.Sprite);
+                    ItemEditorFactory.saveTileWithName(tiles[r], rotationName, path: variationPath);
+                }
+                else
+                {
+                    RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
+                    randomTile.sprite = sprites[0];
+                    randomTile.m_Sprites = sprites;
+                    string savePath = Path.Combine(path, variation);
+                    ItemEditorFactory.saveTileWithName(randomTile, rotationName, path: savePath + "\\");
+                    AssetDatabase.Refresh();
+                    tiles[r] = randomTile;
+                }
+            }
+
+            Tile tile = null;
+            if (stateRotation)
+            {
+                StateRotatableTile stateRotatableTile = ScriptableObject.CreateInstance<StateRotatableTile>();
+                stateRotatableTile.Tiles = tiles;
+                stateRotatableTile.name = variation;
+                tile = stateRotatableTile;
+                ItemEditorFactory.saveTileWithName(tile, variation, path: path + "\\");
+            }
+            else
+            {
+                tile = tiles[0];
+            }
+
+            AssetDatabase.Refresh();
+            return tile;
+        }
+
+        private Tile[] generateVariations(Texture2D texture, string path, string variation, Texture2D shapes)
+        {
+            if (shapes == null)
+            {
+                return null;
+            }
+
+            AssetDatabase.CreateFolder(path, variation);
+            string variationPath = Path.Combine(path, variation);
+            int width = shapes.width / 16;
+            int height = shapes.height / 16;
+            Tile[] tiles = new Tile[width * height];
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Color[] shapePixels = shapes.GetPixels(16 * x, 16 * y, 16, 16);
+                    tiles[y + x * height] =
+                        generateVariation(texture, variationPath, $"{variation}[{x},{y}]", shapePixels);
+                }
+            }
+
+            return tiles;
+        }
+        */
     }
     
+
 }
