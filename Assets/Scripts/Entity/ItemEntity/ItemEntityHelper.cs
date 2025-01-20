@@ -12,8 +12,8 @@ namespace Entities {
                 return null;
             }
             GameObject tileItemEntity = new GameObject();
-            tileItemEntity.AddComponent<TileItemEntityProperties>();
-            TileItemEntityProperties itemProperties = tileItemEntity.GetComponent<TileItemEntityProperties>();
+            tileItemEntity.AddComponent<ItemEntity>();
+            ItemEntity itemProperties = tileItemEntity.GetComponent<ItemEntity>();
             itemProperties.itemSlot = itemSlot;
             tileItemEntity.name = itemSlot.itemObject.name + "Entity";
             itemProperties.transform.position = new Vector3(position.x,position.y,0);

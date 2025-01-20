@@ -74,7 +74,7 @@ namespace TileMaps.Previewer {
                 placementRecord = PreviewStandardTile(itemObject, itemTileBase, placePosition, position);
             }
             
-            tilemap.color = PlaceTile.itemPlacable(itemObject,position) ? placableColor : nonPlacableColor;
+            tilemap.color = PlaceTile.ItemPlacable(itemObject,position) ? placableColor : nonPlacableColor;
 
         }
 
