@@ -22,6 +22,8 @@ namespace Player {
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private PlayerModule.PlayerPlatformDetector playerFeet;
+        [SerializeField] private PolygonCollider2D leftAutoJump;
+        [SerializeField] private PolygonCollider2D rightAutoJump;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
         private bool onGround;
@@ -55,10 +57,16 @@ namespace Player {
             
             if (DevMode.Instance.flight)
             {
+                if (leftAutoJump.enabled) leftAutoJump.enabled = false;
+                if (rightAutoJump.enabled) rightAutoJump.enabled = false;
+                
                 FlightMovementUpdate(transform);
             }
             else
             {
+                leftAutoJump.enabled = onGround && Input.GetKey(KeyCode.A);
+                rightAutoJump.enabled = onGround && Input.GetKey(KeyCode.D);
+      
                 currentRobot.handleMovement(transform);
             }
         }
