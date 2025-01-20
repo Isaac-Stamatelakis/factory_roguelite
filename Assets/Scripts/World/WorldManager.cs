@@ -15,12 +15,12 @@ namespace WorldModule {
     public class WorldManager
     {
         private static WorldManager instance;
-        private string worldPath;
+        private string worldName;
         private WorldMetaData metaData;
         private HashSet<string> unlockedGameStages = new HashSet<string>();
         private QuestBookLibrary questBookLibrary;
         private WorldManager() {
-            worldPath = "worlds/world0"; // Default
+            worldName = "world0"; // Default
         }
         public static WorldManager getInstance()
         {
@@ -32,14 +32,14 @@ namespace WorldModule {
                 return instance;
             }
         }
-        public void setWorldPath(string path) {
-            worldPath = path;
+        public void SetWorldName(string path) {
+            worldName = path;
             
         }
 
         public void InitializeMetaData()
         {
-            string metaDataPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta);
+            string metaDataPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta);
             if (!File.Exists(metaDataPath))
             {
                 WorldCreation.InitializeMetaData(metaDataPath);
@@ -60,7 +60,7 @@ namespace WorldModule {
 
         public void InitializeQuestBook()
         {
-            string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
+            string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
             string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
             SetQuestBookFromJson(questBookJson);
             
@@ -73,13 +73,13 @@ namespace WorldModule {
             metaData.LastAccessDate = DateTime.Now;
             metaData.UnlockedGameStages = unlockedGameStages.ToList();
             string json = JsonConvert.SerializeObject(metaData);
-            string metaDataPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta);
+            string metaDataPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta);
             File.WriteAllText(metaDataPath, json);
         }
 
         public void SaveQuestBook()
         {
-            string questBookPath = WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook);
+            string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
             string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
             File.WriteAllText(questBookPath, json);
         }
@@ -104,8 +104,8 @@ namespace WorldModule {
             string id = gameStageObject.GetGameStageId();
             return unlockedGameStages.Contains(id);
         }
-        public string getWorldPath() {
-            return worldPath;
+        public string GetWorldName() {
+            return worldName;
         }
     }
 }

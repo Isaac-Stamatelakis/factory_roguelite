@@ -17,13 +17,13 @@ namespace Tiles
             return null;
         }
 
-        public Sprite getDefaultSprite()
+        public TileBase GetDefaultTile()
         {
             const int allDirectionState =   (int)ConduitDirectionState.Left
-                                          + (int)ConduitDirectionState.Right
-                                          + (int)ConduitDirectionState.Up
-                                          + (int)ConduitDirectionState.Down;
-            return Tiles[allDirectionState].sprite;
+                                            + (int)ConduitDirectionState.Right
+                                            + (int)ConduitDirectionState.Up
+                                            + (int)ConduitDirectionState.Down;
+            return Tiles[allDirectionState];
         }
 
         public int getStateAmount()

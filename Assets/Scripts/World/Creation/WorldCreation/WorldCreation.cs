@@ -27,18 +27,18 @@ namespace WorldModule {
     {
         public static IEnumerator CreateWorld(string name) {
             yield return ItemRegistry.LoadItems();
-            WorldManager.getInstance().setWorldPath(Path.Combine(WorldLoadUtils.DefaultWorldFolder,name));
-            string path = WorldLoadUtils.getFullWorldPath();
+            WorldManager.getInstance().SetWorldName(name);
+            string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
             
-            InitializeMetaData(WorldLoadUtils.GetWorldFilePath(WorldFileType.Meta));
-            InitializeQuestBook(WorldLoadUtils.GetWorldFilePath(WorldFileType.Questbook));
-            
-            string dimensionFolderPath = Path.Combine(path,WorldLoadUtils.DimensionFolderName);
+            InitializeMetaData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta));
+            InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
+
+            string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
-            InitPlayerData(WorldLoadUtils.getPlayerDataPath());
+            InitPlayerData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player));
             yield return InitDim0();
             WorldLoadUtils.createDimFolder(1);
         }
@@ -86,40 +86,16 @@ namespace WorldModule {
 
         
         public static IEnumerator InitDim0() {
-            if (WorldLoadUtils.dimExists(0)) {
+            if (WorldLoadUtils.DimExists(0)) {
                 Debug.LogError("Attempted to Initialize dim 0 when already exists");
                 yield break;
             }
             WorldLoadUtils.createDimFolder(0);
-            List<string> labels = new List<string>{"dim0","structure"};
-            AsyncOperationHandle<IList<Object>> handle = Addressables.LoadAssetsAsync<Object>(labels,null,Addressables.MergeMode.Intersection);
-            yield return handle;
-            List<Structure> structures = AddressableUtils.validateHandle<Structure>(handle);
-            if (structures.Count == 0) {
-                Debug.LogError("Could not Initialize dim 0. No structure with tags 'dim0' and 'structure'");
-                yield break;
-            }
-            if (structures.Count > 1) {
-                Debug.LogWarning("Multiple structures with tags 'dim0' and 'structure");
-            }
-            Structure structure = structures[0];
-    
-            if (structure.variants.Count == 0) {
-                Debug.LogWarning("Dim0 structure contains no structure variants");
-                yield break;
-            }
-
-            StructureVariant variant = structure.variants[0];
-            Vector2Int dimSize = GetDim0Bounds().getSize()*Global.ChunkSize;
-            if (variant.Size != dimSize) {
-                Debug.LogError($"Structure for dim0 size {variant.Size} does not match dim0 size {dimSize}");
-                yield break;
-            }
-
-            WorldTileConduitData dim0Data = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
+            
+            Structure structure = StructureGeneratorHelper.LoadStructure("Dim0");
             IntervalVector dim0Bounds = GetDim0Bounds();
-            //WorldTileConduitData dim0Data = prefabToWorldTileConduitData(dim0Prefab,dim0Bounds);
-            WorldGenerationFactory.SaveToJson(dim0Data,dim0Bounds.getSize(),0,WorldLoadUtils.getDimPath(0));
+            
+            WorldGenerationFactory.SaveToJson(structure.variants[0].Data,dim0Bounds.getSize(),0,WorldLoadUtils.GetDimPath(0));
         }
 
         public static IntervalVector GetDim0Bounds() {

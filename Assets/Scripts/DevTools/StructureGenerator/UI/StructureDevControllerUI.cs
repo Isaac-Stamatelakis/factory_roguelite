@@ -25,7 +25,7 @@ namespace DevTools.Structures {
 
         public void displayList() {
             GlobalHelper.deleteAllChildren(list.transform);
-            string directoryPath = StructureGeneratorHelper.getFolderPath();
+            string directoryPath = StructureGeneratorHelper.GetFolderPath();
             string[] folders = Directory.GetDirectories(directoryPath);
             List<FolderInfo> folderValues = new List<FolderInfo>();
             foreach (string folderPath in folders)

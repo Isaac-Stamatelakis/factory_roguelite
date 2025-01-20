@@ -16,16 +16,6 @@ namespace Tiles {
         public Tile leftOpen;
         public Tile right;
         public Tile rightOpen;
-        public Sprite getDefaultSprite()
-        {
-            return left.sprite;
-        }
-
-        public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-        {
-            base.GetTileData(position, tilemap, ref tileData);
-        }
-
         public string getId()
         {
             return id;
@@ -57,6 +47,11 @@ namespace Tiles {
                 default:
                     return null;
             }
+        }
+
+        public TileBase GetDefaultTile()
+        {
+            return left;
         }
 
         public TileMapType getStateType(int state)

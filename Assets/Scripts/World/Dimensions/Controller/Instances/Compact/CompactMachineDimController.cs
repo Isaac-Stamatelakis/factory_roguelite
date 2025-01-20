@@ -163,7 +163,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem);
-            loadCompactMachineSystem(null,systemTree,WorldLoadUtils.getDimPath(1));
+            loadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 

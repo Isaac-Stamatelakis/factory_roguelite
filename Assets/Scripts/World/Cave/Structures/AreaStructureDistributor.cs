@@ -8,6 +8,7 @@ using WorldModule.Caves;
 using WorldModule;
 using Misc;
 using DevTools.Structures;
+using Random = System.Random;
 
 
 namespace WorldModule.Caves {
@@ -17,64 +18,64 @@ namespace WorldModule.Caves {
         public List<StructureFrequency> structures;
         public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
-            Dictionary<StructureVariant,WorldTileConduitData> structureDataDict = new Dictionary<StructureVariant, WorldTileConduitData>();
             foreach (StructureFrequency structureFrequency in structures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
-                while (amount > 0) {
-                    StructureVariant variant = RandomFrequencyListUtils.getRandomFromList<StructureVariant>(
-                        elements: structureFrequency.generatedStructure.variants
-                    );
-                    int index = structureFrequency.generatedStructure.variants.IndexOf(variant);
-                    if (!structureDataDict.ContainsKey(variant)) {
-                        try {
-                            structureDataDict[variant] = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
-                        } catch (JsonSerializationException e) {
-                            structureDataDict[variant] = null;
-                            
-                            Debug.LogError($"Variant {index} of structure {structureFrequency.generatedStructure.name} has invalid data\nError {e}");
-                        }   
-                    }
-                    if (structureDataDict[variant] != null) {
-                        int placementAttempts = 10;
-                        while (placementAttempts > 0) {
-                            Vector2Int? randomPosition = AreaStructureDistributorUtils.getRandomPlacementPosition(
-                                width,
-                                height,
-                                variant.Size,
-                                structureFrequency.generatedStructure.name,
-                                index
-                            );
-                            if (randomPosition == null) {
-                                break;
-                            }
-                            foreach (KeyValuePair<Vector2Int,StructureVariant> kvp in placedStructures) {
-                                if (AreaStructureDistributorUtils.structureVariantsOverLap(
-                                    variant,
-                                    kvp.Value,
-                                    (Vector2Int)randomPosition,
-                                    kvp.Key,
-                                    structureDataDict
-                                    
-                                )) {
-                                    placementAttempts--;
-                                    break;
-                                }
-                            }
-                            placedStructures[(Vector2Int)randomPosition] = variant;
-                            AreaStructureDistributorUtils.placeStructure(worldTileData,(Vector2Int)randomPosition,structureDataDict[variant],variant.Size);
-                            break;
-                        }
-                    }
+                var variants = structureFrequency.generatedStructure.variants;
+                while (amount > 0)
+                {
+                    int index = UnityEngine.Random.Range(0, variants.Count);
+                    StructureVariant variant = variants[index];
+                    TryPlaceStructure(worldTileData,placedStructures,variant,width,height,index);
+                    
                     amount--;
                 }
             }
             Debug.Log($"Generated {placedStructures.Count} structures");
 
         }
+
+        private void TryPlaceStructure(SeralizedWorldData worldTileData, Dictionary<Vector2Int,StructureVariant> placedStructures, StructureVariant variant, int width, int height, int index)
+        {
+            int placementAttempts = 10;
+            while (placementAttempts > 0) {
+                Vector2Int? randomPosition = AreaStructureDistributorUtils.getRandomPlacementPosition(
+                    width,
+                    height,
+                    variant.Size,
+                    index
+                );
+                if (randomPosition == null || Overlap(placedStructures,variant,(Vector2Int)randomPosition))
+                {
+                    placementAttempts--;
+                    continue;
+                }
+                
+                placedStructures[(Vector2Int)randomPosition] = variant;
+                AreaStructureDistributorUtils.placeStructure(worldTileData,(Vector2Int)randomPosition, variant.Data, variant.Size);
+                return;
+            }
+        }
+
+        private bool Overlap(Dictionary<Vector2Int,StructureVariant> placedStructures, StructureVariant variant, Vector2Int randomPosition)
+        {
+            foreach (KeyValuePair<Vector2Int,StructureVariant> kvp in placedStructures) {
+                if (AreaStructureDistributorUtils.structureVariantsOverLap(
+                        variant,
+                        kvp.Value,
+                        randomPosition,
+                        kvp.Key
+                    ))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     public static class AreaStructureDistributorUtils {
-        public static bool structureVariantsOverLap(StructureVariant a, StructureVariant b, Vector2Int aPosition, Vector2Int bPosition,Dictionary<StructureVariant,WorldTileConduitData> variantData) {
+        public static bool structureVariantsOverLap(StructureVariant a, StructureVariant b, Vector2Int aPosition, Vector2Int bPosition) {
             Vector2Int aBottomLeft = aPosition;
             Vector2Int aTopRight = aPosition + a.Size;
 
@@ -93,8 +94,8 @@ namespace WorldModule.Caves {
             (smallest, largest) = areaA < areaB ? (a,b) : (b,a); 
             (smallestPosition,largestPosition) = areaA < areaB ? (aPosition,bPosition) : (bPosition,aPosition);
             Vector2Int largestTopRight = largestPosition + largest.Size;
-            SeralizedWorldData smallestData = variantData[smallest];
-            SeralizedWorldData largestData = variantData[largest];
+            SeralizedWorldData smallestData = smallest.Data;
+            SeralizedWorldData largestData = largest.Data;
 
             for (int x = 0; x < smallest.Size.x; x ++) {
                 for (int y = 0; y < smallest.Size.y; y++) {
@@ -117,9 +118,9 @@ namespace WorldModule.Caves {
             return true;
         }
 
-        public static Vector2Int? getRandomPlacementPosition(int width, int height, Vector2Int structureSize, string structureName, int variantIndex) {
+        public static Vector2Int? getRandomPlacementPosition(int width, int height, Vector2Int structureSize, int variantIndex) {
             if (structureSize.x > width || structureSize.y > height) {
-                Debug.LogWarning($"Tried to place structure {structureName} variant {variantIndex} inside too small of cave");
+                Debug.LogWarning($"Tried to place structure variant {variantIndex} inside too small of cave");
                 return null;
             } 
             int ranX = UnityEngine.Random.Range(0,width-structureSize.x);

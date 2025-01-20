@@ -20,6 +20,7 @@ namespace DevTools.Structures {
         [SerializeField] private EditStructurePopUpUI editStructurePopUpUIPrefab;
         private StructureDevControllerUI structureDevControllerUI;
         public void init(StructureDevControllerUI structureDevControllerUI, string title, string date) {
+            WorldLoadUtils.UsePersistentPath = false;
             this.structureDevControllerUI = structureDevControllerUI;
             this.title.text = title;
             this.date.text = date;
@@ -29,8 +30,9 @@ namespace DevTools.Structures {
                 editStructurePopUpUI.init(this);
             });
             GetComponent<Button>().onClick.AddListener(() => {
-                string path = StructureGeneratorHelper.getPath(this.title.text);
-                WorldManager.getInstance().setWorldPath(path);
+                string path = StructureGeneratorHelper.GetStructurePath(this.title.text);
+                
+                WorldManager.getInstance().SetWorldName(path);
                 SceneManager.LoadScene("StructureGenerator");
             });
         }
@@ -39,13 +41,13 @@ namespace DevTools.Structures {
             if (newTitle.Equals(title.text)) {
                 return;
             }
-            string oldPath = Path.Combine(StructureGeneratorHelper.getFolderPath(),title.text);
-            string newPath = Path.Combine(StructureGeneratorHelper.getFolderPath(),newTitle);
+            string oldPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text);
+            string newPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),newTitle);
             Directory.Move(oldPath, newPath);
             structureDevControllerUI.displayList();
         }
         public void deleteSelf() {
-            Directory.Delete(Path.Combine(StructureGeneratorHelper.getFolderPath(),title.text),true);
+            Directory.Delete(Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text),true);
             structureDevControllerUI.displayList();
         }
         public string getTitle() {

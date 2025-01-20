@@ -13,50 +13,47 @@ namespace WorldModule {
         Meta,
         DimensionFolder,
         Player,
-        Questbook
+        Questbook,
+        StructureMeta
     }
     
     
     public static class WorldLoadUtils
     {
+        public static bool UsePersistentPath = true;
+        
         private static readonly string defaultWorldFolder = "worlds"; 
         private static readonly string playerDataName = "player_data.json";
         private static readonly string dimensionFolderName = "Dimensions";
         private static readonly string dimFolderPrefix = "dim";
         private static readonly string META_DATA_PATH = "meta.json";
         private static readonly string QUESTBOOK_PATH = "questbook.json";
+        private static readonly string STRUCTURE_META_PATH = "structure_meta.json";
 
         public static string DefaultWorldFolder => defaultWorldFolder;
-
-        public static string PlayerDataName => playerDataName;
-
-        public static string DimensionFolderName => dimensionFolderName;
-
-        public static string getFullWorldPath() {
-            return getFullWorldPath(WorldManager.getInstance().getWorldPath());
+        public static string GetWorldComponentPath(WorldFileType worldFileType)
+        {
+            return GetWorldComponentPath(WorldManager.getInstance().GetWorldName(), worldFileType);
         }
-        public static string GetWorldFilePath(WorldFileType worldFileType)
+        
+        public static string GetWorldComponentPath(string worldName, WorldFileType worldFileType)
         {
             string value = GetWorldFileValue(worldFileType);
-            string worldPath = getFullWorldPath();
+            string worldPath = GetWorldPath(worldName);
             return Path.Combine(worldPath, value);
         }
 
         private static string GetWorldFileValue(WorldFileType worldFileType)
         {
-            switch (worldFileType)
+            return worldFileType switch
             {
-                case WorldFileType.Meta:
-                    return META_DATA_PATH;
-                case WorldFileType.DimensionFolder:
-                    return DimensionFolderName;
-                case WorldFileType.Player:
-                    return playerDataName;
-                case WorldFileType.Questbook:
-                    return QUESTBOOK_PATH;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null);
-            }
+                WorldFileType.Meta => META_DATA_PATH,
+                WorldFileType.DimensionFolder => dimensionFolderName,
+                WorldFileType.Player => playerDataName,
+                WorldFileType.Questbook => QUESTBOOK_PATH,
+                WorldFileType.StructureMeta => STRUCTURE_META_PATH,
+                _ => throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null)
+            };
         }
 
         public static WorldMetaData GetWorldMetaData(string worldName)
@@ -70,44 +67,40 @@ namespace WorldModule {
             WorldMetaData worldMetaData = JsonConvert.DeserializeObject<WorldMetaData>(File.ReadAllText(metaDataPath));
             return worldMetaData;
         }
-        public static string getFullWorldPath(string path) {
-            return Path.Combine(Application.persistentDataPath,path);
+        
+        
+        public static string GetDimPath(int dim) {
+            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
         }
-        public static string getPlayerDataPath() {
-            return getPlayerDataPath(WorldManager.getInstance().getWorldPath());
+        public static string GetDimPath(string worldName, int dim) {
+            return Path.Combine(worldName, GetWorldFileValue( WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
         }
-        public static string getPlayerDataPath(string worldName) {
-            string worldPath = getFullWorldPath(worldName);
-            return Path.Combine(worldPath,playerDataName);
-        }
-        public static string getDimensionFolderPath() {
-            return Path.Combine(getFullWorldPath(),dimensionFolderName);
-        }
-        public static string getDimensionFolderPath(string worldName) {
-            return Path.Combine(getFullWorldPath(worldName),dimensionFolderName);
-        }
-        public static string getDimPath(int dim) {
-            return Path.Combine(getDimensionFolderPath(),dimFolderPrefix + dim.ToString());
-        }
-        public static string getDimPath(string worldName, int dim) {
-            return Path.Combine(getDimensionFolderPath(worldName),dimFolderPrefix + dim.ToString());
-        }
-        public static bool dimExists(int dim) {
-            string path = getDimPath(dim);
+        public static bool DimExists(int dim) {
+            string path = GetDimPath(dim);
             return pathExists(path);
         }
 
         public static string GetWorldPath(string worldName)
         {
-            string worldFolder = Path.Combine(Application.persistentDataPath,defaultWorldFolder);
-            return Path.Combine(worldFolder, worldName);
+            if (UsePersistentPath)
+            {
+                return Path.Combine(Application.persistentDataPath, defaultWorldFolder, worldName);
+            }
+
+            return worldName;
+
+        }
+
+        public static string GetCurrentWorldPath()
+        {
+            return GetWorldPath(WorldManager.getInstance().GetWorldName());
         }
         public static bool dimExists(string worldName, int dim) {
-            string path = getDimPath(dim);
+            string path = GetDimPath(dim);
             return pathExists(path);
         }
         public static void createDimFolder(int dim) {
-            string path = getDimPath(dim);
+            string path = GetDimPath(dim);
             Directory.CreateDirectory(path);
         }
         public static bool worldExists(string path) {

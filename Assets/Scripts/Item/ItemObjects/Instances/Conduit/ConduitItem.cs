@@ -59,12 +59,7 @@ namespace Items {
         public abstract ConduitType GetConduitType();
         public override Sprite getSprite()
         {
-            if (Tile)
-            {
-                return Tile.getDefaultSprite();
-            }
-
-            return null;
+            return ((Tile)Tile?.GetDefaultTile())?.sprite;
         }
     }
 }

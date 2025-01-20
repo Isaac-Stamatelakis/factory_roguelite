@@ -50,7 +50,7 @@ namespace WorldModule.Caves {
                         continue;
                     }
 
-                    BaseTileData baseTileData = serializedTileData.sTileOptions[x, y];
+                    BaseTileData baseTileData = serializedTileData.sTileOptions[x, y] ?? new BaseTileData(0, 0, false);
                     int state = 0;
                     int rotation = 0;
                     bool mirror = false;

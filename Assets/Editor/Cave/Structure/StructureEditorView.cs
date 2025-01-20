@@ -5,6 +5,7 @@ using UnityEditor;
 using WorldModule.Caves;
 using Newtonsoft.Json;
 
+/*
 [CustomEditor(typeof(Structure))]
 public class StructureEditorView : Editor
 {
@@ -85,3 +86,4 @@ public class StructureEditorView : Editor
     }
 
 }
+*/

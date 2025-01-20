@@ -6,7 +6,9 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
 using NUnit.Framework.Constraints;
+using Tiles;
 using UnityEditor;
+using UnityEngine.Tilemaps;
 
 public enum HammerTileType
 {
@@ -19,6 +21,18 @@ public enum NatureHammerTileType
 {
     Slab,
     Slant
+}
+
+public class OutlineValues
+{
+    private static readonly string FOLDER_PATH = "Assets/Objects/Tiles/Outline";
+    private static readonly string SQUARE_PATH = "Square_Outline/Square_Outline.asset";
+    private static readonly string HAMMER_PATH = "Hammer_Outline/Hammer_Outline.asset";
+    private static readonly string NATURE_PATH = "Nature_Outline/Nature_Outline.asset";
+
+    public Tile SquareOutline = AssetDatabase.LoadAssetAtPath<Tile>(Path.Combine(FOLDER_PATH,SQUARE_PATH));
+    public HammerTile HammerOutline = AssetDatabase.LoadAssetAtPath<HammerTile>(Path.Combine(FOLDER_PATH,HAMMER_PATH));
+    public NatureTile NatureOutline = AssetDatabase.LoadAssetAtPath<NatureTile>(Path.Combine(FOLDER_PATH,NATURE_PATH));
 }
 public class HammerTileValues
 {
@@ -63,7 +77,7 @@ public class HammerTileValues
     }
     private static string GetNaturePath(NatureHammerTileType type, int index)
     {
-        return Path.Combine(GetInteralAssetPath(type), index.ToString() + ".asset");
+        return Path.Combine(FOLDER_PATH, GetInteralAssetPath(type), index.ToString(), index.ToString() + ".asset");
     }
 
     private static string GetSpriteCollectionPath(HammerTileType type)
@@ -94,6 +108,7 @@ public class HammerTileValues
         Slant = AssetDatabase.LoadAssetAtPath<SpriteRotationCollection>(GetSpriteCollectionPath(HammerTileType.Slant));
         Stairs = AssetDatabase.LoadAssetAtPath<SpriteRotationCollection>(GetSpriteCollectionPath(HammerTileType.Stair));
         NatureSlabs = GetNatureCollections(NatureHammerTileType.Slab);
+        NatureSlants = GetNatureCollections(NatureHammerTileType.Slant);
     }
     
     

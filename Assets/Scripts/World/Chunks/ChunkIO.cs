@@ -24,6 +24,7 @@ namespace Chunks.IO {
             string[] files = Directory.GetFiles(path);
             List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
             foreach (string file in files) {
+                if (file.Contains(".meta")) continue;
                 string[] seperated = file.Split("\\");
                 string name = seperated[seperated.Length-1];
                 string[] split = name.Split("[");
@@ -98,7 +99,7 @@ namespace Chunks.IO {
         }
         
         public static string getPath(Vector2Int chunkPosition, int dim) {
-            return Path.Combine(WorldLoadUtils.getDimPath(dim),getName(chunkPosition));
+            return Path.Combine(WorldLoadUtils.GetDimPath(dim),getName(chunkPosition));
         }
 
         public static string getPath(IChunk chunk) {
