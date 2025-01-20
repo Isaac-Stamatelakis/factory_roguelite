@@ -15,6 +15,7 @@ namespace Entities {
             gameObject.AddComponent<Rigidbody2D>();
             gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
             gameObject.layer = LayerMask.NameToLayer("Entity");
+
             BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
         
             spriteRenderer.sprite = itemSlot.itemObject.getSprite();

@@ -66,8 +66,6 @@ namespace PlayerModule {
         
         void Update()
         {
-            raycastHitTileEntities();
-            
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 mode = InventoryDisplayMode.Tools;
@@ -104,51 +102,7 @@ namespace PlayerModule {
             
         }
         
-        private void raycastHitTileEntities() {
-            Vector2 position = new Vector2(transform.position.x-0.25f,transform.position.y);
-            RaycastHit2D[] hits = Physics2D.CircleCastAll(position, 0.5f,Vector2.zero, 0.25f, entityLayer);
-            foreach (RaycastHit2D hit in hits) {
-                ItemEntity itemEntityProperities = hit.collider.gameObject.GetComponent<ItemEntity>();
-                
-                if (itemEntityProperities != null) {
-                    if (itemEntityProperities.LifeTime < 1f) {
-                        continue;
-                    }
-                    bool alreadyInInventory = false;
-                    int firstOpenSlot = -1;
-                    for (int n = playerInventoryData.Inventory.Count-1; n >= 0; n --) {
-                        ItemSlot inventorySlot = playerInventoryData.Inventory[n];
-                        if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) {
-                            firstOpenSlot = n;
-                            continue;
-                        }
-                        if (inventorySlot.itemObject.id == itemEntityProperities.itemSlot.itemObject.id && inventorySlot.amount < Global.MaxSize) {
-                            alreadyInInventory = true;
-                            inventorySlot.amount += itemEntityProperities.itemSlot.amount;
-                            itemEntityProperities.itemSlot.amount = inventorySlot.amount;
-                            if (inventorySlot.amount > Global.MaxSize) {
-                                inventorySlot.amount = Global.MaxSize; 
-                            }
-                            
-                            itemEntityProperities.itemSlot.amount -= inventorySlot.amount;
-                            if (itemEntityProperities.itemSlot.amount <= 0) {
-                                Destroy(itemEntityProperities.gameObject);
-                            }
-                            playerInventoryGrid.DisplayItem(n);
-                        }
-                    }
-                    if (!alreadyInInventory && firstOpenSlot >= 0) {
-                        playerInventoryData.Inventory[firstOpenSlot] = itemEntityProperities.itemSlot;
-                        Destroy(itemEntityProperities.gameObject);
-                        if (firstOpenSlot < inventorySize.x * inventorySize.y) {
-                            playerInventoryGrid.SetItem(firstOpenSlot, playerInventoryData.Inventory[firstOpenSlot]);
-                        }
-                    }
-                }
-            }
-        }
         
-
         public void deiterateInventoryAmount() {
             ItemSlot itemInventoryData = playerInventoryData.Inventory[selectedSlot];
             if (itemInventoryData == null) {

@@ -12,7 +12,7 @@ namespace Entities {
         public float LifeTime {get{return lifeTime;}}
 
         protected void iterateLifeTime() {
-            lifeTime += Time.deltaTime;
+            lifeTime += Time.fixedDeltaTime;
             if (lifeTime > Global.ItemEntityLifeSpawn) {
                 Destroy(gameObject);
             }

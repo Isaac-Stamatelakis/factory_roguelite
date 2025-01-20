@@ -16,9 +16,11 @@ namespace Tiles {
     [System.Serializable]
     public class TilePlacementOptions
     {
-        public bool requireTileBelow = false;
-        public bool requireTileAbove = false;
-        public bool requireTileSide = false;
+        public bool AtleastOne = true;
+        public bool Below = false;
+        public bool Above = false;
+        public bool Side = false;
+        public bool BackGround = false;
     }
     
     public class BaseTileData {
@@ -38,7 +40,7 @@ namespace Tiles {
         public bool hasStates = false;
         public int hardness = 8;
         public List<DropOption> dropOptions;
-        public TilePlacementOptions placementOptions;
+        public TilePlacementOptions placementRequirements;
     } 
     [System.Serializable]
     public class DropOption {
