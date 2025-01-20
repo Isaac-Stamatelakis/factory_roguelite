@@ -44,6 +44,12 @@ namespace Tiles {
             return activeTile;
     
         }
+
+        public TileBase GetDefaultTile()
+        {
+            return activeTile;
+        }
+
         public TileMapType getStateType(int state)
         {
             return TileMapType.Block;

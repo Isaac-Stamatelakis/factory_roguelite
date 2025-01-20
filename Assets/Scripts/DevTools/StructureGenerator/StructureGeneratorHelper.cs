@@ -13,6 +13,7 @@ using Chunks.Partitions;
 using System.Linq;
 using Item.Slot;
 using Items;
+using Newtonsoft.Json;
 using UnityEngine.AddressableAssets;
 
 #if UNITY_EDITOR 
@@ -32,7 +33,7 @@ namespace DevTools.Structures {
         
         public static string ParimeterId { get => parameterId; set => parameterId = value; }
         public static string FillId { get => fillId; set => fillId = value; }
-        public static string getPath(string structureName) {
+        public static string GetStructurePath(string structureName) {
             string folderPath = GetFolderPath();
             return Path.Combine(folderPath,structureName);
         }
@@ -44,7 +45,7 @@ namespace DevTools.Structures {
             }
             return folderPath;
         }
-
+        
         public static string[] GetAllStructureFolders() {
             string folderPath = GetFolderPath();
             string[] fullPaths = Directory.GetDirectories(folderPath);
@@ -92,6 +93,142 @@ namespace DevTools.Structures {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             string playerDataPath = Path.Combine(path,"player_data.json");
             File.WriteAllText(playerDataPath,json);
+        }
+        
+        /// <summary>
+        /// This generates all structures inside a structure dev tool system.
+        /// </summary>
+        public static Structure LoadStructure(string structureName) {
+            string path = StructureGeneratorHelper.GetStructurePath(structureName);
+            
+            string dimPath = WorldLoadUtils.GetDimPath(path, 0);
+            
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
+            
+            Dictionary<Vector2Int, SoftLoadedConduitTileChunk> chunkDict = new Dictionary<Vector2Int, SoftLoadedConduitTileChunk>();
+            IntervalVector coveredArea = new IntervalVector(new Interval<int>(0,0),new Interval<int>(0,0));
+            foreach (SoftLoadedConduitTileChunk chunk in chunks) {
+                if (chunkDict.ContainsKey(chunk.Position)) {
+                    Debug.LogError($"Chunk dict already contains a chunk at position {chunk.Position}");
+                    continue;
+                }
+                coveredArea.add(chunk.Position);
+                chunkDict[chunk.Position] = chunk;
+            }   
+            
+            Vector2Int size = coveredArea.getSize()*Global.ChunkSize;
+            Vector2Int offset = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            bool enforceEnclosure = false;
+            bool[,] perimeter = new bool[size.x,size.y];
+            foreach (SoftLoadedConduitTileChunk softLoadedConduitTileChunk in chunks) {
+                foreach (IChunkPartition partition in softLoadedConduitTileChunk.Partitions) {
+                    SeralizedWorldData data = partition.GetData();
+                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
+                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                            string baseId = data.baseData.ids[x,y];
+                            if (baseId == StructureGeneratorHelper.ParimeterId) {
+                                Vector2Int normalizedPosition = partition.GetRealPosition()*Global.ChunkPartitionSize+new Vector2Int(x,y)-offset;
+                                perimeter[normalizedPosition.x,normalizedPosition.y] = true;
+                                enforceEnclosure = true; // If even a single perimeter tile is in the map, enforce enclosure is on
+                            }
+                        }
+                    }
+                }
+            }
+            Debug.Log(enforceEnclosure);
+
+            bool[,] visited = new bool[size.x,size.y];
+            List<Vector2Int> directions = new List<Vector2Int>{
+                Vector2Int.up,
+                Vector2Int.left,
+                Vector2Int.down,
+                Vector2Int.right
+            };
+            List<List<Vector2Int>> areas = new List<List<Vector2Int>>();
+            for (int x = 0; x < size.x; x++) {
+                for (int y = 0; y < size.y; y++) {
+                    if (!visited[x,y] && !perimeter[x,y]) {
+                        List<Vector2Int> filledArea = DfsEnclosedArea(new Vector2Int(x,y),perimeter,visited,directions,size,enforceEnclosure);
+                        if (filledArea != null) {
+                            areas.Add(filledArea);
+                        }
+                    }
+                }
+            }
+            Debug.Log($"Structure generator found {areas.Count} structures");
+
+            List<StructureVariant> variants = new List<StructureVariant>();
+            foreach (List<Vector2Int> area in areas) {
+                if (area.Count == 0) {
+                    continue;
+                }
+                Vector2Int first = area[0];
+                IntervalVector boundingBox = new IntervalVector(new Interval<int>(first.x,first.x),new Interval<int>(first.y,first.y));
+                for (int i = 1; i < area.Count; i++) {
+                    boundingBox.add(area[i]);
+                }
+
+                Vector2Int areaOffset = new Vector2Int(boundingBox.X.LowerBound,boundingBox.Y.LowerBound);
+                Vector2Int areaSize = boundingBox.getSize();
+                WorldTileConduitData areaData = WorldGenerationFactory.CreateEmpty(areaSize);
+                for (int x = 0; x < areaSize.x; x++) {
+                    for (int y = 0; y < areaSize.y; y++) {
+                        areaData.baseData.ids[x,y] = StructureGeneratorHelper.FillId;
+                    }
+                }
+                foreach (Vector2Int vector in area) {
+                    Vector2Int adjustedVector = vector+offset;
+                    Vector2Int chunkPosition = Global.getChunkFromCell(adjustedVector);
+                    IChunk chunk = chunkDict[chunkPosition];
+                    Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PartitionsPerChunk;
+                    IChunkPartition partition = chunk.getPartition(partitionPosition);
+                    WorldTileConduitData partitionData = (WorldTileConduitData) partition.GetData();
+                    Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
+                    Vector2Int posInArea = vector-areaOffset;
+                    WorldGenerationFactory.MapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
+                }
+                Debug.Log($"Added structure variant of size {areaSize} with {area.Count} points");
+                variants.Add(new StructureVariant(
+                    areaData,
+                    areaSize
+                ));
+            }
+            return new Structure(variants);
+        }
+
+        
+        private static List<Vector2Int> DfsEnclosedArea(Vector2Int position, bool[,] perimeter, bool[,] visited, List<Vector2Int> directions, Vector2Int size, bool enforceEnclosure) {
+            Stack<Vector2Int> stack = new Stack<Vector2Int>();
+            stack.Push(position);
+            visited[position.x,position.y] = true;
+            bool enclosed = true;
+            List<Vector2Int> points = new List<Vector2Int>();
+            points.Add(position);
+            while (stack.Count > 0)
+            {
+                Vector2Int next = stack.Pop();
+                foreach (Vector2Int direction in directions) {
+                    Vector2Int directedPosition = next + direction;
+                    bool outOfBounds = directedPosition.x < 0 || directedPosition.y < 0 || directedPosition.x >= size.x || directedPosition.y >= size.y;
+                    if (outOfBounds) {
+                        if (enforceEnclosure) {
+                            enclosed = false;
+                            points = null;
+                        }
+                        continue;
+                    }
+                    if (perimeter[directedPosition.x,directedPosition.y] || visited[directedPosition.x,directedPosition.y]) {
+                        continue;
+                    }
+                    visited[directedPosition.x,directedPosition.y] = true;
+                    stack.Push(directedPosition);
+                    if (enclosed) {
+                        points.Add(directedPosition);
+                    }
+                }
+            }
+            // points will be null if it is not enclosed, ie touched any out of bounds area
+            return points;
         }
     }
 }

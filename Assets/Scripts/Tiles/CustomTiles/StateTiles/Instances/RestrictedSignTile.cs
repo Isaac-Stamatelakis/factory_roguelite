@@ -15,10 +15,6 @@ namespace Tiles {
         public Tile onLeft;
         public Tile onRight;
         public Tile hanging;
-        public Sprite getDefaultSprite()
-        {
-            return onBlock.sprite;
-        }
 
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
         {
@@ -88,6 +84,11 @@ namespace Tiles {
                 default:
                     return null;
             }
+        }
+
+        public TileBase GetDefaultTile()
+        {
+            return onBlock;
         }
 
         public int getStateAmount()

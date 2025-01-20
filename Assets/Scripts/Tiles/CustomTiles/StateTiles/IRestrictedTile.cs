@@ -20,7 +20,7 @@ namespace Tiles {
 
     public interface IStateTile {
         public TileBase getTileAtState(int state);
-        public Sprite getDefaultSprite();
+        public TileBase GetDefaultTile();
         public int getStateAmount();   
     }
 }

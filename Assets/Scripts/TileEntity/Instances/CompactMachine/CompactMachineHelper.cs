@@ -133,7 +133,7 @@ namespace TileEntity.Instances.CompactMachines {
                 yield break;
             }
             StructureVariant variant = structure.variants[0];
-            WorldTileConduitData systemData = JsonConvert.DeserializeObject<WorldTileConduitData>(variant.Data);
+            WorldTileConduitData systemData = variant.Data;
             Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.ChunkSize,variant.Size.y/Global.ChunkSize);
             WorldGenerationFactory.SaveToJson(systemData,chunkSize,1,savePath);
             Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");

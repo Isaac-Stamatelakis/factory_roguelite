@@ -15,16 +15,11 @@ namespace Tiles {
     public class HammerTile : TileBase, IIDTile, IStateTile
     {
         [SerializeField] public string id;
-        [SerializeField] public Tile baseTile;
+        [SerializeField] public TileBase baseTile;
         [SerializeField] public Tile cleanSlab;
         [SerializeField] public Tile cleanSlant;
         [SerializeField] public Tile stairs;
         
-        public Sprite getDefaultSprite()
-        {
-            return baseTile.sprite;
-        }
-
         public string getId()
         {
             return id;
@@ -46,6 +41,12 @@ namespace Tiles {
                 _ => null
             };
         }
+
+        public TileBase GetDefaultTile()
+        {
+            return baseTile;
+        }
+
         public virtual int getStateAmount()
         {
             return 4;

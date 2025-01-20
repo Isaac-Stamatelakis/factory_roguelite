@@ -100,7 +100,7 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         hammerTile.cleanSlab = slabTile;
         hammerTile.cleanSlant = slantTile;
         hammerTile.stairs = stairTile;
-        hammerTile.name = $"{tileName}_hammer";
+        hammerTile.name = tileName;
         ItemEditorFactory.saveTile(hammerTile,path);
         if (outlineType != OutlineTileType.NatureTile) return;
         
@@ -115,14 +115,13 @@ public class TileOutlineGeneratorWindow : EditorWindow {
         for (int i = 0; i < hammerTileValues.NatureSlants.Length; i++)
         {
             Sprite sprite = generateFromTexture(hammerTileValues.NatureSlants[i].GetDefaultReadSprite().texture,path,$"nature_slant_{i}_",tileName);
-            natureSlabTiles[i] = (ItemEditorFactory.createTile(sprite,$"slant_{tileName}_{i}",path));
+            natureSlantTiles[i] = (ItemEditorFactory.createTile(sprite,$"slant_{tileName}_{i}",path));
         }
 
         NatureTile natureTile = (NatureTile)hammerTile;
         natureTile.natureSlabs = natureSlabTiles;
         natureTile.natureSlants = natureSlantTiles;
         natureTile.name = $"nature_{tileName}";
-        ItemEditorFactory.saveTile(natureTile,path);
     }
 
     void generate()

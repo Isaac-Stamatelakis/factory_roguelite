@@ -20,6 +20,7 @@ namespace DevTools.Structures {
         [SerializeField] private EditStructurePopUpUI editStructurePopUpUIPrefab;
         private StructureDevControllerUI structureDevControllerUI;
         public void init(StructureDevControllerUI structureDevControllerUI, string title, string date) {
+            WorldLoadUtils.UsePersistentPath = false;
             this.structureDevControllerUI = structureDevControllerUI;
             this.title.text = title;
             this.date.text = date;
@@ -29,7 +30,8 @@ namespace DevTools.Structures {
                 editStructurePopUpUI.init(this);
             });
             GetComponent<Button>().onClick.AddListener(() => {
-                string path = StructureGeneratorHelper.getPath(this.title.text);
+                string path = StructureGeneratorHelper.GetStructurePath(this.title.text);
+                
                 WorldManager.getInstance().SetWorldName(path);
                 SceneManager.LoadScene("StructureGenerator");
             });

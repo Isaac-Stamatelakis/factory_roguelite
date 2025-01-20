@@ -70,10 +70,10 @@ namespace WorldModule {
         
         
         public static string GetDimPath(int dim) {
-            return Path.Combine(GetWorldFileValue(WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
         }
         public static string GetDimPath(string worldName, int dim) {
-            return Path.Combine(GetWorldComponentPath(worldName, WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(worldName, GetWorldFileValue( WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
         }
         public static bool DimExists(int dim) {
             string path = GetDimPath(dim);

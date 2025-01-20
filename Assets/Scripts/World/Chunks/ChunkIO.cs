@@ -24,6 +24,7 @@ namespace Chunks.IO {
             string[] files = Directory.GetFiles(path);
             List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
             foreach (string file in files) {
+                if (file.Contains(".meta")) continue;
                 string[] seperated = file.Split("\\");
                 string name = seperated[seperated.Length-1];
                 string[] split = name.Split("[");

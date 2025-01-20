@@ -69,35 +69,40 @@ public class TileItem : ItemObject, IPlacableItem
         return null;
     }
 
-    public override Sprite getSprite() {
-        if (tile is StandardTile standardTile) {
-            return standardTile.sprite;
-        } else if (tile is AnimatedTile animatedTile) {
-            return animatedTile.m_AnimatedSprites[0];
-        } else if (tile is RuleTile ruleTile) {
-            return ruleTile.m_DefaultSprite;
-        } else if (tile is RandomTile randomTile) {
-            return randomTile.sprite;
-        } else if (tile is IStateTile stateTile) {
-            return stateTile.getDefaultSprite();
-        }
-        return null;
+    public override Sprite getSprite()
+    {
+        return GetDefaultSprite(tile);
+    }
+
+    private static Sprite GetDefaultSprite(TileBase tileBase)
+    {
+        return tileBase switch
+        {
+            StandardTile standardTile => standardTile.sprite,
+            AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
+            RuleTile ruleTile => ruleTile.m_DefaultSprite,
+            RandomTile randomTile => randomTile.sprite,
+            IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
+            _ => null
+        };
+    }
+
+    private static Sprite[] GetDefaultSprites(TileBase tileBase)
+    {
+        return tileBase switch
+        {
+            StandardTile standardTile => new Sprite[] { standardTile.sprite },
+            AnimatedTile animatedTile => animatedTile.m_AnimatedSprites,
+            RuleTile ruleTile => new Sprite[] { ruleTile.m_DefaultSprite },
+            RandomTile randomTile => new Sprite[] { randomTile.sprite },
+            IStateTile stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
+            _ => null
+        };
     }
 
     public override Sprite[] getSprites()
     {
-        if (tile is StandardTile standardTile) {
-            return new Sprite[]{standardTile.sprite};
-        } else if (tile is AnimatedTile animatedTile) {
-            return animatedTile.m_AnimatedSprites;
-        } else if (tile is RuleTile ruleTile) {
-            return new Sprite[]{ruleTile.m_DefaultSprite};
-        } else if (tile is RandomTile randomTile) {
-            return new Sprite[]{randomTile.sprite};
-        } else if (tile is IStateTile stateTile) {
-            return new Sprite[]{stateTile.getDefaultSprite()};
-        }
-        return null;
+        return GetDefaultSprites(tile);
     }
 
     public TileBase getTile()
