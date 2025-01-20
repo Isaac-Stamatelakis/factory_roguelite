@@ -252,26 +252,26 @@ namespace Chunks.Partitions {
             this.scheduledForFarLoading = state;
         }
 
-        public BaseTileData GetBaseData(Vector2Int position)
+        public BaseTileData GetBaseData(Vector2Int positionInPartition)
         {
-            if (data.baseData.sTileOptions[position.x, position.y] == null)
+            if (data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y] == null)
             {
-                data.baseData.sTileOptions[position.x, position.y] = new BaseTileData(0, 0, false);
+                data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y] = new BaseTileData(0, 0, false);
             }
-            return data.baseData.sTileOptions[position.x,position.y];
+            return data.baseData.sTileOptions[positionInPartition.x,positionInPartition.y];
         }
 
         
 
-        public bool DeIncrementHardness(Vector2Int position)
+        public bool DeIncrementHardness(Vector2Int positionInPartition)
         {
-            baseTileHardnessArray[position.x, position.y]--;
-            return baseTileHardnessArray[position.x, position.y] == 0;
+            baseTileHardnessArray[positionInPartition.x, positionInPartition.y]--;
+            return baseTileHardnessArray[positionInPartition.x, positionInPartition.y] == 0;
         }
 
         public int GetHardness(Vector2Int positionInPartition)
         {
-            return baseTileHardnessArray[position.x, position.y];
+            return baseTileHardnessArray[positionInPartition.x, positionInPartition.y];
         }
     }
 }

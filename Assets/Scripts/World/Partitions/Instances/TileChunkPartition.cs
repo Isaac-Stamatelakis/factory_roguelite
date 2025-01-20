@@ -238,6 +238,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         baseTileData.state = restrictedTile.getStateAtPosition(mousePosition,MousePositionFactory.getVerticalMousePosition(mousePosition),MousePositionFactory.getHorizontalMousePosition(mousePosition));
                     }
                     tileData.baseData.sTileOptions[tilePosition.x, tilePosition.y] = baseTileData;
+                    if (!ReferenceEquals(tileItem, null))
+                    {
+                        baseTileHardnessArray[tilePosition.x, tilePosition.y] = tileItem.tileOptions.hardness;
+                    }
+                    
                     
                     break;
                 case TileMapLayer.Background:

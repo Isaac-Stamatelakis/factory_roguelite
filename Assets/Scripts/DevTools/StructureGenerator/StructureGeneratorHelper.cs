@@ -100,7 +100,6 @@ namespace DevTools.Structures {
         /// </summary>
         public static Structure LoadStructure(string structureName) {
             string path = StructureGeneratorHelper.GetStructurePath(structureName);
-            
             string dimPath = WorldLoadUtils.GetDimPath(path, 0);
             
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
@@ -135,8 +134,7 @@ namespace DevTools.Structures {
                     }
                 }
             }
-            Debug.Log(enforceEnclosure);
-
+            
             bool[,] visited = new bool[size.x,size.y];
             List<Vector2Int> directions = new List<Vector2Int>{
                 Vector2Int.up,
@@ -155,7 +153,7 @@ namespace DevTools.Structures {
                     }
                 }
             }
-            Debug.Log($"Structure generator found {areas.Count} structures");
+            //Debug.Log($"Structure generator found {areas.Count} structures");
 
             List<StructureVariant> variants = new List<StructureVariant>();
             foreach (List<Vector2Int> area in areas) {
@@ -187,7 +185,6 @@ namespace DevTools.Structures {
                     Vector2Int posInArea = vector-areaOffset;
                     WorldGenerationFactory.MapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
                 }
-                Debug.Log($"Added structure variant of size {areaSize} with {area.Count} points");
                 variants.Add(new StructureVariant(
                     areaData,
                     areaSize

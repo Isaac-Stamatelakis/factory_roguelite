@@ -20,7 +20,10 @@ namespace WorldModule.Caves {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
             foreach (StructureFrequency structureFrequency in structures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
-                var variants = structureFrequency.generatedStructure.variants;
+                Structure structure = StructureGeneratorHelper.LoadStructure(structureFrequency.structureName);
+                var variants = structure.variants;
+  
+                if (variants.Count == 0) continue;
                 while (amount > 0)
                 {
                     int index = UnityEngine.Random.Range(0, variants.Count);
@@ -66,11 +69,11 @@ namespace WorldModule.Caves {
                         kvp.Key
                     ))
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
     }
 
@@ -148,7 +151,7 @@ namespace WorldModule.Caves {
     }
     [System.Serializable]
     public class StructureFrequency {
-        public Structure generatedStructure;
+        public string structureName;
         public int mean;
         public int standardDeviation;
     }

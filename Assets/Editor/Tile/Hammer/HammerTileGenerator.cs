@@ -191,11 +191,13 @@ namespace HammerTileEditor
 
         private TileBase GetTileFromSprites(Sprite[] sprites)
         {
+            // This function probably already exists somewhere else
             if (sprites.Length == 1)
             {
                 Tile singleTile = ScriptableObject.CreateInstance<Tile>();
                 singleTile.name = tileName;
                 singleTile.sprite = sprites[0];
+                singleTile.colliderType = Tile.ColliderType.Grid;
                 return singleTile;
             }
             
@@ -207,11 +209,13 @@ namespace HammerTileEditor
                     randomTile.setID(ItemEditorFactory.formatId(tileName));
                     randomTile.sprite = sprites[0];
                     randomTile.m_Sprites = sprites;
+                    randomTile.colliderType = Tile.ColliderType.Grid;
                     return randomTile;
                 case MultiTileType.Animated:
                     AnimatedTile animatedTile = ScriptableObject.CreateInstance<AnimatedTile>();
                     animatedTile.name = tileName;
                     animatedTile.m_AnimatedSprites = sprites;
+                    animatedTile.m_TileColliderType = Tile.ColliderType.Grid;
                     return animatedTile;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -94,11 +94,8 @@ namespace Dimensions {
         /// Creates a new system for a compact machine. Path should be ordered with depth 0 at 0, depth n at n.
         /// Null path means that 
         /// </summary>
-        public void addNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
-            StartCoroutine(addNewSystemCoroutine(key,compactMachine));
-        }
-
-        private IEnumerator addNewSystemCoroutine(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
+        
+        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
             List<Vector2Int> systemPath = key.Path;
             List<Vector2Int> parentPath = new List<Vector2Int>();
             for (int i = 0; i < systemPath.Count-1; i++) {
@@ -106,8 +103,9 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
-            yield return CompactMachineHelper.initalizeCompactMachineSystem(compactMachine,systemPath);
+            CompactMachineHelper.InitalizeCompactMachineSystem(compactMachine, systemPath);
             SoftLoadedClosedChunkSystem newSystem = CompactMachineHelper.loadSystemFromPath(systemPath);
+            
             CompactMachineTree newTree = new CompactMachineTree(
                 newSystem
             );

@@ -157,7 +157,7 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(cellPosition);
             
             bool broken = partition.DeIncrementHardness(tilePositionInPartition);
-            if (tileItem.tile is not Tile { colliderType: Tile.ColliderType.Grid }) return broken;
+            if (tileItem.tileType.toTileMapType().toLayer() != TileMapLayer.Base || !CanShowBreakIndiciator(tileItem.tile, partition, tilePositionInPartition)) return broken;
             
             if (!broken) {
                 int hardness = partition.GetHardness(tilePositionInPartition);
@@ -167,6 +167,31 @@ namespace TileMaps {
                 closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
             }
             return broken;
+        }
+
+        private bool CanShowBreakIndiciator(TileBase tileBase, IChunkPartition partition, Vector2Int positionInPartition)
+        {
+            switch (tileBase)
+            {
+                case Tile tile:
+                    return tile.colliderType == Tile.ColliderType.Grid;
+                case AnimatedTile animatedTile:
+                    return animatedTile.m_TileColliderType == Tile.ColliderType.Grid;
+                case IStateRotationTile stateRotationTile:
+                {
+                    BaseTileData tileData = partition.GetBaseData(positionInPartition);
+                    TileBase rotTile = stateRotationTile.getTile(tileData.rotation,tileData.mirror);
+                    return CanShowBreakIndiciator(rotTile, partition, positionInPartition);
+                }
+                case IStateTile stateTile:
+                {
+                    BaseTileData tileData = partition.GetBaseData(positionInPartition);
+                    TileBase hammerTileState = stateTile.getTileAtState(tileData.state);
+                    return CanShowBreakIndiciator(hammerTileState, partition, positionInPartition);
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tileBase));
+            }
         }
 
         protected override void SetTile(int x, int y,TileItem tileItem) {

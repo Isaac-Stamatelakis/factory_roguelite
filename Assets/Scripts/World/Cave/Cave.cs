@@ -56,6 +56,10 @@ namespace WorldModule.Caves {
             double tileDistributionTime = stopwatch.Elapsed.TotalSeconds;
             total += tileDistributionTime;
             double entityDistributionTime = 0;
+            if (!ReferenceEquals(caveElements.StructureDistributor, null))
+            {
+                caveElements.StructureDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+            }
             if (!ReferenceEquals(caveElements.EntityDistributor,null)) {
                 stopwatch.Restart();
                 caveElements.EntityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
@@ -85,6 +89,7 @@ namespace WorldModule.Caves {
         public List<CaveTileGenerator> TileGenerators;
         public CaveEntityDistributor EntityDistributor;
         public List<AudioClip> Songs;
+        public AreaStructureDistributor StructureDistributor;
     }
 
     
