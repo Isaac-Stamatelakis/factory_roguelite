@@ -13,7 +13,7 @@ namespace TileEntity.Instances.CompactMachines {
     public class CompactMachine : TileEntityObject, IManagedUITileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
-        public AssetReference StructurePreset;
+        public string StructurePath;
         public TileEntityUIManager UIManager;
         public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {

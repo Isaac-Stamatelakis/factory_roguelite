@@ -63,6 +63,11 @@ namespace TileEntity.Instances {
             if (cave.entityDistributor.RuntimeKeyIsValid()) {
                 handles["Entity"] = Addressables.LoadAssetAsync<Object>(cave.entityDistributor);
             }
+
+            if (cave.generationModel.RuntimeKeyIsValid())
+            {
+                handles["Structure"] = Addressables.LoadAssetAsync<Object>(cave.structureDistributor);
+            }
             
 
             List<AsyncOperationHandle<Object>> tileDistributorHandles = new List<AsyncOperationHandle<Object>>();
@@ -91,8 +96,11 @@ namespace TileEntity.Instances {
             foreach (var handle in songHandles) {
                 yield return handle;
             }
-            if (handles.ContainsKey("Entity")) {
-                caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(handles["Entity"]);
+            if (handles.TryGetValue("Entity", out var entityHandle)) {
+                caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(entityHandle);
+            }
+            if (handles.TryGetValue("Structure", out var structureHandle)) {
+                caveElements.StructureDistributor = AddressableUtils.validateHandle<AreaStructureDistributor>(structureHandle);
             }
             
             caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(handles["Model"]);

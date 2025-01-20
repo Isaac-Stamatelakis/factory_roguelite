@@ -42,7 +42,7 @@ namespace TileEntity.Instances.CompactMachines {
             path.Add(getCellPosition());
             CompactMachineTeleportKey thisKey = new CompactMachineTeleportKey(path);
             if (!dimController.hasSystem(thisKey)) {
-                dimController.addNewSystem(thisKey,this);
+                dimController.AddNewSystem(thisKey,this);
             }
         }
 

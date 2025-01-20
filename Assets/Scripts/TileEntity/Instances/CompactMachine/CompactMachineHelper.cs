@@ -12,6 +12,7 @@ using Chunks;
 using PlayerModule;
 using UnityEngine.AddressableAssets;
 using System.Linq;
+using DevTools.Structures;
 using Newtonsoft.Json;
 
 namespace TileEntity.Instances.CompactMachines {
@@ -118,19 +119,17 @@ namespace TileEntity.Instances.CompactMachines {
             return closestPortData.position;
         }
 
-        public static IEnumerator initalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
+        public static void InitalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
-            var handle = Addressables.LoadAssetAsync<Object>(compactMachine.TileEntityObject.StructurePreset);
-            yield return handle;
-            Structure structure = AddressableUtils.validateHandle<Structure>(handle);
+            Structure structure = StructureGeneratorHelper.LoadStructure(compactMachine.TileEntityObject.StructurePath);
             if (structure == null) {
-                Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntityObject.name}: Could not load structure");
-                yield break;
+                Debug.LogError($"Could not initialize compact compact machine {compactMachine.TileEntityObject.name}: Could not load structure");
+                return;
             }
             if (structure.variants.Count == 0) {
                 Debug.LogError($"Could not initalize compact compact machine {compactMachine.TileEntityObject.name} as structure has no variant");
-                yield break;
+                return;
             }
             StructureVariant variant = structure.variants[0];
             WorldTileConduitData systemData = variant.Data;

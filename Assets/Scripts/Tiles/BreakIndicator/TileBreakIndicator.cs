@@ -19,7 +19,6 @@ namespace Tiles {
             if (index < 0 || index >= breakTiles.Length) {
                 return;
             }
-            
             Vector3Int cellPositionVec3 = (Vector3Int) cellPosition;
             tilemap.SetTile(cellPositionVec3,breakTiles[index]);
             Matrix4x4 matrix4X4 = tilemap.GetTransformMatrix(cellPositionVec3);
