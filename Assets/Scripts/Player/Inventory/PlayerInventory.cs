@@ -13,6 +13,7 @@ using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
 using Player;
+using Player.Inventory;
 using Player.Tool;
 using Robot;
 using Robot.Tool;
@@ -24,6 +25,7 @@ namespace PlayerModule {
         [SerializeField] private PlayerRobot playerRobot;
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
+        private PlayerPickUp playerPickUp;
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
@@ -45,11 +47,13 @@ namespace PlayerModule {
         void Start()
         {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
+            playerPickUp = GetComponentInChildren<PlayerPickUp>();
         }
 
         public void Initialize() {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().GetPlayerInventoryData());
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
+            playerInventoryGrid.AddListener(this);
             
         }
 
@@ -66,8 +70,6 @@ namespace PlayerModule {
         
         void Update()
         {
-            raycastHitTileEntities();
-            
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 mode = InventoryDisplayMode.Tools;
@@ -104,56 +106,13 @@ namespace PlayerModule {
             
         }
         
-        private void raycastHitTileEntities() {
-            Vector2 position = new Vector2(transform.position.x-0.25f,transform.position.y);
-            RaycastHit2D[] hits = Physics2D.CircleCastAll(position, 0.5f,Vector2.zero, 0.25f, entityLayer);
-            foreach (RaycastHit2D hit in hits) {
-                ItemEntity itemEntityProperities = hit.collider.gameObject.GetComponent<ItemEntity>();
-                
-                if (itemEntityProperities != null) {
-                    if (itemEntityProperities.LifeTime < 1f) {
-                        continue;
-                    }
-                    bool alreadyInInventory = false;
-                    int firstOpenSlot = -1;
-                    for (int n = playerInventoryData.Inventory.Count-1; n >= 0; n --) {
-                        ItemSlot inventorySlot = playerInventoryData.Inventory[n];
-                        if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) {
-                            firstOpenSlot = n;
-                            continue;
-                        }
-                        if (inventorySlot.itemObject.id == itemEntityProperities.itemSlot.itemObject.id && inventorySlot.amount < Global.MaxSize) {
-                            alreadyInInventory = true;
-                            inventorySlot.amount += itemEntityProperities.itemSlot.amount;
-                            itemEntityProperities.itemSlot.amount = inventorySlot.amount;
-                            if (inventorySlot.amount > Global.MaxSize) {
-                                inventorySlot.amount = Global.MaxSize; 
-                            }
-                            
-                            itemEntityProperities.itemSlot.amount -= inventorySlot.amount;
-                            if (itemEntityProperities.itemSlot.amount <= 0) {
-                                Destroy(itemEntityProperities.gameObject);
-                            }
-                            playerInventoryGrid.DisplayItem(n);
-                        }
-                    }
-                    if (!alreadyInInventory && firstOpenSlot >= 0) {
-                        playerInventoryData.Inventory[firstOpenSlot] = itemEntityProperities.itemSlot;
-                        Destroy(itemEntityProperities.gameObject);
-                        if (firstOpenSlot < inventorySize.x * inventorySize.y) {
-                            playerInventoryGrid.SetItem(firstOpenSlot, playerInventoryData.Inventory[firstOpenSlot]);
-                        }
-                    }
-                }
-            }
-        }
         
-
         public void deiterateInventoryAmount() {
             ItemSlot itemInventoryData = playerInventoryData.Inventory[selectedSlot];
             if (itemInventoryData == null) {
                 return;
             }
+            InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot].amount--;
             playerInventoryGrid.DisplayItem(selectedSlot);
         }
@@ -200,12 +159,13 @@ namespace PlayerModule {
         }
 
         public void removeSelectedItemSlot() {
+            InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot] = null;
         }
 
         public void InventoryUpdate(int n)
         {
-            
+            playerPickUp.TryPickUpAllCollided();
         }
 
         public void hideUI() {

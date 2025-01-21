@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.UI;
 using Items;
 using Items.Inventory;
+using PlayerModule.KeyPress;
 
 
 namespace UI.JEI
@@ -50,6 +51,7 @@ namespace UI.JEI
             
             rightButton.onClick.AddListener(OnRightButtonPress);
             
+            PlayerKeyPressUtils.InitializeTypingListener(searchField);
         }
 
         public void ShowAll() {

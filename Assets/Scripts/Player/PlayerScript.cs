@@ -1,4 +1,5 @@
 using System;
+using Chunks.Systems;
 using Item.Slot;
 using PlayerModule;
 using PlayerModule.IO;
@@ -12,10 +13,12 @@ namespace Player
         private PlayerInventory playerInventory;
         private PlayerRobot playerRobot;
         private PlayerIO playerIO;
+        private ClosedChunkSystem currentSystem;
         
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
+        public ClosedChunkSystem CurrentSystem => currentSystem;
         
         public void Start()
         {

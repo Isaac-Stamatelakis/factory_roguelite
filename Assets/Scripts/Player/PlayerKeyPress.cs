@@ -5,6 +5,7 @@ using Item.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using TMPro;
 using UI;
 using UI.Chat;
 using UI.QuestBook;
@@ -16,7 +17,20 @@ namespace PlayerModule.KeyPress {
 
     public static class PlayerKeyPressUtils
     {
-        public static bool BlockKeyInput => CanvasController.Instance.IsActive || TextChatUI.Instance.IsTyping;
+        public static void InitializeTypingListener(TMP_InputField tmpInputField)
+        {
+            tmpInputField.onSelect.AddListener((text) =>
+            {
+                isTyping = true;
+            });
+            
+            tmpInputField.onDeselect.AddListener((text) =>
+            {
+                isTyping = false;
+            });
+        }
+        private static bool isTyping;
+        public static bool BlockKeyInput => CanvasController.Instance.IsActive || isTyping;
     }
     public class PlayerKeyPress : MonoBehaviour
     {

@@ -73,10 +73,10 @@ namespace Dimensions {
         public abstract void softLoadSystems();
 
         public ClosedChunkSystem getPlayerSystem(Transform player) {
-            if (!playerWorldData.ContainsKey(player)) {
+            if (!playerWorldData.TryGetValue(player, out var value)) {
                 return null;
             }
-            return playerWorldData[player].closedChunkSystem;
+            return value.closedChunkSystem;
         }
         public int getPlayerDimension(Transform transform) {
             if (playerWorldData.ContainsKey(transform)) {

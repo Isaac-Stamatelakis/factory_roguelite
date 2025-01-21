@@ -12,12 +12,21 @@ namespace Entities {
                 return null;
             }
             GameObject tileItemEntity = new GameObject();
-            tileItemEntity.AddComponent<TileItemEntityProperties>();
-            TileItemEntityProperties itemProperties = tileItemEntity.GetComponent<TileItemEntityProperties>();
+            tileItemEntity.AddComponent<ItemEntity>();
+            ItemEntity itemProperties = tileItemEntity.GetComponent<ItemEntity>();
             itemProperties.itemSlot = itemSlot;
+            tileItemEntity.name = itemSlot.itemObject.name + "Entity";
             itemProperties.transform.position = new Vector3(position.x,position.y,0);
             itemProperties.transform.parent = entityContainer;
+            itemProperties.tag = "ItemEntity";
             itemProperties.initalize();
+
+            GameObject trigger = new GameObject();
+            trigger.name = "Trigger";
+            BoxCollider2D collider2D = trigger.AddComponent<BoxCollider2D>();
+            collider2D.size = new Vector2(0.5f, 0.5f);
+            collider2D.isTrigger = true;
+            trigger.transform.SetParent(tileItemEntity.transform,false);
             return tileItemEntity;
         }
 

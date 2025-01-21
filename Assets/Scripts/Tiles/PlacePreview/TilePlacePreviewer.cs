@@ -10,6 +10,7 @@ using TileMaps.Place;
 using PlayerModule;
 using Tiles;
 using Items;
+using Player;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -19,18 +20,14 @@ namespace TileMaps.Previewer {
         private Tilemap tilemap;
         private Tilemap unhighlightedTileMap;
         private DevMode devMode;
-        private PlayerInventory playerInventory;
         private Color placableColor = new Color(111f/255f,180f/255f,248f/255f);
         private Color nonPlacableColor = new Color(255f/255f,153f/255f,153/255f);
         private Camera mainCamera;
-
+        private PlayerScript playerScript;
         private Transform playerTransform;
         // Start is called before the first frame update
         void Start()
         {
-            playerTransform = GameObject.Find("Player").transform;
-            devMode = playerTransform.GetComponent<DevMode>();
-            playerInventory = playerTransform.GetComponent<PlayerInventory>();
             mainCamera = Camera.main;
             tilemap = GetComponent<Tilemap>();
             GameObject unhighlightedContainer = new GameObject();
@@ -38,6 +35,7 @@ namespace TileMaps.Previewer {
             unhighlightedContainer.name = "UnhighlightedTilemap";
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             unhighlightedContainer.AddComponent<TilemapRenderer>();
+            playerScript = PlayerManager.Instance.GetPlayer();
 
         }
 
@@ -45,11 +43,7 @@ namespace TileMaps.Previewer {
         void Update()
         {
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            if (devMode.placeSelectedID) {
-                previewTile(devMode.placeID,mousePosition);
-            } else {
-                previewTile(playerInventory.getSelectedId(), mousePosition);
-            }
+            previewTile(playerScript.PlayerInventory.getSelectedId(), mousePosition);
             
         }   
         public void previewTile(string id, Vector2 position) {
@@ -74,7 +68,7 @@ namespace TileMaps.Previewer {
                 placementRecord = PreviewStandardTile(itemObject, itemTileBase, placePosition, position);
             }
             
-            tilemap.color = PlaceTile.itemPlacable(itemObject,position) ? placableColor : nonPlacableColor;
+            tilemap.color = PlaceTile.ItemPlacable(itemObject,position, DimensionManager.Instance.getPlayerSystem(playerScript.transform)) ? placableColor : nonPlacableColor;
 
         }
 

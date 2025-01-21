@@ -131,7 +131,7 @@ namespace HammerTileEditor
             TileItem tileItem = ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
             tileItem.tileOptions.rotatable = true;
             tileItem.tileOptions.hasStates = true;
-            
+            EditorUtility.SetDirty(tileItem);
             
             return tileItem;
         }
