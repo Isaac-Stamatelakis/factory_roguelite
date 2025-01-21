@@ -56,7 +56,7 @@ namespace WorldModule {
 
         public static void InitializeQuestBook(string path)
         {
-            string defaultJson = File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            string defaultJson = File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
             File.WriteAllText(path,defaultJson);
         }
 

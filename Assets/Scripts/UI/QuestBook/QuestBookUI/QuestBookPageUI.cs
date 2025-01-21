@@ -22,7 +22,7 @@ namespace UI.QuestBook {
             this.questBook = questBook;
             this.library = questBookLibrary;
             this.questBookUI = questBookUI;
-            if (QuestBookHelper.EditMode) {
+            if (QuestBookUtils.EditMode) {
                 initEditMode();
             }
         }

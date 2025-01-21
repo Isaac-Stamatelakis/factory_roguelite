@@ -48,7 +48,7 @@ namespace UI.QuestBook.Tasks.Rewards
             mAddButton.onClick.AddListener(AddButtonPress);
             mClaimButton.onClick.AddListener(ClaimPress);
 
-            if (!QuestBookHelper.EditMode)
+            if (!QuestBookUtils.EditMode)
             {
                 bool itemActive = content.ItemRewards.Rewards.Count > 0;
                 bool commandActive = content.CommandRewards.CommandRewards.Count > 0;

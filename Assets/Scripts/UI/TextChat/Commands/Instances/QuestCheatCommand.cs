@@ -19,10 +19,10 @@ namespace UI.Chat {
             if (parameters.Length > 0)
             {
                 bool state = ChatCommandParameterParser.parseBool(parameters,0,"state");
-                QuestBookHelper.EditMode = state;
+                QuestBookUtils.EditMode = state;
                 return;
             }
-            QuestBookHelper.EditMode = !QuestBookHelper.EditMode;
+            QuestBookUtils.EditMode = !QuestBookUtils.EditMode;
             
         }
 
@@ -59,7 +59,7 @@ namespace UI.Chat {
         {
             return stage switch
             {
-                "0" => File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH),
+                "0" => File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH),
                 _ => throw new ChatParseException($"unknown stage 'stage'")
             };
         }

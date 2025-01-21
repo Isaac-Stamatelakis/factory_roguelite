@@ -49,11 +49,11 @@ namespace UI.QuestBook {
             
             mQuestBookRewardUI.Initialize(node.Content,this);
             
-            mTitleField.interactable = QuestBookHelper.EditMode;
-            mDescriptionField.interactable = QuestBookHelper.EditMode;
+            mTitleField.interactable = QuestBookUtils.EditMode;
+            mDescriptionField.interactable = QuestBookUtils.EditMode;
             DisplayRewards();
             mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
-            if (QuestBookHelper.EditMode) {
+            if (QuestBookUtils.EditMode) {
                 mTitleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
                 mDescriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
 
@@ -75,7 +75,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             
-            if (!QuestBookHelper.EditMode)
+            if (!QuestBookUtils.EditMode)
             {
                 mChangeTaskDropDown.interactable = false;
                 mAddRewardButton.gameObject.SetActive(false);
@@ -117,7 +117,7 @@ namespace UI.QuestBook {
         private void CheckTask()
         {
             var task = Content.Task;
-            if (!QuestBookHelper.EditMode)
+            if (!QuestBookUtils.EditMode)
             {
                 ICompletionCheckQuest completionCheckQuest = task as ICompletionCheckQuest; // Should always be as button only visible when completion question
                 completionCheckQuest?.CheckCompletion();
@@ -140,7 +140,7 @@ namespace UI.QuestBook {
                 return;
             }
             var complete = task.IsComplete();
-            mCheckSubmissionButton.interactable = !complete && !QuestBookHelper.EditMode;
+            mCheckSubmissionButton.interactable = !complete && !QuestBookUtils.EditMode;
             mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
                 complete ? "Submit" : "Quest Completed";
             mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;

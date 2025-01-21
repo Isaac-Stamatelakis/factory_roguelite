@@ -25,6 +25,7 @@ namespace UI.Chat {
             { "gamestage", (parameters, ui) => new GameStageCommand(parameters, ui) },
             { "quest_cheat", (parameters, ui) => new QuestCheatCommand(parameters, ui) },
             { "quest_set", (parameters, ui) => new QuestResetCommand(parameters, ui) },
+            { "devmode", (parameters, ui) => new MiscDevCommand(parameters, ui) },
             
         };
 

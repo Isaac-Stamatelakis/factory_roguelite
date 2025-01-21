@@ -80,7 +80,7 @@ namespace DevTools.Structures {
             PlayerInventoryData playerInventoryData = PlayerInventoryFactory.GetDefault();
             playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(parameterId),
                 Global.MaxSize, null);
-            playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(parameterId),
+            playerInventoryData.Inventory[1] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(fillId),
                 Global.MaxSize, null);
             
             PlayerData playerData = new PlayerData(

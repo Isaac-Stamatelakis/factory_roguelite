@@ -15,9 +15,10 @@ namespace UI.QuestBook {
         [SerializeField] private Button rightButton;
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private Image image;
-        [SerializeField] private GridLayoutGroup layoutGroup;
+        [SerializeField] private HorizontalLayoutGroup layoutGroup;
         [SerializeField] private Button addButton;
         [SerializeField] private QuestBookPreview questBookPreviewPrefab;
+        [SerializeField] private GameObject emptyFillPrefab;
         private QuestBookLibrary library;
         private int PageCount {get => Mathf.CeilToInt(library.QuestBooks.Count/((float)BooksPerPage));}
         public QuestBookLibrary Library { get => library; set => library = value; }
@@ -46,7 +47,7 @@ namespace UI.QuestBook {
                 ));
                 Display();
             });
-            addButton.gameObject.SetActive(QuestBookHelper.EditMode);
+            addButton.gameObject.SetActive(QuestBookUtils.EditMode);
             
         }
 
@@ -70,10 +71,7 @@ namespace UI.QuestBook {
         public Sprite GetSprite(string key)
         {
             if (key == null) return null;
-            if (spriteDict.ContainsKey(key)) {
-                return spriteDict[key];
-            }
-            return null;
+            return spriteDict.TryGetValue(key, out var sprite) ? sprite : null;
         }
 
         public void Display() {
@@ -93,10 +91,10 @@ namespace UI.QuestBook {
             for (int i = 0; i < BooksPerPage; i++) {
                 int index = page*BooksPerPage+i;
                 if (index >= library.QuestBooks.Count) {
-                    break;
+                    Instantiate(emptyFillPrefab, layoutGroup.transform,false);
+                    continue;
                 }
-                QuestBookPreview bookPreview = GameObject.Instantiate(questBookPreviewPrefab);
-                bookPreview.transform.SetParent(layoutGroup.transform,false);
+                QuestBookPreview bookPreview = GameObject.Instantiate(questBookPreviewPrefab, layoutGroup.transform, false);
                 bookPreview.init(index,this,library);
             }
         }

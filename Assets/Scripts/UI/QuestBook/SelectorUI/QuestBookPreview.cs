@@ -20,7 +20,9 @@ namespace UI.QuestBook {
             this.questBookSelectorUI = questBookSelectorUI;
             this.library = library;
             this.index = index;
-            this.image.sprite = questBookSelectorUI.GetSprite(questBook.SpritePath);
+            Sprite sprite = questBookSelectorUI.GetSprite(questBook.SpritePath);
+            if (!ReferenceEquals(sprite, null)) this.image.sprite = sprite;
+            
             this.title.text = questBook.Title;
             button.onClick.AddListener(navigatePress);
         }
@@ -28,7 +30,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookHelper.EditMode) {
+                if (QuestBookUtils.EditMode) {
                     EditQuestBookUI editQuestBookUI = questBookSelectorUI.AssetManager.cloneElement<EditQuestBookUI>("EDIT");
                     editQuestBookUI.init(questBookSelectorUI,library,index);
                     editQuestBookUI.transform.SetParent(questBookSelectorUI.transform,false);

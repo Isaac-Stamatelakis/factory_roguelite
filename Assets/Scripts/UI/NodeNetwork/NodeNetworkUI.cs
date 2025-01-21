@@ -43,12 +43,12 @@ namespace UI.NodeNetwork {
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
 
-        private readonly Dictionary<KeyCode, Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode, Direction>
+        private readonly Dictionary<KeyCode[], Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode[], Direction>
         {
-            { KeyCode.LeftArrow, Direction.Left },
-            { KeyCode.RightArrow, Direction.Right },
-            { KeyCode.DownArrow, Direction.Down },
-            { KeyCode.UpArrow , Direction.Up}
+            { new KeyCode[] { KeyCode.LeftArrow, KeyCode.A }, Direction.Left },
+            { new KeyCode[] { KeyCode.RightArrow, KeyCode.D }, Direction.Right },
+            { new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down },
+            { new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up }
         };
         public void SelectNode(INodeUI nodeUI)
         {
@@ -93,26 +93,8 @@ namespace UI.NodeNetwork {
             INodeUI nodeUI = nodeUIDict[node];
             const int change = 64;
             Vector3 position = node.getPosition();
-            Vector3 changeVector = Vector3.zero;
-            switch (direction)
-            {
-                case Direction.Left:
-                    changeVector = -new Vector3(change, 0);
-                    break;
-                case Direction.Right:
-                    changeVector = new Vector3(change, 0);
-                    break;
-                case Direction.Down:
-                    changeVector = -new Vector3(0, change);
-                    break;
-                case Direction.Up:
-                    changeVector = new Vector3(0, change);
-                    break;
-                case Direction.Center:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-            }
+            Vector3 changeVector = change * GetDirectionVector(direction);
+            
 
             node.SetPosition(position+changeVector);
             Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
@@ -120,6 +102,23 @@ namespace UI.NodeNetwork {
             nodeUI.GetGameObject().transform.position = nodeUIPosition;
             DisplayLines();
 
+        }
+
+        private Vector3 GetDirectionVector(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Left:
+                    return Vector3.left;
+                case Direction.Right:
+                    return Vector3.right;
+                case Direction.Down:
+                    return Vector3.down;
+                case Direction.Up:
+                    return Vector3.up;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
         }
 
         public abstract void DisplayLines();
@@ -130,17 +129,39 @@ namespace UI.NodeNetwork {
             HandleRightClick();
         }
 
+        private bool IsPressed(KeyCode[] keyCodes)
+        {
+            foreach (var keycode in keyCodes)
+            {
+                if (Input.GetKey(keycode)) return true;
+            }
+
+            return false;
+        }
+
         public void Update() {
             HandleZoom();
-            if (selectedNode == null) return;
+            if (selectedNode == null)
+            {
+                foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
+                {
+                    if (!IsPressed(keycodes)) continue;
+                    Vector3 position = transform.position;
+                    
+                    position -= 10*GetDirectionVector(direction);
+                    transform.position = position;
+                }
+                return;
+            }
             if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
             {
                 DeleteNode((TNode)selectedNode.GetNode());
             }
             const float delay = 0.2f;
-            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
+            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
             {
-                if (!Input.GetKeyDown(keycode)) continue;
+                if (!IsPressed(keycodes)) continue;
+          
                 moveCounter += delay;
                 break;
             }
@@ -149,9 +170,9 @@ namespace UI.NodeNetwork {
             if (moveCounter < delay) return;
             
             moveCounter = 0;
-            foreach (var (keycode, direction) in MOVE_DIRECTIONS)
+            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
             {
-                if (!Input.GetKey(keycode)) continue;
+                if (!IsPressed(keycodes)) continue;
                 MoveNode((TNode)selectedNode?.GetNode(),direction);
             }
         }

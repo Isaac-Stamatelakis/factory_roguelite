@@ -32,7 +32,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookHelper.EditMode) {
+                if (QuestBookUtils.EditMode) {
                     navigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {

@@ -34,7 +34,7 @@ namespace UI.QuestBook {
 
             AssetManager.load();
             
-            if (!QuestBookHelper.EditMode) {
+            if (!QuestBookUtils.EditMode) {
                 addChapter.gameObject.SetActive(false);
             } else {
                 addChapter.onClick.AddListener(() => {

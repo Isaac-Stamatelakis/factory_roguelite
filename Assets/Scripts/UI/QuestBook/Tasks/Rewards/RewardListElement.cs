@@ -22,7 +22,7 @@ namespace UI.QuestBook {
         {
             switch (eventData.button)
             {
-                case PointerEventData.InputButton.Left when QuestBookHelper.EditMode:
+                case PointerEventData.InputButton.Left when QuestBookUtils.EditMode:
                 {
                     QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");

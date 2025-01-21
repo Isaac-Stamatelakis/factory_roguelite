@@ -31,7 +31,7 @@ namespace UI.QuestBook {
         }
         public void longClick()
         {
-            if (!QuestBookHelper.EditMode) {
+            if (!QuestBookUtils.EditMode) {
                 return;
             }
             EditQuestPagePopup editQuestPagePopup = GameObject.Instantiate(editQuestPagePopupPrefab);
@@ -59,7 +59,7 @@ namespace UI.QuestBook {
         }
 
         private void handleRightClick() {
-            if (!QuestBookHelper.EditMode) {
+            if (!QuestBookUtils.EditMode) {
                 return;
             } 
 
