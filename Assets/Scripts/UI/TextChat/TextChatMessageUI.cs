@@ -14,7 +14,7 @@ namespace UI.Chat {
         private float displayTime;
         private readonly float startToFadeTime = 1.5f;
         private float baseBackgroundAlpha;
-        public void FixedUpdate() {
+        public void Update() {
             if (!fade) {
                 return;
             }
