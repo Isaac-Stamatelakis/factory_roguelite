@@ -33,7 +33,9 @@ namespace Player.Inventory
             for (int i = collidedItemEntities.Count - 1; i >= 0; i--)
             {
                 bool destroyed = TryInsert(collidedItemEntities[i]);
-                if (destroyed) collidedItemEntities.RemoveAt(i);
+                if (!destroyed) continue;
+                collidedItemEntities.RemoveAt(i);
+                i--;
             }
         }
 
@@ -57,19 +59,23 @@ namespace Player.Inventory
             ItemEntity itemEntity = other.GetComponent<ItemEntity>();
             if (collidedItemEntities.Remove(itemEntity)) TryInsert(itemEntity);
         }
-        
-        
+
+
         private bool TryInsert(ItemEntity itemEntity)
         {
-            if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) return false;
-            
-            bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MaxSize);
-            if (!inserted || !ItemSlotUtils.IsItemSlotNull(itemEntity.itemSlot)) return false;
-        
-            GameObject.Destroy(itemEntity.gameObject);
-            playerInventory.Refresh();
-            
-            return true;
+            while (true)
+            {
+                if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) return false;
+
+                bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MaxSize);
+                if (!inserted) return false;
+                if (!ItemSlotUtils.IsItemSlotNull(itemEntity.itemSlot)) continue;
+
+                GameObject.Destroy(itemEntity.gameObject);
+                playerInventory.Refresh();
+
+                return true;
+            }
         }
 
         private IEnumerator DelayedPickup(ItemEntity itemEntity, float delay)
