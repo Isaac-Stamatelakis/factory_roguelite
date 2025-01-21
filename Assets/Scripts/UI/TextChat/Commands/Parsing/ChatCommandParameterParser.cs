@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 
 namespace UI.Chat {
@@ -33,19 +34,59 @@ namespace UI.Chat {
 
         public static readonly HashSet<string> TrueValues = new HashSet<string>{"true","1","on",};
         public static readonly HashSet<string> FalseValues = new HashSet<string>{"false","0","off"};
-        public static int parseInt(string[] parameters, int index, string parameterName, int lowerBound = int.MinValue, int upperBound = int.MaxValue) {
+        
+        public static int ParseInt(string[] parameters, int index, string parameterName, int? baseValue, int lowerBound = int.MinValue, int upperBound = int.MaxValue) {
+            
             string parameter = parseParameter(parameters,index,parameterName);
             try {
+                if (parameter.First() == '~')
+                {
+                    if (baseValue == null)
+                    {
+                        throw new ChatParseException($"Error parsing command parameter at {index}: '~' is not valid in this context");
+                    }
+                    int addition = System.Convert.ToInt32(parameter.Substring(1, parameter.Length - 1));
+                    return (int) baseValue + addition;
+                } 
                 int value = System.Convert.ToInt32(parameter);
                 if (value < lowerBound) {
-                    throw new ChatParseException($"Error parsing command: value at {index} exceeds max value of {upperBound}");
+                    throw new ChatParseException($"Error parsing command parameter at {index}: {parameter} exceeds max value of {upperBound}");
                 }
                 if (value > upperBound) {
-                    throw new ChatParseException($"Error parsing command: value at {index} surpasses min value of {lowerBound}");
+                    throw new ChatParseException($"Error parsing command parameter at {index}: {parameter} is less than min value of {lowerBound}");
                 }
                 return value;
             } catch (FormatException) {
-                throw new ChatParseException($"Error parsing command: value at {index} is not an integer");
+                throw new ChatParseException($"Error parsing command parameter at {index}: value is not an integer");
+            }
+        }
+        
+        public static float ParseFloat(string[] parameters, int index, string parameterName, float? baseValue, float lowerBound = float.MinValue, float upperBound = float.MaxValue) {
+            
+            string parameter = parseParameter(parameters,index,parameterName);
+            try {
+                if (parameter.First() == '~')
+                {
+                    if (baseValue == null)
+                    {
+                        throw new ChatParseException($"Error parsing command parameter at {index}: '~' is not valid in this context");
+                    }
+
+                    if (parameter.Length == 1) return (float)baseValue;
+                    
+                    float addition = System.Convert.ToSingle(parameter.Substring(1, parameter.Length - 1));
+                    return (float) baseValue + addition;
+                } 
+                float value = System.Convert.ToSingle(parameter);
+                if (value < lowerBound) {
+                    throw new ChatParseException($"Error parsing command parameter at {index}: {parameter} exceeds max value of {upperBound}");
+                }
+                if (value > upperBound) {
+                    throw new ChatParseException($"Error parsing command parameter at {index}: {parameter} is less than min value of {lowerBound}");
+                }
+                return value;
+            } catch (FormatException) {
+                throw new ChatParseException($"Error parsing command parameter at {index}: value is not an float");
             }
         }
 
@@ -75,7 +116,7 @@ namespace UI.Chat {
             int[] colors = new int[3];
             List<string> names = new List<string> {"r","g","b"};
             for (int i = 0; i < 3; i++) {
-                colors[i] = parseInt(rgb,i,names[i],lowerBound:0,upperBound:255);
+                colors[i] = ParseInt(rgb,i,names[i],null,lowerBound:0,upperBound:255);
             }
             return new Color(colors[0],colors[1],colors[2],1);
         }

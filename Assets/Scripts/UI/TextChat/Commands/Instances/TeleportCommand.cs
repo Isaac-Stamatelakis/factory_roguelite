@@ -13,12 +13,11 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            int x = Convert.ToInt32(parameters[0]);
-            int y = Convert.ToInt32(parameters[1]);
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             Vector3 playerPosition = playerTransform.position;
-            playerPosition.x = x;
-            playerPosition.y = y;
+            playerPosition.x = ChatCommandParameterParser.ParseFloat(parameters,0,"x",playerPosition.x);
+            playerPosition.y = ChatCommandParameterParser.ParseFloat(parameters,1,"y",playerPosition.y);
+            
             playerTransform.position = playerPosition;
         }
 

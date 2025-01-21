@@ -166,7 +166,7 @@ namespace UI.Chat {
             ChatCommandToken commandToken = ChatTokenizer.tokenize(command);
             ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
             if (chatCommand == null) {
-                if (printErrors) sendMessage("<color=red>" + $"unknown command: '{command}'" + "</color>");
+                if (printErrors) sendMessage("<color=red>" + $"Unknown command: '{command}'" + "</color>");
                 return;
             }
             try

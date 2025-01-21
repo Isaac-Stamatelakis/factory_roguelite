@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 namespace Entities {
     public class ItemEntity : Entity, ISerializableEntity
     {
+        private const float MIN_MERGE_TIME = 1f;
+        private bool firedDelayedCast = false;
         [SerializeField] public ItemSlot itemSlot;
         [SerializeField] protected float lifeTime = 0f;
         public float LifeTime {get{return lifeTime;}}
@@ -47,15 +49,10 @@ namespace Entities {
 
         public SeralizedEntityData serialize()
         {
-            SeralizedItemEntity serializedItemSlot = new SeralizedItemEntity(
-                ItemSlotFactory.seralizeItemSlot(itemSlot),
-                transform.position.x,
-                transform.position.y
-            );
             return new SeralizedEntityData(
                 type: EntityType.Item,
                 transform.position,
-                Newtonsoft.Json.JsonConvert.SerializeObject(serializedItemSlot)
+                ItemSlotFactory.seralizeItemSlot(itemSlot)
             );
         }
         
@@ -64,10 +61,22 @@ namespace Entities {
             if (other.gameObject.tag != "ItemEntity") return;
         
             ItemEntity itemEntity = other.gameObject.GetComponentInParent<ItemEntity>();
-            MergeItemEntities(itemEntity);
+            TryMergeItemEntities(itemEntity);
         }
         
-        private void MergeItemEntities(ItemEntity other) {
+        private void TryMergeItemEntities(ItemEntity other)
+        {
+            if (lifeTime < MIN_MERGE_TIME)
+            {
+                StartCoroutine(DelayMergeCast(MIN_MERGE_TIME - lifeTime));
+                return;
+            }
+
+            MergeItemEntities(other);
+        }
+
+        private void MergeItemEntities(ItemEntity other)
+        {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             
             ItemSlot hitObjectSlot = other.itemSlot;
@@ -77,9 +86,21 @@ namespace Entities {
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) Destroy(other.gameObject);
         }
 
-        public void deseralize(string data)
+        private IEnumerator DelayMergeCast(float delay)
         {
+            if (firedDelayedCast) yield break;
+            firedDelayedCast = true;
+            yield return new WaitForSeconds(delay + 0.05f);
             
+            RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
+            foreach (RaycastHit2D leftHit in leftHits) {
+                if (leftHit.collider.gameObject.Equals(gameObject)) continue;
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MaxSize) break;
+                if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
+                ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
+                MergeItemEntities(leftEntity);
+                
+            }
         }
 
         private class SeralizedItemEntity {
