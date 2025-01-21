@@ -13,6 +13,7 @@ using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
 using Player;
+using Player.Inventory;
 using Player.Tool;
 using Robot;
 using Robot.Tool;
@@ -24,6 +25,7 @@ namespace PlayerModule {
         [SerializeField] private PlayerRobot playerRobot;
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
+        private PlayerPickUp playerPickUp;
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
@@ -45,11 +47,13 @@ namespace PlayerModule {
         void Start()
         {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
+            playerPickUp = GetComponentInChildren<PlayerPickUp>();
         }
 
         public void Initialize() {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().GetPlayerInventoryData());
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
+            playerInventoryGrid.AddListener(this);
             
         }
 
@@ -108,6 +112,7 @@ namespace PlayerModule {
             if (itemInventoryData == null) {
                 return;
             }
+            InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot].amount--;
             playerInventoryGrid.DisplayItem(selectedSlot);
         }
@@ -154,12 +159,13 @@ namespace PlayerModule {
         }
 
         public void removeSelectedItemSlot() {
+            InventoryUpdate(0);
             playerInventoryData.Inventory[selectedSlot] = null;
         }
 
         public void InventoryUpdate(int n)
         {
-            
+            playerPickUp.TryPickUpAllCollided();
         }
 
         public void hideUI() {
