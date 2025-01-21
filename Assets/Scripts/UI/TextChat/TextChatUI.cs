@@ -11,7 +11,18 @@ using PlayerModule.KeyPress;
 namespace UI.Chat {
     public class TextChatUI : MonoBehaviour
     {
-        private static readonly float messageDisplayDuration = 6f;
+        private struct RecordedMessage
+        {
+            public string Content;
+            public float Time;
+
+            public RecordedMessage(string content, float time)
+            {
+                Content = content;
+                Time = time;
+            }
+        }
+        private const float DISPLAY_DURATION = 6f;
         private static TextChatUI instance;
         public static TextChatUI Instance {get => instance;}
         public void Awake() {
@@ -23,8 +34,9 @@ namespace UI.Chat {
         }
         [SerializeField] private TMP_InputField inputField;
         [SerializeField] private VerticalLayoutGroup textList;
+        [SerializeField] private VerticalLayoutGroup previousMessageList;
         [SerializeField] private TextChatMessageUI textChatMessageUIPrefab;
-        private List<string> recordedMessages;
+        private List<RecordedMessage> recordedMessages;
         private List<string> sentMessages;
         private bool typing = false;
         private readonly float hintBlinkTime = 0.4f;
@@ -33,21 +45,20 @@ namespace UI.Chat {
         private int previousMessageIndex;
         public void Start() {
             inputField.gameObject.SetActive(false);
-            recordedMessages = new List<string>();
+            recordedMessages = new List<RecordedMessage>();
             sentMessages = new List<string>();
             string title = "<color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
             string message = $"Welcome to {title} This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
             sendMessage(message);
             PlayerKeyPressUtils.InitializeTypingListener(inputField);
         }
+        
         public void Update() {
             if (Input.GetKeyDown(KeyCode.Return) ) {
                 typing = !typing;
                 if (typing) {
                     showTextField();
                 } else {
-                    sentMessages.Insert(0,inputField.text);
-                    previousMessageIndex = 0;
                     sendMessage(inputField.text);
                     hideTextField();
                 }
@@ -77,7 +88,7 @@ namespace UI.Chat {
         }
 
         public void RecordMessage(string message) {
-            this.recordedMessages.Add(message);
+            this.recordedMessages.Add(new RecordedMessage(message,Time.time));
         }
 
         private void setInputToPreviousMessage() {
@@ -158,7 +169,7 @@ namespace UI.Chat {
                 return;
             }
             
-            addMessageToList(text,messageDisplayDuration);
+            addMessageToList(text,DISPLAY_DURATION);
         }
 
         public void ExecuteCommand(string command, bool printErrors = true)
@@ -183,27 +194,31 @@ namespace UI.Chat {
             }
         }
         private void addMessageToList(string text, float time) {
-            TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab);
+            TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, textList.transform, false);
             newMessage.init(text,this,time);
-            newMessage.transform.SetParent(textList.transform,false);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(textList.GetComponent<RectTransform>());
         }
 
-        public void displayRecordedMessages() {
-            foreach (string message in recordedMessages) {
-                addMessageToList(message,0f);
+        public void DisplayRecordedMessages()
+        {
+            for (var i = 0; i < recordedMessages.Count-textList.transform.childCount; i++)
+            {
+                var recordedMessage = recordedMessages[i];
+                TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, previousMessageList.transform, false);
+                newMessage.init(recordedMessage.Content, this, 0);
+                newMessage.setFade(false);
             }
         }
         public void showTextField() {
             inputField.gameObject.SetActive(true);
             inputField.ActivateInputField();
             inputField.Select();
-            displayRecordedMessages();
+            DisplayRecordedMessages();
             setFadeForAllMessages(false);
             
         }
         public void hideTextField() {
             EventSystem.current.SetSelectedGameObject(null);
+            GlobalHelper.deleteAllChildren(previousMessageList.transform);
             inputField.text = "";
             inputField.DeactivateInputField();
             inputField.gameObject.SetActive(false);
