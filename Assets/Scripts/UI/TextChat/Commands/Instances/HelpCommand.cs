@@ -13,14 +13,10 @@ namespace UI.Chat {
 
         public override void execute()
         {
-            if (parameters.Length == 0) {
-                chatUI.sendMessage("Error running 'help': No command provided");
-                return;
-            }
             ChatCommand chatCommand = ChatCommandFactory.getEmptyCommand(parameters[0],chatUI);
-            if (chatCommand == null) {
-                chatUI.sendMessage($"Error running 'help': {parameters[0]} is not a valid command");
-                return;
+            if (chatCommand == null)
+            {
+                throw new ChatParseException($"Error running 'help': {parameters[0]} is not a valid command");
             }
             chatUI.sendMessage($"Usage of {parameters[0]}:\n{chatCommand.getDescription()}");
 

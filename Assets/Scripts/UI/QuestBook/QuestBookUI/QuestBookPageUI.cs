@@ -93,7 +93,7 @@ namespace UI.QuestBook {
                     new CheckMarkQuestTask(),
                     "Empty Description",
                     "New Task",
-                    new QuestBookItemRewards(new List<SerializedItemSlot>(), int.MaxValue),
+                    new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
                     new QuestBookCommandRewards(new List<QuestBookCommandReward>())
                 ),
                 new HashSet<int>(),

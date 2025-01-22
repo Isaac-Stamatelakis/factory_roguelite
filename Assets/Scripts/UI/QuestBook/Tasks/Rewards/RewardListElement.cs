@@ -17,6 +17,7 @@ namespace UI.QuestBook {
         private List<SerializedItemSlot> itemSlots;
         private QuestBookRewardUI questBookRewardUI;
         private int index;
+        [SerializeField] private Color OnSelectColor;
         
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -30,19 +31,23 @@ namespace UI.QuestBook {
                     serializedItemSlotEditorUI.transform.SetParent(taskPageUI.transform,false);
                     break;
                 }
-                case PointerEventData.InputButton.Left:
+                case PointerEventData.InputButton.Left when questBookRewardUI.ParentUI.Content.ItemRewards.LimitOne:
                 {
-                    if (questBookRewardUI.SelectedRewards.Contains(index)) {
-                        questBookRewardUI.RemoveReward(index);
-                    } else {
-                        questBookRewardUI.AddReward(index);
-                    }
+                    questBookRewardUI.SelectReward(index);
 
                     break;
                 }
                 case PointerEventData.InputButton.Right:
                     break;
             }
+        }
+
+        public void ToggleHighlight()
+        {
+            Image image = GetComponent<Image>();
+            Color temp = image.color;
+            GetComponent<Image>().color = OnSelectColor;
+            OnSelectColor = temp;
         }
 
         public void Initialize(List<SerializedItemSlot> serializedItemSlots, int index, QuestBookRewardUI questBookRewardUI) {

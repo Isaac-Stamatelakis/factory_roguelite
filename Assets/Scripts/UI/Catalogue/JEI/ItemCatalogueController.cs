@@ -123,6 +123,11 @@ namespace UI.JEI
                     }
                 }   
                 displayed = displayed.intersect(newDisplayHash);// Displayed objects is now only objects which were previously displayed and were still in query
+                foreach (ItemSlot itemSlot in displayed.GetAllItems())
+                {
+                    itemSlot.amount = 1;
+                }
+                
             } else {  // When decreasing a search, order is not always perserved, so must clear.
                 foreach (Transform previouslyDisplayed in resultContainer.transform) { 
                     GameObject.Destroy(previouslyDisplayed.gameObject);
@@ -131,6 +136,8 @@ namespace UI.JEI
             } 
 
             foreach (ItemSlot itemSlot in toDisplay) {
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                
                 if (displayed.getCount() >= limit) {
                     break;
                 }

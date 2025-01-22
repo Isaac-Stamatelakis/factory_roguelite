@@ -42,6 +42,7 @@ namespace UI.NodeNetwork {
 
         public void longClick()
         {
+            if (nodeNetwork.GetMode() != NodeNetworkUIMode.EditConnection) return;
             nodeNetwork.SelectNode(this);
         }
 

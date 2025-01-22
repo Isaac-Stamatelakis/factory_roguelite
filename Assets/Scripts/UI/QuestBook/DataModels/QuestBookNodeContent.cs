@@ -39,13 +39,13 @@ namespace UI.QuestBook {
 
     public class QuestBookItemRewards : QuestBookReward
     {
-        public int Selectable;
+        public bool LimitOne;
         public List<SerializedItemSlot> Rewards;
 
-        public QuestBookItemRewards(List<SerializedItemSlot> rewards, int selectable)
+        public QuestBookItemRewards(List<SerializedItemSlot> rewards, bool limitOne)
         {
             Rewards = rewards;
-            Selectable = selectable;
+            LimitOne = limitOne;
         }
     }
 

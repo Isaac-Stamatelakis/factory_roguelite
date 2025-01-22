@@ -42,6 +42,7 @@ namespace UI.NodeNetwork {
         private INodeUI selectedNode;
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
+        
 
         private readonly Dictionary<KeyCode[], Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode[], Direction>
         {
@@ -52,10 +53,15 @@ namespace UI.NodeNetwork {
         };
         public void SelectNode(INodeUI nodeUI)
         {
+            if (nodeUI != null && nodeUI.Equals(CurrentSelected))
+            {
+                nodeUI.SetSelect(false);
+                return;
+            }
             CurrentSelected?.SetSelect(false);
 
             CurrentSelected = nodeUI;
-            CurrentSelected.SetSelect(true);
+            CurrentSelected?.SetSelect(true);
         }
         /// <summary>
         /// Displays the network
@@ -63,7 +69,7 @@ namespace UI.NodeNetwork {
         /// </summary>
         public void Display() {
             GlobalHelper.deleteAllChildren(nodeContainer);
-            GlobalHelper.deleteAllChildren(lineContainer);
+            
             nodeUIDict = new Dictionary<TNode, INodeUI>();
             foreach (TNode node in nodeNetwork.getNodes()) {
                 INodeUI nodeUI = GenerateNode(node);
@@ -129,11 +135,19 @@ namespace UI.NodeNetwork {
             HandleRightClick();
         }
 
-        private bool IsPressed(KeyCode[] keyCodes)
+        private bool IsPressed(KeyCode[] keyCodes, bool hold = true)
         {
             foreach (var keycode in keyCodes)
             {
-                if (Input.GetKey(keycode)) return true;
+                if (hold)
+                {
+                    if (Input.GetKey(keycode)) return true;
+                }
+                else
+                {
+                    if (Input.GetKeyDown(keycode)) return true;
+                }
+                
             }
 
             return false;
@@ -147,8 +161,8 @@ namespace UI.NodeNetwork {
                 {
                     if (!IsPressed(keycodes)) continue;
                     Vector3 position = transform.position;
-                    
-                    position -= 10*GetDirectionVector(direction);
+                    const int SPEED = 5;
+                    position -= SPEED*GetDirectionVector(direction);
                     transform.position = position;
                 }
                 return;
@@ -160,7 +174,7 @@ namespace UI.NodeNetwork {
             const float delay = 0.2f;
             foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
             {
-                if (!IsPressed(keycodes)) continue;
+                if (!IsPressed(keycodes,hold:false)) continue;
           
                 moveCounter += delay;
                 break;

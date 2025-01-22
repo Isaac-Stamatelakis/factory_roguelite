@@ -238,11 +238,12 @@ namespace Items {
                 if (i >= limit) {
                     break;
                 }
-                if (itemObject.name.ToLower().Contains(search.ToLower())) {
-                    if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !worldManager.HasGameStage(itemObject.gameStage))) continue;
-                    queried.Add(ItemSlotFactory.CreateNewItemSlot(itemObject,1));
-                    i ++;
-                }
+
+                if (!itemObject.name.ToLower().Contains(search.ToLower())) continue;
+                
+                if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !worldManager.HasGameStage(itemObject.gameStage))) continue;
+                queried.Add(new ItemSlot(itemObject,1,null));
+                i ++;
             }
             return queried;
         }

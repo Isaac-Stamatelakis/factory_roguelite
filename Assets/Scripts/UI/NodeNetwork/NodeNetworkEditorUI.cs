@@ -31,6 +31,7 @@ namespace UI.NodeNetwork {
         private void SetConnectionButtonColor()
         {
             NodeNetworkUIMode mode = nodeNetworkUI.GetMode();
+            nodeNetworkUI.SelectNode(null);
             switch (mode) {
                 case NodeNetworkUIMode.View:
                     toggleConnectionPanel.color = new Color(0,1f,0f,200f/255f);

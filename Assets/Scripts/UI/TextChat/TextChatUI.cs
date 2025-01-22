@@ -37,7 +37,7 @@ namespace UI.Chat {
         [SerializeField] private VerticalLayoutGroup previousMessageList;
         [SerializeField] private TextChatMessageUI textChatMessageUIPrefab;
         private List<RecordedMessage> recordedMessages;
-        private List<string> sentMessages;
+      
         private bool typing = false;
         private readonly float hintBlinkTime = 0.4f;
         private float hintBlinkCounter = 0f;
@@ -46,10 +46,10 @@ namespace UI.Chat {
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<RecordedMessage>();
-            sentMessages = new List<string>();
             string title = "<color=#FF4500>C</color><color=#FF6347>a</color><color=#FF7F50>v</color><color=#FF8C00>e</color><color=#FFA500>T</color><color=#FFD700>e</color><color=#FFD700>c</color><color=#FF4500>h</color> <color=#FF6347>E</color><color=#FF7F50>s</color><color=#FF8C00>c</color><color=#FFA500>a</color><color=#FFD700>p</color><color=#FFD700>e</color>!";
-            string message = $"Welcome to {title} This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
-            sendMessage(message);
+            string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
+            SendAndRecordMessage(message);
+            SendAndRecordMessage("Press [<b>L</b>] to open your quest book!");
             PlayerKeyPressUtils.InitializeTypingListener(inputField);
         }
         
@@ -58,8 +58,9 @@ namespace UI.Chat {
                 typing = !typing;
                 if (typing) {
                     showTextField();
-                } else {
-                    sendMessage(inputField.text);
+                } else
+                {
+                    SendAndRecordMessage(inputField.text);
                     hideTextField();
                 }
             }
@@ -71,13 +72,13 @@ namespace UI.Chat {
                 commandFillParameters();
             }
             if (typing && Input.GetKeyDown(KeyCode.DownArrow)) {
-                previousMessageIndex--;
-                setInputToPreviousMessage();
+                previousMessageIndex++;
+                SetInputToPreviousMessage();
                 
             }
             if (typing && Input.GetKeyDown(KeyCode.UpArrow)) {
-                previousMessageIndex++;
-                setInputToPreviousMessage();
+                previousMessageIndex--;
+                SetInputToPreviousMessage();
             }
             hintBlinkCounter -= Time.deltaTime;
             if (hintBlinkCounter < 0f) {
@@ -87,17 +88,25 @@ namespace UI.Chat {
             }
         }
 
+
+        private void SendAndRecordMessage(string message)
+        {
+            string parsedWhiteSpace = message.Replace(" ", "");
+            if (parsedWhiteSpace.Length <= 0) return;
+            RecordMessage(message);
+            sendMessage(message);
+        }
         public void RecordMessage(string message) {
+            if (recordedMessages.Count > 50) {
+                recordedMessages.RemoveAt(0);
+            }
             this.recordedMessages.Add(new RecordedMessage(message,Time.time));
         }
 
-        private void setInputToPreviousMessage() {
-            previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,sentMessages.Count-1);
-            if (previousMessageIndex == -1) {
-                inputField.text = "";
-            } else {
-                inputField.text = sentMessages[previousMessageIndex];
-            }
+        private void SetInputToPreviousMessage() {
+            previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,recordedMessages.Count-1);
+           
+            inputField.text = previousMessageIndex == -1 ? "" : recordedMessages[previousMessageIndex].Content;
             inputField.caretPosition = inputField.text.Length;
         }
 
@@ -155,15 +164,12 @@ namespace UI.Chat {
             }
             return val;
         }
-
+    
         public void sendMessage(string text) {
             if (text.Length == 0) {
                 return;
             }
-            if (recordedMessages.Count > 50) {
-                recordedMessages.RemoveAt(0);
-            }
-            RecordMessage(text);
+            
             if (text.StartsWith("/")) {
                 ExecuteCommand(text);
                 return;
@@ -216,7 +222,9 @@ namespace UI.Chat {
             setFadeForAllMessages(false);
             
         }
-        public void hideTextField() {
+        public void hideTextField()
+        {
+            previousMessageIndex = recordedMessages.Count;
             EventSystem.current.SetSelectedGameObject(null);
             GlobalHelper.deleteAllChildren(previousMessageList.transform);
             inputField.text = "";

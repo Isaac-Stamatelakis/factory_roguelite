@@ -18,11 +18,13 @@ namespace UI.QuestBook.Tasks.Rewards
     }
     public class QuestBookRewardUI : MonoBehaviour
     {
+        [SerializeField] private TextMeshProUGUI mTitle;
         [SerializeField] private Button mLeftButton;
         [SerializeField] private Button mRightButton;
         [SerializeField] private VerticalLayoutGroup mElementContainer;
         [SerializeField] private Button mClaimButton;
         [SerializeField] private Button mAddButton;
+        [SerializeField] private Toggle mToggle;
 
         [SerializeField] private QuestCommandEditorUI questCommandEditorUIPrefab;
         [SerializeField] private RewardListElement rewardListElementPrefab;
@@ -33,7 +35,7 @@ namespace UI.QuestBook.Tasks.Rewards
         private QuestBookTaskPageUI parentUI;
         public QuestBookTaskPageUI ParentUI => parentUI;
         private QuestBookNodeContent content;
-        [HideInInspector] public List<int> SelectedRewards = new List<int>();
+        [HideInInspector] public int SelectedRewardIndex = -1;
 
         public void Initialize(QuestBookNodeContent content, QuestBookTaskPageUI parentUI)
         {
@@ -50,31 +52,21 @@ namespace UI.QuestBook.Tasks.Rewards
 
             if (!QuestBookUtils.EditMode)
             {
-                bool itemActive = content.ItemRewards.Rewards.Count > 0;
-                bool commandActive = content.CommandRewards.CommandRewards.Count > 0;
-
-                int activeCount = 0; // This is overkill formatted this way in case I ever add more reward types
-                if (itemActive) activeCount++;
-                if (commandActive) activeCount++;
-                if (activeCount == 0)
+                mAddButton.gameObject.SetActive(false);
+                mToggle.gameObject.SetActive(false);
+                int pages = GetPages();
+                if (pages == 0)
                 {
                     mClaimButton.interactable = false;
                     TextMeshProUGUI claimText = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
                     claimText.text = "Nothing to Claim";
                 }
-                if (itemActive)
+                if (content.ItemRewards.Rewards.Count > 0)
                 {
                     currentPage = RewardPage.Items;
-                } else if (commandActive)
+                } else if (content.CommandRewards.CommandRewards.Count > 0)
                 {
                     currentPage = RewardPage.Commands;
-                }
-                
-                if (activeCount <= 1)
-                {
-                    mLeftButton.gameObject.SetActive(false);
-                    mRightButton.gameObject.SetActive(false);
-                    return;
                 }
             }
             
@@ -89,23 +81,77 @@ namespace UI.QuestBook.Tasks.Rewards
                 currentPage = GlobalHelper.ShiftEnum(1, currentPage);
                 Display();
             });
+            
+            mToggle.onValueChanged.AddListener((state) =>
+            {
+                switch (currentPage)
+                {
+                    case RewardPage.Items:
+                        this.content.ItemRewards.LimitOne = state;
+                        Display();
+                        break;
+                    case RewardPage.Commands:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
             Display();
             
         }
 
+        private int GetPages()
+        {
+            bool itemActive = content.ItemRewards.Rewards.Count > 0;
+            bool commandActive = content.CommandRewards.CommandRewards.Count > 0;
+
+            int activeCount = 0; // This is overkill formatted this way in case I ever add more reward types
+            if (itemActive) activeCount++;
+            if (commandActive) activeCount++;
+            return activeCount;
+        }
+
+        private void DisplayArrows()
+        {
+            if (QuestBookUtils.EditMode)
+            {
+                mLeftButton.gameObject.SetActive(true);
+                mRightButton.gameObject.SetActive(true);
+                return;
+            }
+
+            int pages = GetPages();
+            
+            if (pages <= 1)
+            {
+                mLeftButton.gameObject.SetActive(false);
+                mRightButton.gameObject.SetActive(false);
+                return;
+            }
+
+            int currentPageIndex = (int)currentPage;
+            mLeftButton.gameObject.SetActive(currentPage != 0);
+            mRightButton.gameObject.SetActive(currentPageIndex != pages - 1);
+        }
 
         public void Display()
         {
             GlobalHelper.deleteAllChildren(mElementContainer.transform);
             UpdateClaimButtonImage();
+            DisplayArrows();
             switch (currentPage)
             {
                 case RewardPage.Items:
+                    mToggle.gameObject.SetActive(QuestBookUtils.EditMode);
                     QuestBookItemRewards questBookItemRewards = content.ItemRewards;
-                    if (questBookItemRewards.Selectable < questBookItemRewards.Rewards.Count)
+                    mToggle.isOn = questBookItemRewards.LimitOne;
+                    if (questBookItemRewards.LimitOne)
                     {
-                        TextMeshProUGUI text = Instantiate(textPrefab, mElementContainer.transform, false);
-                        text.text = "Select " + questBookItemRewards.Rewards.Count + " Rewards";
+                        mTitle.text = "Select 1 Reward";
+                    }
+                    else
+                    {
+                        mTitle.text = "Item Rewards";
                     }
                     questBookItemRewards.Rewards ??= new List<SerializedItemSlot>();
                     for (int i = 0; i < questBookItemRewards.Rewards.Count; i++) {
@@ -114,6 +160,8 @@ namespace UI.QuestBook.Tasks.Rewards
                     }
                     break;
                 case RewardPage.Commands:
+                    mToggle.gameObject.SetActive(false);
+                    mTitle.text = "Command Rewards";
                     QuestBookCommandRewards commandRewards = content.CommandRewards;
                     for (int i = 0; i < commandRewards.CommandRewards.Count; i++) {
                         CommandRewardListElement commandRewardListElement = GameObject.Instantiate(commandRewardListElementPrefab, mElementContainer.transform, false);
@@ -155,15 +203,20 @@ namespace UI.QuestBook.Tasks.Rewards
                 case RewardPage.Items:
                     var itemRewards = content.ItemRewards;
                     if (itemRewards.Claimed) return;
-                    bool limitedSelection = itemRewards.Rewards.Count >= itemRewards.Selectable;
-                    if (limitedSelection && SelectedRewards.Count < itemRewards.Selectable) return;
-                    
+
                     PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
-                    for (int i = 0; i < itemRewards.Rewards.Count; i++)
+                    if (itemRewards.LimitOne)
                     {
-                        if (limitedSelection && !SelectedRewards.Contains(i)) continue;
-                        
-                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemRewards.Rewards[i]);
+                        if (SelectedRewardIndex < 0 || SelectedRewardIndex >= itemRewards.Rewards.Count) return;
+                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemRewards.Rewards[SelectedRewardIndex]);
+                        playerInventory.Give(itemSlot);
+                        itemRewards.Claimed = true;
+                        return;
+                    }
+                    
+                    foreach (var sItemSlot in itemRewards.Rewards)
+                    {
+                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(sItemSlot);
                         if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
                         
                         playerInventory.Give(itemSlot);
@@ -203,17 +256,17 @@ namespace UI.QuestBook.Tasks.Rewards
             Display();
         }
         
-        public void AddReward(int index) {
-            if (SelectedRewards.Count < content.ItemRewards.Selectable) {
-                SelectedRewards.Add(index);
-            } else {
-                SelectedRewards.RemoveAt(0);
-                SelectedRewards.Add(index);
+        public void SelectReward(int index) {
+            if (SelectedRewardIndex > 0)
+            {
+                mElementContainer.transform.GetChild(SelectedRewardIndex).GetComponent<RewardListElement>().ToggleHighlight();
             }
-        }
-
-        public void RemoveReward(int index) {
-            SelectedRewards.RemoveAt(index);
+            if (SelectedRewardIndex == index)
+            {
+                SelectedRewardIndex = -1;
+                return;
+            }
+            SelectedRewardIndex = index;
         }
 
         public void DisplayCommandRewardEditor(int index)

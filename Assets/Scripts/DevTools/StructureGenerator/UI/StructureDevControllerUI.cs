@@ -10,7 +10,7 @@ using WorldModule.Caves;
 namespace DevTools.Structures {
     public class StructureDevControllerUI : MonoBehaviour
     {
-        [SerializeField] private GridLayoutGroup list;
+        [SerializeField] private VerticalLayoutGroup list;
         [SerializeField] private Button addButton;
         [SerializeField] private StructureSelectorUI listElementPrefab;
         [SerializeField] private NewStructurePopUpUI newStructurePopUpUIPrefab;

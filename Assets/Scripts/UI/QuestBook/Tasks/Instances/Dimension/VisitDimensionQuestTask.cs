@@ -27,9 +27,9 @@ namespace UI.QuestBook {
             visited = state;
         }
 
-        public void CheckCompletion()
+        public bool CheckCompletion()
         {
-            
+            return false;
         }
     }
 }
