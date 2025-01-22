@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Item.Slot;
 using Recipe.Objects;
+using Recipe.Viewer;
 using TileEntity;
 using Random = UnityEngine.Random;
 
@@ -197,6 +198,23 @@ public static class ItemSlotFactory
         return itemSlots;
     }
 
+    public static List<ChanceItemSlot> EditToChanceSlots(List<RandomEditorItemSlot> randomEditorItemSlots)
+    {
+        List<ChanceItemSlot> chanceSlots = new List<ChanceItemSlot>();
+        foreach (var itemSlotObject in randomEditorItemSlots)
+        {
+            chanceSlots.Add(FromRandomEditorObject(itemSlotObject));
+        }
+
+        return chanceSlots;
+    }
+
+    public static ChanceItemSlot ToChanceSlot(ItemSlot itemSlot)
+    {
+        return new ChanceItemSlot(itemSlot.itemObject, itemSlot.amount, itemSlot.tags, 1);
+    }
+    
+
     public static List<ItemSlot> FromRandomEditorObjects(List<RandomEditorItemSlot> randomEditorItemSlots)
     {
         List<ItemSlot> itemSlots = new List<ItemSlot>();
@@ -211,14 +229,24 @@ public static class ItemSlotFactory
     }
     public static ItemSlot FromEditorObject(EditorItemSlot editorItemSlot)
     {
-        if (editorItemSlot.Tags.Count == 0)
+        
+        if (editorItemSlot.Tags.Count != 0)
         {
-            return new ItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null);
+            Debug.LogWarning("Tag Deserialization not implemented yet");
         }
-        Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
-        return null;
-    }
 
+        return new ItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null);
+    }
+    
+    public static ChanceItemSlot FromRandomEditorObject(RandomEditorItemSlot editorItemSlot)
+    {
+        if (editorItemSlot.Tags.Count != 0)
+        {
+            Debug.LogWarning("Tag Deserialization not implemented yet");
+        }
+        return new ChanceItemSlot(editorItemSlot.ItemObject,editorItemSlot.Amount,null, editorItemSlot.Chance);
+    }
+    
     
 
 }

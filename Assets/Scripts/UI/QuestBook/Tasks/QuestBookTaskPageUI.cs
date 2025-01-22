@@ -160,7 +160,6 @@ namespace UI.QuestBook {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            this.mTitleField.text = Content.Task.GetTaskType().ToString().Replace("_"," ");
             GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }

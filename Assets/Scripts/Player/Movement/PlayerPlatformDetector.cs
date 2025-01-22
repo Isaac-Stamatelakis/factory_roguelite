@@ -7,7 +7,7 @@ using TileMaps.Type;
 namespace PlayerModule {
     public class PlayerPlatformDetector : MonoBehaviour
     {
-        [SerializeField] private BoxCollider2D physicCollider;
+        [SerializeField] private Collider2D physicCollider;
         [SerializeField] private Rigidbody2D rb;
         private bool onPlatform;
         public bool OnPlatform {get => onPlatform;}
@@ -17,7 +17,7 @@ namespace PlayerModule {
             if (jumpDownDisable) {
                 return;
             }
-            physicCollider.enabled = rb.velocity.y <= 0.1f;
+            physicCollider.enabled = rb.velocity.y <= 0.2f;
             
         }
 

@@ -314,7 +314,7 @@ namespace Recipe.Processor
                 {
                     foreach (ItemRecipeObjectInstance recipeInstance in recipeKvp.Value)
                     {
-                        var outputs = ItemSlotFactory.FromEditorObjects(recipeInstance.ItemRecipeObject.Outputs);
+                        var outputs = ItemSlotFactory.EditToChanceSlots(recipeInstance.ItemRecipeObject.Outputs);
                         ItemSlotUtils.sortInventoryByState(recipeInstance.Inputs,out var solidInputs, out var fluidInputs);
                         ItemSlotUtils.sortInventoryByState(outputs,out var solidOutputs, out var fluidOutputs);
                         RecipeData recipeData = new RecipeData(mode, recipeInstance.ItemRecipeObject, this);
@@ -493,7 +493,7 @@ namespace Recipe.Processor
         private static ItemDisplayableRecipe ToDisplayableRecipe(RecipeData recipeData, ItemRecipeObject itemRecipeObject)
         {
             var inputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Inputs);
-            var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
+            var outputs = ItemSlotFactory.EditToChanceSlots(itemRecipeObject.Outputs);
             ItemSlotUtils.sortInventoryByState(inputs,out var solidInputs, out var fluidInputs);
             ItemSlotUtils.sortInventoryByState(outputs,out var solidOutputs, out var fluidOutputs);
             return new ItemDisplayableRecipe(recipeData, solidInputs, solidOutputs, fluidInputs, fluidOutputs);
@@ -504,10 +504,11 @@ namespace Recipe.Processor
             var inputMatterState = transmutableRecipeObject.InputState.getMatterState();
             var outputMatterState = transmutableRecipeObject.OutputState.getMatterState();
             List<ItemSlot> solidInput = null;
-            List<ItemSlot> solidOutput = null;
+            List<ChanceItemSlot> solidOutput = null;
             List<ItemSlot> fluidInput = null;
-            List<ItemSlot> fluidOutput = null;
+            List<ChanceItemSlot> fluidOutput = null;
             var (input, output) = TransmutableItemUtils.Transmute(inputItem.getMaterial(), transmutableRecipeObject.InputState, transmutableRecipeObject.OutputState);
+            var chanceOutput = ItemSlotFactory.ToChanceSlot(output);
             switch (inputMatterState)
             {
                 case ItemState.Solid:
@@ -523,10 +524,10 @@ namespace Recipe.Processor
             switch (outputMatterState)
             {
                 case ItemState.Solid:
-                    solidOutput = new List<ItemSlot> { output };
+                    solidOutput = new List<ChanceItemSlot> {  chanceOutput };
                     break;
                 case ItemState.Fluid:
-                    fluidOutput = new List<ItemSlot> { output };
+                    fluidOutput = new List<ChanceItemSlot> { chanceOutput };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

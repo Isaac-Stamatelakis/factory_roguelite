@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,11 +11,22 @@ using UI.QuestBook;
 namespace DevTools {
     public class DevToolUIController : MonoBehaviour
     {
-        public UIAssetManager AssetManager;
+        private enum DevToolPage
+        {
+            Title,
+            Structure,
+            QuestBook
+        }
+
+        [SerializeField] private StructureDevControllerUI structureDevControllerUIPrefab;
+        [SerializeField] private QuestBookCreationSceneController questBookCreationSceneControllerPrefab;
+        private static DevToolPage page = DevToolPage.Title;
+       
         private static DevToolUIController instance;
         public static DevToolUIController Instance => instance;
         public void Awake() {
             instance = this;
+            Display();
         }
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private GameObject home;
@@ -39,26 +51,43 @@ namespace DevTools {
         }
 
         public void Start() {
-            AssetManager.load();
-            baseText = title.text;
-            homeButton.onClick.AddListener(() => {
-                setHomeVisibility(true);
+            homeButton.onClick.AddListener(() =>
+            {
+                page = DevToolPage.Title;
+                Display();
                 GameObject.Destroy(currentUI.gameObject);
-                resetTitleText();
             });
-            homeButton.gameObject.SetActive(false);
-
-            structureButton.onClick.AddListener(() => {
-                setHomeVisibility(false);
-                StructureDevControllerUI structureDevControllerUI = AssetManager.cloneElement<StructureDevControllerUI>("STRUCTURE");
-                structureDevControllerUI.init();
-                addUI(structureDevControllerUI.transform);
-                setTitleText("Structure Creator");
+            
+            structureButton.onClick.AddListener(() =>
+            {
+                page = DevToolPage.Structure;
+                Display();
             });
-
+            
             questButton.onClick.AddListener(() => {
-                QuestBookCreationSceneController questBookCreationSceneController = AssetManager.cloneElement<QuestBookCreationSceneController>("QUEST");
+                QuestBookCreationSceneController questBookCreationSceneController = Instantiate(questBookCreationSceneControllerPrefab);
             });
+        }
+
+        public void Display()
+        {
+            setHomeVisibility(page == DevToolPage.Title);
+
+            switch (page)
+            {
+                case DevToolPage.Title:
+                case DevToolPage.QuestBook:
+                    setTitleText("Developer Tools");
+                    break;
+                case DevToolPage.Structure:
+                    setTitleText("Structure Generator");
+                    StructureDevControllerUI structureDevControllerUI = GameObject.Instantiate(structureDevControllerUIPrefab);
+                    structureDevControllerUI.init();
+                    addUI(structureDevControllerUI.transform);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

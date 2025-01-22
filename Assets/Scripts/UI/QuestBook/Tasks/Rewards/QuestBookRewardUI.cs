@@ -82,20 +82,6 @@ namespace UI.QuestBook.Tasks.Rewards
                 Display();
             });
             
-            mToggle.onValueChanged.AddListener((state) =>
-            {
-                switch (currentPage)
-                {
-                    case RewardPage.Items:
-                        this.content.ItemRewards.LimitOne = state;
-                        Display();
-                        break;
-                    case RewardPage.Commands:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            });
             Display();
             
         }
@@ -144,10 +130,25 @@ namespace UI.QuestBook.Tasks.Rewards
                 case RewardPage.Items:
                     mToggle.gameObject.SetActive(QuestBookUtils.EditMode);
                     QuestBookItemRewards questBookItemRewards = content.ItemRewards;
+                    mToggle.onValueChanged.RemoveAllListeners();
                     mToggle.isOn = questBookItemRewards.LimitOne;
+                    mToggle.onValueChanged.AddListener((state) =>
+                    {
+                        switch (currentPage)
+                        {
+                            case RewardPage.Items:
+                                this.content.ItemRewards.LimitOne = state;
+                                Display();
+                                break;
+                            case RewardPage.Commands:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    });
                     if (questBookItemRewards.LimitOne)
                     {
-                        mTitle.text = "Select 1 Reward";
+                        mTitle.text = "Item Reward";
                     }
                     else
                     {
@@ -161,7 +162,7 @@ namespace UI.QuestBook.Tasks.Rewards
                     break;
                 case RewardPage.Commands:
                     mToggle.gameObject.SetActive(false);
-                    mTitle.text = "Command Rewards";
+                    mTitle.text = "Special Rewards";
                     QuestBookCommandRewards commandRewards = content.CommandRewards;
                     for (int i = 0; i < commandRewards.CommandRewards.Count; i++) {
                         CommandRewardListElement commandRewardListElement = GameObject.Instantiate(commandRewardListElementPrefab, mElementContainer.transform, false);

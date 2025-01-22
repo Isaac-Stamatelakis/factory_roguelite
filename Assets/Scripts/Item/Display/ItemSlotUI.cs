@@ -44,13 +44,15 @@ namespace Items {
     {
         public Image Panel;
         public Image ItemImage;
-        public TextMeshProUGUI AmountText;
+        [FormerlySerializedAs("AmountText")] public TextMeshProUGUI mBottomText;
+        public TextMeshProUGUI mTopText;
         public Transform TagBehindContainer;
         public Transform TagFrontContainer;
         private ItemDisplayList currentDisplayList;
         
         private int counter;
         private ItemSlot displayedSlot;
+        
         public void FixedUpdate() {
             if (currentDisplayList == null)
             {
@@ -67,7 +69,7 @@ namespace Items {
             {
                 if (ItemSlotUtils.IsItemSlotNull(displayedSlot))
                 {
-                    AmountText.text = string.Empty;
+                    mBottomText.text = string.Empty;
                     ItemImage.gameObject.SetActive(false);
                     return;
                 }
@@ -76,7 +78,7 @@ namespace Items {
 
             if (currentDisplayList == null)
             {
-                AmountText.text = string.Empty;
+                mBottomText.text = string.Empty;
                 ItemImage.gameObject.SetActive(false);
                 return;
             }
@@ -93,7 +95,7 @@ namespace Items {
         
         public virtual void SetAmountText()
         {
-            AmountText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+            mBottomText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
         }
         
         public void Display(ItemSlot itemSlot)
@@ -109,6 +111,7 @@ namespace Items {
                 Unload();
                 return;
             }
+            if (!ReferenceEquals(mTopText,null)) mTopText.text = "";
             
             displayedSlot = itemSlot;
             
@@ -126,6 +129,22 @@ namespace Items {
             
             DisplayTagVisuals(itemSlot);
         }
+
+        public void Display(ItemSlot itemSlot, string topText)
+        {
+            Display(itemSlot);
+            mTopText.text = topText;
+        }
+
+        public void SetTopText(string topText)
+        {
+            if (ReferenceEquals(mTopText, null))
+            {
+                Debug.LogWarning($"Attempted to set top text on ItemSlotUI '{name}' which does not contain a top text element.");
+                return;
+            }
+            mTopText.text = topText;
+        }
         
         
         public ItemSlot GetDisplayedSlot() {
@@ -136,7 +155,9 @@ namespace Items {
         {
             GlobalHelper.deleteAllChildren(TagBehindContainer);
             GlobalHelper.deleteAllChildren(TagFrontContainer);
-            AmountText.text = "";
+            mBottomText.text = "";
+            if (!ReferenceEquals(mTopText,null)) mTopText.text = "";
+     
         }
         public void Unload()
         {

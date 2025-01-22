@@ -34,14 +34,17 @@ namespace UI.QuestBook {
                 pageIds.Add(node.Id);
             }
             Dictionary<int, QuestBookNode> idNodeMap = library.IdNodeMap;
-            foreach (QuestBookNode questBookNode in nodeNetwork.getNodes()) {
+            foreach (QuestBookNode questBookNode in nodeNetwork.getNodes())
+            {
+                
+                bool discovered = nodeDiscovered(questBookNode);
                 foreach (int id in questBookNode.Prerequisites) {
                     if (!pageIds.Contains(id)) {
                         continue;
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
-                    bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,discovered,linePrefab);
+                    bool complete = otherNode.Content.Task.IsComplete();
+                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,complete,linePrefab);
                 }
             }
         }
