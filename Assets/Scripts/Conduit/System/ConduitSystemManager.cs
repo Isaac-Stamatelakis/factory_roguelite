@@ -324,6 +324,9 @@ namespace Conduits.Systems {
             BfsConduit(adj,secondNew);
             conduitSystems.Add((TSystem)secondNew);
             
+            RefreshSystemTiles(firstNew);
+            RefreshSystemTiles(secondNew);
+            
         }
         
 

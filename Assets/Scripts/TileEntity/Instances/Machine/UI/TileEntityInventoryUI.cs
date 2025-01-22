@@ -80,6 +80,7 @@ namespace TileEntity.Instances.Machine.UI
         }
         public void FixedUpdate()
         {
+            return;
             solidInputUI?.RefreshSlots();
             solidOutputUI?.RefreshSlots();
             fluidInputUI?.RefreshSlots();
@@ -109,13 +110,13 @@ namespace TileEntity.Instances.Machine.UI
             
         }
 
-        private int GetSize(MachineInventoryOptions options, List<ItemSlot> inventory)
+        private int GetSize<T>(MachineInventoryOptions options, List<T> inventory) where T : ItemSlot
         {
             if (ReferenceEquals(options,null)) return inventory.Count;
             return options.GetIntSize();
         }
 
-        private void InitializeInventoryUIRecipe(InventoryUI inventoryUI, List<ItemSlot> items, MachineInventoryOptions inventoryOptions)
+        private void InitializeInventoryUIRecipe<T>(InventoryUI inventoryUI, List<T> items, MachineInventoryOptions inventoryOptions) where T : ItemSlot
         {
             if (ReferenceEquals(inventoryUI, null)) return;
             int size = GetSize(inventoryOptions, items);
@@ -124,7 +125,21 @@ namespace TileEntity.Instances.Machine.UI
                 inventoryUI.gameObject.SetActive(false);
                 return;
             }
-            inventoryUI.DisplayInventory(items,size);
+
+            List<string> topNames = new List<string>();
+            foreach (T item in items)
+            {
+                if (item is ChanceItemSlot chanceItemSlot)
+                {
+                    float chance = chanceItemSlot.chance;
+                    topNames.Add(chance < 1 ? $"{chance:P0}".Replace(" ",string.Empty) : string.Empty);
+                }
+            }
+
+            List<ItemSlot> castItems = items.ConvertAll(item => (ItemSlot)item);
+            inventoryUI.DisplayInventory(castItems,size);
+            
+            if (topNames.Count > 0) inventoryUI.DisplayTopText(topNames);
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
 

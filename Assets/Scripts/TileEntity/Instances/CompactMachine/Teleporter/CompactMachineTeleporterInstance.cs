@@ -14,21 +14,12 @@ namespace TileEntity.Instances.CompactMachines {
         public void onRightClick()
         {
             GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
-            if (uiPrefab == null) {
-                CompactMachineHelper.teleportOutOfCompactMachine(compactMachine);
+            if (compactMachine == null)
+            {
+                Debug.LogWarning("Tried to teleport out of compact machine with unsynced teleporter");
                 return;
             }
-            // Not null show ui prefab
-            /*
-            GameObject instantiated = GameObject.Instantiate(uiPrefab);
-            CompactMachineUIController uIController = instantiated.GetComponent<CompactMachineUIController>();
-            if (uIController == null) {
-                Debug.LogError(name + "ui prefab doesn't have controller");
-                return;
-            }
-            uIController.display(this);
-            GlobalUIContainer.getInstance().getUiController().setGUI(instantiated);
-            */
+            CompactMachineHelper.teleportOutOfCompactMachine(compactMachine);
         }
 
         public void syncToCompactMachine(CompactMachineInstance compactMachine)

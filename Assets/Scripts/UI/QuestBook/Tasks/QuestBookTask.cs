@@ -14,7 +14,7 @@ namespace UI.QuestBook {
 
     public interface ICompletionCheckQuest
     {
-        public void CheckCompletion();
+        public bool CheckCompletion();
     }
 }
 

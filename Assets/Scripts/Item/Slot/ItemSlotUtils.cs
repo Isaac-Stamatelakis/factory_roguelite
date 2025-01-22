@@ -222,10 +222,10 @@ namespace Item.Slot
             }
         }
 
-        public static void sortInventoryByState(List<ItemSlot> inputs,out List<ItemSlot> solidRecipeInputs,out List<ItemSlot> fluidRecipeInputs) {
-            solidRecipeInputs = new List<ItemSlot>();
-            fluidRecipeInputs = new List<ItemSlot>();
-            foreach (ItemSlot itemSlot in inputs) {
+        public static void sortInventoryByState<T>(List<T> inputs,out List<T> solidRecipeInputs,out List<T> fluidRecipeInputs) where T : ItemSlot{
+            solidRecipeInputs = new List<T>();
+            fluidRecipeInputs = new List<T>();
+            foreach (T itemSlot in inputs) {
                 if (IsItemSlotNull(itemSlot)) continue;
                 switch (itemSlot.getState()) {
                     case ItemState.Solid:

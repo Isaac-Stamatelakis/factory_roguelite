@@ -60,6 +60,24 @@ namespace Items.Inventory {
             DisplayInventory(displayInventory, displayAmount, clear:clear);
         }
 
+        public void DisplayTopText(List<string> textList)
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (i >= slots.Count || i >= textList.Count) break;
+                slots[i].SetTopText(textList[i]);
+            }
+        }
+
+        public void ResetTopText()
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (i >= slots.Count) break;
+                slots[i].SetTopText(string.Empty);
+            }
+        }
+
         public void SetInteractMode(InventoryInteractMode mode)
         {
             InventoryInteractMode = mode;

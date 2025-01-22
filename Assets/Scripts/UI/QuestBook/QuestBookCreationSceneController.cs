@@ -17,10 +17,9 @@ namespace UI.QuestBook {
         // Start is called before the first frame update
         void Start()
         {
-            Debug.Log(Application.persistentDataPath);
             string json = null;
-            if (File.Exists(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH)) {
-                json = File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            if (File.Exists(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH)) {
+                json = File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
             }
             try
             {
@@ -89,11 +88,11 @@ namespace UI.QuestBook {
 
         void OnDestroy() {
             string json = QuestBookLibraryFactory.Serialize(library);
-            File.WriteAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH,json);
+            File.WriteAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH,json);
         }
         void Awake()
         {
-            QuestBookHelper.EditMode = editMode;
+            QuestBookUtils.EditMode = editMode;
         }
     }
 }

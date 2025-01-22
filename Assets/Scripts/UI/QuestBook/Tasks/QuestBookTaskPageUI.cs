@@ -15,18 +15,16 @@ namespace UI.QuestBook {
     {
         public UIAssetManager AssetManager;
         [SerializeField] private VerticalLayoutGroup mRewardsList;
-        [FormerlySerializedAs("acceptRewardsButton")] [SerializeField] private Button mAcceptRewardsButton;
         [FormerlySerializedAs("backButton")] [SerializeField] private Button mBackButton;
         [FormerlySerializedAs("taskContainer")] [SerializeField] private Transform mTaskContainer;
         [FormerlySerializedAs("editButton")] [SerializeField] private Button mEditButton;
         [FormerlySerializedAs("titleField")] [SerializeField] private TMP_InputField mTitleField;
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
-        [FormerlySerializedAs("addRewardButton")] [SerializeField] private Button mAddRewardButton;
         [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
-        private QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
+        public QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
         private QuestBookPageUI questBookPageUI;
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
@@ -49,11 +47,11 @@ namespace UI.QuestBook {
             
             mQuestBookRewardUI.Initialize(node.Content,this);
             
-            mTitleField.interactable = QuestBookHelper.EditMode;
-            mDescriptionField.interactable = QuestBookHelper.EditMode;
-            DisplayRewards();
+            mTitleField.interactable = QuestBookUtils.EditMode;
+            mDescriptionField.interactable = QuestBookUtils.EditMode;
+            
             mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
-            if (QuestBookHelper.EditMode) {
+            if (QuestBookUtils.EditMode) {
                 mTitleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
                 mDescriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
 
@@ -75,10 +73,9 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             
-            if (!QuestBookHelper.EditMode)
+            if (!QuestBookUtils.EditMode)
             {
                 mChangeTaskDropDown.interactable = false;
-                mAddRewardButton.gameObject.SetActive(false);
                 mEditImageButton.gameObject.SetActive(false);
                 mEditButton.gameObject.SetActive(false);
             }
@@ -114,13 +111,25 @@ namespace UI.QuestBook {
             
         }
 
+        public void OnTaskStatusChanged()
+        {
+            UpdateSubmissionButton();
+            questBookPageUI.DisplayLines();
+            mQuestBookRewardUI.UpdateClaimButtonImage();
+        }
         private void CheckTask()
         {
             var task = Content.Task;
-            if (!QuestBookHelper.EditMode)
+            if (!QuestBookUtils.EditMode)
             {
-                ICompletionCheckQuest completionCheckQuest = task as ICompletionCheckQuest; // Should always be as button only visible when completion question
-                completionCheckQuest?.CheckCompletion();
+                if (task is ICompletionCheckQuest completionCheckQuest)
+                {
+                    bool updated = completionCheckQuest.CheckCompletion();
+                    if (updated)
+                    {
+                        OnTaskStatusChanged();
+                    }
+                }
             }
             else
             {
@@ -140,7 +149,7 @@ namespace UI.QuestBook {
                 return;
             }
             var complete = task.IsComplete();
-            mCheckSubmissionButton.interactable = !complete && !QuestBookHelper.EditMode;
+            mCheckSubmissionButton.interactable = !complete && !QuestBookUtils.EditMode;
             mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
                 complete ? "Submit" : "Quest Completed";
             mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;
@@ -151,7 +160,6 @@ namespace UI.QuestBook {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            this.mTitleField.text = Content.Task.GetTaskType().ToString().Replace("_"," ");
             GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }
@@ -173,18 +181,6 @@ namespace UI.QuestBook {
                     break;
             }
             SetTaskContent();
-        }
-
-        
-        public void DisplayRewards() {
-            /*
-            GlobalHelper.deleteAllChildren(mRewardsList.transform);
-            Content.Rewards ??= new List<SerializedItemSlot>();
-            for (int i = 0; i < Content.Rewards.Count; i++) {
-                RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab, mRewardsList.transform, false);
-                rewardListElement.Initialize(Content.Rewards,i,this);
-            }
-            */
         }
     }
 }

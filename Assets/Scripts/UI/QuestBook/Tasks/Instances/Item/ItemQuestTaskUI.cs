@@ -19,7 +19,7 @@ namespace UI.QuestBook {
             this.task = task;
             
             mAddButton.onClick.AddListener(AddItem);
-            mAddButton.gameObject.SetActive(QuestBookHelper.EditMode);
+            mAddButton.gameObject.SetActive(QuestBookUtils.EditMode);
             Display();
         }
 

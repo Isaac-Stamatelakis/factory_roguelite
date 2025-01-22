@@ -22,9 +22,9 @@ namespace UI.Chat {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
             ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
-            if (toGive == null) {
-                chatUI.sendMessage("Invalid id");
-                return;
+            if (toGive == null)
+            {
+                throw new ChatParseException($"Could not find item with id: '{id}'");
             }
             playerInventory.Give(toGive);
         }

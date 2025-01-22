@@ -95,7 +95,7 @@ namespace TileMaps.Previewer {
             {
                 return null;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerScript.transform);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
             {
                 return null;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DevTools;
 using Item.GameStage;
 using Newtonsoft.Json;
 using UI;
@@ -61,7 +62,8 @@ namespace WorldModule {
         public void InitializeQuestBook()
         {
             string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
-            string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookHelper.DEFAULT_QUEST_BOOK_PATH);
+            
+            string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
             SetQuestBookFromJson(questBookJson);
             
             

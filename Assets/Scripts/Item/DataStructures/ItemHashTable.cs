@@ -93,6 +93,20 @@ namespace Items {
             }
             return idTagHashDict[id][itemTagKey];
         }
+
+        public List<ItemSlot> GetAllItems()
+        {
+            List<ItemSlot> itemSlots = new List<ItemSlot>();
+            foreach (var (id, dict) in idTagHashDict)
+            {
+                foreach (var (tag, slot) in dict)
+                {
+                    itemSlots.Add(getItem(id,tag));
+                }
+            }
+
+            return itemSlots;
+        }
     }
 
 }

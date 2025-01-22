@@ -32,7 +32,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookHelper.EditMode) {
+                if (QuestBookUtils.EditMode) {
                     navigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
@@ -65,8 +65,8 @@ namespace UI.QuestBook {
         public override void SetAmountText()
         {
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
-            AmountText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
-            AmountText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
+            mBottomText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
+            mBottomText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
                               ItemDisplayUtils.FormatAmountText(itemSlot.amount,oneInvisible:false);
         }
 

@@ -22,7 +22,7 @@ namespace UI.QuestBook {
             this.questBook = questBook;
             this.library = questBookLibrary;
             this.questBookUI = questBookUI;
-            if (QuestBookHelper.EditMode) {
+            if (QuestBookUtils.EditMode) {
                 initEditMode();
             }
         }
@@ -34,14 +34,17 @@ namespace UI.QuestBook {
                 pageIds.Add(node.Id);
             }
             Dictionary<int, QuestBookNode> idNodeMap = library.IdNodeMap;
-            foreach (QuestBookNode questBookNode in nodeNetwork.getNodes()) {
+            foreach (QuestBookNode questBookNode in nodeNetwork.getNodes())
+            {
+                
+                bool discovered = nodeDiscovered(questBookNode);
                 foreach (int id in questBookNode.Prerequisites) {
                     if (!pageIds.Contains(id)) {
                         continue;
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
-                    bool discovered = nodeDiscovered(questBookNode);
-                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,discovered,linePrefab);
+                    bool complete = otherNode.Content.Task.IsComplete();
+                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,complete,linePrefab);
                 }
             }
         }
@@ -93,7 +96,7 @@ namespace UI.QuestBook {
                     new CheckMarkQuestTask(),
                     "Empty Description",
                     "New Task",
-                    new QuestBookItemRewards(new List<SerializedItemSlot>(), int.MaxValue),
+                    new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
                     new QuestBookCommandRewards(new List<QuestBookCommandReward>())
                 ),
                 new HashSet<int>(),

@@ -28,7 +28,7 @@ namespace Recipe.Objects
     [System.Serializable]
     public class RandomEditorItemSlot : EditorItemSlot
     {
-        [Range(0, 1)] public float Chance = 1f;
+        [SerializeField, Range(0 , 1)] public float Chance = 1f;
     }
 }
 

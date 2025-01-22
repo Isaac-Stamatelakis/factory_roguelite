@@ -53,8 +53,9 @@ namespace UI.QuestBook {
             }
         }
         
-        public void CheckCompletion()
+        public bool CheckCompletion()
         {
+            bool complete = IsComplete();
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             
             for (var i = 0; i < items.Count; i++)
@@ -64,6 +65,8 @@ namespace UI.QuestBook {
                 uint amount = ItemSlotUtils.AmountOf(itemSlot, playerInventory.Inventory);
                 if (amount > gottenAmounts[i]) gottenAmounts[i] = amount;
             }
+
+            return complete != IsComplete(); // Return true if value is changed
         }
     }
 }
