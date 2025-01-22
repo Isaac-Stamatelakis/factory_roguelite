@@ -8,6 +8,7 @@ using Items;
 using Items.Tags;
 using Player.Tool;
 using Recipe.Objects;
+using Robot;
 using Robot.Tool;
 using Robot.Tool.Object;
 
@@ -17,14 +18,20 @@ namespace RobotModule {
         private static readonly string DEFAULT_ROBOT_ID = "happy_mk1";
         public static string Serialize(RobotItemData robotItemData) {
             SeralizedRobotItemData seralizedRobotItemData = new SeralizedRobotItemData(
-                RobotToolFactory.Serialize(robotItemData.ToolData)
+                RobotToolFactory.Serialize(robotItemData.ToolData),
+                null,
+                robotItemData.Health,
+                robotItemData.Energy
             );
             return JsonConvert.SerializeObject(seralizedRobotItemData);
         }
         public static RobotItemData Deserialize(string data) {
             SeralizedRobotItemData seralizedRobotItemData = JsonConvert.DeserializeObject<SeralizedRobotItemData>(data);
             return new RobotItemData(
-                RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData)
+                RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData),
+                null,
+                seralizedRobotItemData.Health,
+                seralizedRobotItemData.Energy
             );
         }
         public static ItemSlot GetDefaultRobot()
@@ -41,9 +48,10 @@ namespace RobotModule {
             {
                 defaultData.Add(RobotToolFactory.GetDefault(robotToolType));
             }
+            RobotObject robotObject = robotItem.robot;
             ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData);
             RobotItemData robotItemData = new RobotItemData(
-                defaultToolData
+                defaultToolData, null, robotObject.BaseHealth, 0
             );
             Dictionary<ItemTag,object> dict = new Dictionary<ItemTag, object>();
             dict[ItemTag.RobotData] = robotItemData;
@@ -64,8 +72,14 @@ namespace RobotModule {
         private class SeralizedRobotItemData
         {
             public string SerializedToolData;
-            public SeralizedRobotItemData(string serializedToolData) {
+            public ulong Energy;
+            public float Health;
+            public string SerializedUpgradeData;
+            public SeralizedRobotItemData(string serializedToolData, string serializedUpgradeData, float health, ulong energy) {
                 this.SerializedToolData = serializedToolData;
+                this.Energy = energy;
+                this.Health = health;
+                this.SerializedUpgradeData = serializedUpgradeData;
             }
         }
     }

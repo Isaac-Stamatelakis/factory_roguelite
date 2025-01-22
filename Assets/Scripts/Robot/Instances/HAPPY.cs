@@ -10,8 +10,9 @@ namespace RobotModule.Instances {
     /// The starter robot
     /// <summary>   
     [CreateAssetMenu(fileName = "RB~New Happy", menuName = "Robots/HAPPY")]
-    public class HAPPY : RobotObject
+    public class HAPPY : RobotObject, IEnergyRechargeRobot
     {
+        public ulong RechargeRate = 8;
         public override void handleMovement(Transform playerTransform)
         {
             Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
@@ -47,6 +48,8 @@ namespace RobotModule.Instances {
             Rigidbody2D rigidbody2D = playerGameObject.GetComponent<Rigidbody2D>();
             rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
         }
+
+        public ulong EnergyRechargeRate => RechargeRate;
     }
 }
 

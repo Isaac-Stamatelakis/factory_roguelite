@@ -13,8 +13,15 @@ namespace Robot {
     {
         [FormerlySerializedAs("Tools")] public RobotToolObjectCollection ToolCollection;
         public Sprite defaultSprite;
+        public float BaseHealth;
+        public ulong MaxEnergy;
         public abstract void handleMovement(Transform playerTransform);
         public abstract void init(GameObject playerGameObject);
+    }
+
+    public interface IEnergyRechargeRobot
+    {
+        ulong EnergyRechargeRate { get;}
     }
 
 }

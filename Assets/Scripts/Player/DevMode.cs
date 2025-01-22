@@ -19,14 +19,8 @@ public class DevMode : MonoBehaviour
     [SerializeField] public bool noBreakCooldown;
     [SerializeField] public bool noHit;
     [SerializeField] public bool noPlaceCost;
-    [SerializeField] public bool placeSelectedID;
-    [SerializeField] public string placeID;
-    [SerializeField] public TileMapLayer breakType;
     [SerializeField] public bool noPlaceLimit;
-    [SerializeField] public uint rotation;
-    [SerializeField] public bool placePreview;
-    [SerializeField] public bool spawnItem;
-    [SerializeField] public string spawnItemID;
+    public bool NoEnergyCost;
     public bool EnableGameStages = true;
     public float FlightSpeed = 5f;
 

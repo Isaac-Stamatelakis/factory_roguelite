@@ -5,6 +5,7 @@ using Dimensions;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using Player.Robot;
 using Player.Tool;
 using PlayerModule.KeyPress;
 using Robot;
@@ -19,6 +20,8 @@ using UnityEngine.EventSystems;
 namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
+        [SerializeField] private PlayerRobotUI mPlayerRobotUI;
+        
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private PlayerModule.PlayerPlatformDetector playerFeet;
@@ -32,13 +35,21 @@ namespace Player {
         private bool climbing;
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
-        private RobotItemData robotItemData;
+        private RobotItemData robotData;
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
-        public List<RobotToolType> ToolTypes => robotItemData.ToolData.Types;
+        public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
+        private int groundLayers;
+        private float fallTime;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
+            groundLayers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
+        }
+
+        public void Update()
+        {
+            mPlayerRobotUI.Display(robotData,currentRobot);
         }
 
         public void FixedUpdate() {
@@ -48,27 +59,58 @@ namespace Player {
                 handleClimbing();
                 return;
             }
+
+            if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
+            
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
-            int layers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
-            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,layers);
+            
+            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
+
+            if (!DevMode.Instance.flight) CalculateFallTime();
             
             if (PlayerKeyPressUtils.BlockKeyInput) return;
             
             if (DevMode.Instance.flight)
             {
-                if (leftAutoJump.enabled) leftAutoJump.enabled = false;
-                if (rightAutoJump.enabled) rightAutoJump.enabled = false;
-                
-                FlightMovementUpdate(transform);
+                FlightMovementUpdate();
+                return;
             }
-            else
-            {
-                leftAutoJump.enabled = onGround && Input.GetKey(KeyCode.A);
-                rightAutoJump.enabled = onGround && Input.GetKey(KeyCode.D);
+            
+            
+            leftAutoJump.enabled = onGround && Input.GetKey(KeyCode.A);
+            rightAutoJump.enabled = onGround && Input.GetKey(KeyCode.D);
       
-                currentRobot.handleMovement(transform);
+            currentRobot.handleMovement(transform);
+        }
+
+        private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
+        {
+            if (robotData.Energy >= currentRobot.MaxEnergy) return;
+            
+            robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
+            if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
+        }
+
+        private void FlightMovementUpdate()
+        {
+            if (leftAutoJump.enabled) leftAutoJump.enabled = false;
+            if (rightAutoJump.enabled) rightAutoJump.enabled = false;
+                
+            FlightMovementUpdate(transform);
+        }
+
+        private void CalculateFallTime()
+        {
+            if (!onGround)
+            {
+                fallTime += Time.fixedDeltaTime;
+                return;
             }
+            
+            if (fallTime <= 0) return;
+            Debug.Log($"Fell {fallTime} seconds");
+            fallTime = 0;
         }
 
         public void SetFlightProperties()
@@ -168,7 +210,26 @@ namespace Player {
                 robotItemSlot = RobotDataFactory.GetDefaultRobot();
                 robotItem = robotItemSlot.itemObject as RobotItem;
             }
-            this.currentRobot = robotItem.robot;
+            currentRobot = robotItem.robot;
+            
+            ItemTagCollection tags = this.robotItemSlot.tags;
+            if (tags?.Dict == null)
+            {
+                tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
+            }
+            if (!tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
+            {
+                Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
+                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>());
+                // TODO robotupgrade data
+                RobotItemData newItemData = new RobotItemData(robotToolData,null, currentRobot.BaseHealth,0);
+                tagData[ItemTag.RobotData] = newItemData;
+                ItemTagCollection itemTagCollection = new ItemTagCollection(tagData);
+                robotItemSlot.tags = itemTagCollection;
+
+                robotItemSlot.tags = itemTagCollection;
+            }
+            
             InitializeTools();
             
             
@@ -179,25 +240,10 @@ namespace Player {
 
         private void InitializeTools()
         {
-            ItemTagCollection tags = this.robotItemSlot.tags;
-            if (tags?.Dict == null)
-            {
-                tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
-            }
-            if (!tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
-            {
-                Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
-                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>());
-                RobotItemData newItemData = new RobotItemData(robotToolData);
-                tagData[ItemTag.RobotData] = newItemData;
-                ItemTagCollection itemTagCollection = new ItemTagCollection(tagData);
-                robotItemSlot.tags = itemTagCollection;
+            
 
-                robotItemSlot.tags = itemTagCollection;
-            }
-
-            robotItemData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
-            ItemRobotToolData itemRobotToolData = robotItemData.ToolData;
+            robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
+            ItemRobotToolData itemRobotToolData = robotData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
             RobotTools = new List<IRobotToolInstance>();
             for (int i = 0; i < itemRobotToolData.Tools.Count; i++)
