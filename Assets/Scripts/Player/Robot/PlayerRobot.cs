@@ -41,6 +41,8 @@ namespace Player {
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
         private int groundLayers;
         private float fallTime;
+
+        private const float TERMINAL_VELOCITY = 30f;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
@@ -67,7 +69,11 @@ namespace Player {
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
 
-            if (!DevMode.Instance.flight) CalculateFallTime();
+            if (!DevMode.Instance.flight)
+            {
+                CalculateFallTime();
+                ClampFallSpeed();
+            }
             
             if (PlayerKeyPressUtils.BlockKeyInput) return;
             
@@ -100,17 +106,34 @@ namespace Player {
             FlightMovementUpdate(transform);
         }
 
+        private void ClampFallSpeed()
+        {
+            if (!(rb.velocity.y < -TERMINAL_VELOCITY)) return;
+            
+            var vector2 = rb.velocity;
+            vector2.y = -TERMINAL_VELOCITY;
+            rb.velocity = vector2;
+        }
+
         private void CalculateFallTime()
         {
             if (!onGround)
             {
-                fallTime += Time.fixedDeltaTime;
+                if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
                 return;
             }
             
             if (fallTime <= 0) return;
-            Debug.Log($"Fell {fallTime} seconds");
-            fallTime = 0;
+
+            const float DAMAGE_RATE = 4;
+            const float MIN_DAMAGE = 1f;
+
+            float damage = DAMAGE_RATE * fallTime * fallTime;
+    
+            fallTime = 0f;
+            if (damage < MIN_DAMAGE) return;
+            
+            Damage(damage);
         }
 
         public void SetFlightProperties()
@@ -139,7 +162,25 @@ namespace Player {
             }
             playerTransform.position = position;
         }
-        
+
+        public void Heal(float amount)
+        {
+            robotData.Health += amount;
+            if (robotData.Health > currentRobot.BaseHealth) robotData.Health = currentRobot.BaseHealth;
+        }
+
+        public void Damage(float amount)
+        {
+            robotData.Health -= amount;
+            if (robotData.Health <= 0) Die();
+            
+        }
+
+        public void Die()
+        {
+            // temp
+            robotData.Health = 20;
+        }
         private void canStartClimbing() {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;

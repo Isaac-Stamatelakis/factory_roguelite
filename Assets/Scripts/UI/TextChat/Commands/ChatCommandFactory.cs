@@ -26,6 +26,7 @@ namespace UI.Chat {
             { "quest_cheat", (parameters, ui) => new QuestCheatCommand(parameters, ui) },
             { "quest_set", (parameters, ui) => new QuestResetCommand(parameters, ui) },
             { "devmode", (parameters, ui) => new MiscDevCommand(parameters, ui) },
+            { "heal", (parameters, ui) => new HealCommand(parameters, ui) },
             
         };
 

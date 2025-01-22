@@ -33,7 +33,7 @@ namespace RobotModule.Instances {
                 if (Input.GetKey(KeyCode.S)) {
                     playerRobot.NoCollisionWithPlatformCounter=5;
                 } else {
-                    velocity.y += 10f;
+                    velocity.y += 12f;
                 }
                 
                 playerRobot.OnGround = false;
