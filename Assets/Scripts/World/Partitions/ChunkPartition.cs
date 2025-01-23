@@ -73,7 +73,8 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Direction direction,Vector2Int systemOffset) {
+        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,
+            Vector2Int systemOffset) {
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {

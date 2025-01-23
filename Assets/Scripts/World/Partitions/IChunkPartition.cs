@@ -16,7 +16,8 @@ namespace Chunks.Partitions {
         public float DistanceFrom(UnityEngine.Vector2Int target);
         public bool GetScheduledForUnloading();
         public void SetScheduleForUnloading(bool val);
-        public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction, Vector2Int systemOffset);
+        public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,
+            Vector2Int systemOffset);
         public IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps);
         public void Save();
         public bool InRange(Vector2Int target, int xRange, int yRange);

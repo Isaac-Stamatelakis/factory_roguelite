@@ -10,9 +10,9 @@ namespace TileMaps {
     public class OutlineWorldTileGridMap : WorldTileGridMap
     {
         private Tilemap outlineTileMap;
-        public override void Start()
+        public override void Awake()
         {
-            base.Start();
+            base.Awake();
             GameObject outline = new GameObject();
             outline.name = "Outline";
             outline.AddComponent<TilemapRenderer>();

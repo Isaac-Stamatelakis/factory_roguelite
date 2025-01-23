@@ -46,15 +46,16 @@ namespace TileMaps {
         public Tilemap mTileMap {get{return tilemap;}}
         protected TilemapRenderer tilemapRenderer;
         protected TilemapCollider2D tilemapCollider;
-        protected HashSet<Vector2Int> partitions;
+        protected HashSet<Vector2Int> partitions = new HashSet<Vector2Int>();
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
         private float baseZValue;
+        
 
-        public virtual void Start() {
+        public virtual void Awake() {
             tilemap = gameObject.AddComponent<Tilemap>();
             baseZValue = transform.position.z;
-            partitions = new HashSet<Vector2Int>();
+            
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();

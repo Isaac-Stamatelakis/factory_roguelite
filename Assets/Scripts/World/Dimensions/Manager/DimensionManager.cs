@@ -109,7 +109,8 @@ namespace Dimensions {
                 Debug.LogError("Could not switch player system");
                 return;
             }
-
+            player.GetComponent<PlayerRobot>().TemporarilyPausePlayer();
+            
             if (playerWorldData.ContainsKey(player) && newSystem.Equals(playerWorldData[player].closedChunkSystem))
             {
                 player.transform.position = Vector2.zero;
@@ -146,13 +147,24 @@ namespace Dimensions {
             ));
             
             Vector2Int tpPosition = (teleportPosition-systemOffset);
-            Vector3 playerPosition = player.transform.position;
+            Vector3 playerPosition = player.position;
             playerPosition.x = tpPosition.x/2f;
             playerPosition.y = tpPosition.y/2f;
             player.transform.position = playerPosition;
+            
             CanvasController.Instance.ClearStack();
+            
             newSystem.instantCacheChunksNearPlayer();
-            newSystem.playerPartitionUpdate();
+            newSystem.PlayerPartitionUpdate();
+            
+            
+        }
+
+        private IEnumerator UnFreezePlayer(Rigidbody2D rb)
+        {
+            yield return new WaitForSeconds(0.25f);
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            
         }
         
         protected Vector2Int GetNextSystemPosition() {

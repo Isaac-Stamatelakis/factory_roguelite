@@ -55,6 +55,7 @@ namespace PlayerModule {
         public void Initialize() {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().GetPlayerInventoryData());
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
+            playerInventoryGrid.HighlightSlot(0);
             playerInventoryGrid.AddListener(this);
             
         }

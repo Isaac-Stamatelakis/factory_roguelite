@@ -113,6 +113,7 @@ namespace Items.Inventory {
             {
                 slots[i].Display(itemSlot: i < displayInventory.Count ? displayInventory[i] : null);
             }
+            if (highlightedSlot >= 0 && highlightedSlot < slots.Count) DisplayHighSlotSlot(highlightedSlot); 
         }
         
         
@@ -206,8 +207,13 @@ namespace Items.Inventory {
             if (n == highlightedSlot) {
                 return;
             }
-            
-            if (highlightedSlot >= 0)
+
+            DisplayHighSlotSlot(n);
+        }
+
+        private void DisplayHighSlotSlot(int n)
+        {
+            if (highlightedSlot >= 0 && n < slots.Count)
             {
                 slots[highlightedSlot].GetComponent<Image>().color = itemSlotUIPrefab.GetComponent<Image>().color;
             }

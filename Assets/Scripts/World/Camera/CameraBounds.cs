@@ -53,7 +53,7 @@ public class CameraBounds : MonoBehaviour
         width = height * camera.aspect;
         if (!ReferenceEquals(closedChunkSystem,null)) {
             closedChunkSystem.playerChunkUpdate();
-            closedChunkSystem.playerPartitionUpdate();
+            closedChunkSystem.PlayerPartitionUpdate();
         }
     }
 
@@ -68,7 +68,7 @@ public class CameraBounds : MonoBehaviour
         if (px == lastPartition.x && py == lastPartition.y) {
             return;
         }
-        closedChunkSystem.playerPartitionUpdate();
+        closedChunkSystem.PlayerPartitionUpdate();
         lastPartition = new Vector2Int(px,py);
         
         int cx = (int) position.x / (Global.PartitionsPerChunk/2);

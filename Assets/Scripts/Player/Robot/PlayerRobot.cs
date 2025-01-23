@@ -6,6 +6,7 @@ using Dimensions;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using Player.Inventory;
 using Player.Robot;
 using Player.Tool;
 using Player.UI;
@@ -47,6 +48,8 @@ namespace Player {
         private float fallTime;
         private float defaultGravityScale;
         private bool dead = false;
+        private bool immuneToNextFall = false;
+        private uint iFrames;
         public bool Dead => dead;
 
         private const float TERMINAL_VELOCITY = 30f;
@@ -62,7 +65,9 @@ namespace Player {
             mPlayerRobotUI.Display(robotData,currentRobot);
         }
 
-        public void FixedUpdate() {
+        public void FixedUpdate()
+        {
+            if (iFrames > 0) iFrames--;
             CanStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
@@ -118,6 +123,34 @@ namespace Player {
             rb.velocity = vector2;
         }
 
+        public void SetIFrames(uint frames)
+        {
+            iFrames = frames;
+        }
+
+        private PlayerPickUp GetPlayerPick()
+        {
+            return GetComponentInChildren<PlayerPickUp>();
+        }
+
+        public void TemporarilyPausePlayer()
+        {
+            PlayerPickUp playerPickup = GetPlayerPick();
+            playerPickup.CanPickUp = false;
+            immuneToNextFall = true;
+            iFrames = 50;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            StartCoroutine(UnPausePlayer());
+        }
+
+        private IEnumerator UnPausePlayer()
+        {
+            yield return new WaitForSeconds(0.1f);
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
+            playerPickup.CanPickUp = true;
+        }
+
         private void CalculateFallTime()
         {
             if (!onGround)
@@ -126,8 +159,17 @@ namespace Player {
                 return;
             }
             
+            if (immuneToNextFall)
+            {
+                immuneToNextFall = false;
+                fallTime = 0;
+                return;
+            }
+            
             if (fallTime <= 0) return;
-
+            
+            
+            
             const float DAMAGE_RATE = 4;
             const float MIN_DAMAGE = 1f;
 
@@ -174,7 +216,7 @@ namespace Player {
 
         public void Damage(float amount)
         {
-            if (DevMode.Instance.noHit) return;
+            if (DevMode.Instance.noHit || iFrames > 0) return;
             
             robotData.Health -= amount;
             if (robotData.Health > 0 || dead) return;
@@ -196,6 +238,8 @@ namespace Player {
         {
             robotData.Health = 0;
             dead = true;
+            PlayerPickUp playerPickup = GetPlayerPick();
+            playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             PlayerDeathScreenUI playerDeathScreenUI = Instantiate(deathScreenUIPrefab);
             PlayerScript playerScript = GetComponent<PlayerScript>();
@@ -243,6 +287,7 @@ namespace Player {
                 return;
             }
             Vector2 velocity = rb.velocity;
+            fallTime = 0;
             if (Input.GetKey(KeyCode.W)) {
                 velocity.y = climableTileEntity.getSpeed();
             } else if (Input.GetKey(KeyCode.S)) {
