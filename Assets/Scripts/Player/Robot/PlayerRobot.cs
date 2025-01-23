@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using Chunks.Systems;
 using Dimensions;
 using Item.Slot;
@@ -7,6 +8,8 @@ using Items;
 using Items.Tags;
 using Player.Robot;
 using Player.Tool;
+using Player.UI;
+using PlayerModule;
 using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
@@ -24,9 +27,10 @@ namespace Player {
         
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
-        [SerializeField] private PlayerModule.PlayerPlatformDetector playerFeet;
-        [SerializeField] private PolygonCollider2D leftAutoJump;
-        [SerializeField] private PolygonCollider2D rightAutoJump;
+
+        [SerializeField] private BoxCollider2D feetBoxCollider;
+        [SerializeField] private CapsuleCollider2D feetCapsuleCollider;
+        [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
         private bool onGround;
@@ -41,12 +45,16 @@ namespace Player {
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
         private int groundLayers;
         private float fallTime;
+        private float defaultGravityScale;
+        private bool dead = false;
+        public bool Dead => dead;
 
         private const float TERMINAL_VELOCITY = 30f;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
             groundLayers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
+            defaultGravityScale = rb.gravityScale;
         }
 
         public void Update()
@@ -55,10 +63,10 @@ namespace Player {
         }
 
         public void FixedUpdate() {
-            canStartClimbing();
+            CanStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
-                handleClimbing();
+                HandleClimbing();
                 return;
             }
 
@@ -68,7 +76,7 @@ namespace Player {
             
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
-
+            
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
@@ -79,15 +87,17 @@ namespace Player {
             
             if (DevMode.Instance.flight)
             {
-                FlightMovementUpdate();
+                FlightMovementUpdate(transform);
                 return;
             }
             
             
-            leftAutoJump.enabled = onGround && Input.GetKey(KeyCode.A);
-            rightAutoJump.enabled = onGround && Input.GetKey(KeyCode.D);
-      
-            currentRobot.handleMovement(transform);
+        
+            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            feetBoxCollider.enabled = !directionalInput;
+            feetCapsuleCollider.enabled = directionalInput;
+            
+            currentRobot?.handleMovement(transform);
         }
 
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
@@ -97,14 +107,7 @@ namespace Player {
             robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
             if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
         }
-
-        private void FlightMovementUpdate()
-        {
-            if (leftAutoJump.enabled) leftAutoJump.enabled = false;
-            if (rightAutoJump.enabled) rightAutoJump.enabled = false;
-                
-            FlightMovementUpdate(transform);
-        }
+        
 
         private void ClampFallSpeed()
         {
@@ -171,27 +174,43 @@ namespace Player {
 
         public void Damage(float amount)
         {
-            robotData.Health -= amount;
-            if (robotData.Health <= 0) Die();
+            if (DevMode.Instance.noHit) return;
             
+            robotData.Health -= amount;
+            if (robotData.Health > 0 || dead) return;
+            
+            Die();
+        }
+
+        public void Respawn()
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            robotData.Health = currentRobot.BaseHealth;
+            PlayerScript playerScript = GetComponent<PlayerScript>();
+            
+            DimensionManager.Instance.setPlayerSystem(playerScript.transform,0,new Vector2Int(0,0));
+            dead = false;
         }
 
         public void Die()
         {
-            // temp
-            robotData.Health = 20;
+            robotData.Health = 0;
+            dead = true;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            PlayerDeathScreenUI playerDeathScreenUI = Instantiate(deathScreenUIPrefab);
+            PlayerScript playerScript = GetComponent<PlayerScript>();
+            playerDeathScreenUI.Initialize(playerScript);
+            CanvasController.Instance.DisplayOnParentCanvas(playerDeathScreenUI.gameObject);
+            playerScript.PlayerInventory.DropAll();
+            
         }
-        private void canStartClimbing() {
+        private void CanStartClimbing() {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
             }
             bool climbKeyInput = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
-            if (climbing || !climbKeyInput) {
-                return;
-            }
-            if (getClimbable() == null) {
-                return;
-            }
+            if (climbing || !climbKeyInput || GetClimbable() == null) return;
+            
             climbing = true;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
@@ -201,38 +220,29 @@ namespace Player {
             position.x = x;
             transform.position = position;
         }
-        private IClimableTileEntity getClimbable() {
+        private IClimableTileEntity GetClimbable() {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
             RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
-            if (objHit.collider == null) {
-                return null;
-            }
-            WorldTileGridMap worldTileGridMap = objHit.collider.GetComponent<WorldTileGridMap>();
-            if (worldTileGridMap == null) {
-                return null;
-            }
+            
+            WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
+            if (ReferenceEquals(worldTileGridMap, null)) return null;
+            
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
             TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
-            if (tileItem == null || tileItem.tileEntity == null) {
-                return null;
-            }
-            if (tileItem.tileEntity is not IClimableTileEntity climableTileEntity) {
-                return null;
-            }
-            return climableTileEntity;
+            return tileItem?.tileEntity as IClimableTileEntity;
         }
 
-        private void handleClimbing() {
-            IClimableTileEntity climableTileEntity = getClimbable();
+        private void HandleClimbing() {
+            IClimableTileEntity climableTileEntity = GetClimbable();
             bool exitKeyCode = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.Space);
-            if (climableTileEntity == null || exitKeyCode) {
+            if (climableTileEntity == null || exitKeyCode)
+            {
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 climbing = false;
-                rb.gravityScale = 3;
+                rb.gravityScale = defaultGravityScale;
                 return;
             }
             Vector2 velocity = rb.velocity;
-            rb.velocity = velocity;
             if (Input.GetKey(KeyCode.W)) {
                 velocity.y = climableTileEntity.getSpeed();
             } else if (Input.GetKey(KeyCode.S)) {

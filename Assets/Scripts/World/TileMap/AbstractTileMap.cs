@@ -138,7 +138,7 @@ namespace TileMaps {
         }
 
         protected abstract void SetTile(int x, int y,TItem item);
-        protected Vector2Int GetChunkPosition(Vector2Int position) {
+        public static Vector2Int GetChunkPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
             return new Vector2Int(Mathf.FloorToInt(x/(Global.ChunkSize)), Mathf.FloorToInt(y/(Global.ChunkSize)));

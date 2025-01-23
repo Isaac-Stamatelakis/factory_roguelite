@@ -111,7 +111,6 @@ namespace Items {
                 Unload();
                 return;
             }
-            if (!ReferenceEquals(mTopText,null)) mTopText.text = "";
             
             displayedSlot = itemSlot;
             

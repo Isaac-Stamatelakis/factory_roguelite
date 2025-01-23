@@ -13,15 +13,17 @@ namespace Player.Inventory
     /// </summary>
     public class PlayerPickUp : MonoBehaviour
     {
-        private const float MINIMUM_PICKUP_TIME = 1f;
+        private const float MINIMUM_PICKUP_TIME = 0.5f;
         
         private List<ItemEntity> collidedItemEntities = new List<ItemEntity>();
         public void Start()
         {
             playerInventory = gameObject.GetComponentInParent<PlayerInventory>();
+            playerRobot = playerInventory.GetComponent<PlayerRobot>();
         }
 
         private PlayerInventory playerInventory;
+        private PlayerRobot playerRobot;
         
         /// <summary>
         /// Tries to insert all items the player is currently collided into the players inventory.
@@ -63,6 +65,7 @@ namespace Player.Inventory
 
         private bool TryInsert(ItemEntity itemEntity)
         {
+            if (playerRobot.Dead) return false;
             while (true)
             {
                 if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) return false;

@@ -27,7 +27,8 @@ namespace UI.Chat {
             { "quest_set", (parameters, ui) => new QuestResetCommand(parameters, ui) },
             { "devmode", (parameters, ui) => new MiscDevCommand(parameters, ui) },
             { "heal", (parameters, ui) => new HealCommand(parameters, ui) },
-            
+            { "unknowncommand", (parameters, ui) => new BrainFuckCommand(parameters, ui) },
+            { "kill", (parameters, ui) => new KillCommand(parameters, ui) },
         };
 
         public static List<string> getAllCommands() {

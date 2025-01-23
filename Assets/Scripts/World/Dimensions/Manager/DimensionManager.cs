@@ -7,6 +7,7 @@ using Chunks.Systems;
 using Entities.Mobs;
 using System.Threading.Tasks;
 using System.IO;
+using System.Numerics;
 using Tiles;
 using Items;
 using Player;
@@ -18,6 +19,8 @@ using UI;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.Rendering;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -106,9 +109,15 @@ namespace Dimensions {
                 Debug.LogError("Could not switch player system");
                 return;
             }
+
+            if (playerWorldData.ContainsKey(player) && newSystem.Equals(playerWorldData[player].closedChunkSystem))
+            {
+                player.transform.position = Vector2.zero;
+                return;
+            }
             newSystem.initalizeMiscObjects(miscObjects);
 
-            activeSystems[newSystem] = systemPosition;
+            
             if (playerWorldData.ContainsKey(player)) {
                 ClosedChunkSystem previousSystem = playerWorldData[player].closedChunkSystem;
                 playerWorldData[player].closedChunkSystem = newSystem;
@@ -124,11 +133,11 @@ namespace Dimensions {
                     if (systemEmpty) {
                         previousSystem.deactivateAllPartitions();
                         GameObject.Destroy(previousSystem.gameObject);
-                        
                     }
                 }
             }
-            Vector2Int systemOffset = activeSystems[newSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
+            activeSystems[newSystem] = systemPosition;
+            Vector2Int systemOffset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
             playerWorldData[player].chunkPos = null;
             playerWorldData[player].partitionPos = null;
             BackgroundImageController.Instance?.setOffset(new Vector2(
