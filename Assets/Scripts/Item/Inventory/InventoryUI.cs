@@ -166,10 +166,10 @@ namespace Items.Inventory {
         }
         
         public ItemSlot GetItemSlot(int index) {
-            if (index < 0 || index >= inventory.Count) {
+            if (index < 0 || index >= inventory?.Count) {
                 return null;
             }
-            return inventory[index];
+            return inventory?[index];
         }
         
         public void RefreshSlots() {

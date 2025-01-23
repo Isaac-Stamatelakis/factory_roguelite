@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -21,25 +22,47 @@ namespace Items.Tags {
         FluidFilter,
         EncodedRecipe,
         StorageDrive,
-        RobotData
+        RobotData,
+        CaveData
     }   
     public static class ItemTagExtension {
+        private static readonly Dictionary<ItemTag, Func<object, string>> serializationFunctions = new()
+        {
+            { ItemTag.FluidContainer, serializeFluidContainer },
+            { ItemTag.EnergyContainer, serializeEnergyContainer },
+            { ItemTag.CompactMachine, serializeCompactMachineTag },
+            { ItemTag.StorageDrive, serializeStorageDriver },
+            { ItemTag.EncodedRecipe, seralizeEncodedRecipe },
+            { ItemTag.RobotData, seralizeRobot },
+            { ItemTag.CaveData, SerializeCaveData}
+        };
+        
+        private static readonly Dictionary<ItemTag, Func<string, object>> deserializationMap = new()
+        {
+            { ItemTag.FluidContainer, data => ItemSlotFactory.deseralizeItemSlotFromString(data) },
+            { ItemTag.EnergyContainer, data => JsonConvert.DeserializeObject<int>(data) },
+            { ItemTag.CompactMachine, data => data }, // If no deserialization is needed, return data as-is
+            { ItemTag.StorageDrive, data => ItemSlotFactory.Deserialize(data) },
+            { ItemTag.EncodedRecipe, data => EncodedRecipeFactory.deseralize(data) },
+            { ItemTag.RobotData, data => RobotDataFactory.Deserialize(data) },
+            { ItemTag.CaveData, data => data}
+        };
         public static string serialize(this ItemTag tag, ItemTagCollection tagCollection) {
             if (!tagCollection.Dict.ContainsKey(tag)) {
                 Debug.LogError("Attempted to Deserialize " + tag + " which was not in TagCollection");
                 return null;
             }
+
+            if (!serializationFunctions.ContainsKey(tag))
+            {
+                Debug.LogWarning($"Attempted to deserialize tag '{tag}' with no deserialization function");
+                return null;
+            }
             
             object tagData = tagCollection.Dict[tag];
-            return tag switch {
-                ItemTag.FluidContainer => serializeFluidContainer(tagData),
-                ItemTag.EnergyContainer => serializeEnergyContainer(tagData),
-                ItemTag.CompactMachine => serializeCompactMachineTag(tagData),
-                ItemTag.StorageDrive => serializeStorageDriver(tagData),
-                ItemTag.EncodedRecipe => seralizeEncodedRecipe(tagData),
-                ItemTag.RobotData => seralizeRobot(tagData),
-                _ => serializeDefaultSwitchCase(tag)
-            };
+            if (tagData == null) return null;
+            
+            return serializationFunctions[tag].Invoke(tagData);
         }
 
         private static string serializeDefaultSwitchCase(ItemTag tag) {
@@ -51,21 +74,11 @@ namespace Items.Tags {
             Debug.LogError(tag + " had invalid type in dict");
         }
         private static string serializeFluidContainer(object tagData) {
-            if (tagData == null) {
-                return null;
-            }
-            if (tagData is not ItemSlot fluidItem) {
-                logInvalidType(ItemTag.FluidContainer);
-                return null;
-            }
-            return ItemSlotFactory.seralizeItemSlot(fluidItem);
+            return ItemSlotFactory.seralizeItemSlot(tagData as ItemSlot);
         }
-        private static string serializeEnergyContainer(object tagData) {
-            if (tagData is not int energy) {
-                logInvalidType(ItemTag.EnergyContainer);
-                return null;
-            }
-            return JsonConvert.SerializeObject(energy);
+        private static string serializeEnergyContainer(object tagData)
+        {
+            return tagData is not int energy ? null : JsonConvert.SerializeObject(energy);
         }
 
         private static string serializeCompactMachineTag(object tagData) {
@@ -74,6 +87,11 @@ namespace Items.Tags {
                 return null;
             }
             return id;
+        }
+
+        private static string SerializeCaveData(object tagData)
+        {
+            return tagData as string;
         }
 
         private static string serializeStorageDriver(object tagData) {
@@ -85,20 +103,10 @@ namespace Items.Tags {
         }
 
         private static string seralizeRobot(object tagData) {
-            if (tagData == null) {
-                return null;
-            }
-            if (tagData is not RobotItemData robotItemData) {
-                logInvalidType(ItemTag.RobotData);
-                return null;
-            }
-            return RobotDataFactory.Serialize(robotItemData);
+            return RobotDataFactory.Serialize(tagData as RobotItemData);
         }
 
         private static string seralizeEncodedRecipe(object tagData) {
-            if (tagData == null) {
-                return null;
-            }
             if (tagData is not EncodedRecipe encodedRecipe) {
                 logInvalidType(ItemTag.EncodedRecipe);
                 return null;
@@ -174,33 +182,29 @@ namespace Items.Tags {
             if (data == null) {
                 return null;
             }
-            return tag switch  {
-                ItemTag.FluidContainer => ItemSlotFactory.deseralizeItemSlotFromString(data),
-                ItemTag.EnergyContainer => JsonConvert.DeserializeObject<int>(data),
-                ItemTag.CompactMachine => data,
-                ItemTag.StorageDrive => ItemSlotFactory.Deserialize(data),
-                ItemTag.EncodedRecipe => EncodedRecipeFactory.deseralize(data),
-                ItemTag.RobotData => RobotDataFactory.Deserialize(data),
-                _ => deserializeDefaultSwitchCase(tag)
-            };
+
+            if (!deserializationMap.ContainsKey(tag))
+            {
+                Debug.LogError("ItemTagExtension method 'Deserialize' did not cover case for " + tag);
+                return null;
+            }
+
+            return deserializationMap[tag].Invoke(data);
         }
 
         public static object copyData(this ItemTag tag, object data) {
             if (data == null) {
                 return null;
             }
+            // ? This is probably supposed to create deep copies
             return tag switch  {
                 ItemTag.FluidContainer => data,
                 ItemTag.EnergyContainer => data,
                 ItemTag.CompactMachine => data,
                 ItemTag.StorageDrive => data,
                 ItemTag.EncodedRecipe => data,
-                _ => deserializeDefaultSwitchCase(tag)
+                _ => data
             };
-        }
-        private static object deserializeDefaultSwitchCase(ItemTag tag) {
-            Debug.LogError("ItemTagExtension method 'Deserialize' did not cover case for " + tag);
-            return null;
         }
 
         public static bool isEquivalent(this ItemTag tag, object first, object second) {

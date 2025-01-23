@@ -33,6 +33,7 @@ namespace TileMaps {
         public void addListener(ITileMapListener listener);
         public void setHighlight(bool on);
         public Tilemap GetTilemap();
+        public void Initialize(TileMapType type);
     }
 
     public interface ITileMapListener {
@@ -41,7 +42,8 @@ namespace TileMaps {
     
     public abstract class AbstractIWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
     {
-        public TileMapType type;
+        protected TileMapType type;
+        public TileMapType Type => type;
         protected Tilemap tilemap;
         public Tilemap mTileMap {get{return tilemap;}}
         protected TilemapRenderer tilemapRenderer;
@@ -50,9 +52,10 @@ namespace TileMaps {
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
         private float baseZValue;
-        
 
-        public virtual void Awake() {
+        public virtual void Initialize(TileMapType type)
+        {
+            this.type = type;
             tilemap = gameObject.AddComponent<Tilemap>();
             baseZValue = transform.position.z;
             

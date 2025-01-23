@@ -29,6 +29,7 @@ namespace UI.Chat {
             { "heal", (parameters, ui) => new HealCommand(parameters, ui) },
             { "unknowncommand", (parameters, ui) => new BrainFuckCommand(parameters, ui) },
             { "kill", (parameters, ui) => new KillCommand(parameters, ui) },
+            { "itemtag", (parameters, ui) => new ItemTagCommand(parameters, ui) },
         };
 
         public static List<string> getAllCommands() {

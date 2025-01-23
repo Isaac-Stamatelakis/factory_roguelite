@@ -13,7 +13,7 @@ namespace Chunks.Systems {
         public override void Awake()
         {
             base.Awake();
-            TileMapBundleFactory.loadTileSystemMaps(transform,tileGridMaps);
+            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
         }
         public override void saveOnDestroy()
         {
