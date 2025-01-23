@@ -170,6 +170,7 @@ namespace PlayerModule.Mouse {
         }
 
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 offset) {
+            /*
             if (DevMode.Instance.spawnItem) {
                 ILoadedChunk chunk = GetChunk(mousePosition+offset);
                 if (chunk != null) {
@@ -184,6 +185,7 @@ namespace PlayerModule.Mouse {
                 }
                 return;
             }
+            */
             bool drop = HandleDrop(mousePosition,offset);
             if (drop) {
                 return;
@@ -320,12 +322,8 @@ namespace PlayerModule.Mouse {
             if (ReferenceEquals(closedChunkSystem,null)) {
                 return false;
             }
-            string id;
-            if (DevMode.Instance.placeSelectedID) {
-                id = DevMode.Instance.placeID;
-            } else {
-                id = playerInventory.getSelectedId();
-            }
+
+            string id = playerInventory.getSelectedId();
             if (id == null) {
                 return false;
             }

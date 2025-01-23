@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using TileMaps.Type;
 using Fluids;
 using TileMaps;
 using TileMaps.Conduit;
+using Unity.VisualScripting;
 
 namespace Chunks.Systems {
     public static class TileMapBundleFactory 
@@ -28,31 +30,31 @@ namespace Chunks.Systems {
             };
         }
 
-        public static void loadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+        public static void LoadTileSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.name = "Tiles";
             container.transform.SetParent(systemTransform);
             List<TileMapType> standardMaps = TileMapBundleFactory.getStandardTileTypes();
             foreach (TileMapType tileMapType in standardMaps) {
-                initTileMapContainer(tileMapType,container.transform,tileGridMaps);
+                InitTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
-            initTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
+            InitTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
             
         }
 
-        public static void loadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+        public static void LoadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.name = "Conduits";
             container.transform.SetParent(systemTransform);
-            loadTileSystemMaps(systemTransform,tileGridMaps);
+            LoadTileSystemMaps(systemTransform,tileGridMaps);
             List<TileMapType> conduitMaps = TileMapBundleFactory.getConduitTileTypes();
             foreach (TileMapType tileMapType in conduitMaps) {
-                initTileMapContainer(tileMapType,container.transform,tileGridMaps);
+                InitTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
         }
 
-        private static void initTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
+        private static void InitTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
             container.name = tileType.ToString();
@@ -62,6 +64,14 @@ namespace Chunks.Systems {
             container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(0.5f,0.5f,1f);
+
+            var worldTileMap = CreateTileMap(tileType, container.transform);
+            tileGridMaps[tileType] = worldTileMap;
+            tileGridMaps[tileType].Initialize(tileType);
+        }
+
+        private static IWorldTileMap CreateTileMap(TileMapType tileType, Transform container)
+        {
             if (tileType.isTile()) {
                 WorldTileGridMap worldTileGridMap;
                 if (tileType == TileMapType.Block) {
@@ -71,18 +81,16 @@ namespace Chunks.Systems {
                 } else {
                     worldTileGridMap = container.AddComponent<WorldTileGridMap>();
                 }
+
+                return worldTileGridMap;
                 
-                worldTileGridMap.type = tileType;
-                tileGridMaps[tileType] = worldTileGridMap;
             } else if (tileType.isConduit()) {
-                ConduitTileMap tileGridMap = container.AddComponent<ConduitTileMap>();
-                tileGridMap.type = tileType;
-                tileGridMaps[tileType] = tileGridMap;
+                return container.AddComponent<ConduitTileMap>();
             } else if (tileType.isFluid()) {
-                FluidIWorldTileMap fluidIWorldTileMap = container.AddComponent<FluidIWorldTileMap>();
-                fluidIWorldTileMap.type = TileMapType.Fluid;
-                tileGridMaps[tileType] = fluidIWorldTileMap;
+                return container.AddComponent<FluidIWorldTileMap>();
             }
+
+            throw new ArgumentOutOfRangeException();
         }
     }
 }

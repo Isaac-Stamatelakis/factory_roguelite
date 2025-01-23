@@ -44,7 +44,7 @@ namespace PlayerModule {
             if (worldTileGridMap == null) {
                 return false;
             }
-            return worldTileGridMap.type == TileMapType.Platform;
+            return worldTileGridMap.Type == TileMapType.Platform;
         }
 
         void OnTriggerExit2D(Collider2D other)

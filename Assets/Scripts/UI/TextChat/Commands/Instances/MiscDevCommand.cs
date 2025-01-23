@@ -12,6 +12,7 @@ namespace UI.Chat {
         private const string NO_HIT = "nohit";
         private const string NO_PLACE_COST = "nobreak";
         private const string NO_PLACE_LIMIT = "noplacelimit";
+        private const string NO_ENERGY_COST = "noenergycost";
         public MiscDevCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
         {
         }
@@ -38,6 +39,9 @@ namespace UI.Chat {
                     break;
                 case NO_PLACE_COST:
                     SetState(ref devMode.noPlaceCost, state);
+                    break;
+                case NO_ENERGY_COST:
+                    SetState(ref devMode.NoEnergyCost, state);
                     break;
             }
         }
@@ -66,6 +70,7 @@ namespace UI.Chat {
                 NO_HIT,
                 NO_PLACE_LIMIT,
                 NO_PLACE_LIMIT,
+                NO_ENERGY_COST
             };
         }
     }

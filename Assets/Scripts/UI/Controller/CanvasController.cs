@@ -119,6 +119,11 @@ namespace UI
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
         }
+        
+        public void DisplayOnParentCanvas(GameObject displayObject)
+        {
+            displayObject.transform.SetParent(transform.parent, false);
+        }
     }
 
     public class DisplayedUIInfo

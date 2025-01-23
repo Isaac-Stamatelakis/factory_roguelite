@@ -33,6 +33,7 @@ namespace TileMaps {
         public void addListener(ITileMapListener listener);
         public void setHighlight(bool on);
         public Tilemap GetTilemap();
+        public void Initialize(TileMapType type);
     }
 
     public interface ITileMapListener {
@@ -41,20 +42,23 @@ namespace TileMaps {
     
     public abstract class AbstractIWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
     {
-        public TileMapType type;
+        protected TileMapType type;
+        public TileMapType Type => type;
         protected Tilemap tilemap;
         public Tilemap mTileMap {get{return tilemap;}}
         protected TilemapRenderer tilemapRenderer;
         protected TilemapCollider2D tilemapCollider;
-        protected HashSet<Vector2Int> partitions;
+        protected HashSet<Vector2Int> partitions = new HashSet<Vector2Int>();
         protected ClosedChunkSystem closedChunkSystem;
         private List<ITileMapListener> listeners = new List<ITileMapListener>();
         private float baseZValue;
 
-        public virtual void Start() {
+        public virtual void Initialize(TileMapType type)
+        {
+            this.type = type;
             tilemap = gameObject.AddComponent<Tilemap>();
             baseZValue = transform.position.z;
-            partitions = new HashSet<Vector2Int>();
+            
             tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
@@ -138,7 +142,7 @@ namespace TileMaps {
         }
 
         protected abstract void SetTile(int x, int y,TItem item);
-        protected Vector2Int GetChunkPosition(Vector2Int position) {
+        public static Vector2Int GetChunkPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
             return new Vector2Int(Mathf.FloorToInt(x/(Global.ChunkSize)), Mathf.FloorToInt(y/(Global.ChunkSize)));

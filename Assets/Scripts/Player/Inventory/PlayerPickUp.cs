@@ -13,7 +13,8 @@ namespace Player.Inventory
     /// </summary>
     public class PlayerPickUp : MonoBehaviour
     {
-        private const float MINIMUM_PICKUP_TIME = 1f;
+        private const float MINIMUM_PICKUP_TIME = 0.5f;
+        public bool CanPickUp = true;
         
         private List<ItemEntity> collidedItemEntities = new List<ItemEntity>();
         public void Start()
@@ -47,7 +48,7 @@ namespace Player.Inventory
             if (TryInsert(itemEntity)) return;
             collidedItemEntities.Add(itemEntity);
             
-            if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME)
+            if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME && CanPickUp)
             {
                 StartCoroutine(DelayedPickup(itemEntity, MINIMUM_PICKUP_TIME - itemEntity.LifeTime));
             }
@@ -63,6 +64,7 @@ namespace Player.Inventory
 
         private bool TryInsert(ItemEntity itemEntity)
         {
+            if (!CanPickUp) return false;
             while (true)
             {
                 if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) return false;

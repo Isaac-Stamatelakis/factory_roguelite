@@ -7,6 +7,7 @@ using Chunks.Systems;
 using Entities.Mobs;
 using System.Threading.Tasks;
 using System.IO;
+using System.Numerics;
 using Tiles;
 using Items;
 using Player;
@@ -18,6 +19,8 @@ using UI;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.Rendering;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Dimensions {
     public interface ICompactMachineDimManager {
@@ -106,9 +109,16 @@ namespace Dimensions {
                 Debug.LogError("Could not switch player system");
                 return;
             }
+            player.GetComponent<PlayerRobot>().TemporarilyPausePlayer();
+            
+            if (playerWorldData.ContainsKey(player) && newSystem.Equals(playerWorldData[player].closedChunkSystem))
+            {
+                player.transform.position = Vector2.zero;
+                return;
+            }
             newSystem.initalizeMiscObjects(miscObjects);
 
-            activeSystems[newSystem] = systemPosition;
+            
             if (playerWorldData.ContainsKey(player)) {
                 ClosedChunkSystem previousSystem = playerWorldData[player].closedChunkSystem;
                 playerWorldData[player].closedChunkSystem = newSystem;
@@ -124,11 +134,11 @@ namespace Dimensions {
                     if (systemEmpty) {
                         previousSystem.deactivateAllPartitions();
                         GameObject.Destroy(previousSystem.gameObject);
-                        
                     }
                 }
             }
-            Vector2Int systemOffset = activeSystems[newSystem]*DimensionUtils.ACTIVE_SYSTEM_SIZE;
+            activeSystems[newSystem] = systemPosition;
+            Vector2Int systemOffset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
             playerWorldData[player].chunkPos = null;
             playerWorldData[player].partitionPos = null;
             BackgroundImageController.Instance?.setOffset(new Vector2(
@@ -137,13 +147,24 @@ namespace Dimensions {
             ));
             
             Vector2Int tpPosition = (teleportPosition-systemOffset);
-            Vector3 playerPosition = player.transform.position;
+            Vector3 playerPosition = player.position;
             playerPosition.x = tpPosition.x/2f;
             playerPosition.y = tpPosition.y/2f;
             player.transform.position = playerPosition;
+            
             CanvasController.Instance.ClearStack();
+            
             newSystem.instantCacheChunksNearPlayer();
-            newSystem.playerPartitionUpdate();
+            newSystem.PlayerPartitionUpdate();
+            
+            
+        }
+
+        private IEnumerator UnFreezePlayer(Rigidbody2D rb)
+        {
+            yield return new WaitForSeconds(0.25f);
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            
         }
         
         protected Vector2Int GetNextSystemPosition() {

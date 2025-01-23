@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Chunks.Partitions;
 using Items;
+using TileMaps.Type;
 using UnityEngine;
 using Tiles;
 using UnityEngine.Tilemaps;
@@ -10,9 +11,9 @@ namespace TileMaps {
     public class OutlineWorldTileGridMap : WorldTileGridMap
     {
         private Tilemap outlineTileMap;
-        public override void Start()
+        public override void Initialize(TileMapType tileMapType)
         {
-            base.Start();
+            base.Initialize(tileMapType);
             GameObject outline = new GameObject();
             outline.name = "Outline";
             outline.AddComponent<TilemapRenderer>();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -47,7 +48,13 @@ namespace Chunks.Systems {
         private bool isQuitting;
         private LoadedPartitionBoundary loadedPartitionBoundary;
         protected Vector2Int dimPositionOffset;
+        private Camera mainCamera;
         public virtual void Awake () {
+            mainCamera = Camera.main;
+        }
+
+        public void Start()
+        {
             
         }
 
@@ -154,17 +161,22 @@ namespace Chunks.Systems {
             return coveredArea * (Global.ChunkSize/2);
         }
         
-        public abstract void playerChunkUpdate(); 
+        public abstract void playerChunkUpdate();
 
-        public virtual void playerPartitionUpdate() {
-            Vector2Int playerChunkPosition = getPlayerChunk();
-            Camera camera = Camera.main;
-            Vector2Int pos = new Vector2Int(
-                Mathf.FloorToInt(camera.transform.position.x / (Global.ChunkPartitionSize >> 1)),
-                Mathf.FloorToInt(camera.transform.position.y / (Global.ChunkPartitionSize>>1))
+
+        private Vector2Int GetCurrentPartitionPosition()
+        {
+            return new Vector2Int(
+                Mathf.FloorToInt(mainCamera.transform.position.x / (Global.ChunkPartitionSize >> 1)),
+                Mathf.FloorToInt(mainCamera.transform.position.y / (Global.ChunkPartitionSize>>1))
             );
+        }
+        
+        public virtual void PlayerPartitionUpdate() {
+            Vector2Int playerChunkPosition = getPlayerChunk();
+            
             Vector2Int last = currentPlayerPartition;
-            currentPlayerPartition = pos + DimPositionOffset/Global.ChunkPartitionSize;
+            currentPlayerPartition = GetCurrentPartitionPosition();
             playerPartitionChangeDifference = currentPlayerPartition - last;
             int unloadRangeX = Global.ChunkLoadRangeX;
             int unloadRangeY = Global.ChunkLoadRangeY;
@@ -265,7 +277,6 @@ namespace Chunks.Systems {
             loadedPartitionBoundary.partitionLoaded(chunkPartition.GetRealPosition());
             yield return chunkPartition.Load(tileGridMaps,direction,DimPositionOffset);
             chunkPartition.SetTileLoaded(true);
-            
         }
 
         public void cacheChunk(Vector2Int chunkPosition) {
@@ -279,6 +290,7 @@ namespace Chunks.Systems {
                 cacheChunk(pos);
             }
         }
+        
         public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.UnloadEntities();
             loadedPartitionBoundary.partitionUnloaded(chunkPartition.GetRealPosition());

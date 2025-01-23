@@ -31,7 +31,7 @@ namespace Chunks.Systems {
         public override void Awake()
         {
             base.Awake();
-            TileMapBundleFactory.loadConduitSystemMaps(transform,tileGridMaps);
+            TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
         }
 
 

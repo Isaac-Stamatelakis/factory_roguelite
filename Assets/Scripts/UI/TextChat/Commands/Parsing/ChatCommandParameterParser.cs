@@ -61,7 +61,7 @@ namespace UI.Chat {
             }
         }
         
-        public static float ParseFloat(string[] parameters, int index, string parameterName, float? baseValue, float lowerBound = float.MinValue, float upperBound = float.MaxValue) {
+        public static float ParseFloat(string[] parameters, int index, string parameterName, float? baseValue = null, float lowerBound = float.MinValue, float upperBound = float.MaxValue) {
             
             string parameter = parseParameter(parameters,index,parameterName);
             try {

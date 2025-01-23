@@ -19,11 +19,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
 
         }
-        public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,Vector2Int systemOffset)
+        public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,
+            Vector2Int systemOffset)
         {
-            if (tileEntities == null) {
-                tileEntities = new ITileEntityInstance[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            }
+            tileEntities ??= new ITileEntityInstance[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction,systemOffset);
             if (parent is ILoadedChunk loadedChunk) {

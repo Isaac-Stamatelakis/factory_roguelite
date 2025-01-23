@@ -192,7 +192,7 @@ namespace UI.Chat {
             }
             catch (IndexOutOfRangeException)
             {
-                if (printErrors) sendMessage("<color=red>Invalid parameter format</color>");
+                sendMessage($"<color=red>Command '{commandToken.Command}' has an invalid parameter format. Please check the format and try again. Type /help {commandToken.Command} for the correct usage.</color>");
             }
             catch (Exception e) when (e is ChatParseException or FormatException or OverflowException)
             {

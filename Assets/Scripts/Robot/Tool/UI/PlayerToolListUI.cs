@@ -25,6 +25,7 @@ public class PlayerToolListUI : MonoBehaviour
     public void Initialize(List<IRobotToolInstance> tools)
     {
         this.tools = tools;
+        Display();
     }
     public void Display()
     {

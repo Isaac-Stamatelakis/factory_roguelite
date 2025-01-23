@@ -26,7 +26,7 @@ namespace Chunks.Systems {
 
         protected IEnumerator initalLoad() {
             yield return StartCoroutine(initalLoadChunks());
-            playerPartitionUpdate();
+            PlayerPartitionUpdate();
             Debug.Log("Partitions Near Player Loaded");
             yield return new WaitForSeconds(1f);
             Debug.Log("Player Activated");

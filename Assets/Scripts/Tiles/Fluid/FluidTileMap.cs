@@ -13,10 +13,6 @@ namespace Fluids {
         private Dictionary<Vector2Int,ActiveFluidPartitionData> partitionFluidData = new Dictionary<Vector2Int, ActiveFluidPartitionData>();
         private Dictionary<Vector2Int, int> fluidUpdates = new Dictionary<Vector2Int, int>();
         private Dictionary<Vector2Int, float> updateFills = new Dictionary<Vector2Int, float>();
-        public override void Start()
-        {
-            base.Start();
-        }
         public override void hitTile(Vector2 position)
         {
             

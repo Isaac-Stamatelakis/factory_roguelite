@@ -80,7 +80,7 @@ namespace TileEntity.Instances.Machine.UI
         }
         public void FixedUpdate()
         {
-            return;
+            
             solidInputUI?.RefreshSlots();
             solidOutputUI?.RefreshSlots();
             fluidInputUI?.RefreshSlots();
