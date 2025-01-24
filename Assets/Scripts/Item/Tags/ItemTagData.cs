@@ -51,6 +51,16 @@ namespace Items.Tags {
         {
             return base.ToString();
         }
+
+        public bool HasTags(HashSet<ItemTag> tags)
+        {
+            foreach (ItemTag tag in tags)
+            {
+                if (tagData.ContainsKey(tag)) return true;
+            }
+
+            return false;
+        }
     }
 }
 

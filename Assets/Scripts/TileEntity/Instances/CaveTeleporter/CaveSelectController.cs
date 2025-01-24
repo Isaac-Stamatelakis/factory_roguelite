@@ -21,12 +21,8 @@ namespace TileEntity.Instances {
         public Button teleportButton;
         private Cave currentCave;
         private CaveInstance caveInstance;
-        public void display(CaveTeleporterInstance tileEntityInstance)
-        {
-            
-        }
-
-        public void showCave(Cave cave) {
+        
+        public void ShowCave(Cave cave) {
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(() => {
                 StartCoroutine(teleportButtonPress());
@@ -37,7 +33,7 @@ namespace TileEntity.Instances {
             descriptionText.text = cave.Description;
         }
 
-        public void showDefault() {
+        public void ShowDefault() {
             nameText.text = "";
             descriptionText.text = "Click on a cave to view";
             teleportButton.gameObject.SetActive(false);
@@ -48,10 +44,10 @@ namespace TileEntity.Instances {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
             }
-            yield return StartCoroutine(loadCave(currentCave,generateAndTeleportToCave));
+            yield return StartCoroutine(loadCave(currentCave,GenerateAndTeleportToCave));
         }
 
-        public IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
+        public static IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
             CaveElements caveElements = new CaveElements();
             Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
             if (cave.generationModel == null) {
@@ -122,7 +118,7 @@ namespace TileEntity.Instances {
         }
         public delegate void CaveCallback(CaveInstance caveInstance);
 
-        public void generateAndTeleportToCave(CaveInstance caveInstance) {
+        public void GenerateAndTeleportToCave(CaveInstance caveInstance) {
             if (WorldLoadUtils.DimExists(-1)) {
                 string path = WorldLoadUtils.GetDimPath(-1);
                 Directory.Delete(path, true);

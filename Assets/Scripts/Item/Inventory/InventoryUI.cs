@@ -8,20 +8,31 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Items;
+using Items.Tags;
 
 namespace Items.Inventory {
     public enum InventoryInteractMode
     {
         Standard,
         Recipe,
-        UnInteractable
+        UnInteractable,
+        BlockInput
+        
     }
     public interface IInventoryListener
     {
         public void InventoryUpdate(int n);
     }
+
+    public enum InventoryRestrictionMode
+    {
+        None,
+        WhiteList,
+        BlackList
+    }
     public class InventoryUI : MonoBehaviour
     {
+        
         [SerializeField] private ItemSlotUI itemSlotUIPrefab;
         protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;
@@ -30,7 +41,12 @@ namespace Items.Inventory {
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
         private InventoryUI connection;
+        private HashSet<ItemTag> tagRestrictions = new HashSet<ItemTag>();
         public InventoryUI Connection => connection;
+        private InventoryRestrictionMode restrictionMode;
+        public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
+        private bool enableToolTip = true;
+        public bool EnableToolTip => enableToolTip;
         
         public void Awake()
         {
@@ -221,6 +237,46 @@ namespace Items.Inventory {
             highlightedSlot = n;
             slots[highlightedSlot].GetComponent<Image>().color = new Color(255/255f,215/255f,0,100/255f);
         }
+
+        public void AddRestriction(ItemTag itemTag)
+        {
+            tagRestrictions.Add(itemTag);
+        }
+
+        public void RemoveRestriction(ItemTag itemTag)
+        {
+            tagRestrictions.Remove(itemTag);
+        }
+
+        public void SetRestrictionMode(InventoryRestrictionMode inventoryRestrictionMode)
+        {
+            this.restrictionMode = inventoryRestrictionMode;
+        }
+
+        public bool ValidateItemSlot(ItemSlot itemSlot)
+        {
+            if (restrictionMode == InventoryRestrictionMode.None) return true;
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return false;
+            
+            switch (restrictionMode)
+            {
+                case InventoryRestrictionMode.WhiteList:
+                    return PassWhiteList(itemSlot);
+                case InventoryRestrictionMode.BlackList:
+                    return !PassWhiteList(itemSlot);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private bool PassWhiteList(ItemSlot itemSlot)
+        {
+            
+            return itemSlot.itemObject.CanApplyTags(tagRestrictions) || (itemSlot.tags != null && itemSlot.tags.HasTags(tagRestrictions));
+        }
+        
+        
+        
     }
 
 }

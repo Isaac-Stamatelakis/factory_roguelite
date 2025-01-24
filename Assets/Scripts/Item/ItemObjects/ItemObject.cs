@@ -23,6 +23,15 @@ namespace Items {
         {
             return ApplyableTags.Contains(tag);
         }
+        public bool CanApplyTags(HashSet<ItemTag> tags)
+        {
+            foreach (ItemTag tag in tags)
+            {
+                if (CanApplyTag(tag)) return true;
+            }
+
+            return false;
+        }
         public abstract Sprite[] getSprites();
         public abstract Sprite getSprite();
         public abstract ItemDisplayType? getDisplayType();

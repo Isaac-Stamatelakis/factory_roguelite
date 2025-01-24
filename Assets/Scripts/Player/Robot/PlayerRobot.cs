@@ -31,6 +31,7 @@ namespace Player {
 
         [SerializeField] private BoxCollider2D feetBoxCollider;
         [SerializeField] private CapsuleCollider2D feetCapsuleCollider;
+   
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
@@ -82,10 +83,12 @@ namespace Player {
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
             
+            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
+                rb.gravityScale = onGround && !directionalInput ? 0 : defaultGravityScale;
             }
             
             if (PlayerKeyPressUtils.BlockKeyInput) return;
@@ -97,10 +100,8 @@ namespace Player {
             }
             
             
-        
-            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
             feetBoxCollider.enabled = !directionalInput;
-            feetCapsuleCollider.enabled = directionalInput;
+            feetCapsuleCollider.enabled = onGround && directionalInput;
             
             currentRobot?.handleMovement(transform);
         }
