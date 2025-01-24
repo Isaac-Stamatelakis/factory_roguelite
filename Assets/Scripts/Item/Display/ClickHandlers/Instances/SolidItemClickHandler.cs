@@ -54,13 +54,16 @@ namespace Item.Inventory.ClickHandlers.Instances
             inventoryUI.DisplayItem(index);
         }
 
-        protected override void LeftClick() {
+        protected override void LeftClick()
+        {
+            
             var inventory = inventoryUI.GetInventory();
             inventoryUI.CallListeners(index);
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot inventorySlot = inventory[index];
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
             if (grabbedSlot == null) {
+                if (inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return;
                 inventory[index] = null;
                 grabbedItemProperties.SetItemSlot(inventorySlot);
                 inventoryUI.DisplayItem(index);

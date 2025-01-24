@@ -30,6 +30,7 @@ namespace Item.Display.ClickHandlers
             switch (inventoryUI.InventoryInteractMode)
             {
                 case InventoryInteractMode.Standard:
+                case InventoryInteractMode.BlockInput:
                     StandardClick(eventData);
                     break;
                 case InventoryInteractMode.Recipe:

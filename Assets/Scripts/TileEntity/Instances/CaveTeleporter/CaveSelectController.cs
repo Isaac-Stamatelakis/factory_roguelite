@@ -19,10 +19,15 @@ namespace TileEntity.Instances {
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
+        public TextMeshProUGUI mNoSelectText;
         private Cave currentCave;
+        public Cave CurrentCave => currentCave;
         private CaveInstance caveInstance;
         
-        public void ShowCave(Cave cave) {
+        public void ShowCave(Cave cave)
+        {
+            teleportButton.interactable = true;
+            mNoSelectText.gameObject.SetActive(false);
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(() => {
                 StartCoroutine(teleportButtonPress());
@@ -33,11 +38,14 @@ namespace TileEntity.Instances {
             descriptionText.text = cave.Description;
         }
 
-        public void ShowDefault() {
+        public void DisplayEmpty()
+        {
+            mNoSelectText.gameObject.SetActive(true);
             nameText.text = "";
-            descriptionText.text = "Click on a cave to view";
-            teleportButton.gameObject.SetActive(false);
+            descriptionText.text = "";
+            teleportButton.interactable = false;
         }
+        
 
         private IEnumerator teleportButtonPress() {
             if (currentCave == null) {

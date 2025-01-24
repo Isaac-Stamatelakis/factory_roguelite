@@ -30,6 +30,8 @@ namespace TileEntity.Instances.Machine.UI
             InitializeInventoryUI(solidOutputUI, machineItemInventory.itemOutputs,layoutObject?.SolidOutputs);
             InitializeInventoryUI(fluidInputUI, machineItemInventory.fluidInputs,layoutObject?.FluidInputs);
             InitializeInventoryUI(fluidOutputUI, machineItemInventory.fluidOutputs,layoutObject?.FluidOutputs);
+            if (solidOutputUI) solidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
+            if (fluidOutputUI) fluidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)
