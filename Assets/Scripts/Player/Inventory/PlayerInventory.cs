@@ -146,9 +146,11 @@ namespace PlayerModule {
                 Refresh();
                 return;
             }
-            IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getCellPositionFromWorld(transform.position));
+            
+            IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getChunkFromWorld(transform.position));
             if (chunk is not ILoadedChunk loadedChunk) return;
-            ItemEntityHelper.spawnItemEntity(transform.position,itemSlot,loadedChunk.getEntityContainer());
+            
+            ItemEntityHelper.spawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
         }
 
         public void DropAll()
@@ -185,7 +187,7 @@ namespace PlayerModule {
 
         public void InventoryUpdate(int n)
         {
-            playerPickUp.TryPickUpAllCollided();
+            
         }
 
         public void hideUI() {

@@ -15,78 +15,49 @@ namespace Player.Inventory
     {
         private const float MINIMUM_PICKUP_TIME = 0.5f;
         public bool CanPickUp = true;
-        
-        private List<ItemEntity> collidedItemEntities = new List<ItemEntity>();
+        private int entityLayer;
+        private RaycastHit2D[] hits;
+        private int currentIndex = -1;
+        private const int MAX_ATTEMPTS_PER_UPDATE = 10;
+       
         public void Start()
         {
+            entityLayer = 1 << LayerMask.NameToLayer("Entity");
             playerInventory = gameObject.GetComponentInParent<PlayerInventory>();
         }
 
         private PlayerInventory playerInventory;
-        
-        /// <summary>
-        /// Tries to insert all items the player is currently collided into the players inventory.
-        /// Items collided with first are tried first
-        /// This is called whenever the player inventory has an update event
-        /// </summary>
-        public void TryPickUpAllCollided()
+
+        public void FixedUpdate()
         {
-            for (int i = collidedItemEntities.Count - 1; i >= 0; i--)
+            if (!CanPickUp) return;
+            if (currentIndex < 0 || currentIndex >= hits.Length)
             {
-                bool destroyed = TryInsert(collidedItemEntities[i]);
-                if (!destroyed) continue;
-                collidedItemEntities.RemoveAt(i);
-                i--;
+                hits = Physics2D.CircleCastAll(transform.position, 0.5f,Vector2.zero, 0.25f, entityLayer);
+                currentIndex = 0;
             }
-        }
-
-        public void OnTriggerEnter2D(Collider2D other)
-        {
-            if (other.gameObject.tag != "ItemEntity") return;
-            ItemEntity itemEntity = other.GetComponent<ItemEntity>();
             
-            if (TryInsert(itemEntity)) return;
-            collidedItemEntities.Add(itemEntity);
             
-            if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME && CanPickUp)
+            for (int i = 0; i < MAX_ATTEMPTS_PER_UPDATE; i++)
             {
-                StartCoroutine(DelayedPickup(itemEntity, MINIMUM_PICKUP_TIME - itemEntity.LifeTime));
+                if (currentIndex >= hits.Length) break;
+                if (hits[currentIndex].collider.gameObject.tag != "ItemEntity") continue;
+                ItemEntity itemEntity = hits[currentIndex].transform.GetComponent<ItemEntity>();
+                currentIndex++;
+                
+                if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) continue;
+                while (true)
+                {
+                    bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MaxSize);
+                    if (!inserted) break;
+                    if (!ItemSlotUtils.IsItemSlotNull(itemEntity.itemSlot)) continue;
+
+                    GameObject.Destroy(itemEntity.gameObject);
+                    playerInventory.Refresh();
+                    break;
+                }
             }
-        }
-        
-        public void OnTriggerExit2D(Collider2D other)
-        {
-            if (other.gameObject.tag != "ItemEntity") return;
-            ItemEntity itemEntity = other.GetComponent<ItemEntity>();
-            if (collidedItemEntities.Remove(itemEntity)) TryInsert(itemEntity);
-        }
-
-
-        private bool TryInsert(ItemEntity itemEntity)
-        {
-            if (!CanPickUp) return false;
-            while (true)
-            {
-                if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) return false;
-
-                bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MaxSize);
-                if (!inserted) return false;
-                if (!ItemSlotUtils.IsItemSlotNull(itemEntity.itemSlot)) continue;
-
-                GameObject.Destroy(itemEntity.gameObject);
-                playerInventory.Refresh();
-
-                return true;
-            }
-        }
-
-        private IEnumerator DelayedPickup(ItemEntity itemEntity, float delay)
-        {
-            yield return new WaitForSeconds(delay + 0.05f);
             
-            if (!collidedItemEntities.Contains(itemEntity)) yield break;
-            
-            if (TryInsert(itemEntity)) collidedItemEntities.Remove(itemEntity);
         }
     }
 }

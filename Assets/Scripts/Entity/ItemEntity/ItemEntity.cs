@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 namespace Entities {
     public class ItemEntity : Entity, ISerializableEntity
     {
+        public bool CollidedWithPlayer;
         private const float MIN_MERGE_TIME = 1f;
         private bool firedDelayedCast = false;
         [SerializeField] public ItemSlot itemSlot;

@@ -24,6 +24,7 @@ using UnityEngine.EventSystems;
 namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
+        [SerializeField] private float speed = 50;
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -31,6 +32,7 @@ namespace Player {
 
         [SerializeField] private BoxCollider2D feetBoxCollider;
         [SerializeField] private CapsuleCollider2D feetCapsuleCollider;
+        
    
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
@@ -64,6 +66,53 @@ namespace Player {
         public void Update()
         {
             mPlayerRobotUI.Display(robotData,currentRobot);
+            MoveUpdate();
+        }
+
+        private void MoveUpdate()
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            
+            if (DevMode.Instance.flight)
+            {
+                FlightMovementUpdate(transform);
+                return;
+            }
+            
+            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            feetBoxCollider.enabled = !directionalInput;
+            feetCapsuleCollider.enabled = onGround && directionalInput;
+
+            StandardMoveUpdate();
+        }
+
+        private void StandardMoveUpdate()
+        {
+            Vector2 velocity = Vector2.zero;
+            velocity.y = rb.velocity.y;
+            float realTimeSpeed = speed * Time.deltaTime;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+                //rb.AddForce(Vector2.left * realTimeSpeed, ForceMode2D.Force);
+                velocity.x = -speed;
+                spriteRenderer.flipX = true;
+            }
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+                velocity.x = +speed;
+                //rb.AddForce(Vector2.right * realTimeSpeed, ForceMode2D.Force);
+                spriteRenderer.flipX = false;
+            }
+            if (onGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
+                if (Input.GetKey(KeyCode.S)) {
+                    noCollisionWithPlatformCounter=5;
+                } else {
+                    velocity.y = 12f;
+                }
+                onGround = false;
+            }
+            
+            
+            
+            rb.velocity = velocity;
         }
 
         public void FixedUpdate()
@@ -90,21 +139,8 @@ namespace Player {
                 ClampFallSpeed();
                 rb.gravityScale = onGround && !directionalInput ? 0 : defaultGravityScale;
             }
-            
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
-            
-            if (DevMode.Instance.flight)
-            {
-                FlightMovementUpdate(transform);
-                return;
-            }
-            
-            
-            feetBoxCollider.enabled = !directionalInput;
-            feetCapsuleCollider.enabled = onGround && directionalInput;
-            
-            currentRobot?.handleMovement(transform);
         }
+        
 
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
@@ -189,9 +225,8 @@ namespace Player {
 
         private void FlightMovementUpdate(Transform playerTransform)
         {
-            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
             Vector3 position = playerTransform.position;
-            float speed = DevMode.Instance.FlightSpeed;
+            float speed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 position.x -= speed;
                 spriteRenderer.flipX = true;

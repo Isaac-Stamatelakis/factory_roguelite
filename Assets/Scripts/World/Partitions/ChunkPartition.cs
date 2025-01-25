@@ -152,15 +152,14 @@ namespace Chunks.Partitions {
                 Mathf.Infinity, 
                 1 << LayerMask.NameToLayer("Entity")
             );
-            List<SeralizedEntityData> entityData = new List<SeralizedEntityData>();
+            data.entityData ??= new List<SeralizedEntityData>();
             foreach (RaycastHit2D hit in hits) {
                 Entity entity = hit.collider.gameObject.GetComponent<Entity>();
                 if (entity is ISerializableEntity serializableEntity) {
-                    entityData.Add(serializableEntity.serialize());
+                    data.entityData.Add(serializableEntity.serialize());
                 }
                 GameObject.Destroy(hit.collider.gameObject);
             }
-            data.entityData = entityData;
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return UnloadTiles(tileGridMaps);

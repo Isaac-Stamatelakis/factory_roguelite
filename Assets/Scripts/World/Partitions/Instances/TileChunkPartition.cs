@@ -25,13 +25,21 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             tileEntities ??= new ITileEntityInstance[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction,systemOffset);
-            if (parent is ILoadedChunk loadedChunk) {
-                foreach (SeralizedEntityData seralizedEntityData in data.entityData) {
-                    EntityUtils.spawnFromData(seralizedEntityData,loadedChunk.getEntityContainer());
+            const int ENTITY_LOAD_PER_UPDATE = 5;
+            if (parent is not ILoadedChunk loadedChunk) yield break;
+            
+            int loads = 0;
+            for (int i = data.entityData.Count - 1; i >= 0; i--)
+            {
+                if (!loaded) yield break;
+                EntityUtils.spawnFromData(data.entityData[i],loadedChunk.getEntityContainer());
+                data.entityData.RemoveAt(i);
+                loads++;
+                if (loads >= ENTITY_LOAD_PER_UPDATE)
+                {
+                    yield return new WaitForFixedUpdate();
                 }
             }
-            data.entityData = new List<SeralizedEntityData>(); // Prevents duplication
-            
         }
         private FluidIWorldTileMap fluidIWorldTileMap;
 
@@ -39,16 +47,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
             Vector2Int position = GetRealPosition();
             SeralizedWorldData data = (SeralizedWorldData) GetData();
-            /*
-            if (tileOptionsArray != null) {
-                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
-                        TileOptions options = tileOptionsArray[x,y];
-                        data.baseData.sTileOptions[x,y] = TileOptionFactory.serialize(options);
-                    }
-                }
-            }
-            */
             if (tileEntities != null) {
                 for (int x = 0; x < Global.ChunkPartitionSize; x++) {
                     for (int y = 0; y < Global.ChunkPartitionSize; y++) {

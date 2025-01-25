@@ -58,7 +58,6 @@ namespace Item.Inventory.ClickHandlers.Instances
         {
             
             var inventory = inventoryUI.GetInventory();
-            inventoryUI.CallListeners(index);
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot inventorySlot = inventory[index];
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
@@ -70,6 +69,8 @@ namespace Item.Inventory.ClickHandlers.Instances
                 inventoryUI.CallListeners(index);
                 return;
             }
+            
+            inventoryUI.CallListeners(index);
             if (ItemSlotUtils.AreEqual(grabbedSlot,inventorySlot)) {
                 // Merge
                 uint sum = inventorySlot.amount + grabbedSlot.amount;
