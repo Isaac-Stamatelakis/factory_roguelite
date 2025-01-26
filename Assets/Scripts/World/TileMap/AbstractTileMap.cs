@@ -187,7 +187,7 @@ namespace TileMaps {
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
             ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(itemObject,amount);
-            ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
         protected ILoadedChunk GetChunk(Vector2Int hitTilePosition) {

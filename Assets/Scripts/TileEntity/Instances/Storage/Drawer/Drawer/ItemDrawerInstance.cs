@@ -82,7 +82,7 @@ namespace TileEntity.Instances.Storage {
             if (itemSlot.amount <= 0) {
                 itemSlot = null;
             }
-            ItemEntityHelper.spawnItemEntity(getWorldPosition(),toDrop,loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(getWorldPosition(),toDrop,loadedChunk.getEntityContainer());
             invincibilityFrames = 0.2f;
             loadVisual();
         }
@@ -144,7 +144,7 @@ namespace TileEntity.Instances.Storage {
                 uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MaxSize);
                 itemSlot.amount -= amount;
                 ItemSlot drop = ItemSlotFactory.CreateNewItemSlot(itemSlot.itemObject,(uint)amount);
-                ItemEntityHelper.spawnItemEntity(getWorldPosition(),drop,loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(getWorldPosition(),drop,loadedChunk.getEntityContainer());
             }
         }
 

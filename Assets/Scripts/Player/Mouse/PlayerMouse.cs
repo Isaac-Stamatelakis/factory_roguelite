@@ -174,7 +174,7 @@ namespace PlayerModule.Mouse {
             if (DevMode.Instance.spawnItem) {
                 ILoadedChunk chunk = GetChunk(mousePosition+offset);
                 if (chunk != null) {
-                        ItemEntityHelper.spawnItemEntity(
+                        ItemEntityFactory.spawnItemEntity(
                         mousePosition+offset,
                         ItemSlotFactory.CreateNewItemSlot(
                             ItemRegistry.GetInstance().GetItemObject(DevMode.Instance.spawnItemID),
@@ -373,7 +373,7 @@ namespace PlayerModule.Mouse {
             }
             Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
             if (ItemSlotUtils.IsItemSlotNull(grabbedItemProperties.ItemSlot)) return false;
-            ItemEntityHelper.spawnItemEntityWithVelocity(
+            ItemEntityFactory.SpawnItemEntityWithVelocity(
                 new Vector2(transform.position.x,transform.position.y) + spriteCenter,
                 grabbedItemProperties.ItemSlot,
                 chunk.getEntityContainer(),

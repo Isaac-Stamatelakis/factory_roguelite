@@ -30,6 +30,7 @@ namespace UI.Chat {
             { "unknowncommand", (parameters, ui) => new BrainFuckCommand(parameters, ui) },
             { "kill", (parameters, ui) => new KillCommand(parameters, ui) },
             { "itemtag", (parameters, ui) => new ItemTagCommand(parameters, ui) },
+            { "clear", (parameters, ui) => new ClearInventoryCommand(parameters, ui) },
         };
 
         public static List<string> getAllCommands() {

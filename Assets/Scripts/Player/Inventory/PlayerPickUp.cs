@@ -17,7 +17,6 @@ namespace Player.Inventory
         public bool CanPickUp = true;
         private int entityLayer;
         private RaycastHit2D[] hits;
-        private int currentIndex = -1;
         private const int MAX_ATTEMPTS_PER_UPDATE = 10;
        
         public void Start()
@@ -31,19 +30,13 @@ namespace Player.Inventory
         public void FixedUpdate()
         {
             if (!CanPickUp) return;
-            if (currentIndex < 0 || currentIndex >= hits.Length)
-            {
-                hits = Physics2D.CircleCastAll(transform.position, 0.5f,Vector2.zero, 0.25f, entityLayer);
-                currentIndex = 0;
-            }
             
-            
+            hits = Physics2D.CircleCastAll(transform.position, 0.5f,Vector2.zero, 0.25f, entityLayer);
             for (int i = 0; i < MAX_ATTEMPTS_PER_UPDATE; i++)
             {
-                if (currentIndex >= hits.Length) break;
-                if (hits[currentIndex].collider.gameObject.tag != "ItemEntity") continue;
-                ItemEntity itemEntity = hits[currentIndex].transform.GetComponent<ItemEntity>();
-                currentIndex++;
+                if (i >= hits.Length) break;
+                if (hits[i].collider.gameObject.tag != "ItemEntity") continue;
+                ItemEntity itemEntity = hits[i].transform.GetComponent<ItemEntity>();
                 
                 if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) continue;
                 while (true)

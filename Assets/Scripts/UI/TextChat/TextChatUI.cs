@@ -34,8 +34,8 @@ namespace UI.Chat {
         }
         [SerializeField] private TMP_InputField inputField;
         [SerializeField] private VerticalLayoutGroup textList;
-        [SerializeField] private VerticalLayoutGroup previousMessageList;
         [SerializeField] private TextChatMessageUI textChatMessageUIPrefab;
+        private List<GameObject> tempMessages = new List<GameObject>();
         private List<RecordedMessage> recordedMessages;
       
         private bool typing = false;
@@ -43,6 +43,7 @@ namespace UI.Chat {
         private float hintBlinkCounter = 0f;
         private Color textBoxBackgroundColor;
         private int previousMessageIndex;
+        private float defaultTextListPosition;
         public void Start() {
             inputField.gameObject.SetActive(false);
             recordedMessages = new List<RecordedMessage>();
@@ -51,6 +52,7 @@ namespace UI.Chat {
             SendAndRecordMessage(message);
             SendAndRecordMessage("Press [<b>L</b>] to open your quest book!");
             PlayerKeyPressUtils.InitializeTypingListener(inputField);
+            defaultTextListPosition = textList.transform.localPosition.y;
         }
         
         public void Update() {
@@ -64,27 +66,71 @@ namespace UI.Chat {
                     hideTextField();
                 }
             }
-            if (typing && Input.GetKeyDown(KeyCode.Escape)) {
-                typing = false;
-                hideTextField();
+
+            if (typing)
+            {
+                WhenTypingUpdate();
             }
-            if (typing && Input.GetKeyDown(KeyCode.Tab)) {
-                commandFillParameters();
-            }
-            if (typing && Input.GetKeyDown(KeyCode.DownArrow)) {
-                previousMessageIndex++;
-                SetInputToPreviousMessage();
-                
-            }
-            if (typing && Input.GetKeyDown(KeyCode.UpArrow)) {
-                previousMessageIndex--;
-                SetInputToPreviousMessage();
-            }
+            
             hintBlinkCounter -= Time.deltaTime;
             if (hintBlinkCounter < 0f) {
                 bool active = inputField.placeholder.gameObject.activeInHierarchy;
                 inputField.placeholder.gameObject.SetActive(!active);
                 hintBlinkCounter = hintBlinkTime;
+            }
+        }
+
+        private void WhenTypingUpdate()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                typing = false;
+                hideTextField();
+            }
+            if (Input.GetKeyDown(KeyCode.Tab)) {
+                commandFillParameters();
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                previousMessageIndex++;
+                SetInputToPreviousMessage();
+                
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow)) {
+                previousMessageIndex--;
+                SetInputToPreviousMessage();
+            }
+
+            const float scrollSpeed = 10000;
+            float height = ((RectTransform)textList.transform).sizeDelta.y;
+            
+            Debug.Log($"LOCALY:{textList.transform.localPosition.y} HEIGHT: {height}");
+            
+            if (Input.mouseScrollDelta.y != 0)
+            {
+                if (Input.mouseScrollDelta.y > 0)
+                {
+                    var vector3 = textList.transform.localPosition;
+                    vector3.y -= scrollSpeed * Time.deltaTime;
+
+                    if (vector3.y + height < defaultTextListPosition)
+                    {
+                        if (height > 0)
+                        {
+                            vector3.y = defaultTextListPosition - height;
+                        }
+                        else
+                        {
+                            vector3.y = defaultTextListPosition;
+                        }
+                    }
+                    textList.transform.localPosition = vector3;
+                }
+                else
+                {
+                    var vector3 = textList.transform.localPosition;
+                    vector3.y += scrollSpeed * Time.deltaTime;
+                    if (vector3.y > defaultTextListPosition) vector3.y = defaultTextListPosition;
+                    textList.transform.localPosition = vector3;
+                }
             }
         }
 
@@ -206,10 +252,12 @@ namespace UI.Chat {
 
         public void DisplayRecordedMessages()
         {
-            for (var i = 0; i < recordedMessages.Count-textList.transform.childCount; i++)
+            for (var i = (recordedMessages.Count-textList.transform.childCount)-1; i >=0 ; i--)
             {
                 var recordedMessage = recordedMessages[i];
-                TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, previousMessageList.transform, false);
+                TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, textList.transform, false);
+                newMessage.transform.SetAsFirstSibling();
+                tempMessages.Add(newMessage.gameObject);
                 newMessage.init(recordedMessage.Content, this, 0);
                 newMessage.setFade(false);
             }
@@ -226,7 +274,11 @@ namespace UI.Chat {
         {
             previousMessageIndex = recordedMessages.Count;
             EventSystem.current.SetSelectedGameObject(null);
-            GlobalHelper.deleteAllChildren(previousMessageList.transform);
+            foreach (GameObject tempMessage in tempMessages)
+            {
+                GameObject.Destroy(tempMessage);
+            }
+            tempMessages.Clear();
             inputField.text = "";
             inputField.DeactivateInputField();
             inputField.gameObject.SetActive(false);

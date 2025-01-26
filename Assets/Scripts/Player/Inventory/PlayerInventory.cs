@@ -150,7 +150,7 @@ namespace PlayerModule {
             IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getChunkFromWorld(transform.position));
             if (chunk is not ILoadedChunk loadedChunk) return;
             
-            ItemEntityHelper.spawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
         }
 
         public void DropAll()

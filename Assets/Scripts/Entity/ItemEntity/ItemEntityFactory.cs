@@ -5,9 +5,9 @@ using UnityEngine;
 using Items;
 
 namespace Entities {
-    public static class ItemEntityHelper
+    public static class ItemEntityFactory
     {
-        public static GameObject spawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
+        public static GameObject SpawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot) || ReferenceEquals(itemSlot.itemObject.getSprite(),null)) {
                 return null;
             }
@@ -21,25 +21,17 @@ namespace Entities {
             itemProperties.tag = "ItemEntity";
             itemProperties.initalize();
         
-            /*
-            GameObject trigger = new GameObject();
-            trigger.name = "Trigger";
-            BoxCollider2D collider2D = trigger.AddComponent<BoxCollider2D>();
-            collider2D.size = new Vector2(0.5f, 0.5f);
-            collider2D.isTrigger = true;
-            trigger.transform.SetParent(tileItemEntity.transform,false);
-            */
             return tileItemEntity;
         }
 
-        public static GameObject spawnItemEntityWithRandomVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer)
+        public static GameObject SpawnItemEntityWithRandomVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer)
         {
             Vector2 random = new Vector2(UnityEngine.Random.Range(-1.0f, 1.0f), UnityEngine.Random.Range(0, 1.0f));
-            return spawnItemEntityWithVelocity(position, itemSlot, entityContainer, random);
+            return SpawnItemEntityWithVelocity(position, itemSlot, entityContainer, random);
         }
 
-        public static GameObject spawnItemEntityWithVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2 velocity) {
-            GameObject tileItemEntity = spawnItemEntity(position,itemSlot,entityContainer);
+        public static GameObject SpawnItemEntityWithVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2 velocity) {
+            GameObject tileItemEntity = SpawnItemEntity(position,itemSlot,entityContainer);
             if (ReferenceEquals(tileItemEntity, null)) {
                 return null;
             }
@@ -47,9 +39,9 @@ namespace Entities {
             return tileItemEntity;
         }
 
-        public static GameObject spawnItemEntityFromBreak(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
-            GameObject tileItemEntity = spawnItemEntity(position,itemSlot,entityContainer);
-            if (tileItemEntity == null) {
+        public static GameObject SpawnItemEntityFromBreak(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
+            GameObject tileItemEntity = SpawnItemEntity(position,itemSlot,entityContainer);
+            if (ReferenceEquals(tileItemEntity,null)) {
                 return null;
             }
             float randomX = Random.Range(-1f,1f);
@@ -63,7 +55,7 @@ namespace Entities {
         public static void spawnLootTable(Vector2 position, LootTable lootTable, Transform entityContainer) {
             List<ItemSlot> items = LootTableHelper.open(lootTable);
             foreach (ItemSlot item in items) {
-                spawnItemEntityFromBreak(position,item,entityContainer);
+                SpawnItemEntityFromBreak(position,item,entityContainer);
             }
         }
     }

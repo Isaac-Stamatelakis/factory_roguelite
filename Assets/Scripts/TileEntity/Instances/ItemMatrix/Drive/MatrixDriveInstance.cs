@@ -123,7 +123,7 @@ namespace TileEntity.Instances.Matrix {
                 return;
             }
             foreach (ItemSlot itemSlot in storageDrives) {
-                ItemEntityHelper.spawnItemEntity(getWorldPosition(),itemSlot,loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(getWorldPosition(),itemSlot,loadedChunk.getEntityContainer());
             }
         }
 

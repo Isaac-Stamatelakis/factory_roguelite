@@ -55,7 +55,7 @@ namespace TileMaps {
                 realYPosition += 0.25f;
             }
             ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(itemObject,amount);
-            ItemEntityHelper.spawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
         public TileOptions getOptionsAtPosition(Vector2Int realTilePosition) {

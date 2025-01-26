@@ -58,7 +58,7 @@ namespace TileEntity {
         public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
             Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
             foreach (ItemSlot itemSlot in items) {
-                ItemEntityHelper.spawnItemEntityFromBreak(
+                ItemEntityFactory.SpawnItemEntityFromBreak(
                     offsetPosition,
                     itemSlot,
                     loadedChunk.getEntityContainer()
