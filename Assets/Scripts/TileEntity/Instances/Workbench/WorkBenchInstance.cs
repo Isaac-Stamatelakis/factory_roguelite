@@ -22,13 +22,13 @@ namespace TileEntity.Instances.WorkBenchs {
             tileEntityObject.UIAssetManager.display<WorkBenchInstance,WorkBenchUI>(this);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             WorkBenchData.SInventory = ItemSlotFactory.serializeList(Inventory);
             return JsonConvert.SerializeObject(WorkBenchData);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             WorkBenchData = JsonConvert.DeserializeObject<WorkBenchData>(data);
             Inventory = ItemSlotFactory.Deserialize(WorkBenchData.SInventory);

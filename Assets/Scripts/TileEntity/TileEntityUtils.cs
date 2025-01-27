@@ -10,16 +10,18 @@ using Chunks.Systems;
 using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
+using TileMaps;
+using TileMaps.Layer;
 using UI;
 
 namespace TileEntity {
-    public static class TileEntityHelper {
+    public static class TileEntityUtils {
 
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, string data = null) {
             ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
             if (load) {
                 if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                    loadableTileEntity.load();
+                    loadableTileEntity.Load();
                 }
                 if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
                     TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
@@ -38,7 +40,7 @@ namespace TileEntity {
             {
                 try
                 {
-                    serializableTileEntity.unserialize(data);
+                    serializableTileEntity.Unserialize(data);
                 }
                 catch (JsonSerializationException e)
                 {
@@ -150,7 +152,7 @@ namespace TileEntity {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;
                 }
-                partition = adjacentChunk.getPartition(partitionPosition);
+                partition = adjacentChunk.GetPartition(partitionPosition);
             } else if (chunk is ISoftLoadedChunk softLoadedChunk) {
                 SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = softLoadedChunk.getSystem();
                 SoftLoadedConduitTileChunk adjacentSoftLoadedChunk = softLoadedClosedChunkSystem.getChunk(chunkPosition);
@@ -158,7 +160,7 @@ namespace TileEntity {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;
                 }
-                partition = adjacentSoftLoadedChunk.getPartition(partitionPosition);   
+                partition = adjacentSoftLoadedChunk.GetPartition(partitionPosition);   
             }
             if (partition == null) {
                 Debug.LogError("Attempted to locate adjcaent tile entity in null partition");
@@ -167,6 +169,50 @@ namespace TileEntity {
             Vector2Int positionInPartition = Global.getPositionInPartition(offsetCellPosition);
             return partition.GetTileEntity(positionInPartition);
             
+        }
+
+        public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem)
+        {
+            TileType tileType = tileItem.tileType;
+            TileMapType tileMapType = tileType.toTileMapType();
+            TileMapLayer layer = tileMapType.toLayer();
+            
+            IChunk chunk = tileEntityInstance.getChunk();
+            IChunkSystem chunkSystem = chunk.GetChunkSystem();
+            
+            Vector2Int origin = tileEntityInstance.getCellPosition();
+            Queue<Vector2Int> queue = new Queue<Vector2Int>();
+            HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+            
+            queue.Enqueue(origin);
+            visited.Add(origin);
+            Vector2Int[] directions = {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            List<Vector2Int> result = new List<Vector2Int>();
+            
+            while (queue.Count > 0)
+            {
+                Vector2Int current = queue.Dequeue();
+                result.Add(current); 
+                foreach (var direction in directions)
+                {
+                    Vector2Int neighborPosition = current + direction;
+                    bool alreadyVisited = !visited.Add(neighborPosition);
+                    if (alreadyVisited) continue;
+
+                    var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
+                    TileItem neighborTileItem = partition.GetTileItem(positionInPartition, layer);
+                    if (ReferenceEquals(neighborTileItem,null) || neighborTileItem.id != tileItem.id) continue;
+                    queue.Enqueue(neighborPosition);
+            
+                }
+            }
+    
+            return result;
         }
 
         public static void dfsTileEntity<T>(ITileEntityInstance tileEntity, HashSet<T> visited) {

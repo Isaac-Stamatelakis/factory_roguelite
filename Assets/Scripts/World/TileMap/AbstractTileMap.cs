@@ -164,7 +164,7 @@ namespace TileMaps {
             }
             Vector2Int partitionPosition = GetPartitionPosition(cellPosition);
             Vector2Int partitionPositionInChunk = partitionPosition - chunkPosition * Global.PartitionsPerChunk;
-            IChunkPartition partition = chunk.getPartition(partitionPositionInChunk);
+            IChunkPartition partition = chunk.GetPartition(partitionPositionInChunk);
             return partition;
         }
 

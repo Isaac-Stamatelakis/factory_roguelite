@@ -35,17 +35,42 @@ namespace Chunks {
     }
 
     public interface IChunk {
-        public Vector2Int getPosition();
-        public IChunkPartition[,] getChunkPartitions();
-        public IChunkPartition getPartition(Vector2Int position);
-        public int getDim();
-        public List<IChunkPartitionData> getChunkPartitionData();
-        
+        public Vector2Int GetPosition();
+        public IChunkPartition[,] GetChunkPartitions();
+        public IChunkPartition GetPartition(Vector2Int position);
+        public int GetDim();
+        public List<IChunkPartitionData> GetChunkPartitionData();
+        public IChunkSystem GetChunkSystem();
+
     }
 
-    public interface ISerizable {
-        public void serialze();
+    public interface IChunkSystem
+    {
+        public IChunk GetChunkAtPosition(Vector2Int chunkPosition);
+        public IChunk GetChunkAtCellPosition(Vector2Int cellPosition)
+        {
+            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            return GetChunkAtPosition(chunkPosition);
+        }
+        
+        public IChunkPartition GetChunkPartitionAtCellPosition(Vector2Int cellPosition)
+        {
+            IChunk chunk = GetChunkAtCellPosition(cellPosition);
+            Vector2Int position = Global.getPartitionFromCell(cellPosition);
+            return chunk.GetPartition(position);
+        }
+        
+        public (IChunkPartition, Vector2Int) GetPartitionAndPositionAtCellPosition(Vector2Int cellPosition)
+        {
+            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            IChunk chunk = GetChunkAtPosition(chunkPosition);
+            Vector2Int positionInPartition = Global.getPositionInPartition(cellPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PartitionsPerChunk; 
+            return (chunk.GetPartition(partitionPosition), positionInPartition);
+        }
+
     }
+    
     public class Chunk : MonoBehaviour, ILoadedChunk
     {
         protected IChunkPartition[,] partitions;
@@ -122,13 +147,18 @@ namespace Chunks {
             } else 
             return null;
         }
-        public List<IChunkPartitionData> getChunkPartitionData()
+        public List<IChunkPartitionData> GetChunkPartitionData()
         {
             List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
             foreach (IChunkPartition chunkPartition in partitions) {
                 dataList.Add(chunkPartition.GetData());
             }
             return dataList;
+        }
+
+        public IChunkSystem GetChunkSystem()
+        {
+            return closedChunkSystem;
         }
 
         public virtual void unload()
@@ -138,7 +168,7 @@ namespace Chunks {
 
         }
 
-        public IChunkPartition[,] getChunkPartitions()
+        public IChunkPartition[,] GetChunkPartitions()
         {
             return this.partitions;
         }
@@ -211,12 +241,12 @@ namespace Chunks {
             return far;
         }
 
-        public Vector2Int getPosition()
+        public Vector2Int GetPosition()
         {
             return this.position;
         }
 
-        public int getDim()
+        public int GetDim()
         {
             return this.dim;
         }
@@ -242,7 +272,7 @@ namespace Chunks {
             return true;
         }
 
-        public IChunkPartition getPartition(Vector2Int position)
+        public IChunkPartition GetPartition(Vector2Int position)
         {
             return this.partitions[position.x,position.y];
         }

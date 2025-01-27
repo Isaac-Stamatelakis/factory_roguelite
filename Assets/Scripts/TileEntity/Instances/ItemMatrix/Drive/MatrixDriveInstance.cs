@@ -35,7 +35,7 @@ namespace TileEntity.Instances.Matrix {
             matrixConduitSystem.setDrive(this);
         }
 
-        public void load()
+        public void Load()
         {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
@@ -135,7 +135,7 @@ namespace TileEntity.Instances.Matrix {
             MainCanvasController.Instance.DisplayObject(ui.gameObject);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.serializeList(storageDrives);
         }
@@ -159,14 +159,14 @@ namespace TileEntity.Instances.Matrix {
             loadPixels();
         }
 
-        public void unload()
+        public void Unload()
         {
             if (pixelContainer != null) {
                 GameObject.Destroy(pixelContainer.gameObject);
             }
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             storageDrives = ItemSlotFactory.Deserialize(data);
         }

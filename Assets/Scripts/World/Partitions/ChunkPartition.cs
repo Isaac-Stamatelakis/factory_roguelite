@@ -57,7 +57,7 @@ namespace Chunks.Partitions {
 
         public UnityEngine.Vector2Int GetRealPosition()
         {
-            return parent.getPosition()*Global.PartitionsPerChunk + position;
+            return parent.GetPosition()*Global.PartitionsPerChunk + position;
         }
 
         public bool GetScheduledForUnloading()
@@ -92,7 +92,7 @@ namespace Chunks.Partitions {
                         for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Right:
@@ -100,7 +100,7 @@ namespace Chunks.Partitions {
                         for (int y = 0; y < Global.ChunkPartitionSize ; y ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Up:
@@ -108,7 +108,7 @@ namespace Chunks.Partitions {
                         for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Down:
@@ -116,13 +116,12 @@ namespace Chunks.Partitions {
                         for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
             }
             
             SetTileLoaded(true);
-            yield return null;
         }
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
@@ -169,7 +168,7 @@ namespace Chunks.Partitions {
         {
             if (layer != TileMapLayer.Base) return;
             if (tileEntity is ILoadableTileEntity entity) {
-                entity.load();
+                entity.Load();
             }
             tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
@@ -187,7 +186,7 @@ namespace Chunks.Partitions {
                 breakActionTileEntity.onBreak();
             }
             if (tileEntity is ILoadableTileEntity loadableTileEntity) {
-                loadableTileEntity.unload();
+                loadableTileEntity.Unload();
             }
             
             tileEntities[position.x,position.y] = null;

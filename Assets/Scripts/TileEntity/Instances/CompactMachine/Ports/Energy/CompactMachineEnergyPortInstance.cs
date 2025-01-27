@@ -39,7 +39,7 @@ namespace TileEntity.Instances.CompactMachines {
             return insertEnergy;
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return JsonConvert.SerializeObject(energy);
         }
@@ -50,7 +50,7 @@ namespace TileEntity.Instances.CompactMachines {
             compactMachine.Inventory.addPort(this,ConduitType.Energy);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             if (data == null) {
                 return;

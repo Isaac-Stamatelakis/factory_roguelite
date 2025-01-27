@@ -55,7 +55,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                             continue;
                         }
                         if (tileEntity is ISerializableTileEntity serializableTileEntity) {
-                            data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.serialize();
+                            data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize();
                         }
                     }
                 }   
@@ -96,10 +96,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 return false;
             }
             if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                loadableTileEntity.unload();
+                loadableTileEntity.Unload();
             }
             if (tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
-                data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.serialize();
+                data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize();
             }
             array[x,y] = null;
             return true;
@@ -198,12 +198,12 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             ITileEntityInstance tileEntityInstance = tileEntityArray[x,y];
             if (tileEntityInstance != null) {
                 if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                    loadableTileEntity.load();
+                    loadableTileEntity.Load();
                 }
                 return;
             }
             Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
-            tileEntityArray[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,options);
+            tileEntityArray[x,y] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,options);
         }
 
         public override TileItem GetTileItem(Vector2Int position, TileMapLayer layer)
@@ -290,7 +290,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     }
                     string tileEntityData = data.baseData.sTileEntityOptions[x,y];
                     Vector2Int position = this.position * Global.ChunkPartitionSize + new Vector2Int(x,y);
-                    tileEntities[x,y] = TileEntityHelper.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
+                    tileEntities[x,y] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
                 }
             }
         }

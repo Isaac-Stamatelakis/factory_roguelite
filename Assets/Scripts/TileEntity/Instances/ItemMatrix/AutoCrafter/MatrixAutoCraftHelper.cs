@@ -10,7 +10,7 @@ namespace TileEntity.Instances.Matrix {
             if (core == null) {
                 return;
             }
-            core.assembleMultiBlock();
+            core.AssembleMultiBlock();
             
         }
     }

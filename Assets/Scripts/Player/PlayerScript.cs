@@ -32,7 +32,7 @@ namespace Player
         {
             playerIO.Deserialize();
             playerInventory.Initialize();
-            ItemSlot playerRobotItem = ItemSlotFactory.deseralizeItemSlotFromString(playerIO.playerData.playerRobot);
+            ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerIO.playerData.playerRobot);
             playerRobot.SetRobot(playerRobotItem);
             playerInventory.InitializeToolDisplay();
         }

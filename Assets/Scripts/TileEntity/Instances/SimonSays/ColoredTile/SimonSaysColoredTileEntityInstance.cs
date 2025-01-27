@@ -21,7 +21,7 @@ namespace TileEntity.Instances.SimonSays {
         }
 
         public void setColor(int color) {
-            TileEntityHelper.stateSwitch(this,color);
+            TileEntityUtils.stateSwitch(this,color);
         }
     }
 }

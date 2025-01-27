@@ -161,7 +161,7 @@ namespace PlayerModule {
             IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
             if (chunk is ILoadedChunk loadedChunk)
             {
-                TileEntityHelper.spawnItemsOnBreak(Inventory,transform.position,loadedChunk,closedChunkSystem);
+                TileEntityUtils.spawnItemsOnBreak(Inventory,transform.position,loadedChunk,closedChunkSystem);
             }
             for (int i = 0; i < Inventory.Count; i++)
             {

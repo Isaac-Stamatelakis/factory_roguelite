@@ -36,7 +36,7 @@ namespace TileEntity.Instances.Storage {
             return TileEntityObject.ConduitLayout;
         }
 
-        public void load()
+        public void Load()
         {
             loadVisual();
         }
@@ -114,21 +114,21 @@ namespace TileEntity.Instances.Storage {
             }
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
 
-        public void unload()
+        public void Unload()
         {
             if (visualElement != null) {
                 GameObject.Destroy(visualElement.gameObject);
             }
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
-            itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
+            itemSlot = ItemSlotFactory.DeserializeSlot(data);
         }
 
         public void onBreak()
@@ -164,7 +164,7 @@ namespace TileEntity.Instances.Storage {
             if (tileItem != null && !(tileItem.tileEntity != null && tileItem.tileEntity is ItemDrawer drawer)) {
                 return;
             }
-            controller.assembleMultiBlock();
+            controller.AssembleMultiBlock();
         }
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)

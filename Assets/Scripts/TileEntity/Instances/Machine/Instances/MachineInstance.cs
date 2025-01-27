@@ -50,9 +50,9 @@ namespace TileEntity.Instances.Machine.Instances
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(ui);
         }
 
-        public abstract string serialize();
+        public abstract string Serialize();
 
-        public abstract void unserialize(string data);
+        public abstract void Unserialize(string data);
 
         
         public IConduitInteractable GetConduitInteractable(ConduitType conduitType)

@@ -9,6 +9,7 @@ using Dimensions;
 using PlayerModule;
 using WorldModule;
 using System.IO;
+using UI.Chat;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Debug = UnityEngine.Debug;
@@ -154,6 +155,8 @@ namespace TileEntity.Instances {
             caveController.setCurrentCave(caveInstance);
             
             DimensionManager.Instance.setPlayerSystem(playerTransform, -1,spawnPosition);
+            
+            TextChatUI.Instance.sendMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }
 }

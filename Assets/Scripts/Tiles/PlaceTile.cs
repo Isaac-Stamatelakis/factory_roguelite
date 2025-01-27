@@ -275,7 +275,7 @@ namespace TileMaps.Place {
                 Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
                 return;
             }
-            IChunkPartition partition = chunk.getPartition(partitionPosition);
+            IChunkPartition partition = chunk.GetPartition(partitionPosition);
             if (partition == null) {
                 Debug.LogError("Attempted to add TileEntity to null partition. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "], Partition:" + partitionPosition.x + "," + partitionPosition.y + "]");
                 return;
@@ -284,7 +284,7 @@ namespace TileMaps.Place {
             TileEntityObject tileEntity = tileItem.tileEntity;
             if (ReferenceEquals(tileEntity, null)) return;
             
-            ITileEntityInstance tileEntityInstance = TileEntityHelper.placeTileEntity(tileItem,positionInChunk,chunk,true);
+            ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {

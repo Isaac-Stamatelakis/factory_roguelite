@@ -122,7 +122,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(ui);
         }
 
-        public override string serialize()
+        public override string Serialize()
         {
             SerializedBurnerMachine serializedBurnerMachine = new SerializedBurnerMachine(
                 Mode,
@@ -133,7 +133,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             return JsonConvert.SerializeObject(serializedBurnerMachine);
         }
 
-        public override void unserialize(string data)
+        public override void Unserialize(string data)
         {
             SerializedBurnerMachine serializedBurnerMachine = JsonConvert.DeserializeObject<SerializedBurnerMachine>(data);
             Mode = serializedBurnerMachine.Mode;

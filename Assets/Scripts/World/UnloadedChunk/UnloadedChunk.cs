@@ -20,7 +20,6 @@ namespace Chunks {
         public Vector2Int Position { get => position; set => position = value; }
         public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
         public SoftLoadedClosedChunkSystem System { get => system; set => system = value; }
-
         private SoftLoadedClosedChunkSystem system;
 
         public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, int dim) {
@@ -51,33 +50,38 @@ namespace Chunks {
             return null;
         }
 
-        public Vector2Int getPosition()
+        public Vector2Int GetPosition()
         {
             return position;
         }
 
-        public IChunkPartition[,] getChunkPartitions()
+        public IChunkPartition[,] GetChunkPartitions()
         {
             return partitions;
         }
 
-        public IChunkPartition getPartition(Vector2Int position)
+        public IChunkPartition GetPartition(Vector2Int position)
         {
             return partitions[position.x,position.y];
         }
 
-        public int getDim()
+        public int GetDim()
         {
             return dim;
         }
 
-        public List<IChunkPartitionData> getChunkPartitionData()
+        public List<IChunkPartitionData> GetChunkPartitionData()
         {
             List<IChunkPartitionData> dataList = new List<IChunkPartitionData>();
             foreach (IChunkPartition chunkPartition in partitions) {
                 dataList.Add(chunkPartition.GetData());
             }
             return dataList;
+        }
+
+        public IChunkSystem GetChunkSystem()
+        {
+            return system;
         }
 
         public SoftLoadedClosedChunkSystem getSystem()

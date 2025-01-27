@@ -293,9 +293,9 @@ namespace PlayerModule.Mouse {
                 return false;
             }
             Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
-            Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
+            Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PartitionsPerChunk;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.ChunkPartitionSize;
-            IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+            IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             if (chunkPartition.ClickTileEntity(tilePositionInPartition)) {
                 return true;
             }

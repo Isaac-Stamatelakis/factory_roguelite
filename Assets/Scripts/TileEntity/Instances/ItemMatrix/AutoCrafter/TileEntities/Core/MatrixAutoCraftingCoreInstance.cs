@@ -22,7 +22,7 @@ namespace TileEntity.Instances.Matrix {
         {
         }
 
-        public void assembleMultiBlock()
+        public void AssembleMultiBlock()
         {
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.removeAutoCrafter(this);
@@ -30,7 +30,7 @@ namespace TileEntity.Instances.Matrix {
             totalMemory = 0;
             totalProcessors = 0;
             HashSet<IMatrixCraftTile> connectedCraftTiles = new HashSet<IMatrixCraftTile>();
-            TileEntityHelper.dfsTileEntity(this,connectedCraftTiles); 
+            TileEntityUtils.dfsTileEntity(this,connectedCraftTiles); 
             foreach (IMatrixCraftTile craftTile in connectedCraftTiles) {
                 craftTile.deactivate();
             }
@@ -66,7 +66,7 @@ namespace TileEntity.Instances.Matrix {
                 return;
             }
             foreach (IMatrixCraftTile matrixCraftTile in connectedCraftTiles) {
-                matrixCraftTile.load();
+                matrixCraftTile.Load();
             }
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.addAutoCrafter(this);

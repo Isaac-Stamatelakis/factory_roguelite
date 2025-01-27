@@ -27,6 +27,7 @@ namespace WorldModule.Caves {
 
     public class CaveInstance: IGeneratedArea {
         private Cave cave;
+        public Cave Cave => cave;
         private CaveElements caveElements;
 
         public CaveInstance(Cave cave, CaveElements caveElements)

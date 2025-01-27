@@ -57,7 +57,7 @@ namespace TileEntity.Instances.Matrix {
             }
         }
 
-        public string serialize()
+        public string Serialize()
         {
             SeralizedMatrixRecipeEncoder seralizedMatrixRecipeEncoder = new SeralizedMatrixRecipeEncoder(
                 ItemSlotFactory.serializeList(blankRecipes),
@@ -76,7 +76,7 @@ namespace TileEntity.Instances.Matrix {
             
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             if (data == null) {
                 initInventories();
@@ -104,12 +104,12 @@ namespace TileEntity.Instances.Matrix {
             
         }
 
-        public void load()
+        public void Load()
         {
             initInventories();
         }
 
-        public void unload()
+        public void Unload()
         {
             
         }

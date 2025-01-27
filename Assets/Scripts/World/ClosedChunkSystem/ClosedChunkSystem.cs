@@ -25,7 +25,7 @@ namespace Chunks.Systems {
 
     
 
-    public abstract class ClosedChunkSystem : MonoBehaviour
+    public abstract class ClosedChunkSystem : MonoBehaviour, IChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
         protected Transform playerTransform;
@@ -62,11 +62,11 @@ namespace Chunks.Systems {
             if (chunk == null) {
                 return;
             }
-            Vector2Int chunkPosition = chunk.getPosition();
+            Vector2Int chunkPosition = chunk.GetPosition();
             cachedChunks[chunkPosition] = chunk;
         }
         public void removeChunk(ILoadedChunk chunk) {
-            Vector2Int chunkPosition = chunk.getPosition();
+            Vector2Int chunkPosition = chunk.GetPosition();
             if (chunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
@@ -86,7 +86,7 @@ namespace Chunks.Systems {
 
         public void deactivateAllPartitions() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     partition.SetTileLoaded(false);
                 }
             }
@@ -316,7 +316,7 @@ namespace Chunks.Systems {
         public virtual void saveOnDestroy() {
             partitionUnloader.clearQueue();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();
                     }
@@ -331,7 +331,11 @@ namespace Chunks.Systems {
             return new Vector2Int(xSizeChunks*Global.ChunkSize,ySizeChunks*Global.ChunkSize);
         }
 
-        
+
+        public IChunk GetChunkAtPosition(Vector2Int chunkPosition)
+        {
+            return cachedChunks[chunkPosition];
+        }
     }
 
     [System.Serializable]

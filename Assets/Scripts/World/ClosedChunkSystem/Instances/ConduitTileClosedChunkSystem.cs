@@ -53,7 +53,7 @@ namespace Chunks.Systems {
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
-                foreach (IConduitTileChunkPartition partition in loadedChunk.getChunkPartitions()) {
+                foreach (IConduitTileChunkPartition partition in loadedChunk.GetChunkPartitions()) {
                     partition.activate(loadedChunk);
                 }
             }

@@ -43,7 +43,7 @@ namespace TileEntity.Instances.SimonSays {
                 controllerObject.name = "SimonSaysController";
                 coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
                 coroutineController.init(this);
-                TileEntityHelper.setParentOfSpawnedObject(controllerObject, loadedChunk);
+                TileEntityUtils.setParentOfSpawnedObject(controllerObject, loadedChunk);
                 initGame();
             }
         }
@@ -140,7 +140,7 @@ namespace TileEntity.Instances.SimonSays {
                 //IChunkPartition partition = chunk.getPartition()
                 count ++;
             }
-            unload();
+            Unload();
         }
 
         private void initTiles() {
@@ -150,7 +150,7 @@ namespace TileEntity.Instances.SimonSays {
                     if (x == 0 && y == 0) {
                         continue;
                     }
-                    ITileEntityInstance tileEntity = TileEntityHelper.getAdjacentTileEntity(this,new Vector2Int(x,y));
+                    ITileEntityInstance tileEntity = TileEntityUtils.getAdjacentTileEntity(this,new Vector2Int(x,y));
                     if (tileEntity == null) {
                         continue;
                     }
@@ -171,12 +171,12 @@ namespace TileEntity.Instances.SimonSays {
 
         
 
-        public void load()
+        public void Load()
         {
             // No inital load
         }
 
-        public void unload()
+        public void Unload()
         {
             if (coroutineController != null) {
                 GameObject.Destroy(coroutineController);

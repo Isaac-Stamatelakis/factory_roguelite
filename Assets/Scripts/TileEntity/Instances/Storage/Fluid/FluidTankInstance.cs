@@ -31,7 +31,7 @@ namespace TileEntity.Instances.Storage {
             return TileEntityObject.Tier.GetFluidStorage();
         }
 
-        public void load()
+        public void Load()
         {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;   
@@ -66,19 +66,19 @@ namespace TileEntity.Instances.Storage {
             TileEntityObject.UIManager.display<FluidTankInstance,FluidTankUI>(this);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
 
-        public void unload()
+        public void Unload()
         {
             GameObject.Destroy(visualElement.gameObject);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
-            this.itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
+            this.itemSlot = ItemSlotFactory.DeserializeSlot(data);
         }
         
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)

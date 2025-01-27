@@ -21,12 +21,12 @@ namespace TileEntity.Instances {
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(caveTeleporterUIController.gameObject);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.serializeList(CaveStorageDrives);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             CaveStorageDrives = ItemSlotFactory.Deserialize(data);
             ItemSlotFactory.ClampList(CaveStorageDrives, INVENTORY_SIZE);

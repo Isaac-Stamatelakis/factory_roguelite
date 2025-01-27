@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Machines
         {
         }
 
-        public override string serialize()
+        public override string Serialize()
         {
             SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
                 Mode,
@@ -41,7 +41,7 @@ namespace TileEntity.Instances.Machines
             return JsonConvert.SerializeObject(serializedProcessingMachine);
         }
         
-        public override void unserialize(string data)
+        public override void Unserialize(string data)
         {
             SerializedProcessingMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedProcessingMachine>(data);
             Mode = serializedProcessingMachine.Mode;

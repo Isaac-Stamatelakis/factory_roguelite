@@ -57,7 +57,7 @@ namespace Dimensions {
             }
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
@@ -112,7 +112,7 @@ namespace Dimensions {
             parentTree.Children[placePosition] = newTree;
             systems.Add(newSystem);
             foreach (IChunk chunk in newSystem.Chunks) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
                         for (int y = 0; y < Global.ChunkPartitionSize; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));

@@ -116,7 +116,7 @@ namespace Chunks.Partitions {
                 return null;
             }
             Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
-            return TileEntityHelper.placeTileEntity(tileItem,position,parent,false,unserialize:true, data:options);
+            return TileEntityUtils.placeTileEntity(tileItem,position,parent,false,unserialize:true, data:options);
         }
 
         private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
@@ -336,7 +336,7 @@ namespace Chunks.Partitions {
                 if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {
                     continue;
                 }
-                multiBlockTileEntity.assembleMultiBlock();
+                multiBlockTileEntity.AssembleMultiBlock();
             }
         }
     }

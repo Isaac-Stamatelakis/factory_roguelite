@@ -179,7 +179,7 @@ namespace DevTools.Structures {
                     Vector2Int chunkPosition = Global.getChunkFromCell(adjustedVector);
                     IChunk chunk = chunkDict[chunkPosition];
                     Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PartitionsPerChunk;
-                    IChunkPartition partition = chunk.getPartition(partitionPosition);
+                    IChunkPartition partition = chunk.GetPartition(partitionPosition);
                     WorldTileConduitData partitionData = (WorldTileConduitData) partition.GetData();
                     Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
                     Vector2Int posInArea = vector-areaOffset;

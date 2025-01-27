@@ -25,12 +25,12 @@ namespace TileEntity.Instances.Storage {
             TileEntityObject.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return Energy.ToString();
         }
         
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             Energy = Convert.ToUInt64(data);
         }
