@@ -25,7 +25,7 @@ namespace Fluids {
 
         protected override void SetTile(int x, int y, FluidTileItem item)
         {
-            if (item == null) {
+            if (ReferenceEquals(item,null)) {
                 tilemap.SetTile(new Vector3Int(x,y,0),null);
                 return;
             }

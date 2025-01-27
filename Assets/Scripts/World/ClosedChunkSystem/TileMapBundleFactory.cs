@@ -7,10 +7,21 @@ using Fluids;
 using TileMaps;
 using TileMaps.Conduit;
 using Unity.VisualScripting;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Tilemaps;
 
 namespace Chunks.Systems {
-    public static class TileMapBundleFactory 
+    
+    public enum TileEntityTileMapType
     {
+        LitFront,
+        UnLitFront,
+        LitBack,
+        UnLitBack,
+    }
+    public static class TileMapBundleFactory
+    {
+        private const float TILE_SIZE = 0.5f;
         public static List<TileMapType> getStandardTileTypes() {
             return new List<TileMapType>{
                 TileMapType.Block,
@@ -47,7 +58,6 @@ namespace Chunks.Systems {
             GameObject container = new GameObject();
             container.name = "Conduits";
             container.transform.SetParent(systemTransform);
-            LoadTileSystemMaps(systemTransform,tileGridMaps);
             List<TileMapType> conduitMaps = TileMapBundleFactory.getConduitTileTypes();
             foreach (TileMapType tileMapType in conduitMaps) {
                 InitTileMapContainer(tileMapType,container.transform,tileGridMaps);
@@ -63,11 +73,50 @@ namespace Chunks.Systems {
             }
             container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
             Grid grid = container.AddComponent<Grid>();
-            grid.cellSize = new Vector3(0.5f,0.5f,1f);
+            grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
 
             var worldTileMap = CreateTileMap(tileType, container.transform);
             tileGridMaps[tileType] = worldTileMap;
             tileGridMaps[tileType].Initialize(tileType);
+        }
+
+        
+
+        private static void LoadTileEntityDisplayTileMap(TileEntityTileMapType tileEntityTileMapType, Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps)
+        {
+            GameObject container = new GameObject();
+            container.transform.SetParent(parent);
+            container.name = tileEntityTileMapType.ToString();
+            float epsilon = 0.1f;
+            switch (tileEntityTileMapType)
+            {
+                case TileEntityTileMapType.LitFront:
+                case TileEntityTileMapType.UnLitFront:
+                    epsilon *= -1;
+                    break;
+            }
+            container.transform.localPosition = new Vector3(0, 0, TileMapType.Object.getZValue() + epsilon);
+            Grid grid = container.AddComponent<Grid>();
+            grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
+            Tilemap tilemap = container.AddComponent<Tilemap>();
+            container.AddComponent<TilemapRenderer>();
+            tilemaps[tileEntityTileMapType] = tilemap;
+
+            var handle = Addressables.LoadAssetAsync<Material>("Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
+            
+
+        }
+
+        public static void LoadTileEntityMaps(Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps)
+        {
+            GameObject gameObject = new GameObject();
+            gameObject.name = "TileEntityMaps";
+            gameObject.transform.SetParent(parent);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitFront, gameObject.transform, tilemaps);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitFront, gameObject.transform, tilemaps);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitBack, gameObject.transform, tilemaps);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitBack, gameObject.transform, tilemaps);
+            
         }
 
         private static IWorldTileMap CreateTileMap(TileMapType tileType, Transform container)

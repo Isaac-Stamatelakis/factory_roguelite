@@ -10,11 +10,7 @@ namespace Chunks.Systems {
         public void initalize(DimController dimController, IntervalVector coveredArea, int dim, Vector2Int offset) {
             initalizeObject(dimController,coveredArea,dim,offset);
         }
-        public override void Awake()
-        {
-            base.Awake();
-            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
-        }
+        
         public override void saveOnDestroy()
         {
             base.saveOnDestroy();

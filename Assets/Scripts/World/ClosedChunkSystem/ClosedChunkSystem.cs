@@ -15,6 +15,7 @@ using Fluids;
 using PlayerModule;
 using Dimensions;
 using Player;
+using UnityEngine.Tilemaps;
 
 namespace Chunks.Systems {
     
@@ -28,6 +29,7 @@ namespace Chunks.Systems {
     public abstract class ClosedChunkSystem : MonoBehaviour, IChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
+        protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
@@ -51,6 +53,8 @@ namespace Chunks.Systems {
         private Camera mainCamera;
         public virtual void Awake () {
             mainCamera = Camera.main;
+            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
+            TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps);
         }
 
         public void Start()
@@ -244,7 +248,10 @@ namespace Chunks.Systems {
             return this.cachedChunks.ContainsKey(position);
         }
 
-        
+        public Tilemap GetTileEntityTileMap(TileEntityTileMapType tileEntityTileMapType)
+        {
+            return tileEntityMaps[tileEntityTileMapType];
+        }
         public List<Chunk> getLoadedChunksOutsideRange() {
             Vector2Int playerPosition = getPlayerChunk();
             List<Chunk> chunksToUnload = new List<Chunk>();

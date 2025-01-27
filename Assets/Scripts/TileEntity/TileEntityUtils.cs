@@ -17,21 +17,27 @@ using UI;
 namespace TileEntity {
     public static class TileEntityUtils {
 
-        public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, string data = null) {
+        public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, 
+            string data = null, bool assembleMultiblocks = false) {
             ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
-            if (load) {
-                if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
-                    loadableTileEntity.Load();
+            
+            if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
+                TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
+                if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
+                    tileEntityUIManager.loadUIIntoMemory();
                 }
-                if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
-                    TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
-                    if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
-                        tileEntityUIManager.loadUIIntoMemory();
-                    }
-                }
-                if (tileItem.tileEntity is IAssetManagerTileEntity assetManagerTileEntity) {
-                    
-                }
+            }
+            
+            if (tileItem.tileEntity is IAssetManagerTileEntity assetManagerTileEntity) {
+                // TODO
+            }
+            if (load && tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
+                loadableTileEntity.Load();
+            }
+
+            if (assembleMultiblocks && tileEntityInstance is IMultiBlockTileEntity multiBlockTileEntity)
+            {
+                multiBlockTileEntity.AssembleMultiBlock();
             }
             if (data == null && tileEntityInstance is IPlaceInitializable placeInitializable)
             {
@@ -171,7 +177,7 @@ namespace TileEntity {
             
         }
 
-        public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem)
+        public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem, bool includeSelf = true)
         {
             TileType tileType = tileItem.tileType;
             TileMapType tileMapType = tileType.toTileMapType();
@@ -193,11 +199,12 @@ namespace TileEntity {
                 Vector2Int.down,
             };
             List<Vector2Int> result = new List<Vector2Int>();
+            if (includeSelf) result.Add(origin);
             
             while (queue.Count > 0)
             {
                 Vector2Int current = queue.Dequeue();
-                result.Add(current); 
+                
                 foreach (var direction in directions)
                 {
                     Vector2Int neighborPosition = current + direction;
@@ -208,6 +215,52 @@ namespace TileEntity {
                     TileItem neighborTileItem = partition.GetTileItem(positionInPartition, layer);
                     if (ReferenceEquals(neighborTileItem,null) || neighborTileItem.id != tileItem.id) continue;
                     queue.Enqueue(neighborPosition);
+                    result.Add(neighborPosition); 
+                }
+            }
+    
+            return result;
+        }
+
+        public static List<Vector2Int> BFSTileEntity<T>(ITileEntityInstance tileEntityInstance, TileType tileType, bool includeSelf = true) where T : TileEntityObject
+        {
+            TileMapType tileMapType = tileType.toTileMapType();
+            TileMapLayer layer = tileMapType.toLayer();
+            
+            IChunk chunk = tileEntityInstance.getChunk();
+            IChunkSystem chunkSystem = chunk.GetChunkSystem();
+            
+            Vector2Int origin = tileEntityInstance.getCellPosition();
+            Queue<Vector2Int> queue = new Queue<Vector2Int>();
+            HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+            
+            queue.Enqueue(origin);
+            visited.Add(origin);
+            Vector2Int[] directions = {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            List<Vector2Int> result = new List<Vector2Int>();
+            if (includeSelf) result.Add(origin);
+            
+            while (queue.Count > 0)
+            {
+                Vector2Int current = queue.Dequeue();
+                
+                foreach (var direction in directions)
+                {
+                    Vector2Int neighborPosition = current + direction;
+                    bool alreadyVisited = !visited.Add(neighborPosition);
+                    if (alreadyVisited) continue;
+
+                    var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
+                    TileItem neighborTileItem = partition.GetTileItem(positionInPartition, layer);
+                    
+                    if (neighborTileItem?.tileEntity is not T) continue;
+                    queue.Enqueue(neighborPosition);
+                    result.Add(neighborPosition); 
             
                 }
             }

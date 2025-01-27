@@ -284,7 +284,7 @@ namespace TileMaps.Place {
             TileEntityObject tileEntity = tileItem.tileEntity;
             if (ReferenceEquals(tileEntity, null)) return;
             
-            ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true);
+            ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
