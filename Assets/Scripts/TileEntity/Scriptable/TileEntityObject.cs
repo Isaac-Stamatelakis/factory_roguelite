@@ -26,10 +26,8 @@ namespace TileEntity {
     }
     public abstract class TileEntityObject : ScriptableObject
     {
-        [Header("TileEntityInstance will be loaded when player is not in chunk load range")]
-        public bool SoftLoadable;
         [Header("TileEntityInstance will be created with extra partition load range. Useful for torches")]
         public bool ExtraLoadRange;
-        public abstract ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk);
+        public abstract ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk);
     }
 }

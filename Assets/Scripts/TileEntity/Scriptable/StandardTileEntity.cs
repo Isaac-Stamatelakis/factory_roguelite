@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TileEntity {
     public class StandardTileEntityObject : TileEntityObject
     {
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new StandardTileEntityInstance(this, tilePosition,tileItem,chunk);
         }

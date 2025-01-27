@@ -70,10 +70,6 @@ namespace TileEntity {
         {
             return TileEntityObject;
         }
-
-        public bool SoftLoadable() {
-            return TileEntityObject.SoftLoadable;
-        }
     }
 
     public class StandardTileEntityInstance : TileEntityInstance<TileEntityObject>

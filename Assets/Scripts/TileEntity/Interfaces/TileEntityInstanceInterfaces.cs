@@ -6,7 +6,8 @@ using RecipeModule;
 
 
 namespace TileEntity {
-    public interface ITickableTileEntity
+    
+    public interface ITickableTileEntity : ISoftLoadableTileEntity
     {
         public void tickUpdate();
     }

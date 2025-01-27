@@ -102,9 +102,6 @@ namespace Chunks.Systems {
             container.AddComponent<TilemapRenderer>();
             tilemaps[tileEntityTileMapType] = tilemap;
 
-            var handle = Addressables.LoadAssetAsync<Material>("Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
-            
-
         }
 
         public static void LoadTileEntityMaps(Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps)

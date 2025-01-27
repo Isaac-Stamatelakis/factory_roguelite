@@ -78,7 +78,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         if (tileEntity == null) {
                             continue;
                         }
-                        if(unloadTileEntity(tileEntities,x,y)) {
+                        if(UnloadTileEntity(tileEntities,x,y)) {
                             removals ++;
                         }
                         if (removals >= removalsPerNumeration) {
@@ -90,20 +90,24 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        protected virtual bool unloadTileEntity(ITileEntityInstance[,] array, int x, int y) {
+        protected virtual bool UnloadTileEntity(ITileEntityInstance[,] array, int x, int y) {
             ITileEntityInstance tileEntityInstance = array[x,y];
-            if (tileEntityInstance == null || tileEntityInstance.GetTileEntity().SoftLoadable) {
+            if (tileEntityInstance == null) {
                 return false;
             }
             if (tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.Unload();
             }
+
+            if (tileEntityInstance is ISoftLoadableTileEntity) return false;
             if (tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
                 data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize();
             }
             array[x,y] = null;
             return true;
         }
+        
+        
 
         protected override void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition) {
             Vector2Int partitionPosition = new Vector2Int(x,y);
@@ -309,7 +313,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     }
                     TileEntityObject tileEntity = tileEntityInstance.GetTileEntity();
                     if (tileEntity.ExtraLoadRange) {
-                        unloadTileEntity(tileEntities,x,y);
+                        UnloadTileEntity(tileEntities,x,y);
                     }
                 }
             }

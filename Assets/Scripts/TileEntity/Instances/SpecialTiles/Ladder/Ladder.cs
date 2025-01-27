@@ -8,7 +8,7 @@ namespace TileEntity.Instances {
     public class Ladder : TileEntityObject, IClimableTileEntity
     {
         public int speed;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return null;
         }

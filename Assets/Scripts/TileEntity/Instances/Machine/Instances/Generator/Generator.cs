@@ -18,7 +18,7 @@ namespace TileEntity.Instances.Machines
     public class Generator : MachineObject, ITieredTileEntity
     {
         public Tier Tier;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new GeneratorInstance(this,tilePosition,tileItem,chunk);
         }

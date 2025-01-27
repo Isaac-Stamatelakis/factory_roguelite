@@ -9,7 +9,7 @@ namespace TileEntity.Instances.Signal {
     public class SignalNotGate : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignalNotGateInstance(this,tilePosition,tileItem,chunk);
         }

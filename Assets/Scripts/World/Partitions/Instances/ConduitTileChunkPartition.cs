@@ -97,26 +97,28 @@ namespace Chunks.Partitions {
                         continue;
                     }
                     TileItem tileItem = itemRegistry.GetTileItem(id);
-                    if (tileItem == null) {
+                    if (ReferenceEquals(tileItem?.tileEntity,null)) {
                         continue;
                     }
-                    TileEntityObject tileEntity = tileItem.tileEntity;
-                    if (tileEntity != null) {
-                        tileEntities[x,y] = PlaceSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
-                        if (tileEntities[x, y] is ITickableTileEntity tickableTileEntity)
-                        {
-                            tickableTileEntities.Add(tickableTileEntity);
-                        }
+                    tileEntities[x,y] = PlaceSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
+                    if (tileEntities[x, y] is ITickableTileEntity tickableTileEntity)
+                    {
+                        tickableTileEntities.Add(tickableTileEntity);
                     }
                 }
             }
         }
-        protected ITileEntityInstance PlaceSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition) {
-            if (!tileItem.tileEntity.SoftLoadable) {
+        protected ITileEntityInstance PlaceSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition)
+        {
+            /* This check is inefficient but this is only ever called at the start of the game so its fine
+             * The other alternative is assigning soft load to the tile entity directly but this leaves lots of room for human error
+             */
+            ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
+            if (instance is not ISoftLoadableTileEntity) {
                 return null;
             }
-            Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
-            return TileEntityUtils.placeTileEntity(tileItem,position,parent,false,unserialize:true, data:options);
+            Vector2Int cellPosition = this.position * Global.ChunkPartitionSize + positionInPartition;
+            return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options);
         }
 
         private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {

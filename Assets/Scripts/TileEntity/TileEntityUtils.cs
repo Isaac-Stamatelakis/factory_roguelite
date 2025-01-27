@@ -19,7 +19,7 @@ namespace TileEntity {
 
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, 
             string data = null, bool assembleMultiblocks = false) {
-            ITileEntityInstance tileEntityInstance = tileItem.tileEntity.createInstance(positionInChunk, tileItem, chunk);
+            ITileEntityInstance tileEntityInstance = tileItem.tileEntity.CreateInstance(positionInChunk, tileItem, chunk);
             
             if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
                 TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();

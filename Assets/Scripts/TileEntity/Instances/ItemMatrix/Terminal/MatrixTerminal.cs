@@ -10,7 +10,7 @@ namespace TileEntity.Instances.Matrix {
     public class MatrixTerminal : TileEntityObject
     {
         public ConduitPortLayout Layout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MatrixTerminalInstance(this,tilePosition,tileItem,chunk);
         }

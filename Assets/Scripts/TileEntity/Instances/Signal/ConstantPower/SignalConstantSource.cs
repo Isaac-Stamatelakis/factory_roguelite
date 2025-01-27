@@ -9,7 +9,7 @@ namespace TileEntity.Instances.Signal {
     public class SignalConstantSource : TileEntityObject
     {
         public ConduitPortLayout ConduitLayout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignalConstantSourceInstance(this,tilePosition,tileItem,chunk);
         }

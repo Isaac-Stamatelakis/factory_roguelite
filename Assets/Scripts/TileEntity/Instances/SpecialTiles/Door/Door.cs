@@ -14,7 +14,7 @@ namespace TileEntity.Instances {
     [CreateAssetMenu(fileName = "New Door", menuName = "Tile Entity/Door")]
     public class Door : TileEntityObject
     {
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new DoorInstance(this,tilePosition,tileItem,chunk);
         }

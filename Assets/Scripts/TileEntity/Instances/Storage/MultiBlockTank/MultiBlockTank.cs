@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduits.Ports;
 using Item.Slot;
 using Items;
+using TileMaps.Layer;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -15,7 +16,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         public TileItem TankTile;
         public uint SpacePerTank;
         public ConduitPortLayout ConduitLayout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MultiBlockTankInstance(this, tilePosition, tileItem, chunk);
         }
@@ -92,7 +93,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         public void Load()
         {
-            
+            DisplayFluid();
         }
 
         private void DisplayFluid()
@@ -102,43 +103,68 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
             uint remainingAmount = fluidSlot.amount;
-            for (int y = minY; y <= maxY; y++)
+            bool normalGravity = !fluidTileItem.fluidOptions.InvertedGravity;
+            int y = normalGravity ? minY : maxY;
+            while (true)
             {
-                List<int> xCoords = fluidHeightMap[y];
-                uint spaceAtY = tileEntityObject.SpacePerTank * (uint)xCoords.Count;
-                bool notFilledAtYLevel = remainingAmount < spaceAtY;
-                float fillPercent = notFilledAtYLevel ? (float)remainingAmount / spaceAtY : 1;
-                if (remainingAmount == 0)
+                if (normalGravity)
                 {
-                    foreach (int x in xCoords)
-                    {
-                        tilemap.SetTile(new Vector3Int(x,y,0), null);
-                    }
-                    continue;
-                }
-                if (notFilledAtYLevel)
-                {
-                    remainingAmount = 0;
+                    if (y > maxY) break;
                 }
                 else
                 {
-                    remainingAmount -= spaceAtY;
+                    if (y < minY) break;
                 }
 
-                TileBase tile = fluidTileItem.GetTile(fillPercent);
+                UpdateFluidRow(tilemap, fluidTileItem, y, ref remainingAmount);
+
+                if (normalGravity)
+                {
+                    y++;
+                }
+                else
+                {
+                    y--;
+                }
+                
+            }
+        }
+
+        private void UpdateFluidRow(Tilemap tilemap, FluidTileItem fluidTileItem, int y, ref uint remainingAmount)
+        {
+            List<int> xCoords = fluidHeightMap[y];
+            uint spaceAtY = tileEntityObject.SpacePerTank * (uint)xCoords.Count;
+            bool notFilledAtYLevel = remainingAmount < spaceAtY;
+            float fillPercent = notFilledAtYLevel ? (float)remainingAmount / spaceAtY : 1;
+            if (remainingAmount == 0)
+            {
                 foreach (int x in xCoords)
                 {
-                    tilemap.SetTile(new Vector3Int(x,y,0), tile);
+                    tilemap.SetTile(new Vector3Int(x,y,0), null);
                 }
+                return;
             }
-            
+            if (notFilledAtYLevel)
+            {
+                remainingAmount = 0;
+            }
+            else
+            {
+                remainingAmount -= spaceAtY;
+            }
+
+            TileBase tile = fluidTileItem.GetTile(fillPercent);
+            foreach (int x in xCoords)
+            {
+                tilemap.SetTile(new Vector3Int(x,y,0), tile);
+            }
         }
         public void Unload()
         {
             if (chunk is not ILoadedChunk loadedChunk) return;
-
+            
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
-            Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitFront);
+            Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
             for (int y = minY; y <= maxY; y++)
             {
                 List<int> xCoords = fluidHeightMap[y];
