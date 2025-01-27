@@ -32,8 +32,8 @@ namespace UI.Chat {
             { "brown", new Color(0.65f, 0.16f, 0.16f) } // Brown
         };
 
-        public static readonly HashSet<string> TrueValues = new HashSet<string>{"true","1","on",};
-        public static readonly HashSet<string> FalseValues = new HashSet<string>{"false","0","off"};
+        public static readonly HashSet<string> TrueValues = new HashSet<string>{"t","true","1","on",};
+        public static readonly HashSet<string> FalseValues = new HashSet<string>{"f","false","0","off"};
         
         public static int ParseInt(string[] parameters, int index, string parameterName, int? baseValue, int lowerBound = int.MinValue, int upperBound = int.MaxValue) {
             
@@ -99,6 +99,7 @@ namespace UI.Chat {
                 return false;
             }
             throw new ChatParseException($"Error parsing command: value '{parameter}' at {index} is not a bool");
+
         }
 
         public static Color parseColor(string[] parameters, int index) {

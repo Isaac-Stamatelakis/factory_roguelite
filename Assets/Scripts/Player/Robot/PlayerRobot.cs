@@ -54,6 +54,7 @@ namespace Player {
         private bool immuneToNextFall = false;
         private uint iFrames;
         public bool Dead => dead;
+        private CameraBounds cameraBounds;
 
         private const float TERMINAL_VELOCITY = 30f;
         void Start() {
@@ -61,6 +62,7 @@ namespace Player {
             rb = GetComponent<Rigidbody2D>();
             groundLayers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             defaultGravityScale = rb.gravityScale;
+            cameraBounds = Camera.main.GetComponent<CameraBounds>();
         }
 
         public void Update()
@@ -91,15 +93,18 @@ namespace Player {
             Vector2 velocity = Vector2.zero;
             velocity.y = rb.velocity.y;
             float realTimeSpeed = speed * Time.deltaTime;
+            bool moved = false;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 //rb.AddForce(Vector2.left * realTimeSpeed, ForceMode2D.Force);
                 velocity.x = -speed;
                 spriteRenderer.flipX = true;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 velocity.x = +speed;
                 //rb.AddForce(Vector2.right * realTimeSpeed, ForceMode2D.Force);
                 spriteRenderer.flipX = false;
+                moved = true;
             }
             if (onGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
                 if (Input.GetKey(KeyCode.S)) {
@@ -108,11 +113,10 @@ namespace Player {
                     velocity.y = 12f;
                 }
                 onGround = false;
+                moved = true;
             }
-            
-            
-            
             rb.velocity = velocity;
+            if (moved) cameraBounds.UpdateCameraBounds();
         }
 
         public void FixedUpdate()
@@ -227,21 +231,28 @@ namespace Player {
         {
             Vector3 position = playerTransform.position;
             float speed = DevMode.Instance.FlightSpeed * Time.deltaTime;
+            bool moved = false;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 position.x -= speed;
                 spriteRenderer.flipX = true;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 position.x += speed;
                 spriteRenderer.flipX = false;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
                 position.y += speed;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
                 position.y -= speed;
+                moved = true;
             }
             playerTransform.position = position;
+            if (moved) cameraBounds.UpdateCameraBounds();
+            
         }
 
         public void Heal(float amount)

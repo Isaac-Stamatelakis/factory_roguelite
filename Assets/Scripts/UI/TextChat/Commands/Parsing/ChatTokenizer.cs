@@ -12,12 +12,14 @@ namespace UI.Chat {
             string[] split = text.Split(" ");
             string textCommand = split[0];
             textCommand = textCommand.Replace("/","");
-            
-            string[] parameters = new string[split.Length-1];
+
+            List<string> parameters = new List<string>();
             for (int i = 0; i < split.Length-1; i++) {
-                parameters[i] = split[i+1];
+                string splitValue = split[i+1].Trim();
+                if (string.IsNullOrEmpty(splitValue)) continue;
+                parameters.Add(splitValue);
             }
-            return new ChatCommandToken(textCommand,parameters);
+            return new ChatCommandToken(textCommand,parameters.ToArray());
         }
     }
 }

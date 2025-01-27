@@ -82,12 +82,9 @@ public class CameraBounds : MonoBehaviour
         lastChunk = new Vector2Int(cx,cy);
     }
 
-    public void Update() {
-        if (bounds == null) {
-            CheckPartitionAndChunk();
-            return;
-        }
-        // TODO CHANGE THIS SO ITS ONLY CALLED WHEN THE PLAYER MOVES
+    public void UpdateCameraBounds()
+    {
+        if (bounds == null) return;
         Transform playerTransform = transform.parent;
         Vector3 position = transform.localPosition;
         bool outLeft = playerTransform.position.x-width/2 < bounds.X.LowerBound;
@@ -111,7 +108,9 @@ public class CameraBounds : MonoBehaviour
 
         position += Vector3.up * yOffset;
         transform.localPosition = position;
+    }
 
+    public void Update() {
         CheckPartitionAndChunk();
     }
 }

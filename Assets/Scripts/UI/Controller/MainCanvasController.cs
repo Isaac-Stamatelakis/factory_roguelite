@@ -20,7 +20,7 @@ namespace UI
     }
     public class MainCanvasController : CanvasController
     {
-        public static MainCanvasController TInstance => instance as MainCanvasController; 
+        public static MainCanvasController TInstance => instance as MainCanvasController;
         [SerializeField] private PauseScreenUI pauseScreenUIPrefab;
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;

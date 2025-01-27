@@ -161,7 +161,7 @@ namespace Conduits.Ports {
         
         public ItemSlot Extract(ItemState state) {
             if (ReferenceEquals(outputPortData,null)) return null;
-            return Interactable.ExtractItem(state, Position, inputPortData.Filter);
+            return Interactable.ExtractItem(state, Position, outputPortData.Filter);
         }
 
         public uint GetExtractionRate()

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,13 +35,26 @@ namespace Items {
 
         private static readonly string[] suffixes = {"k","M","B","T"};
 
-        public static string FormatAmountText(uint amount,bool oneInvisible = true)
+        public static string FormatAmountText(uint amount,bool oneInvisible = true, ItemState itemState = ItemState.Solid)
+        {
+            switch (itemState)
+            {
+                case ItemState.Solid:
+                    return FormatSolidItemText(amount, oneInvisible);
+                case ItemState.Fluid:
+                    return FormatFluidItemText(amount);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(itemState), itemState, null);
+            }
+        }
+
+        private static string FormatSolidItemText(uint amount, bool oneInvisible)
         {
             switch (amount)
             {
                 case <= 1 when oneInvisible:
                     return string.Empty;
-                case < 10000:
+                case < 1000:
                     return amount.ToString();
             }
 
@@ -49,7 +64,26 @@ namespace Items {
                 fAmount /= 1000;
                 i++;
             }
-            return fAmount.ToString("0.#" + suffixes[i]);
+            return fAmount.ToString("0.0" + suffixes[i]);
+        }
+
+        private static string FormatFluidItemText(uint amount)
+        {
+            const string FLUID_SUFFIX = "L";
+            if (amount <= 1000)
+            {
+                return $"{amount}m{FLUID_SUFFIX}";
+            }
+            int i = 0;
+            float fAmount = amount/1000f;
+            while (i < suffixes.Length-1 && fAmount >= 1000) {
+                fAmount /= 1000;
+                i++;
+            }
+
+            i--; // Go one suffix down for fluids
+            string suffix = i < 0 ? string.Empty : suffixes[i];
+            return fAmount.ToString("0.00" + suffix + FLUID_SUFFIX);
         }
         public static Vector2 GetItemScale(Sprite sprite) {
             Vector2 size = getItemSize(sprite);

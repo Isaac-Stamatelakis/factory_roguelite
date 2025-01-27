@@ -170,22 +170,6 @@ namespace PlayerModule.Mouse {
         }
 
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 offset) {
-            /*
-            if (DevMode.Instance.spawnItem) {
-                ILoadedChunk chunk = GetChunk(mousePosition+offset);
-                if (chunk != null) {
-                        ItemEntityFactory.spawnItemEntity(
-                        mousePosition+offset,
-                        ItemSlotFactory.CreateNewItemSlot(
-                            ItemRegistry.GetInstance().GetItemObject(DevMode.Instance.spawnItemID),
-                            1
-                        ),
-                        chunk.getEntityContainer()
-                    );
-                }
-                return;
-            }
-            */
             bool drop = HandleDrop(mousePosition,offset);
             if (drop) {
                 return;
@@ -385,7 +369,9 @@ namespace PlayerModule.Mouse {
         
         
 
-        private void InventoryControlUpdate() {
+        private void InventoryControlUpdate()
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             if (Input.mouseScrollDelta.y != 0) {
                 float y = Input.mouseScrollDelta.y;
                 if (y < 0) {

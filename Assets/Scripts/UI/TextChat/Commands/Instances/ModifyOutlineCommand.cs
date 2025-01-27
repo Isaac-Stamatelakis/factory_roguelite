@@ -18,11 +18,50 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            bool wireFrame = ChatCommandParameterParser.parseBool(parameters,0,"wireframe");
-            Color? color = null;
-            if (parameters.Length > 1) {
-                color = ChatCommandParameterParser.parseColor(parameters,1);
+            switch (parameters.Length)
+            {
+                case 1:
+                    SingleParameter();
+                    break;
+                case 2:
+                    bool wireFrame = ChatCommandParameterParser.parseBool(parameters, 0, "wireframe");
+                    SetWireFrameState(wireFrame,null);
+                    Color color = ChatCommandParameterParser.parseColor(parameters,1);
+                    SetWireFrameState(wireFrame,color);
+                    break;
+                default:
+                    throw new ChatParseException("Invalid number of parameters");
             }
+        }
+
+        private void SingleParameter()
+        {
+            try
+            {
+                bool wireFrame = ChatCommandParameterParser.parseBool(parameters, 0, "wireframe");
+                SetWireFrameState(wireFrame,null);
+                return;
+            }
+            catch (ChatParseException)
+            {
+                
+            }
+            
+            try
+            {
+                Color color = ChatCommandParameterParser.parseColor(parameters,0);
+                SetWireFrameState(null,color);
+                return;
+            }
+            catch (ChatParseException)
+            {
+                
+            }
+            throw new ChatParseException($"Invalid parameter '{parameters[0]}'");
+        }
+
+        private void SetWireFrameState(bool? wireFrame, Color? color)
+        {
             DimensionManager dimensionManager = DimensionManager.Instance;
             OutlineWorldTileGridMap[] outlineTileGridMaps = GameObject.FindObjectsOfType<OutlineWorldTileGridMap>();
             foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
@@ -32,10 +71,23 @@ namespace UI.Chat {
 
         public List<string> getAutoFill(int paramIndex)
         {
-            if (paramIndex == 1) {
-                return ChatCommandParameterParser.PresetColors.Keys.ToList();
+            switch (paramIndex)
+            {
+                case 0:
+                {
+                    List<string> fills = new List<string>
+                    {
+                        "false",
+                        "true"
+                    };
+                    fills.AddRange(ChatCommandParameterParser.PresetColors.Keys.ToList());
+                    return fills;
+                }
+                case 1:
+                    return ChatCommandParameterParser.PresetColors.Keys.ToList();
+                default:
+                    return null;
             }
-            return null;
         }
 
         public override string getDescription()

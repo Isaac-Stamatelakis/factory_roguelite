@@ -191,7 +191,7 @@ namespace TileEntity {
         }
         
         public static TileEntityInventory Initialize(TileEntityLayoutObject layoutObject)
-        {
+        {   
             return new TileEntityInventory(
                 ItemSlotFactory.createEmptyInventory(layoutObject.SolidInputs.GetIntSize()),
                 ItemSlotFactory.createEmptyInventory(layoutObject.SolidOutputs.GetIntSize()),

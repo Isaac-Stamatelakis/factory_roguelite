@@ -16,13 +16,52 @@ namespace Item.Inventory.ClickHandlers.Instances
         {
             var inventory = inventoryUI.GetInventory();
             inventoryUI.CallListeners(index);
-            ItemSlot container = GrabbedItemProperties.Instance.ItemSlot;
-            if (container == null || container.itemObject == null) {
+            ItemSlot grabbedSlot = GrabbedItemProperties.Instance.ItemSlot;
+
+            if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
+
+            switch (grabbedSlot.itemObject)
+            {
+                case FluidTileItem fluidTileItem:
+                    InsertFluidTileItem(grabbedSlot,fluidTileItem);
+                    break;
+                case IFluidContainer fluidContainer:
+                    InsertFluidCell(grabbedSlot, fluidContainer);
+                    break;
+            }
+        }
+
+        private void InsertFluidTileItem(ItemSlot itemSlot, FluidTileItem fluidTileItem)
+        {
+            // This insert option will not be available for players who do not cheat in fluid tiles
+            // Inserting can overflow the max fluid limit of containers
+            var inventory = inventoryUI.GetInventory();
+            
+            ItemSlot inventorySlot = inventory[index];
+            const int UNIT_RATIO = 1000; // Unit change from solid to mL
+            if (ItemSlotUtils.IsItemSlotNull(inventorySlot))
+            {
+                itemSlot.amount *= UNIT_RATIO;
+                inventory[index] = itemSlot;
+            } else if (inventorySlot.itemObject.id != itemSlot.itemObject.id)
+            {
+                inventory[index].amount = itemSlot.amount * UNIT_RATIO;
+            } else
+            {
                 return;
             }
-            if (container.itemObject is not IFluidContainer fluidContainer) {
-                return;
-            }
+            
+            GrabbedItemProperties.Instance.SetItemSlot(null);
+            GrabbedItemProperties.Instance.UpdateSprite();
+            inventoryUI.CallListeners(index);
+            inventoryUI.RefreshSlots();
+ 
+        }
+
+        private void InsertFluidCell(ItemSlot container, IFluidContainer fluidContainer)
+        {
+            var inventory = inventoryUI.GetInventory();
+            inventoryUI.CallListeners(index);
             if (container.tags == null) {
                 Debug.LogError("FluidContainerHelper method 'handleClick' recieved itemslot container which did not have tags");
                 return;

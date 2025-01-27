@@ -50,6 +50,7 @@ namespace Recipe {
             }
             foreach (var asset in processorHandles.Result)
             {
+                if (ReferenceEquals(asset,null)) continue;
                 var processorInstance = new RecipeProcessorInstance(asset);
                 processors.Add(processorInstance);
                 processorDict[asset] = processorInstance;

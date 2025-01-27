@@ -59,14 +59,14 @@ namespace Items.Transmutable
             float efficency = 1f)
         {
             uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
-            return (uint)(gcd * inputState.getRatio()*efficency);
+            return (uint)(gcd * inputState.getRatio()/efficency);
         }
         
         public static ItemSlot TransmuteOutput(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
         {
             TransmutableItemObject outputItem = GetMaterialItem(material, outputState);
             uint gcd = GetGcd((uint)(1 / inputState.getRatio()), (uint)(1 / outputState.getRatio()));
-            uint outputAmount = (uint)(gcd * outputState.getRatio() * efficency);
+            uint outputAmount = (uint)(gcd * outputState.getRatio());
             ItemSlot output = new ItemSlot(outputItem, outputAmount, null);
             return output;
         }

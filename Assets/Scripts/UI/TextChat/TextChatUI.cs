@@ -102,8 +102,6 @@ namespace UI.Chat {
             const float scrollSpeed = 10000;
             float height = ((RectTransform)textList.transform).sizeDelta.y;
             
-            Debug.Log($"LOCALY:{textList.transform.localPosition.y} HEIGHT: {height}");
-            
             if (Input.mouseScrollDelta.y != 0)
             {
                 if (Input.mouseScrollDelta.y > 0)
@@ -146,6 +144,16 @@ namespace UI.Chat {
             if (recordedMessages.Count > 50) {
                 recordedMessages.RemoveAt(0);
             }
+
+            for (var index = 0; index < recordedMessages.Count; index++)
+            {
+                var recordedMessage = recordedMessages[index];
+                if (!recordedMessage.Content.Equals(message)) continue;
+                recordedMessages.RemoveAt(index);
+                recordedMessages.Add(recordedMessage);
+                return;
+            }
+
             this.recordedMessages.Add(new RecordedMessage(message,Time.time));
         }
 
@@ -153,7 +161,7 @@ namespace UI.Chat {
             previousMessageIndex = Mathf.Clamp(previousMessageIndex,-1,recordedMessages.Count-1);
            
             inputField.text = previousMessageIndex == -1 ? "" : recordedMessages[previousMessageIndex].Content;
-            inputField.caretPosition = inputField.text.Length;
+            inputField.caretPosition = 0;
         }
 
         private void commandFillParameters() {

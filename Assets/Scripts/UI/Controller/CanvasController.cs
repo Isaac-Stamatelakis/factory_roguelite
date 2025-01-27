@@ -7,6 +7,7 @@ namespace UI
 {
     public abstract class CanvasController : MonoBehaviour
     {
+        [SerializeField] private GameObject mBlocker;
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
@@ -61,6 +62,8 @@ namespace UI
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
+            mBlocker.gameObject.SetActive(false);
+            
         }
         public void PopStack()
         {
@@ -85,6 +88,11 @@ namespace UI
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
             }
+            else
+            {
+                mBlocker.gameObject.SetActive(false);
+            }
+            
         }
 
         public bool TopHasComponent<T>() where T : Component
@@ -100,6 +108,7 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
+            mBlocker.gameObject.SetActive(true);
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo current = uiObjectStack.Peek();
