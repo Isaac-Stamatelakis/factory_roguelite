@@ -336,9 +336,9 @@ namespace Player {
             Vector2 velocity = rb.velocity;
             fallTime = 0;
             if (Input.GetKey(KeyCode.W)) {
-                velocity.y = climableTileEntity.getSpeed();
+                velocity.y = climableTileEntity.GetSpeed();
             } else if (Input.GetKey(KeyCode.S)) {
-                velocity.y = -climableTileEntity.getSpeed();
+                velocity.y = -climableTileEntity.GetSpeed();
             } else {
                 velocity.y = 0;
             }

@@ -58,7 +58,7 @@ namespace TileEntity.Instances.Machines
             InventoryUpdate(0);
         }
 
-        public override void tickUpdate()
+        public override void TickUpdate()
         {
             if (BatteryInventory?.Count > 0 && !ItemSlotUtils.IsItemSlotNull(BatteryInventory[0]))
             {

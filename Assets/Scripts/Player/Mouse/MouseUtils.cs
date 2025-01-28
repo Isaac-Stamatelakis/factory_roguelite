@@ -71,8 +71,8 @@ namespace Player.Mouse
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
                 ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
                 if (tileEntity is ILeftClickableTileEntity leftClickableTileEntity) {
-                    leftClickableTileEntity.onLeftClick();
-                    if (!leftClickableTileEntity.canBreak()) {
+                    leftClickableTileEntity.OnLeftClick();
+                    if (!leftClickableTileEntity.CanBreak()) {
                         return false;
                     }
                 }

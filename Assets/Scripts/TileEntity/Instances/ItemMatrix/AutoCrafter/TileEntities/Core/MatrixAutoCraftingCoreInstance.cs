@@ -73,7 +73,13 @@ namespace TileEntity.Instances.Matrix {
             }
             
         }
-        
+
+        public List<Vector2Int> GetConnectedPositions()
+        {
+            // TOOD
+            return null;
+        }
+
         public ConduitPortLayout getConduitPortLayout()
         {
             return TileEntityObject.Layout;

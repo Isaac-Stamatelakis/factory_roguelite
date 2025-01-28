@@ -14,7 +14,7 @@ namespace TileEntity.Instances {
         {
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             CaveTeleporterUIController caveTeleporterUIController = GameObject.Instantiate(TileEntityObject.uIManager.getUIElement()).GetComponent<CaveTeleporterUIController>();
             caveTeleporterUIController.DisplayTileEntityInstance(this);

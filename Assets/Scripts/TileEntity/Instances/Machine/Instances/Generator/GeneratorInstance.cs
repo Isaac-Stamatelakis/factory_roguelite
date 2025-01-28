@@ -36,7 +36,7 @@ namespace TileEntity.Instances.Machines
             return JsonConvert.SerializeObject(serializedGeneratorData);
         }
 
-        public override void tickUpdate()
+        public override void TickUpdate()
         {
             if (ReferenceEquals(currentRecipe,null)) {
                 return;

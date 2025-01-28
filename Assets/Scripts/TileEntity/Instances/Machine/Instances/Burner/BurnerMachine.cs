@@ -87,7 +87,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         {
         }
 
-        public override void tickUpdate()
+        public override void TickUpdate()
         {
             BurnerFuelInventory.Tick();
             if (ReferenceEquals(currentRecipe,null) || currentRecipe.RemainingTicks <= 0) return;
@@ -113,7 +113,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             Inventory.TryOutputRecipe(currentRecipe);
         }
 
-        public override void onRightClick()
+        public override void OnRightClick()
         {
             GameObject uiPrefab = TileEntityObject.RecipeProcessor.UIPrefab;
             GameObject ui = Object.Instantiate(uiPrefab);

@@ -24,7 +24,7 @@ namespace TileEntity.Instances.Matrix {
             return TileEntityObject.Layout;
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             if (controller == null) {
                 return;

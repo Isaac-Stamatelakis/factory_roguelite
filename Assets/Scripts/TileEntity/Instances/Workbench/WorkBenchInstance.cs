@@ -17,7 +17,7 @@ namespace TileEntity.Instances.WorkBenchs {
         {
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             tileEntityObject.UIAssetManager.display<WorkBenchInstance,WorkBenchUI>(this);
         }

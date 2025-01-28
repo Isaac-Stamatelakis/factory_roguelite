@@ -45,7 +45,7 @@ namespace TileEntity.Instances.Signal {
             
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             TileEntityObject.UIManager.display<SignalClockInstance,SignalClockUI>(this);
         }
@@ -55,7 +55,7 @@ namespace TileEntity.Instances.Signal {
             return JsonConvert.SerializeObject(ClockData);
         }
 
-        public void tickUpdate()
+        public void TickUpdate()
         {
             if (!ClockData.Active) {
                 return;

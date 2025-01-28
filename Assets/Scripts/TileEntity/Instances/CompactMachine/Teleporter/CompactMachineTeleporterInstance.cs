@@ -11,7 +11,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
             if (compactMachine == null)

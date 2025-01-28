@@ -18,7 +18,13 @@ namespace TileEntity.Instances.Storage {
             List<ItemDrawerInstance> drawers = new List<ItemDrawerInstance>();
             TileEntityUtils.dfsTileEntity(this,drawers);
         }
-        
+
+        public List<Vector2Int> GetConnectedPositions()
+        {
+            // TODO
+            return new List<Vector2Int>();
+        }
+
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             foreach (ItemDrawerInstance drawer in drawers) {

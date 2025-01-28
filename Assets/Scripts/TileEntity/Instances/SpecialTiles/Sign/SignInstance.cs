@@ -13,7 +13,7 @@ namespace TileEntity.Instances.Signs {
         {
         }
         private SignData signData;
-        public void onRightClick()
+        public void OnRightClick()
         {
             GameObject signUIPrefab = TileEntityObject.UIManager.getUIElement();
             if (signData == null) {

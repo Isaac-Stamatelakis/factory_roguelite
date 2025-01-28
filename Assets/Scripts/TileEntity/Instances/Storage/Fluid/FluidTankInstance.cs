@@ -61,7 +61,7 @@ namespace TileEntity.Instances.Storage {
 
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             TileEntityObject.UIManager.display<FluidTankInstance,FluidTankUI>(this);
         }

@@ -13,7 +13,7 @@ namespace TileEntity.Instances {
             return null;
         }
 
-        public int getSpeed()
+        public int GetSpeed()
         {
             return speed;
         }

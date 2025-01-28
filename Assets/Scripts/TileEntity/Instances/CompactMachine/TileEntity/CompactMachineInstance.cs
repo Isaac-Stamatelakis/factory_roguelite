@@ -64,7 +64,7 @@ namespace TileEntity.Instances.CompactMachines {
             return 0;
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
                 CompactMachineHelper.teleportIntoCompactMachine(this);

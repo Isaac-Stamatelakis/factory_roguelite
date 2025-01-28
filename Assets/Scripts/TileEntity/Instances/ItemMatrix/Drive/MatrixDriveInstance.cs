@@ -117,7 +117,7 @@ namespace TileEntity.Instances.Matrix {
             }
             return queue;
         }
-        public void onBreak()
+        public void OnBreak()
         {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
@@ -127,7 +127,7 @@ namespace TileEntity.Instances.Matrix {
             }
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             
             MatrixDriveUI ui = MatrixDriveUI.createInstance();
@@ -151,7 +151,7 @@ namespace TileEntity.Instances.Matrix {
             matrixConduitSystem.setDrive(this);
         }
 
-        public void tickUpdate()
+        public void TickUpdate()
         {
             if (pixelContainer == null) {
                 return;

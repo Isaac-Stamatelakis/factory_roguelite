@@ -39,9 +39,9 @@ namespace TileEntity.Instances.Machine.Instances
             EnergyInventory = new MachineEnergyInventory(0, this);
         }
 
-        public abstract void tickUpdate();
+        public abstract void TickUpdate();
         
-        public virtual void onRightClick()
+        public virtual void OnRightClick()
         {
             GameObject uiPrefab = TileEntityObject.RecipeProcessor.UIPrefab;
             GameObject ui = Object.Instantiate(uiPrefab);

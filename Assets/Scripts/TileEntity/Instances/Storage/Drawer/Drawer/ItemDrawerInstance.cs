@@ -64,9 +64,9 @@ namespace TileEntity.Instances.Storage {
 
         }
 
-        public void onLeftClick()
+        public void OnLeftClick()
         {
-            if (!canInteract()) {
+            if (!CanInteract()) {
                 return;
             }
             if (itemSlot == null || itemSlot.itemObject == null) {
@@ -87,12 +87,12 @@ namespace TileEntity.Instances.Storage {
             loadVisual();
         }
 
-        public bool canInteract() {
+        public bool CanInteract() {
             invincibilityFrames -= Time.deltaTime;
             return invincibilityFrames <= 0f;
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             ItemSlot playerItemSlot = playerInventory.getSelectedItemSlot();
@@ -131,7 +131,7 @@ namespace TileEntity.Instances.Storage {
             itemSlot = ItemSlotFactory.DeserializeSlot(data);
         }
 
-        public void onBreak()
+        public void OnBreak()
         {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
@@ -148,9 +148,9 @@ namespace TileEntity.Instances.Storage {
             }
         }
 
-        public bool canBreak()
+        public bool CanBreak()
         {
-            if (!canInteract()) {
+            if (!CanInteract()) {
                 return false;
             }
             return itemSlot == null || itemSlot.itemObject==null;
