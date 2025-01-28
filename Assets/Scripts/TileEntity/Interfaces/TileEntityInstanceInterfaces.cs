@@ -6,7 +6,8 @@ using RecipeModule;
 
 
 namespace TileEntity {
-    public interface ITickableTileEntity
+    
+    public interface ITickableTileEntity : ISoftLoadableTileEntity
     {
         public void tickUpdate();
     }
@@ -32,20 +33,20 @@ namespace TileEntity {
     }
 
     public interface ISerializableTileEntity {
-        public string serialize();
-        public void unserialize(string data);
+        public string Serialize();
+        public void Unserialize(string data);
     }
 
     public interface ILoadableTileEntity {
-        public void load();
-        public void unload();
+        public void Load();
+        public void Unload();
     }
 
     public interface IBreakActionTileEntity {
         public void onBreak();
     }
     public interface IMultiBlockTileEntity {
-        public void assembleMultiBlock();
+        public void AssembleMultiBlock();
     }
 
     public interface IStaticTileEntity {

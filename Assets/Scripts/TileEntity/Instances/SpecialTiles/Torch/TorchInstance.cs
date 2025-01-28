@@ -13,7 +13,7 @@ namespace TileEntity.Instances {
         {
         }
 
-        public void load() {
+        public void Load() {
             if (chunk is not ILoadedChunk loadedChunk) {
                 Debug.LogError("Attempted to load torch in unloaded chunk");
                 return;
@@ -35,7 +35,7 @@ namespace TileEntity.Instances {
             }
         }
 
-        public void unload()
+        public void Unload()
         {
             if (lightObject != null) {
                 GameObject.Destroy(lightObject);

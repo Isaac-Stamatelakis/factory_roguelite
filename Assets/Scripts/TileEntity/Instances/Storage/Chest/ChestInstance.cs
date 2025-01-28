@@ -28,7 +28,7 @@ namespace TileEntity.Instances
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            TileEntityHelper.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk,loadedChunk.getSystem());
+            TileEntityUtils.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk,loadedChunk.getSystem());
         }
 
         public void onRightClick()
@@ -45,12 +45,12 @@ namespace TileEntity.Instances
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(clone);
         }
 
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.serializeList(items);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             items = ItemSlotFactory.Deserialize(data);
         }

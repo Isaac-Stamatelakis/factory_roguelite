@@ -10,7 +10,7 @@ namespace TileEntity.Instances.Matrix {
     public class MatrixAutoCraftingChassis : TileEntityObject
     {
         public ConduitPortLayout Layout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MatrixAutoCraftingChassisInstance<MatrixAutoCraftingChassis>(this,tilePosition,tileItem,chunk);
         }

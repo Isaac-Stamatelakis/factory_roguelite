@@ -18,7 +18,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Burner")]
     public class BurnerMachine : MachineObject
     {
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new BurnerMachineInstance(this, tilePosition, tileItem, chunk);
         }
@@ -122,7 +122,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(ui);
         }
 
-        public override string serialize()
+        public override string Serialize()
         {
             SerializedBurnerMachine serializedBurnerMachine = new SerializedBurnerMachine(
                 Mode,
@@ -133,7 +133,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             return JsonConvert.SerializeObject(serializedBurnerMachine);
         }
 
-        public override void unserialize(string data)
+        public override void Unserialize(string data)
         {
             SerializedBurnerMachine serializedBurnerMachine = JsonConvert.DeserializeObject<SerializedBurnerMachine>(data);
             Mode = serializedBurnerMachine.Mode;

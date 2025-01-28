@@ -108,8 +108,8 @@ namespace WorldModule {
         public static IntervalVector GetTileMapChunkBounds(GameObject prefab) {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
-            int xSize = (baseBounds.xMax-baseBounds.xMin)/Global.ChunkSize;
-            int ySize = (baseBounds.yMax-baseBounds.yMin)/Global.ChunkSize;
+            int xSize = (baseBounds.xMax-baseBounds.xMin)/Global.CHUNK_SIZE;
+            int ySize = (baseBounds.yMax-baseBounds.yMin)/Global.CHUNK_SIZE;
             int xLower = (xSize - 1) / 2;
             int xUpper = xSize / 2;
             int yLower = (ySize - 1) / 2;
@@ -120,8 +120,8 @@ namespace WorldModule {
             Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             Vector2Int size = bounds.getSize();
-            int width = size.x * Global.ChunkSize;
-            int height = size.y * Global.ChunkSize;
+            int width = size.x * Global.CHUNK_SIZE;
+            int height = size.y * Global.CHUNK_SIZE;
 
 
             Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();
@@ -179,7 +179,7 @@ namespace WorldModule {
         }
 
         public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds) {
-            Vector2Int size = bounds.getSize()*Global.ChunkSize;
+            Vector2Int size = bounds.getSize()*Global.CHUNK_SIZE;
             int width = size.x;
             int height = size.y;
             SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width,height);

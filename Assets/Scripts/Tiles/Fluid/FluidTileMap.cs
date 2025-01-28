@@ -25,7 +25,7 @@ namespace Fluids {
 
         protected override void SetTile(int x, int y, FluidTileItem item)
         {
-            if (item == null) {
+            if (ReferenceEquals(item,null)) {
                 tilemap.SetTile(new Vector3Int(x,y,0),null);
                 return;
             }
@@ -40,7 +40,7 @@ namespace Fluids {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
         {
-            Vector2Int realPosition = partition.GetRealPosition()*Global.ChunkPartitionSize + position;
+            Vector2Int realPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE + position;
             ActiveFluidPartitionData data = partitionFluidData[partition.GetRealPosition()];
             data.ids[position.x,position.y] = item.id;
             data.fill[position.x,position.y] = 8;

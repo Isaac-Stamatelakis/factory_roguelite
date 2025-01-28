@@ -10,7 +10,7 @@ namespace TileEntity.Instances.Signs {
     {
         public TileEntityUIManager UIManager;
 
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignInstance(this,tilePosition,tileItem,chunk);
         }

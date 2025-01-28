@@ -25,9 +25,9 @@ namespace Recipe.Objects
             switch (efficency)
             {
                 case TransmutationEfficency.Max:
-                    return 0.5f;
-                case TransmutationEfficency.Half:
                     return 1f;
+                case TransmutationEfficency.Half:
+                    return 0.5f;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(efficency), efficency, null);
             }

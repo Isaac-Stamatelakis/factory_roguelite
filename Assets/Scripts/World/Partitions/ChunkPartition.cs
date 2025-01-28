@@ -57,7 +57,7 @@ namespace Chunks.Partitions {
 
         public UnityEngine.Vector2Int GetRealPosition()
         {
-            return parent.getPosition()*Global.PartitionsPerChunk + position;
+            return parent.GetPosition()*Global.PARTITIONS_PER_CHUNK + position;
         }
 
         public bool GetScheduledForUnloading()
@@ -82,47 +82,46 @@ namespace Chunks.Partitions {
                 }
             }
             
-            baseTileHardnessArray = new int[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+            baseTileHardnessArray = new int[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int realPosition = GetRealPosition();
 
             switch (direction) {
                 case Direction.Left:
-                    for (int x = Global.ChunkPartitionSize-1; x >= 0; x --) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+                    for (int x = Global.CHUNK_PARTITION_SIZE-1; x >= 0; x --) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Right:
-                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize ; y ++) {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE ; y ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Up:
-                    for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
-                        for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
+                        for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
                 case Direction.Down:
-                    for (int y = Global.ChunkPartitionSize-1; y >= 0; y --) {
-                        for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
+                    for (int y = Global.CHUNK_PARTITION_SIZE-1; y >= 0; y --) {
+                        for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
                             iterateLoad(x,y,itemRegistry,tileGridMaps,realPosition);
                         }
-                        yield return new WaitForEndOfFrame();
+                        yield return null;
                     }
                     break;
             }
             
             SetTileLoaded(true);
-            yield return null;
         }
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
@@ -142,7 +141,7 @@ namespace Chunks.Partitions {
             }
         }
         public void UnloadEntities() {
-            int size = Global.ChunkPartitionSize/2;
+            int size = Global.CHUNK_PARTITION_SIZE/2;
             Vector2 castPosition = (GetRealPosition()+Vector2.one/2f) * size;
             RaycastHit2D[] hits = Physics2D.BoxCastAll(
                 castPosition, 
@@ -152,15 +151,14 @@ namespace Chunks.Partitions {
                 Mathf.Infinity, 
                 1 << LayerMask.NameToLayer("Entity")
             );
-            List<SeralizedEntityData> entityData = new List<SeralizedEntityData>();
+            data.entityData ??= new List<SeralizedEntityData>();
             foreach (RaycastHit2D hit in hits) {
                 Entity entity = hit.collider.gameObject.GetComponent<Entity>();
                 if (entity is ISerializableEntity serializableEntity) {
-                    entityData.Add(serializableEntity.serialize());
+                    data.entityData.Add(serializableEntity.serialize());
                 }
                 GameObject.Destroy(hit.collider.gameObject);
             }
-            data.entityData = entityData;
         }
         public virtual IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return UnloadTiles(tileGridMaps);
@@ -170,7 +168,7 @@ namespace Chunks.Partitions {
         {
             if (layer != TileMapLayer.Base) return;
             if (tileEntity is ILoadableTileEntity entity) {
-                entity.load();
+                entity.Load();
             }
             tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
@@ -188,7 +186,7 @@ namespace Chunks.Partitions {
                 breakActionTileEntity.onBreak();
             }
             if (tileEntity is ILoadableTileEntity loadableTileEntity) {
-                loadableTileEntity.unload();
+                loadableTileEntity.Unload();
             }
             
             tileEntities[position.x,position.y] = null;
@@ -273,6 +271,19 @@ namespace Chunks.Partitions {
         public int GetHardness(Vector2Int positionInPartition)
         {
             return baseTileHardnessArray[positionInPartition.x, positionInPartition.y];
+        }
+
+        public void UnloadTileEntities()
+        {
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    var tileEntity = tileEntities[x, y];
+                    if (tileEntity is not ILoadableTileEntity loadableTileEntity) continue;
+                    loadableTileEntity.Unload();
+                }
+            }
         }
     }
 }

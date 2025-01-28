@@ -15,6 +15,8 @@ using Fluids;
 using PlayerModule;
 using Dimensions;
 using Player;
+using UnityEngine.Serialization;
+using UnityEngine.Tilemaps;
 
 namespace Chunks.Systems {
     
@@ -25,9 +27,10 @@ namespace Chunks.Systems {
 
     
 
-    public abstract class ClosedChunkSystem : MonoBehaviour
+    public abstract class ClosedChunkSystem : MonoBehaviour, IChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
+        protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
         protected Transform playerTransform;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
@@ -51,6 +54,7 @@ namespace Chunks.Systems {
         private Camera mainCamera;
         public virtual void Awake () {
             mainCamera = Camera.main;
+            
         }
 
         public void Start()
@@ -62,11 +66,11 @@ namespace Chunks.Systems {
             if (chunk == null) {
                 return;
             }
-            Vector2Int chunkPosition = chunk.getPosition();
+            Vector2Int chunkPosition = chunk.GetPosition();
             cachedChunks[chunkPosition] = chunk;
         }
         public void removeChunk(ILoadedChunk chunk) {
-            Vector2Int chunkPosition = chunk.getPosition();
+            Vector2Int chunkPosition = chunk.GetPosition();
             if (chunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
@@ -86,7 +90,7 @@ namespace Chunks.Systems {
 
         public void deactivateAllPartitions() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     partition.SetTileLoaded(false);
                 }
             }
@@ -158,7 +162,7 @@ namespace Chunks.Systems {
         }
 
         public IntervalVector getBounds() {
-            return coveredArea * (Global.ChunkSize/2);
+            return coveredArea * (Global.CHUNK_SIZE/2);
         }
         
         public abstract void playerChunkUpdate();
@@ -167,8 +171,8 @@ namespace Chunks.Systems {
         private Vector2Int GetCurrentPartitionPosition()
         {
             return new Vector2Int(
-                Mathf.FloorToInt(mainCamera.transform.position.x / (Global.ChunkPartitionSize >> 1)),
-                Mathf.FloorToInt(mainCamera.transform.position.y / (Global.ChunkPartitionSize>>1))
+                Mathf.FloorToInt(mainCamera.transform.position.x / (Global.CHUNK_PARTITION_SIZE >> 1)),
+                Mathf.FloorToInt(mainCamera.transform.position.y / (Global.CHUNK_PARTITION_SIZE>>1))
             );
         }
         
@@ -244,7 +248,10 @@ namespace Chunks.Systems {
             return this.cachedChunks.ContainsKey(position);
         }
 
-        
+        public Tilemap GetTileEntityTileMap(TileEntityTileMapType tileEntityTileMapType)
+        {
+            return tileEntityMaps[tileEntityTileMapType];
+        }
         public List<Chunk> getLoadedChunksOutsideRange() {
             Vector2Int playerPosition = getPlayerChunk();
             List<Chunk> chunksToUnload = new List<Chunk>();
@@ -258,11 +265,11 @@ namespace Chunks.Systems {
         }
         public Vector2Int getPlayerChunk() {
             Vector2Int pos = getChunkPositionFromWorld(playerTransform.position);
-            return pos + DimPositionOffset/Global.ChunkSize;
+            return pos + DimPositionOffset/Global.CHUNK_SIZE;
         }
 
         public Vector2Int getChunkPositionFromWorld(Vector2 world) {
-            return new Vector2Int(Mathf.FloorToInt(world.x / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)),Mathf.FloorToInt(world.y / ((Global.PartitionsPerChunk >> 1)*Global.ChunkPartitionSize)));
+            return new Vector2Int(Mathf.FloorToInt(world.x / ((Global.PARTITIONS_PER_CHUNK >> 1)*Global.CHUNK_PARTITION_SIZE)),Mathf.FloorToInt(world.y / ((Global.PARTITIONS_PER_CHUNK >> 1)*Global.CHUNK_PARTITION_SIZE)));
         }
 
         public Vector2Int getPlayerChunkPartition() {
@@ -316,7 +323,7 @@ namespace Chunks.Systems {
         public virtual void saveOnDestroy() {
             partitionUnloader.clearQueue();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in chunk.getChunkPartitions()) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();
                     }
@@ -328,10 +335,14 @@ namespace Chunks.Systems {
         protected Vector2Int getSize() {
             int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
-            return new Vector2Int(xSizeChunks*Global.ChunkSize,ySizeChunks*Global.ChunkSize);
+            return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
         }
 
-        
+
+        public IChunk GetChunkAtPosition(Vector2Int chunkPosition)
+        {
+            return cachedChunks[chunkPosition];
+        }
     }
 
     [System.Serializable]
@@ -344,6 +355,12 @@ namespace Chunks.Systems {
             this.tileBreakIndicator = tileBreakIndicator;
             this.loadedPartitionBoundary = loadedPartitionBoundary;
         }
+    }
+
+    [System.Serializable]
+    public class MiscDimAssets
+    {
+        [FormerlySerializedAs("UnlitMaterial")] public Material LitMaterial;
     }
 }
 

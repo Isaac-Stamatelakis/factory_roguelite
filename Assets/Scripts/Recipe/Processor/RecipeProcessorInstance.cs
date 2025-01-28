@@ -180,6 +180,7 @@ namespace Recipe.Processor
                 foreach (ItemRecipeObject itemRecipeObject in itemRecipes)
                 {
                     var inputs = new List<ItemSlot>();
+                    
                     foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
                     {
                         ItemSlot itemSlot = ItemSlotFactory.FromEditorObject(editorItemSlot);

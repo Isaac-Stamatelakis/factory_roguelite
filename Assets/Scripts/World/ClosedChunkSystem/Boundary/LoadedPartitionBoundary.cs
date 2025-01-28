@@ -22,7 +22,7 @@ namespace Chunks.Systems {
             TilemapCollider2D tilemapCollider2D = gameObject.AddComponent<TilemapCollider2D>();
             tilemapCollider2D.maximumTileChangeCount = 10000000;
             Grid grid = gameObject.AddComponent<Grid>();
-            int realPartitionSize = Global.ChunkPartitionSize/2;
+            int realPartitionSize = Global.CHUNK_PARTITION_SIZE/2;
             grid.cellSize = new Vector3(realPartitionSize,realPartitionSize,1);
             directions = new List<Vector3Int>{
                 Vector3Int.down,

@@ -13,10 +13,10 @@ namespace TileEntity.Instances.Storage {
         {
         }
 
-        public void assembleMultiBlock()
+        public void AssembleMultiBlock()
         {
             List<ItemDrawerInstance> drawers = new List<ItemDrawerInstance>();
-            TileEntityHelper.dfsTileEntity(this,drawers);
+            TileEntityUtils.dfsTileEntity(this,drawers);
         }
         
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)

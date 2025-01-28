@@ -24,6 +24,14 @@ namespace Items {
             return tiles[fill];
         }
 
+        public Tile GetTile(float fill)
+        {
+            int tileIndex = Mathf.FloorToInt(tiles.Length * fill);
+            if (tileIndex == 0) return null;
+            tileIndex--;
+            return tiles[tileIndex];
+        }
+
         public override ItemDisplayType? getDisplayType()
         {
             return ItemDisplayType.Single;

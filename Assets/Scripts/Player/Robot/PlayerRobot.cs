@@ -24,6 +24,7 @@ using UnityEngine.EventSystems;
 namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
+        [SerializeField] private float speed = 50;
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -31,6 +32,8 @@ namespace Player {
 
         [SerializeField] private BoxCollider2D feetBoxCollider;
         [SerializeField] private CapsuleCollider2D feetCapsuleCollider;
+        
+   
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private int noCollisionWithPlatformCounter;
@@ -51,6 +54,7 @@ namespace Player {
         private bool immuneToNextFall = false;
         private uint iFrames;
         public bool Dead => dead;
+        private CameraBounds cameraBounds;
 
         private const float TERMINAL_VELOCITY = 30f;
         void Start() {
@@ -58,11 +62,61 @@ namespace Player {
             rb = GetComponent<Rigidbody2D>();
             groundLayers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
             defaultGravityScale = rb.gravityScale;
+            cameraBounds = Camera.main.GetComponent<CameraBounds>();
         }
 
         public void Update()
         {
             mPlayerRobotUI.Display(robotData,currentRobot);
+            MoveUpdate();
+        }
+
+        private void MoveUpdate()
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            
+            if (DevMode.Instance.flight)
+            {
+                FlightMovementUpdate(transform);
+                return;
+            }
+            
+            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            feetBoxCollider.enabled = !directionalInput;
+            feetCapsuleCollider.enabled = onGround && directionalInput;
+
+            StandardMoveUpdate();
+        }
+
+        private void StandardMoveUpdate()
+        {
+            Vector2 velocity = Vector2.zero;
+            velocity.y = rb.velocity.y;
+            float realTimeSpeed = speed * Time.deltaTime;
+            bool moved = false;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+                //rb.AddForce(Vector2.left * realTimeSpeed, ForceMode2D.Force);
+                velocity.x = -speed;
+                spriteRenderer.flipX = true;
+                moved = true;
+            }
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+                velocity.x = +speed;
+                //rb.AddForce(Vector2.right * realTimeSpeed, ForceMode2D.Force);
+                spriteRenderer.flipX = false;
+                moved = true;
+            }
+            if (onGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
+                if (Input.GetKey(KeyCode.S)) {
+                    noCollisionWithPlatformCounter=5;
+                } else {
+                    velocity.y = 12f;
+                }
+                onGround = false;
+                moved = true;
+            }
+            rb.velocity = velocity;
+            if (moved) cameraBounds.UpdateCameraBounds();
         }
 
         public void FixedUpdate()
@@ -82,28 +136,15 @@ namespace Player {
             RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
             onGround = !ReferenceEquals(raycastHit.collider, null);
             
+            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
+                rb.gravityScale = onGround && !directionalInput ? 0 : defaultGravityScale;
             }
-            
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
-            
-            if (DevMode.Instance.flight)
-            {
-                FlightMovementUpdate(transform);
-                return;
-            }
-            
-            
-        
-            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
-            feetBoxCollider.enabled = !directionalInput;
-            feetCapsuleCollider.enabled = directionalInput;
-            
-            currentRobot?.handleMovement(transform);
         }
+        
 
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
@@ -188,24 +229,30 @@ namespace Player {
 
         private void FlightMovementUpdate(Transform playerTransform)
         {
-            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
             Vector3 position = playerTransform.position;
-            float speed = DevMode.Instance.FlightSpeed;
+            float speed = DevMode.Instance.FlightSpeed * Time.deltaTime;
+            bool moved = false;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
                 position.x -= speed;
                 spriteRenderer.flipX = true;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 position.x += speed;
                 spriteRenderer.flipX = false;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
                 position.y += speed;
+                moved = true;
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
                 position.y -= speed;
+                moved = true;
             }
             playerTransform.position = position;
+            if (moved) cameraBounds.UpdateCameraBounds();
+            
         }
 
         public void Heal(float amount)

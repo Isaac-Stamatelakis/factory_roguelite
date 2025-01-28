@@ -13,7 +13,7 @@ namespace TileEntity.Instances.Signal {
         public ConduitPortLayout ConduitLayout;
         public int ActiveTicks = 12;
 
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignalLampInstance(this,tilePosition,tileItem,chunk);
         }
@@ -37,13 +37,13 @@ namespace TileEntity.Instances.Signal {
         {
             active = signal;
             if (signal) {
-                load();
+                Load();
             } else {
-                unload();
+                Unload();
             }
         }
 
-        public void load() {
+        public void Load() {
             if (!active) {
                 return;
             }
@@ -65,16 +65,16 @@ namespace TileEntity.Instances.Signal {
                 lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
                 lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
                 if (tileItem.tile is IStateTile stateTile) {
-                    TileEntityHelper.stateSwitch(this,1); // set on
+                    TileEntityUtils.stateSwitch(this,1); // set on
                 }
             }
         }
 
-        public void unload()
+        public void Unload()
         {
             GameObject.Destroy(lightObject);
             if (tileItem.tile is IStateTile stateTile) {
-                TileEntityHelper.stateSwitch(this,0); // set off
+                TileEntityUtils.stateSwitch(this,0); // set off
             }
         }
 

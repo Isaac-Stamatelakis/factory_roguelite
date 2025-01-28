@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TileEntity.Instances.Machine
 {
-    [CreateAssetMenu(fileName = "New Machine Layout", menuName = "Tile Entity/Machine/Layout")]
+    [CreateAssetMenu(fileName = "New Machine Layout", menuName = "Tile Entity/Layouts/Machine")]
     public class TileEntityLayoutObject : ScriptableObject
     {
         public MachineInventoryOptions SolidInputs;

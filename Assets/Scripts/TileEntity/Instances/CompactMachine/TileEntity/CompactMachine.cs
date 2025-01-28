@@ -15,7 +15,7 @@ namespace TileEntity.Instances.CompactMachines {
         public ConduitPortLayout ConduitPortLayout;
         public string StructurePath;
         public TileEntityUIManager UIManager;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new CompactMachineInstance(this,tilePosition,tileItem,chunk);
         }

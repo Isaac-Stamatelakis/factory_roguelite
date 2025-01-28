@@ -39,22 +39,25 @@ namespace Item.Slot
         public uint amount;
         public ItemTagCollection tags;
         public ItemState getState() {
-            if (itemObject is SolidItem) {
-                return ItemState.Solid;
+            switch (itemObject)
+            {
+                case SolidItem:
+                    return ItemState.Solid;
+                case TransmutableItemObject transmutableItemObject:
+                {
+                    TransmutableItemState state = transmutableItemObject.getState();
+                    return state.getMatterState();
+                }
+                case CraftingItem craftingItem:
+                    return craftingItem.getItemState();
+                case NonSolidItem:
+                    return ItemState.Fluid;
+                case FluidTileItem:
+                    return ItemState.Fluid;
+                default:
+                    Debug.LogWarning("Get state did not handle state for itemobject " + itemObject.name);
+                    return ItemState.Solid;
             }
-            if (itemObject is TransmutableItemObject transmutableItemObject) {
-                TransmutableItemState state = transmutableItemObject.getState();
-                return state.getMatterState();
-            }
-    
-            if (itemObject is CraftingItem craftingItem) {
-                return craftingItem.getItemState();
-            }
-            if (itemObject is NonSolidItem) {
-                return ItemState.Fluid;
-            }
-            Debug.LogWarning("Get state did not handle state for itemobject " + itemObject.name);
-            return ItemState.Solid;
         }
 
     }

@@ -20,7 +20,7 @@ namespace TileEntity.Instances.Matrix {
         public AssetReference PixelPrefabReference;
         private TileEntityAssetManager assetManager;
 
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new MatrixDriveInstance(this,tilePosition,tileItem,chunk);
         }

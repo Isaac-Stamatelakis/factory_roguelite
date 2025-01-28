@@ -42,6 +42,7 @@ namespace Items {
     
     public class ItemSlotUI : MonoBehaviour
     {
+        public ItemState ItemState = ItemState.Solid;
         public Image Panel;
         public Image ItemImage;
         [FormerlySerializedAs("AmountText")] public TextMeshProUGUI mBottomText;
@@ -95,7 +96,7 @@ namespace Items {
         
         public virtual void SetAmountText()
         {
-            mBottomText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount);
+            mBottomText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount,itemState:ItemState);
         }
         
         public void Display(ItemSlot itemSlot)

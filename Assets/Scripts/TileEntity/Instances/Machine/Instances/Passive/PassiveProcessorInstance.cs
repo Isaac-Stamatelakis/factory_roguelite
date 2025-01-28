@@ -21,7 +21,7 @@ namespace TileEntity.Instances.Machines {
             
         }
         
-        public override string serialize()
+        public override string Serialize()
         {
             SerializedPassiveMachine serializedGeneratorData = new SerializedPassiveMachine(
                 Mode,
@@ -70,7 +70,7 @@ namespace TileEntity.Instances.Machines {
             InitializeItemInventory();
         }
         
-        public override void unserialize(string data)
+        public override void Unserialize(string data)
         {
             SerializedPassiveMachine serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedPassiveMachine>(data);
             Inventory = new MachineItemInventory(

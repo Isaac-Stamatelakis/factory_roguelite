@@ -49,7 +49,7 @@ namespace TileEntity.Instances.Matrix {
             priority += amount;
         }
 
-        public string serialize()
+        public string Serialize()
         {
             SeralizedMatrixInterface seralizedMatrixInterface = new SeralizedMatrixInterface(
                 priority,
@@ -59,7 +59,7 @@ namespace TileEntity.Instances.Matrix {
             return JsonConvert.SerializeObject(seralizedMatrixInterface);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             if (data == null) {
                 initInventories();

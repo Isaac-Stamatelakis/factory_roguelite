@@ -15,7 +15,7 @@ namespace TileEntity.Instances.Signal {
         public int MinTime = 5;
         public int MaxTime = 1000;
         public ConduitPortLayout ConduitLayout;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignalClockInstance(this,tilePosition,tileItem,chunk);
         }
@@ -50,7 +50,7 @@ namespace TileEntity.Instances.Signal {
             TileEntityObject.UIManager.display<SignalClockInstance,SignalClockUI>(this);
         }
         
-        public string serialize()
+        public string Serialize()
         {
             return JsonConvert.SerializeObject(ClockData);
         }
@@ -66,7 +66,7 @@ namespace TileEntity.Instances.Signal {
             }
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
             ClockData = JsonConvert.DeserializeObject<ClockData>(data);
         }

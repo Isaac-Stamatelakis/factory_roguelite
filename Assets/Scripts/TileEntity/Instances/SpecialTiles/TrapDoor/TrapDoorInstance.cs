@@ -13,7 +13,7 @@ namespace TileEntity.Instances {
 
         public void onRightClick()
         {
-            TileEntityHelper.stateIterate(this,1);
+            TileEntityUtils.stateIterate(this,1);
         }
     }
 }

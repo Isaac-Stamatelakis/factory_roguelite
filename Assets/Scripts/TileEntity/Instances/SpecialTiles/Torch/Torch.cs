@@ -13,7 +13,7 @@ namespace TileEntity.Instances {
         public Color color = Color.white;
         public Vector2 positionInTile;
 
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new TorchInstance(this,tilePosition,tileItem,chunk);
         }

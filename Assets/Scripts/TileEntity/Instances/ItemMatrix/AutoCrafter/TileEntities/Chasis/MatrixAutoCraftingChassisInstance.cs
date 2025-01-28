@@ -23,19 +23,19 @@ namespace TileEntity.Instances.Matrix {
         }
         public void deactivate()
         {
-            TileEntityHelper.stateSwitch(this,0);
+            TileEntityUtils.stateSwitch(this,0);
         }
 
-        public void load()
+        public void Load()
         {
             if (core == null || !core.Assembled) {
-                TileEntityHelper.stateSwitch(this,0);
+                TileEntityUtils.stateSwitch(this,0);
             } else {
-                TileEntityHelper.stateSwitch(this,1);
+                TileEntityUtils.stateSwitch(this,1);
             }
         }
 
-        public void unload()
+        public void Unload()
         {
             
         }

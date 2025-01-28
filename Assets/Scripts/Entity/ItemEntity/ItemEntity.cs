@@ -8,19 +8,27 @@ using Newtonsoft.Json;
 namespace Entities {
     public class ItemEntity : Entity, ISerializableEntity
     {
+        private const int BLINK_RATE = 4;
+        private const float BLINK_THRESHOLD = 10;
+        private const float LIFE_SPAN = 300;
         private const float MIN_MERGE_TIME = 1f;
+        private const float MAX_FALL_SPEED = 10f;
         private bool firedDelayedCast = false;
+        private SpriteRenderer spriteRenderer;
+        private Rigidbody2D rb;
         [SerializeField] public ItemSlot itemSlot;
         [SerializeField] protected float lifeTime = 0f;
+        
         public float LifeTime {get{return lifeTime;}}
 
         public override void initalize()
         {
-            gameObject.AddComponent<SpriteRenderer>();
-            SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             gameObject.AddComponent<BoxCollider2D>();
-            gameObject.AddComponent<Rigidbody2D>();
-            gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb = gameObject.AddComponent<Rigidbody2D>();
+
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             gameObject.layer = LayerMask.NameToLayer("Entity");
 
             BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
@@ -37,14 +45,30 @@ namespace Entities {
 
         private void IterateLifeTime() {
             lifeTime += Time.fixedDeltaTime;
-            if (lifeTime > Global.ItemEntityLifeSpawn) {
+            if (lifeTime < LIFE_SPAN - BLINK_THRESHOLD) return;
+            int dif = (int)(BLINK_RATE*(lifeTime - LIFE_SPAN));
+            spriteRenderer.enabled = dif % 2 == 0;
+            
+            if (lifeTime > LIFE_SPAN) {
                 Destroy(gameObject);
+            }
+        }
+
+        private void ClampFallSpeed()
+        {
+            if (rb.velocity.y > MAX_FALL_SPEED)
+            {
+                var vector2 = rb.velocity;
+                vector2.y = MAX_FALL_SPEED;
+                rb.velocity = vector2;
             }
         }
 
         public virtual void FixedUpdate()
         {
             IterateLifeTime();
+            ClampFallSpeed();
+
         }
 
         public SeralizedEntityData serialize()

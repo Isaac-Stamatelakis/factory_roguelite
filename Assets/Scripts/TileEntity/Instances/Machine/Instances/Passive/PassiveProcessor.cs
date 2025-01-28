@@ -16,7 +16,7 @@ namespace TileEntity.Instances.Machines {
     public class PassiveProcessor : MachineObject, ITieredTileEntity
     {
         public Tier Tier;
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new PassiveProcessorInstance(this,tilePosition,tileItem,chunk);
         }

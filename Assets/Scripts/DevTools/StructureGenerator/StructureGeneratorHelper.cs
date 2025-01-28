@@ -115,18 +115,18 @@ namespace DevTools.Structures {
                 chunkDict[chunk.Position] = chunk;
             }   
             
-            Vector2Int size = coveredArea.getSize()*Global.ChunkSize;
-            Vector2Int offset = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            Vector2Int size = coveredArea.getSize()*Global.CHUNK_SIZE;
+            Vector2Int offset = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             bool enforceEnclosure = false;
             bool[,] perimeter = new bool[size.x,size.y];
             foreach (SoftLoadedConduitTileChunk softLoadedConduitTileChunk in chunks) {
                 foreach (IChunkPartition partition in softLoadedConduitTileChunk.Partitions) {
                     SeralizedWorldData data = partition.GetData();
-                    for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             string baseId = data.baseData.ids[x,y];
                             if (baseId == StructureGeneratorHelper.ParimeterId) {
-                                Vector2Int normalizedPosition = partition.GetRealPosition()*Global.ChunkPartitionSize+new Vector2Int(x,y)-offset;
+                                Vector2Int normalizedPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE+new Vector2Int(x,y)-offset;
                                 perimeter[normalizedPosition.x,normalizedPosition.y] = true;
                                 enforceEnclosure = true; // If even a single perimeter tile is in the map, enforce enclosure is on
                             }
@@ -178,8 +178,8 @@ namespace DevTools.Structures {
                     Vector2Int adjustedVector = vector+offset;
                     Vector2Int chunkPosition = Global.getChunkFromCell(adjustedVector);
                     IChunk chunk = chunkDict[chunkPosition];
-                    Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PartitionsPerChunk;
-                    IChunkPartition partition = chunk.getPartition(partitionPosition);
+                    Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
+                    IChunkPartition partition = chunk.GetPartition(partitionPosition);
                     WorldTileConduitData partitionData = (WorldTileConduitData) partition.GetData();
                     Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
                     Vector2Int posInArea = vector-areaOffset;

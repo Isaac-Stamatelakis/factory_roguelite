@@ -22,9 +22,13 @@ namespace TileMaps {
             setView(false,Color.black);
         }
 
-        public void setView(bool wireFrame, Color? color) {
-            float z = wireFrame ? -0.1f : 0.1f;
-            outlineTileMap.transform.localPosition = new Vector3(0,0,z);
+        public void setView(bool? wireFrame, Color? color) {
+            if (wireFrame != null)
+            {
+                float z =(bool)wireFrame ? -0.1f : 0.1f;
+                outlineTileMap.transform.localPosition = new Vector3(0,0,z);
+            }
+            
             if (color != null) {
                 outlineTileMap.color = (Color)color;
             }
@@ -32,7 +36,7 @@ namespace TileMaps {
         }
 
 
-        protected override void BreakTile(Vector2Int position)
+        public override void BreakTile(Vector2Int position)
         {
             outlineTileMap.SetTile(new Vector3Int(position.x,position.y,0), null);
             base.BreakTile(position);

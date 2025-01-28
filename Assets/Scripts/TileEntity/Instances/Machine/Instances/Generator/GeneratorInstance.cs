@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Machines
             
         }
         
-        public override string serialize()
+        public override string Serialize()
         {
             SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
                 Mode,
@@ -86,7 +86,7 @@ namespace TileEntity.Instances.Machines
             InitializeEnergyInventory();
         }
         
-        public override void unserialize(string data)
+        public override void Unserialize(string data)
         {
             SerializedGeneratorData serializedProcessingMachine = JsonConvert.DeserializeObject<SerializedGeneratorData>(data);
             Inventory = new MachineItemInventory(

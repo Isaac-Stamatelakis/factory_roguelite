@@ -18,15 +18,18 @@ namespace UI.Chat {
         {
             string id = parameters[0];
             uint amount = Convert.ToUInt32(parameters[1]);
-            amount = GlobalHelper.Clamp(amount, 1, Global.MaxSize);
+            if (amount == 0) return;
+            
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
-            ItemSlot toGive = ItemSlotFactory.CreateNewItemSlot(itemObject,(uint)amount);
-            if (toGive == null)
+            if (ReferenceEquals(itemObject,null)) throw new ChatParseException($"Could not find item with id: '{id}'");
+            while (amount > 0)
             {
-                throw new ChatParseException($"Could not find item with id: '{id}'");
+                uint amountInSlot = amount > Global.MaxSize ? Global.MaxSize : amount;
+                amount -= amountInSlot;
+                ItemSlot toGive = new ItemSlot(itemObject, amountInSlot, null);
+                playerInventory.Give(toGive);
             }
-            playerInventory.Give(toGive);
         }
 
         public List<string> getAutoFill(int paramIndex)

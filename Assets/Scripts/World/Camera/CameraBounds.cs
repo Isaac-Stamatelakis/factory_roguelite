@@ -21,7 +21,7 @@ public class CameraBounds : MonoBehaviour
             return;
         }
         IntervalVector intervalVector = closedChunkSystem.getBounds();
-        int worldChunkSize = Global.ChunkSize/2; // Chunks size is in tile size which is 1/2 world size
+        int worldChunkSize = Global.CHUNK_SIZE/2; // Chunks size is in tile size which is 1/2 world size
         this.bounds = new FloatIntervalVector(
             new Interval<float>(
                 intervalVector.X.LowerBound,
@@ -62,17 +62,17 @@ public class CameraBounds : MonoBehaviour
         if (ReferenceEquals(closedChunkSystem, null)) return;
         
         Vector3 position = transform.position;
-        int worldPartitionSize = Global.ChunkPartitionSize >> 1;
-        int px = (int) position.x / worldPartitionSize % Global.PartitionsPerChunk;
-        int py = (int) position.y / worldPartitionSize % Global.PartitionsPerChunk;
+        int worldPartitionSize = Global.CHUNK_PARTITION_SIZE >> 1;
+        int px = (int) position.x / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
+        int py = (int) position.y / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
         if (px == lastPartition.x && py == lastPartition.y) {
             return;
         }
         closedChunkSystem.PlayerPartitionUpdate();
         lastPartition = new Vector2Int(px,py);
         
-        int cx = (int) position.x / (Global.PartitionsPerChunk/2);
-        int cy = (int) position.y / (Global.PartitionsPerChunk/2);
+        int cx = (int) position.x / (Global.PARTITIONS_PER_CHUNK/2);
+        int cy = (int) position.y / (Global.PARTITIONS_PER_CHUNK/2);
         
         if (cx == lastChunk.x && cy == lastChunk.y) {
             return;
@@ -82,12 +82,9 @@ public class CameraBounds : MonoBehaviour
         lastChunk = new Vector2Int(cx,cy);
     }
 
-    public void Update() {
-        if (bounds == null) {
-            CheckPartitionAndChunk();
-            return;
-        }
-        // TODO CHANGE THIS SO ITS ONLY CALLED WHEN THE PLAYER MOVES
+    public void UpdateCameraBounds()
+    {
+        if (bounds == null) return;
         Transform playerTransform = transform.parent;
         Vector3 position = transform.localPosition;
         bool outLeft = playerTransform.position.x-width/2 < bounds.X.LowerBound;
@@ -111,7 +108,9 @@ public class CameraBounds : MonoBehaviour
 
         position += Vector3.up * yOffset;
         transform.localPosition = position;
+    }
 
+    public void Update() {
         CheckPartitionAndChunk();
     }
 }

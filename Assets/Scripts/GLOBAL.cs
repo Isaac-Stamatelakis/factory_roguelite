@@ -7,17 +7,10 @@ using System.IO;
 
 public static class Global
 {
-    private static int rotation = 2;
-    public static int Rotation {get{return rotation;} set{rotation = value;}}
-    private static float inventoryScale = 1.2f;
-    public static float InventoryScale {get{return inventoryScale;}}
-    private static readonly float pixelsPerBlock = 16;
-    public static float PixelsPerBlock {get {return pixelsPerBlock;}}
-    private static readonly int partitionsPerChunk = 6;
-    public static int PartitionsPerChunk {get{return partitionsPerChunk;}}
-    public static int ChunkSize {get{return partitionsPerChunk*chunkPartitionSize;}}
-    private static readonly int chunkPartitionSize = 4;
-    public static int ChunkPartitionSize {get{return chunkPartitionSize;}}
+    private const float PIXELS_PER_BLOCK = 16;
+    public const int PARTITIONS_PER_CHUNK = 6;
+    public const int CHUNK_SIZE = PARTITIONS_PER_CHUNK*CHUNK_PARTITION_SIZE;
+    public const int CHUNK_PARTITION_SIZE = 4;
     private static Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
@@ -71,7 +64,7 @@ public static class Global
         if (sprite == null) {
             return Vector2Int.zero;
         }
-        return new Vector2Int((int) (sprite.rect.width / Global.PixelsPerBlock), (int) (sprite.rect.height / Global.PixelsPerBlock));
+        return new Vector2Int((int) (sprite.rect.width / Global.PIXELS_PER_BLOCK), (int) (sprite.rect.height / Global.PIXELS_PER_BLOCK));
     }
 
     public static Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
@@ -79,23 +72,23 @@ public static class Global
     }
 
     public static Vector2Int getChunkFromWorld(Vector2 position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.ChunkSize/2)), Mathf.FloorToInt(position.y/(Global.ChunkSize/2)));
+        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.CHUNK_SIZE/2)), Mathf.FloorToInt(position.y/(Global.CHUNK_SIZE/2)));
     }
     public static Vector2Int getChunkFromCell(Vector2Int cellPosition) {
-        return new Vector2Int(Mathf.FloorToInt(((float)cellPosition.x)/(Global.ChunkSize)), Mathf.FloorToInt(((float) cellPosition.y)/(Global.ChunkSize)));
+        return new Vector2Int(Mathf.FloorToInt(((float)cellPosition.x)/(Global.CHUNK_SIZE)), Mathf.FloorToInt(((float) cellPosition.y)/(Global.CHUNK_SIZE)));
     }
     public static Vector2Int getPartitionFromCell(Vector2Int cellPosition) {
-        return new Vector2Int(Mathf.FloorToInt(((float) cellPosition.x)/(Global.ChunkPartitionSize)), Mathf.FloorToInt(((float)cellPosition.y)/(Global.ChunkPartitionSize)));
+        return new Vector2Int(Mathf.FloorToInt(((float) cellPosition.x)/(Global.CHUNK_PARTITION_SIZE)), Mathf.FloorToInt(((float)cellPosition.y)/(Global.CHUNK_PARTITION_SIZE)));
     }
 
     public static Vector2Int getPositionInPartition(Vector2Int cellPosition)
     {
-        return getPositionInObject(cellPosition,Global.chunkPartitionSize);
+        return getPositionInObject(cellPosition,Global.CHUNK_PARTITION_SIZE);
     }
 
     public static Vector2Int getPositionInChunk(Vector2Int cellPosition)
     {
-        return getPositionInObject(cellPosition,Global.ChunkSize);
+        return getPositionInObject(cellPosition,Global.CHUNK_SIZE);
     }
 
     private static Vector2Int getPositionInObject(Vector2Int cellPosition, int objectSize) {
@@ -110,7 +103,7 @@ public static class Global
 
 
     public static Vector2Int getPartitionFromWorld(Vector2 position) {
-        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.chunkPartitionSize/2)), Mathf.FloorToInt(position.y/(Global.chunkPartitionSize/2)));
+        return new Vector2Int(Mathf.FloorToInt(position.x/(Global.CHUNK_PARTITION_SIZE/2)), Mathf.FloorToInt(position.y/(Global.CHUNK_PARTITION_SIZE/2)));
     }
     public static Vector2Int getCellPositionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));

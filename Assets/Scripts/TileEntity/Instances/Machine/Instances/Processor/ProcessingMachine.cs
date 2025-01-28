@@ -19,7 +19,7 @@ namespace TileEntity.Instances.Machines
     {
         public Tier Tier;
        
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new ProcessingMachineInstance(this,tilePosition,tileItem,chunk);
         }

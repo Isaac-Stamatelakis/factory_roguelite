@@ -30,6 +30,8 @@ namespace TileEntity.Instances.Machine.UI
             InitializeInventoryUI(solidOutputUI, machineItemInventory.itemOutputs,layoutObject?.SolidOutputs);
             InitializeInventoryUI(fluidInputUI, machineItemInventory.fluidInputs,layoutObject?.FluidInputs);
             InitializeInventoryUI(fluidOutputUI, machineItemInventory.fluidOutputs,layoutObject?.FluidOutputs);
+            if (solidOutputUI) solidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
+            if (fluidOutputUI) fluidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)
@@ -86,22 +88,21 @@ namespace TileEntity.Instances.Machine.UI
             fluidInputUI?.RefreshSlots();
             fluidOutputUI?.RefreshSlots();
         }
+
+        private int SizeCheckInventoryUI<T>(InventoryUI inventoryUI, List<T> inventory, MachineInventoryOptions inventoryOptions) where T : ItemSlot
+        {
+            if (ReferenceEquals(inventoryUI, null)) return 0;
+            int size = GetSize(inventoryOptions, inventory);
+            if (size != 0) return size;
+            GlobalHelper.deleteAllChildren(inventoryUI.transform);
+            return 0;
+        }
         
         private void InitializeInventoryUI(InventoryUI inventoryUI, List<ItemSlot> inventory, MachineInventoryOptions inventoryOptions)
         {
-            if (ReferenceEquals(inventoryUI, null)) return;
-            int size = GetSize(inventoryOptions, inventory);
-            if (size == 0)
-            {
-                inventoryUI.gameObject.SetActive(false);
-                return;
-            }
-
-            if (inventory == null)
-            {
-                Debug.LogWarning($"'MachineBaseUI' Tried to display '{inventoryUI.name}' for {displayedTileEntity.getName()} which was null");
-                return;
-            }
+            int size = SizeCheckInventoryUI(inventoryUI,inventory,inventoryOptions);
+            if (size == 0) return;
+            
             inventoryUI.DisplayInventory(inventory);
             if (displayedTileEntity is IInventoryListener inventoryListener)
             {
@@ -118,14 +119,9 @@ namespace TileEntity.Instances.Machine.UI
 
         private void InitializeInventoryUIRecipe<T>(InventoryUI inventoryUI, List<T> items, MachineInventoryOptions inventoryOptions) where T : ItemSlot
         {
-            if (ReferenceEquals(inventoryUI, null)) return;
-            int size = GetSize(inventoryOptions, items);
-            if (size == 0)
-            {
-                inventoryUI.gameObject.SetActive(false);
-                return;
-            }
-
+            int size = SizeCheckInventoryUI(inventoryUI,items,inventoryOptions);
+            if (size == 0) return;
+            
             List<string> topNames = new List<string>();
             foreach (T item in items)
             {
@@ -145,13 +141,10 @@ namespace TileEntity.Instances.Machine.UI
 
         private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
         {
-            if (ReferenceEquals(inventoryUI, null)) return;
-            int size = inventories == null || inventories.Count == 0 ? 0 : GetSize(inventoryOptions, inventories[0]);
-            if (size == 0)
-            {
-                inventoryUI.gameObject.SetActive(false);
-                return;
-            }
+            if (inventories == null || inventories.Count == 0) return;
+            int size = SizeCheckInventoryUI(inventoryUI,inventories[0],inventoryOptions);
+            if (size == 0) return;
+            
             InventoryUIRotator rotator = inventoryUI.GetComponent<InventoryUIRotator>();
             if (ReferenceEquals(rotator, null))
             {

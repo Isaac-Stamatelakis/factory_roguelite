@@ -9,6 +9,7 @@ using Dimensions;
 using PlayerModule;
 using WorldModule;
 using System.IO;
+using UI.Chat;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Debug = UnityEngine.Debug;
@@ -19,14 +20,15 @@ namespace TileEntity.Instances {
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
+        public TextMeshProUGUI mNoSelectText;
         private Cave currentCave;
+        public Cave CurrentCave => currentCave;
         private CaveInstance caveInstance;
-        public void display(CaveTeleporterInstance tileEntityInstance)
+        
+        public void ShowCave(Cave cave)
         {
-            
-        }
-
-        public void showCave(Cave cave) {
+            teleportButton.interactable = true;
+            mNoSelectText.gameObject.SetActive(false);
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(() => {
                 StartCoroutine(teleportButtonPress());
@@ -37,21 +39,24 @@ namespace TileEntity.Instances {
             descriptionText.text = cave.Description;
         }
 
-        public void showDefault() {
+        public void DisplayEmpty()
+        {
+            mNoSelectText.gameObject.SetActive(true);
             nameText.text = "";
-            descriptionText.text = "Click on a cave to view";
-            teleportButton.gameObject.SetActive(false);
+            descriptionText.text = "";
+            teleportButton.interactable = false;
         }
+        
 
         private IEnumerator teleportButtonPress() {
             if (currentCave == null) {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
             }
-            yield return StartCoroutine(loadCave(currentCave,generateAndTeleportToCave));
+            yield return StartCoroutine(loadCave(currentCave,GenerateAndTeleportToCave));
         }
 
-        public IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
+        public static IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
             CaveElements caveElements = new CaveElements();
             Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
             if (cave.generationModel == null) {
@@ -122,7 +127,7 @@ namespace TileEntity.Instances {
         }
         public delegate void CaveCallback(CaveInstance caveInstance);
 
-        public void generateAndTeleportToCave(CaveInstance caveInstance) {
+        public void GenerateAndTeleportToCave(CaveInstance caveInstance) {
             if (WorldLoadUtils.DimExists(-1)) {
                 string path = WorldLoadUtils.GetDimPath(-1);
                 Directory.Delete(path, true);
@@ -140,7 +145,7 @@ namespace TileEntity.Instances {
             Debug.Log($"Serialized cave data in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
             stopwatch.Stop();
             IntervalVector coveredArea = caveInstance.getChunkCoveredArea();
-            Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             Debug.Log("Teleporting to " + currentCave.name);
@@ -150,6 +155,8 @@ namespace TileEntity.Instances {
             caveController.setCurrentCave(caveInstance);
             
             DimensionManager.Instance.setPlayerSystem(playerTransform, -1,spawnPosition);
+            
+            TextChatUI.Instance.sendMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }
 }

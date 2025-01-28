@@ -14,8 +14,8 @@ namespace WorldModule {
         public static void SaveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
             UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
             IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
-            int tileMaxX = Global.ChunkSize*caveSize.x;
-            int tileMaxY = Global.ChunkSize*caveSize.y;
+            int tileMaxX = Global.CHUNK_SIZE*caveSize.x;
+            int tileMaxY = Global.CHUNK_SIZE*caveSize.y;
             int minX = caveCoveredArea.X.LowerBound; int maxX = caveCoveredArea.X.UpperBound;
             int minY = caveCoveredArea.Y.LowerBound; int maxY = caveCoveredArea.Y.UpperBound;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
@@ -40,8 +40,8 @@ namespace WorldModule {
 
         public static void SaveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
-            for (int partitionX = 0; partitionX < Global.PartitionsPerChunk; partitionX ++) {
-                for (int partitionY = 0; partitionY < Global.PartitionsPerChunk; partitionY ++) {
+            for (int partitionX = 0; partitionX < Global.PARTITIONS_PER_CHUNK; partitionX ++) {
+                for (int partitionY = 0; partitionY < Global.PARTITIONS_PER_CHUNK; partitionY ++) {
                     chunkPartitionDataList.Add(ConvertPartition(chunkX,chunkY,minX,minY,partitionX,partitionY,worldTileData));
                 }
             }
@@ -125,16 +125,16 @@ namespace WorldModule {
         }
 
         private static IChunkPartitionData ConvertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
-            int xStart = partitionX*Global.ChunkPartitionSize + Global.ChunkSize * (chunkX-minX);
-            int yStart = partitionY*Global.ChunkPartitionSize + Global.ChunkSize * (chunkY-minY);
+            int xStart = partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkX-minX);
+            int yStart = partitionY*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkY-minY);
         
             List<SeralizedEntityData> entityDataList = new List<SeralizedEntityData>(); 
             foreach (SeralizedEntityData entityData in worldTileData.entityData) {
                 if (
                     entityData.x >= xStart && 
                     entityData.y >= yStart && 
-                    entityData.x < xStart + Global.ChunkPartitionSize && 
-                    entityData.y < yStart + Global.ChunkPartitionSize
+                    entityData.x < xStart + Global.CHUNK_PARTITION_SIZE && 
+                    entityData.y < yStart + Global.CHUNK_PARTITION_SIZE
                 ) {
                     Debug.Log($"{entityData.x},{entityData.y}");
                     entityDataList.Add(entityData);
@@ -145,19 +145,19 @@ namespace WorldModule {
                 Debug.Log(entityDataList.Count);
             }
             SerializedBaseTileData baseData = new SerializedBaseTileData();
-            baseData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            baseData.sTileOptions = new BaseTileData[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            baseData.sTileEntityOptions = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            baseData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
+            baseData.sTileOptions = new BaseTileData[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
+            baseData.sTileEntityOptions = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
 
             SerializedBackgroundTileData backgroundData = new SerializedBackgroundTileData();
-            backgroundData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            backgroundData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
 
             SeralizedFluidTileData fluidData = new SeralizedFluidTileData();
-            fluidData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            fluidData.fill = new float[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
+            fluidData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
+            fluidData.fill = new float[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
 
-            for (int tileX = 0; tileX < Global.ChunkPartitionSize; tileX ++) {
-                for (int tileY = 0; tileY < Global.ChunkPartitionSize; tileY ++) {
+            for (int tileX = 0; tileX < Global.CHUNK_PARTITION_SIZE; tileX ++) {
+                for (int tileY = 0; tileY < Global.CHUNK_PARTITION_SIZE; tileY ++) {
                     int xIndex = xStart+tileX;
                     int yIndex = yStart+tileY;
                     baseData.ids[tileX,tileY] = worldTileData.baseData.ids[xIndex,yIndex];
@@ -172,24 +172,24 @@ namespace WorldModule {
             }
             if (worldTileData is WorldTileConduitData partionConduitData) {
                 SeralizedChunkConduitData itemConduitData = new SeralizedChunkConduitData();
-                itemConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                itemConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                itemConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
+                itemConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
 
                 SeralizedChunkConduitData fluidConduitData = new SeralizedChunkConduitData();
-                fluidConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                fluidConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                fluidConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
+                fluidConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
 
                 SeralizedChunkConduitData energyConduitData = new SeralizedChunkConduitData();
-                energyConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                energyConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                energyConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
+                energyConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
 
                 SeralizedChunkConduitData signalConduitData = new SeralizedChunkConduitData();
-                signalConduitData.ids = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
-                signalConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                signalConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
+                signalConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
                 
                 SeralizedChunkConduitData matrixConduitData = new SeralizedChunkConduitData();
-                matrixConduitData.ids = new string[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-                matrixConduitData.conduitOptions = new string[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+                matrixConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
+                matrixConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
                 return new WorldTileConduitData(
                     baseTileData: baseData,
                     backgroundTileData: backgroundData,

@@ -39,7 +39,7 @@ namespace Items.Tags {
         
         private static readonly Dictionary<ItemTag, Func<string, object>> deserializationMap = new()
         {
-            { ItemTag.FluidContainer, data => ItemSlotFactory.deseralizeItemSlotFromString(data) },
+            { ItemTag.FluidContainer, data => ItemSlotFactory.DeserializeSlot(data) },
             { ItemTag.EnergyContainer, data => JsonConvert.DeserializeObject<int>(data) },
             { ItemTag.CompactMachine, data => data }, // If no deserialization is needed, return data as-is
             { ItemTag.StorageDrive, data => ItemSlotFactory.Deserialize(data) },

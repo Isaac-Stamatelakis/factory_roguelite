@@ -73,7 +73,7 @@ namespace TileEntity.Instances.CompactMachines {
             return depth;   
         }
         public static int seperationPerTile() {
-            return Global.ChunkSize;
+            return Global.CHUNK_SIZE;
         }
 
         public static Vector2Int getParentPosition(CompactMachineInstance compactMachine) {
@@ -105,7 +105,7 @@ namespace TileEntity.Instances.CompactMachines {
             TileEntityPortData closestPortData = null;
             foreach (TileEntityPortData port in possiblePorts) {
                 // maps portData position to the center of its relative chunk (eg (1,1) -> (36,36))
-                Vector2 positionInSideCompactMachine =  (port.position + Vector2.one/2f) * (Global.ChunkSize); 
+                Vector2 positionInSideCompactMachine =  (port.position + Vector2.one/2f) * (Global.CHUNK_SIZE); 
                 float dist = Vector2.Distance(positionInSideCompactMachine,relativePortPosition);
                 if (dist < smallestDistance) {
                     smallestDistance = dist;
@@ -133,7 +133,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             StructureVariant variant = structure.variants[0];
             WorldTileConduitData systemData = variant.Data;
-            Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.ChunkSize,variant.Size.y/Global.ChunkSize);
+            Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.CHUNK_SIZE,variant.Size.y/Global.CHUNK_SIZE);
             WorldGenerationFactory.SaveToJson(systemData,chunkSize,1,savePath);
             Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }

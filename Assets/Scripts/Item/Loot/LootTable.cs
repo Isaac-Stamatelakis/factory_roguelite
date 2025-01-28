@@ -7,15 +7,19 @@ namespace Items {
     public class LootTable : ScriptableObject
     {
         [SerializeField] public List<LootResult> loot;   
-        [SerializeField] public Vector2Int lootRange;
+        public int MinItems;
+        public int MaxItems;
         [SerializeField] public bool repetitions;
     }
 
     [System.Serializable]
     public class LootResult {
         [SerializeField] public ItemObject item;
-        [SerializeField] public Vector2Int amountRange;
+        public int MinAmount;
+        public int MaxAmount;
         [SerializeField] public int frequency;
     }
+
+    
 }
 

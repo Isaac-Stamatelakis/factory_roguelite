@@ -43,8 +43,8 @@ namespace Entities {
         }
 
         private static void spawnItemFromData(Vector2 position, string data, Transform container) {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
-            ItemEntityHelper.spawnItemEntity(position,itemSlot,container);
+            ItemSlot itemSlot = ItemSlotFactory.DeserializeSlot(data);
+            ItemEntityFactory.SpawnItemEntity(position,itemSlot,container);
         }
 
         private static void spawnMobFromData(Vector2 position, string data, Transform container) {

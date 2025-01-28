@@ -8,23 +8,10 @@ namespace Chunks.Systems {
     public class TileClosedChunkSystem : ChunkLoadingClosedChunkSystem
     {
         public void initalize(DimController dimController, IntervalVector coveredArea, int dim, Vector2Int offset) {
+            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
+            TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps,DimensionManager.Instance.MiscDimAssets.LitMaterial);
             initalizeObject(dimController,coveredArea,dim,offset);
         }
-        public override void Awake()
-        {
-            base.Awake();
-            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
-        }
-        public override void saveOnDestroy()
-        {
-            base.saveOnDestroy();
-        }
-
-        private void initFluidTileMap() {
-
-        }
-
-
     }
 
 }

@@ -26,23 +26,6 @@ namespace TileEntity {
         }
 
         
-
-        public void unloadTileEntity(TileItem tileItem, LoadType loadType) {
-            if (tileItem == null || !idDict.ContainsKey(tileItem.id)) {
-                return;
-            }
-            TileEntityObject tileEntityObject = idDict[tileItem.id];
-            switch (loadType) {
-                case LoadType.Hard:
-                    break;
-                case LoadType.Soft:
-                    if (tileEntityObject.SoftLoadable) {
-                        return;
-                    }
-                    break;
-            }
-            Addressables.Release(tileEntityObject);
-        }
         private void OnAssetLoaded(AsyncOperationHandle<TileEntityObject> handle, string id) {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {

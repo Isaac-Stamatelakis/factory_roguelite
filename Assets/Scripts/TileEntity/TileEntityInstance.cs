@@ -31,16 +31,16 @@ namespace TileEntity {
             return new Vector2(cellPosition.x/2f+0.25f,cellPosition.y/2f+0.25f);
         }
         public Vector2Int getCellPosition() {
-            return (positionInChunk + chunk.getPosition() * Global.ChunkSize);
+            return (positionInChunk + chunk.GetPosition() * Global.CHUNK_SIZE);
         }
         public IChunkPartition getPartition() {
-            return chunk.getPartition(getPartitionPositionInChunk());
+            return chunk.GetPartition(getPartitionPositionInChunk());
         }
         public Vector2Int getPartitionPositionInChunk() {
             return Global.getPartitionFromCell(positionInChunk);
         }
         public Vector2Int getPositionInPartition() {
-            return positionInChunk-getPartitionPositionInChunk()*Global.ChunkPartitionSize;
+            return positionInChunk-getPartitionPositionInChunk()*Global.CHUNK_PARTITION_SIZE;
         }
 
         public TileBase getTile()
@@ -69,10 +69,6 @@ namespace TileEntity {
         public TileEntityObject GetTileEntity()
         {
             return TileEntityObject;
-        }
-
-        public bool SoftLoadable() {
-            return TileEntityObject.SoftLoadable;
         }
     }
 

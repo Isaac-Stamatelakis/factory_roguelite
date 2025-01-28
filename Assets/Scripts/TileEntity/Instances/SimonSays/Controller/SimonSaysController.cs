@@ -20,7 +20,10 @@ namespace TileEntity.Instances.SimonSays {
         [Header("Extra rewards for successfully finishing the puzzle")]
         public LootTable CompletionLootTable;
 
-        public override ITileEntityInstance createInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
+        public TileItem ChestTile;
+        public TileItem BrickTile;
+
+        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SimonSaysControllerInstance(this,tilePosition,tileItem,chunk);
         }

@@ -170,22 +170,6 @@ namespace PlayerModule.Mouse {
         }
 
         private void LeftClickUpdate(Vector2 mousePosition, Vector2 offset) {
-            /*
-            if (DevMode.Instance.spawnItem) {
-                ILoadedChunk chunk = GetChunk(mousePosition+offset);
-                if (chunk != null) {
-                        ItemEntityHelper.spawnItemEntity(
-                        mousePosition+offset,
-                        ItemSlotFactory.CreateNewItemSlot(
-                            ItemRegistry.GetInstance().GetItemObject(DevMode.Instance.spawnItemID),
-                            1
-                        ),
-                        chunk.getEntityContainer()
-                    );
-                }
-                return;
-            }
-            */
             bool drop = HandleDrop(mousePosition,offset);
             if (drop) {
                 return;
@@ -309,9 +293,9 @@ namespace PlayerModule.Mouse {
                 return false;
             }
             Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
-            Vector2Int partitionPositionInChunk = partitionPosition -chunk.getPosition()*Global.PartitionsPerChunk;
-            Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.ChunkPartitionSize;
-            IChunkPartition chunkPartition = chunk.getPartition(partitionPositionInChunk);
+            Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PARTITIONS_PER_CHUNK;
+            Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
+            IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             if (chunkPartition.ClickTileEntity(tilePositionInPartition)) {
                 return true;
             }
@@ -373,7 +357,7 @@ namespace PlayerModule.Mouse {
             }
             Vector2 spriteCenter = GetComponent<SpriteRenderer>().sprite.bounds.center.normalized;
             if (ItemSlotUtils.IsItemSlotNull(grabbedItemProperties.ItemSlot)) return false;
-            ItemEntityHelper.spawnItemEntityWithVelocity(
+            ItemEntityFactory.SpawnItemEntityWithVelocity(
                 new Vector2(transform.position.x,transform.position.y) + spriteCenter,
                 grabbedItemProperties.ItemSlot,
                 chunk.getEntityContainer(),
@@ -385,7 +369,9 @@ namespace PlayerModule.Mouse {
         
         
 
-        private void InventoryControlUpdate() {
+        private void InventoryControlUpdate()
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             if (Input.mouseScrollDelta.y != 0) {
                 float y = Input.mouseScrollDelta.y;
                 if (y < 0) {

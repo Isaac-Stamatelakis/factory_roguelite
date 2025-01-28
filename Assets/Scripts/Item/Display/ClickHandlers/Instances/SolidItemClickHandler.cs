@@ -3,6 +3,7 @@ using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
 using Items;
+using Items.Inventory;
 using Items.Tags;
 using UnityEngine;
 
@@ -10,9 +11,6 @@ namespace Item.Inventory.ClickHandlers.Instances
 {
     public class SolidItemClickHandler : ItemSlotUIClickHandler
     {
-        public bool RestrictTags;
-        public List<ItemTag> WhiteListedTags;
-        public bool AllowInputs = true;
         protected override void RightClick() {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             var inventory = inventoryUI.GetInventory();
@@ -56,19 +54,23 @@ namespace Item.Inventory.ClickHandlers.Instances
             inventoryUI.DisplayItem(index);
         }
 
-        protected override void LeftClick() {
+        protected override void LeftClick()
+        {
+            
             var inventory = inventoryUI.GetInventory();
-            inventoryUI.CallListeners(index);
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot inventorySlot = inventory[index];
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
-            if (!AllowInputs && grabbedSlot == null) {
+            if (grabbedSlot == null) {
+                if (inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return;
                 inventory[index] = null;
                 grabbedItemProperties.SetItemSlot(inventorySlot);
                 inventoryUI.DisplayItem(index);
                 inventoryUI.CallListeners(index);
                 return;
             }
+            
+            inventoryUI.CallListeners(index);
             if (ItemSlotUtils.AreEqual(grabbedSlot,inventorySlot)) {
                 // Merge
                 uint sum = inventorySlot.amount + grabbedSlot.amount;

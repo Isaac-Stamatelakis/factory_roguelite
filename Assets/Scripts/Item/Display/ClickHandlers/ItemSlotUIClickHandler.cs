@@ -1,4 +1,5 @@
 using System;
+using Item.GrabbedItem;
 using Item.Slot;
 using Items;
 using Items.Inventory;
@@ -11,7 +12,6 @@ namespace Item.Display.ClickHandlers
 {
     public abstract class ItemSlotUIClickHandler : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        public bool EnableToolTip;
         protected InventoryUI inventoryUI;
         public InventoryUI InventoryUI => inventoryUI;
         protected int index;
@@ -30,6 +30,7 @@ namespace Item.Display.ClickHandlers
             switch (inventoryUI.InventoryInteractMode)
             {
                 case InventoryInteractMode.Standard:
+                case InventoryInteractMode.BlockInput:
                     StandardClick(eventData);
                     break;
                 case InventoryInteractMode.Recipe:
@@ -44,6 +45,7 @@ namespace Item.Display.ClickHandlers
 
         private void StandardClick(PointerEventData eventData)
         {
+            if (!inventoryUI.ValidateItemSlot(inventoryUI.GetItemSlot(index)) && !inventoryUI.ValidateItemSlot(GrabbedItemProperties.Instance.ItemSlot)) return;
             switch (eventData.button)
             {
                 case PointerEventData.InputButton.Left:
@@ -59,7 +61,7 @@ namespace Item.Display.ClickHandlers
                     break;
             }
         }
-
+        
         private void RecipeModeClick(PointerEventData eventData)
         {
             switch (eventData.button)
@@ -104,13 +106,13 @@ namespace Item.Display.ClickHandlers
         {
             if (ReferenceEquals(inventoryUI, null)) return;
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (!EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            if (!inventoryUI.EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             ToolTipController.Instance.ShowToolTip(transform.position,itemSlot.itemObject);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!EnableToolTip) return; 
+            if (!inventoryUI.EnableToolTip) return; 
             ToolTipController.Instance.HideToolTip();
         }
     }

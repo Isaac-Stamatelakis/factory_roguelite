@@ -93,9 +93,9 @@ namespace Chunks.IO {
                 path = ChunkIO.getPath(chunk);
             }
             if (directory) {
-                path = Path.Combine(path,getName(chunk.getPosition()));
+                path = Path.Combine(path,getName(chunk.GetPosition()));
             }
-            File.WriteAllText(path,Newtonsoft.Json.JsonConvert.SerializeObject(chunk.getChunkPartitionData()));
+            File.WriteAllText(path,Newtonsoft.Json.JsonConvert.SerializeObject(chunk.GetChunkPartitionData()));
         }
         
         public static string getPath(Vector2Int chunkPosition, int dim) {
@@ -103,7 +103,7 @@ namespace Chunks.IO {
         }
 
         public static string getPath(IChunk chunk) {
-            return getPath(chunk.getPosition(),chunk.getDim());
+            return getPath(chunk.GetPosition(),chunk.GetDim());
         }
         public static string getName(Vector2Int chunkPosition) {
             return "chunk[" + chunkPosition.x + "," + chunkPosition.y + "].json";

@@ -25,7 +25,7 @@ namespace TileEntity.Instances.CompactMachines {
             return TileEntityObject.Layout;
         }
         
-        public string serialize()
+        public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
@@ -36,9 +36,9 @@ namespace TileEntity.Instances.CompactMachines {
             compactMachine.Inventory.addPort(this,ConduitType.Item);
         }
 
-        public void unserialize(string data)
+        public void Unserialize(string data)
         {
-            itemSlot = ItemSlotFactory.deseralizeItemSlotFromString(data);
+            itemSlot = ItemSlotFactory.DeserializeSlot(data);
         }
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
