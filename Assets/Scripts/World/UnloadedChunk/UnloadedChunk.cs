@@ -28,10 +28,10 @@ namespace Chunks {
             generatePartitions(chunkPartitionDataList);
         }
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
-            partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
-            for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
-                for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
-                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y));
+            partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
+            for (int x = 0; x < Global.PARTITIONS_PER_CHUNK; x ++) {
+                for (int y = 0; y < Global.PARTITIONS_PER_CHUNK; y ++) {
+                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
                 }
             }
         }

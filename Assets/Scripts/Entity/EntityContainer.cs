@@ -32,7 +32,7 @@ namespace Entities {
                 if (chunk == null) {
                     continue;
                 }
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(position) - chunkPosition*Global.PartitionsPerChunk;
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(position) - chunkPosition*Global.PARTITIONS_PER_CHUNK;
 
                 IChunkPartition partition = chunk.GetPartition(partitionPosition);
                 IChunkPartitionData partitionData = partition.GetData();

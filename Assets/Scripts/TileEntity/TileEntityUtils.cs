@@ -60,9 +60,6 @@ namespace TileEntity {
             }
             return tileEntityInstance;
         }
-        public static void setParentOfSpawnedObject(GameObject spawned, ILoadedChunk loadedChunk) {
-            spawned.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-        }
         public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
             Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
             foreach (ItemSlot itemSlot in items) {
@@ -149,7 +146,7 @@ namespace TileEntity {
             IChunk chunk = tileEntity.getChunk();
             Vector2Int offsetCellPosition = tileEntity.getCellPosition()+offset;
             Vector2Int chunkPosition = Global.getChunkFromCell(offsetCellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PartitionsPerChunk; 
+            Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             IChunkPartition partition = null;
             if (chunk is ILoadedChunk loadedChunk) {
                 ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();

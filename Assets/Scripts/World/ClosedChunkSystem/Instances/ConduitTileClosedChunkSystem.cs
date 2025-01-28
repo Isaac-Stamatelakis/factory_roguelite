@@ -28,14 +28,6 @@ namespace Chunks.Systems {
         private PortViewerController viewerController;
         public PortViewerController PortViewerController => viewerController;
         
-        public override void Awake()
-        {
-            base.Awake();
-            TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
-           
-        }
-
-
         public void tileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.AddTileEntity(tileEntity);
@@ -49,6 +41,9 @@ namespace Chunks.Systems {
         }
         
         public void initalize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
+            TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
+            TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.LitMaterial);
+            TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
             initalizeObject(dimController,coveredArea,dim,dimPositionOffset);
             InitalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
@@ -121,7 +116,7 @@ namespace Chunks.Systems {
         }
 
         public Vector2Int GetBottomLeftCorner() {
-            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
         }
 
         public override void saveOnDestroy()

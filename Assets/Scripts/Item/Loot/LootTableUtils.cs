@@ -3,32 +3,32 @@ using System.Collections.Generic;
 using Item.Slot;
 using UnityEngine;
 namespace Items {
-    public static class LootTableHelper {
-        public static List<ItemSlot> open(LootTable lootTable) {
-            int lowRange = lootTable.lootRange.x;
-            int upperRange = lootTable.lootRange.y;
-            int amount = Random.Range(lowRange,upperRange+1);
-            return openWithAmount(lootTable,amount);
+    public static class LootTableUtils {
+        public static List<ItemSlot> Open(LootTable lootTable) {
+            int amount = Random.Range(lootTable.MinItems,lootTable.MaxItems+1);
+            return OpenWithAmount(lootTable,amount);
         }
 
-        public static List<ItemSlot> openWithAmount(LootTable lootTable, int amount) {
+        public static List<ItemSlot> OpenWithAmount(LootTable lootTable, int amount) {
             List<ItemSlot> itemSlots = new List<ItemSlot>();
             HashSet<string> excludedIds = new HashSet<string>();
             for (int i = 0; i < amount; i++) {
-                LootResult lootResult = openLootTable(lootTable,excludedIds);
+                LootResult lootResult = OpenLootTable(lootTable,excludedIds);
+                if (lootResult == null) continue;
+                
                 if (!lootTable.repetitions) {
                     excludedIds.Add(lootResult.item.id);
                 }
-                uint itemSlotAmount = (uint)Random.Range(lootResult.amountRange.x,lootResult.amountRange.y);
+                uint itemSlotAmount = (uint)Random.Range(lootResult.MinAmount,lootResult.MaxAmount);
                 itemSlots.Add(new ItemSlot(lootResult.item,itemSlotAmount,null));
             }
             return itemSlots;
         }
 
-        private static LootResult openLootTable(LootTable lootTable, HashSet<string> excludedIDs) {
+        private static LootResult OpenLootTable(LootTable lootTable, HashSet<string> excludedIDs) {
             int frequencySum = 0;
             foreach (LootResult lootResult in lootTable.loot) {
-                if (lootResult.item == null) {
+                if (ReferenceEquals(lootResult.item,null)) {
                     continue;
                 }
                 if (!lootTable.repetitions && excludedIDs.Contains(lootResult.item.id)) {
@@ -40,7 +40,7 @@ namespace Items {
             frequencySum = 0;
             foreach (LootResult lootResult in lootTable.loot) {
                 
-                if (lootResult.item == null) {
+                if (ReferenceEquals(lootResult.item,null)) {
                     continue;
                 }
                 if (!lootTable.repetitions && excludedIDs.Contains(lootResult.item.id)) { 
@@ -51,7 +51,7 @@ namespace Items {
                     return lootResult;
                 }
             }   
-            Debug.LogWarning("LootTableHelper returned null for " + lootTable.name);
+            Debug.LogWarning("LootTableUtils returned null for " + lootTable.name);
             return null;
         }
 

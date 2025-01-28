@@ -30,6 +30,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         private Dictionary<int, List<int>> fluidHeightMap;
         private int minY;
         private int maxY;
+        private bool loaded;
         public MultiBlockTankInstance(MultiBlockTank tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
         }
@@ -93,12 +94,13 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         public void Load()
         {
+            loaded = true;
             DisplayFluid();
         }
 
         private void DisplayFluid()
         {
-            if (chunk is not ILoadedChunk loadedChunk || fluidSlot.itemObject is not FluidTileItem fluidTileItem) return;
+            if (!loaded || chunk is not ILoadedChunk loadedChunk || fluidSlot.itemObject is not FluidTileItem fluidTileItem) return;
 
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
@@ -161,6 +163,8 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         }
         public void Unload()
         {
+            loaded = false;
+  
             if (chunk is not ILoadedChunk loadedChunk) return;
             
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();

@@ -4,7 +4,7 @@ using Chunks;
 using UnityEngine;
 
 namespace TileEntity.Instances.SimonSays {
-    [CreateAssetMenu(fileName = "E~New Simon Says Controller", menuName = "Tile Entity/SimonSays/ColoredTile")]
+    [CreateAssetMenu(fileName = "New Simon Says Tile", menuName = "Tile Entity/SimonSays/ColoredTile")]
     public class SimonSaysColoredTileEntityObject : TileEntityObject
     {
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)

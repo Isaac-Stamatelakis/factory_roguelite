@@ -40,7 +40,7 @@ namespace Fluids {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
         {
-            Vector2Int realPosition = partition.GetRealPosition()*Global.ChunkPartitionSize + position;
+            Vector2Int realPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE + position;
             ActiveFluidPartitionData data = partitionFluidData[partition.GetRealPosition()];
             data.ids[position.x,position.y] = item.id;
             data.fill[position.x,position.y] = 8;

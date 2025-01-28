@@ -147,7 +147,7 @@ namespace Chunks.Systems {
                 return null;
             }
             if (!partitionCache.ContainsKey(partitionPosition)) {
-                Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PartitionsPerChunk;
+                Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PARTITIONS_PER_CHUNK;
                 partitionCache[partitionPosition] = chunk.GetPartition(adjustedPartitionPosition);
             }
             IChunkPartition partition = partitionCache[partitionPosition];
@@ -163,7 +163,7 @@ namespace Chunks.Systems {
             if (chunk == null) {
                 return null;
             }
-            Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PartitionsPerChunk;
+            Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PARTITIONS_PER_CHUNK;
             IChunkPartition partition = chunk.GetPartition(adjustedPartitionPosition);
             Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
             return partition.GetTileEntity(cellPositionInPartition);
@@ -192,12 +192,12 @@ namespace Chunks.Systems {
             return conduits;
         }
         public Vector2Int GetBottomLeftCorner() {
-            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.ChunkSize;
+            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
         }
         protected Vector2Int GetSize() {
             int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
-            return new Vector2Int(xSizeChunks*Global.ChunkSize,ySizeChunks*Global.ChunkSize);
+            return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
         }
 
         public Vector2Int GetCenter() {

@@ -65,7 +65,7 @@ namespace Chunks.Partitions {
                 Debug.LogError("Attempted to tick load partition which is already ticked loaded");
                 return;
             }
-            tileEntities ??= new ITileEntityInstance[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+            tileEntities ??= new ITileEntityInstance[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
             tickableTileEntities = new List<ITickableTileEntity>();
             loadTickableTileEntityLayer(data.baseData);
             tickLoaded = true;
@@ -73,8 +73,8 @@ namespace Chunks.Partitions {
 
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetEntityPorts(ConduitType type, Vector2Int referenceFrame) {
             Dictionary<ITileEntityInstance, List<TileEntityPortData>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     ITileEntityInstance tileEntity = tileEntities[x,y];
                     if (tileEntity is not IConduitPortTileEntity conduitInteractable) {
                         continue;
@@ -90,8 +90,8 @@ namespace Chunks.Partitions {
         }
         private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     string id = data.ids[x,y];
                     if (id == null) {
                         continue;
@@ -117,15 +117,15 @@ namespace Chunks.Partitions {
             if (instance is not ISoftLoadableTileEntity) {
                 return null;
             }
-            Vector2Int cellPosition = this.position * Global.ChunkPartitionSize + positionInPartition;
+            Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options);
         }
 
         private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            Vector2Int partitionOffset = GetRealPosition()*Global.ChunkPartitionSize;
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            Vector2Int partitionOffset = GetRealPosition()*Global.CHUNK_PARTITION_SIZE;
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     string id = data.ids[x,y];
                     if (id == null) {
                         continue;
@@ -168,8 +168,8 @@ namespace Chunks.Partitions {
 
             if (conduits == null) return;
             foreach (KeyValuePair<ConduitType, IConduit[,]> kvp in conduits) {
-                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                         IConduit conduit = kvp.Value[x,y];
                         ConduitFactory.SerializeConduit(conduit, kvp.Key,data,x,y);
                     }

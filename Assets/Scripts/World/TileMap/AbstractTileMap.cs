@@ -34,6 +34,7 @@ namespace TileMaps {
         public void setHighlight(bool on);
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
+        public void BreakTile(Vector2Int position);
     }
 
     public interface ITileMapListener {
@@ -76,13 +77,13 @@ namespace TileMaps {
                 yield return null;
             }
             partitions.Remove(partitionPosition);
-            int partitionX = partitionPosition.x*Global.ChunkPartitionSize;
-            int partitionY = partitionPosition.y*Global.ChunkPartitionSize;
-            for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y ++) {
+            int partitionX = partitionPosition.x*Global.CHUNK_PARTITION_SIZE;
+            int partitionY = partitionPosition.y*Global.CHUNK_PARTITION_SIZE;
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y ++) {
                     RemoveTile(partitionX+x,partitionY+y);
                 }
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
 
@@ -122,7 +123,7 @@ namespace TileMaps {
         /// </summary>
         public void placeItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
-            Vector2Int cellPosition = partitionPosition*Global.ChunkPartitionSize + tilePartitionPosition;
+            Vector2Int cellPosition = partitionPosition*Global.CHUNK_PARTITION_SIZE + tilePartitionPosition;
             CallListeners(cellPosition);
             SetTile(cellPosition.x, cellPosition.y, (TItem) item);
         }
@@ -145,15 +146,15 @@ namespace TileMaps {
         public static Vector2Int GetChunkPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
-            return new Vector2Int(Mathf.FloorToInt(x/(Global.ChunkSize)), Mathf.FloorToInt(y/(Global.ChunkSize)));
+            return new Vector2Int(Mathf.FloorToInt(x/(Global.CHUNK_SIZE)), Mathf.FloorToInt(y/(Global.CHUNK_SIZE)));
         }
         protected Vector2Int GetPartitionPosition(Vector2Int position) {
             float x = (float) position.x;
             float y = (float) position.y;
-            return new Vector2Int(Mathf.FloorToInt(x/Global.ChunkPartitionSize), Mathf.FloorToInt((y/Global.ChunkPartitionSize)));
+            return new Vector2Int(Mathf.FloorToInt(x/Global.CHUNK_PARTITION_SIZE), Mathf.FloorToInt((y/Global.CHUNK_PARTITION_SIZE)));
         }
         protected Vector2Int GetTilePositionInPartition(Vector2Int position) {
-            return new Vector2Int(Global.modInt(position.x,Global.ChunkPartitionSize),Global.modInt(position.y,Global.ChunkPartitionSize));
+            return new Vector2Int(Global.modInt(position.x,Global.CHUNK_PARTITION_SIZE),Global.modInt(position.y,Global.CHUNK_PARTITION_SIZE));
         }
 
         protected IChunkPartition GetPartitionAtPosition(Vector2Int cellPosition) {
@@ -163,7 +164,7 @@ namespace TileMaps {
                 return null;
             }
             Vector2Int partitionPosition = GetPartitionPosition(cellPosition);
-            Vector2Int partitionPositionInChunk = partitionPosition - chunkPosition * Global.PartitionsPerChunk;
+            Vector2Int partitionPositionInChunk = partitionPosition - chunkPosition * Global.PARTITIONS_PER_CHUNK;
             IChunkPartition partition = chunk.GetPartition(partitionPositionInChunk);
             return partition;
         }
@@ -174,10 +175,8 @@ namespace TileMaps {
             Vector3Int vect = tilemap.WorldToCell(position);
             return new Vector2Int(vect.x,vect.y);
         }
-        protected virtual void BreakTile(Vector2Int position) {
-            Vector2Int chunkPartition = GetPartitionPosition(position);
+        public virtual void BreakTile(Vector2Int position) {
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
-            Vector2Int tilePositon = GetTilePositionInPartition(position);
         }
         protected virtual void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);

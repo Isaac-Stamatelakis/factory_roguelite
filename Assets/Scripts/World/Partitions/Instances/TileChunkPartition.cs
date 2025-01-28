@@ -22,7 +22,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,
             Vector2Int systemOffset)
         {
-            tileEntities ??= new ITileEntityInstance[Global.ChunkPartitionSize, Global.ChunkPartitionSize];
+            tileEntities ??= new ITileEntityInstance[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction,systemOffset);
             const int ENTITY_LOAD_PER_UPDATE = 5;
@@ -48,8 +48,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             Vector2Int position = GetRealPosition();
             SeralizedWorldData data = (SeralizedWorldData) GetData();
             if (tileEntities != null) {
-                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                         ITileEntityInstance tileEntity = tileEntities[x,y];
                         if (tileEntity == null) {
                             continue;
@@ -72,8 +72,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 int removalsPerNumeration = 5;
                 int removals = 0;
                     
-                for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                    for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                         ITileEntityInstance tileEntity = tileEntities[x,y];
                         if (tileEntity == null) {
                             continue;
@@ -83,7 +83,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         }
                         if (removals >= removalsPerNumeration) {
                             removals = 0;
-                            yield return new WaitForEndOfFrame();
+                            yield return null;
                         }
                     }
                 }
@@ -206,7 +206,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 }
                 return;
             }
-            Vector2Int position = this.position * Global.ChunkPartitionSize + positionInPartition;
+            Vector2Int position = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             tileEntityArray[x,y] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,options);
         }
 
@@ -275,8 +275,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             SeralizedWorldData data = (SeralizedWorldData) GetData();
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             string[,] tileIds = data.baseData.ids;
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     if (tileEntities[x,y] != null) {
                         continue;
                     }
@@ -293,7 +293,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         continue;
                     }
                     string tileEntityData = data.baseData.sTileEntityOptions[x,y];
-                    Vector2Int position = this.position * Global.ChunkPartitionSize + new Vector2Int(x,y);
+                    Vector2Int position = this.position * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x,y);
                     tileEntities[x,y] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
                 }
             }
@@ -305,8 +305,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 return;
             }
             farLoaded = false;
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     ITileEntityInstance tileEntityInstance = tileEntities[x,y];
                     if (tileEntityInstance == null) {
                         continue;

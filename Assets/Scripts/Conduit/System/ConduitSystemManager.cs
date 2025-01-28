@@ -331,10 +331,10 @@ namespace Conduits.Systems {
         
 
         public IConduit[,] GetConduitPartitionData(Vector2Int partitionPosition) {
-            IConduit[,] partitionConduits = new IConduit[Global.ChunkPartitionSize,Global.ChunkPartitionSize];
-            Vector2Int position = partitionPosition * Global.ChunkPartitionSize;
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++)
+            IConduit[,] partitionConduits = new IConduit[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
+            Vector2Int position = partitionPosition * Global.CHUNK_PARTITION_SIZE;
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
                 {
                     partitionConduits[x, y] = GetConduitAtCellPosition(position + new Vector2Int(x, y));
                 }

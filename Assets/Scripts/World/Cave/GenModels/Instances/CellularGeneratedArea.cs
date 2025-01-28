@@ -34,8 +34,8 @@ namespace WorldModule.Caves {
         public RandomType randomType;
 
         public override SeralizedWorldData GenerateBase(int seed) {
-            int[][] grid = GenerateGrid(seed,GetChunkSize()*Global.ChunkSize);
-            grid = cellular_automaton(grid,GetChunkSize()*Global.ChunkSize);
+            int[][] grid = GenerateGrid(seed,GetChunkSize()*Global.CHUNK_SIZE);
+            grid = cellular_automaton(grid,GetChunkSize()*Global.CHUNK_SIZE);
             return GenerateWorld(grid);
         }
 
@@ -170,8 +170,8 @@ namespace WorldModule.Caves {
 
         private SeralizedWorldData GenerateWorld(int[][] grid) {
             UnityEngine.Vector2Int caveSize = GetChunkSize();
-            int width = Global.ChunkSize *caveSize.x;
-            int height = Global.ChunkSize*caveSize.y;
+            int width = Global.CHUNK_SIZE *caveSize.x;
+            int height = Global.CHUNK_SIZE*caveSize.y;
             SerializedBaseTileData baseTileData = new SerializedBaseTileData();
             baseTileData.ids = new string[width,height];
             baseTileData.sTileEntityOptions = new string[width,height];

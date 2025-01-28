@@ -82,7 +82,7 @@ namespace Chunks.Systems {
 
         
 
-        private static void LoadTileEntityDisplayTileMap(TileEntityTileMapType tileEntityTileMapType, Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps)
+        private static void LoadTileEntityDisplayTileMap(TileEntityTileMapType tileEntityTileMapType, Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps, Material litMaterial)
         {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
@@ -99,20 +99,27 @@ namespace Chunks.Systems {
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
             Tilemap tilemap = container.AddComponent<Tilemap>();
-            container.AddComponent<TilemapRenderer>();
+            TilemapRenderer renderer = container.AddComponent<TilemapRenderer>();
+            switch (tileEntityTileMapType)
+            {
+                case TileEntityTileMapType.LitFront:
+                case TileEntityTileMapType.LitBack:
+                    renderer.material = litMaterial;
+                    break;
+            }
             tilemaps[tileEntityTileMapType] = tilemap;
 
         }
 
-        public static void LoadTileEntityMaps(Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps)
+        public static void LoadTileEntityMaps(Transform parent, Dictionary<TileEntityTileMapType, Tilemap> tilemaps, Material litMaterial)
         {
             GameObject gameObject = new GameObject();
             gameObject.name = "TileEntityMaps";
             gameObject.transform.SetParent(parent);
-            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitFront, gameObject.transform, tilemaps);
-            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitFront, gameObject.transform, tilemaps);
-            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitBack, gameObject.transform, tilemaps);
-            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitBack, gameObject.transform, tilemaps);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitFront, gameObject.transform, tilemaps,litMaterial);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitFront, gameObject.transform, tilemaps,litMaterial);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.LitBack, gameObject.transform, tilemaps,litMaterial);
+            LoadTileEntityDisplayTileMap(TileEntityTileMapType.UnLitBack, gameObject.transform, tilemaps,litMaterial);
             
         }
 

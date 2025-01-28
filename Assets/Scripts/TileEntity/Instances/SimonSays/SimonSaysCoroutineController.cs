@@ -45,7 +45,7 @@ namespace TileEntity.Instances.SimonSays {
             yield return new WaitForSeconds(0.4f);
             int index = controller.ColoredTiles.IndexOf(coloredTileEntity);
             controller.PlayerSequence.Add(index);
-            controller.evaluateSequence();
+            controller.EvaluateSequence();
         }
     }
 }

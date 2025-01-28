@@ -14,10 +14,7 @@ namespace TileEntity.Instances.SimonSays {
         public SimonSaysControllerInstance Controller {set => controller = value;}
         public void onRightClick()
         {
-            if (controller == null) {
-                return;
-            }
-            controller.CoroutineController.showTileClick(this);
+            controller?.CoroutineController.showTileClick(this);
         }
 
         public void setColor(int color) {

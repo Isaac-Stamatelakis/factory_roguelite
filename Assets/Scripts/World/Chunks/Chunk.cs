@@ -65,7 +65,7 @@ namespace Chunks {
             Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
             IChunk chunk = GetChunkAtPosition(chunkPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(cellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PartitionsPerChunk; 
+            Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             return (chunk.GetPartition(partitionPosition), positionInPartition);
         }
 
@@ -98,10 +98,10 @@ namespace Chunks {
         public virtual void initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             this.dim = dim;
             this.position = chunkPosition;
-            this.partitions = new IChunkPartition[Global.PartitionsPerChunk,Global.PartitionsPerChunk];
+            this.partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
             this.closedChunkSystem = closedChunkSystem;
             generatePartitions(chunkPartitionDataList);
-            transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
+            transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
             initalizeContainers();
             
         }
@@ -111,7 +111,7 @@ namespace Chunks {
             this.position = chunkPosition;
             this.partitions = partitions;
             this.closedChunkSystem = closedChunkSystem;
-            transform.localPosition = new Vector3(chunkPosition.x*Global.ChunkSize/2,chunkPosition.y*Global.ChunkSize/2,0);
+            transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
             initalizeContainers();
         }
 
@@ -126,10 +126,10 @@ namespace Chunks {
         }
 
         protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
-            for (int x = 0; x < Global.PartitionsPerChunk; x ++) {
+            for (int x = 0; x < Global.PARTITIONS_PER_CHUNK; x ++) {
                 List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
-                for (int y = 0; y < Global.PartitionsPerChunk; y ++) {
-                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PartitionsPerChunk + y], new Vector2Int(x,y));
+                for (int y = 0; y < Global.PARTITIONS_PER_CHUNK; y ++) {
+                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
                 }
             }
         }

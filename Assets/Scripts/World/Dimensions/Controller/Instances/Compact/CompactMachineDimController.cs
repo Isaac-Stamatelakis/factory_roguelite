@@ -58,8 +58,8 @@ namespace Dimensions {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
                                 if (compactMachine != null) {
@@ -113,8 +113,8 @@ namespace Dimensions {
             systems.Add(newSystem);
             foreach (IChunk chunk in newSystem.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    for (int x = 0; x < Global.ChunkPartitionSize; x ++) {
-                        for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
                                 compactMachineInteractable.syncToCompactMachine(compactMachine);

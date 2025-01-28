@@ -115,7 +115,7 @@ namespace TileMaps {
             }
             return spriteY >= searchWidth;
         } 
-        protected override void BreakTile(Vector2Int position) {
+        public override void BreakTile(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
                 return;

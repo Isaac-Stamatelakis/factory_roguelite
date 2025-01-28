@@ -9,7 +9,11 @@ using Tiles;
 using TileMaps.Place;
 using Chunks.Systems;
 using Chunks.Partitions;
+using Conduits.Ports;
 using Item.Slot;
+using TileMaps;
+using TileMaps.Type;
+using UI.Chat;
 
 namespace TileEntity.Instances.SimonSays {
     public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IRightClickableTileEntity, ILoadableTileEntity
@@ -32,58 +36,58 @@ namespace TileEntity.Instances.SimonSays {
 
         public void onRightClick()
         {
-            bool started = coroutineController != null;
-            if (!started) {
-                if (getChunk() is not ILoadedChunk loadedChunk) {
-                    return;
-                }
-                initTiles();
-                currentChances = TileEntityObject.Chances;
-                GameObject controllerObject = new GameObject();
-                controllerObject.name = "SimonSaysController";
-                coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
-                coroutineController.init(this);
-                TileEntityUtils.setParentOfSpawnedObject(controllerObject, loadedChunk);
-                initGame();
-            }
+            
+            bool started = !ReferenceEquals(coroutineController, null);
+            if (started || chunk is not ILoadedChunk loadedChunk) return;
+            TextChatUI.Instance.sendMessage("Another challenger... Very well... Repeat the pattern and I should rework you...");
+            InitTiles();
+            currentChances = TileEntityObject.Chances;
+            GameObject controllerObject = new GameObject();
+            controllerObject.name = "SimonSaysController";
+            coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
+            coroutineController.init(this);
+            controllerObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            InitGame();
         }
 
-        public void evaluateSequence() {
+        public void EvaluateSequence() {
             for (int i = 0; i < playerSequence.Count; i++) {
                 if (playerSequence[i] != currentSequence[i]) {
-                    lose();
+                    Lose();
                     return;
                 }
             }
             if (playerSequence.Count >= currentSequence.Count) {
-                sequenceMatch();
+                SequenceMatch();
             }
             
         }
 
-        private void initGame() {
+        private void InitGame() {
             playerSequence = new List<int>();
             currentSequence = new List<int>();
             increaseCurrentSequenceLength(2);
             coroutineController.display(currentSequence);
         }
 
-        private void sequenceMatch() {
+        private void SequenceMatch() {
             highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
             if (highestMatchingSequence >= TileEntityObject.MaxLength) {
-                conclude();
+                Conclude();
                 return;
             }
             playerSequence = new List<int>();
             increaseCurrentSequenceLength(1);
             coroutineController.display(currentSequence);
         }
-        private void lose() {
+        private void Lose() {
+            
             currentChances--;
             if (currentChances > 0) {
-                initGame();
+                TextChatUI.Instance.sendMessage("Oof wrong tile...");
+                InitGame();
             } else {
-                conclude();
+                Conclude();
             }
             
         }
@@ -91,8 +95,37 @@ namespace TileEntity.Instances.SimonSays {
         /// <summary>
         /// Removes this simon says controller, replaces it with other blocks, spawns loot
         /// </summary>
-        private void conclude() {
-            int lootamount = (highestMatchingSequence*4)/TileEntityObject.MaxLength;
+        private void Conclude() {
+            TextChatUI.Instance.sendMessage($"The game has concluded. Your highest matching sequence was {highestMatchingSequence}");
+            int lootAmount = (highestMatchingSequence*4)/TileEntityObject.MaxLength;
+            
+            if (chunk is not ILoadedChunk loadedChunk) return;
+                
+           
+            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            IWorldTileMap blockTileMap = closedChunkSystem.getTileMap(TileMapType.Block);
+            
+            BreakStructure(blockTileMap,closedChunkSystem);
+            PlaceBricks(blockTileMap,closedChunkSystem);
+            PlaceChests(lootAmount, closedChunkSystem);
+            
+            Unload();
+        }
+
+        private void BreakStructure(IWorldTileMap blockTileMap, ClosedChunkSystem closedChunkSystem)
+        {
+            const int RADIUS = 1;
+            for (int x = -RADIUS; x <= RADIUS; x++)
+            {
+                for (int y = -RADIUS; y <= RADIUS; y++)
+                {
+                    blockTileMap.BreakTile(getCellPosition() + new Vector2Int(x,y));
+                }
+            }
+        }
+
+        private void PlaceBricks(IWorldTileMap blockTileMap, ClosedChunkSystem closedChunkSystem)
+        {
             List<Vector2Int> brickPlacePositions = new List<Vector2Int>{
                 new Vector2Int(-1,-1),
                 new Vector2Int(-1,1),
@@ -100,61 +133,83 @@ namespace TileEntity.Instances.SimonSays {
                 new Vector2Int(1,1),
                 Vector2Int.zero
             };
-            TileItem bricks = ItemRegistry.GetInstance().GetTileItem("simons_brick");
-            if (chunk is not ILoadedChunk loadedChunk) {
-                Debug.LogError("Somehow managed to get to deletion phase of simon says game in a non loaded chunk");
-                return;
-            }
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             foreach (Vector2Int position in brickPlacePositions) {
-                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
-                PlaceTile.PlaceFromWorldPosition(bricks,worldPlacePosition,closedChunkSystem,checkConditions: false,useOffset:false);
+                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
+                PlaceTile.placeTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem, useOffset: false);
             }
-            List<Vector2Int> chestPlacePositions = new List<Vector2Int>{
-                new Vector2Int(-1,0),
-                new Vector2Int(1,0),
-                new Vector2Int(0,-1),
-                new Vector2Int(0,1)
-            };
-            TileItem chestTile = ItemRegistry.GetInstance().GetTileItem("small_chest");
-            int count = 0;
-            foreach (Vector2Int position in chestPlacePositions) {
-                if (count >= lootamount) {
-                    break;
-                }
-                TileEntityObject chestTileEntityObject = chestTile.tileEntity;
-                if (chestTileEntityObject is not Chest chest) {
-                    Debug.LogError("SimonSaysController attempted to give items to a non chest tile entity");
-                    break;
-                }
-                List<ItemSlot> loot = LootTableHelper.openWithAmount(TileEntityObject.LootTable,3);
-                if (count == 3) {
-                    loot.AddRange(LootTableHelper.openWithAmount(TileEntityObject.CompletionLootTable,1));
-                }
-                Vector2Int cellPosition = getCellPosition() + position;
-                Vector2Int chestPositionInChunk = Global.getPositionInChunk(cellPosition);
-                //chestTileEntity.initalize(chestPositionInChunk, chestTile.tile, chunk);
-                //chest.giveItems(loot);
-                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x/2f,position.y/2f);
-                PlaceTile.PlaceFromWorldPosition(chestTile,worldPlacePosition,closedChunkSystem,checkConditions:false,chestTileEntityObject,useOffset:false);
-                //IChunkPartition partition = chunk.getPartition()
-                count ++;
-            }
-            Unload();
         }
 
-        private void initTiles() {
+        private void PlaceChests(int lootAmount, ClosedChunkSystem closedChunkSystem)
+        {
+            var chestPlacePositions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+            TileItem chestTile = tileEntityObject.ChestTile;
+            IWorldTileMap chestLayerTileMap = closedChunkSystem.getTileMap(chestTile.tileType.toTileMapType());
+            for (var index = 0; index < chestPlacePositions.Count; index++)
+            {
+                var position = chestPlacePositions[index];
+                if (index >= lootAmount)
+                {
+                    return;
+                }
+
+                Vector2Int chestPlacePosition = getCellPosition() + position;
+                Vector2Int chestPositionInChunk = Global.getPositionInChunk(chestPlacePosition);
+                if (ReferenceEquals(tileEntityObject.ChestTile?.tileEntity, null))
+                {
+                    if (ReferenceEquals(tileEntityObject.ChestTile, null))
+                    {
+                        Debug.LogError($"{tileEntityObject.name} chest tile is null");
+                    } else if (ReferenceEquals(tileEntityObject.ChestTile.tileEntity, null))
+                    {
+                        Debug.LogError($"{tileEntityObject.name} chest tile is has no tile entity");
+                    }
+                    return;
+                }
+
+                Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
+                IChunk chestChunk = closedChunkSystem.getChunk(chestChunkPosition);
+                ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
+                if (tileEntityInstance is not IItemConduitInteractable itemConduitInteractable)
+                {
+                    Debug.LogError($"{tileEntityObject.name} chest tile is not item interactable");
+                    return;
+                }
+
+                List<ItemSlot> loot = LootTableUtils.OpenWithAmount(TileEntityObject.LootTable, 3);
+                if (index == chestPlacePositions.Count - 1)
+                {
+                    loot.AddRange(LootTableUtils.OpenWithAmount(TileEntityObject.CompletionLootTable, 1));
+                }
+
+                foreach (ItemSlot itemSlot in loot)
+                {
+                    itemConduitInteractable.InsertItem(ItemState.Solid, itemSlot, Vector2Int.zero);
+                }
+
+                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
+                PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance, useOffset: false);
+            }
+        }
+
+        private void InitTiles() {
             coloredTiles = new List<SimonSaysColoredTileEntityInstance>();
-            for (int x = -1; x <= 1; x++) {
-                for (int y = -1; y <= 1; y++) {
-                    if (x == 0 && y == 0) {
-                        continue;
-                    }
-                    ITileEntityInstance tileEntity = TileEntityUtils.getAdjacentTileEntity(this,new Vector2Int(x,y));
-                    if (tileEntity == null) {
-                        continue;
-                    }
-                    if (tileEntity is not SimonSaysColoredTileEntityInstance simonSaysColoredTile) {
+            IChunkSystem system = chunk.GetChunkSystem();
+            const int RADIUS = 1;
+            for (int x = -RADIUS; x <= RADIUS; x++) {
+                for (int y = -RADIUS; y <= RADIUS; y++)
+                {
+                    bool isController = x == 0 && y == 0;
+                    if (isController) continue;
+                    var (partition, positionInPartition) =
+                        system.GetPartitionAndPositionAtCellPosition(new Vector2Int(x, y) + getCellPosition());
+                    ITileEntityInstance tileEntityInstance = partition.GetTileEntity(positionInPartition);
+                    if (tileEntityInstance is not SimonSaysColoredTileEntityInstance simonSaysColoredTile) {
                         continue;
                     }
                     coloredTiles.Add(simonSaysColoredTile);
@@ -178,7 +233,7 @@ namespace TileEntity.Instances.SimonSays {
 
         public void Unload()
         {
-            if (coroutineController != null) {
+            if (!ReferenceEquals(coroutineController,null)) {
                 GameObject.Destroy(coroutineController);
             }
         }

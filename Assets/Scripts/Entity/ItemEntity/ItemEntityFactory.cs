@@ -53,7 +53,7 @@ namespace Entities {
         }
 
         public static void spawnLootTable(Vector2 position, LootTable lootTable, Transform entityContainer) {
-            List<ItemSlot> items = LootTableHelper.open(lootTable);
+            List<ItemSlot> items = LootTableUtils.Open(lootTable);
             foreach (ItemSlot item in items) {
                 SpawnItemEntityFromBreak(position,item,entityContainer);
             }

@@ -36,7 +36,7 @@ namespace TileMaps {
         }
 
 
-        protected override void BreakTile(Vector2Int position)
+        public override void BreakTile(Vector2Int position)
         {
             outlineTileMap.SetTile(new Vector3Int(position.x,position.y,0), null);
             base.BreakTile(position);

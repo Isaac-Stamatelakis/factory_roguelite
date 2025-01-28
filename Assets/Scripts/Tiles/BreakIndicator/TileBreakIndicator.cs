@@ -32,9 +32,9 @@ namespace Tiles {
         }
 
         public void unloadPartition(Vector2Int partitionPosition) {
-            Vector2Int partitionCellPosition = partitionPosition * Global.ChunkPartitionSize;
-            for (int x = 0; x < Global.ChunkPartitionSize; x++) {
-                for (int y = 0; y < Global.ChunkPartitionSize; y++) {
+            Vector2Int partitionCellPosition = partitionPosition * Global.CHUNK_PARTITION_SIZE;
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     removeBreak(partitionCellPosition + new Vector2Int(x,y));
                 }
             }

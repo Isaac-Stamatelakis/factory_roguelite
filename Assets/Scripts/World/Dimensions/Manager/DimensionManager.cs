@@ -29,6 +29,7 @@ namespace Dimensions {
     public abstract class DimensionManager : MonoBehaviour
     {
         [SerializeField] private DimensionObjects miscObjects;
+        public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
         public static DimensionManager Instance {get => instance;}
         public void Awake() {

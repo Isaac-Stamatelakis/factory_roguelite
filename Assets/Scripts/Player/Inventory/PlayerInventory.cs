@@ -157,7 +157,7 @@ namespace PlayerModule {
         {
             Vector2 position = transform.position;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
-            Vector2Int chunkPosition = new Vector2Int(Mathf.FloorToInt(position.x/(2*Global.ChunkSize)), Mathf.FloorToInt(position.y/(2*Global.ChunkSize)));
+            Vector2Int chunkPosition = new Vector2Int(Mathf.FloorToInt(position.x/(2*Global.CHUNK_SIZE)), Mathf.FloorToInt(position.y/(2*Global.CHUNK_SIZE)));
             IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
             if (chunk is ILoadedChunk loadedChunk)
             {

@@ -39,7 +39,7 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, TileEntityObject presetTileEntity = null, bool useOffset = true)
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, bool useOffset = true)
         {
             switch (itemObject)
             {
@@ -48,7 +48,7 @@ namespace TileMaps.Place {
                 case TileItem tileItem:
                 {
                     TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,presetTileEntity,useOffset:useOffset);
+                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,useOffset:useOffset);
                     return true;
                 }
                 case ConduitItem conduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
@@ -222,15 +222,21 @@ namespace TileMaps.Place {
                     intervalVector.Y.UpperBound,
                     TileMapLayer.Base.toRaycastLayers());
         }
-        
+
         /// <summary>
         /// Places a Tile at a given location.
         /// </summary>
+        /// <param name="tileItem"></param>
+        /// <param name="worldPosition"></param>
+        /// <param name="iWorldTileMap"></param>
+        /// <param name="presetTileEntity"></param>
+        /// <param name="useOffset"></param>
+        /// <param name="closedChunkSystem"></param>
         /// <param name = "id"> The id of the TileBlock to be placed </param>
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        private static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, TileEntityObject presetTileEntity = null, bool useOffset = true) {
+        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem,  ITileEntityInstance presetTileEntity = null, bool useOffset = true) {
             if (iWorldTileMap == null) {
                 return;
             }
@@ -255,7 +261,10 @@ namespace TileMaps.Place {
                 placePosition += offset;
             }
             iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
-            if (!ReferenceEquals(tileItem.tileEntity,null)) placeTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition);
+            if (!ReferenceEquals(tileItem.tileEntity, null))
+            {
+                PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition,presetTileEntity);
+            }
             
             if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
                 return;
@@ -264,12 +273,12 @@ namespace TileMaps.Place {
             
         }
 
-        public static void placeTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,IWorldTileMap iWorldTileMap, Vector2 offsetPosition) {
+        public static void PlaceTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,IWorldTileMap iWorldTileMap, Vector2 offsetPosition, ITileEntityInstance presetTileEntity = null) {
             Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
             Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PartitionsPerChunk;
-            Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.ChunkSize;
-            Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.ChunkPartitionSize;
+            Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
+            Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.CHUNK_SIZE;
+            Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
             if (chunk == null) {
                 Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
@@ -284,7 +293,7 @@ namespace TileMaps.Place {
             TileEntityObject tileEntity = tileItem.tileEntity;
             if (ReferenceEquals(tileEntity, null)) return;
             
-            ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true);
+            ITileEntityInstance tileEntityInstance = presetTileEntity ?? TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {

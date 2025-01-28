@@ -21,7 +21,7 @@ public class CameraBounds : MonoBehaviour
             return;
         }
         IntervalVector intervalVector = closedChunkSystem.getBounds();
-        int worldChunkSize = Global.ChunkSize/2; // Chunks size is in tile size which is 1/2 world size
+        int worldChunkSize = Global.CHUNK_SIZE/2; // Chunks size is in tile size which is 1/2 world size
         this.bounds = new FloatIntervalVector(
             new Interval<float>(
                 intervalVector.X.LowerBound,
@@ -62,17 +62,17 @@ public class CameraBounds : MonoBehaviour
         if (ReferenceEquals(closedChunkSystem, null)) return;
         
         Vector3 position = transform.position;
-        int worldPartitionSize = Global.ChunkPartitionSize >> 1;
-        int px = (int) position.x / worldPartitionSize % Global.PartitionsPerChunk;
-        int py = (int) position.y / worldPartitionSize % Global.PartitionsPerChunk;
+        int worldPartitionSize = Global.CHUNK_PARTITION_SIZE >> 1;
+        int px = (int) position.x / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
+        int py = (int) position.y / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
         if (px == lastPartition.x && py == lastPartition.y) {
             return;
         }
         closedChunkSystem.PlayerPartitionUpdate();
         lastPartition = new Vector2Int(px,py);
         
-        int cx = (int) position.x / (Global.PartitionsPerChunk/2);
-        int cy = (int) position.y / (Global.PartitionsPerChunk/2);
+        int cx = (int) position.x / (Global.PARTITIONS_PER_CHUNK/2);
+        int cy = (int) position.y / (Global.PARTITIONS_PER_CHUNK/2);
         
         if (cx == lastChunk.x && cy == lastChunk.y) {
             return;

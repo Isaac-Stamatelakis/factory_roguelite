@@ -47,9 +47,9 @@ namespace WorldModule.Caves {
             
             total += modelTime;
             
-            Vector2Int size = getChunkCaveSize()*Global.ChunkSize;
+            Vector2Int size = getChunkCaveSize()*Global.CHUNK_SIZE;
             IntervalVector coveredArea = getChunkCoveredArea();
-            Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.ChunkSize;
+            Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.CHUNK_SIZE;
             stopwatch.Restart();
             foreach (CaveTileGenerator generator in caveElements.TileGenerators) {
                 generator.distribute(worldTileData,size.x,size.y,bottomLeft);
