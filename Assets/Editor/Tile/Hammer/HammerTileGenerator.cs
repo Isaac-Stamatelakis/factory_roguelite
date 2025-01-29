@@ -35,7 +35,7 @@ namespace HammerTileEditor
         private Texture2D texture;
         private MultiTileType multiType;
 
-        [MenuItem("ToolCollection/Item Constructors/Tile/Hammer")]
+        [MenuItem("Tools/Item Constructors/Tile/Hammer")]
         public static void ShowWindow()
         {
             StandardHammerTileGenerator window = (StandardHammerTileGenerator)EditorWindow.GetWindow(typeof(StandardHammerTileGenerator));
@@ -128,7 +128,9 @@ namespace HammerTileEditor
             string hammerTilePath = Path.Combine(path, "T~" + tileName + ".asset");
             AssetDatabase.CreateAsset(hammerTile, hammerTilePath);
             AssetDatabase.Refresh();
-            TileItem tileItem = ItemEditorFactory.generateTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
+#pragma warning disable CS0618 // Type or member is obsolete
+            TileItem tileItem = ItemEditorFactory.GeneratedTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
+#pragma warning restore CS0618 // Type or member is obsolete
             tileItem.tileOptions.rotatable = true;
             tileItem.tileOptions.hasStates = true;
             EditorUtility.SetDirty(tileItem);

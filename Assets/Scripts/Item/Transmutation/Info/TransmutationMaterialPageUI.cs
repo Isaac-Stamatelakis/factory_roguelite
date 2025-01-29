@@ -20,7 +20,7 @@ namespace Item.Transmutation.Info
         {
             var material = materialInfo.Material;
             mNameText.text = $"Name: {material.name}";
-            mTierText.text = $"Tier: {material.tier.ToString()}";
+            mTierText.text = $"Tier: {material.gameStageObject.ToString()}";
             mChemFormulaText.text = $"Chemical Formula: {TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula)}";
             TransmutableItemState defaultState = material.MaterialOptions.BaseState;
             ItemObject defaultStateItem = TransmutableItemUtils.GetMaterialItem(material, defaultState);

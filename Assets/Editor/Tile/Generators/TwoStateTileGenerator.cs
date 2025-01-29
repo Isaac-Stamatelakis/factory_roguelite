@@ -10,7 +10,7 @@ public class TwoStateTileGenerator : EditorWindow
     private Sprite inactive;
     private Sprite active;
     private string tileName;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Special/TwoState")]
+    [MenuItem("Tools/Item Constructors/Tile/Special/TwoState")]
     // Start is called before the first frame update
     public static void ShowWindow()
     {
@@ -52,13 +52,15 @@ public class TwoStateTileGenerator : EditorWindow
         twoStateTile.inactiveTile = inactiveTile;
         twoStateTile.setID(tileName.ToLower().Replace(" ", "_"));
         ItemEditorFactory.saveTileWithName(twoStateTile,tileName);
-        ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+        ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
             tile: twoStateTile,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: null
         );
+#pragma warning restore CS0618 // Type or member is obsolete
         AssetDatabase.Refresh();
     }
 }

@@ -29,7 +29,7 @@ public class StructureGenerator : EditorWindow {
     private bool updateExisting = false;
     private PresetStructure preset;
     private string assetPath;
-    [MenuItem("ToolCollection/Caves/Structure")]
+    [MenuItem("Tools/Caves/Structure")]
     public static void ShowWindow()
     {
         structureNames = StructureGeneratorHelper.GetAllStructureFolders();

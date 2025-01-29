@@ -275,6 +275,7 @@ namespace Chunks.Partitions {
         public void UnloadTileEntities()
         {
             if (tileEntities == null) return;
+            
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
             {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)

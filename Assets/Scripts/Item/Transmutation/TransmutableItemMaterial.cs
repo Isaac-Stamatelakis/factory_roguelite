@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using UnityEngine;
 using TileEntity;
+using UI.Chat;
 
 
 namespace Items.Transmutable {
@@ -12,9 +14,9 @@ namespace Items.Transmutable {
     public class TransmutableItemMaterial : ScriptableObject
     {
         public string id;
-        public Tier tier;
         public Color color;
         public string chemicalFormula;
+        public TieredGameStage gameStageObject;
         
         public TransmutableMaterialOptions MaterialOptions;
         public virtual List<TransmutableStateOptions> GetStates()

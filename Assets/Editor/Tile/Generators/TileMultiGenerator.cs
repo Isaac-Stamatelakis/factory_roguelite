@@ -8,7 +8,7 @@ using System.IO;
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
     private Texture2D texture;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Multi-Standard")]
+    [MenuItem("Tools/Item Constructors/Tile/Multi-Standard")]
     public static void ShowWindow()
     {
         TileMultiGeneratorWindow window = (TileMultiGeneratorWindow)EditorWindow.GetWindow(typeof(TileMultiGeneratorWindow));
@@ -53,12 +53,14 @@ public class TileMultiGeneratorWindow : EditorWindow {
             StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
             string tileName = collectionName + index.ToString();
             string tilePath = collectionPath + "/" + tileName + "/";
-            ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+            ItemEditorFactory.GeneratedTileItem(
                 tileName: tileName,
                 tile: tile,
                 tileType: TileType.Block,
                 savePath: tilePath
             );
+#pragma warning restore CS0618 // Type or member is obsolete
             index += 1;
         }
         

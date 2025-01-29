@@ -9,7 +9,7 @@ using WorldModule.Caves;
 public class EmptyCaveGenerator : EditorWindow {
     private string caveName;
     private GenerationModelType generationModelType;
-    [MenuItem("ToolCollection/Caves/Empty")]
+    [MenuItem("Tools/Caves/Empty")]
     public static void ShowWindow()
     {
         EmptyCaveGenerator window = (EmptyCaveGenerator)EditorWindow.GetWindow(typeof(EmptyCaveGenerator));

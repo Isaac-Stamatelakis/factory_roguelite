@@ -72,6 +72,7 @@ namespace Recipe.Processor
             var includedIds = new HashSet<string>();
             foreach (var slot in slots)
             {
+                if (!slot.ItemObject) continue;
                 if (ReferenceEquals(slot?.ItemObject, null)) continue;
                 string id = slot.ItemObject.id;
                 if (!includedIds.Add(id)) continue;
@@ -464,7 +465,8 @@ namespace Recipe.Processor
                 case RecipeType.Item:
                     return new ItemRecipe(solid, fluid);
                 case RecipeType.Machine:
-                    ulong usage = material.tier.GetMaxEnergyUsage();
+                    if (ReferenceEquals(material.gameStageObject,null)) return null;
+                    ulong usage = material.gameStageObject.Tier.GetMaxEnergyUsage();
                     ulong cost = 32 * usage; // TODO change this
                     return new ItemEnergyRecipe(solid,fluid, cost, cost,usage);
                 default:

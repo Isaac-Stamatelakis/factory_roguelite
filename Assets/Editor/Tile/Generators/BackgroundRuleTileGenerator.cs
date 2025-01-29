@@ -8,7 +8,7 @@ using System.IO;
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Background")]
+    [MenuItem("Tools/Item Constructors/Tile/Background")]
     public static void ShowWindow()
     {
         BackgroundGeneratorWindow window = (BackgroundGeneratorWindow)EditorWindow.GetWindow(typeof(BackgroundGeneratorWindow));
@@ -37,6 +37,7 @@ public class BackgroundGeneratorWindow : EditorWindow {
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     void createTileItem()
     {
         string path = "Assets/EditorCreations/" + tileName + "/";
@@ -49,11 +50,13 @@ public class BackgroundGeneratorWindow : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         BackgroundRuleTile tile = EditorFactory.backgroundRuleTileFrom24x24Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
         ItemEditorFactory.saveTileWithName(tile,tileName);
-        ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+        ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
             tile: tile,
             tileType: TileType.Background,
             createFolder: false
         );
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }
