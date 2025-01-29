@@ -137,6 +137,27 @@ public static class RecipeUtils {
                 transmutableRecipes[transmutableRecipeObject.InputState] = transmutableRecipeObject;
                 return;
             }
+            ItemRecipeObject itemRecipeObject = recipeObject as ItemRecipeObject;
+            if (ReferenceEquals(itemRecipeObject, null))
+            {
+                Debug.LogWarning($"Null recipe in processor {recipeProcessor.name}");
+                return;
+            }
+
+            foreach (EditorItemSlot editorItemSlot in itemRecipeObject.Inputs)
+            {
+                if (editorItemSlot.ItemObject) continue;
+                Debug.LogWarning($"ItemRecipeObject {itemRecipeObject.name} is invalid");
+                return;
+            }
+
+            foreach (RandomEditorItemSlot editorItemSlot in itemRecipeObject.Outputs)
+            {
+                if (editorItemSlot.ItemObject) continue;
+                Debug.LogWarning($"ItemRecipeObject {itemRecipeObject.name} is invalid");
+                return;
+            }
+            
             switch (recipeType)
             {
                 case RecipeType.Item:

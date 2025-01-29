@@ -68,7 +68,7 @@ namespace TileMaps.Previewer {
                 placementRecord = PreviewStandardTile(itemObject, itemTileBase, placePosition, position);
             }
             
-            tilemap.color = PlaceTile.ItemPlacable(itemObject,position, DimensionManager.Instance.getPlayerSystem(playerScript.transform)) ? placableColor : nonPlacableColor;
+            tilemap.color = PlaceTile.ItemPlacable(itemObject,position, DimensionManager.Instance.GetPlayerSystem(playerScript.transform)) ? placableColor : nonPlacableColor;
 
         }
 
@@ -95,7 +95,7 @@ namespace TileMaps.Previewer {
             {
                 return null;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerScript.transform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
             {
                 return null;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,13 +38,11 @@ namespace Dimensions {
         }
         protected DimController currentDimension;
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
-        private Dictionary<Transform, PlayerWorldData> playerWorldData = new Dictionary<Transform, PlayerWorldData>(); 
-        private Dictionary<ClosedChunkSystem, Vector2Int> activeSystems = new Dictionary<ClosedChunkSystem, Vector2Int>();
-
+        private ClosedChunkSystem activeSystem;
         public void Start() {
-            StartCoroutine(initalLoad());
+            StartCoroutine(InitalLoad());
         }
-        public IEnumerator initalLoad()
+        public IEnumerator InitalLoad()
         {
             WorldManager.getInstance().InitializeMetaData();
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
@@ -62,143 +61,87 @@ namespace Dimensions {
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");
 
-            softLoadSystems();
-            PlayerIO[] players = GameObject.FindObjectsOfType<PlayerIO>();
-            foreach (PlayerIO player in players) {
-                DimController dimController = getDimController(0);
-                playerWorldData[player.transform] = new PlayerWorldData(null,null,null);
-                int dim = player.playerData.dim;
-                Vector2 position = new Vector2(player.playerData.x,player.playerData.y);
-                setPlayerSystem(player.transform,0,Vector2Int.zero);
-            }
+            SoftLoadSystems();
+            SetPlayerSystem(playerScript.transform,0,Vector2Int.zero);
         }
     
 
-        public abstract void softLoadSystems();
+        public abstract void SoftLoadSystems();
 
-        public ClosedChunkSystem getPlayerSystem(Transform player) {
-            if (!playerWorldData.TryGetValue(player, out var value)) {
-                return null;
-            }
-            return value.closedChunkSystem;
+        public ClosedChunkSystem GetPlayerSystem(Transform player)
+        {
+            return activeSystem;
         }
-        public int getPlayerDimension(Transform transform) {
-            if (playerWorldData.ContainsKey(transform)) {
-                return playerWorldData[transform].closedChunkSystem.Dim;
-            }
-            Debug.LogError($"Player {transform.name} was not in playerDimension Dict");
-            return 0;
+        public int GetPlayerDimension()
+        {
+            return activeSystem?.Dim ?? int.MinValue;
         }
-        public void setPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
-            DimController controller = getDimController(dim);
-            ClosedChunkSystem newSystem = null;
-            Vector2Int systemPosition = GetNextSystemPosition();
-            Vector2Int offset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
 
-            if (controller is ISingleSystemController singleSystemController) {
-                newSystem = singleSystemController.getActiveSystem();
-                if (newSystem == null) {
-                    newSystem = singleSystemController.activateSystem(offset);
+        private ClosedChunkSystem GetControllerSystem(DimController controller, IDimensionTeleportKey key = null)
+        {
+            switch (controller)
+            {
+                case ISingleSystemController singleSystemController:
+                {
+                    var system = singleSystemController.GetActiveSystem();
+                    if (!system)
+                    {
+                        system = singleSystemController.ActivateSystem();
+                    }
+                    return system;
                 }
-            } else if (controller is IMultipleSystemController multipleSystemController) {
-                newSystem = multipleSystemController.getActiveSystem(key);
-                if (newSystem == null) {
-                    newSystem = multipleSystemController.activateSystem(key,offset);
+                case IMultipleSystemController multipleSystemController:
+                {
+                    var system = multipleSystemController.GetActiveSystem(key);
+                    if (!system)
+                    {
+                        system = multipleSystemController.ActivateSystem(key);
+                    }
+                    return system;
                 }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            if (newSystem == null) {
+        }
+        public void SetPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
+            DimController controller = GetDimController(dim);
+            ClosedChunkSystem newSystem = GetControllerSystem(controller, key);
+            
+            if (!newSystem) {
                 Debug.LogError("Could not switch player system");
                 return;
             }
             player.GetComponent<PlayerRobot>().TemporarilyPausePlayer();
             
-            if (playerWorldData.ContainsKey(player) && newSystem.Equals(playerWorldData[player].closedChunkSystem))
+            if (ReferenceEquals(newSystem,activeSystem))
             {
                 player.transform.position = Vector2.zero;
                 return;
             }
-            newSystem.initalizeMiscObjects(miscObjects);
-
             
-            if (playerWorldData.ContainsKey(player)) {
-                ClosedChunkSystem previousSystem = playerWorldData[player].closedChunkSystem;
-                playerWorldData[player].closedChunkSystem = newSystem;
-                bool systemEmpty = true;
-                if (previousSystem != null) {
-                    foreach (KeyValuePair<Transform,PlayerWorldData> kvp in playerWorldData) {
-                        if (previousSystem.Equals(kvp.Value.closedChunkSystem)) {
-                            systemEmpty = false;
-                            break;
-                        }
-                    }
-                    activeSystems.Remove(previousSystem);
-                    if (systemEmpty) {
-                        previousSystem.deactivateAllPartitions();
-                        GameObject.Destroy(previousSystem.gameObject);
-                    }
-                }
+            
+            if (!ReferenceEquals(activeSystem,null) && !ReferenceEquals(activeSystem, newSystem))
+            {
+                activeSystem.DeactivateAllPartitions();
+                GameObject.Destroy(activeSystem.gameObject);
             }
-            activeSystems[newSystem] = systemPosition;
-            Vector2Int systemOffset = systemPosition*DimensionUtils.ACTIVE_SYSTEM_SIZE;
-            playerWorldData[player].chunkPos = null;
-            playerWorldData[player].partitionPos = null;
-            BackgroundImageController.Instance?.setOffset(new Vector2(
-                -systemOffset.x/2f,
-                -systemOffset.y/2f
-            ));
             
-            Vector2Int tpPosition = (teleportPosition-systemOffset);
+            activeSystem = newSystem;
+            newSystem.InitalizeMiscObjects(miscObjects);
+            BackgroundImageController.Instance?.setOffset(Vector2.zero);
+            
             Vector3 playerPosition = player.position;
-            playerPosition.x = tpPosition.x/2f;
-            playerPosition.y = tpPosition.y/2f;
+            
+            playerPosition.x = teleportPosition.x*Global.WORLD_SPACE_PER_TILE;
+            playerPosition.y = teleportPosition.y*Global.WORLD_SPACE_PER_TILE;
             player.transform.position = playerPosition;
             
             CanvasController.Instance.ClearStack();
             
-            newSystem.instantCacheChunksNearPlayer();
+            newSystem.InstantCacheChunksNearPlayer();
             newSystem.PlayerPartitionUpdate();
-            
-            
         }
 
-        private IEnumerator UnFreezePlayer(Rigidbody2D rb)
-        {
-            yield return new WaitForSeconds(0.25f);
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            
-        }
-        
-        protected Vector2Int GetNextSystemPosition() {
-            int count = activeSystems.Count;
-            if (count == 0) {
-                return Vector2Int.zero;
-            }
-            int x = count / 2;
-            if (count % 2 == 1) {
-                x *= -1;
-            }
-            return new Vector2Int(x,0);
-        }
-
-        private async Task unloadUnusedAssets(ClosedChunkSystem system) {
-            EntityRegistry entityRegistry = EntityRegistry.getInstance();
-            entityRegistry.reset();
-            await entityRegistry.cacheFromSystem(system);
-        }
-
-        public abstract DimController getDimController(int dim);
-
-        private class PlayerWorldData {
-            public Vector2Int? chunkPos;
-            public Vector2Int? partitionPos;
-            public ClosedChunkSystem closedChunkSystem;
-
-            public PlayerWorldData(Vector2Int? chunkPos, Vector2Int? partitionPos, ClosedChunkSystem closedChunkSystem)
-            {
-                this.chunkPos = chunkPos;
-                this.partitionPos = partitionPos;
-                this.closedChunkSystem = closedChunkSystem;
-            }
-        }
+        public abstract DimController GetDimController(int dim);
     }
 }

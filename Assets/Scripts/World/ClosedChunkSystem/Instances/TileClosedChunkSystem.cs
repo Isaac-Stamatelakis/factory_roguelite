@@ -7,10 +7,10 @@ using Dimensions;
 namespace Chunks.Systems {
     public class TileClosedChunkSystem : ChunkLoadingClosedChunkSystem
     {
-        public void initalize(DimController dimController, IntervalVector coveredArea, int dim, Vector2Int offset) {
+        public void Initalize(DimController dimController, IntervalVector coveredArea, int dim) {
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
             TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps,DimensionManager.Instance.MiscDimAssets.LitMaterial);
-            initalizeObject(dimController,coveredArea,dim,offset);
+            InitalizeObject(dimController,coveredArea,dim);
         }
     }
 

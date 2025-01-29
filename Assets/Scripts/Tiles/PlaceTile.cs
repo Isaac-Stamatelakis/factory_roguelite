@@ -16,6 +16,7 @@ using Conduits.Systems;
 using Tiles;
 using Fluids;
 using Items;
+using TileEntity.MultiBlock;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Place {
@@ -39,7 +40,7 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true, bool useOffset = true)
+        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true)
         {
             switch (itemObject)
             {
@@ -48,7 +49,7 @@ namespace TileMaps.Place {
                 case TileItem tileItem:
                 {
                     TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.getTileMap(tileMapType),closedChunkSystem,useOffset:useOffset);
+                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem);
                     return true;
                 }
                 case ConduitItem conduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
@@ -56,7 +57,7 @@ namespace TileMaps.Place {
                 case ConduitItem conduitItem:
                 {
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
-                    IWorldTileMap conduitMap = closedChunkSystem.getTileMap(tileMapType);
+                    IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
                     if (conduitMap is not ConduitTileMap) {
                         return false;
                     }
@@ -68,12 +69,11 @@ namespace TileMaps.Place {
                 }
                 case FluidTileItem fluidTileItem:
                 {
-                    IWorldTileMap fluidMap = closedChunkSystem.getTileMap(TileMapType.Fluid);
+                    IWorldTileMap fluidMap = closedChunkSystem.GetTileMap(TileMapType.Fluid);
                     if (checkConditions && !fluidPlacable(fluidTileItem,worldPlaceLocation,fluidMap)) {
                         return false;
                     }
-                    Vector2 offset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
-                    return placeFluid(fluidTileItem,worldPlaceLocation+offset,fluidMap);
+                    return placeFluid(fluidTileItem,worldPlaceLocation,fluidMap);
                 }
                 default:
                     return false;
@@ -171,7 +171,7 @@ namespace TileMaps.Place {
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
-                    closedChunkSystem.getTileMap(TileMapType.Background)
+                    closedChunkSystem.GetTileMap(TileMapType.Background)
                 );
                 if (background) pass++;
             }
@@ -194,7 +194,7 @@ namespace TileMaps.Place {
                 intervalVector.X.UpperBound,
                 intervalVector.Y.LowerBound,
                 intervalVector.Y.UpperBound,
-                closedChunkSystem.getTileMap(TileMapType.Background)
+                closedChunkSystem.GetTileMap(TileMapType.Background)
             )) {
                 return false;
             }
@@ -214,7 +214,7 @@ namespace TileMaps.Place {
                     intervalVector.X.UpperBound,
                     intervalVector.Y.LowerBound,
                     intervalVector.Y.UpperBound,
-                    closedChunkSystem.getTileMap(TileMapType.Background))
+                    closedChunkSystem.GetTileMap(TileMapType.Background))
                 || tileWithinRange(
                     intervalVector.X.LowerBound,
                     intervalVector.X.UpperBound,
@@ -236,11 +236,11 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem,  ITileEntityInstance presetTileEntity = null, bool useOffset = true) {
+        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem,  ITileEntityInstance presetTileEntity = null) {
             if (iWorldTileMap == null) {
                 return;
             }
-            if (!closedChunkSystem.localWorldPositionInSystem(worldPosition)) {
+            if (!closedChunkSystem.LocalWorldPositionInSystem(worldPosition)) {
                 return;
             }
             if (tileItem.tile is IRestrictedTile restrictedTile) {
@@ -250,20 +250,13 @@ namespace TileMaps.Place {
                     return;
                 }
             }
-            Vector2Int offset = closedChunkSystem.DimPositionOffset;
-            Vector2 offsetWorld = new Vector2(offset.x/2f,offset.y/2f);
-            Vector2 offsetPosition = worldPosition;
-            if (useOffset) {
-                offsetPosition += offsetWorld;
-            }
-            UnityEngine.Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
-            if (useOffset) {
-                placePosition += offset;
-            }
+            
+            Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
+            
             iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             if (!ReferenceEquals(tileItem.tileEntity, null))
             {
-                PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,offsetPosition,presetTileEntity);
+                PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,worldPosition,presetTileEntity);
             }
             
             if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
@@ -297,8 +290,12 @@ namespace TileMaps.Place {
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             
+            if (tileEntityInstance is IMultiBlockTileAggregate multiBlockTileAggregate) // This has to be called after the tile entity is added to partition
+            {
+                TileEntityUtils.UpdateMultiBlockOnPlace(tileEntityInstance, multiBlockTileAggregate);
+            }
             if (closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                conduitTileClosedChunkSystem.tileEntityPlaceUpdate(tileEntityInstance);
+                conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);
             }
         }
 

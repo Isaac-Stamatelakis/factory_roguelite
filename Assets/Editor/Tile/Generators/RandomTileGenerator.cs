@@ -10,7 +10,7 @@ public class RandomTileGenerator : EditorWindow {
     private Texture2D texture;
     private int width = 1;
     private int height = 1;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Random")]
+    [MenuItem("Tools/Item Constructors/Tile/Random")]
     public static void ShowWindow()
     {
         RandomTileGenerator window = (RandomTileGenerator)EditorWindow.GetWindow(typeof(RandomTileGenerator));
@@ -70,12 +70,14 @@ public class RandomTileGenerator : EditorWindow {
         ItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);
         AssetDatabase.Refresh();
         AssetDatabase.CreateAsset(randomTile,path + "T~" + tileName + ".asset");
-        ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+        ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
             tile: randomTile,
             tileType: TileType.Block,
             createFolder: false
         );
+#pragma warning restore CS0618 // Type or member is obsolete
         AssetDatabase.Refresh();
     }
 }

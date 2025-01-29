@@ -17,7 +17,7 @@ namespace Chunks.Loaders {
 
         public override Vector2Int getPlayerPosition()
         {
-            return closedChunkSystem.getPlayerChunkPartition();
+            return closedChunkSystem.GetPlayerChunkPartition();
         }
 
         public override void update(IChunkPartition value)

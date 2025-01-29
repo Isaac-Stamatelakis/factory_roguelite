@@ -162,7 +162,7 @@ namespace TileEntity.Instances.CompactMachines {
                 }   
             }
             CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath);
-            dimensionManager.setPlayerSystem(
+            dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer().transform,
                 1,
                 compactMachine.getCellPosition(),
@@ -184,7 +184,14 @@ namespace TileEntity.Instances.CompactMachines {
             }
             path.Add(compactMachine.getCellPosition());
             CompactMachineTeleportKey key = new CompactMachineTeleportKey(path);
-            dimensionManager.setPlayerSystem(
+
+            if (compactMachine.Teleporter == null)
+            {
+                Debug.LogError("Cannot teleport into compact machine as teleporter is null");
+                return;
+            }
+            
+            dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer().transform,
                 1,
                 compactMachine.Teleporter.getCellPosition() + Vector2Int.one,

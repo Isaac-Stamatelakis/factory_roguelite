@@ -20,7 +20,7 @@ public class CameraBounds : MonoBehaviour
             bounds = null;
             return;
         }
-        IntervalVector intervalVector = closedChunkSystem.getBounds();
+        IntervalVector intervalVector = closedChunkSystem.GetBounds();
         int worldChunkSize = Global.CHUNK_SIZE/2; // Chunks size is in tile size which is 1/2 world size
         this.bounds = new FloatIntervalVector(
             new Interval<float>(
@@ -52,7 +52,7 @@ public class CameraBounds : MonoBehaviour
         height = 2f * camera.orthographicSize;
         width = height * camera.aspect;
         if (!ReferenceEquals(closedChunkSystem,null)) {
-            closedChunkSystem.playerChunkUpdate();
+            closedChunkSystem.PlayerChunkUpdate();
             closedChunkSystem.PlayerPartitionUpdate();
         }
     }
@@ -78,7 +78,7 @@ public class CameraBounds : MonoBehaviour
             return;
         }
         
-        closedChunkSystem.playerChunkUpdate();
+        closedChunkSystem.PlayerChunkUpdate();
         lastChunk = new Vector2Int(cx,cy);
     }
 

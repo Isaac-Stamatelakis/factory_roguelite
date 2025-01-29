@@ -8,7 +8,7 @@ using System.IO;
 public class RuleTileGenerator : EditorWindow {
     private Texture2D texture;
     private string tileName;
-    [MenuItem("ToolCollection/Item Constructors/Tile/RuleTile")]
+    [MenuItem("Tools/Item Constructors/Tile/RuleTile")]
     public static void ShowWindow()
     {
         RuleTileGenerator window = (RuleTileGenerator)EditorWindow.GetWindow(typeof(RuleTileGenerator));
@@ -49,11 +49,13 @@ public class RuleTileGenerator : EditorWindow {
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
         IdRuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
         ItemEditorFactory.saveTileWithName(ruleTile,tileName);
-        ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+        ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
             tile: ruleTile,
             tileType: TileType.Block,
             createFolder: false
         );
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

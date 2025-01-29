@@ -38,8 +38,8 @@ namespace UI.Chat {
         private static void KillItems(string[] parameters, TextChatUI textChatUI)
         {
             Transform player = PlayerManager.Instance.GetPlayer().transform;
-            int dim = DimensionManager.Instance.getPlayerDimension(player);
-            DimController dimController = DimensionManager.Instance.getDimController(dim);
+            int dim = DimensionManager.Instance.GetPlayerDimension();
+            DimController dimController = DimensionManager.Instance.GetDimController(dim);
             for (int i = 0; i < dimController.EntityContainer.childCount; i++)
             {
                 Transform child = dimController.EntityContainer.GetChild(i);

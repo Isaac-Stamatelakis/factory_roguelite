@@ -5,7 +5,7 @@ using UnityEditor;
 
 public class MissingScriptLocator : EditorWindow
 {
-    [MenuItem("ToolCollection/Misc/Missing Scripts")]
+    [MenuItem("Tools/Misc/Missing Scripts")]
     public static void ShowWindow()
     {
         MissingScriptLocator window = (MissingScriptLocator)EditorWindow.GetWindow(typeof(MissingScriptLocator));

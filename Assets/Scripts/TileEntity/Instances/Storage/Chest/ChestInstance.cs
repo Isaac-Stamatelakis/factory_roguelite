@@ -28,7 +28,7 @@ namespace TileEntity.Instances
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            TileEntityUtils.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk,loadedChunk.getSystem());
+            TileEntityUtils.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk);
         }
 
         public void OnRightClick()

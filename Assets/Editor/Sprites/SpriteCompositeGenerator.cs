@@ -12,7 +12,7 @@ public class SpriteCompositeGenerator : EditorWindow {
 
 
 
-    [MenuItem("ToolCollection/Sprite/Composite")]
+    [MenuItem("Tools/Sprite/Composite")]
     public static void ShowWindow()
     {
         SpriteCompositeGenerator window = (SpriteCompositeGenerator)EditorWindow.GetWindow(typeof(SpriteCompositeGenerator));

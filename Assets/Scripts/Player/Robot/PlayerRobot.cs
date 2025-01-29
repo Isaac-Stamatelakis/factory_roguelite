@@ -277,7 +277,7 @@ namespace Player {
             robotData.Health = currentRobot.BaseHealth;
             PlayerScript playerScript = GetComponent<PlayerScript>();
             
-            DimensionManager.Instance.setPlayerSystem(playerScript.transform,0,new Vector2Int(0,0));
+            DimensionManager.Instance.SetPlayerSystem(playerScript.transform,0,new Vector2Int(0,0));
             dead = false;
         }
 
@@ -318,8 +318,8 @@ namespace Player {
             WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileGridMap, null)) return null;
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
-            TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position)+closedChunkSystem.DimPositionOffset);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(transform);
+            TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position));
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 

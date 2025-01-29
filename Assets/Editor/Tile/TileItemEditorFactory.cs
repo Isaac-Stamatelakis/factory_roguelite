@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,8 @@ public enum TileColliderType {
 }
 public static class ItemEditorFactory
 {
-    public static TileItem generateTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
+    [Obsolete("This function is ugly don't want to change and break stuff though.")] 
+    public static TileItem GeneratedTileItem(string tileName, TileBase tile, TileType tileType, bool createFolder = true, string savePath = "Assets/EditorCreations/", TileEntityObject tileEntity = null, TileBase outline = null) {
         string path = savePath + tileName + "/";
         if (createFolder) {
             createDirectory(tileName,savePath);
@@ -36,6 +38,23 @@ public static class ItemEditorFactory
         }
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
         Debug.Log("Tile Created at Path: " + path);
+        AssetDatabase.Refresh();
+        
+        return tileItem;
+    }
+
+    public static TileItem GenerateTileItem(string name, string folderPath, TileBase tileBase, TileType tileType,
+        TileBase outline)
+    {
+        TileItem tileItem = ScriptableObject.CreateInstance<TileItem>();
+        tileItem.tileType = tileType;
+        tileItem.id = formatId(name);
+        tileItem.name = name;
+        tileItem.tile = tileBase;
+        tileItem.outline = outline;
+        string savePath = Path.Combine(folderPath, tileItem.name + ".asset");
+        AssetDatabase.CreateAsset(tileItem, savePath);
+        Debug.Log("Tile Created at Path: " + savePath);
         AssetDatabase.Refresh();
         
         return tileItem;

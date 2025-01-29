@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 
 public class SpritePhysicsEditor : EditorWindow {
     public Sprite sprite;
-    [MenuItem("ToolCollection/Sprite/Physics")]
+    [MenuItem("Tools/Sprite/Physics")]
     public static void ShowWindow()
     {
         SpritePhysicsEditor window = (SpritePhysicsEditor)EditorWindow.GetWindow(typeof(SpritePhysicsEditor));

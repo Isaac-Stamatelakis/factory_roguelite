@@ -13,7 +13,7 @@ public class DoorTileGenerator : EditorWindow {
     private Sprite rightClosed;
     private Sprite rightOpen;
     private string tileName;
-    [MenuItem("ToolCollection/Item Constructors/Tile/Special/Door")]
+    [MenuItem("Tools/Item Constructors/Tile/Special/Door")]
     public static void ShowWindow()
     {
         DoorTileGenerator window = (DoorTileGenerator)EditorWindow.GetWindow(typeof(DoorTileGenerator));
@@ -68,12 +68,14 @@ public class DoorTileGenerator : EditorWindow {
 
         ItemEditorFactory.saveTileWithName(doorTile,tileName);
 
-        ItemEditorFactory.generateTileItem(
+#pragma warning disable CS0618 // Type or member is obsolete
+        ItemEditorFactory.GeneratedTileItem(
             tileName: tileName,
             tile: doorTile,
             tileType: TileType.Block,
             createFolder: false,
             tileEntity: door
         );
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

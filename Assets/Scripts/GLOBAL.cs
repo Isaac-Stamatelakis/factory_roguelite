@@ -7,6 +7,7 @@ using System.IO;
 
 public static class Global
 {
+    public const float WORLD_SPACE_PER_TILE = 0.5f;
     private const float PIXELS_PER_BLOCK = 16;
     public const int PARTITIONS_PER_CHUNK = 6;
     public const int CHUNK_SIZE = PARTITIONS_PER_CHUNK*CHUNK_PARTITION_SIZE;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace TileEntity.Instances.CompactMachines {
-    public interface ICompactMachineInteractable
+    public interface ICompactMachineInteractable : ISoftLoadableTileEntity
     {
-        public void syncToCompactMachine(CompactMachineInstance compactMachine);
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine);
     }
 
     public interface ICompactMachine {

@@ -10,7 +10,7 @@ using RecipeModule;
 using Items;
 
 public class RecipeReloadWindow : EditorWindow {
-    [MenuItem("ToolCollection/Recipe/Reload")]
+    [MenuItem("Tools/Recipe/Reload")]
     public static void ShowWindow()
     {
         RecipeReloadWindow window = (RecipeReloadWindow)EditorWindow.GetWindow(typeof(RecipeReloadWindow));

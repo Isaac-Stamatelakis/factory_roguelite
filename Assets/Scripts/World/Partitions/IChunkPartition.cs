@@ -16,8 +16,7 @@ namespace Chunks.Partitions {
         public float DistanceFrom(UnityEngine.Vector2Int target);
         public bool GetScheduledForUnloading();
         public void SetScheduleForUnloading(bool val);
-        public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction,
-            Vector2Int systemOffset);
+        public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction);
         public IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps);
         public void Save();
         public bool InRange(Vector2Int target, int xRange, int yRange);
@@ -39,5 +38,6 @@ namespace Chunks.Partitions {
         public BaseTileData GetBaseData(Vector2Int position);
         public bool DeIncrementHardness(Vector2Int position);
         public int GetHardness(Vector2Int positionInPartition);
+        public void UnloadTileEntities();
     }
 }

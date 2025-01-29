@@ -11,7 +11,7 @@ public class ConduitDimCreatorWindow : EditorWindow {
     private Vector2Int yVec;
     private TileBase tileToPlace;
 
-    [MenuItem("ToolCollection/Tilemap/Conduit")]
+    [MenuItem("Tools/Tilemap/Conduit")]
     public static void ShowWindow()
     {
         ConduitDimCreatorWindow window = (ConduitDimCreatorWindow)EditorWindow.GetWindow(typeof(ConduitDimCreatorWindow));

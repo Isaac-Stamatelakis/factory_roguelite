@@ -7,13 +7,13 @@ using Entities;
 namespace Dimensions {
 
     public interface IMultipleSystemController {
-        public ClosedChunkSystem activateSystem(IDimensionTeleportKey key,Vector2Int dimOffsetPosition);
-        public ClosedChunkSystem getActiveSystem(IDimensionTeleportKey key);
+        public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key);
+        public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key);
     }
 
     public interface ISingleSystemController {
-        public ClosedChunkSystem activateSystem(Vector2Int dimOffsetPosition);
-        public ClosedChunkSystem getActiveSystem();
+        public ClosedChunkSystem ActivateSystem();
+        public ClosedChunkSystem GetActiveSystem();
     }
     public abstract class DimController : MonoBehaviour
     {

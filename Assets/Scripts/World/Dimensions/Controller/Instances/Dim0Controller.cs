@@ -33,7 +33,7 @@ namespace Dimensions {
             dim0System.softLoad();
             Debug.Log("Soft loaded Dim0System");
         }
-        public ClosedChunkSystem activateSystem(Vector2Int dimOffset)
+        public ClosedChunkSystem ActivateSystem()
         {
             if (dim0System == null) {
                 softLoadSystem();
@@ -42,12 +42,11 @@ namespace Dimensions {
             IntervalVector bounds = WorldCreation.GetDim0Bounds();
             closedChunkSystemObject.name="Dim0System";
             mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
-            mainArea.initalize(
+            mainArea.Initialize(
                 this,
                 coveredArea: bounds,
                 dim: 0,
-                dim0System,
-                dimOffset
+                dim0System
             );
             return mainArea;
         }
@@ -64,7 +63,7 @@ namespace Dimensions {
         public void OnDestroy() {
             dim0System.Save();
         }
-        public ClosedChunkSystem getActiveSystem()
+        public ClosedChunkSystem GetActiveSystem()
         {
             return mainArea;
         }

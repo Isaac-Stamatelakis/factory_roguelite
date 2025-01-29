@@ -24,107 +24,73 @@ public enum TransmutableItemState {
     Exceptional_Gem,
     Gem,
     Mediocre_Gem,
-    Poor_Gem
+    Poor_Gem,
+    Ore
 }
 
 public static class TransmutableItemStateExtension {
-    public static string getPrefix(this TransmutableItemState state) {
-        switch (state) {
-            case TransmutableItemState.Ingot:
-                return "";
-            case TransmutableItemState.Dust:
-                return "";
-            case TransmutableItemState.Plate:
-                return "";
-            case TransmutableItemState.Wire:
-                return "";
-            case TransmutableItemState.Block:
-                return "";
-            case TransmutableItemState.Fine_Wire:
-                return "Fine";
-            case TransmutableItemState.Double_Plate:
-                return "Double";
-            case TransmutableItemState.Small_Dust:
-                return "Small";
-            case TransmutableItemState.Tiny_Dust:
-                return "Tiny";
-            case TransmutableItemState.Rod:
-                return "";
-            case TransmutableItemState.Bolt:
-                return "";
-            case TransmutableItemState.Screw:
-                return "";
-            case TransmutableItemState.Liquid:
-                return "";
-            case TransmutableItemState.Gas:
-                return "";
-            case TransmutableItemState.Plasma:
-                return "";
-            case TransmutableItemState.Magnificent_Gem:
-                return "Magnificent";
-            case TransmutableItemState.Exceptional_Gem:
-                return "Exceptional";
-            case TransmutableItemState.Gem:
-                return "";
-            case TransmutableItemState.Mediocre_Gem:
-                return "Mediocre";
-            case TransmutableItemState.Poor_Gem:
-                return "Poor";
-            default:
-                return "";
-        }
+    public static string GetPrefix(this TransmutableItemState state)
+    {
+        return state switch
+        {
+            TransmutableItemState.Ingot => "",
+            TransmutableItemState.Dust => "",
+            TransmutableItemState.Plate => "",
+            TransmutableItemState.Wire => "",
+            TransmutableItemState.Block => "",
+            TransmutableItemState.Fine_Wire => "Fine",
+            TransmutableItemState.Double_Plate => "Double",
+            TransmutableItemState.Small_Dust => "Small",
+            TransmutableItemState.Tiny_Dust => "Tiny",
+            TransmutableItemState.Rod => "",
+            TransmutableItemState.Bolt => "",
+            TransmutableItemState.Screw => "",
+            TransmutableItemState.Liquid => "",
+            TransmutableItemState.Gas => "",
+            TransmutableItemState.Plasma => "",
+            TransmutableItemState.Magnificent_Gem => "Magnificent",
+            TransmutableItemState.Exceptional_Gem => "Exceptional",
+            TransmutableItemState.Gem => "",
+            TransmutableItemState.Mediocre_Gem => "Mediocre",
+            TransmutableItemState.Poor_Gem => "Poor",
+            TransmutableItemState.Ore => "",
+            _ => ""
+        };
     }
 
-    public static string getSuffix(this TransmutableItemState state) {
-        switch (state) {
-            case TransmutableItemState.Ingot:
-                return "Ingot";
-            case TransmutableItemState.Dust:
-                return "Dust";
-            case TransmutableItemState.Plate:
-                return "Plate";
-            case TransmutableItemState.Wire:
-                return "Wire";
-            case TransmutableItemState.Block:
-                return "Block";
-            case TransmutableItemState.Fine_Wire:
-                return "Wire";
-            case TransmutableItemState.Double_Plate:
-                return "Plate";
-            case TransmutableItemState.Small_Dust:
-                return "Dust";
-            case TransmutableItemState.Tiny_Dust:
-                return "Dust";
-            case TransmutableItemState.Rod:
-                return "Rod";
-            case TransmutableItemState.Bolt:
-                return "Bolt";
-            case TransmutableItemState.Screw:
-                return "Screw";
-            case TransmutableItemState.Liquid:
-                return "Liquid";
-            case TransmutableItemState.Gas:
-                return "Gas";
-            case TransmutableItemState.Plasma:
-                return "Plasma";
-            case TransmutableItemState.Magnificent_Gem:
-                return "";
-            case TransmutableItemState.Exceptional_Gem:
-                return "";
-            case TransmutableItemState.Gem:
-                return "";
-            case TransmutableItemState.Mediocre_Gem:
-                return "";
-            case TransmutableItemState.Poor_Gem:
-                return "";
-            default:
-                return "";
-        }
+    public static string GetSuffix(this TransmutableItemState state)
+    {
+        return state switch
+        {
+            TransmutableItemState.Ingot => "Ingot",
+            TransmutableItemState.Dust => "Dust",
+            TransmutableItemState.Plate => "Plate",
+            TransmutableItemState.Wire => "Wire",
+            TransmutableItemState.Block => "Block",
+            TransmutableItemState.Fine_Wire => "Wire",
+            TransmutableItemState.Double_Plate => "Plate",
+            TransmutableItemState.Small_Dust => "Dust",
+            TransmutableItemState.Tiny_Dust => "Dust",
+            TransmutableItemState.Rod => "Rod",
+            TransmutableItemState.Bolt => "Bolt",
+            TransmutableItemState.Screw => "Screw",
+            TransmutableItemState.Liquid => "Liquid",
+            TransmutableItemState.Gas => "Gas",
+            TransmutableItemState.Plasma => "Plasma",
+            TransmutableItemState.Magnificent_Gem => "",
+            TransmutableItemState.Exceptional_Gem => "",
+            TransmutableItemState.Gem => "",
+            TransmutableItemState.Mediocre_Gem => "",
+            TransmutableItemState.Poor_Gem => "",
+            TransmutableItemState.Ore => "Ore",
+            _ => ""
+        };
     }
     /// <summary>
     /// Returns the ratio of the state in terms of ingot.
     /// <summary>
     public static float getRatio(this TransmutableItemState state) {
+        // TODO invert this
         switch (state) {
             case TransmutableItemState.Ingot:
                 return 1f;
@@ -166,6 +132,8 @@ public static class TransmutableItemStateExtension {
                 return 4f;
             case TransmutableItemState.Poor_Gem:
                 return 16f;
+            case TransmutableItemState.Ore:
+                return 1 / 2f;
             default:
                 return 0;
         }

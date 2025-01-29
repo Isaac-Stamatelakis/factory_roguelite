@@ -7,7 +7,7 @@ using System.IO;
 
 public class TileEntityConduitEmptyGenerator : EditorWindow {
     private string tileName;
-    [MenuItem("ToolCollection/TileEntity/Empty")]
+    [MenuItem("Tools/TileEntity/Empty")]
     public static void ShowWindow()
     {
         TileEntityConduitEmptyGenerator window = (TileEntityConduitEmptyGenerator)EditorWindow.GetWindow(typeof(TileEntityConduitEmptyGenerator));

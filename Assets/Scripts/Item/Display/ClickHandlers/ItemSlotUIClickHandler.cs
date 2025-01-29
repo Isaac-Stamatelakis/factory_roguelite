@@ -112,7 +112,7 @@ namespace Item.Display.ClickHandlers
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!inventoryUI.EnableToolTip) return; 
+            if (inventoryUI is not { EnableToolTip: true }) return; 
             ToolTipController.Instance.HideToolTip();
         }
     }

@@ -143,7 +143,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             if (inventories == null || inventories.Count == 0)
             {
-                GlobalHelper.deleteAllChildren(inventoryUI.transform);
+                if (!ReferenceEquals(inventoryUI,null)) GlobalHelper.deleteAllChildren(inventoryUI.transform);
                 return;
             }
             int size = SizeCheckInventoryUI(inventoryUI,inventories[0],inventoryOptions);

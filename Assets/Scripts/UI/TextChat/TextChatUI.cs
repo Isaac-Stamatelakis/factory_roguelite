@@ -169,8 +169,10 @@ namespace UI.Chat {
                 return;
             }
             ChatCommandToken token = ChatTokenizer.tokenize(inputField.text);
-            int paramIndex = token.Parameters.Length-1;
-            if (paramIndex < 0) {
+            
+            ChatCommand chatCommand = ChatCommandFactory.getCommand(token,this);
+            
+            if (chatCommand == null) {
                 List<string> commands = ChatCommandFactory.getAllCommands();
                 string currentCommand = inputField.text.Replace("/","");
                 commands = commands.Where(s => s.StartsWith(currentCommand)).ToList();
@@ -178,21 +180,28 @@ namespace UI.Chat {
                 return;
             }
             
-            ChatCommand chatCommand = ChatCommandFactory.getCommand(token,this);
-            if (chatCommand == null) {
-                return;
-            }
-
             if (chatCommand is not IAutoFillChatCommand autoFillChatCommand) {
                 return;
             }
-            string paramPrefix = token.Parameters[paramIndex];
+            int paramIndex = token.Parameters.Length;
+
+            string paramPrefix = GetParamPrefix(paramIndex, token);
+            
             List<string> suggested = autoFillChatCommand.getAutoFill(paramIndex);
             if (suggested == null) {
                 return;
             }
             suggested = suggested.Where(s => s.StartsWith(paramPrefix)).ToList();
             fillSuggested(suggested,"");
+        }
+
+        private string GetParamPrefix(int paramIndex, ChatCommandToken token)
+        {
+            if (paramIndex == 0)
+            {
+                return "";
+            }
+            return token.Parameters[paramIndex-1];
         }
 
         private void fillSuggested(List<string> suggested,string prefix) {

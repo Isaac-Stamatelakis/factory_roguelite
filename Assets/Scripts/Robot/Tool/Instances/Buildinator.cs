@@ -54,7 +54,7 @@ namespace Robot.Tool.Instances
         {
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(TileMapType.Block);
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerTransform).GetTileMap(TileMapType.Block);
             Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
             int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
             

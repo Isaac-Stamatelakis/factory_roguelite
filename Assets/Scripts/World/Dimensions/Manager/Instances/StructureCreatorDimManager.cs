@@ -8,12 +8,12 @@ namespace DevTools.Structures {
     public class StructureCreatorDimManager : DimensionManager
     {
         [SerializeField] public StructureDimController dimController;
-        public override DimController getDimController(int dim)
+        public override DimController GetDimController(int dim)
         {
             return dimController;
         }
 
-        public override void softLoadSystems()
+        public override void SoftLoadSystems()
         {
             
         }

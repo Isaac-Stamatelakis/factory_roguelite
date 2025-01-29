@@ -11,7 +11,7 @@ public class TileDimCreatorWindow : EditorWindow {
     private Vector2Int yVec;
     private StandardTile tileToPlace;
 
-    [MenuItem("ToolCollection/Tilemap/Standard")]
+    [MenuItem("Tools/Tilemap/Standard")]
     public static void ShowWindow()
     {
         TileDimCreatorWindow window = (TileDimCreatorWindow)EditorWindow.GetWindow(typeof(TileDimCreatorWindow));

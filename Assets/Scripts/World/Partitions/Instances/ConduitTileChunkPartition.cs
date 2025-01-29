@@ -328,7 +328,7 @@ namespace Chunks.Partitions {
                 if (tileEntity is not ICompactMachineInteractable compactMachineInteractable) {
                     continue;
                 }
-                compactMachineInteractable.syncToCompactMachine(compactMachine);
+                compactMachineInteractable.SyncToCompactMachine(compactMachine);
             }
         }
 
