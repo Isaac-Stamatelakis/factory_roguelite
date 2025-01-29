@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,9 @@ public enum CameraViewSize {
 }
 public class CameraView : MonoBehaviour
 {
+    private const int MAX_WIDTH = 960;
+    private const int MAX_HEIGHT = 540;
+    private const float HEIGHT_WIDTH_RATIO = 1080f / 1920f;
     private static CameraView instance;
     public static CameraView Instance => instance;
     public void Awake() {
@@ -21,31 +25,75 @@ public class CameraView : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        setLoadRange(viewSize);
+        SetViewRange(viewSize);
     }
 
-    public void setLoadRange(CameraViewSize cameraViewSize) {
+    public void FixedUpdate()
+    {
+        
+    }
+
+    private int GetCameraViewSizeWidth(CameraViewSize cameraViewSize)
+    {
+        switch (cameraViewSize)
+        {
+            case CameraViewSize.Small:
+                return 480;
+            case CameraViewSize.Medium:
+                return 640;
+            case CameraViewSize.Large:
+                return 960;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(cameraViewSize), cameraViewSize, null);
+        }
+    }
+    
+    public void SetViewRange(CameraViewSize cameraViewSize)
+    {
+        SetViewRange(GetCameraViewSizeWidth(cameraViewSize));
+    }
+    public void SetViewRange(int width)
+    {
+        CameraViewSize cameraViewSize = GetNearestCameraViewSize(width);
+        int cameraWidth = GetCameraViewSizeWidth(cameraViewSize);
+        int cameraHeight = (int)(cameraWidth * HEIGHT_WIDTH_RATIO);
+        int pixelRatio = Screen.width / cameraWidth;
+        float t0 = (float) Screen.width / pixelRatio;
+        float ratio = cameraWidth / t0;
+        
         PixelPerfectCamera pixelPerfectCamera = GetComponent<PixelPerfectCamera>();
         pixelPerfectCamera.enabled = true;
-        switch (cameraViewSize) {
-            case CameraViewSize.Small:
-                pixelPerfectCamera.refResolutionX = 480;
-                pixelPerfectCamera.refResolutionY = 270;
-                chunkPartitionLoadRange = new Vector2Int(5,4);
-                break;
-            case CameraViewSize.Medium:
-                chunkPartitionLoadRange = new UnityEngine.Vector2Int(6,5);
-                pixelPerfectCamera.refResolutionX = 640;
-                pixelPerfectCamera.refResolutionY = 360;
-                break;
-            case CameraViewSize.Large:
-                chunkPartitionLoadRange = new Vector2Int(8,6);
-                pixelPerfectCamera.refResolutionX = 960;
-                pixelPerfectCamera.refResolutionY = 540;
-                break;    
+        pixelPerfectCamera.refResolutionX = cameraWidth;
+        pixelPerfectCamera.refResolutionY = cameraHeight;
+        
+        const int PIXELS_PER_TILE = 16;
+        const bool BONUS_LOAD_RANGE = true;
+        
+        Vector2 partitionsPerScreen = new Vector2(width,width*HEIGHT_WIDTH_RATIO) / (PIXELS_PER_TILE * Global.CHUNK_PARTITION_SIZE * 2);
+        chunkPartitionLoadRange = new Vector2Int((int)partitionsPerScreen.x, (int)partitionsPerScreen.y)+Vector2Int.one;
+        if (BONUS_LOAD_RANGE)   
+        {
+            chunkPartitionLoadRange += Vector2Int.one;
         }
+        
+        Debug.Log($"Camera size set '{width} by {width*HEIGHT_WIDTH_RATIO}' pixels, ratio '{ratio:F2}', and partition load range '{chunkPartitionLoadRange}'");
+        transform.localScale = new Vector3(ratio, ratio, 1);
         StartCoroutine(setCameraSizeDelayed());
     }
+
+    private CameraViewSize GetNearestCameraViewSize(int width)
+    {
+        
+        foreach (CameraViewSize size in Enum.GetValues(typeof(CameraViewSize)))
+        {
+            int viewRange = GetCameraViewSizeWidth(size);
+            if (width <= viewRange) return size;
+        }
+
+        return CameraViewSize.Large;
+    }
+
+   
 
     private IEnumerator setCameraSizeDelayed() {
         yield return new WaitForEndOfFrame();

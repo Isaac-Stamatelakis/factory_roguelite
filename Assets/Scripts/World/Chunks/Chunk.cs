@@ -187,7 +187,6 @@ namespace Chunks {
                 }
                 if (dif.y < -1) {
                     dif.y *= -1;
-                    dif.y += 2;
                 }
                 if (dif.x <= range.x && dif.y <= range.y) {
                     close.Add(partition);

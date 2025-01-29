@@ -15,6 +15,7 @@ using Fluids;
 using PlayerModule;
 using Dimensions;
 using Player;
+using TileEntity;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
@@ -192,10 +193,10 @@ namespace Chunks.Systems {
             for (int x = -unloadRangeX; x <= unloadRangeX; x++) {
                 for (int y = -unloadRangeY; y <= unloadRangeY; y++) {
                     Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
-                    if (!cachedChunks.ContainsKey(chunkPosition)) {
+                    if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) {
                         continue;
                     }
-                    ILoadedChunk chunk = cachedChunks[chunkPosition];
+
                     partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange));
                     partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,0));
                     partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
@@ -305,7 +306,6 @@ namespace Chunks.Systems {
             breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
             chunkPartition.SetTileLoaded(false);
             chunkPartition.SetFarLoaded(false);
-            
         }
 
         public void OnApplicationQuit() {

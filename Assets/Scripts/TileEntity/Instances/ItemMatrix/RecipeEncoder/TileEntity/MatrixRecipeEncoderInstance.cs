@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Matrix {
             return TileEntityObject.Layout;
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
             GameObject instantiated = GameObject.Instantiate(uiPrefab);

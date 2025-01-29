@@ -15,6 +15,7 @@ using Items;
 using Entities;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using TileEntity.MultiBlock;
 
 namespace TileMaps {
     public interface ITileGridMap {
@@ -131,6 +132,22 @@ namespace TileMaps {
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
             CallListeners(position);
+            if (tileEntity is IMultiBlockTileAggregate multiBlockTileAggregate)
+            {
+                UpdateMultiBlockOnBreak(multiBlockTileAggregate);
+                
+            }
+        }
+
+        private void UpdateMultiBlockOnBreak(IMultiBlockTileAggregate multiBlockTileAggregate)
+        {
+            IMultiBlockTileEntity aggregator = multiBlockTileAggregate.GetAggregator();
+            if (aggregator == null) return;
+            
+            ILoadableTileEntity loadableTileEntity = aggregator as ILoadableTileEntity;
+            loadableTileEntity?.Unload();
+            aggregator.AssembleMultiBlock();
+            loadableTileEntity?.Load();
         }
 
         

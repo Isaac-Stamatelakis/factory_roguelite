@@ -27,7 +27,7 @@ namespace UI.Chat {
                 return;
             }
             CameraViewSize size = dict[sizeName];
-            CameraView.Instance.setLoadRange(size);
+            CameraView.Instance.SetViewRange(size);
         }
 
         public List<string> getAutoFill(int paramIndex)

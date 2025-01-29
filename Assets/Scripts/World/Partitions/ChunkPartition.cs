@@ -51,7 +51,7 @@ namespace Chunks.Partitions {
             }
             
             foreach (ITickableTileEntity tileEntity in tickableTileEntities) {
-                tileEntity.tickUpdate();
+                tileEntity.TickUpdate();
             }
         }
 
@@ -183,7 +183,7 @@ namespace Chunks.Partitions {
             }
             ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
             if (tileEntity is IBreakActionTileEntity breakActionTileEntity) {
-                breakActionTileEntity.onBreak();
+                breakActionTileEntity.OnBreak();
             }
             if (tileEntity is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.Unload();
@@ -203,7 +203,7 @@ namespace Chunks.Partitions {
                 return false;
             }
             if (tileEntity is IRightClickableTileEntity rightClickableTileEntity) {
-                rightClickableTileEntity.onRightClick();
+                rightClickableTileEntity.OnRightClick();
                 return true;
             }
             return false;

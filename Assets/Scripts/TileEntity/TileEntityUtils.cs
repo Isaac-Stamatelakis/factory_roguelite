@@ -10,6 +10,7 @@ using Chunks.Systems;
 using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
+using TileEntity.MultiBlock;
 using TileMaps;
 using TileMaps.Layer;
 using UI;
@@ -39,6 +40,11 @@ namespace TileEntity {
             {
                 multiBlockTileEntity.AssembleMultiBlock();
             }
+
+            if (tileEntityInstance is IMultiBlockTileAggregate multiBlockTileAggregate)
+            {
+                UpdateMultiBlockOnPlace(tileEntityInstance, multiBlockTileAggregate);
+            }
             if (data == null && tileEntityInstance is IPlaceInitializable placeInitializable)
             {
                 placeInitializable.PlaceInitialize();
@@ -59,6 +65,40 @@ namespace TileEntity {
                 
             }
             return tileEntityInstance;
+        }
+
+        private static void UpdateMultiBlockOnPlace(ITileEntityInstance tileEntityInstance, IMultiBlockTileAggregate multiBlockTileAggregate)
+        {
+            // Search adjacent tiles for connections
+            List<Vector2Int> directions = new List<Vector2Int>
+            {
+                Vector2Int.left,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.down,
+            };
+
+            HashSet<IMultiBlockTileEntity> adjacentMultiBlocks = new HashSet<IMultiBlockTileEntity>();
+            IChunkSystem system = tileEntityInstance.getChunk().GetChunkSystem();
+            foreach (Vector2Int direction in directions)
+            {
+                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(direction + tileEntityInstance.getCellPosition());
+                ITileEntityInstance adjacentTileEntity = partition.GetTileEntity(positionInPartition);
+                if (adjacentTileEntity is not IMultiBlockTileAggregate adjacentAggregate) continue;
+                IMultiBlockTileEntity adjacentMultiBlockTileEntity = adjacentAggregate.GetAggregator();
+                if (adjacentMultiBlockTileEntity == null) continue;
+                adjacentMultiBlocks.Add(adjacentMultiBlockTileEntity);
+            }
+
+            foreach (IMultiBlockTileEntity adjacentMultiBlock in adjacentMultiBlocks)
+            {
+                ILoadableTileEntity loadableTileEntity = adjacentMultiBlock as ILoadableTileEntity;
+                loadableTileEntity?.Unload();
+                adjacentMultiBlock.AssembleMultiBlock();
+                loadableTileEntity?.Load();
+            }
+            
+            
         }
         public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
             Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
@@ -172,6 +212,19 @@ namespace TileEntity {
             Vector2Int positionInPartition = Global.getPositionInPartition(offsetCellPosition);
             return partition.GetTileEntity(positionInPartition);
             
+        }
+
+        public static void SyncTileMultiBlockAggregates(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<Vector2Int> positions)
+        {
+            IChunkSystem system = tileEntityInstance.getChunk().GetChunkSystem();
+            
+            foreach (Vector2Int position in positions)
+            {
+                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(position);
+                ITileEntityInstance connectedInstance = partition.GetTileEntity(positionInPartition);
+                if (connectedInstance is not IMultiBlockTileAggregate multiBlockAggregate) continue;
+                multiBlockAggregate.SetAggregator(multiBlockCast);
+            }
         }
 
         public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem, bool includeSelf = true)

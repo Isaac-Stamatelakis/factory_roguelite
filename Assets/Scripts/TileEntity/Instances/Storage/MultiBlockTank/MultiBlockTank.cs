@@ -26,36 +26,34 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
     public class MultiBlockTankInstance : TileEntityInstance<MultiBlockTank>, IMultiBlockTileEntity, IItemConduitInteractable, ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity
     {
         private ItemSlot fluidSlot;
-        private List<Vector2Int> tiles;
         private Dictionary<int, List<int>> fluidHeightMap;
         private int minY;
         private int maxY;
-        private bool loaded;
+        private uint size;
         public MultiBlockTankInstance(MultiBlockTank tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
         }
 
         public void AssembleMultiBlock()
         {
-            tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
-            minY = int.MaxValue;
-            maxY = int.MinValue;
-            fluidHeightMap = new Dictionary<int, List<int>>();
-            foreach (Vector2Int tilePosition in tiles)
+            var tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
+            TileEntityUtils.SyncTileMultiBlockAggregates(this,this,tiles);
+            size = (uint)tiles.Count;
+        }
+
+        public List<Vector2Int> GetConnectedPositions()
+        {
+            if (fluidHeightMap == null) return null;
+            List<Vector2Int> vector2Ints = new List<Vector2Int>();
+            foreach (var (y, xCoords) in fluidHeightMap)
             {
-                if (!fluidHeightMap.ContainsKey(tilePosition.y))
+                foreach (int x in xCoords)
                 {
-                    fluidHeightMap[tilePosition.y] = new List<int>();
-                }
-                fluidHeightMap[tilePosition.y].Add(tilePosition.x);
-                if (tilePosition.y < minY)
-                {
-                    minY = tilePosition.y;
-                } else if (tilePosition.y > maxY)
-                {
-                    maxY = tilePosition.y;
+                    vector2Ints.Add(new Vector2Int(x,y));
                 }
             }
+
+            return vector2Ints;
         }
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
@@ -75,10 +73,8 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
                 return;
             }
             if (!ItemSlotUtils.AreEqual(fluidSlot, toInsert)) return;
-            uint size = (uint)tiles.Count;
             uint space = size * tileEntityObject.SpacePerTank;
             ItemSlotUtils.InsertIntoSlot(fluidSlot,toInsert,space);
-            //Debug.Log(fluidSlot?.amount);
             DisplayFluid();
         }
 
@@ -94,13 +90,31 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         public void Load()
         {
-            loaded = true;
+            minY = int.MaxValue;
+            maxY = int.MinValue;
+            fluidHeightMap = new Dictionary<int, List<int>>();
+            var tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
+            foreach (Vector2Int tilePosition in tiles)
+            {
+                if (!fluidHeightMap.ContainsKey(tilePosition.y))
+                {
+                    fluidHeightMap[tilePosition.y] = new List<int>();
+                }
+                fluidHeightMap[tilePosition.y].Add(tilePosition.x);
+                if (tilePosition.y < minY)
+                {
+                    minY = tilePosition.y;
+                } else if (tilePosition.y > maxY)
+                {
+                    maxY = tilePosition.y;
+                }
+            }
             DisplayFluid();
         }
 
         private void DisplayFluid()
         {
-            if (!loaded || chunk is not ILoadedChunk loadedChunk || fluidSlot.itemObject is not FluidTileItem fluidTileItem) return;
+            if (fluidHeightMap == null || chunk is not ILoadedChunk loadedChunk || fluidSlot.itemObject is not FluidTileItem fluidTileItem) return;
 
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
@@ -163,8 +177,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         }
         public void Unload()
         {
-            loaded = false;
-  
+            
             if (chunk is not ILoadedChunk loadedChunk) return;
             
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
@@ -177,6 +190,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
                     tilemap.SetTile(new Vector3Int(x,y,0), null);
                 }
             }
+            fluidHeightMap = null;
         }
 
         public ConduitPortLayout GetConduitPortLayout()

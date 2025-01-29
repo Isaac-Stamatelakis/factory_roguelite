@@ -25,6 +25,17 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             tileEntities ??= new ITileEntityInstance[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction,systemOffset);
+            
+            
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    if (tileEntities[x, y] is not IMultiBlockTileEntity multiBlockTileEntity) continue;
+                    // TODO
+                }
+            }
+            
             const int ENTITY_LOAD_PER_UPDATE = 5;
             if (parent is not ILoadedChunk loadedChunk) yield break;
             
@@ -40,6 +51,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     yield return new WaitForFixedUpdate();
                 }
             }
+
+            
         }
         private FluidIWorldTileMap fluidIWorldTileMap;
 

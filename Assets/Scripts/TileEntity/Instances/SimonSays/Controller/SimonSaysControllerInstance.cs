@@ -34,7 +34,7 @@ namespace TileEntity.Instances.SimonSays {
         public bool DisplayingSequence { get => displayingSequence; set => displayingSequence = value; }
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             
             bool started = !ReferenceEquals(coroutineController, null);

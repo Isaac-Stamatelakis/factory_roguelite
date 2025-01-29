@@ -12,7 +12,7 @@ namespace TileEntity.Instances.SimonSays {
 
         private SimonSaysControllerInstance controller;
         public SimonSaysControllerInstance Controller {set => controller = value;}
-        public void onRightClick()
+        public void OnRightClick()
         {
             controller?.CoroutineController.showTileClick(this);
         }

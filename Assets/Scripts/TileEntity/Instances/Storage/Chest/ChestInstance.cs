@@ -19,7 +19,7 @@ namespace TileEntity.Instances
         {
         }
 
-        public void onBreak()
+        public void OnBreak()
         {
             if (items == null) {
                 return;
@@ -31,7 +31,7 @@ namespace TileEntity.Instances
             TileEntityUtils.spawnItemsOnBreak(items,getWorldPosition(),loadedChunk,loadedChunk.getSystem());
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             GameObject uiElement = TileEntityObject.UIManager.getUIElement();
             if (uiElement == null) {

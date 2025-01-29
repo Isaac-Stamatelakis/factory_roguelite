@@ -141,7 +141,11 @@ namespace TileEntity.Instances.Machine.UI
 
         private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
         {
-            if (inventories == null || inventories.Count == 0) return;
+            if (inventories == null || inventories.Count == 0)
+            {
+                GlobalHelper.deleteAllChildren(inventoryUI.transform);
+                return;
+            }
             int size = SizeCheckInventoryUI(inventoryUI,inventories[0],inventoryOptions);
             if (size == 0) return;
             

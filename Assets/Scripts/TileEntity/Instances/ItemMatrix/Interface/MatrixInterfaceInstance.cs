@@ -107,7 +107,7 @@ namespace TileEntity.Instances.Matrix {
             }
             return encodedRecipe;
         }
-        public void onRightClick()
+        public void OnRightClick()
         {
             if (upgrades == null || recipes == null) {
                 initInventories();

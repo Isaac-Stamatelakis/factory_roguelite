@@ -11,7 +11,7 @@ namespace TileEntity.Instances {
         {
         }
 
-        public void onRightClick()
+        public void OnRightClick()
         {
             TileEntityUtils.stateIterate(this,1);
         }

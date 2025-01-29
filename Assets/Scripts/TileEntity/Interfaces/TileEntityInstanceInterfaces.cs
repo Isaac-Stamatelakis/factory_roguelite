@@ -9,7 +9,7 @@ namespace TileEntity {
     
     public interface ITickableTileEntity : ISoftLoadableTileEntity
     {
-        public void tickUpdate();
+        public void TickUpdate();
     }
     
     public interface IPlaceInitializable
@@ -18,18 +18,18 @@ namespace TileEntity {
     }
 
     public interface IClimableTileEntity {
-        public int getSpeed();
+        public int GetSpeed();
     }
 
     public interface IRightClickableTileEntity
     {
-        public void onRightClick();
+        public void OnRightClick();
     }
 
     public interface ILeftClickableTileEntity {
-        public void onLeftClick();
-        public bool canInteract();
-        public bool canBreak();
+        public void OnLeftClick();
+        public bool CanInteract();
+        public bool CanBreak();
     }
 
     public interface ISerializableTileEntity {
@@ -43,7 +43,7 @@ namespace TileEntity {
     }
 
     public interface IBreakActionTileEntity {
-        public void onBreak();
+        public void OnBreak();
     }
     public interface IMultiBlockTileEntity {
         public void AssembleMultiBlock();

@@ -85,12 +85,12 @@ namespace Items {
             string suffix = i < 0 ? string.Empty : suffixes[i];
             return fAmount.ToString("0.00" + suffix + FLUID_SUFFIX);
         }
-        public static Vector2 GetItemScale(Sprite sprite) {
+        public static Vector3 GetItemScale(Sprite sprite) {
             Vector2 size = getItemSize(sprite);
             if (size == Vector2.zero) {
-                return Vector2.one;
+                return Vector3.one;
             }
-            Vector2 vector = size.x >= size.y ? new Vector2(1,size.y/size.x) : new Vector2(size.x/size.y,1);
+            Vector3 vector = size.x >= size.y ? new Vector3(1,size.y/size.x,1) : new Vector3(size.x/size.y,1,1);
             bool smallX = (int)size.x == 32;
             bool smallY = (int)size.y == 32;
             

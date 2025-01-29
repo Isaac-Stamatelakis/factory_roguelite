@@ -20,7 +20,7 @@ namespace TileEntity.Instances.Storage {
             return TileEntityObject.ConduitPortLayout;
         }
         
-        public void onRightClick()
+        public void OnRightClick()
         {
             TileEntityObject.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
         }
