@@ -259,7 +259,16 @@ namespace TileMaps {
                 SpawnItemEntity(tileItem,1,hitTilePosition);
                 return;
             }
-            
+
+            if (dropOptions.Count == 1) // Optimization for common case
+            {
+                DropOption dropOption = dropOptions[0];
+                if (dropOption.lowerAmount == dropOption.upperAmount)
+                {
+                    SpawnItemEntity(dropOption.itemObject,(uint)dropOption.lowerAmount,hitTilePosition);
+                    return;
+                }
+            }
             int totalWeight = 0;
             foreach (DropOption dropOption in dropOptions) {
                 totalWeight += dropOption.weight;

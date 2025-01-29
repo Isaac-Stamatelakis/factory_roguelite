@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 using Items.Transmutable;
+using Tiles;
 
 public class TileGeneratorWindow : EditorWindow
 {
@@ -14,6 +15,7 @@ public class TileGeneratorWindow : EditorWindow
     private Sprite sprite;
     private Sprite template;
     private TransmutableItemMaterial material;
+    private TransmutableItemObject dropItem;
     
     private string stoneName;
     private string path;
@@ -46,7 +48,7 @@ public class TileGeneratorWindow : EditorWindow
         EditorGUILayout.Space();
         material = EditorGUILayout.ObjectField("Material", material, typeof(TransmutableItemMaterial), false) as TransmutableItemMaterial;
         
-
+        dropItem = EditorGUILayout.ObjectField("Drop Ore", dropItem, typeof(TransmutableItemObject), false) as TransmutableItemObject;
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Stone Name", GUILayout.Width(100));
         stoneName = EditorGUILayout.TextField(stoneName);
@@ -78,8 +80,19 @@ public class TileGeneratorWindow : EditorWindow
         AssetDatabase.Refresh();
         AssetDatabase.CreateAsset(randomTile,creationPath + "T~" + oreName + ".asset");
         OutlineValues outlineValues = new OutlineValues();
-        ItemEditorFactory.GenerateTileItem(oreName, creationPath, randomTile, TileType.Block, outlineValues.SquareOutline);
-  
+        TileItem tileItem = ItemEditorFactory.GenerateTileItem(oreName, creationPath, randomTile, TileType.Block, outlineValues.SquareOutline);
+        DropOption dropOption = new DropOption
+        {
+            itemObject = dropItem,
+            weight = 1,
+            lowerAmount = 1,
+            upperAmount = 1
+        };
+        tileItem.tileOptions.dropOptions = new List<DropOption>
+        {
+            dropOption
+        };
+        AssetDatabase.SaveAssetIfDirty(tileItem);
     }
 
     private Sprite[] GenerateMixedSprites(string creationPath, Texture2D oreTexture, Texture2D rockTexture)
