@@ -21,12 +21,12 @@ namespace Chunks.Loaders {
         public override void update(IChunkPartition value)
         {
             value.SetTileLoaded(false);
-            StartCoroutine(closedChunkSystem.unloadChunkPartition(value));
+            StartCoroutine(closedChunkSystem.UnloadChunkPartition(value));
         }
 
         public override Vector2Int getPlayerPosition()
         {
-            return closedChunkSystem.getPlayerChunkPartition();
+            return closedChunkSystem.GetPlayerChunkPartition();
         }
     }
 }

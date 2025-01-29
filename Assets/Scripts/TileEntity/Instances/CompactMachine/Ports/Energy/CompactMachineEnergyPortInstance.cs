@@ -44,7 +44,7 @@ namespace TileEntity.Instances.CompactMachines {
             return JsonConvert.SerializeObject(energy);
         }
 
-        public void syncToCompactMachine(CompactMachineInstance compactMachine)
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             this.compactMachine = compactMachine;
             compactMachine.Inventory.addPort(this,ConduitType.Energy);

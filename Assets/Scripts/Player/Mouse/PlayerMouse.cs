@@ -94,32 +94,30 @@ namespace PlayerModule.Mouse {
             ToolTipController.Instance.HideToolTip();
             if (!leftClick && !rightClick) return;
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return;
             }
             
-            Vector2 systemOffset = new Vector2(closedChunkSystem.DimPositionOffset.x/2f,closedChunkSystem.DimPositionOffset.y/2f);
-            
             if (leftClick) {
-                LeftClickUpdate(mousePosition,systemOffset);
+                LeftClickUpdate(mousePosition);
             }
             if (rightClick) {
-                RightClickUpdate(mousePosition,systemOffset);
+                RightClickUpdate(mousePosition);
             }
             
         }
 
         public void FixedUpdate()
         {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return;
             }
             List<IWorldTileMap> tilemaps = new List<IWorldTileMap>
             {
-                closedChunkSystem.getTileMap(TileMapType.Object),
-                closedChunkSystem.getTileMap(TileMapType.Block),
+                closedChunkSystem.GetTileMap(TileMapType.Object),
+                closedChunkSystem.GetTileMap(TileMapType.Block),
             };
             
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -161,7 +159,7 @@ namespace PlayerModule.Mouse {
         public static ILoadedChunk GetChunk(Vector2 mousePosition)
         {
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return null;
             }
@@ -169,8 +167,8 @@ namespace PlayerModule.Mouse {
             return closedChunkSystem.getChunk(chunkPosition);
         }
 
-        private void LeftClickUpdate(Vector2 mousePosition, Vector2 offset) {
-            bool drop = HandleDrop(mousePosition,offset);
+        private void LeftClickUpdate(Vector2 mousePosition) {
+            bool drop = HandleDrop(mousePosition);
             if (drop) {
                 return;
             }
@@ -179,16 +177,16 @@ namespace PlayerModule.Mouse {
             leftClickHandler.Tick(mousePosition);
 
         }
-        private void RightClickUpdate(Vector2 mousePosition,Vector2 offset)
+        private void RightClickUpdate(Vector2 mousePosition)
         {
             
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(playerInventory.getSelectedId());
             if (Input.GetMouseButtonDown(1)) {
                 bool somethingClicked = false;
                 if (itemObject is ConduitItem) {
-                    somethingClicked = RightClickPort(mousePosition+offset);
+                    somethingClicked = RightClickPort(mousePosition);
                 } else {
-                    somethingClicked = TryClickTileEntity(mousePosition,offset);
+                    somethingClicked = TryClickTileEntity(mousePosition);
                 }
                 if (somethingClicked) return;
             }
@@ -196,7 +194,7 @@ namespace PlayerModule.Mouse {
             switch (inventoryDisplayMode)
             {
                 case InventoryDisplayMode.Inventory:
-                    handlePlace(mousePosition,offset,DimensionManager.Instance.getPlayerSystem(playerTransform));
+                    handlePlace(mousePosition,DimensionManager.Instance.GetPlayerSystem(playerTransform));
                     break;
                 case InventoryDisplayMode.Tools:
                     IRobotToolInstance currentTool = playerInventory.CurrentTool;
@@ -207,7 +205,7 @@ namespace PlayerModule.Mouse {
         }
 
         private bool RightClickPort(Vector2 mousePosition) {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
@@ -276,12 +274,12 @@ namespace PlayerModule.Mouse {
         /// <param name="mousePosition"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public static bool TryClickTileEntity(Vector2 mousePosition,Vector2 offset) {
+        public static bool TryClickTileEntity(Vector2 mousePosition) {
             int layers = TileMapLayer.Base.toRaycastLayers();
             GameObject tilemapObject = MouseUtils.RaycastObject(mousePosition,layers);
             if (ReferenceEquals(tilemapObject,null)) return false;
             Tilemap tilemap = tilemapObject.GetComponent<Tilemap>();
-            Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt((mousePosition.x+offset.x)*2), Mathf.FloorToInt((mousePosition.y+offset.y)*2));
+            Vector2Int mouseCellPosition = new Vector2Int(Mathf.FloorToInt(mousePosition.x*2), Mathf.FloorToInt(mousePosition.y*2));
             Vector2Int? tilePosition = FindTileAtLocation.find(mouseCellPosition,tilemap);
             if (tilePosition == null) {
                 return false;
@@ -302,7 +300,7 @@ namespace PlayerModule.Mouse {
             return false;
         }
 
-        private bool handlePlace(Vector2 mousePosition, Vector2 offset, ClosedChunkSystem closedChunkSystem) {
+        private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             if (ReferenceEquals(closedChunkSystem,null)) {
                 return false;
             }
@@ -343,7 +341,7 @@ namespace PlayerModule.Mouse {
             return new Vector2(xDif, yDif);
         }
         
-        private bool HandleDrop(Vector2 mousePosition,Vector2 offset) {
+        private bool HandleDrop(Vector2 mousePosition) {
             if (EventSystem.current.IsPointerOverGameObject()) {
                 return false;
             }
@@ -351,7 +349,7 @@ namespace PlayerModule.Mouse {
             if (grabbedItemProperties.ItemSlot == null) {
                 return false;
             }
-            ILoadedChunk chunk = GetChunk(mousePosition+offset);
+            ILoadedChunk chunk = GetChunk(mousePosition);
             if (chunk == null) {
                 return false;
             }

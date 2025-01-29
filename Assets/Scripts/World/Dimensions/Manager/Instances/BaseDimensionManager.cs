@@ -19,7 +19,7 @@ namespace Dimensions {
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
         
-        public override DimController getDimController(int dim) {
+        public override DimController GetDimController(int dim) {
             switch (dim) {
                 case 0:
                     return overworldDimController;
@@ -43,7 +43,7 @@ namespace Dimensions {
             return compactMachineDimController;
         }
 
-        public override void softLoadSystems()
+        public override void SoftLoadSystems()
         {
             overworldDimController.softLoadSystem();
             compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);

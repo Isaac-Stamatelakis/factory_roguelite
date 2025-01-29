@@ -22,7 +22,7 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineHelper.teleportOutOfCompactMachine(compactMachine);
         }
 
-        public void syncToCompactMachine(CompactMachineInstance compactMachine)
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             this.compactMachine = compactMachine;
             compactMachine.Teleporter = this;

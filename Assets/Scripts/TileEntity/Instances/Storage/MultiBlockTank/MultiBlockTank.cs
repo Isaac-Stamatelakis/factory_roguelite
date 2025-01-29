@@ -37,8 +37,15 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         public void AssembleMultiBlock()
         {
             var tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
-            TileEntityUtils.SyncTileMultiBlockAggregates(this,this,tiles);
+            bool connectionConflict = TileEntityUtils.SyncTileMultiBlockAggregates(this,this,tiles);
+            if (connectionConflict)
+            {
+                size = 0;
+                return;
+            }
             size = (uint)tiles.Count;
+            uint maxSpace = size * tileEntityObject.SpacePerTank;
+            if (fluidSlot?.amount > maxSpace) fluidSlot.amount = maxSpace;
         }
 
         public List<Vector2Int> GetConnectedPositions()
@@ -64,7 +71,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            if (state != ItemState.Fluid) return;
+            if (size == 0 || state != ItemState.Fluid) return;
             
             if (ItemSlotUtils.IsItemSlotNull(fluidSlot))
             {
@@ -90,6 +97,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         public void Load()
         {
+            if (size == 0) return;
             minY = int.MaxValue;
             maxY = int.MinValue;
             fluidHeightMap = new Dictionary<int, List<int>>();
@@ -114,7 +122,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
 
         private void DisplayFluid()
         {
-            if (fluidHeightMap == null || chunk is not ILoadedChunk loadedChunk || fluidSlot.itemObject is not FluidTileItem fluidTileItem) return;
+            if (fluidHeightMap == null || chunk is not ILoadedChunk loadedChunk || fluidSlot?.itemObject is not FluidTileItem fluidTileItem) return;
 
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
@@ -177,8 +185,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         }
         public void Unload()
         {
-            
-            if (chunk is not ILoadedChunk loadedChunk) return;
+            if (chunk is not ILoadedChunk loadedChunk || fluidHeightMap == null) return;
             
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);

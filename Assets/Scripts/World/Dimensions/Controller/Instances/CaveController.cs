@@ -9,13 +9,13 @@ namespace Dimensions {
     {
         private CaveInstance currentCave;
         private TileClosedChunkSystem activeSystem;
-        public ClosedChunkSystem activateSystem(Vector2Int dimOffsetPosition)
+        public ClosedChunkSystem ActivateSystem()
         {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
             IntervalVector coveredArea = currentCave.getChunkCoveredArea();
-            activeSystem.initalize(this,coveredArea,-1,dimOffsetPosition);
+            activeSystem.Initalize(this,coveredArea,-1);
             return activeSystem;
         }
         public void setCurrentCave(CaveInstance caveInstance) {
@@ -31,7 +31,7 @@ namespace Dimensions {
             return activeSystem != null;
         }
 
-        public ClosedChunkSystem getActiveSystem()
+        public ClosedChunkSystem GetActiveSystem()
         {
             return activeSystem;
         }

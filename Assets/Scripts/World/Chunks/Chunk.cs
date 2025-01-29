@@ -278,7 +278,7 @@ namespace Chunks {
 
         public IWorldTileMap getTileMap(TileMapType type)
         {
-            return closedChunkSystem.getTileMap(type);
+            return closedChunkSystem.GetTileMap(type);
         }
 
         public ClosedChunkSystem getSystem()

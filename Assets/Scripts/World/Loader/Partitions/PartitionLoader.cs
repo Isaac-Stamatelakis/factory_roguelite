@@ -18,7 +18,7 @@ namespace Chunks.Loaders {
 
         public override Vector2Int getPlayerPosition()
         {
-            return closedChunkSystem.getPlayerChunkPartition();
+            return closedChunkSystem.GetPlayerChunkPartition();
         }
 
         public override void update(IChunkPartition value)
@@ -26,7 +26,7 @@ namespace Chunks.Loaders {
             value.SetTileLoaded(true);
             Vector2Int playerPosition = getPlayerPosition();
             Vector2Int position = value.GetRealPosition();
-            Vector2Int positionChange = closedChunkSystem.getPlayerPartitionChangeDifference();
+            Vector2Int positionChange = closedChunkSystem.GetPlayerPartitionChangeDifference();
             Direction loadDirection = Direction.Left;
             if (positionChange.x < 0) {
                 loadDirection = Direction.Left;
@@ -38,7 +38,7 @@ namespace Chunks.Loaders {
                 loadDirection = Direction.Up;
             }
             
-            StartCoroutine(closedChunkSystem.loadChunkPartition(value,loadDirection));
+            StartCoroutine(closedChunkSystem.LoadChunkPartition(value,loadDirection));
         }
     }
 }

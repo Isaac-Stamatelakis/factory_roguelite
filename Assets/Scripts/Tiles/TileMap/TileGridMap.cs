@@ -135,7 +135,6 @@ namespace TileMaps {
             if (tileEntity is IMultiBlockTileAggregate multiBlockTileAggregate)
             {
                 UpdateMultiBlockOnBreak(multiBlockTileAggregate);
-                
             }
         }
 
@@ -162,7 +161,7 @@ namespace TileMaps {
         }
         protected void deleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
-                conduitTileClosedChunkSystem.tileEntityDeleteUpdate(position);
+                conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
             }
         }
 

@@ -47,11 +47,9 @@ namespace Chunks.Systems {
         protected int dim;
         public TileBreakIndicator BreakIndicator => breakIndicator;
         public int Dim {get{return dim;}}
-        public Vector2Int DimPositionOffset { get => dimPositionOffset;}
-
         private bool isQuitting;
         private LoadedPartitionBoundary loadedPartitionBoundary;
-        protected Vector2Int dimPositionOffset;
+      
         private Camera mainCamera;
         public virtual void Awake () {
             mainCamera = Camera.main;
@@ -72,7 +70,7 @@ namespace Chunks.Systems {
         }
         public void removeChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.GetPosition();
-            if (chunkIsCached(chunkPosition)) {
+            if (ChunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
         }
@@ -84,39 +82,34 @@ namespace Chunks.Systems {
             return null;
         }
 
-        public bool localWorldPositionInSystem(Vector2 worldPosition) {
-            Vector2Int playerChunkPosition = getChunkPositionFromWorld(worldPosition);
+        public bool LocalWorldPositionInSystem(Vector2 worldPosition) {
+            Vector2Int playerChunkPosition = GetChunkPositionFromWorld(worldPosition);
             return cachedChunks.ContainsKey(playerChunkPosition);
         }
 
-        public void deactivateAllPartitions() {
+        public void DeactivateAllPartitions() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     partition.SetTileLoaded(false);
+                    partition.UnloadTileEntities();
                 }
             }
         }
 
-        public bool containsChunk(Vector2Int position) {
+        public bool ContainsChunk(Vector2Int position) {
             return cachedChunks.ContainsKey(position);
         }
-
-        public Vector2 getWorldDimOffset() {
-            return new Vector2(dimPositionOffset.x/2f,dimPositionOffset.y/2f);
-        }
-
-        public bool containsTileMap(TileMapType tileMapType) {
+        
+        public bool ContainsTileMap(TileMapType tileMapType) {
             return tileGridMaps.ContainsKey(tileMapType);
         }
 
-        public IWorldTileMap getTileMap(TileMapType tileMapType) {
-            if (tileGridMaps.ContainsKey(tileMapType)) {
-                return tileGridMaps[tileMapType];
-            }
-            return null;
+        public IWorldTileMap GetTileMap(TileMapType tileMapType)
+        {
+            return tileGridMaps.GetValueOrDefault(tileMapType);
         }
 
-        public void initalizeMiscObjects(DimensionObjects dimensionObjects) {
+        public void InitalizeMiscObjects(DimensionObjects dimensionObjects) {
             this.loadedPartitionBoundary = dimensionObjects.loadedPartitionBoundary;
             dimensionObjects.loadedPartitionBoundary.transform.SetParent(transform,false);
             loadedPartitionBoundary.reset();
@@ -125,9 +118,8 @@ namespace Chunks.Systems {
             dimensionObjects.tileBreakIndicator.transform.SetParent(transform,false);
         }
         
-        public void initalizeObject(DimController dimController, IntervalVector coveredArea, int dim, Vector2Int offset) {
-            this.dimPositionOffset = offset;
-            transform.position = new Vector3(-dimPositionOffset.x/2f,-dimPositionOffset.y/2f,0);
+        public void InitalizeObject(DimController dimController, IntervalVector coveredArea, int dim) {
+            transform.position = Vector3.zero;
 
             transform.SetParent(dimController.transform,false);
 
@@ -139,17 +131,15 @@ namespace Chunks.Systems {
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
             this.dim = dim;
             this.coveredArea = coveredArea;
-            initLoaders();
+            InitLoaders();
 
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
 
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
             cameraBounds.SetSystem(this,dimController.BoundCamera);
-            
-            GameObject.Find("Player").GetComponent<PlayerRobot>().enabled = true;
         }
 
-        public virtual void initLoaders() {
+        public virtual void InitLoaders() {
             partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
             partitionLoader.initalize(this,LoadUtils.getPartitionLoaderVariables());
 
@@ -162,11 +152,11 @@ namespace Chunks.Systems {
             
         }
 
-        public IntervalVector getBounds() {
+        public IntervalVector GetBounds() {
             return coveredArea * (Global.CHUNK_SIZE/2);
         }
         
-        public abstract void playerChunkUpdate();
+        public abstract void PlayerChunkUpdate();
 
 
         private Vector2Int GetCurrentPartitionPosition()
@@ -178,7 +168,7 @@ namespace Chunks.Systems {
         }
         
         public virtual void PlayerPartitionUpdate() {
-            Vector2Int playerChunkPosition = getPlayerChunk();
+            Vector2Int playerChunkPosition = GetPlayerChunk();
             
             Vector2Int last = currentPlayerPartition;
             currentPlayerPartition = GetCurrentPartitionPosition();
@@ -210,13 +200,13 @@ namespace Chunks.Systems {
             partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 
-        public List<Vector2Int> getUnCachedChunkPositionsNearPlayer() {
+        public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {
             List<Vector2Int> positions = new List<Vector2Int>();
-            Vector2Int playerChunkPosition = getPlayerChunk();
+            Vector2Int playerChunkPosition = GetPlayerChunk();
             for (int x = playerChunkPosition.x-Global.ChunkLoadRangeX; x  <= playerChunkPosition.x+Global.ChunkLoadRangeX; x ++) {
                 for (int y = playerChunkPosition.y-Global.ChunkLoadRangeY; y <= playerChunkPosition.y+Global.ChunkLoadRangeY; y ++) {
                     Vector2Int vect = new Vector2Int(x,y);
-                    if (chunkInBounds(vect) && !chunkIsCached(vect)) {
+                    if (ChunkInBounds(vect) && !ChunkIsCached(vect)) {
                         positions.Add(vect);
                     }
                 }
@@ -224,8 +214,8 @@ namespace Chunks.Systems {
             return positions;
         }
 
-        public List<ILoadedChunk> getLoadedChunksNearPlayer() {
-            Vector2Int playerPosition = getPlayerChunk();
+        public List<ILoadedChunk> GetLoadedChunksNearPlayer() {
+            Vector2Int playerPosition = GetPlayerChunk();
             List<ILoadedChunk> chunks = new List<ILoadedChunk>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 if (chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY)) {
@@ -235,17 +225,17 @@ namespace Chunks.Systems {
             return chunks;
         }
 
-        public bool chunkInBounds(Vector2Int position) {
+        public bool ChunkInBounds(Vector2Int position) {
             return 
                 position.x >= coveredArea.X.LowerBound && 
                 position.x <= coveredArea.X.UpperBound && 
                 position.y >= coveredArea.Y.LowerBound && 
                 position.y <= coveredArea.Y.UpperBound;
         }
-        public bool worldPositionInBounds(Vector2 worldPosition) {
-            return chunkInBounds(Global.getChunkFromWorld(worldPosition));
+        public bool WorldPositionInBounds(Vector2 worldPosition) {
+            return ChunkInBounds(Global.getChunkFromWorld(worldPosition));
         }   
-        public bool chunkIsCached(Vector2Int position) {
+        public bool ChunkIsCached(Vector2Int position) {
             return this.cachedChunks.ContainsKey(position);
         }
 
@@ -253,53 +243,55 @@ namespace Chunks.Systems {
         {
             return tileEntityMaps[tileEntityTileMapType];
         }
-        public List<Chunk> getLoadedChunksOutsideRange() {
-            Vector2Int playerPosition = getPlayerChunk();
+        public List<Chunk> GetLoadedChunksOutsideRange() {
+            Vector2Int playerPosition = GetPlayerChunk();
             List<Chunk> chunksToUnload = new List<Chunk>();
-            foreach (Chunk chunk in cachedChunks.Values) {
-                if (!chunk.ScheduleForUnloading && !chunk.isChunkLoaded() && !chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY) && chunk.partionsAreAllUnloaded()) {
-                    chunk.ScheduleForUnloading = true;
-                    chunksToUnload.Add(chunk);
-                }
+            foreach (Chunk chunk in cachedChunks.Values)
+            {
+                if (chunk.ScheduleForUnloading || chunk.isChunkLoaded() ||
+                    chunk.inRange(playerPosition, Global.ChunkLoadRangeX, Global.ChunkLoadRangeY) ||
+                    !chunk.partionsAreAllUnloaded()) continue;
+                
+                chunk.ScheduleForUnloading = true;
+                chunksToUnload.Add(chunk);
             }
             return chunksToUnload;
         }
-        public Vector2Int getPlayerChunk() {
-            Vector2Int pos = getChunkPositionFromWorld(playerTransform.position);
-            return pos + DimPositionOffset/Global.CHUNK_SIZE;
+        public Vector2Int GetPlayerChunk() {
+            return GetChunkPositionFromWorld(playerTransform.position);
         }
 
-        public Vector2Int getChunkPositionFromWorld(Vector2 world) {
+        public static Vector2Int GetChunkPositionFromWorld(Vector2 world) {
             return new Vector2Int(Mathf.FloorToInt(world.x / ((Global.PARTITIONS_PER_CHUNK >> 1)*Global.CHUNK_PARTITION_SIZE)),Mathf.FloorToInt(world.y / ((Global.PARTITIONS_PER_CHUNK >> 1)*Global.CHUNK_PARTITION_SIZE)));
         }
 
-        public Vector2Int getPlayerChunkPartition() {
+        public Vector2Int GetPlayerChunkPartition() {
             return currentPlayerPartition;
         }
 
-        public Vector2Int getPlayerPartitionChangeDifference() {
+        public Vector2Int GetPlayerPartitionChangeDifference() {
             return playerPartitionChangeDifference;
         }
 
-        public virtual IEnumerator loadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
+        public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
             loadedPartitionBoundary.partitionLoaded(chunkPartition.GetRealPosition());
-            yield return chunkPartition.Load(tileGridMaps,direction,DimPositionOffset);
+            yield return chunkPartition.Load(tileGridMaps,direction);
             chunkPartition.SetTileLoaded(true);
         }
 
-        public void cacheChunk(Vector2Int chunkPosition) {
+        public void CacheChunk(Vector2Int chunkPosition) {
             ILoadedChunk chunk = ChunkIO.getChunkFromJson(chunkPosition, this);
             addChunk(chunk);
         }
 
-        public void instantCacheChunksNearPlayer() {
-            List<Vector2Int> unloadedChunksNearPlayer = getUnCachedChunkPositionsNearPlayer();
+        public void InstantCacheChunksNearPlayer() {
+            List<Vector2Int> unloadedChunksNearPlayer = GetUnCachedChunkPositionsNearPlayer();
             foreach (Vector2Int pos in unloadedChunksNearPlayer) {
-                cacheChunk(pos);
+                CacheChunk(pos);
             }
         }
         
-        public virtual IEnumerator unloadChunkPartition(IChunkPartition chunkPartition) {
+        public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.UnloadEntities();
             loadedPartitionBoundary.partitionUnloaded(chunkPartition.GetRealPosition());
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
@@ -332,7 +324,7 @@ namespace Chunks.Systems {
             }
         }
 
-        protected Vector2Int getSize() {
+        protected Vector2Int GetSize() {
             int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
             return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);

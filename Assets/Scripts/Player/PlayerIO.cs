@@ -37,7 +37,7 @@ namespace PlayerModule.IO {
         void OnDestroy() {
             playerData.x = transform.position.x;
             playerData.y = transform.position.y;
-            playerData.dim = DimensionManager.Instance.getPlayerDimension(transform);
+            playerData.dim = DimensionManager.Instance.GetPlayerDimension();
             playerData.sInventoryData = PlayerInventoryFactory.Serialize(GetComponent<PlayerInventory>().PlayerInventoryData);
             string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;

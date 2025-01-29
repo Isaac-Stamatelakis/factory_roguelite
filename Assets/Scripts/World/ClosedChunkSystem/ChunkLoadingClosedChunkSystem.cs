@@ -16,7 +16,7 @@ namespace Chunks.Systems {
 
         protected IEnumerator initalLoadChunks()
         {
-            List<Vector2Int> chunks = getUnCachedChunkPositionsNearPlayer();
+            List<Vector2Int> chunks = GetUnCachedChunkPositionsNearPlayer();
             foreach (Vector2Int vector in chunks) {
                 addChunk(ChunkIO.getChunkFromJson(vector, this));
             }
@@ -32,20 +32,20 @@ namespace Chunks.Systems {
             Debug.Log("Player Activated");
         }
 
-        public override void initLoaders()
+        public override void InitLoaders()
         {
             chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
             chunkLoader.initalize(this,LoadUtils.getChunkLoaderVariables());
 
             chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
             chunkUnloader.initalize(this,LoadUtils.getChunkUnloaderVariables());
-            base.initLoaders();
+            base.InitLoaders();
         }
 
-        public override void playerChunkUpdate()
+        public override void PlayerChunkUpdate()
         {
-            chunkLoader.addToQueue(getUnCachedChunkPositionsNearPlayer());
-            chunkUnloader.addToQueue(getLoadedChunksOutsideRange());
+            chunkLoader.addToQueue(GetUnCachedChunkPositionsNearPlayer());
+            chunkUnloader.addToQueue(GetLoadedChunksOutsideRange());
         
         }
     }

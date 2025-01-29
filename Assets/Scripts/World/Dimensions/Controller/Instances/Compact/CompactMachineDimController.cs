@@ -11,6 +11,7 @@ using System.IO;
 using System;
 using System.Linq;
 using TileEntity;
+using TileMaps.Layer;
 
 namespace Dimensions {
     public interface ICompactMachineDimension {
@@ -38,7 +39,7 @@ namespace Dimensions {
             }
         }
 
-        public ClosedChunkSystem getActiveSystem(IDimensionTeleportKey key)
+        public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key)
         {
             if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
                 return null;
@@ -49,42 +50,50 @@ namespace Dimensions {
             return null;
         }
         private void loadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
-            Vector2Int positionInSystem;
-            if (compactMachine == null) {
-                positionInSystem = Vector2Int.zero;
-            } else {
-                positionInSystem = compactMachine.getCellPosition();
-            }
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                        {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                if (compactMachine != null) {
-                                    compactMachineInteractable.syncToCompactMachine(compactMachine);
+                            
+                            switch (tileEntity)
+                            {
+                                case ICompactMachineInteractable compactMachineInteractable:
+                                {
+                                    if (compactMachine != null) {
+                                        compactMachineInteractable.SyncToCompactMachine(compactMachine);
+                                    }
+                                    break;
                                 }
-                                
-                            } else if (tileEntity is CompactMachineInstance nestedCompactMachine) {
-                                Vector2Int newPosition = nestedCompactMachine.getCellPosition();
-                                string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
-                                string contentPath = Path.Combine(nestedPath,CompactMachineHelper.CONTENT_PATH);
-                                SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
-                                if (newSystem == null) {
-                                    Debug.LogError($"No system at path {nestedPath}");
-                                    continue;
+                                case CompactMachineInstance nestedCompactMachine:
+                                {
+                                    Vector2Int newPosition = nestedCompactMachine.getCellPosition();
+                                    string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
+                                    string contentPath = Path.Combine(nestedPath,CompactMachineHelper.CONTENT_PATH);
+                                    SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
+                                    if (newSystem == null) {
+                                        Debug.LogError($"No system at path {nestedPath}");
+                                        continue;
+                                    }
+                                    newSystem.softLoad();
+                                    systems.Add(newSystem);
+                                    CompactMachineTree newTree = new CompactMachineTree(newSystem);
+                                    tree.Children[(Vector2Int)newPosition] = newTree;
+                                    loadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
+                                    break;
                                 }
-                                newSystem.softLoad();
-                                systems.Add(newSystem);
-                                CompactMachineTree newTree = new CompactMachineTree(newSystem);
-                                tree.Children[(Vector2Int)newPosition] = newTree;
-                                loadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
                             }
                         }
                     }
                 }
             }
+        }
+
+        private void LoadCompactMachineInteractableTileEntity()
+        {
+            
         }
         public bool hasSystem(CompactMachineTeleportKey key) {
             return systemTree.getSystem(key.Path) != null;
@@ -117,7 +126,7 @@ namespace Dimensions {
                         for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
                             if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                compactMachineInteractable.syncToCompactMachine(compactMachine);
+                                compactMachineInteractable.SyncToCompactMachine(compactMachine);
                             }
                         }
                     }
@@ -125,14 +134,14 @@ namespace Dimensions {
             }
         }
 
-        public ClosedChunkSystem activateSystem(IDimensionTeleportKey key, Vector2Int dimOffsetPosition)
+        public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key)
         {
             if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
                 return null;
             }
             List<Vector2Int> path = compactMachineTeleportKey.Path;
             if (path.Count == 0) {
-                return baseDimController.activateSystem(dimOffsetPosition);
+                return baseDimController.ActivateSystem();
             }
             if (activeSystems.ContainsKey(compactMachineTeleportKey)) {
                 return activeSystems[compactMachineTeleportKey];
@@ -147,13 +156,11 @@ namespace Dimensions {
             CompactMachineClosedChunkSystem area = closedChunkSystemObject.AddComponent<CompactMachineClosedChunkSystem>();
             area.setCompactMachineKey(compactMachineTeleportKey);
             area.transform.SetParent(transform,false);
-            area.initalize(
+            area.Initialize(
                 this,
                 system.CoveredArea,
                 1,
-                system,
-                dimOffsetPosition
-            );
+                system);
             return area;
         }
 

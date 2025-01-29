@@ -40,11 +40,7 @@ namespace TileEntity {
             {
                 multiBlockTileEntity.AssembleMultiBlock();
             }
-
-            if (tileEntityInstance is IMultiBlockTileAggregate multiBlockTileAggregate)
-            {
-                UpdateMultiBlockOnPlace(tileEntityInstance, multiBlockTileAggregate);
-            }
+            
             if (data == null && tileEntityInstance is IPlaceInitializable placeInitializable)
             {
                 placeInitializable.PlaceInitialize();
@@ -67,7 +63,7 @@ namespace TileEntity {
             return tileEntityInstance;
         }
 
-        private static void UpdateMultiBlockOnPlace(ITileEntityInstance tileEntityInstance, IMultiBlockTileAggregate multiBlockTileAggregate)
+        public static void UpdateMultiBlockOnPlace(ITileEntityInstance tileEntityInstance, IMultiBlockTileAggregate multiBlockTileAggregate)
         {
             // Search adjacent tiles for connections
             List<Vector2Int> directions = new List<Vector2Int>
@@ -89,7 +85,7 @@ namespace TileEntity {
                 if (adjacentMultiBlockTileEntity == null) continue;
                 adjacentMultiBlocks.Add(adjacentMultiBlockTileEntity);
             }
-
+            
             foreach (IMultiBlockTileEntity adjacentMultiBlock in adjacentMultiBlocks)
             {
                 ILoadableTileEntity loadableTileEntity = adjacentMultiBlock as ILoadableTileEntity;
@@ -100,11 +96,10 @@ namespace TileEntity {
             
             
         }
-        public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk, ClosedChunkSystem closedChunkSystem) {
-            Vector2 offsetPosition = worldPosition - closedChunkSystem.getWorldDimOffset();
+        public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk) {
             foreach (ItemSlot itemSlot in items) {
                 ItemEntityFactory.SpawnItemEntityFromBreak(
-                    offsetPosition,
+                    worldPosition,
                     itemSlot,
                     loadedChunk.getEntityContainer()
                 );
@@ -214,17 +209,32 @@ namespace TileEntity {
             
         }
 
-        public static void SyncTileMultiBlockAggregates(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<Vector2Int> positions)
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <param name="tileEntityInstance"></param>
+        /// <param name="multiBlockCast"></param>
+        /// <param name="positions">Adjacent tile entity positions</param>
+        public static bool SyncTileMultiBlockAggregates(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<Vector2Int> positions)
         {
             IChunkSystem system = tileEntityInstance.getChunk().GetChunkSystem();
-            
+            bool alreadyConnected = false;
             foreach (Vector2Int position in positions)
             {
                 var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(position);
                 ITileEntityInstance connectedInstance = partition.GetTileEntity(positionInPartition);
                 if (connectedInstance is not IMultiBlockTileAggregate multiBlockAggregate) continue;
+                IMultiBlockTileEntity multiBlockTileEntity = multiBlockAggregate.GetAggregator();
+                bool connectedToOther = multiBlockTileEntity != null && !ReferenceEquals(multiBlockTileEntity, multiBlockCast);
+                if (connectedToOther)
+                {
+                    alreadyConnected = true;
+                    continue;
+                }
                 multiBlockAggregate.SetAggregator(multiBlockCast);
             }
+
+            return alreadyConnected;
         }
 
         public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem, bool includeSelf = true)

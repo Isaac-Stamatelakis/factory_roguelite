@@ -32,7 +32,7 @@ namespace Item.ItemObjects.Instances.Tile.Chisel
         public static void TryIterateChiselItem(Vector2 mousePosition, int direction)
         {
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(playerTransform).getTileMap(TileMapType.Block);
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerTransform).GetTileMap(TileMapType.Block);
             if (iWorldTileMap is not IChiselableTileMap chiselableTileMap) return;
             Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
             chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);

@@ -9,17 +9,17 @@ namespace Chunks.Loaders {
     {
         public override bool canUpdate(Vector2Int position,Vector2Int playerPosition)
         {
-            return !closedChunkSystem.chunkIsCached(position);
+            return !closedChunkSystem.ChunkIsCached(position);
         }
 
         public override Vector2Int getPlayerPosition()
         {
-            return closedChunkSystem.getPlayerChunk();
+            return closedChunkSystem.GetPlayerChunk();
         }
 
         public override void update(Vector2Int position)
         {
-            closedChunkSystem.cacheChunk(position);
+            closedChunkSystem.CacheChunk(position);
         }
     }
 }

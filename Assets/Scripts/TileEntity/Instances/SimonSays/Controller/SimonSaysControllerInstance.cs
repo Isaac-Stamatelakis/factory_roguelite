@@ -103,7 +103,7 @@ namespace TileEntity.Instances.SimonSays {
                 
            
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
-            IWorldTileMap blockTileMap = closedChunkSystem.getTileMap(TileMapType.Block);
+            IWorldTileMap blockTileMap = closedChunkSystem.GetTileMap(TileMapType.Block);
             
             BreakStructure(blockTileMap,closedChunkSystem);
             PlaceBricks(blockTileMap,closedChunkSystem);
@@ -135,7 +135,7 @@ namespace TileEntity.Instances.SimonSays {
             };
             foreach (Vector2Int position in brickPlacePositions) {
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
-                PlaceTile.placeTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem, useOffset: false);
+                PlaceTile.placeTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem);
             }
         }
 
@@ -149,7 +149,7 @@ namespace TileEntity.Instances.SimonSays {
                 Vector2Int.down,
             };
             TileItem chestTile = tileEntityObject.ChestTile;
-            IWorldTileMap chestLayerTileMap = closedChunkSystem.getTileMap(chestTile.tileType.toTileMapType());
+            IWorldTileMap chestLayerTileMap = closedChunkSystem.GetTileMap(chestTile.tileType.toTileMapType());
             for (var index = 0; index < chestPlacePositions.Count; index++)
             {
                 var position = chestPlacePositions[index];
@@ -193,7 +193,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
-                PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance, useOffset: false);
+                PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
             }
         }
 

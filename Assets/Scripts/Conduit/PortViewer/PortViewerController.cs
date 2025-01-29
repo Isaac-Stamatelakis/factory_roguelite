@@ -70,7 +70,7 @@ namespace Conduits.PortViewer {
 
             IConduitSystemManager conduitSystemManager = closedChunkSystem.GetManager(conduitType);
             TileMapType tileMapType = conduitType.ToTileMapType();
-            TileMaps.IWorldTileMap tilemap = closedChunkSystem.getTileMap(tileMapType);
+            TileMaps.IWorldTileMap tilemap = closedChunkSystem.GetTileMap(tileMapType);
             
             portViewer.display(conduitSystemManager,referenceFrame,portTypeToTile,color,tilemap);
         }

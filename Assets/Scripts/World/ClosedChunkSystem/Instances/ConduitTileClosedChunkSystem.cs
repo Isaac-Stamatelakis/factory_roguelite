@@ -28,23 +28,23 @@ namespace Chunks.Systems {
         private PortViewerController viewerController;
         public PortViewerController PortViewerController => viewerController;
         
-        public void tileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
+        public void TileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.AddTileEntity(tileEntity);
             }
         }
 
-        public void tileEntityDeleteUpdate(Vector2Int position) {
+        public void TileEntityDeleteUpdate(Vector2Int position) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.DeleteTileEntity(position);
             }
         }
         
-        public void initalize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, Vector2Int dimPositionOffset) {
+        public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
             TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.LitMaterial);
             TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
-            initalizeObject(dimController,coveredArea,dim,dimPositionOffset);
+            InitalizeObject(dimController,coveredArea,dim);
             InitalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
@@ -80,13 +80,13 @@ namespace Chunks.Systems {
             conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
             conduitSystemManagersDict[tileMapType].SetTileMap(conduitTileMap);
         }
-        public override IEnumerator unloadChunkPartition(IChunkPartition chunkPartition)
+        public override IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition)
         {
-            yield return base.unloadChunkPartition(chunkPartition);
+            yield return base.UnloadChunkPartition(chunkPartition);
             
         }
 
-        public override void playerChunkUpdate()
+        public override void PlayerChunkUpdate()
         {
             
         }

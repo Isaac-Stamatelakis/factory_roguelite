@@ -151,10 +151,10 @@ namespace TileEntity.Instances {
             Debug.Log("Teleporting to " + currentCave.name);
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             DimensionManager dimensionManager = DimensionManager.Instance;
-            CaveController caveController = (CaveController)dimensionManager.getDimController(-1);
+            CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
             caveController.setCurrentCave(caveInstance);
             
-            DimensionManager.Instance.setPlayerSystem(playerTransform, -1,spawnPosition);
+            DimensionManager.Instance.SetPlayerSystem(playerTransform, -1,spawnPosition);
             
             TextChatUI.Instance.sendMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }

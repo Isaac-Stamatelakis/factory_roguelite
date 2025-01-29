@@ -23,7 +23,7 @@ namespace DevTools.Structures {
             GameObject.Destroy(activeSystem.gameObject);
         }
 
-        public ClosedChunkSystem activateSystem(Vector2Int dimPositionOffset)
+        public ClosedChunkSystem ActivateSystem()
         {
             if (system == null) {
                 string path = WorldLoadUtils.GetDimPath(0);
@@ -35,12 +35,11 @@ namespace DevTools.Structures {
             IntervalVector bounds = WorldCreation.GetDim0Bounds();
             closedChunkSystemObject.name="Structure";
             activeSystem = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
-            activeSystem.initalize(
+            activeSystem.Initialize(
                 this,
                 coveredArea: bounds,
                 dim: 0,
-                system,
-                dimPositionOffset
+                system
             );
             return activeSystem;
         }
@@ -54,7 +53,7 @@ namespace DevTools.Structures {
             system.Save();
         }
 
-        public ClosedChunkSystem getActiveSystem()
+        public ClosedChunkSystem GetActiveSystem()
         {
             return activeSystem;
         }

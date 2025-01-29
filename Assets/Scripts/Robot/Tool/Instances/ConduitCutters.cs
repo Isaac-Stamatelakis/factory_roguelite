@@ -55,8 +55,8 @@ namespace Robot.Tool.Instances
                     break;
                 case ConduitCutterMode.Disconnect:
                     if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
-                    IWorldTileMap iWorldTileMap = DimensionManager.Instance.getPlayerSystem(
-                        PlayerManager.Instance.GetPlayer().transform).getTileMap(toolData.Type.ToTileMapType()
+                    IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(
+                        PlayerManager.Instance.GetPlayer().transform).GetTileMap(toolData.Type.ToTileMapType()
                     );
                     if (iWorldTileMap is not ConduitTileMap conduitTileMap) return;
                     conduitTileMap.DisconnectConduits(mousePosition);

@@ -147,7 +147,7 @@ namespace PlayerModule {
                 return;
             }
             
-            IChunk chunk = DimensionManager.Instance.getPlayerSystem(transform).getChunk(Global.getChunkFromWorld(transform.position));
+            IChunk chunk = DimensionManager.Instance.GetPlayerSystem(transform).getChunk(Global.getChunkFromWorld(transform.position));
             if (chunk is not ILoadedChunk loadedChunk) return;
             
             ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
@@ -156,12 +156,12 @@ namespace PlayerModule {
         public void DropAll()
         {
             Vector2 position = transform.position;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.getPlayerSystem(transform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(transform);
             Vector2Int chunkPosition = new Vector2Int(Mathf.FloorToInt(position.x/(2*Global.CHUNK_SIZE)), Mathf.FloorToInt(position.y/(2*Global.CHUNK_SIZE)));
             IChunk chunk = closedChunkSystem.getChunk(chunkPosition);
             if (chunk is ILoadedChunk loadedChunk)
             {
-                TileEntityUtils.spawnItemsOnBreak(Inventory,transform.position,loadedChunk,closedChunkSystem);
+                TileEntityUtils.spawnItemsOnBreak(Inventory,transform.position,loadedChunk);
             }
             for (int i = 0; i < Inventory.Count; i++)
             {

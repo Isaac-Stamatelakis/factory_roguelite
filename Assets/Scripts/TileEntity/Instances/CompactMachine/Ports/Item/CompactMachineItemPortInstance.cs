@@ -30,7 +30,7 @@ namespace TileEntity.Instances.CompactMachines {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
 
-        public void syncToCompactMachine(CompactMachineInstance compactMachine)
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             this.compactMachine = compactMachine;
             compactMachine.Inventory.addPort(this,ConduitType.Item);
