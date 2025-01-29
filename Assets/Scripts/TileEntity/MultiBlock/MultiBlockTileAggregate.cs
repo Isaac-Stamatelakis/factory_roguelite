@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace TileEntity.MultiBlock
 {
+    [CreateAssetMenu(fileName ="New Chest",menuName="Tile Entity/MultiBlock/Aggregate")]
     public class MultiBlockTileAggregate : TileEntityObject
     {
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
@@ -13,7 +14,7 @@ namespace TileEntity.MultiBlock
     }
 
 
-    public interface IMultiBlockTileAggregate
+    public interface IMultiBlockTileAggregate : ISoftLoadableTileEntity
     {
         public IMultiBlockTileEntity GetAggregator();
         public void SetAggregator(IMultiBlockTileEntity aggregator);

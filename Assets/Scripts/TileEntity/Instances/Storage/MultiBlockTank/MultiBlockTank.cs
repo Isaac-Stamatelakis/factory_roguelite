@@ -37,6 +37,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         public void AssembleMultiBlock()
         {
             var tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
+            TileEntityUtils.SyncTileMultiBlockAggregates(this,this,tiles);
             size = (uint)tiles.Count;
         }
 
@@ -74,7 +75,6 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
             if (!ItemSlotUtils.AreEqual(fluidSlot, toInsert)) return;
             uint space = size * tileEntityObject.SpacePerTank;
             ItemSlotUtils.InsertIntoSlot(fluidSlot,toInsert,space);
-            //Debug.Log(fluidSlot?.amount);
             DisplayFluid();
         }
 
