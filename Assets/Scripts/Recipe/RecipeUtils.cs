@@ -161,11 +161,6 @@ public static class RecipeUtils {
             switch (recipeType)
             {
                 case RecipeType.Item:
-                    if (recipeObject is not ItemRecipeObject)
-                    {
-                        LogInvalidRecipeWarning(recipeType, recipeProcessor, recipeObject);
-                        return;
-                    }
                     break;
                 case RecipeType.Passive:
                     if (recipeObject is not PassiveItemRecipeObject)

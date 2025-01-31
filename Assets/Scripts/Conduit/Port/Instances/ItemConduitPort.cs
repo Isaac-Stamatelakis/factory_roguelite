@@ -136,12 +136,14 @@ namespace Conduits.Ports {
         public ItemFilter Filter;
         public bool RoundRobin;
         public int RoundRobinIndex;
+        public uint SpeedUpgrades;
 
-        public ItemConduitOutputPortData(int color, bool enabled, int priority, ItemFilter filter, bool roundRobin, int roundRobinIndex) : base(color, enabled, priority)
+        public ItemConduitOutputPortData(int color, bool enabled, int priority, ItemFilter filter, bool roundRobin, int roundRobinIndex, uint speedUpgrades) : base(color, enabled, priority)
         {
             Filter = filter;
             RoundRobin = roundRobin;
             RoundRobinIndex = roundRobinIndex;
+            SpeedUpgrades = speedUpgrades;
         }
     }
 
@@ -164,8 +166,18 @@ namespace Conduits.Ports {
             return Interactable.ExtractItem(state, Position, outputPortData.Filter);
         }
 
-        public uint GetExtractionRate()
+        public uint GetExtractionRate(ItemState itemState)
         {
+            switch (itemState)
+            {
+                case ItemState.Solid:
+                    return (1 + outputPortData.SpeedUpgrades) * Global.SOLID_SPEED_PER_UPGRADE;
+                case ItemState.Fluid:
+                    return (1 + outputPortData.SpeedUpgrades) * Global.FLUID_SPEED_PER_UPGRADE;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(itemState), itemState, null);
+            }
+            
             return ConduitItem.maxSpeed;
         }
     }

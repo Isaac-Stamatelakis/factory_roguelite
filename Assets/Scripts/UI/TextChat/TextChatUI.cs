@@ -183,8 +183,11 @@ namespace UI.Chat {
             if (chatCommand is not IAutoFillChatCommand autoFillChatCommand) {
                 return;
             }
-            int paramIndex = token.Parameters.Length;
 
+            int paramIndex = token.Parameters.Length-1;
+            if (inputField.text.EndsWith(" ")) paramIndex++;
+            if (paramIndex < 0) return;
+            
             string paramPrefix = GetParamPrefix(paramIndex, token);
             
             List<string> suggested = autoFillChatCommand.getAutoFill(paramIndex);
@@ -197,11 +200,7 @@ namespace UI.Chat {
 
         private string GetParamPrefix(int paramIndex, ChatCommandToken token)
         {
-            if (paramIndex == 0)
-            {
-                return "";
-            }
-            return token.Parameters[paramIndex-1];
+            return paramIndex >= token.Parameters.Length ? "" : token.Parameters[paramIndex];
         }
 
         private void fillSuggested(List<string> suggested,string prefix) {

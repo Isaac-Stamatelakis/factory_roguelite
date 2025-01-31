@@ -37,7 +37,7 @@ namespace TileEntity.Instances {
 
         public void Unload()
         {
-            if (!ReferenceEquals(lightObject, null)) return;
+            if (ReferenceEquals(lightObject, null)) return;
             GameObject.Destroy(lightObject);
         }
     }

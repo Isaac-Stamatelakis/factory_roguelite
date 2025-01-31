@@ -45,7 +45,6 @@ namespace Item.Display.ClickHandlers
 
         private void StandardClick(PointerEventData eventData)
         {
-            if (!inventoryUI.ValidateItemSlot(inventoryUI.GetItemSlot(index)) && !inventoryUI.ValidateItemSlot(GrabbedItemProperties.Instance.ItemSlot)) return;
             switch (eventData.button)
             {
                 case PointerEventData.InputButton.Left:

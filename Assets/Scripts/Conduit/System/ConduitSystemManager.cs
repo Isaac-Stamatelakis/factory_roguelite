@@ -67,7 +67,7 @@ namespace Conduits.Systems {
                 return;
             }
             ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
-            if (ReferenceEquals(layout,null)) {
+            if (ReferenceEquals(layout,null) || !layout) {
                 return;
             }
             switch (type) {

@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Conduits;
 using Conduits.Ports;
 using Conduits.Ports.UI;
 using Conduits.Systems;
+using Item.Slot;
 using Items;
+using Items.Inventory;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -23,13 +26,16 @@ namespace Conduit.Port.UI
         [SerializeField] private Transform colorButtonContainer;
         [SerializeField] private Image roundRobinImage;
         [SerializeField] private Button roundRobinButton;
-        [SerializeField] private ItemSlotUI itemSlotUI;
+        [SerializeField] private InventoryUI mFilterInventory;
+        [SerializeField] private InventoryUI mUpgradeInventory;
         private IPortConduit displayedConduit;
         private ConduitPortData portConduitData;
         public void Display(IPortConduit conduit, ConduitPortData portData, PortConnectionType connectionType)
         {
+            portConduitData = portData;
             priorityIterator.gameObject.SetActive(false);
-            itemSlotUI.gameObject.SetActive(false);
+            mFilterInventory.gameObject.SetActive(false);
+            mUpgradeInventory.gameObject.SetActive(false);
             roundRobinImage.gameObject.SetActive(false);
             connectionText.text = connectionType.ToString();
             if (portData == null)
@@ -56,11 +62,22 @@ namespace Conduit.Port.UI
 
             if (portData is ItemConduitInputPortData itemConduitInputPortData)
             {
+                mFilterInventory.gameObject.SetActive(true);
                 // TODO set filter
             }
 
             if (portData is ItemConduitOutputPortData itemConduitOutputPortData)
             {
+                mUpgradeInventory.gameObject.SetActive(true);
+                // All we have to consider is the number of upgrades in the slot
+                const string upgradeId = "conduit_speed_upgrade";
+                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(upgradeId);
+                ItemSlot itemSlot = new ItemSlot(itemObject, itemConduitOutputPortData.SpeedUpgrades, null);
+                
+                mUpgradeInventory.DisplayInventory(new List<ItemSlot>{itemSlot});
+                mUpgradeInventory.SetItemRestriction(itemObject);
+                
+                mUpgradeInventory.AddCallback(OnUpgradeInventoryChange);
                 // TODO set filter
                 roundRobinImage.gameObject.SetActive(true);
                 roundRobinButton.onClick.AddListener(() =>
@@ -70,6 +87,16 @@ namespace Conduit.Port.UI
                 });
             }
         }
+
+        private void OnUpgradeInventoryChange(int index)
+        {
+            var itemConduitPortData = (ItemConduitOutputPortData)portConduitData;
+            ItemSlot speedSlot = mUpgradeInventory.GetInventory()[index];
+            itemConduitPortData.SpeedUpgrades = ItemSlotUtils.IsItemSlotNull(speedSlot) ? 0 : speedSlot.amount;
+            
+        }
+        
+        
 
         private void SetPriorityText(int priority)
         {

@@ -170,8 +170,8 @@ namespace Chunks.Partitions {
                 entity.Load();
             }
             tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
-            if (tileEntity is ITickableTileEntity tickableTileEntity) {
-                tickableTileEntities.Add(tickableTileEntity);
+            if ( tileEntity is ITickableTileEntity tickableTileEntity) {
+                tickableTileEntities?.Add(tickableTileEntity);
             }
         }
 

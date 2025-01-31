@@ -38,7 +38,7 @@ namespace Conduits.Systems {
             }
 
             activeThisTick = true;
-            uint extractionRate = outputPort.GetExtractionRate();
+            uint extractionRate = outputPort.GetExtractionRate(itemState);
             uint amount = toInsert.amount < extractionRate ? toInsert.amount : extractionRate;
             ItemSlot tempItemSlot = new ItemSlot(itemObject: toInsert.itemObject, amount:amount,tags: toInsert.tags);
             foreach (ItemTileEntityPort itemConduitInputPort in inputPorts) {

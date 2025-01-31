@@ -18,7 +18,9 @@ namespace Item.Inventory.ClickHandlers.Instances
             ItemSlot inventorySlot = inventory[index];
             if (ItemSlotUtils.IsItemSlotNull(inventorySlot))
             {
+                
                 if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
+                if ((!inventoryUI.ValidateInput(grabbedSlot))) return;
                 ItemSlot newSlot = new ItemSlot(grabbedSlot.itemObject, 1, grabbedSlot.tags);
                 inventoryUI.SetItem(index,newSlot);
                 grabbedItemProperties.SetDeIterateSlot(null);
@@ -61,17 +63,27 @@ namespace Item.Inventory.ClickHandlers.Instances
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
             ItemSlot inventorySlot = inventory[index];
             ItemSlot grabbedSlot = grabbedItemProperties.ItemSlot;
-            if (grabbedSlot == null) {
-                if (inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return;
+            if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) {
+                // Output 
                 inventory[index] = null;
                 grabbedItemProperties.SetItemSlot(inventorySlot);
                 inventoryUI.DisplayItem(index);
                 inventoryUI.CallListeners(index);
                 return;
             }
-            
+            bool inputEvent = InputFromLeftClick(grabbedSlot,inventorySlot,grabbedItemProperties,inventory);
+            if (!inputEvent) return;
+
+            inventoryUI.DisplayItem(index);
             inventoryUI.CallListeners(index);
-            if (ItemSlotUtils.AreEqual(grabbedSlot,inventorySlot)) {
+        }
+
+        private bool InputFromLeftClick(ItemSlot grabbedSlot, ItemSlot inventorySlot, GrabbedItemProperties grabbedItemProperties, List<ItemSlot> inventory)
+        {
+            if (!inventoryUI.ValidateInput(grabbedSlot) || inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
+            
+            if (ItemSlotUtils.AreEqual(grabbedSlot, inventorySlot))
+            {
                 // Merge
                 uint sum = inventorySlot.amount + grabbedSlot.amount;
                 if (sum > Global.MaxSize) {
@@ -81,29 +93,26 @@ namespace Item.Inventory.ClickHandlers.Instances
                     inventorySlot.amount = sum;
                     grabbedItemProperties.SetItemSlot(null);
                 }
-            } else {
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    if (ReferenceEquals(inventoryUI.Connection, null)) return;
-                    var connectionInventory = inventoryUI.Connection.GetInventory();
-                    if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory,inventory[index],Global.MaxSize))
-                    {
-                        ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], Global.MaxSize);
-                        inventoryUI.Connection.RefreshSlots();
-                        inventoryUI.Connection.CallListeners(0);
-                    }
-                }
-                else
-                {
-                    // Swap
-                    inventory[index] = grabbedItemProperties.ItemSlot;
-                    grabbedItemProperties.SetItemSlot(inventorySlot);
-                }
-                
-            }
 
-            inventoryUI.DisplayItem(index);
-            inventoryUI.CallListeners(index);
+                return true;
+            }
+            
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (ReferenceEquals(inventoryUI.Connection, null)) return false;
+                var connectionInventory = inventoryUI.Connection.GetInventory();
+                if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory,inventory[index],Global.MaxSize))
+                {
+                    ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], Global.MaxSize);
+                    inventoryUI.Connection.RefreshSlots();
+                    inventoryUI.Connection.CallListeners(0);
+                }
+                return true;
+            }
+            // Swap
+            inventory[index] = grabbedItemProperties.ItemSlot;
+            grabbedItemProperties.SetItemSlot(inventorySlot);
+            return true;
         }
         
         protected override void MiddleClick()
@@ -133,8 +142,10 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         private void TakeFromConnection()
         {
+            if (inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return;
             var inventory = inventoryUI.GetInventory();
             ItemSlot inventorySlot = inventory[index];
+
             if (inventorySlot.amount >= Global.MaxSize) return;
             
             var connectionInventory = inventoryUI.Connection.GetInventory();
@@ -155,6 +166,8 @@ namespace Item.Inventory.ClickHandlers.Instances
             var inventory = inventoryUI.GetInventory();
             ItemSlot inventorySlot = inventory[index];
             var connectionInventory = inventoryUI.Connection.GetInventory();
+            
+            if (!inventoryUI.Connection.ValidateInput(inventorySlot)) return;
             
             int firstNullSlot = -1;
             for (var i = 0; i < connectionInventory.Count; i++)

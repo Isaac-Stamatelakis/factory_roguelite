@@ -15,14 +15,11 @@ namespace WorldModule.Caves {
         public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
             SerializedBaseTileData baseData = worldTileData.baseData;
             string baseID = null;
-            foreach (string id in baseData.ids) {
-                if (baseID != null) {
-                    break;
-                }
-                if (id != null) {
-                    baseID = id;
-                    break;
-                }
+            foreach (string id in baseData.ids)
+            {
+                if (id == null) continue;
+                baseID = id;
+                break;
             }
             Debug.Log("Base ID loaded as " + baseID);
             string[,] ids = baseData.ids;

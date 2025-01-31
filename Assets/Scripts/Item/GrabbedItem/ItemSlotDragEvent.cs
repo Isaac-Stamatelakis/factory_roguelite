@@ -30,6 +30,7 @@ namespace Item.GrabbedItem
         public void DragNewSlot(ItemSlotUIClickHandler clickHandler)
         {
             if (ReferenceEquals(clickHandler, null)) return;
+            if (!clickHandler.InventoryUI.ValidateInput(grabbedSlot)) return;
             lastDragged = clickHandler;
             ItemSlot clickHandlerSlot = clickHandler.GetInventoryItem();
             bool slotNull = ItemSlotUtils.IsItemSlotNull(clickHandlerSlot);

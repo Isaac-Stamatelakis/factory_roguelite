@@ -216,6 +216,7 @@ namespace TileMaps {
             
             Vector2Int position = new Vector2Int(x, y);
             IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition == null) return; // Might need this?
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             
