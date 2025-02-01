@@ -6,7 +6,19 @@ namespace Item.Slot
 {
     public static class ItemSlotUtils
     {
-    
+
+        public static void AddTag(ItemSlot itemSlot, ItemTag tag, object value)
+        {
+            if (itemSlot.tags == null)
+            {
+                itemSlot.tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
+            } else if (itemSlot.tags.Dict == null)
+            {
+                itemSlot.tags.Dict = new Dictionary<ItemTag, object>();
+            }
+            itemSlot.tags.Dict[tag] = value;
+            
+        }
         public static bool InventoryAllNull(List<ItemSlot> itemSlots) {
             foreach (ItemSlot itemSlot in itemSlots)
             {

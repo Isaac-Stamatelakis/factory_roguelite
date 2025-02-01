@@ -4,9 +4,11 @@ using Conduits;
 using Conduits.Ports;
 using Conduits.Ports.UI;
 using Conduits.Systems;
+using Item.GrabbedItem;
 using Item.Slot;
 using Items;
 using Items.Inventory;
+using Items.Tags;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -140,15 +142,30 @@ namespace Conduit.Port.UI
                 : new ItemSlot(filterItem, 1, null);
             mFilterInventory.DisplayInventory(new List<ItemSlot>{itemSlot}, clear: false);
             mFilterInventory.SetItemRestriction(filterItem);
+            mFilterInventory.SetMaxSize(1);
             
             mFilterInventory.AddCallback(OnFilterInventoryChange);
         }
         private void OnFilterInventoryChange(int index)
         {
             IFilterConduitPort filterConduitPort = (IFilterConduitPort)portConduitData;
-            ItemSlot filter = mFilterInventory.GetItemSlot(index);
-            filterConduitPort.ItemFilter = ItemSlotUtils.IsItemSlotNull(filter) ? null : new ItemFilter();
-            
+            ItemSlot itemFilterSlot = mFilterInventory.GetItemSlot(index);
+            bool filterRemoved = ItemSlotUtils.IsItemSlotNull(itemFilterSlot);
+            ItemFilter oldFilter = filterConduitPort.ItemFilter;
+            ItemSlot grabbedSlot = GrabbedItemProperties.Instance.ItemSlot;
+            if (filterRemoved)
+            {
+                ItemSlotUtils.AddTag(grabbedSlot, ItemTag.ItemFilter, oldFilter);
+                filterConduitPort.ItemFilter = null;
+            }
+            else
+            {
+                if (itemFilterSlot?.tags?.Dict != null && itemFilterSlot.tags.Dict.TryGetValue(ItemTag.ItemFilter, out var tagObject))
+                {
+                    filterConduitPort.ItemFilter = tagObject as ItemFilter;
+                }
+                filterConduitPort.ItemFilter ??= new ItemFilter();
+            }
         }
 
         

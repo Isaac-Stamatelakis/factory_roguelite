@@ -42,11 +42,13 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             if (grabbedItemProperties.HaveTakenFromSlot(this))
             {
+                if (grabbedSlot.amount >= Global.MaxSize) return;
                 inventorySlot.amount--; 
                 grabbedSlot.amount++;
             }
             else
             {
+                if (inventorySlot.amount >= inventoryUI.MaxSize) return;
                 inventorySlot.amount++;
                 grabbedSlot.amount--;
             }
@@ -97,9 +99,10 @@ namespace Item.Inventory.ClickHandlers.Instances
             {
                 // Merge
                 uint sum = inventorySlot.amount + grabbedSlot.amount;
-                if (sum > Global.MaxSize) {
-                    grabbedSlot.amount = sum-Global.MaxSize;
-                    inventorySlot.amount = Global.MaxSize;
+                uint maxSize = inventoryUI.MaxSize;
+                if (sum > maxSize) {
+                    grabbedSlot.amount = sum-maxSize;
+                    inventorySlot.amount = maxSize;
                 } else { // Overflow
                     inventorySlot.amount = sum;
                     grabbedItemProperties.SetItemSlot(null);
@@ -120,9 +123,9 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             if (ReferenceEquals(inventoryUI.Connection, null)) return false;
             var connectionInventory = inventoryUI.Connection.GetInventory();
-            if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory, inventory[index], Global.MaxSize))
+            if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory, inventory[index], inventoryUI.Connection.MaxSize))
             {
-                ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], inventoryUI.MaxSize);
                 inventoryUI.Connection.RefreshSlots();
                 inventoryUI.Connection.CallListeners(0);
             }
@@ -161,7 +164,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             var inventory = inventoryUI.GetInventory();
             ItemSlot inventorySlot = inventory[index];
 
-            if (inventorySlot.amount >= Global.MaxSize) return;
+            if (inventorySlot.amount >= inventoryUI.MaxSize) return;
             
             var connectionInventory = inventoryUI.Connection.GetInventory();
             foreach (ItemSlot connectionSlot in connectionInventory)
@@ -197,7 +200,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                     continue;
                 }
                 if (!ItemSlotUtils.AreEqualNoNullCheck(connectionSlot, inventorySlot)) continue;
-                
+                if (connectionSlot.amount >= inventoryUI.Connection.MaxSize) continue;
                 connectionSlot.amount++;
                 inventorySlot.amount--;
                 CallInventoryUIListeners();

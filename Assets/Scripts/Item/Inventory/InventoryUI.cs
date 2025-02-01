@@ -49,6 +49,8 @@ namespace Items.Inventory {
         public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
         private bool enableToolTip = true;
         public bool EnableToolTip => enableToolTip;
+        private uint maxStackSize = Global.MaxSize; // TODO Change this for fluids
+        public uint MaxSize => maxStackSize;
         
         public void Awake()
         {
@@ -165,6 +167,11 @@ namespace Items.Inventory {
         public void SetRefresh(bool refresh)
         {
             this.refresh = refresh;
+        }
+
+        public void SetMaxSize(uint max)
+        {
+            maxStackSize = max;
         }
 
         public void FixedUpdate()
