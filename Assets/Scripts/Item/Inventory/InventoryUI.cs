@@ -37,6 +37,7 @@ namespace Items.Inventory {
         protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
+        protected List<Action<int>> callbacks = new List<Action<int>>();
         private int highlightedSlot = -1;
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
@@ -44,6 +45,7 @@ namespace Items.Inventory {
         private HashSet<ItemTag> tagRestrictions = new HashSet<ItemTag>();
         public InventoryUI Connection => connection;
         private InventoryRestrictionMode restrictionMode;
+        private string restrictedItemId;
         public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
         private bool enableToolTip = true;
         public bool EnableToolTip => enableToolTip;
@@ -137,11 +139,21 @@ namespace Items.Inventory {
             listeners.Add(listener);
         }
 
+        public void AddCallback(Action<int> callback)
+        {
+            callbacks.Add(callback);
+        }
+
         public void CallListeners(int index)
         {
             foreach (IInventoryListener listener in listeners)
             {
                 listener.InventoryUpdate(index);
+            }
+
+            foreach (Action<int> callback in callbacks)
+            {
+                callback?.Invoke(index);
             }
         }
 
@@ -238,9 +250,14 @@ namespace Items.Inventory {
             slots[highlightedSlot].GetComponent<Image>().color = new Color(255/255f,215/255f,0,100/255f);
         }
 
-        public void AddRestriction(ItemTag itemTag)
+        public void AddTagRestriction(ItemTag itemTag)
         {
             tagRestrictions.Add(itemTag);
+        }
+
+        public void SetItemRestriction(ItemObject itemObject)
+        {
+            restrictedItemId = itemObject?.id;
         }
 
         public void RemoveRestriction(ItemTag itemTag)
@@ -253,10 +270,13 @@ namespace Items.Inventory {
             this.restrictionMode = inventoryRestrictionMode;
         }
 
-        public bool ValidateItemSlot(ItemSlot itemSlot)
+        public bool ValidateInput(ItemSlot itemSlot)
         {
-            if (restrictionMode == InventoryRestrictionMode.None) return true;
+            if (InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return false;
+            if (restrictedItemId != null && itemSlot.itemObject.id != restrictedItemId) return false;
+            
+            if (restrictionMode == InventoryRestrictionMode.None) return true;
             
             switch (restrictionMode)
             {

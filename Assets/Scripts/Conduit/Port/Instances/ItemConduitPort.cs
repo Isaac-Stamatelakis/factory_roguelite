@@ -123,25 +123,43 @@ namespace Conduits.Ports {
         }
     }
 
-    public class ItemConduitInputPortData : PriorityConduitPortData
+    public interface IFilterConduitPort
+    {
+        public ItemFilter ItemFilter { get; set; }
+    }
+    public class ItemConduitInputPortData : PriorityConduitPortData, IFilterConduitPort
     {
         public ItemFilter Filter;
         public ItemConduitInputPortData(int color, bool enabled, int priority, ItemFilter filter) : base(color, enabled, priority)
         {
             Filter = filter;
         }
+
+        public ItemFilter ItemFilter
+        {
+            get => Filter;
+            set => Filter = value;
+        }
     }
-    public class ItemConduitOutputPortData : PriorityConduitPortData
+    public class ItemConduitOutputPortData : PriorityConduitPortData, IFilterConduitPort
     {
         public ItemFilter Filter;
         public bool RoundRobin;
         public int RoundRobinIndex;
+        public uint SpeedUpgrades;
 
-        public ItemConduitOutputPortData(int color, bool enabled, int priority, ItemFilter filter, bool roundRobin, int roundRobinIndex) : base(color, enabled, priority)
+        public ItemConduitOutputPortData(int color, bool enabled, int priority, ItemFilter filter, bool roundRobin, int roundRobinIndex, uint speedUpgrades) : base(color, enabled, priority)
         {
             Filter = filter;
             RoundRobin = roundRobin;
             RoundRobinIndex = roundRobinIndex;
+            SpeedUpgrades = speedUpgrades;
+        }
+
+        public ItemFilter ItemFilter
+        {
+            get => Filter;
+            set => Filter = value;
         }
     }
 
@@ -164,9 +182,17 @@ namespace Conduits.Ports {
             return Interactable.ExtractItem(state, Position, outputPortData.Filter);
         }
 
-        public uint GetExtractionRate()
+        public uint GetExtractionRate(ItemState itemState)
         {
-            return ConduitItem.maxSpeed;
+            switch (itemState)
+            {
+                case ItemState.Solid:
+                    return (1 + outputPortData.SpeedUpgrades) * Global.SOLID_SPEED_PER_UPGRADE;
+                case ItemState.Fluid:
+                    return (1 + outputPortData.SpeedUpgrades) * Global.FLUID_SPEED_PER_UPGRADE;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(itemState), itemState, null);
+            }
         }
     }
     

@@ -189,6 +189,7 @@ namespace TileEntity.Instances.SimonSays {
 
                 foreach (ItemSlot itemSlot in loot)
                 {
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
                     itemConduitInteractable.InsertItem(ItemState.Solid, itemSlot, Vector2Int.zero);
                 }
 

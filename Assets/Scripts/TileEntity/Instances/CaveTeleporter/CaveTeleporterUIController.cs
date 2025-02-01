@@ -32,7 +32,7 @@ namespace TileEntity.Instances {
             caveTeleporterInstance = tileEntityInstance;
             caveSelectController.DisplayEmpty();
             mInventoryUI.DisplayInventory(tileEntityInstance.CaveStorageDrives);
-            mInventoryUI.AddRestriction(ItemTag.CaveData);
+            mInventoryUI.AddTagRestriction(ItemTag.CaveData);
             mInventoryUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mInventoryUI.AddListener(this);
             GlobalHelper.deleteAllChildren(mButtonList.transform);

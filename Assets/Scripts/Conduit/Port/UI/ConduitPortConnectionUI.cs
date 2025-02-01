@@ -1,11 +1,17 @@
+using System.Collections.Generic;
+using Conduit.Filter;
 using Conduits;
 using Conduits.Ports;
 using Conduits.Ports.UI;
 using Conduits.Systems;
+using Item.Slot;
 using Items;
+using Items.Inventory;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 using Button = UnityEngine.UI.Button;
 using Toggle = UnityEngine.UI.Toggle;
@@ -23,14 +29,21 @@ namespace Conduit.Port.UI
         [SerializeField] private Transform colorButtonContainer;
         [SerializeField] private Image roundRobinImage;
         [SerializeField] private Button roundRobinButton;
-        [SerializeField] private ItemSlotUI itemSlotUI;
+        [SerializeField] private InventoryUI mFilterInventory;
+        [SerializeField] private InventoryUI mUpgradeInventory;
+        [SerializeField] private Button mEditFilterButton;
         private IPortConduit displayedConduit;
         private ConduitPortData portConduitData;
+        private ItemFilterUI itemFilterUIPrefab;
         public void Display(IPortConduit conduit, ConduitPortData portData, PortConnectionType connectionType)
         {
+            portConduitData = portData;
             priorityIterator.gameObject.SetActive(false);
-            itemSlotUI.gameObject.SetActive(false);
+            mFilterInventory.gameObject.SetActive(false);
+            mUpgradeInventory.gameObject.SetActive(false);
             roundRobinImage.gameObject.SetActive(false);
+            mEditFilterButton.gameObject.SetActive(false);
+            
             connectionText.text = connectionType.ToString();
             if (portData == null)
             {
@@ -54,22 +67,93 @@ namespace Conduit.Port.UI
                 SetPriorityText(priorityConduitPortData.Priority);
             }
 
-            if (portData is ItemConduitInputPortData itemConduitInputPortData)
+            if (portData is IFilterConduitPort filterConduitPort)
             {
-                // TODO set filter
+                InitializeFilterInventory(filterConduitPort);
+                mEditFilterButton.onClick.AddListener(EditFilterButtonPress);
+                mEditFilterButton.gameObject.SetActive(true);
+                var handle = Addressables.LoadAssetAsync<GameObject>(ItemFilterUI.ADDRESSABLE_PATH);
+                handle.Completed += OnFilterPrefabLoad;
             }
 
             if (portData is ItemConduitOutputPortData itemConduitOutputPortData)
             {
-                // TODO set filter
+                mUpgradeInventory.gameObject.SetActive(true);
+                // All we have to consider is the number of upgrades in the slot
+                const string upgradeId = "conduit_speed_upgrade";
+                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(upgradeId);
+                ItemSlot itemSlot = new ItemSlot(itemObject, itemConduitOutputPortData.SpeedUpgrades, null);
+                
+                mUpgradeInventory.DisplayInventory(new List<ItemSlot>{itemSlot});
+                mUpgradeInventory.SetItemRestriction(itemObject);
+                
+                mUpgradeInventory.AddCallback(OnUpgradeInventoryChange);
+                
                 roundRobinImage.gameObject.SetActive(true);
                 roundRobinButton.onClick.AddListener(() =>
                 {
                     itemConduitOutputPortData.RoundRobin = !itemConduitOutputPortData.RoundRobin;
-                    displayedConduit.GetConduitSystem().Rebuild(); // TODO make this more efficent
+                    displayedConduit.GetConduitSystem().Rebuild();
                 });
             }
         }
+
+        private void EditFilterButtonPress()
+        {
+            IFilterConduitPort filterConduitPort = (IFilterConduitPort)portConduitData;
+            if (filterConduitPort.ItemFilter == null) return;
+            ItemFilterUI itemFilterUI = GameObject.Instantiate(itemFilterUIPrefab);
+            itemFilterUI.Initialize(filterConduitPort.ItemFilter);
+            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(itemFilterUI.gameObject);
+        }
+        
+        private void OnFilterPrefabLoad(AsyncOperationHandle<GameObject> handle)
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                itemFilterUIPrefab = handle.Result.GetComponent<ItemFilterUI>();
+            }
+            else
+            {
+                Debug.LogError("Failed to load asset: " + handle.OperationException);
+            }
+            Addressables.Release(handle);
+        }
+
+        private void InitializeFilterInventory(IFilterConduitPort filterConduitPort)
+        {
+            mFilterInventory.gameObject.SetActive(true);
+            
+            const string filterId = "item_filter";
+            ItemFilter filter = filterConduitPort.ItemFilter;
+            ItemObject filterItem = ItemRegistry.GetInstance().GetItemObject(filterId);
+            ItemSlot itemSlot = filter == null
+                ? null
+                : new ItemSlot(filterItem, 1, null);
+            mFilterInventory.DisplayInventory(new List<ItemSlot>{itemSlot}, clear: false);
+            mFilterInventory.SetItemRestriction(filterItem);
+            
+            mFilterInventory.AddCallback(OnFilterInventoryChange);
+        }
+        private void OnFilterInventoryChange(int index)
+        {
+            IFilterConduitPort filterConduitPort = (IFilterConduitPort)portConduitData;
+            ItemSlot filter = mFilterInventory.GetItemSlot(index);
+            filterConduitPort.ItemFilter = ItemSlotUtils.IsItemSlotNull(filter) ? null : new ItemFilter();
+            
+        }
+
+        
+
+        private void OnUpgradeInventoryChange(int index)
+        {
+            var itemConduitPortData = (ItemConduitOutputPortData)portConduitData;
+            ItemSlot speedSlot = mUpgradeInventory.GetInventory()[index];
+            itemConduitPortData.SpeedUpgrades = ItemSlotUtils.IsItemSlotNull(speedSlot) ? 0 : speedSlot.amount;
+            
+        }
+        
+        
 
         private void SetPriorityText(int priority)
         {

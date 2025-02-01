@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using Conduits.Ports;
+using Item.Slot;
 using UnityEngine;
 
 namespace Conduits.Systems
 {
     public interface ITileEntityResourcePort : IColoredTileEntityPort
     {
-        public uint GetExtractionRate();
+        public uint GetExtractionRate(ItemState itemState);
     }
     public abstract class ResourceColoredIOPortConduitSystem<TTileEntityPort> : ColoredIOPortConduitSystem<TTileEntityPort>
         where TTileEntityPort : IColoredTileEntityPort, IOConduitPort

@@ -4,31 +4,22 @@ using Item.Slot;
 using UnityEngine;
 
 namespace Conduits.Ports {
-    [System.Serializable]
     public class ItemFilter : IFilter
     {
-        public List<ItemSlot> items;
-        public bool whitelist;
-        public bool matchNBT;
-        public bool Filter(ItemSlot itemSlot) {
-            foreach (ItemSlot inFilter in items) {
-                if (inFilter == null || inFilter.itemObject == null) {
-                    continue;
-                }
-                if (itemSlot.itemObject.id != inFilter.itemObject.id) {
-                    continue;
-                } 
-                if (!matchNBT && whitelist) {
-                    return true;
-                }
-                if (itemSlot.tags.Equals(inFilter.tags)) {
-                    if (whitelist) {
-                        return true;
-                    }
-                }
+        public List<string> ids;
+        public bool whitelist = true;
+        public bool Filter(ItemSlot itemSlot)
+        {
+            if (ids == null) return true;
+            foreach (string id in ids)
+            {
+                if (itemSlot.itemObject.id == id) return whitelist;
             }
+
             return !whitelist;
         }
+        
+        
     }
 
     

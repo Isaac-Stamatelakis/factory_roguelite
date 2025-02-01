@@ -16,7 +16,7 @@ namespace Item.Display.ClickHandlers
         public InventoryUI InventoryUI => inventoryUI;
         protected int index;
         public int Index => index;
-        public ItemSlotUI ItemSlotUI;
+        [NonSerialized] public ItemSlotUI ItemSlotUI;
         public void Initialize(InventoryUI parent, int index) {
             this.inventoryUI = parent;
             this.index = index;
@@ -45,7 +45,6 @@ namespace Item.Display.ClickHandlers
 
         private void StandardClick(PointerEventData eventData)
         {
-            if (!inventoryUI.ValidateItemSlot(inventoryUI.GetItemSlot(index)) && !inventoryUI.ValidateItemSlot(GrabbedItemProperties.Instance.ItemSlot)) return;
             switch (eventData.button)
             {
                 case PointerEventData.InputButton.Left:

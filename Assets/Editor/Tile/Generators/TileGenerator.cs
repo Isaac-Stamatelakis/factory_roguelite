@@ -93,6 +93,7 @@ public class TileGeneratorWindow : EditorWindow
             dropOption
         };
         AssetDatabase.SaveAssetIfDirty(tileItem);
+        AssetDatabase.Refresh();
     }
 
     private Sprite[] GenerateMixedSprites(string creationPath, Texture2D oreTexture, Texture2D rockTexture)

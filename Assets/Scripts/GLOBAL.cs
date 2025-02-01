@@ -14,6 +14,8 @@ public static class Global
     public const int CHUNK_PARTITION_SIZE = 4;
     private static Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     private static  int chunkPartitionExtraTileEntityLoadRange = 2;
+    public const uint SOLID_SPEED_PER_UPGRADE = 4;
+    public const uint FLUID_SPEED_PER_UPGRADE = 16;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     
     public static  int ChunkLoadRangeX {get {return chunkLoadRange.x;}}

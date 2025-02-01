@@ -133,7 +133,7 @@ namespace TileEntity.Instances {
                 Directory.Delete(path, true);
             }
             WorldLoadUtils.createDimFolder(-1);
-            SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(-2147483648,2147483647));
+            SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(int.MinValue,int.MaxValue));
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             WorldGenerationFactory.SaveToJson(
@@ -148,6 +148,7 @@ namespace TileEntity.Instances {
             Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
+            
             Debug.Log("Teleporting to " + currentCave.name);
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             DimensionManager dimensionManager = DimensionManager.Instance;
