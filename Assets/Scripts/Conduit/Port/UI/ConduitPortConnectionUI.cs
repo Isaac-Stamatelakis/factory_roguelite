@@ -88,14 +88,22 @@ namespace Conduit.Port.UI
                 mUpgradeInventory.SetItemRestriction(itemObject);
                 
                 mUpgradeInventory.AddCallback(OnUpgradeInventoryChange);
-                
+                SetRoundRobinColor();
                 roundRobinImage.gameObject.SetActive(true);
                 roundRobinButton.onClick.AddListener(() =>
                 {
+                    
                     itemConduitOutputPortData.RoundRobin = !itemConduitOutputPortData.RoundRobin;
+                    SetRoundRobinColor();
                     displayedConduit.GetConduitSystem().Rebuild();
                 });
             }
+        }
+
+        private void SetRoundRobinColor()
+        {
+            ItemConduitOutputPortData itemConduitOutputPortData = (ItemConduitOutputPortData)portConduitData;
+            roundRobinButton.GetComponent<Image>().color = itemConduitOutputPortData.RoundRobin ? Color.green : Color.grey;
         }
 
         private void EditFilterButtonPress()

@@ -145,7 +145,7 @@ namespace Conduits.Ports {
             return portDataType switch
             {
                 PortDataType.ItemInput => new ItemConduitInputPortData(0, true, 0, null),
-                PortDataType.ItemOutput => new ItemConduitOutputPortData(0, true, 0, null, false, 0,0),
+                PortDataType.ItemOutput => new ItemConduitOutputPortData(0, false, 0, null, false, 0,0),
                 PortDataType.Standard => new ConduitPortData(0, true),
                 PortDataType.Priority => new PriorityConduitPortData(0, true, 0),
                 _ => throw new ArgumentOutOfRangeException(nameof(portDataType), portDataType, null)
