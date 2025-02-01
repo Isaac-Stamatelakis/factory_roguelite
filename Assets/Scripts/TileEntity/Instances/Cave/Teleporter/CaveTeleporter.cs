@@ -4,7 +4,7 @@ using Chunks;
 using UnityEngine;
 
 namespace TileEntity.Instances {
-    [CreateAssetMenu(fileName = "New Cave Teleporter", menuName = "Tile Entity/CaveTeleporter")]
+    [CreateAssetMenu(fileName = "New Cave Teleporter", menuName = "Tile Entity/Cave/Teleporter")]
     public class CaveTeleporter : TileEntityObject, IManagedUITileEntity
     {
         public TileEntityUIManager uIManager;
