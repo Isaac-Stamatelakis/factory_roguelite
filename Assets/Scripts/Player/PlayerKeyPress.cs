@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.Display.ClickHandlers;
 using Item.Inventory;
+using Item.Inventory.ClickHandlers.Instances;
+using Item.Tags;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
@@ -44,6 +46,7 @@ namespace PlayerModule.KeyPress {
         // Update is called once per frame
         void Update()
         {
+            inventoryKeyPresses();
             if (PlayerKeyPressUtils.BlockKeyInput) return;
             
             if (Input.GetKeyDown(KeyCode.E)) {
@@ -57,7 +60,7 @@ namespace PlayerModule.KeyPress {
             */
             
             inventoryNavigationKeys();
-            inventoryKeyPresses();
+            
 
         }
 
@@ -107,6 +110,15 @@ namespace PlayerModule.KeyPress {
             {
                 ItemSlotUIClickHandler clickHandler = GetPointerOverComponent<ItemSlotUIClickHandler>();
                 clickHandler?.ShowUses();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+                ItemSlotUIClickHandler clickHandler = GetPointerOverComponent<ItemSlotUIClickHandler>();
+                if (clickHandler is ITagEditableItemSlotUI)
+                {
+                    ItemSlotTagEditor.EditItemTag(clickHandler.GetInventoryItem());
+                }
             }
         }
 

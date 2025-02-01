@@ -8,8 +8,14 @@ using Items.Tags;
 using UnityEngine;
 
 namespace Item.Inventory.ClickHandlers.Instances
+
+
 {
-    public class SolidItemClickHandler : ItemSlotUIClickHandler
+    public interface ITagEditableItemSlotUI
+    {
+        
+    }
+    public class SolidItemClickHandler : ItemSlotUIClickHandler, ITagEditableItemSlotUI
     {
         protected override void RightClick() {
             GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
