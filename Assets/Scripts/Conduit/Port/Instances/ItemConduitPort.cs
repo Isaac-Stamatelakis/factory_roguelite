@@ -123,15 +123,25 @@ namespace Conduits.Ports {
         }
     }
 
-    public class ItemConduitInputPortData : PriorityConduitPortData
+    public interface IFilterConduitPort
+    {
+        public ItemFilter ItemFilter { get; set; }
+    }
+    public class ItemConduitInputPortData : PriorityConduitPortData, IFilterConduitPort
     {
         public ItemFilter Filter;
         public ItemConduitInputPortData(int color, bool enabled, int priority, ItemFilter filter) : base(color, enabled, priority)
         {
             Filter = filter;
         }
+
+        public ItemFilter ItemFilter
+        {
+            get => Filter;
+            set => Filter = value;
+        }
     }
-    public class ItemConduitOutputPortData : PriorityConduitPortData
+    public class ItemConduitOutputPortData : PriorityConduitPortData, IFilterConduitPort
     {
         public ItemFilter Filter;
         public bool RoundRobin;
@@ -144,6 +154,12 @@ namespace Conduits.Ports {
             RoundRobin = roundRobin;
             RoundRobinIndex = roundRobinIndex;
             SpeedUpgrades = speedUpgrades;
+        }
+
+        public ItemFilter ItemFilter
+        {
+            get => Filter;
+            set => Filter = value;
         }
     }
 
@@ -177,8 +193,6 @@ namespace Conduits.Ports {
                 default:
                     throw new ArgumentOutOfRangeException(nameof(itemState), itemState, null);
             }
-            
-            return ConduitItem.maxSpeed;
         }
     }
     
