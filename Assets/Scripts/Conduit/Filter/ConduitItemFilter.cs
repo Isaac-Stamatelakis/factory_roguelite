@@ -4,11 +4,10 @@ using Item.Slot;
 using UnityEngine;
 
 namespace Conduits.Ports {
-    [System.Serializable]
     public class ItemFilter : IFilter
     {
         public List<string> ids;
-        public bool whitelist;
+        public bool whitelist = true;
         public bool Filter(ItemSlot itemSlot)
         {
             if (ids == null) return true;

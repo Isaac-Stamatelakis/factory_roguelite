@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -50,12 +51,13 @@ namespace Items {
         public Transform TagBehindContainer;
         public Transform TagFrontContainer;
         private ItemDisplayList currentDisplayList;
+        [NonSerialized] public bool Paused;
         
         private int counter;
         private ItemSlot displayedSlot;
         
         public void FixedUpdate() {
-            if (currentDisplayList == null)
+            if (currentDisplayList == null || Paused)
             {
                 return;
             }
@@ -101,6 +103,7 @@ namespace Items {
         
         public void Display(ItemSlot itemSlot)
         {
+            if (Paused) return;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
                 Unload();

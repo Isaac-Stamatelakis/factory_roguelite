@@ -14,6 +14,7 @@ namespace Conduit.Filter
     {
         public const string ADDRESSABLE_PATH = "Assets/Prefabs/UI/ConduitPort/FilterEditor.prefab";
         [SerializeField] private Button mToggleRestrictionButton;
+        [SerializeField] private Image mWhiteListImage;
         [SerializeField] private TextMeshProUGUI mRestrictionText;
         [SerializeField] private InventoryUI mInventoryUI;
         
@@ -60,7 +61,7 @@ namespace Conduit.Filter
 
         private void Display()
         {
-            mToggleRestrictionButton.GetComponent<Image>().color = itemFilter.whitelist ? 
+            mWhiteListImage.color = itemFilter.whitelist ? 
                 new Color(244f/255,243f/255,244f/255,1f) : // Anti-flash white
                 new Color(72f/255,72f/255,72f/255,1f); // Dark Grey
             mRestrictionText.text = itemFilter.whitelist ? "White List" : "Black List";

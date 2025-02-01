@@ -47,7 +47,9 @@ namespace Item.GrabbedItem
             ItemSlot temp = new ItemSlot(grabbedSlot.itemObject, amount, grabbedSlot.tags);
             foreach (ItemSlotUIClickHandler draggedSlot in toSplit)
             {
+                draggedSlot.ItemSlotUI.Paused = false; // scuffed
                 draggedSlot.ItemSlotUI.Display(temp);
+                draggedSlot.ItemSlotUI.Paused = true;
             }
             GrabbedItemProperties.Instance.DisplayTemp(temp);
             
@@ -58,7 +60,9 @@ namespace Item.GrabbedItem
             foreach (ItemSlotUIClickHandler draggedSlot in toSplit)
             {
                 ItemSlot clickHandlerSlot = draggedSlot.GetInventoryItem();
+                draggedSlot.ItemSlotUI.Paused = false;
                 draggedSlot.ItemSlotUI.Display(clickHandlerSlot);
+                
             }
             GrabbedItemProperties.Instance.UpdateSprite();
         }
@@ -69,7 +73,9 @@ namespace Item.GrabbedItem
             foreach (ItemSlotUIClickHandler draggedSlot in toSplit)
             {
                 ItemSlot newSlot = new ItemSlot(grabbedSlot.itemObject, amount, grabbedSlot.tags);
+                draggedSlot.ItemSlotUI.Paused = false;
                 draggedSlot.SetInventoryItem(newSlot);
+                
             }
             grabbedSlot.amount -= GetAmountFromGrabbed();
             ItemSlotUtils.InsertIntoSlot(lastDragged.GetInventoryItem(),grabbedSlot,Global.MaxSize);
