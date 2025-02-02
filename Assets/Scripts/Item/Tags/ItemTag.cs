@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Conduits.Ports;
 using Item.Slot;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -19,7 +20,6 @@ namespace Items.Tags {
         Inventory,
         RobotBlueprint,
         ItemFilter,
-        FluidFilter,
         EncodedRecipe,
         StorageDrive,
         RobotData,
@@ -34,7 +34,8 @@ namespace Items.Tags {
             { ItemTag.StorageDrive, serializeStorageDriver },
             { ItemTag.EncodedRecipe, seralizeEncodedRecipe },
             { ItemTag.RobotData, seralizeRobot },
-            { ItemTag.CaveData, SerializeCaveData}
+            { ItemTag.CaveData, SerializeCaveData},
+            { ItemTag.ItemFilter, SerializeItemFilter}
         };
         
         private static readonly Dictionary<ItemTag, Func<string, object>> deserializationMap = new()
@@ -45,17 +46,18 @@ namespace Items.Tags {
             { ItemTag.StorageDrive, data => ItemSlotFactory.Deserialize(data) },
             { ItemTag.EncodedRecipe, data => EncodedRecipeFactory.deseralize(data) },
             { ItemTag.RobotData, data => RobotDataFactory.Deserialize(data) },
-            { ItemTag.CaveData, data => data}
+            { ItemTag.CaveData, data => data},
+            { ItemTag.ItemFilter, DeserializeItemFilter}
         };
         public static string serialize(this ItemTag tag, ItemTagCollection tagCollection) {
             if (!tagCollection.Dict.ContainsKey(tag)) {
-                Debug.LogError("Attempted to Deserialize " + tag + " which was not in TagCollection");
+                Debug.LogError("Attempted to serialize " + tag + " which was not in TagCollection");
                 return null;
             }
 
             if (!serializationFunctions.ContainsKey(tag))
             {
-                Debug.LogWarning($"Attempted to deserialize tag '{tag}' with no deserialization function");
+                Debug.LogWarning($"Attempted to serialize tag '{tag.ToString()}' with no serialization function");
                 return null;
             }
             
@@ -70,6 +72,18 @@ namespace Items.Tags {
             return null;
         }
 
+        private static string SerializeItemFilter(object filter)
+        {
+            ItemFilter itemFilter = filter as ItemFilter;
+            return JsonConvert.SerializeObject(itemFilter);
+        }
+
+        private static object DeserializeItemFilter(string value)
+        {
+            if (value == null) return null;
+            return JsonConvert.DeserializeObject<ItemFilter>(value);
+        }
+        
         private static void logInvalidType(ItemTag tag) {
             Debug.LogError(tag + " had invalid type in dict");
         }

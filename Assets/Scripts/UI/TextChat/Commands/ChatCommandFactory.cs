@@ -10,8 +10,8 @@ using Items;
 namespace UI.Chat {
     public static class ChatCommandFactory {
         private static readonly Dictionary<string, Func<string[], TextChatUI, ChatCommand>> commandMap = 
-            new Dictionary<string, Func<string[], TextChatUI, ChatCommand>>
-        {
+            new()
+            {
             { "help", (parameters, ui) => new HelpCommand(parameters, ui) },
             { "setdim", (parameters, ui) => new SetDimCommand(parameters, ui) },
             { "light", (parameters, ui) => new SetLightCommand(parameters, ui) },

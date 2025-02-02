@@ -132,24 +132,22 @@ namespace TileMaps {
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
             CallListeners(position);
+            if (tileEntity is IMultiBlockTileEntity multiBlockTileEntity)
+            {
+                List<IMultiBlockTileAggregate> aggregates = TileEntityUtils.BFSTileEntityComponent<IMultiBlockTileAggregate>(tileEntity,TileType.Block);
+                foreach (IMultiBlockTileAggregate aggregate in aggregates)
+                {
+                    if (!ReferenceEquals(aggregate.GetAggregator(),multiBlockTileEntity)) continue;
+                    aggregate.SetAggregator(null);
+                }
+            }
             if (tileEntity is IMultiBlockTileAggregate multiBlockTileAggregate)
             {
-                UpdateMultiBlockOnBreak(multiBlockTileAggregate);
+                IMultiBlockTileEntity aggregator = multiBlockTileAggregate.GetAggregator();
+                if (aggregator == null) return;
+                TileEntityUtils.RefreshMultiBlock(aggregator);
             }
         }
-
-        private void UpdateMultiBlockOnBreak(IMultiBlockTileAggregate multiBlockTileAggregate)
-        {
-            IMultiBlockTileEntity aggregator = multiBlockTileAggregate.GetAggregator();
-            if (aggregator == null) return;
-            
-            ILoadableTileEntity loadableTileEntity = aggregator as ILoadableTileEntity;
-            loadableTileEntity?.Unload();
-            aggregator.AssembleMultiBlock();
-            loadableTileEntity?.Load();
-        }
-
-        
 
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);

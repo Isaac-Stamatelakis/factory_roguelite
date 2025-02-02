@@ -6,7 +6,40 @@ namespace Item.Slot
 {
     public static class ItemSlotUtils
     {
-    
+        
+        /// <summary>
+        /// Builds tag dict in itemslot if null
+        /// </summary>
+        /// <param name="itemSlot"></param>
+        /// <returns>True if dict was null, false if no build required</returns>
+        public static bool BuildTagDictIfNull(ItemSlot itemSlot)
+        {
+            if (itemSlot.tags == null)
+            {
+                itemSlot.tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
+                return true;
+            }
+
+            if (itemSlot.tags.Dict == null)
+            {
+                itemSlot.tags.Dict = new Dictionary<ItemTag, object>();
+                return true;
+            }
+
+            return false;
+        }
+        public static void AddTag(ItemSlot itemSlot, ItemTag tag, object value)
+        {
+            if (itemSlot.tags == null)
+            {
+                itemSlot.tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
+            } else if (itemSlot.tags.Dict == null)
+            {
+                itemSlot.tags.Dict = new Dictionary<ItemTag, object>();
+            }
+            itemSlot.tags.Dict[tag] = value;
+            
+        }
         public static bool InventoryAllNull(List<ItemSlot> itemSlots) {
             foreach (ItemSlot itemSlot in itemSlots)
             {

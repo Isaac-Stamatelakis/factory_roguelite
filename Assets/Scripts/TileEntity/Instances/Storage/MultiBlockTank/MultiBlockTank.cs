@@ -48,21 +48,6 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
             if (fluidSlot?.amount > maxSpace) fluidSlot.amount = maxSpace;
         }
 
-        public List<Vector2Int> GetConnectedPositions()
-        {
-            if (fluidHeightMap == null) return null;
-            List<Vector2Int> vector2Ints = new List<Vector2Int>();
-            foreach (var (y, xCoords) in fluidHeightMap)
-            {
-                foreach (int x in xCoords)
-                {
-                    vector2Ints.Add(new Vector2Int(x,y));
-                }
-            }
-
-            return vector2Ints;
-        }
-
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             if (state != ItemState.Fluid) return null;
@@ -98,9 +83,11 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         public void Load()
         {
             if (size == 0) return;
-            minY = int.MaxValue;
-            maxY = int.MinValue;
+            Vector2Int cellPosition = getCellPosition();
+            minY = cellPosition.y;
+            maxY = cellPosition.y;
             fluidHeightMap = new Dictionary<int, List<int>>();
+            
             var tiles = TileEntityUtils.BFSTile(this, tileEntityObject.TankTile);
             foreach (Vector2Int tilePosition in tiles)
             {
@@ -123,7 +110,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         private void DisplayFluid()
         {
             if (fluidHeightMap == null || chunk is not ILoadedChunk loadedChunk || fluidSlot?.itemObject is not FluidTileItem fluidTileItem) return;
-
+            
             ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
             uint remainingAmount = fluidSlot.amount;

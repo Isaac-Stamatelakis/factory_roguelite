@@ -17,7 +17,7 @@ namespace Items {
 
         public GameStageObject gameStage;
         
-        [SerializeField] private List<ItemTag> ApplyableTags;
+        [SerializeField] public List<ItemTag> ApplyableTags;
 
         public bool CanApplyTag(ItemTag tag)
         {

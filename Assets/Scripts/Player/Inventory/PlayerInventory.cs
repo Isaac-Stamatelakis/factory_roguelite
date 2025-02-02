@@ -23,7 +23,7 @@ using TileEntity;
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
-        public static readonly int COLUMNS = 10;
+        public const int COLUMNS = 10;
         [SerializeField] private PlayerRobot playerRobot;
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;

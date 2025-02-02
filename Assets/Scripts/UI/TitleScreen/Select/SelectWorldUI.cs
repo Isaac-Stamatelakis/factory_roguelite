@@ -142,7 +142,6 @@ namespace UI.TitleScreen.Select
 
         private void PlayWorld(int index)
         {
-            Debug.Log(worldNames[index]);
             OpenWorld.LoadWorld(worldNames[index]);
         }
 

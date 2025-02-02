@@ -8,7 +8,8 @@ using Newtonsoft.Json;
 using Chunks;
 
 namespace TileEntity.Instances.Storage {
-    public class BatteryInstance : TileEntityInstance<Battery>, IRightClickableTileEntity, ISerializableTileEntity, IEnergyConduitInteractable
+    
+    public class BatteryInstance : TileEntityInstance<Battery>, IRightClickableTileEntity, ISerializableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity
     {
         public ulong Energy;
         public BatteryInstance(Battery tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)

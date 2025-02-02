@@ -12,11 +12,20 @@ namespace UI.PlayerInvUI
         [SerializeField] private InventoryUI playerInventoryUI;
         [SerializeField] private GameObject playerInventoryContainer;
 
+        private InventoryUI originalPlayerInventoryUI;
         public void Start()
         {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             playerInventoryUI.DisplayInventory(playerInventory.Inventory);
+            originalPlayerInventoryUI = playerInventory.InventoryUI;
+            playerInventoryUI.AddCallback(RefreshBaseUI);
         }
+
+        private void RefreshBaseUI(int index)
+        {
+            originalPlayerInventoryUI.RefreshSlots();
+        }
+        
 
         public void DisplayWithPlayerInventory(GameObject uiObject, bool below)
         {

@@ -68,8 +68,9 @@ namespace UI
         public void DisplayUIWithPlayerInventory(GameObject uiObject, Color? color = null)
         {
             var stackedPlayerUI = Instantiate(stackedPlayerInvUIElementPrefab);
+            
             stackedPlayerUI.DisplayWithPlayerInventory(uiObject,false);
-            DisplayObject(stackedPlayerUI.gameObject);
+                                         DisplayObject(stackedPlayerUI.gameObject);
             if (color != null)
             {
                 stackedPlayerUI.SetBackgroundColor((Color)color);
