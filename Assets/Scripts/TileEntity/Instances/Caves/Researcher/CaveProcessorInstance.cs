@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
@@ -10,7 +9,7 @@ using Newtonsoft.Json;
 using UI;
 using UnityEngine;
 
-namespace TileEntity.Instances {
+namespace TileEntity.Instances.Caves.Researcher {
     public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity, IInventoryListener
     {
         public List<ItemSlot> InputDrives;

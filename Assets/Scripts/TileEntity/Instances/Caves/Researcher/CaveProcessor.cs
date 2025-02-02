@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 
-namespace TileEntity.Instances {
+namespace TileEntity.Instances.Caves.Researcher {
     [CreateAssetMenu(fileName = "New Cave Teleporter", menuName = "Tile Entity/Cave/Processor")]
     public class CaveProcessor : TileEntityObject, IManagedUITileEntity
     {
