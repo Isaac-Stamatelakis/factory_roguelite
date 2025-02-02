@@ -22,6 +22,7 @@ namespace TileEntity.Instances
         [SerializeField] private ArrowProgressController mProgressBar;
         [SerializeField] private TMP_InputField mTextInput;
         [SerializeField] private VerticalLayoutGroup mTextList;
+        [SerializeField] private TextMeshProUGUI mStatusText;
         
         [SerializeField] private TextMeshProUGUI mTextPrefab;
         
@@ -77,6 +78,8 @@ namespace TileEntity.Instances
 
         public void Update()
         {
+            mStatusText.text = caveProcessorInstance.ResearchDriveProcess == null ? string.Empty : $"{caveProcessorInstance.ResearchDriveProcess.Progress:P2}";
+            
             if (Input.GetKeyDown(KeyCode.Return) ) {
                 
                 EnterCommand(mTextInput.text);
@@ -200,6 +203,7 @@ namespace TileEntity.Instances
             mProgressBar.SetArrowProgress(progress);
             mDriveOutputUI.RefreshSlots();
             mDriveInputUI.RefreshSlots();
+            
         }
     }
 
@@ -211,6 +215,7 @@ namespace TileEntity.Instances
                 { "research-cave", (processorUI, token) => new ResearchCommand(processorUI, token) },
                 { "download-cave", (processorUI, token) => new DownloadCommand(processorUI, token) },
                 { "cave-list", (processorUI, token) => new CaveListCommand(processorUI, token) },
+                { "cancel-research", (processorUI, token) => new CancelResearchCommand(processorUI, token) },
             };
 
         public static CaveProcessorTerminalCommand GetCommand(CaveProcessorUI processorUI, ChatCommandToken token)
@@ -222,11 +227,11 @@ namespace TileEntity.Instances
             return null;
         }
         
-        public static string GetCommandHelpText(string command)
+        public static string GetCommandDescriptionText(string command)
         {
             if (commandMap.TryGetValue(command, out var commandConstructor))
             {
-                return commandConstructor(null, new ChatCommandToken(command,null)).GetHelpText();
+                return commandConstructor(null, new ChatCommandToken(command,null)).GetDescription();
             }
             return null;
         }
@@ -250,6 +255,7 @@ namespace TileEntity.Instances
         }
 
         public abstract string GetHelpText();
+        public abstract string GetDescription();
         public abstract List<string> GetAutoFill();
     }
 
@@ -264,14 +270,19 @@ namespace TileEntity.Instances
             List<string> commands = CaveProcessorFactory.GetCommands();
             foreach (string command in commands)
             {
-                string message = $"{command}\t{CaveProcessorFactory.GetCommandHelpText(command).Replace("\n","")}";
+                string message = $"{command}\t{CaveProcessorFactory.GetCommandDescriptionText(command).Replace("\n","")}";
                 caveProcessorUI.SendTerminalMessage(message);
             }
         }
 
         public override string GetHelpText()
         {
-            return "Help";
+            return GetDescription();
+        }
+
+        public override string GetDescription()
+        {
+            return "Lists all available commands with a brief description";
         }
 
         public override List<string> GetAutoFill()
@@ -316,6 +327,11 @@ namespace TileEntity.Instances
         public override string GetHelpText()
         {
             return $"{token.Command} [CAVE_ID]";
+        }
+
+        public override string GetDescription()
+        {
+            return "Begins researching a cave";
         }
 
         public override List<string> GetAutoFill()
@@ -377,6 +393,11 @@ namespace TileEntity.Instances
                    $" {UNKNOWN_FLAG}    List Un-Researched Caves";
         }
 
+        public override string GetDescription()
+        {
+            return "Lists caves with optional filters";
+        }
+
         public override List<string> GetAutoFill()
         {
             return new List<string>
@@ -408,9 +429,44 @@ namespace TileEntity.Instances
             return $"{token.Command} [CAVE_ID]";
         }
 
+        public override string GetDescription()
+        {
+            return "Sets a researched cave to be copied into drives";
+        }
+
         public override List<string> GetAutoFill()
         {
             return caveProcessorUI.CaveProcessorInstance.ResearchedCaves;
+        }
+    }
+    
+    internal class CancelResearchCommand : CaveProcessorTerminalCommand
+    {
+        public CancelResearchCommand(CaveProcessorUI caveProcessorUI, ChatCommandToken token) : base(caveProcessorUI, token)
+        {
+        }
+
+        public override void Execute()
+        {
+            if (caveProcessorUI.CaveProcessorInstance.ResearchDriveProcess == null)
+                throw new ChatParseException($"No research in progress");
+            
+            caveProcessorUI.CaveProcessorInstance.ResearchDriveProcess = null;
+        }
+
+        public override string GetHelpText()
+        {
+            return $"{token.Command}";
+        }
+
+        public override string GetDescription()
+        {
+            return "Cancels research";
+        }
+
+        public override List<string> GetAutoFill()
+        {
+            return new List<string>();
         }
     }
 

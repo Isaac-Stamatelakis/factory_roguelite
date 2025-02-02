@@ -201,6 +201,7 @@ namespace TileEntity.Instances {
         public ulong Cost;
         public string ResearchId;
         public bool Complete => Energy >= Cost;
+        public float Progress => (float)Energy / Cost;
         public ResearchDriveProcess(Tier tier, string researchId)
         {
             Cost = 16000 * GlobalHelper.BinaryExponentiation(4,(int)tier+1);
