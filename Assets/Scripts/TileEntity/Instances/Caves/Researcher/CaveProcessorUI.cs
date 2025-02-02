@@ -21,6 +21,7 @@ namespace TileEntity.Instances.Caves.Researcher
         [SerializeField] private ArrowProgressController mProgressBar;
         [SerializeField] private TMP_InputField mTextInput;
         [SerializeField] private VerticalLayoutGroup mTextList;
+        [SerializeField] private TextMeshProUGUI mResearchText;
         [SerializeField] private TextMeshProUGUI mStatusText;
         [SerializeField] private Button mTerminalBlocker;
         
@@ -37,10 +38,13 @@ namespace TileEntity.Instances.Caves.Researcher
         private const string START_MESSAGE =
             "===============================================\n" +
             "               TERMINAL ONLINE\n" +
-            "===============================================\n\n";
+            "===============================================\n";
         public void DisplayTileEntityInstance(CaveProcessorInstance tileEntityInstance)
         {
+            caveProcessorInstance = tileEntityInstance;
+            DisplayText();
             SendTerminalMessage(START_MESSAGE);
+            SendTerminalMessage("Welcome Back!\n");
             //SendTerminalMessage("Current Status: ");
             SendTerminalMessage("Available Commands:");
             List<string> commands = CaveProcessorCommandFactory.GetCommands();
@@ -54,7 +58,7 @@ namespace TileEntity.Instances.Caves.Researcher
                 mTextInput.ActivateInputField();
                 mTextInput.Select();
             });
-            caveProcessorInstance = tileEntityInstance;
+            
             mDriveInputUI.DisplayInventory(tileEntityInstance.InputDrives);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
             mDriveInputUI.AddListener(tileEntityInstance);
@@ -94,10 +98,18 @@ namespace TileEntity.Instances.Caves.Researcher
             return caveIds;
         }
 
+        private void DisplayText()
+        {
+            mStatusText.text = caveProcessorInstance.ResearchDriveProcess == null 
+                ? "Awaiting Instruction"
+                : $"{caveProcessorInstance.ResearchDriveProcess.Progress:P2}";
+            mResearchText.text = caveProcessorInstance.ResearchDriveProcess == null 
+                ? "Researching: None" 
+                : $"Researching: {caveProcessorInstance.ResearchDriveProcess.ResearchId}";
+        }
         public void Update()
         {
-            mStatusText.text = caveProcessorInstance.ResearchDriveProcess == null ? string.Empty : $"{caveProcessorInstance.ResearchDriveProcess.Progress:P2}";
-            
+            DisplayText();
             if (Input.GetKeyDown(KeyCode.Return) ) {
                 
                 EnterCommand(mTextInput.text);
