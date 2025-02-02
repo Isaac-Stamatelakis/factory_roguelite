@@ -5,13 +5,17 @@ using UnityEngine;
 namespace UI.Chat {
     public static class ChatTokenizer
     {
-        public static ChatCommandToken tokenize(string text) {
-            if (!text.StartsWith("/")) {
+        public static ChatCommandToken tokenize(string text, bool enforceSlash = true) {
+            if (enforceSlash && !text.StartsWith("/")) {
                 return null;
             }
             string[] split = text.Split(" ");
             string textCommand = split[0];
-            textCommand = textCommand.Replace("/","");
+            if (enforceSlash)
+            {
+                textCommand = textCommand.Replace("/","");
+            }
+            
 
             List<string> parameters = new List<string>();
             for (int i = 0; i < split.Length-1; i++) {

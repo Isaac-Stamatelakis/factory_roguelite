@@ -17,8 +17,9 @@ namespace TileEntity.Instances {
         public List<ItemSlot> OutputDrives;
         private ulong Energy;
         private List<string> researchedCaves;
+        public List<string> ResearchedCaves => researchedCaves;
         
-        private string currentlyCopyingCave;
+        public string CurrentlyCopyingCave;
         internal ResearchDriveProcess ResearchDriveProcess;
         internal CopyDriveProcess CopyDriveProcess;
         private const string DRIVE_ID = "cave_data_drive";
@@ -40,7 +41,11 @@ namespace TileEntity.Instances {
             SerializedData serializedData = new SerializedData(
                 Energy, 
                 ItemSlotFactory.seralizeItemSlot(InputDrives[0]), 
-                ItemSlotFactory.seralizeItemSlot(OutputDrives[0])
+                ItemSlotFactory.seralizeItemSlot(OutputDrives[0]),
+                researchedCaves,
+                ResearchDriveProcess,
+                CopyDriveProcess,
+                CurrentlyCopyingCave
             );
             return JsonConvert.SerializeObject(serializedData);
         }
@@ -56,6 +61,11 @@ namespace TileEntity.Instances {
             ItemSlot outputSlot = ItemSlotFactory.DeserializeSlot(serializedData.OutputItem);
             OutputDrives = new List<ItemSlot> { outputSlot };
             
+            researchedCaves = serializedData.ResearchedCaves;
+            ResearchDriveProcess = serializedData.ResearchDriveProcess;
+            CopyDriveProcess = serializedData.CopyDriveProcess;
+            CurrentlyCopyingCave = serializedData.CopyCaveId;
+
         }
 
         public void PlaceInitialize()
@@ -68,18 +78,22 @@ namespace TileEntity.Instances {
         public void TickUpdate()
         {
             CopyCaveTickUpdate();
-            
+            ResearchCaveTickUpdate();
+
         }
 
         private void ResearchCaveTickUpdate()
         {
             if (ResearchDriveProcess == null) return;
-            
+            ResearchDriveProcess.Energy += 32; // FREE FOR TESTING PURPOSES
+            if (!ResearchDriveProcess.Complete) return;
+            researchedCaves.Add(ResearchDriveProcess.ResearchId);
+            ResearchDriveProcess = null;
         }
 
         private void CopyCaveTickUpdate()
         {
-            if (CopyDriveProcess == null) return;
+            if (CopyDriveProcess?.CopyId == null) return;
             
             CopyDriveProcess.Ticks++;
             if (!CopyDriveProcess.IsComplete) return;
@@ -96,6 +110,8 @@ namespace TileEntity.Instances {
             {
                 output.amount++;
             }
+
+            CopyDriveProcess.CopyId = null;
             InventoryUpdate(0);
         }
         
@@ -104,17 +120,18 @@ namespace TileEntity.Instances {
             if (CopyDriveProcess is { IsComplete: false }) return;
 
             if (!CanBeginCopyProcess()) return;
+            
             InputDrives[0].amount--;
             
             CopyDriveProcess ??= new CopyDriveProcess();
-            CopyDriveProcess.CopyId = currentlyCopyingCave;
+            CopyDriveProcess.CopyId = CurrentlyCopyingCave;
             CopyDriveProcess.Ticks = 0;
 
         }
 
         private bool CanBeginCopyProcess()
         {
-            if (currentlyCopyingCave == null) return false;
+            if (CurrentlyCopyingCave == null) return false;
             
             ItemSlot input = InputDrives[0];
             if (ItemSlotUtils.IsItemSlotNull(input)) return false;
@@ -123,7 +140,7 @@ namespace TileEntity.Instances {
             if (ItemSlotUtils.IsItemSlotNull(output)) return true;
             if (output.amount >= Global.MaxSize) return false;
             string outputCopyId = output.tags?.Dict?[ItemTag.CaveData] as string;
-            return outputCopyId == null || outputCopyId == currentlyCopyingCave;
+            return outputCopyId == null || outputCopyId == CurrentlyCopyingCave;
         }
 
         public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
@@ -146,12 +163,21 @@ namespace TileEntity.Instances {
             public ulong Energy;
             public string InputItem;
             public string OutputItem;
+            public List<string> ResearchedCaves;
+            public ResearchDriveProcess ResearchDriveProcess;
+            public CopyDriveProcess CopyDriveProcess;
+            public string CopyCaveId;
 
-            public SerializedData(ulong energy, string inputItem, string outputItem)
+            public SerializedData(ulong energy, string inputItem, string outputItem, 
+                List<string> researchedCaves, ResearchDriveProcess researchDriveProcess, CopyDriveProcess copyDriveProcess, string copyCaveId)
             {
                 Energy = energy;
                 InputItem = inputItem;
                 OutputItem = outputItem;
+                ResearchedCaves = researchedCaves;
+                ResearchDriveProcess = researchDriveProcess;
+                CopyDriveProcess = copyDriveProcess;
+                CopyCaveId = copyCaveId;
             }
         }
 
@@ -172,14 +198,16 @@ namespace TileEntity.Instances {
     internal class ResearchDriveProcess
     {
         public ulong Energy;
-        public Tier Tier;
+        public ulong Cost;
         public string ResearchId;
-
+        public bool Complete => Energy >= Cost;
         public ResearchDriveProcess(Tier tier, string researchId)
         {
-            Tier = tier;
+            Cost = 16000 * GlobalHelper.BinaryExponentiation(4,(int)tier+1);
             ResearchId = researchId;
         }
+        
+        
     }
 }
 

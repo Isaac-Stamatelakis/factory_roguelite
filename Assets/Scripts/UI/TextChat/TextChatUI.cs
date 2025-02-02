@@ -55,7 +55,9 @@ namespace UI.Chat {
             defaultTextListPosition = textList.transform.localPosition.y;
         }
         
-        public void Update() {
+        public void Update()
+        {
+            if (CanvasController.Instance.IsActive) return;
             if (Input.GetKeyDown(KeyCode.Return) ) {
                 typing = !typing;
                 if (typing) {
@@ -208,15 +210,15 @@ namespace UI.Chat {
                 string completed = inputField.text;
                 string[] split = inputField.text.Split(" ");
                 split[split.Length-1] = suggested[0];
-                string reconstructed = fromArray(split, " ");
+                string reconstructed = FromArray(split, " ");
                 inputField.text = $"{prefix}{reconstructed}";
                 inputField.caretPosition=inputField.text.Length;
             } else {
-                sendMessage(fromArray(suggested.ToArray(), ", "));
+                sendMessage(FromArray(suggested.ToArray(), ", "));
             }
         }
 
-        private string fromArray(string[] strings, string seperator) {
+        public static string FromArray(string[] strings, string seperator) {
             string val = "";
             for (int i = 0; i < strings.Length; i++) {
                 val += strings[i];

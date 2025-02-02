@@ -13,6 +13,29 @@ public static class GlobalHelper
             GameObject.Destroy(parent.GetChild(i).gameObject);
         }
     }
+    
+    public static ulong BinaryExponentiation(ulong baseValue, int exponent)
+    {
+        if (exponent < 0)
+        {
+            throw new ArgumentException("Exponent must be a non-negative integer.");
+        }
+
+        ulong result = 1; 
+        
+        while (exponent > 0)
+        {
+            if ((exponent & 1) == 1)
+            {
+                result *= baseValue;
+            }
+            
+            baseValue *= baseValue;
+            exponent >>= 1;
+        }
+
+        return result;
+    }
 
     public static uint MaxUInt(uint a, uint b)
     {

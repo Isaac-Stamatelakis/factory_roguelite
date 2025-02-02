@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using Misc.Audio;
+using TileEntity;
 using UnityEngine.AddressableAssets;
 using Debug = UnityEngine.Debug;
 
@@ -13,6 +14,7 @@ namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Cave",menuName="Generation/Cave")]
     public class Cave : ScriptableObject, IGeneratedArea
     {
+        public Tier tier;
         [SerializeField] private string id;
         public string Id {get => id;}
         [TextArea] [SerializeField] private string description;
