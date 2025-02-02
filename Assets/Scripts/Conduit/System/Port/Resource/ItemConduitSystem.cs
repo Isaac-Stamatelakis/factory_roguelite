@@ -49,9 +49,6 @@ namespace Conduits.Systems {
             {
                 IterateStandard(outputPort,inputPorts,tempItemSlot,toInsert,amount);
             }
-            
-            
-            
         }
 
         private void IterateStandard(ItemTileEntityPort outputPort, List<ItemTileEntityPort> inputPorts, ItemSlot tempItemSlot, ItemSlot toInsert, uint amount)
@@ -69,7 +66,7 @@ namespace Conduits.Systems {
 
         private void IterateRoundRobin(ItemTileEntityPort outputPort, List<ItemTileEntityPort> inputPorts, ItemSlot tempItemSlot, ItemSlot toInsert, uint amount)
         {
-            Debug.Log("Round Robin");
+           
             if (inputPorts.Count == 1) // No need to bother with round-robin if only one input port
             {
                 IterateStandard(outputPort,inputPorts,tempItemSlot,toInsert,amount);

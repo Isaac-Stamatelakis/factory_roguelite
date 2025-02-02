@@ -23,6 +23,7 @@ namespace TileEntity.Instances
         [SerializeField] private TMP_InputField mTextInput;
         [SerializeField] private VerticalLayoutGroup mTextList;
         [SerializeField] private TextMeshProUGUI mStatusText;
+        [SerializeField] private Button mTerminalBlocker;
         
         [SerializeField] private TextMeshProUGUI mTextPrefab;
         
@@ -33,9 +34,27 @@ namespace TileEntity.Instances
         
         private int previousMessageIndex;
         private List<string> recordedMessages = new List<string>();
-        
+
+        private const string START_MESSAGE =
+            "===============================================\n" +
+            "               TERMINAL ONLINE\n" +
+            "===============================================\n\n";
         public void DisplayTileEntityInstance(CaveProcessorInstance tileEntityInstance)
         {
+            SendTerminalMessage(START_MESSAGE);
+            //SendTerminalMessage("Current Status: ");
+            SendTerminalMessage("Available Commands:");
+            List<string> commands = CaveProcessorFactory.GetCommands();
+            foreach (string command in commands)
+            {
+                var commandInstance = CaveProcessorFactory.GetCommand(this,new ChatCommandToken(command,null));
+                SendTerminalMessage($" - '{command}': {commandInstance.GetDescription()}");
+            }
+            mTerminalBlocker.onClick.AddListener(() =>
+            {
+                mTextInput.ActivateInputField();
+                mTextInput.Select();
+            });
             caveProcessorInstance = tileEntityInstance;
             mDriveInputUI.DisplayInventory(tileEntityInstance.InputDrives);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
@@ -140,7 +159,7 @@ namespace TileEntity.Instances
             }
             catch (Exception e) when (e is IndexOutOfRangeException or ChatParseException) 
             {
-                SendTerminalMessage($"<color=red>Could not parse command {token.Command}: {e.Message}</color>");
+                SendTerminalMessage($"<color=red>Could not execute '{token.Command}': {e.Message}</color>");
             }
             
             
@@ -410,13 +429,22 @@ namespace TileEntity.Instances
 
     internal class DownloadCommand : CaveProcessorTerminalCommand
     {
+        private const string VERBOSE_FLAG = "-v";
         public DownloadCommand(CaveProcessorUI caveProcessorUI, ChatCommandToken token) : base(caveProcessorUI, token)
         {
         }
 
         public override void Execute()
         {
-            string cave = token.Parameters[0];
+            string parameter = token.Parameters[0];
+
+            if (parameter == VERBOSE_FLAG)
+            {
+                string message = caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave ?? "None"; 
+                caveProcessorUI.SendTerminalMessage($"Cave being copied: '{message}'");
+                return;
+            }
+            string cave = parameter;
             if (!caveProcessorUI.CaveProcessorInstance.ResearchedCaves.Contains(cave))
                 throw new ChatParseException($"Cannot download unknown cave '{cave}'");
             if (cave.Equals(caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave))
@@ -426,7 +454,8 @@ namespace TileEntity.Instances
 
         public override string GetHelpText()
         {
-            return $"{token.Command} [CAVE_ID]";
+            return $"{token.Command} [CAVE_ID]... [OPTION]...\n" +
+                   $" -v    Prints current cave being copied into drives";
         }
 
         public override string GetDescription()
@@ -436,7 +465,9 @@ namespace TileEntity.Instances
 
         public override List<string> GetAutoFill()
         {
-            return caveProcessorUI.CaveProcessorInstance.ResearchedCaves;
+            List<string> strings = caveProcessorUI.CaveProcessorInstance.ResearchedCaves;
+            strings.Add(VERBOSE_FLAG);
+            return strings;
         }
     }
     

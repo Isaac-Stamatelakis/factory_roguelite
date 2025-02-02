@@ -80,21 +80,33 @@ namespace TileEntity {
             {
                 var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(direction + tileEntityInstance.getCellPosition());
                 ITileEntityInstance adjacentTileEntity = partition.GetTileEntity(positionInPartition);
-                if (adjacentTileEntity is not IMultiBlockTileAggregate adjacentAggregate) continue;
-                IMultiBlockTileEntity adjacentMultiBlockTileEntity = adjacentAggregate.GetAggregator();
-                if (adjacentMultiBlockTileEntity == null) continue;
-                adjacentMultiBlocks.Add(adjacentMultiBlockTileEntity);
+                switch (adjacentTileEntity)
+                {
+                    case IMultiBlockTileEntity multiBlockTileEntity:
+                        adjacentMultiBlocks.Add(multiBlockTileEntity);
+                        continue;
+                    case IMultiBlockTileAggregate adjacentAggregate:
+                    {
+                        IMultiBlockTileEntity adjacentMultiBlockTileEntity = adjacentAggregate.GetAggregator();
+                        if (adjacentMultiBlockTileEntity == null) continue;
+                        adjacentMultiBlocks.Add(adjacentMultiBlockTileEntity);
+                        break;
+                    }
+                }
             }
             
             foreach (IMultiBlockTileEntity adjacentMultiBlock in adjacentMultiBlocks)
             {
-                ILoadableTileEntity loadableTileEntity = adjacentMultiBlock as ILoadableTileEntity;
-                loadableTileEntity?.Unload();
-                adjacentMultiBlock.AssembleMultiBlock();
-                loadableTileEntity?.Load();
+                RefreshMultiBlock(adjacentMultiBlock);
             }
-            
-            
+        }
+
+        public static void RefreshMultiBlock(IMultiBlockTileEntity multiBlockTileEntity)
+        {
+            ILoadableTileEntity loadableTileEntity = multiBlockTileEntity as ILoadableTileEntity;
+            loadableTileEntity?.Unload();
+            multiBlockTileEntity.AssembleMultiBlock();
+            loadableTileEntity?.Load();
         }
         public static void spawnItemsOnBreak(List<ItemSlot> items, Vector2 worldPosition, ILoadedChunk loadedChunk) {
             foreach (ItemSlot itemSlot in items) {
@@ -282,7 +294,7 @@ namespace TileEntity {
             return result;
         }
 
-        public static List<Vector2Int> BFSTileEntity<T>(ITileEntityInstance tileEntityInstance, TileType tileType, bool includeSelf = true) where T : TileEntityObject
+        public static List<T> BFSTileEntityComponent<T>(ITileEntityInstance tileEntityInstance, TileType tileType)
         {
             TileMapType tileMapType = tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
@@ -302,8 +314,7 @@ namespace TileEntity {
                 Vector2Int.up,
                 Vector2Int.down,
             };
-            List<Vector2Int> result = new List<Vector2Int>();
-            if (includeSelf) result.Add(origin);
+            List<T> result = new List<T>();
             
             while (queue.Count > 0)
             {
@@ -316,11 +327,11 @@ namespace TileEntity {
                     if (alreadyVisited) continue;
 
                     var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
-                    TileItem neighborTileItem = partition.GetTileItem(positionInPartition, layer);
+                    ITileEntityInstance neighborTileEntity = partition.GetTileEntity(positionInPartition);
                     
-                    if (neighborTileItem?.tileEntity is not T) continue;
+                    if (neighborTileEntity is not T value) continue;
                     queue.Enqueue(neighborPosition);
-                    result.Add(neighborPosition); 
+                    result.Add(value); 
             
                 }
             }
