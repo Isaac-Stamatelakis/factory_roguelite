@@ -113,6 +113,7 @@ namespace UI.QuestBook {
 
         public void OnTaskStatusChanged()
         {
+            SetTaskContent();
             UpdateSubmissionButton();
             questBookPageUI.DisplayLines();
             mQuestBookRewardUI.UpdateClaimButtonImage();
@@ -135,6 +136,7 @@ namespace UI.QuestBook {
             {
                 task.SetCompletion(!task.IsComplete());
             }
+            
 
             UpdateSubmissionButton();
         }
@@ -149,9 +151,9 @@ namespace UI.QuestBook {
                 return;
             }
             var complete = task.IsComplete();
-            mCheckSubmissionButton.interactable = !complete && !QuestBookUtils.EditMode;
+            mCheckSubmissionButton.interactable = !complete || QuestBookUtils.EditMode;
             mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
-                complete ? "Submit" : "Quest Completed";
+                complete ? "Quest Completed" : "Check Submission";
             mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;
         }
         

@@ -41,6 +41,7 @@ namespace UI.QuestBook {
         private void AddItem() {
             task.Items.Add(new SerializedItemSlot("stone",1,null));
             task.GottenAmounts.Add(0);
+            task.SetCompletion(false);
             Display();
         }
     }

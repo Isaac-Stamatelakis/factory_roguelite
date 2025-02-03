@@ -34,8 +34,9 @@ namespace TileEntity.Instances.Caves.Researcher
                 throw new ChatParseException($"Cannot download unknown cave '{cave}'");
             if (cave.Equals(caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave))
                 throw new ChatParseException($"Already downloading '{cave}'");
-            caveProcessorUI.CaveProcessorInstance.InventoryUpdate(0);
+            
             caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave = cave;
+            caveProcessorUI.CaveProcessorInstance.InventoryUpdate(0);
         }
 
         public override string GetHelpText()

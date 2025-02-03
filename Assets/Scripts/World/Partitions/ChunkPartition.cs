@@ -190,7 +190,7 @@ namespace Chunks.Partitions {
             
             tileEntities[position.x,position.y] = null;
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
-                tickableTileEntities.Remove(tickableTileEntity);
+                tickableTileEntities?.Remove(tickableTileEntity);
             }
             
         }

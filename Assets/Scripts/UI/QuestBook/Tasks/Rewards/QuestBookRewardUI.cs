@@ -191,54 +191,67 @@ namespace UI.QuestBook.Tasks.Rewards
             bool rewardClaimed = RewardClaimed();
             bool canClaim = !rewardClaimed && content.Task.IsComplete();
             mClaimButton.GetComponent<Image>().color = canClaim ? Color.green : Color.gray;
-            mClaimButton.interactable = canClaim;
+            mClaimButton.GetComponentInChildren<TextMeshProUGUI>().text = rewardClaimed ? "Claimed" : "Claim";
+            mClaimButton.interactable = canClaim || QuestBookUtils.EditMode;
             
         }
 
         public void ClaimPress()
         {
             if (!content.Task.IsComplete()) return;
+
+            bool cheatMode = QuestBookUtils.EditMode;
             
             switch (currentPage)
             {
                 case RewardPage.Items:
                     var itemRewards = content.ItemRewards;
-                    if (itemRewards.Claimed) return;
 
-                    PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
-                    if (itemRewards.LimitOne)
-                    {
-                        if (SelectedRewardIndex < 0 || SelectedRewardIndex >= itemRewards.Rewards.Count) return;
-                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemRewards.Rewards[SelectedRewardIndex]);
-                        playerInventory.Give(itemSlot);
-                        itemRewards.Claimed = true;
-                        return;
-                    }
+                    if (!itemRewards.TryClaim()) return;
                     
-                    foreach (var sItemSlot in itemRewards.Rewards)
-                    {
-                        ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(sItemSlot);
-                        if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
-                        
-                        playerInventory.Give(itemSlot);
-                    }
-                    itemRewards.Claimed = true;
+                    itemRewards.Claimed = GiveItemRewards(itemRewards);
                     
                     break;
                 case RewardPage.Commands:
-                    if (content.CommandRewards.Claimed) return;
+                    if (!content.CommandRewards.TryClaim()) return;
 
                     foreach (var commandReward in content.CommandRewards.CommandRewards)
                     {
                         TextChatUI.Instance.ExecuteCommand(commandReward.Command, printErrors: false);
                     }
 
-                    content.CommandRewards.Claimed = true;
+                    content.CommandRewards.Claimed = !content.CommandRewards.Claimed; // Allows edit mode to reverse
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
+            UpdateClaimButtonImage();
+
+
+        }
+
+        private bool GiveItemRewards(QuestBookItemRewards itemRewards)
+        {
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+            if (itemRewards.LimitOne)
+            {
+                if (SelectedRewardIndex < 0 || SelectedRewardIndex >= itemRewards.Rewards.Count) return false;
+                ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(itemRewards.Rewards[SelectedRewardIndex]);
+                playerInventory.Give(itemSlot);
+                HighlightItem(SelectedRewardIndex);
+                return true;
+            }
+                    
+            foreach (var sItemSlot in itemRewards.Rewards)
+            {
+                ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(sItemSlot);
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                        
+                playerInventory.Give(itemSlot);
+            }
+
+            return true;
         }
 
         public void AddButtonPress()
@@ -257,17 +270,23 @@ namespace UI.QuestBook.Tasks.Rewards
             Display();
         }
         
-        public void SelectReward(int index) {
-            if (SelectedRewardIndex > 0)
+        public void SelectReward(int index)
+        {
+            if (content.ItemRewards.Claimed) return;
+            if (SelectedRewardIndex >= 0)
             {
-                mElementContainer.transform.GetChild(SelectedRewardIndex).GetComponent<RewardListElement>().ToggleHighlight();
+                HighlightItem(SelectedRewardIndex); // Deselect highlighted
             }
-            if (SelectedRewardIndex == index)
-            {
-                SelectedRewardIndex = -1;
-                return;
-            }
+            
+            
             SelectedRewardIndex = index;
+            HighlightItem(index); // Highlight new
+            
+        }
+
+        private void HighlightItem(int index)
+        {
+            mElementContainer.transform.GetChild(SelectedRewardIndex).GetComponent<RewardListElement>().ToggleHighlight();
         }
 
         public void DisplayCommandRewardEditor(int index)

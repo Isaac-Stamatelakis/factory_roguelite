@@ -35,8 +35,20 @@ namespace UI.QuestBook {
     public class QuestBookReward
     {
         public bool Claimed;
+
+        public bool TryClaim()
+        {
+            if (!Claimed) return Claimed;
+            if (QuestBookUtils.EditMode)
+            {
+                Claimed = false;
+            }
+
+            return Claimed;
+        }
     }
 
+    
     public class QuestBookItemRewards : QuestBookReward
     {
         public bool LimitOne;
