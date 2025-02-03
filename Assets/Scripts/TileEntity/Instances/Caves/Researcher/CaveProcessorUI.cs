@@ -102,9 +102,17 @@ namespace TileEntity.Instances.Caves.Researcher
 
         private void DisplayText()
         {
-            mStatusText.text = caveProcessorInstance.ResearchDriveProcess == null 
-                ? "Awaiting Instruction"
-                : $"{caveProcessorInstance.ResearchDriveProcess.Progress:P2}";
+            
+            if (caveProcessorInstance.ResearchDriveProcess == null)
+            {
+                mStatusText.text = "Awaiting Instruction";
+            }
+            else
+            {
+                mStatusText.text = !caveProcessorInstance.ResearchProgressing
+                    ? $"<color=red>INSUFFICIENT ENERGY: {caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>" 
+                    : $"<color=green>Systems Running: {caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>";
+            }
             mResearchText.text = caveProcessorInstance.ResearchDriveProcess == null 
                 ? "Researching: None" 
                 : $"Researching: {caveProcessorInstance.ResearchDriveProcess.ResearchId}";

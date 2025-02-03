@@ -94,7 +94,7 @@ namespace TileEntity {
         }
     }
 
-    public class MachineEnergyInventory : IEnergyConduitInteractable
+    public class MachineEnergyInventory :  IEnergyConduitInteractable
     {
         public MachineEnergyInventory(ulong energy, IMachineInstance parent)
         {

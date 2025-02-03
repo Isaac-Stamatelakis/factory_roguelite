@@ -17,7 +17,7 @@ using UI;
 
 namespace TileEntity {
     public static class TileEntityUtils {
-
+        
         public static T GetConduitInteractable<T>(ITileEntityInstance tileEntityInstance, ConduitType conduitType) where T : IConduitInteractable
         {
             if (tileEntityInstance is T conduitInteractable) return conduitInteractable;

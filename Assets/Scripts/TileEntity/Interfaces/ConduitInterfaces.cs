@@ -19,6 +19,12 @@ public interface IConduitInteractable
     
 }
 public interface IEnergyConduitInteractable : IConduitInteractable{
+    /// <summary>
+    /// Inputs energy into a container
+    /// </summary>
+    /// <param name="energy"></param>
+    /// <param name="portPosition"></param>
+    /// <returns>Energy taken</returns>
     public ulong InsertEnergy(ulong energy, Vector2Int portPosition);
     public ref ulong GetEnergy(Vector2Int portPosition);
 }
