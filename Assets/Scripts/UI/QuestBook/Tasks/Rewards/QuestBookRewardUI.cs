@@ -207,13 +207,13 @@ namespace UI.QuestBook.Tasks.Rewards
                 case RewardPage.Items:
                     var itemRewards = content.ItemRewards;
 
-                    if (!itemRewards.TryClaim()) return;
+                    if (!itemRewards.TryClaim()) break;
                     
                     itemRewards.Claimed = GiveItemRewards(itemRewards);
                     
                     break;
                 case RewardPage.Commands:
-                    if (!content.CommandRewards.TryClaim()) return;
+                    if (!content.CommandRewards.TryClaim()) break;
 
                     foreach (var commandReward in content.CommandRewards.CommandRewards)
                     {

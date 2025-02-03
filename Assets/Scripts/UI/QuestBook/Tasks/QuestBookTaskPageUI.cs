@@ -24,6 +24,7 @@ namespace UI.QuestBook {
         [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
+        [SerializeField] private Image mSelectTaskDownArrowImage;
         public QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
         private QuestBookPageUI questBookPageUI;
         private QuestBookNode node;
@@ -51,22 +52,22 @@ namespace UI.QuestBook {
             mDescriptionField.interactable = QuestBookUtils.EditMode;
             
             mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
-            if (QuestBookUtils.EditMode) {
-                mTitleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
-                mDescriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
+            
+            mTitleField.onValueChanged.AddListener((string value) => {Content.Title = value;});
+            mDescriptionField.onValueChanged.AddListener((string value) => {Content.Description = value;});
 
-                mChangeTaskDropDown.ClearOptions();
-                List<TMPro.TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
-                foreach (QuestTaskType taskType in Enum.GetValues(typeof(QuestTaskType))) {
-                    options.Add(new TMPro.TMP_Dropdown.OptionData(taskType.ToString()));
-                }
-                mChangeTaskDropDown.AddOptions(options);
-
-                QuestTaskType? currentTask = Content.Task == null ? null : Content.Task.GetTaskType();
-                int currentTaskIndex = currentTask == null ? 0 : (int) currentTask;
-                mChangeTaskDropDown.value = currentTaskIndex;
-                mChangeTaskDropDown.onValueChanged.AddListener(DropDownValueChanged);
+            mChangeTaskDropDown.ClearOptions();
+            List<TMPro.TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+            foreach (QuestTaskType taskType in Enum.GetValues(typeof(QuestTaskType))) {
+                options.Add(new TMPro.TMP_Dropdown.OptionData($"{taskType} Task"));
             }
+            mChangeTaskDropDown.AddOptions(options);
+
+            QuestTaskType? currentTask = Content.Task?.GetTaskType();
+            int currentTaskIndex = currentTask == null ? 0 : (int) currentTask;
+            mChangeTaskDropDown.value = currentTaskIndex;
+            mChangeTaskDropDown.onValueChanged.AddListener(DropDownValueChanged);
+            
             
             mBackButton.onClick.AddListener(() => {
                 questBookPageUI.gameObject.SetActive(true);
@@ -78,6 +79,7 @@ namespace UI.QuestBook {
                 mChangeTaskDropDown.interactable = false;
                 mEditImageButton.gameObject.SetActive(false);
                 mEditButton.gameObject.SetActive(false);
+                mSelectTaskDownArrowImage.gameObject.SetActive(false);
             }
             else
             {

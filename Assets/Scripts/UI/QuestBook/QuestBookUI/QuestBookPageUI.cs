@@ -25,6 +25,10 @@ namespace UI.QuestBook {
             if (QuestBookUtils.EditMode) {
                 initEditMode();
             }
+            else
+            {
+                questEditModeController.gameObject.SetActive(false);
+            }
         }
         public override void DisplayLines()
         {
