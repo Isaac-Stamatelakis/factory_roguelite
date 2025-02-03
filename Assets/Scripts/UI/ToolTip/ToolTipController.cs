@@ -43,6 +43,15 @@ namespace UI.ToolTip {
             {
                 text += $"\nData: <b>{caveData}</b>";
             }
+
+            if (tags.TryGetValue(ItemTag.FluidContainer, out var fluidData))
+            {
+                ItemSlot fluidItem = fluidData as ItemSlot;
+                if (!ItemSlotUtils.IsItemSlotNull(fluidItem))
+                {
+                    text += $"\nStoring {ItemDisplayUtils.FormatAmountText(fluidItem.amount,false,ItemState.Fluid)} of {fluidItem.itemObject.name} ";
+                }
+            }
             return text;
         }
         

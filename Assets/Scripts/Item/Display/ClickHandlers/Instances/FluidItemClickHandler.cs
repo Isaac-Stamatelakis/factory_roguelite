@@ -25,7 +25,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 case FluidTileItem fluidTileItem:
                     InsertFluidTileItem(grabbedSlot,fluidTileItem);
                     break;
-                case IFluidContainer fluidContainer:
+                case IFluidContainerData fluidContainer:
                     InsertFluidCell(grabbedSlot, fluidContainer);
                     break;
             }
@@ -58,60 +58,94 @@ namespace Item.Inventory.ClickHandlers.Instances
  
         }
 
-        private void InsertFluidCell(ItemSlot container, IFluidContainer fluidContainer)
+        private void InsertFluidCell(ItemSlot container, IFluidContainerData iFluidContainerData)
         {
             var inventory = inventoryUI.GetInventory();
-            inventoryUI.CallListeners(index);
-            if (container.tags == null) {
-                Debug.LogError("FluidContainerHelper method 'handleClick' recieved itemslot container which did not have tags");
-                return;
+            if (container.tags?.Dict == null || !container.tags.Dict.ContainsKey(ItemTag.FluidContainer) ||
+                container.tags.Dict[ItemTag.FluidContainer] == null)
+            {
+                ExtractFromInventoryIntoFluidCell(container,iFluidContainerData, PlayerManager.Instance.GetPlayer().PlayerInventory);
+        
+            } else if (ItemSlotUtils.IsItemSlotNull(inventory[index])) {
+                InsertFluidCellIntoInventory(container, iFluidContainerData);
             }
-            if (!container.tags.Dict.ContainsKey(ItemTag.FluidContainer)) {
-                Debug.LogError("FluidContainerHelper method 'handleClick' recieved itemslot container which did not have tag " + ItemTag.FluidContainer);
-            }
-            
             
 
-            // Input fluid into fluidInventory
-            if (inventory[index] == null || inventory[index].itemObject == null) {
-                object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
-                if (itemSlotObject is not ItemSlot itemSlot) {
-                    return;
-                }
-                ItemSlot fluidInventorySlot = inventory[index];
-                if (ItemSlotUtils.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
-                    Debug.Log("Hi");
-                }
-                inventory[index] = itemSlot;
-                container.amount--;
-                ItemSlot empty = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
-                if (container.amount == 0) {
-                    GrabbedItemProperties.Instance.SetItemSlot(empty);
-                } else {
-                    if (!ItemSlotUtils.CanInsertIntoInventory(inventory,container,fluidContainer.GetStorage())) {
-                    
-                        return;
-                    } else {
-                        ItemSlotUtils.InsertIntoInventory(inventory,empty,fluidContainer.GetStorage());
-                    }
-                }
-                return;
-            }
-            List<ItemSlot> playerInventory =  PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory;
-            ItemSlot newItemSlot = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
-            if (!ItemSlotUtils.CanInsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage())) {
-                return;
-            }
-            newItemSlot.tags.Dict[ItemTag.FluidContainer] = inventory[index];
-            inventory[index] = null;
-            container.amount -= 1;
-            if (container.amount == 0) {
-                GrabbedItemProperties.Instance.SetItemSlot(newItemSlot);
-                container.itemObject = null;
-                return;
-            }
-            ItemSlotUtils.InsertIntoInventory(inventory,newItemSlot,fluidContainer.GetStorage());
+            inventoryUI.CallListeners(index);
+            inventoryUI.RefreshSlots();
             GrabbedItemProperties.Instance.UpdateSprite();
+            
+            
+        }
+
+        private void ExtractFromInventoryIntoFluidCell(ItemSlot container, IFluidContainerData containerData, PlayerInventory playerInventory)
+        {
+            ItemSlotUtils.BuildTagDictIfNull(container);
+            container.tags.Dict.TryAdd(ItemTag.FluidContainer, null);
+            ItemSlot inventorySlot = inventoryUI.GetItemSlot(index);
+            if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) return;
+            
+            ItemSlot tagFluidSlot = container.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
+
+            
+            if (ItemSlotUtils.IsItemSlotNull(tagFluidSlot))
+            {
+                ItemSlot fluidItem = CreateNewFluidItem(inventorySlot, containerData.GetStorage());
+                GivePlayerFluidItem(fluidItem, container, playerInventory);
+                return;
+            }
+            
+
+            if (tagFluidSlot.amount >= containerData.GetStorage() || !ItemSlotUtils.AreEqual(tagFluidSlot, inventorySlot)) return;
+            uint space = containerData.GetStorage() - tagFluidSlot.amount;
+
+            uint toTake = inventorySlot.amount > space ? space : inventorySlot.amount;
+            inventorySlot.amount -= toTake;
+            ItemSlot mergedFluidItem = new ItemSlot(inventorySlot.itemObject, tagFluidSlot.amount + toTake, null);
+            GivePlayerFluidItem(mergedFluidItem, container, playerInventory);
+
+        }
+
+        private void GivePlayerFluidItem(ItemSlot fluidItem, ItemSlot container, PlayerInventory playerInventory)
+        {
+            if (container.amount == 1)
+            {
+                container.tags.Dict[ItemTag.FluidContainer] = fluidItem;
+                return;
+            }
+           
+            ItemTagCollection itemTagCollection = new ItemTagCollection(new Dictionary<ItemTag, object>
+            {
+                { ItemTag.FluidContainer, fluidItem }
+            });
+            ItemSlot newCell = new ItemSlot(container.itemObject, 1, itemTagCollection);
+            playerInventory.Give(newCell);
+            
+        }
+
+        private ItemSlot CreateNewFluidItem(ItemSlot inventorySlot, uint maxStorage)
+        {
+            uint size = GlobalHelper.Clamp(inventorySlot.amount, 0, maxStorage);
+            ItemSlot newSlot = new ItemSlot(inventorySlot.itemObject, size,null);
+            inventorySlot.amount -= size;
+            return newSlot;
+        }
+        private void InsertFluidCellIntoInventory(ItemSlot container, IFluidContainerData containerData)
+        {
+            var inventory = inventoryUI.GetInventory();
+            object itemSlotObject = container.tags.Dict[ItemTag.FluidContainer];
+            if (itemSlotObject is not ItemSlot itemSlot || ItemSlotUtils.IsItemSlotNull(itemSlot)) {
+                return;
+            }
+            ItemSlot fluidInventorySlot = inventory[index];
+            if (ItemSlotUtils.AreEqual(fluidInventorySlot,itemSlot)) { // Merge
+                // TODO
+                return;
+            }
+            inventory[index] = itemSlot;
+            container.amount--;
+            ItemSlot empty = ItemSlotFactory.CreateNewItemSlot(container.itemObject,1);
+            PlayerManager.Instance.GetPlayer().PlayerInventory.Give(empty);
         }
 
         protected override void RightClick()
