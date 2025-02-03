@@ -10,22 +10,35 @@ namespace TileEntity.Instances.SimonSays {
             this.controller = controller;
         }
 
-        public void display(List<int> sequence) {
-            controller.DisplayingSequence = true;
+        public void Display(List<int> sequence) {
             StartCoroutine(showSequence(sequence));
         }
 
-        private IEnumerator showSequence(List<int> sequence) {
+        public void RestartGame()
+        {
+            StartCoroutine(RestartGameCoroutine());
+        }
+
+        private IEnumerator RestartGameCoroutine()
+        {
+            controller.BlockInput = true;
+            yield return new WaitForSeconds(2f);
+            controller.InitGame();
+        }
+
+        private IEnumerator showSequence(List<int> sequence)
+        {
+            controller.BlockInput = true;
             foreach (int position in sequence) {
                 yield return showTile(controller.ColoredTiles[position]);
             }
-            controller.DisplayingSequence = false;
+            controller.BlockInput = false;
         }
 
        
 
-        public void showTileClick(SimonSaysColoredTileEntityInstance coloredTile) {
-            if (!controller.AllowPlayerPlace) {
+        public void ShowTileClick(SimonSaysColoredTileEntityInstance coloredTile) {
+            if (controller.BlockInput || controller.Restarting) {
                 return;
             }
             
@@ -38,14 +51,18 @@ namespace TileEntity.Instances.SimonSays {
             yield return new WaitForSeconds(0.2f);
         }
 
-        private IEnumerator showTileOnPlayerPress(SimonSaysColoredTileEntityInstance coloredTileEntity) {
+        private IEnumerator showTileOnPlayerPress(SimonSaysColoredTileEntityInstance coloredTileEntity)
+        {
+            if (controller.Restarting) yield break;
             coloredTileEntity.setColor(1);
             yield return new WaitForSeconds(0.8f);
             coloredTileEntity.setColor(0);
             yield return new WaitForSeconds(0.4f);
+            if (controller.Restarting) yield break;
             int index = controller.ColoredTiles.IndexOf(coloredTileEntity);
             controller.PlayerSequence.Add(index);
             controller.EvaluateSequence();
+            
         }
     }
 }

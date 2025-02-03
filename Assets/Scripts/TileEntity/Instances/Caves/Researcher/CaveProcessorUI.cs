@@ -60,7 +60,9 @@ namespace TileEntity.Instances.Caves.Researcher
             });
             
             mDriveInputUI.DisplayInventory(tileEntityInstance.InputDrives);
+            mDriveInputUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
+            
             mDriveInputUI.AddListener(tileEntityInstance);
             
             mDriveOutputUI.DisplayInventory(tileEntityInstance.OutputDrives);

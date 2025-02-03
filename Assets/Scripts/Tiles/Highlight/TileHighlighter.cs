@@ -14,10 +14,12 @@ namespace Tiles.Highlight
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             cellPosition.z = 0;
             TileBase tileBase = tilemap.GetTile(cellPosition);
-            
-            if (ReferenceEquals(tileBase, null)) return;
-            
+
             mBaseMap.SetTile(lastCellPosition,null);
+            if (ReferenceEquals(tileBase, null))
+            {
+                return;
+            }
             
             mBaseMap.SetTile(cellPosition,tileBase);
             lastCellPosition = cellPosition;
