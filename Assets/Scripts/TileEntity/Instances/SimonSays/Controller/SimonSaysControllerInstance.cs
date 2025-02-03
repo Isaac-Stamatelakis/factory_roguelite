@@ -24,19 +24,18 @@ namespace TileEntity.Instances.SimonSays {
         private List<SimonSaysColoredTileEntityInstance> coloredTiles;
         public List<SimonSaysColoredTileEntityInstance> ColoredTiles {get => coloredTiles;}
         private SimonSaysCoroutineController coroutineController;
-        private bool displayingSequence;
+        
         private int highestMatchingSequence;
         private int currentChances;
         private List<int> currentSequence;
         private List<int> playerSequence;
-        public bool AllowPlayerPlace {get => !DisplayingSequence;}
         public SimonSaysCoroutineController CoroutineController { get => coroutineController; set => coroutineController = value; }
-        public bool DisplayingSequence { get => displayingSequence; set => displayingSequence = value; }
+        public bool BlockInput;
+        public bool Restarting;
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
 
         public void OnRightClick()
         {
-            
             bool started = !ReferenceEquals(coroutineController, null);
             if (started || chunk is not ILoadedChunk loadedChunk) return;
             TextChatUI.Instance.sendMessage("Another challenger... Very well... Repeat the pattern and I should rework you...");
@@ -50,42 +49,46 @@ namespace TileEntity.Instances.SimonSays {
             InitGame();
         }
 
-        public void EvaluateSequence() {
+        public bool EvaluateSequence() {
             for (int i = 0; i < playerSequence.Count; i++) {
                 if (playerSequence[i] != currentSequence[i]) {
                     Lose();
-                    return;
+                    return false;
                 }
             }
             if (playerSequence.Count >= currentSequence.Count) {
                 SequenceMatch();
             }
-            
+
+            return true;
         }
 
-        private void InitGame() {
+        public void InitGame()
+        {
+            Restarting = false;
             playerSequence = new List<int>();
             currentSequence = new List<int>();
-            increaseCurrentSequenceLength(2);
-            coroutineController.display(currentSequence);
+            IncreaseCurrentSequenceLength(2);
+            coroutineController.Display(currentSequence);
         }
 
-        private void SequenceMatch() {
+        public void SequenceMatch() {
             highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
             if (highestMatchingSequence >= TileEntityObject.MaxLength) {
                 Conclude();
                 return;
             }
             playerSequence = new List<int>();
-            increaseCurrentSequenceLength(1);
-            coroutineController.display(currentSequence);
+            IncreaseCurrentSequenceLength(1);
+            coroutineController.Display(currentSequence);
         }
-        private void Lose() {
-            
+        public void Lose()
+        {
             currentChances--;
             if (currentChances > 0) {
+                Restarting = true;
                 TextChatUI.Instance.sendMessage("Oof wrong tile...");
-                InitGame();
+                coroutineController.RestartGame();
             } else {
                 Conclude();
             }
@@ -175,7 +178,8 @@ namespace TileEntity.Instances.SimonSays {
                 Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
                 IChunk chestChunk = closedChunkSystem.getChunk(chestChunkPosition);
                 ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
-                if (tileEntityInstance is not IItemConduitInteractable itemConduitInteractable)
+                IItemConduitInteractable itemConduitInteractable = TileEntityUtils.GetConduitInteractable<IItemConduitInteractable>(tileEntityInstance, ConduitType.Item);
+                if (itemConduitInteractable == null)
                 {
                     Debug.LogError($"{tileEntityObject.name} chest tile is not item interactable");
                     return;
@@ -197,6 +201,8 @@ namespace TileEntity.Instances.SimonSays {
                 PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
             }
         }
+        
+        
 
         private void InitTiles() {
             coloredTiles = new List<SimonSaysColoredTileEntityInstance>();
@@ -219,7 +225,7 @@ namespace TileEntity.Instances.SimonSays {
             }
         }
 
-        private void increaseCurrentSequenceLength(int amount) {
+        private void IncreaseCurrentSequenceLength(int amount) {
             for (int i = 0; i < amount; i++) {
                 currentSequence.Add(Random.Range(0,coloredTiles.Count));
             }

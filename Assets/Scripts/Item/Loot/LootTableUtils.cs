@@ -28,7 +28,7 @@ namespace Items {
         private static LootResult OpenLootTable(LootTable lootTable, HashSet<string> excludedIDs) {
             int frequencySum = 0;
             foreach (LootResult lootResult in lootTable.loot) {
-                if (ReferenceEquals(lootResult.item,null)) {
+                if (!lootTable) {
                     continue;
                 }
                 if (!lootTable.repetitions && excludedIDs.Contains(lootResult.item.id)) {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UI.Chat;
 
 namespace TileEntity.Instances.Caves.Researcher
@@ -33,7 +34,9 @@ namespace TileEntity.Instances.Caves.Researcher
                 throw new ChatParseException($"Cannot download unknown cave '{cave}'");
             if (cave.Equals(caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave))
                 throw new ChatParseException($"Already downloading '{cave}'");
+            
             caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave = cave;
+            caveProcessorUI.CaveProcessorInstance.InventoryUpdate(0);
         }
 
         public override string GetHelpText()
@@ -50,7 +53,7 @@ namespace TileEntity.Instances.Caves.Researcher
 
         public override List<string> GetAutoFill()
         {
-            List<string> strings = caveProcessorUI.CaveProcessorInstance.ResearchedCaves;
+            List<string> strings = caveProcessorUI.CaveProcessorInstance.ResearchedCaves.ToList(); // Create copy
             strings.Add(VERBOSE_FLAG);
             strings.Add(RESET_FLAG);
             return strings;

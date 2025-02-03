@@ -14,7 +14,8 @@ namespace TileEntity.Instances.Caves.Researcher {
     {
         public List<ItemSlot> InputDrives;
         public List<ItemSlot> OutputDrives;
-        private ulong Energy;
+        public ulong Energy;
+        public bool ResearchProgressing;
         private List<string> researchedCaves;
         public List<string> ResearchedCaves => researchedCaves;
         
@@ -84,7 +85,26 @@ namespace TileEntity.Instances.Caves.Researcher {
         private void ResearchCaveTickUpdate()
         {
             if (ResearchDriveProcess == null) return;
-            ResearchDriveProcess.Energy += 32; // FREE FOR TESTING PURPOSES
+            ulong costPerTick = ResearchDriveProcess.EnergyCostPerTick;
+            if (Energy < costPerTick) // Unlock most machines if the user cannot supply enough energy to progress the drive they lose progress
+            {
+                ResearchProgressing = false;
+                if (ResearchDriveProcess.Energy < costPerTick)
+                {
+                    ResearchDriveProcess.Energy = 0;
+                }
+                else
+                {
+                    ResearchDriveProcess.Energy -= costPerTick;
+                }
+                return;
+            }
+            
+            ResearchProgressing = ResearchDriveProcess.Energy > costPerTick;
+            ResearchDriveProcess.Energy += costPerTick;
+            Energy -= costPerTick;
+            
+            
             if (!ResearchDriveProcess.Complete) return;
             researchedCaves.Add(ResearchDriveProcess.ResearchId);
             ResearchDriveProcess = null;
@@ -144,6 +164,14 @@ namespace TileEntity.Instances.Caves.Researcher {
 
         public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
         {
+            if (ResearchDriveProcess == null) return 0;
+            ulong maxEnergy = ResearchDriveProcess.EnergyCostPerTick;
+            ulong sum = Energy+=energy;
+            if (sum > maxEnergy) {
+                Energy = maxEnergy;
+                return sum - maxEnergy;
+            }
+            Energy = sum;
             return energy;
         }
 
@@ -197,14 +225,30 @@ namespace TileEntity.Instances.Caves.Researcher {
     internal class ResearchDriveProcess
     {
         public ulong Energy;
+        public ulong EnergyCostPerTick;
         public ulong Cost;
         public string ResearchId;
         public bool Complete => Energy >= Cost;
         public float Progress => (float)Energy / Cost;
         public ResearchDriveProcess(Tier tier, string researchId)
         {
-            Cost = 16000 * GlobalHelper.BinaryExponentiation(4,(int)tier+1);
+            Cost = tier == Tier.Basic ? 4096 : 16000 * GlobalHelper.BinaryExponentiation(4,(int)tier+1);
+            EnergyCostPerTick =  GetMinimumEnergy(tier);
             ResearchId = researchId;
+        }
+
+        /// <summary>
+        /// Returns the minimum energy required to research a cave
+        /// </summary>
+        /// <param name="tier"></param>
+        /// <example>4, 128, 512, 2048, ...</example>
+        /// <remarks>Basic tier has a very low energy cost for SMRs to work</remarks>
+        /// <returns></returns>
+        private ulong GetMinimumEnergy(Tier tier)
+        {
+            if (tier == Tier.Basic) return 4;
+            return 8 * GlobalHelper.BinaryExponentiation(4,(int)(tier+1));
+            
         }
         
         
