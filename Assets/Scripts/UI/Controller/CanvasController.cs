@@ -57,6 +57,7 @@ namespace UI
 
         public void ClearStack()
         {
+            ToolTipController.Instance.HideToolTip();
             while (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo top = uiObjectStack.Pop();
@@ -67,10 +68,12 @@ namespace UI
         }
         public void PopStack()
         {
+            
             if (uiObjectStack.Count == 0)
             {
                 return;
             }
+            ToolTipController.Instance.HideToolTip();
             DisplayedUIInfo top = uiObjectStack.Pop();
             if (ReferenceEquals(top.originalParent, null))
             {
@@ -108,6 +111,7 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
+            ToolTipController.Instance.HideToolTip();
             mBlocker.gameObject.SetActive(true);
             if (uiObjectStack.Count > 0)
             {

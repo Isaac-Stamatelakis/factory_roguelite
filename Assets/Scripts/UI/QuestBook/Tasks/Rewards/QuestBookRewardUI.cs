@@ -54,13 +54,6 @@ namespace UI.QuestBook.Tasks.Rewards
             {
                 mAddButton.gameObject.SetActive(false);
                 mToggle.gameObject.SetActive(false);
-                int pages = GetPages();
-                if (pages == 0)
-                {
-                    mClaimButton.interactable = false;
-                    TextMeshProUGUI claimText = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
-                    claimText.text = "Nothing to Claim";
-                }
                 if (content.ItemRewards.Rewards.Count > 0)
                 {
                     currentPage = RewardPage.Items;
@@ -191,7 +184,19 @@ namespace UI.QuestBook.Tasks.Rewards
             bool rewardClaimed = RewardClaimed();
             bool canClaim = !rewardClaimed && content.Task.IsComplete();
             mClaimButton.GetComponent<Image>().color = canClaim ? Color.green : Color.gray;
-            mClaimButton.GetComponentInChildren<TextMeshProUGUI>().text = rewardClaimed ? "Claimed" : "Claim";
+            int pages = GetPages();
+            TextMeshProUGUI claimTextUI = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (pages == 0)
+            {
+                mClaimButton.interactable = false;
+                claimTextUI.text = "Nothing to Claim";
+            }
+            else
+            {
+                claimTextUI.text = rewardClaimed ? "Claimed" : "Claim";
+            }
+            
+            
             mClaimButton.interactable = canClaim || QuestBookUtils.EditMode;
             
         }

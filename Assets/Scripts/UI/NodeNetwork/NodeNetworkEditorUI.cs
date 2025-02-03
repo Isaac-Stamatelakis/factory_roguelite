@@ -71,7 +71,7 @@ namespace UI.NodeNetwork {
         }
 
         private Vector2 snapGrid(Vector2 mousePosition, Vector2 containerPosition, float containerScale) {
-            float scaledGrid = NodeNetworkConfig.GRIDSIZE*containerScale;
+            float scaledGrid = NodeNetworkConfig.GRID_SIZE*containerScale;
             float snappedX = Mathf.Round((mousePosition.x - containerPosition.x) / scaledGrid) * scaledGrid + containerPosition.x;
             float snappedY = Mathf.Round((mousePosition.y - containerPosition.y) / scaledGrid) * scaledGrid + containerPosition.y;
             return new Vector2(snappedX, snappedY);
