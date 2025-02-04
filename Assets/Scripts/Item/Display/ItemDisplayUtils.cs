@@ -149,12 +149,16 @@ namespace Items {
                     SetImageItemSprite(image,itemObject.getSprite());
                     break;
                 case ItemDisplayType.Stack:
-                    Image[] images = image.GetComponentsInChildren<Image>();
+                    //Image[] images = image.GetComponentsInChildren<Image>();
+                    SetImageItemSprite(image,itemObject.getSprite());
+                    // TODO fix this
+                    /*
                     Sprite[] stackSprites = itemObject.getSprites();
                     for (int i = 1; i < stackSprites.Length; i++) {
                         int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
                         SetImageItemSprite(images[imageIndex],stackSprites[i]);
                     }
+                    */
                     break;
                 case ItemDisplayType.Animated:
                     Sprite[] animationSprites = itemObject.getSprites();

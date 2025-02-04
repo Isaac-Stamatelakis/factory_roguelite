@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UI.QuestBook.Tasks;
 using UI.QuestBook.Tasks.Rewards;
 using UnityEngine.Serialization;
 
@@ -23,6 +24,7 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
         [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
+        [SerializeField] private Button mEditSizeButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
         [SerializeField] private Image mSelectTaskDownArrowImage;
         public QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
@@ -79,6 +81,7 @@ namespace UI.QuestBook {
                 mChangeTaskDropDown.interactable = false;
                 mEditImageButton.gameObject.SetActive(false);
                 mEditButton.gameObject.SetActive(false);
+                mEditSizeButton.gameObject.SetActive(false);
                 mSelectTaskDownArrowImage.gameObject.SetActive(false);
             }
             else
@@ -99,13 +102,21 @@ namespace UI.QuestBook {
                     void Callback(SerializedItemSlot itemSlot) // Experimenting with inline function definitions
                     {
                         node.ImageSeralizedItemSlot = itemSlot;
-                        questBookPageUI.RefreshNode(node);
+                        questBookPageUI.Display();
                     }
 
                     serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,
                         gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 
+                
+                mEditSizeButton.onClick.AddListener(() =>
+                {
+                    QuestBookEditSizeUI editSizeUI = AssetManager.cloneElement<QuestBookEditSizeUI>("SIZE_EDITOR");
+                    editSizeUI.Initialize(node,this);
+                    Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
+                    editSizeUI.transform.SetParent(canvas.transform,false);
+                });
             }
 
             UpdateSubmissionButton();
