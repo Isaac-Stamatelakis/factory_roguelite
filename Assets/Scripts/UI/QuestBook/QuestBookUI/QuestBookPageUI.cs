@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UI.NodeNetwork;
+using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage, QuestEditModeController>
@@ -56,8 +58,28 @@ namespace UI.QuestBook {
         {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
             nodeObject.Init(node,this);
+            RectTransform nodeRectTransform = (RectTransform)nodeObject.transform;
+            nodeRectTransform.sizeDelta = GetNodeVectorSize(node.Content.Size);
             nodeObject.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
             return nodeObject;
+        }
+
+        private Vector2 GetNodeVectorSize(QuestBookNodeSize nodeSize)
+        {
+            const float BASE_SIZE = 64f;
+            const float LARGE_SIZE_MULTIPLIER = 1.5f;
+            const float HUGE_SIZE_MULTIPLIER = 2f;
+            switch (nodeSize)
+            {
+                case QuestBookNodeSize.Regular:
+                    return new Vector2(BASE_SIZE, BASE_SIZE);
+                case QuestBookNodeSize.Large:
+                    return new Vector2(BASE_SIZE, BASE_SIZE)*LARGE_SIZE_MULTIPLIER;
+                case QuestBookNodeSize.Huge:
+                    return new Vector2(BASE_SIZE, BASE_SIZE)*HUGE_SIZE_MULTIPLIER;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(nodeSize), nodeSize, null);
+            }
         }
 
         protected override void initEditMode()
@@ -101,7 +123,8 @@ namespace UI.QuestBook {
                     "Empty Description",
                     "New Task",
                     new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
-                    new QuestBookCommandRewards(new List<QuestBookCommandReward>())
+                    new QuestBookCommandRewards(new List<QuestBookCommandReward>()),
+                    QuestBookNodeSize.Regular
                 ),
                 new HashSet<int>(),
                 library.GetSmallestNewID(),

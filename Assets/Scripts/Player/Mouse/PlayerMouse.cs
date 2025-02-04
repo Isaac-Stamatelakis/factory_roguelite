@@ -66,6 +66,21 @@ namespace PlayerModule.Mouse {
             bool rightClick = Input.GetMouseButton(1);
             bool scroll = Input.mouseScrollDelta.y != 0;
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            if (PlayerKeyPressUtils.BlockKeyInput)
+            {
+                if (eventSystem.IsPointerOverGameObject())
+                {
+
+                    if (scroll)
+                    {
+                        MouseScrollUIUpdate(mousePosition);
+                    }
+                }
+                return;
+            }
+
+            if (eventSystem.IsPointerOverGameObject()) return;
+            
             
             if (!leftClick)
             {
@@ -82,16 +97,7 @@ namespace PlayerModule.Mouse {
                 playerInventory.CurrentTool.ModeSwitch(MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
                 playerInventory.PlayerRobotToolUI.Display();
             }
-            if (eventSystem.IsPointerOverGameObject())
-            {
-                
-                if (scroll)
-                {
-                    MouseScrollUIUpdate(mousePosition);
-                }
-                return;
-            }
-            ToolTipController.Instance.HideToolTip();
+            
             if (!leftClick && !rightClick) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
@@ -110,6 +116,7 @@ namespace PlayerModule.Mouse {
 
         public void FixedUpdate()
         {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (!closedChunkSystem) {
                 return;
@@ -194,7 +201,7 @@ namespace PlayerModule.Mouse {
             switch (inventoryDisplayMode)
             {
                 case InventoryDisplayMode.Inventory:
-                    handlePlace(mousePosition,DimensionManager.Instance.GetPlayerSystem(playerTransform));
+                    HandlePlace(mousePosition,DimensionManager.Instance.GetPlayerSystem(playerTransform));
                     break;
                 case InventoryDisplayMode.Tools:
                     IRobotToolInstance currentTool = playerInventory.CurrentTool;
@@ -300,7 +307,7 @@ namespace PlayerModule.Mouse {
             return false;
         }
 
-        private bool handlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
+        private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             if (ReferenceEquals(closedChunkSystem,null)) {
                 return false;
             }

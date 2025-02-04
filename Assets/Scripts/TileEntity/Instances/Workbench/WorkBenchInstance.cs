@@ -19,7 +19,7 @@ namespace TileEntity.Instances.WorkBenchs {
 
         public void OnRightClick()
         {
-            tileEntityObject.UIAssetManager.display<WorkBenchInstance,WorkBenchUI>(this);
+            tileEntityObject.UIAssetManager.Display<WorkBenchInstance,WorkBenchUI>(this);
         }
 
         public string Serialize()

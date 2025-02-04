@@ -6,7 +6,7 @@ using TileEntity;
 
 namespace Items.Tags.FluidContainers {
     [CreateAssetMenu(fileName ="I~New Fluid Container Tile Item",menuName="Item/Tagged Items/Fluid Container/Tile Item")]
-    public class FluidContainerTileItem : TileItem, IFluidContainer
+    public class IFluidContainerDataTileItem : TileItem, IFluidContainerData
     {
         [Header("Set size so fluid fits in container\nLeave at 0,0 for no sprite")]
         [SerializeField] public Vector2Int fluidSizeInSprite;

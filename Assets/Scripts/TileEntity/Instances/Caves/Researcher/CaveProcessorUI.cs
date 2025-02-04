@@ -94,7 +94,7 @@ namespace TileEntity.Instances.Caves.Researcher
             if (caves == null) return caveIds;
             foreach (Cave cave in caves)
             {
-                caveIds.Add(cave.Id);
+                caveIds.Add(cave.GetId());
             }
 
             return caveIds;

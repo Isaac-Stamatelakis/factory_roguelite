@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
     /// <summary>
@@ -110,7 +111,8 @@ namespace UI.QuestBook {
                 content.Description,
                 content.Title,
                 content.ItemRewards,
-                content.CommandRewards
+                content.CommandRewards,
+                content.Size
             );
         }
 
@@ -166,7 +168,8 @@ namespace UI.QuestBook {
                 content.description,
                 content.title,
                 content.ItemRewards,
-                content.CommandRewards
+                content.CommandRewards,
+                content.Size
             );
         }
 
@@ -225,12 +228,15 @@ namespace UI.QuestBook {
             public int numberOfRewards;
             public QuestBookItemRewards ItemRewards;
             public QuestBookCommandRewards CommandRewards;
-            public SerializedQuestBookContent(string task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards) {
+            public QuestBookNodeSize Size;
+            public SerializedQuestBookContent(string task, string description, string title,
+                QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards, QuestBookNodeSize size) {
                 this.task = task;
                 this.description = description;
                 this.title = title;
                 this.ItemRewards = itemRewards;
                 this.CommandRewards = commandRewards;
+                this.Size = size;
             }
         }
     

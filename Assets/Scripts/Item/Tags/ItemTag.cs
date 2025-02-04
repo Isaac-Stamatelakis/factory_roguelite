@@ -165,14 +165,11 @@ namespace Items.Tags {
         }
 
         private static GameObject getFluidContainerVisualElement(ItemSlot itemSlot, object tagData) {
-            if (tagData == null) {
-                return null;
-            }
             if (tagData is not ItemSlot fluidItem) {
                 return null;
             }
             
-            if (itemSlot.itemObject == null || itemSlot.itemObject is not IFluidContainer fluidContainer) {
+            if (itemSlot.itemObject is not IFluidContainerData fluidContainer) {
                 return null;
             }  
             Vector2Int spriteSize = fluidContainer.GetFluidSpriteSize();
@@ -182,7 +179,7 @@ namespace Items.Tags {
             GameObject fluidObject = new GameObject();
             Image image = fluidObject.AddComponent<Image>();
             image.sprite = fluidItem.itemObject.getSprite();
-            RectTransform rectTransform = fluidObject.AddComponent<RectTransform>();
+            RectTransform rectTransform = fluidObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = spriteSize;
             return fluidObject;
         }

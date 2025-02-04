@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Player.Controls.Bindings;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Player.Controls
@@ -19,7 +20,8 @@ namespace Player.Controls
             Dictionary<string, ControlBindingCollection> sections = new Dictionary<string, ControlBindingCollection>
             {
                 ["Movement"] = new MovementControlBindings(),
-                ["Equips"] = new EquipmentControlBindings()
+                ["Equips"] = new EquipmentControlBindings(),
+                ["Misc"] = new MiscBindings()
             };
             foreach (var kvp in sections)
             {
@@ -132,7 +134,7 @@ namespace Player.Controls
 
         public static string FormatKeyText(string key)
         {
-            return key.Replace("_"," ");
+            return key.Replace("_"," ").FirstCharacterToUpper();
         }
         public static void SetDefault()
         {

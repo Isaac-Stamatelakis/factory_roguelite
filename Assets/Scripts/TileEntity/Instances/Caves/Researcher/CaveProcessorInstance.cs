@@ -23,6 +23,7 @@ namespace TileEntity.Instances.Caves.Researcher {
         internal ResearchDriveProcess ResearchDriveProcess;
         internal CopyDriveProcess CopyDriveProcess;
         private const string DRIVE_ID = "cave_data_drive";
+        private const string DEFAULT_CAVE_NAME = "Icy_Caverns";
        
         private const int DRIVE_SPACE = 1;
         public CaveProcessorInstance(CaveProcessor tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -72,7 +73,8 @@ namespace TileEntity.Instances.Caves.Researcher {
         {
             InputDrives = ItemSlotFactory.createEmptyInventory(DRIVE_SPACE);
             OutputDrives = ItemSlotFactory.createEmptyInventory(DRIVE_SPACE);
-            researchedCaves = new List<string>{"icy_caverns"};
+            
+            researchedCaves = new List<string>{DEFAULT_CAVE_NAME};
         }
 
         public void TickUpdate()

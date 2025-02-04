@@ -24,7 +24,7 @@ namespace UI.QuestBook {
         public override void DisplayImage()
         {
             
-            if (ReferenceEquals(itemObject,null)) return;
+            if (ReferenceEquals(itemObject,null) || !itemObject) return;
             ItemDisplayUtils.DisplayItemSprite(image,itemObject,counter);
             bool small = image.transform.localScale is { x: 0.5f, y: 0.5f };
             if (small) image.transform.localScale = Vector3.one;

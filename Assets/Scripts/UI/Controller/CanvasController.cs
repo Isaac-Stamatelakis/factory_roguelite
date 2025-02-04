@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Player.Controls;
+using Player.Controls.Bindings;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
@@ -25,6 +27,11 @@ namespace UI
 
         public void Update()
         {
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(MiscBindings.HIDE_UI)))
+            {
+                Canvas parentCanvas = GetComponentInParent<Canvas>();
+                parentCanvas.enabled = !parentCanvas.enabled;
+            }
             if (!canTerminate) // Prevents instant terminating if key to activate ui element is the same that destroys it
             {
                 canTerminate = true;
@@ -41,6 +48,8 @@ namespace UI
             {
                 return;
             }
+
+            
             DisplayedUIInfo top = uiObjectStack.Peek();
             List<KeyCode> additionalTerminators = top.additionalTerminators;
             if (additionalTerminators == null) return;
@@ -57,6 +66,7 @@ namespace UI
 
         public void ClearStack()
         {
+            if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             while (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo top = uiObjectStack.Pop();
@@ -67,10 +77,12 @@ namespace UI
         }
         public void PopStack()
         {
+            
             if (uiObjectStack.Count == 0)
             {
                 return;
             }
+            if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             DisplayedUIInfo top = uiObjectStack.Pop();
             if (ReferenceEquals(top.originalParent, null))
             {
@@ -108,6 +120,8 @@ namespace UI
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
+            if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
+            
             mBlocker.gameObject.SetActive(true);
             if (uiObjectStack.Count > 0)
             {

@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
 {
-    public class BurnerUIBase : MonoBehaviour, ITileEntityUI<BurnerMachineInstance>, IRecipeProcessorUI
+    public class BurnerUIBase : MonoBehaviour, ITileEntityUI<BurnerMachineInstance>, IRecipeProcessorUI, IInventoryUIAggregator
     {
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private TileEntityInventoryUI tileEntityInventoryUI;
@@ -57,6 +57,11 @@ namespace TileEntity.Instances.Machine.UI
         {
             if (!ReferenceEquals(displayedInstance, null)) machineProgress.SetArrowProgress(displayedInstance.GetProgressPercent());
             if (!ReferenceEquals(displayedInstance,null)) burnerProgress.SetArrowProgress(displayedInstance.BurnerFuelInventory.GetBurnPercent());
+        }
+        
+        public IInventoryUITileEntityUI GetUITileEntityUI()
+        {
+            return tileEntityInventoryUI;
         }
     }
 }

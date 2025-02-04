@@ -42,6 +42,7 @@ namespace UI.NodeNetwork {
         private INodeUI selectedNode;
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
+        private RightClickEvent rightClickEvent;
         
 
         private readonly Dictionary<KeyCode[], Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode[], Direction>
@@ -130,11 +131,7 @@ namespace UI.NodeNetwork {
         public abstract void DisplayLines();
 
         protected abstract bool nodeDiscovered(TNode node);
-
-        public void FixedUpdate() {
-            HandleRightClick();
-        }
-
+        
         private bool IsPressed(KeyCode[] keyCodes, bool hold = true)
         {
             foreach (var keycode in keyCodes)
@@ -155,6 +152,7 @@ namespace UI.NodeNetwork {
 
         public void Update() {
             HandleZoom();
+            HandleRightClick();
             if (selectedNode == null)
             {
                 foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
@@ -190,6 +188,7 @@ namespace UI.NodeNetwork {
                 MoveNode((TNode)selectedNode?.GetNode(),direction);
             }
         }
+        
 
         protected abstract void initEditMode();
         private void HandleZoom() {
@@ -198,11 +197,11 @@ namespace UI.NodeNetwork {
             {
                 Vector3 mousePosition = Input.mousePosition;
                 Transform containerTransform = ContentContainer;
-                Vector3 newScale = containerTransform.localScale + Vector3.one * (scrollInput * NodeNetworkConfig.ZOOMSPEED);
+                Vector3 newScale = containerTransform.localScale + Vector3.one * (scrollInput * NodeNetworkConfig.ZOOM_SPEED);
                 newScale = new Vector3(
-                    Mathf.Clamp(newScale.x, NodeNetworkConfig.MINSCALE, NodeNetworkConfig.MAXSCALE),
-                    Mathf.Clamp(newScale.y, NodeNetworkConfig.MINSCALE, NodeNetworkConfig.MAXSCALE),
-                    Mathf.Clamp(newScale.z, NodeNetworkConfig.MINSCALE, NodeNetworkConfig.MAXSCALE)
+                    Mathf.Clamp(newScale.x, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
+                    Mathf.Clamp(newScale.y, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE),
+                    Mathf.Clamp(newScale.z, NodeNetworkConfig.MIN_SCALE, NodeNetworkConfig.MAX_SCALE)
                 );
                 Vector3 scaleChange = (newScale - containerTransform.localScale);
                 Vector3 newOffset = scaleChange.x/newScale.x *  (containerTransform.position - mousePosition);
@@ -212,19 +211,20 @@ namespace UI.NodeNetwork {
         }
 
         private void HandleRightClick() {
-            if (!Input.GetMouseButton(1)) {
-                return;
+            if (Input.GetMouseButtonDown(1))
+            {
+                rightClickEvent = new RightClickEvent(Input.mousePosition-ContentContainer.position);
             }
-            int maxPosition = 2000;
-            int maxSpeed = 250;
-            Vector3 mousePosition = Input.mousePosition;
-            Vector3 dif = (mousePosition - ContentMaskContainer.transform.position);
-            dif.x = Mathf.Clamp(dif.x,-maxSpeed,maxSpeed);
-            dif.y = Mathf.Clamp(dif.y,-maxSpeed,maxSpeed);
-            Vector2 newPosition = transform.position - dif * 0.05f;
-            float clampedX = Mathf.Clamp(newPosition.x,-maxPosition,maxPosition);
-            float clampedY = Mathf.Clamp(newPosition.y,-maxPosition,maxPosition);
-            transform.position = new Vector3(clampedX,clampedY);
+
+            if (rightClickEvent != null)
+            {
+                transform.position =  rightClickEvent.GetNetworkPosition(Input.mousePosition);
+            }
+
+            if (Input.GetMouseButtonUp(1))
+            {
+                rightClickEvent = null;
+            }
         }
 
         public NodeNetworkUIMode GetMode()
@@ -285,6 +285,21 @@ namespace UI.NodeNetwork {
         public Transform GetNodeContainer()
         {
             return nodeContainer;
+        }
+
+        private class RightClickEvent
+        {
+            public Vector2 ClickPosition;
+
+            public Vector2 GetNetworkPosition(Vector2 mousePosition)
+            {
+                return mousePosition - ClickPosition;
+            }
+
+            public RightClickEvent(Vector2 clickPosition)
+            {
+                ClickPosition = clickPosition;
+            }
         }
     }
 }

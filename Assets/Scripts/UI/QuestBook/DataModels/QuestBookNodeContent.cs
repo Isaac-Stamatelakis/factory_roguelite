@@ -1,22 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using UI.QuestBook.Tasks;
 using UnityEngine;
 
 namespace UI.QuestBook {
     public class QuestBookNodeContent
     {
+        public QuestBookNodeSize Size;
         public QuestBookTask Task;
         public string Description;
         public string Title;
         private List<SerializedItemSlot> rewards;
         public QuestBookItemRewards ItemRewards;
         public QuestBookCommandRewards CommandRewards;
-        public QuestBookNodeContent(QuestBookTask task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards) {
+        public QuestBookNodeContent(QuestBookTask task, string description, string title, QuestBookItemRewards itemRewards, 
+            QuestBookCommandRewards commandRewards, QuestBookNodeSize size) {
             this.Task = task;
             this.Description = description;
             this.Title = title;
             this.ItemRewards = itemRewards;
             this.CommandRewards = commandRewards;
+            this.Size = size;
         }
     }
 

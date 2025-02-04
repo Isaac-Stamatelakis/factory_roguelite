@@ -20,7 +20,7 @@ namespace Player.Controls.UI
         {
             backButton.onClick.AddListener(() =>
             {
-                MainCanvasController.Instance.PopStack();
+                CanvasController.Instance.PopStack();
             });
             restoreButton.onClick.AddListener(ControlUtils.SetDefault);
             Display();

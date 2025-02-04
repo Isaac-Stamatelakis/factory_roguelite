@@ -47,7 +47,7 @@ namespace TileEntity.Instances.Signal {
 
         public void OnRightClick()
         {
-            TileEntityObject.UIManager.display<SignalClockInstance,SignalClockUI>(this);
+            TileEntityObject.UIManager.Display<SignalClockInstance,SignalClockUI>(this);
         }
         
         public string Serialize()

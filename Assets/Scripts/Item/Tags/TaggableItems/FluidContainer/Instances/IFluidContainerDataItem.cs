@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Items.Tags.FluidContainers {
     [CreateAssetMenu(fileName ="I~New Fluid Container Item",menuName="Item/Tagged Items/Fluid Container/Item")]
-    public class FluidContainerItem : PresetItemObject, IFluidContainer
+    public class IFluidContainerDataItem : PresetItemObject, IFluidContainerData
     {
         [SerializeField] public uint storage;
         [Header("Set size so fluid fits in container\nLeave at 0,0 for no sprite")]

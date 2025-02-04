@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Item.Slot;
 using Items;
+using Items.Tags;
 using Items.Transmutable;
 using UnityEngine;
 
@@ -17,17 +20,41 @@ namespace UI.ToolTip {
             instance = this;
         }
 
-        public void ShowToolTip(Vector2 position, ItemObject itemObject)
+        public void ShowToolTip(Vector2 position, ItemSlot itemSlot)
         {
-            if (ReferenceEquals(itemObject, null)) return;
-            string text = itemObject.name;
-            if (itemObject is TransmutableItemObject transmutableItemObject)
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            string text = itemSlot.itemObject.name;
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
                 TransmutableItemMaterial material = transmutableItemObject.getMaterial();
-                text += '\n' + TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula);
+                text += $"\n[<b>{TransmutableItemUtils.FormatChemicalFormula(material.chemicalFormula)}</b>]";
+            }
+
+            if (itemSlot.tags?.Dict != null)
+            {
+                text = AddTagText(text, itemSlot.tags.Dict);
             }
             ShowToolTip(position, text);
         }
+
+        private static string AddTagText(string text, Dictionary<ItemTag, object> tags)
+        {
+            if (tags.TryGetValue(ItemTag.CaveData, out var caveData))
+            {
+                text += $"\nData: <b>{caveData}</b>";
+            }
+
+            if (tags.TryGetValue(ItemTag.FluidContainer, out var fluidData))
+            {
+                ItemSlot fluidItem = fluidData as ItemSlot;
+                if (!ItemSlotUtils.IsItemSlotNull(fluidItem))
+                {
+                    text += $"\nStoring {ItemDisplayUtils.FormatAmountText(fluidItem.amount,false,ItemState.Fluid)} of {fluidItem.itemObject.name} ";
+                }
+            }
+            return text;
+        }
+        
         
         public void ShowToolTip(Vector2 position, string text) {
             HideToolTip();

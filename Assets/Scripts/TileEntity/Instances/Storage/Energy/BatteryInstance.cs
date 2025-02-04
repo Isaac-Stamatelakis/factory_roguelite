@@ -23,7 +23,7 @@ namespace TileEntity.Instances.Storage {
         
         public void OnRightClick()
         {
-            TileEntityObject.UIManager.display<BatteryInstance,EnergyStorageUIController>(this);
+            TileEntityObject.UIManager.Display<BatteryInstance,EnergyStorageUIController>(this);
         }
 
         public string Serialize()
