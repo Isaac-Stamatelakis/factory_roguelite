@@ -7,6 +7,8 @@ using Item.Tags;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using Player;
+using Player.Controls;
 using TMPro;
 using UI;
 using UI.Chat;
@@ -37,10 +39,13 @@ namespace PlayerModule.KeyPress {
     public class PlayerKeyPress : MonoBehaviour
     {
         private PlayerInventory playerInventory;
+
+        private PlayerScript playerScript;
         // Start is called before the first frame update
         void Start()
         {
             playerInventory = GetComponent<PlayerInventory>();
+            playerScript = GetComponent<PlayerScript>();
         }
 
         // Update is called once per frame
@@ -53,11 +58,20 @@ namespace PlayerModule.KeyPress {
                 ToolTipController.Instance.HideToolTip();
                 playerInventory.toggleInventory();
             }
-            /*
-            if (Input.GetKeyDown(KeyCode.C)) {
-                playerInventory.toggleToolAndInventory();
+
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE)))
+            {
+                ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
+                conduitPlacementOptions.ResetPlacementRecord();
+                conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
+                Debug.Log($"Switched placement mode {conduitPlacementOptions.PlacementMode}");
             }
-            */
+
+            if (ControlUtils.ControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))
+            {
+                Debug.Log("Termianted");
+            }
+                
             
             inventoryNavigationKeys();
             

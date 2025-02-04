@@ -10,7 +10,10 @@ namespace Player.Controls
         public const string CHANGE_TOOL = "change_tool";
         public const string TOOL_SELECTOR = "tool_selector";
         public const string TOOL_OPTIONS = "tool_options";
-        public const string CONDUIT_VIEW_OPTIONS = "conduit_view_options";
-        public const string CONDUIT_PORT_VIEW_OPTIONS = "port_view_options";
+        public const string OPEN_CONDUIT_OPTIONS = "view_conduit_options";
+        public const string SWITCH_CONDUIT_PLACMENT_MODE = "switch_conduit_placment_mode";
+        public const string TERMINATE_CONDUIT_GROUP = "terminate_conduit_group";
+        public const string HIDE_UI = "hide_ui";
+        public const string HIDE_JEI = "hide_jei";
     }
 }

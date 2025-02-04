@@ -8,6 +8,7 @@ using WorldModule.Caves;
 using WorldModule;
 using Misc;
 using DevTools.Structures;
+using UnityEngine.Serialization;
 using Random = System.Random;
 
 
@@ -15,10 +16,21 @@ namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Structure Distributor",menuName="Generation/Structure/Distributor")]
     public class AreaStructureDistributor : CaveTileGenerator
     {
-        public List<StructureFrequency> structures;
+        public List<PresetStructure> constantStructures;
+        [FormerlySerializedAs("structures")] public List<StructureFrequency> randomStructures;
         public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
-            foreach (StructureFrequency structureFrequency in structures) {
+
+            foreach (PresetStructure presetStructure in constantStructures)
+            {
+                Structure structure = StructureGeneratorHelper.LoadStructure(presetStructure.structureName); 
+                int index = UnityEngine.Random.Range(0, structure.variants.Count);
+                StructureVariant variant = structure.variants[index];
+                Vector2Int normalizedPlacementPosition = new Vector2Int(width,height)/2 + presetStructure.location - variant.Size / 2 - new Vector2Int(Global.CHUNK_SIZE,Global.CHUNK_SIZE)/2;
+                Debug.Log((normalizedPlacementPosition));
+                AreaStructureDistributorUtils.placeStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
+            }
+            foreach (StructureFrequency structureFrequency in randomStructures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
                 Structure structure = StructureGeneratorHelper.LoadStructure(structureFrequency.structureName);
                 var variants = structure.variants;
@@ -154,6 +166,13 @@ namespace WorldModule.Caves {
         public string structureName;
         public int mean;
         public int standardDeviation;
+    }
+
+    [System.Serializable]
+    public class PresetStructure
+    {
+        public string structureName;
+        public Vector2Int location;
     }
 }
 

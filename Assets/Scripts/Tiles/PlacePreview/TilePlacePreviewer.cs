@@ -119,9 +119,8 @@ namespace TileMaps.Previewer {
             ConduitType type = conduitItem.GetConduitType();
             IConduitSystemManager manager = conduitTileClosedChunkSystem.GetManager(type);
             
-
-            int previewState = manager.GetNewState((Vector2Int)position, ConduitPlacementMode.Any, itemObject.id);
-            bool showAllStates = previewState == 0 && manager.GetConduitAtCellPosition((Vector2Int)position) == null;
+            int previewState = manager.GetNewState((Vector2Int)position, playerScript.ConduitPlacementOptions, itemObject.id);
+            bool showAllStates = previewState == 0 && manager.GetConduitAtCellPosition((Vector2Int)position) == null && manager.GetAdjacentConduitCount((Vector2Int)position,itemObject.id) == 0;
             if (showAllStates) // If no connections nearby show all directions cause it looks nicer
             {
                 previewState = 15;
@@ -137,6 +136,7 @@ namespace TileMaps.Previewer {
                 ConduitStateTile adjStateTile = conduitItem.Tile;
                 int state = conduit.GetState();
                 var directionState = directionStates[i];
+                if (!playerScript.ConduitPlacementOptions.CanConnect(conduit)) continue;
                 if (!conduit.ConnectsDirection(directionState))
                 {
                     state += (int) directionState;
@@ -148,5 +148,7 @@ namespace TileMaps.Previewer {
             
             return new MultiMapPlacementRecord(itemObject.id, tilemap, unhighlightedTileMap, position, placePositions);
         }
+        
+        
     }
 }

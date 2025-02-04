@@ -5,6 +5,7 @@ using System.Linq;
 using Conduits.Ports;
 using TileEntity;
 using System;
+using Player;
 using TileMaps.Conduit;
 using Tiles;
 
@@ -23,7 +24,8 @@ namespace Conduits.Systems {
         public EntityPortType GetPortTypeAtPosition(int x, int y);
         public void AddTileEntity(ITileEntityInstance tileEntity);
         public void DeleteTileEntity(Vector2Int position);
-        public int GetNewState(Vector2Int position, ConduitPlacementMode placementMode, string id);
+        public int GetNewState(Vector2Int position, ConduitPlacementOptions placementOptions, string id);
+        public int GetAdjacentConduitCount(Vector2Int position, string id);
         public void RefreshSystemTiles(IConduitSystem conduitSystem);
         public void RefreshConduitTile(IConduit conduit);
         public void SetTileMap(ConduitTileMap conduitTileMap);
@@ -131,31 +133,50 @@ namespace Conduits.Systems {
         /// <param name="placementMode"></param>
         /// <param name="id"></param>
         /// <returns>State of new conduit</returns>
-        public int GetNewState(Vector2Int position, ConduitPlacementMode placementMode, string id)
+        public int GetNewState(Vector2Int position, ConduitPlacementOptions placementOptions, string id)
         {
-            IConduit left = GetConduitAtCellPosition(position+Vector2Int.left);
             int state = 0;
-            if (left != null && left.GetId() == id)
-            {
-                state += (int)ConduitDirectionState.Left;
-            }
+            
+            IConduit left = GetConduitAtCellPosition(position+Vector2Int.left);
+            state += IterateState(left,ConduitDirectionState.Left,id, placementOptions);
+            
             IConduit right = GetConduitAtCellPosition(position+Vector2Int.right);
-            if (right != null && right.GetId() == id)
-            {
-                state += (int)ConduitDirectionState.Right;
-            }
+            state += IterateState(right,ConduitDirectionState.Right,id, placementOptions);
+            
             IConduit up = GetConduitAtCellPosition(position+Vector2Int.up);
-            if (up != null && up.GetId() == id)
-            {
-                state += (int)ConduitDirectionState.Up;
-            }
+            state += IterateState(up,ConduitDirectionState.Up,id, placementOptions);
+            
             IConduit down = GetConduitAtCellPosition(position+Vector2Int.down);
-            if (down != null && down.GetId() == id)
-            {
-                state += (int)ConduitDirectionState.Down;
-            }
+            state += IterateState(down,ConduitDirectionState.Down,id, placementOptions);
 
             return state;
+        }
+
+        public int GetAdjacentConduitCount(Vector2Int position, string id)
+        {
+            int count = 0;
+            
+            if (IterateAdjacentCount(position+Vector2Int.left, id)) count++;
+            if (IterateAdjacentCount(position+Vector2Int.right, id)) count++;
+            if (IterateAdjacentCount(position+Vector2Int.down, id)) count++;
+            if (IterateAdjacentCount(position+Vector2Int.up, id)) count++;
+
+            return count;
+        }
+
+        private bool IterateAdjacentCount(Vector2Int position, string id)
+        {
+            IConduit conduit = GetConduitAtCellPosition(position);
+            return conduit?.GetId() == id;
+        }
+
+        private int IterateState(IConduit conduit, ConduitDirectionState conduitDirectionState, string id, ConduitPlacementOptions placementOptions)
+        {
+            if (conduit != null && conduit.GetId() == id && placementOptions.CanConnect(conduit))
+            {
+                return (int)conduitDirectionState;
+            }
+            return 0;
         }
 
         public void RefreshSystemTiles(IConduitSystem conduitSystem)

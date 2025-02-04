@@ -38,7 +38,12 @@ namespace UI.JEI
         private List<ItemSlot> queriedItems;
         
         internal CatalogueMode Mode { get => mode; set => mode = value; }
-        
+
+        public void Update()
+        {
+            
+        }
+
         void Start()
         {
             displayed = new ItemHashTable();
