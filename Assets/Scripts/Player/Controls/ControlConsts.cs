@@ -12,5 +12,7 @@ namespace Player.Controls
         public const string TOOL_OPTIONS = "tool_options";
         public const string CONDUIT_VIEW_OPTIONS = "conduit_view_options";
         public const string CONDUIT_PORT_VIEW_OPTIONS = "port_view_options";
+        public const string HIDE_UI = "hide_ui";
+        public const string HIDE_JEI = "hide_jei";
     }
 }

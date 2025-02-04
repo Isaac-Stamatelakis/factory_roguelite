@@ -27,7 +27,7 @@ namespace UI
 
         public void Update()
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(MiscBindings.HIDE_UI)))
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.HIDE_UI)))
             {
                 Canvas parentCanvas = GetComponentInParent<Canvas>();
                 parentCanvas.enabled = !parentCanvas.enabled;
