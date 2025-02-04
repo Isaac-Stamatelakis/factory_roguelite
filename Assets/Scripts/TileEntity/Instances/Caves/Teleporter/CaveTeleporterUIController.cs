@@ -83,7 +83,7 @@ namespace TileEntity.Instances {
             {
                 if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
                 if (itemSlot.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out var value)) continue;
-                if ((string)value == cave.Id) return true;
+                if ((string)value == cave.GetId()) return true;
             }
 
             return false;

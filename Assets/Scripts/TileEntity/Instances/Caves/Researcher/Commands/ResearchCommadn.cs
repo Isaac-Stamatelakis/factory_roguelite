@@ -70,7 +70,7 @@ namespace TileEntity.Instances.Caves.Researcher
             List<Cave> caves = caveProcessorUI.Caves;
             foreach (Cave cave in caves)
             {
-                if (cave.Id.Equals(id)) return cave.tier;
+                if (cave.name.Equals(id)) return cave.tier;
             }
 
             return Tier.Basic;

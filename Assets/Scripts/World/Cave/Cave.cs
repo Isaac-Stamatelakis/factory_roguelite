@@ -15,8 +15,6 @@ namespace WorldModule.Caves {
     public class Cave : ScriptableObject, IGeneratedArea
     {
         public Tier tier;
-        [SerializeField] private string id;
-        public string Id {get => id;}
         [TextArea] [SerializeField] private string description;
         public string Description {get => description;}
         public AssetReference generationModel;
@@ -24,7 +22,11 @@ namespace WorldModule.Caves {
         public AssetReference entityDistributor;
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
-        
+
+        public string GetId()
+        {
+            return name.Replace(" ", "_");
+        }
     }
 
     public class CaveInstance: IGeneratedArea {
