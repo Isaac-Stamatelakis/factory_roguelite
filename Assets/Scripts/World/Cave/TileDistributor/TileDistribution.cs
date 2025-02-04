@@ -12,8 +12,8 @@ namespace WorldModule.Caves {
     }
     [System.Serializable]
     public class TileDistribution {
-        public int density;
-        public int densityStandardDeviation;
+        [Range(0,1)] public float density;
+        
         public bool writeAll;
         public TilePlacementMode placementMode;
         [Range(0,4096)]

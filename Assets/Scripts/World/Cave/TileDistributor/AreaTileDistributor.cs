@@ -6,12 +6,27 @@ using Chunks.IO;
 using Misc.RandomFrequency;
 using Misc;
 using System;
+using Random = UnityEngine.Random;
 
 namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
     public class AreaTileDistributor : CaveTileGenerator
     {
         public List<TileDistribution> tileDistributions;
+
+        /// <summary>
+        /// Calculates the number of veins by converting a float to int, then has a chance to add an additional vein equal fNumberOfVeins % 1 
+        /// </summary>
+        /// <example>5.8 -> 5 + 80% chance to add an additional vein</example>
+        /// <param name="fNumberOfVeins"></param>
+        private int CalculateNumberOfVeins(float fNumberOfVeins)
+        {
+            int numberOfVeins = (int)fNumberOfVeins;
+            float dif = fNumberOfVeins - numberOfVeins;
+            float ran = Random.Range(0, 1f);
+            if (ran >= dif) numberOfVeins++; // Randomly increases the veins 
+            return numberOfVeins;
+        }
         public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
             SerializedBaseTileData baseData = worldTileData.baseData;
             string baseID = null;
@@ -24,9 +39,9 @@ namespace WorldModule.Caves {
             Debug.Log("Base ID loaded as " + baseID);
             string[,] ids = baseData.ids;
             foreach (TileDistribution tileDistribution in tileDistributions) {
-                double givenDensity = StatUtils.getAmount(tileDistribution.density,tileDistribution.densityStandardDeviation);
-                double chanceToFileTile = 1/(givenDensity*(tileDistribution.minimumSize+tileDistribution.maximumSize)/2);
-                int numberOfVeins = (int)(chanceToFileTile * width * height);
+                float chanceToFileTile = tileDistribution.density/(((float)tileDistribution.minimumSize+tileDistribution.maximumSize)/2);
+                float fNumberOfVeins = chanceToFileTile * width * height;
+                int numberOfVeins = CalculateNumberOfVeins(fNumberOfVeins);
                 while (numberOfVeins > 0) {
                     numberOfVeins--;
                     int x = UnityEngine.Random.Range(0,width);
@@ -141,9 +156,7 @@ namespace WorldModule.Caves {
                 int n = directionsToCheck.Count;
                 for (int i = 0; i < n; i++) {
                     int r = i + UnityEngine.Random.Range(0, n - i);
-                    Direction temp = directionsToCheck[i];
-                    directionsToCheck[i] = directionsToCheck[r];
-                    directionsToCheck[r] = temp;
+                    (directionsToCheck[i], directionsToCheck[r]) = (directionsToCheck[r], directionsToCheck[i]);
                 }
                 int directionsToExplore = UnityEngine.Random.Range(0,4);
                 foreach (Direction direction in directionsToCheck) {
