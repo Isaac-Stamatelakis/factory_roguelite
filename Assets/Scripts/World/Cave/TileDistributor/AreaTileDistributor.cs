@@ -145,8 +145,9 @@ namespace WorldModule.Caves {
             }
         }
         protected void BFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids, string baseID) {
-            Queue<(int x, int y)> queue = new Queue<(int x, int y)>();
+            Queue<(int x, int y)> queue = new Queue<(int x, int y)>(); // Isaac 2025: not sure why the fuck I used (int x, int y) but whatever
             HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
+            
             queue.Enqueue((x, y));
             while (queue.Count > 0 && tilesToPlace > 0) {
                 (int currentX, int currentY) = queue.Dequeue();
@@ -188,6 +189,7 @@ namespace WorldModule.Caves {
                         continue;
                     }
                     string id = ids[searchX,searchY];
+                    if (id == null) continue;
                     if (id == baseID || tileDistribution.writeAll) {
                         queue.Enqueue((searchX, searchY));
                         visited.Add((searchX,searchY));
@@ -196,7 +198,7 @@ namespace WorldModule.Caves {
                             break;
                         }
                         TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList<TileDistributionFrequency>(tileDistribution.tiles);
-                        string searchId = tileDistributionElement.tileItem.id;
+                        string searchId = tileDistributionElement.tileItem?.id;
                         if (searchId == null) {
                             Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
                             return;
@@ -208,85 +210,51 @@ namespace WorldModule.Caves {
                     }
                 }
             }
-            // Fills holes
-            /*
-            HashSet<(int x, int y)> remaining = new HashSet<(int x, int y)>();
-            foreach ((int visX,int visY) in visited) {
-                List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
-                foreach (Direction direction in directionsToCheck) {
-                    int searchX = visX, searchY = visY;
-                    switch (direction) {
-                        case Direction.Up:
-                            if (visY + 1 < height) {
-                                searchY++;
-                            }
-                            break;
-                        case Direction.Left:
-                            if (visX - 1 >= 0) {
-                                searchX--;
-                            }
-                            break;
-                        case Direction.Down:
-                            if (visY - 1 >= 0) {
-                                searchY--;
-                            }
-                            break;
-                        case Direction.Right:
-                            if (visX + 1 < width) {
-                                searchX++;
-                            }
-                            break;
-                    }
-                    if (remaining.Contains((searchX,searchY))) {
-                        continue;
-                    }
-                    remaining.Add((searchX,searchY));
-                    List<Direction> directionsOfRemaining = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
-                    int count = 0;
-                    foreach (Direction direction1 in directionsOfRemaining) {
-                        switch (direction1) {
-                            case Direction.Up:
-                                if (searchY + 1 < height) {
-                                    string id = ids[searchX][searchY+1];
-                                    if (id == baseID) {
-                                        count++;
-                                    } 
-                                }
-                                break;
-                            case Direction.Left:
-                                if (searchX - 1 >= 0) {
-                                    string id = ids[searchX-1][searchY];
-                                    if (id == baseID) {
-                                        count++;
-                                    } 
-                                }
-                                break;
-                            case Direction.Down:
-                                if (searchY - 1 >= 0) {
-                                    string id = ids[searchX][searchY-1];
-                                    if (id == baseID) {
-                                        count++;
-                                    } 
-                                }
-                                break;
-                            case Direction.Right:
-                                if (searchX + 1 < width) {
-                                    string id = ids[searchX+1][searchY];
-                                    if (id == baseID) {
-                                        count++;
-                                    } 
-                                }
-                                break;
-                        }
-                    }
-                    if (count >= 3) {
-                        ids[searchX][searchY] = getSearchID(tileDistribution);
-                    }
-                }
+            
+            HashSet<(int x, int y)> holes = new HashSet<(int x, int y)>();
+            
+            foreach ((int visX,int visY) in visited)
+            {
+                TryAddHole(visX+1, visY, holes,visited);
+                TryAddHole(visX-1, visY,holes,visited);
+                TryAddHole(visX,visY+1,holes,visited);
+                TryAddHole(visX,visY-1,holes,visited);
             }
-            */
+            
 
+            foreach ((int visX, int visY) in holes)
+            {
+                TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList<TileDistributionFrequency>(tileDistribution.tiles);
+                string searchId = tileDistributionElement.tileItem?.id;
+                if (searchId == null) {
+                    Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
+                    return;
+                }
+                ids[visX,visY] = searchId;
+            }
         }
+
+        private bool IsHole(int x, int y, HashSet<(int x, int y)> visited, HashSet<(int x, int y)> holes)
+        {
+            return !IsFilled(x,y,visited,holes) && IsFilled(x, y + 1, visited, holes) &&
+                   IsFilled(x, y - 1, visited, holes) &&
+                   IsFilled(x + 1, y, visited, holes) && IsFilled(x-1, y  , visited, holes);
+        }
+
+        private bool IsFilled(int x, int y, HashSet<(int x, int y)> visited, HashSet<(int x, int y)> holes)
+        {
+            return visited.Contains((x,y)) || holes.Contains((x,y));
+        }
+
+        private void TryAddHole(int x, int y, HashSet<(int x, int y)> holes, HashSet<(int x, int y)> visited)
+        {
+            if (!IsHole(x, y, visited,holes)) return;
+            holes.Add((x,y));
+            
+        }
+        
+        
+        
 
         private enum Direction {
             Up,
