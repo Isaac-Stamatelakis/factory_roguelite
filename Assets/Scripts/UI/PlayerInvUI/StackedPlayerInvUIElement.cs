@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Items.Inventory;
 using PlayerModule;
 using TileEntity.Instances.Machine.UI;
@@ -25,21 +26,41 @@ namespace UI.PlayerInvUI
         {
             originalPlayerInventoryUI.RefreshSlots();
         }
-        
 
         public void DisplayWithPlayerInventory(GameObject uiObject, bool below)
         {
-            IInventoryUITileEntityUI inventoryUIAggregator = uiObject.GetComponent<IInventoryUITileEntityUI>();
-            if (!ReferenceEquals(inventoryUIAggregator, null))
-            {
-                playerInventoryUI.SetConnection(inventoryUIAggregator.GetInput());
-                inventoryUIAggregator.GetInput().SetConnection(playerInventoryUI);
-                inventoryUIAggregator.GetOutput().SetConnection(playerInventoryUI);
-            }
+
+            IInventoryUITileEntityUI inventoryUITileEntityUI = GetTileEntityUI(uiObject);
+            SyncTileEntityUI(inventoryUITileEntityUI);
+            
             uiObject.transform.SetParent(transform,false);
             if (!below)
             {
                 uiObject.transform.SetAsFirstSibling();
+            }
+        }
+
+        private IInventoryUITileEntityUI GetTileEntityUI(GameObject uiObject)
+        {
+            IInventoryUITileEntityUI tileEntityUI = uiObject.GetComponent<IInventoryUITileEntityUI>();
+            if (tileEntityUI != null) return tileEntityUI;
+            
+            IInventoryUIAggregator aggregator = uiObject.GetComponent<IInventoryUIAggregator>();
+            return aggregator?.GetUITileEntityUI();
+        }
+
+        private void SyncTileEntityUI(IInventoryUITileEntityUI inventoryUITileEntity)
+        {
+            if (inventoryUITileEntity == null) return;
+            
+            playerInventoryUI.SetConnection(inventoryUITileEntity.GetInput());
+            inventoryUITileEntity.GetInput().SetConnection(playerInventoryUI);
+            List<InventoryUI> inventories = inventoryUITileEntity.GetAllInventoryUIs();
+            
+            if (inventories == null) return;
+            foreach (InventoryUI inventoryUI in inventories)
+            {
+                inventoryUI?.SetConnection(playerInventoryUI);
             }
         }
 

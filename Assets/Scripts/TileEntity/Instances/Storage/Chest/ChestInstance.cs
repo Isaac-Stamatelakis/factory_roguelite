@@ -8,6 +8,7 @@ using UnityEngine.Tilemaps;
 using Items.Inventory;
 using Entities;
 using Item.Slot;
+using TileEntity.Instances.Storage.Chest;
 using UI;
 
 namespace TileEntity.Instances
@@ -48,46 +49,37 @@ namespace TileEntity.Instances
     public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 
         IConduitPortTileEntityAggregator, IPlaceInitializable
     {
-        private SingleItemInventory inventory;
+        public SingleItemInventory Inventory;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
 
         public void OnBreak()
         {
-            if (inventory.Items == null) {
+            if (Inventory.Items == null) {
                 return;
             }
             if (chunk is not ILoadedChunk loadedChunk) {
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            TileEntityUtils.spawnItemsOnBreak(inventory.Items,getWorldPosition(),loadedChunk);
+            TileEntityUtils.spawnItemsOnBreak(Inventory.Items,getWorldPosition(),loadedChunk);
         }
 
         public void OnRightClick()
         {
-            GameObject uiElement = TileEntityObject.UIManager.getUIElement();
-            if (uiElement == null) {
-                Debug.LogError("GUI GameObject for chest:" + TileEntityObject.name + " null");
-                return;
-            }
-            GameObject clone = GameObject.Instantiate(uiElement);
-            InventoryUI inventoryUI = clone.GetComponent<InventoryUI>();
-            inventoryUI.DisplayInventory(inventory.Items);
-            inventoryUI.SetRefresh(true);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(clone);
+            TileEntityObject.UIManager.Display<ChestInstance, ChestUI>(this,true);
         }
 
         public string Serialize()
         {
-            return ItemSlotFactory.serializeList(inventory.Items);
+            return ItemSlotFactory.serializeList(Inventory.Items);
         }
 
         public void Unserialize(string data)
         {
             List<ItemSlot> items = ItemSlotFactory.Deserialize(data);
-            inventory = new SingleItemInventory(items);
+            Inventory = new SingleItemInventory(items);
         }
 
         public ConduitPortLayout GetConduitPortLayout()
@@ -100,7 +92,7 @@ namespace TileEntity.Instances
             switch (conduitType)
             {
                 case ConduitType.Item:
-                    return inventory;
+                    return Inventory;
                 case ConduitType.Fluid:
                 case ConduitType.Energy:
                 case ConduitType.Signal:
@@ -117,7 +109,7 @@ namespace TileEntity.Instances
             for (int i = 0; i < TileEntityObject.Rows*TileEntityObject.Columns;i++) {
                 items.Add(null);
             }
-            inventory = new SingleItemInventory(items);
+            Inventory = new SingleItemInventory(items);
         }
         
     }

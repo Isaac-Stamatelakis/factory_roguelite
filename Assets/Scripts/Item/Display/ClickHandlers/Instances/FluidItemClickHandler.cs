@@ -119,7 +119,9 @@ namespace Item.Inventory.ClickHandlers.Instances
                 { ItemTag.FluidContainer, fluidItem }
             });
             ItemSlot newCell = new ItemSlot(container.itemObject, 1, itemTagCollection);
+            container.amount--;
             playerInventory.Give(newCell);
+            inventoryUI.Connection?.RefreshSlots();
             
         }
 

@@ -99,9 +99,9 @@ namespace TileEntity.Instances {
             return mInventoryUI;
         }
 
-        public InventoryUI GetOutput()
+        public List<InventoryUI> GetAllInventoryUIs()
         {
-            return mInventoryUI;
+            return new List<InventoryUI> { mInventoryUI };
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Player.Controls.Bindings
         {
             return new List<ControlBinding>
             {
-                new ControlBinding(ControlConsts.CHANGE_TOOL, new List<KeyCode>{KeyCode.Mouse2}),
-                new ControlBinding(ControlConsts.TOOL_SELECTOR,new List<KeyCode>{KeyCode.F}),
-                new ControlBinding(ControlConsts.TOOL_OPTIONS, new List<KeyCode>{KeyCode.F, KeyCode.LeftShift}),
+                new (ControlConsts.CHANGE_TOOL, new List<KeyCode>{KeyCode.Mouse2}),
+                new (ControlConsts.TOOL_SELECTOR,new List<KeyCode>{KeyCode.F}),
+                new (ControlConsts.TOOL_OPTIONS, new List<KeyCode>{KeyCode.F, KeyCode.LeftShift}),
             };
         }
     }

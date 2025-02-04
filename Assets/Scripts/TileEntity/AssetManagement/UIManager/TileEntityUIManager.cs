@@ -41,12 +41,12 @@ namespace TileEntity {
         public GameObject getUIElement() {
             return uiElementPrefab;
         }
-        public void display<TInstance, TUIElement>(TInstance tileEntityInstance) where TInstance : ITileEntityInstance where TUIElement : ITileEntityUI<TInstance>{
-            if (AssetReference == null) {
+        public void Display<TInstance, TUIElement>(TInstance tileEntityInstance, bool withPlayerInventory = false) where TInstance : ITileEntityInstance where TUIElement : ITileEntityUI<TInstance>{
+            if (ReferenceEquals(AssetReference,null)) {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: No asset reference");
                 return;
             }
-            if (uiElementPrefab == null) {
+            if (ReferenceEquals(uiElementPrefab,null)) {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: UI prefab not loaded into memory");
                 return;
             }
@@ -57,7 +57,15 @@ namespace TileEntity {
                 return;
             }
             uiComponent.DisplayTileEntityInstance(tileEntityInstance);
-            CanvasController.Instance.DisplayObject(instantiated.gameObject);
+            if (withPlayerInventory)
+            {
+                MainCanvasController.TInstance.DisplayUIWithPlayerInventory(instantiated.gameObject);
+            }
+            else
+            {
+                CanvasController.Instance.DisplayObject(instantiated.gameObject);
+            }
+            
         }
     }
 }

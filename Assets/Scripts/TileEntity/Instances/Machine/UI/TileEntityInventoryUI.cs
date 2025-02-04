@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace TileEntity.Instances.Machine.UI
 {
-    public class TileEntityInventoryUI : MonoBehaviour
+    public class TileEntityInventoryUI : MonoBehaviour, IInventoryUITileEntityUI
     {
         [SerializeField] public InventoryUI solidInputUI;
         [SerializeField] public InventoryUI solidOutputUI;
@@ -156,6 +156,22 @@ namespace TileEntity.Instances.Machine.UI
             }
             rotator.Initialize(inventories,size,100);
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+        }
+
+        public InventoryUI GetInput()
+        {
+            return solidInputUI;
+        }
+
+        public List<InventoryUI> GetAllInventoryUIs()
+        {
+            return new List<InventoryUI>
+            {
+                solidInputUI,
+                solidOutputUI,
+                fluidInputUI,
+                fluidOutputUI,
+            };
         }
     }
 }

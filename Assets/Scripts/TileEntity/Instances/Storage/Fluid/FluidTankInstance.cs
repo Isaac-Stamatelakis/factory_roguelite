@@ -63,7 +63,7 @@ namespace TileEntity.Instances.Storage {
 
         public void OnRightClick()
         {
-            TileEntityObject.UIManager.display<FluidTankInstance,FluidTankUI>(this);
+            TileEntityObject.UIManager.Display<FluidTankInstance,FluidTankUI>(this);
         }
 
         public string Serialize()

@@ -11,11 +11,11 @@ using PlayerModule;
 using Tiles;
 using Items;
 using Player;
+using PlayerModule.KeyPress;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
     {
-        private Vector3Int lastPlaceOrigin;
         private TilePlacementRecord placementRecord;
         private Tilemap tilemap;
         private Tilemap unhighlightedTileMap;
@@ -40,8 +40,16 @@ namespace TileMaps.Previewer {
         }
 
         // Update is called once per frame
-        void Update()
+        void FixedUpdate()
         {
+            if (PlayerKeyPressUtils.BlockKeyInput)
+            {
+                if (placementRecord == null) return;
+                placementRecord.Clear();
+                placementRecord = null;
+
+                return;
+            }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             previewTile(playerScript.PlayerInventory.getSelectedId(), mousePosition);
             

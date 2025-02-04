@@ -75,10 +75,11 @@ namespace PlayerModule.Mouse {
                     {
                         MouseScrollUIUpdate(mousePosition);
                     }
-
-                    return;
                 }
+                return;
             }
+
+            if (eventSystem.IsPointerOverGameObject()) return;
             
             
             if (!leftClick)
