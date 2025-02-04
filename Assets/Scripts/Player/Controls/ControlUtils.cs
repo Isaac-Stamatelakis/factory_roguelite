@@ -21,6 +21,7 @@ namespace Player.Controls
             {
                 ["Movement"] = new MovementControlBindings(),
                 ["Equips"] = new EquipmentControlBindings(),
+                ["Conduit"] = new ConduitControlBindings(),
                 ["Misc"] = new MiscBindings()
             };
             foreach (var kvp in sections)
@@ -130,6 +131,14 @@ namespace Player.Controls
         public static KeyCode GetPrefKeyCode(string name)
         {
             return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(name));
+        }
+
+        public static bool ControlKeyDown(string name)
+        {
+            int value = PlayerPrefs.GetInt(GetPrefKey(name));
+            // TODO add support for multiple key presses
+            
+            return false;
         }
 
         public static string FormatKeyText(string key)

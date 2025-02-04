@@ -99,11 +99,14 @@ namespace UI
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
+                mBlocker.gameObject.SetActive(newTop.Blocker);
             }
             else
             {
                 mBlocker.gameObject.SetActive(false);
             }
+            
+            
             
         }
 
@@ -113,16 +116,16 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool blocker = false)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,blocker));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             
-            mBlocker.gameObject.SetActive(true);
+            mBlocker.gameObject.SetActive(uiInfo.Blocker);
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo current = uiObjectStack.Peek();
@@ -156,14 +159,17 @@ namespace UI
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
+        public bool Blocker;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, bool blocker)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
             this.hideOnStack = hideOnStack;
             this.hideParent = hideParent;
             this.originalParent = originalParent;
+            Blocker = blocker;
+            
         }
     }
     

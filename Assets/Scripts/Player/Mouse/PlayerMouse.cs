@@ -42,6 +42,7 @@ namespace PlayerModule.Mouse {
         private PlayerInventory playerInventory;
         private PlayerRobot playerRobot;
         private Transform playerTransform;
+        private PlayerScript playerScript;
         private Camera mainCamera;
         private EventSystem eventSystem;
         private ToolClickHandlerCollection toolClickHandlerCollection = new ToolClickHandlerCollection();
@@ -54,6 +55,7 @@ namespace PlayerModule.Mouse {
             mainCamera = Camera.main;
             playerInventory = GetComponent<PlayerInventory>();
             playerRobot = GetComponent<PlayerRobot>();
+            playerScript = GetComponent<PlayerScript>();
             playerTransform = transform;
             eventSystem = EventSystem.current;
         }
@@ -245,34 +247,6 @@ namespace PlayerModule.Mouse {
                     return false;
             }
         }
-        /*
-        private void breakMouseHover(Vector2 mousePosition) {
-            if (Input.GetMouseButtonDown(0)) {
-                isHoldingMouse = true;
-            }
-
-            if (Input.GetMouseButton(0) && isHoldingMouse) {
-                if (DevMode.Instance.noBreakCooldown) {
-                    HitTileLayer(DevMode.Instance.breakType, mousePosition);
-                    return;
-                }
-                timeSinceLastUpdate += Time.deltaTime;
-                if (timeSinceLastUpdate >= updateInterval) {
-                    timeSinceLastUpdate = 0f;
-                    HitTileLayer(DevMode.Instance.breakType, mousePosition);
-                }
-            }
-
-            if (Input.GetMouseButtonUp(0)) {
-                isHoldingMouse = false;
-            }
-        }
-        */
-
-        
-        
-
-        
         
         
         /// <summary>
@@ -316,10 +290,9 @@ namespace PlayerModule.Mouse {
             if (id == null) {
                 return false;
             }
-        
-            bool placed = false;
+            
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
-            placed = PlaceTile.PlaceFromWorldPosition(itemObject,mousePosition,closedChunkSystem);
+            bool placed = PlaceTile.PlaceFromWorldPosition(playerScript,itemObject,mousePosition,closedChunkSystem);
             if (placed && !DevMode.Instance.noPlaceCost) {
                 playerInventory.deiterateInventoryAmount();
             }

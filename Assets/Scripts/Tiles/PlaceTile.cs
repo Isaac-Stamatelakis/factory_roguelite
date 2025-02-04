@@ -16,6 +16,7 @@ using Conduits.Systems;
 using Tiles;
 using Fluids;
 using Items;
+using Player;
 using TileEntity.MultiBlock;
 using UnityEngine.Tilemaps;
 
@@ -40,7 +41,7 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true)
+        public static bool PlaceFromWorldPosition(PlayerScript playerScript, ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true)
         {
             switch (itemObject)
             {
@@ -64,7 +65,7 @@ namespace TileMaps.Place {
                     if (checkConditions && !conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
                         return false;
                     }
-                    placeConduit(conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
+                    PlaceConduit(playerScript, conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
                     return true;
                 }
                 case FluidTileItem fluidTileItem:
@@ -85,7 +86,7 @@ namespace TileMaps.Place {
             TileMapLayer layer = tileMapType.toLayer();
             switch (layer) {
                 case TileMapLayer.Base:
-                    return baseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
+                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
                 case TileMapLayer.Background:
                     return backgroundTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
                 default:
@@ -126,7 +127,7 @@ namespace TileMaps.Place {
             }
             return Vector3Int.zero;
         }
-        private static bool baseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) { 
+        private static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) { 
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.getSpriteSize(tileItem.getSprite()));
             if (tileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
                 return false;
@@ -301,18 +302,21 @@ namespace TileMaps.Place {
 
         
 
-        private static bool placeConduit(ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
+        private static bool PlaceConduit(PlayerScript playerScript, ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
         {
             Vector2Int placePosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.GetConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.GetManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.GetPortTypeAtPosition(placePosition.x,placePosition.y);
             ITileEntityInstance tileEntity = conduitSystemManager.GetTileEntityAtPosition(placePosition.x,placePosition.y);
-            int state = conduitSystemManager.GetNewState(placePosition,ConduitPlacementMode.Any,conduitItem.id);
+            ConduitPlacementOptions placementOptions = playerScript.ConduitPlacementOptions;
+            placementOptions.UpdatePlacementType(conduitItem.GetConduitType());
+            int state = conduitSystemManager.GetNewState(placePosition,placementOptions,conduitItem.id);
+            placementOptions.AddPlacementPosition(placePosition);
             IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
-            
             iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
+            
             return true;
         }
 

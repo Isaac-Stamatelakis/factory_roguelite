@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Chunks.Systems;
+using Conduits;
+using Conduits.Systems;
 using Item.Slot;
 using PlayerModule;
 using PlayerModule.IO;
@@ -14,11 +17,13 @@ namespace Player
         private PlayerRobot playerRobot;
         private PlayerIO playerIO;
         private ClosedChunkSystem currentSystem;
+        private ConduitPlacementOptions conduitPlacementOptions;
         
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
         public ClosedChunkSystem CurrentSystem => currentSystem;
+        public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
         
         public void Start()
         {
@@ -35,6 +40,44 @@ namespace Player
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerIO.playerData.playerRobot);
             playerRobot.SetRobot(playerRobotItem);
             playerInventory.InitializeToolDisplay();
+            conduitPlacementOptions = new ConduitPlacementOptions();
+        }
+    }
+
+    public class ConduitPlacementOptions
+    {
+        private ConduitType lastPlacementType;
+        public ConduitPlacementMode PlacementMode;
+        private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
+
+        public bool CanConnect(IConduit conduit)
+        {
+            switch (PlacementMode)
+            {
+                case ConduitPlacementMode.Any:
+                    return true;
+                case ConduitPlacementMode.New:
+                    return PlacementPositions.Contains(conduit.GetPosition());
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void UpdatePlacementType(ConduitType conduitType)
+        {
+            if (lastPlacementType == conduitType) return;
+            lastPlacementType = conduitType;
+            ResetPlacementRecord();
+        }
+        
+        public void ResetPlacementRecord()
+        {
+            PlacementPositions.Clear();
+        }
+
+        public void AddPlacementPosition(Vector2Int position)
+        {
+            PlacementPositions.Add(position);
         }
     }
 }
