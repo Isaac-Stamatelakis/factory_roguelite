@@ -26,16 +26,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction);
             
-            
-            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
-            {
-                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
-                {
-                    if (tileEntities[x, y] is not IMultiBlockTileEntity multiBlockTileEntity) continue;
-                    // TODO
-                }
-            }
-            
             const int ENTITY_LOAD_PER_UPDATE = 5;
             if (parent is not ILoadedChunk loadedChunk) yield break;
             
@@ -201,13 +191,24 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     positionInPartition.y
                 );
             }
-            
-            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
+
+
+            TileType tileType = GetTileType(tileItem, positionInPartition.x, positionInPartition.y);
+            IWorldTileMap iWorldTileGridMap = tileGridMaps[tileType.toTileMapType()];
             iWorldTileGridMap.placeItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem
             );
+        }
+
+        private TileType GetTileType(TileItem tileItem, int x, int y)
+        {
+            if (tileItem.tile is not IStateLayerTile stateLayerTile)
+            {
+                return tileItem.tileType;
+            }
+            return stateLayerTile.GetTileType(data.baseData.sTileOptions[x,y]?.state ?? 0);
         }
 
         protected virtual void PlaceTileEntityFromLoad(TileItem tileItem, string options, Vector2Int positionInPartition, ITileEntityInstance[,] tileEntityArray, int x, int y) {

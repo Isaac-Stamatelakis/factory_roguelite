@@ -18,6 +18,7 @@ using Fluids;
 using Items;
 using Player;
 using TileEntity.MultiBlock;
+using TileMaps.Previewer;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Place {
@@ -77,7 +78,7 @@ namespace TileMaps.Place {
                 case TileItem tileItem:
                 {
                     TileMapType tileMapType = tileItem.tileType.toTileMapType();
-                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation);
+                    TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State);
                     if (!TilePlacable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
                     
                     placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData);
@@ -109,11 +110,6 @@ namespace TileMaps.Place {
                 default:
                     return false;
             }
-        }
-
-        private static void RotateTileOnPlace()
-        {
-            
         }
         
         public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
@@ -263,9 +259,9 @@ namespace TileMaps.Place {
             }
 
             
-            int state = 0;
-            if (tileItem.tile is IRestrictedTile restrictedTile) {
-                state = restrictedTile.getStateAtPosition(worldPosition,MousePositionFactory.getVerticalMousePosition(worldPosition),MousePositionFactory.getHorizontalMousePosition(worldPosition));
+            int state = placementData?.State ?? 0;
+            if (tileItem.tile is IMousePositionStateTile restrictedTile) {
+                state = restrictedTile.GetStateAtPosition(worldPosition);
                 bool placeable = state != -1;
                 if (!placeable) {
                     return;
@@ -276,6 +272,13 @@ namespace TileMaps.Place {
 
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             int rotation = placementData?.Rotation ?? 0;
+
+            if (tileItem.tile is HammerTile)
+            {
+                int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
+                if (hammerTileRotation > 0) rotation = hammerTileRotation;
+            }
+            
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);

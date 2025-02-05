@@ -8,7 +8,7 @@ using TileMaps.Layer;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/State/Sign")]
-    public class RestrictedSignTile : TileBase, IRestrictedTile, IIDTile, IStateTile
+    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile
     {
         public string id;
         public Tile onBlock;
@@ -30,7 +30,7 @@ namespace Tiles {
         {
             this.id = id;
         }
-        public int getStateAtPosition(Vector2 position,VerticalMousePosition verticalMousePosition, HorizontalMousePosition horizontalMousePosition) {
+        public int GetStateAtPosition(Vector2 position) {
             // If exists tile to left place left
             // If exists tile to right place right
             // If exists tile on bottom place bottom
@@ -40,16 +40,16 @@ namespace Tiles {
             bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
             bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
             bool up = PlaceTile.tileInDirection(position,Direction.Up,TileMapLayer.Base);
-            //Debug.Log("Left" + left + "," + "Right" + right + "," + "Down" + down + "," + "Background" + background);
+            
             // Priotize placing down
-            if (verticalMousePosition == VerticalMousePosition.Bottom && !left && !right && down) {
+            int mousePosition = MousePositionUtils.GetMousePlacement(position);
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Down) && !left && !right && down) {
                 return 0;
             }
-            // If top 
-            if (horizontalMousePosition == HorizontalMousePosition.Left && left) {
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left) && left) {
                 return 1;
             }
-            if (horizontalMousePosition == HorizontalMousePosition.Right && right) {
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right) && right) {
                 return 2;
             }
             if (!left && !right && !down && up) {

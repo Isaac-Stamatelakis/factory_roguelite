@@ -25,9 +25,10 @@ namespace TileMaps.Previewer
         public abstract bool RecordMatch(Vector3Int position, string id);
     }
 
-    public class SingleTilePlacementRecord : TilePlacementRecord
+    internal class SingleTilePlacementRecord : TilePlacementRecord
     {
         private readonly Vector3Int placePosition;
+        
         public SingleTilePlacementRecord(string id, Vector3Int placePosition, Tilemap tilemap) : base(id,tilemap)
         {
             this.placePosition = placePosition;
@@ -44,7 +45,7 @@ namespace TileMaps.Previewer
         }
     }
 
-    public class MultiTilePlacementRecord : TilePlacementRecord
+    internal class MultiTilePlacementRecord : TilePlacementRecord
     {
         private readonly List<Vector3Int> placePositions;
         public MultiTilePlacementRecord(string id, List<Vector3Int> placePositions, Tilemap tilemap) : base(id, tilemap)

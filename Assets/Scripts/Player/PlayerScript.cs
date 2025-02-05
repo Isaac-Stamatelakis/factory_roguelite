@@ -85,16 +85,18 @@ namespace Player
     public class PlayerTilePlacementOptions
     {
         public int Rotation;
-        public bool UseSmartRotation;
+        public int State;
     }
 
     public class TilePlacementData
     {
         public int Rotation;
+        public int State;
 
-        public TilePlacementData(int rotation)
+        public TilePlacementData(int rotation, int state)
         {
             Rotation = rotation;
+            State = state;
         }
     }
 }
