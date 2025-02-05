@@ -12,6 +12,7 @@ using Tiles;
 using Items;
 using Player;
 using PlayerModule.KeyPress;
+using TileMaps.Layer;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -25,6 +26,8 @@ namespace TileMaps.Previewer {
         private Camera mainCamera;
         private PlayerScript playerScript;
         private Transform playerTransform;
+
+        private int lastMousePlacement;
         // Start is called before the first frame update
         void Start()
         {
@@ -61,10 +64,14 @@ namespace TileMaps.Previewer {
                 placementRecord?.Clear();
                 return;
             }
+            int mousePlacement = PlaceTile.GetMousePlacement(position);
+            
             Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
-            if (placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id)) {
+            
+            if (placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
             }
+            lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
             
             TileBase itemTileBase = placableItem.getTile();
@@ -80,7 +87,7 @@ namespace TileMaps.Previewer {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
             if (itemObject is TileItem tileItem)
             {
-                tilemap.color = PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation), tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                tilemap.color = PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation,playerScript.TilePlacementOptions.State), tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
             }
             
 
@@ -88,7 +95,7 @@ namespace TileMaps.Previewer {
 
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
-            int state = 0;
+            int state = tilePlacementOptions.State;
             if (itemTileBase is IRestrictedTile restrictedTile) {
                 state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
             }
@@ -98,10 +105,28 @@ namespace TileMaps.Previewer {
                 tileBase = stateTile.getTileAtState(state);
             } else {
                 tileBase = itemTileBase;
-            } 
-            PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition, tilePlacementOptions.Rotation,false);
+            }
+
+            int rotation = tilePlacementOptions.Rotation;
+            if (itemTileBase is HammerTile)
+            {
+                int hammerRotation = PlaceTile.CalculateHammerTileRotation(position,tilePlacementOptions.State);
+                if (hammerRotation > 0) rotation = hammerRotation;
+            }
+
+            if (tileBase is IStateRotationTile stateRotationTile)
+            {
+                tilemap.SetTile(placePosition,stateRotationTile.getTile(rotation,false));
+            }
+            else
+            {
+                PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition,rotation,false);
+            }
+            
             return new SingleTilePlacementRecord(itemObject.id, placePosition,tilemap);
         }
+
+        
 
         private MultiMapPlacementRecord PreviewConduitTile(ConduitStateTile conduitStateTile, ItemObject itemObject, Vector3Int position)
         {
