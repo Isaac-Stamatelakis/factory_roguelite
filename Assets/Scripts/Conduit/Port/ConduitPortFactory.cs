@@ -86,7 +86,6 @@ namespace Conduits.Ports {
             {
                 portPosition += Vector2Int.down;
             }
-            Debug.Log(rotation);
             switch (rotation)
             {
                 case 0:
@@ -97,7 +96,6 @@ namespace Conduits.Ports {
                     return portPosition;
                 case 2:
                     portPosition *= new Vector2Int(-1, -1);
-                    //SwapVector(ref portPosition);
                     return portPosition;
                 case 3:
                     portPosition *= new Vector2Int(-1, 1);

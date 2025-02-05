@@ -11,6 +11,7 @@ using Items;
 using Conduits.Ports;
 using Fluids;
 using Entities;
+using Player;
 
 namespace Chunks.Partitions {
 public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T : SeralizedWorldData
@@ -240,23 +241,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
         public override void SetTile(Vector2Int tilePosition, TileMapLayer layer, TileItem tileItem)
         {
-            SeralizedWorldData tileData = (SeralizedWorldData) GetData();
+            SeralizedWorldData tileData = GetData();
             string id = tileItem?.id;
             switch (layer) {
                 case TileMapLayer.Base:
                     tileData.baseData.ids[tilePosition.x,tilePosition.y] = id;
-                    BaseTileData baseTileData = new BaseTileData(0,0,false);
-                    if (tileItem is { tile: IRestrictedTile restrictedTile }) {
-                        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                        baseTileData.state = restrictedTile.getStateAtPosition(mousePosition,MousePositionFactory.getVerticalMousePosition(mousePosition),MousePositionFactory.getHorizontalMousePosition(mousePosition));
-                    }
-                    tileData.baseData.sTileOptions[tilePosition.x, tilePosition.y] = baseTileData;
-                    if (!ReferenceEquals(tileItem, null))
-                    {
-                        baseTileHardnessArray[tilePosition.x, tilePosition.y] = tileItem.tileOptions.hardness;
-                    }
-                    
-                    
                     break;
                 case TileMapLayer.Background:
                     tileData.backgroundData.ids[tilePosition.x,tilePosition.y] = id;

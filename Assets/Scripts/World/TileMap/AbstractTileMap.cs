@@ -117,6 +117,17 @@ namespace TileMaps {
                 listener.tileUpdate(position);
             }
         }
+
+        /// <summary>
+        /// This will call set tile without modifying any meta data around the tile
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="item"></param>
+        public void RefreshTile(int x, int y, ItemObject item)
+        {
+            SetTile(x, y, item as TItem);
+        }
         protected abstract void WriteTile(IChunkPartition partition, Vector2Int position, TItem item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition

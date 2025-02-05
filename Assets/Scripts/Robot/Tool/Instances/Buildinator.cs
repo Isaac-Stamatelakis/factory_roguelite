@@ -15,6 +15,7 @@ using PlayerModule.Mouse;
 using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
+using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
 using UnityEngine;
@@ -72,7 +73,7 @@ namespace Robot.Tool.Instances
                     chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);
                     break;
                 case BuildinatorMode.Rotator:
-                    Rotate(playerScript, cellPosition, direction);
+                    Rotate(playerScript, mousePosition, cellPosition, direction);
                     break;
                 case BuildinatorMode.Hammer:
                     if (iWorldTileMap is not IHammerTileMap stateTile) return;
@@ -83,7 +84,7 @@ namespace Robot.Tool.Instances
             }
         }
 
-        private void Rotate(PlayerScript playerScript, Vector3Int cellPosition, int direction)
+        private void Rotate(PlayerScript playerScript, Vector2 worldPosition, Vector3Int cellPosition, int direction)
         {
             Vector2Int cellPositionV2 = (Vector2Int)cellPosition;
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
@@ -93,6 +94,8 @@ namespace Robot.Tool.Instances
             
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
             if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
+            
+            PlaceTile.TilePlacable(playerScript.TilePlacementOptions,tileItem,worldPosition,system);
             ITileEntityInstance tileEntityInstance = partition.GetTileEntity(positionInPartition);
             IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
             ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = system as ConduitTileClosedChunkSystem;

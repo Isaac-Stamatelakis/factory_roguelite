@@ -235,33 +235,9 @@ namespace TileMaps {
                 );
                 return;
             }
-            
-            tilemap.SetTile(new Vector3Int(x,y,0),null); // This is required to reset the transform matrix in the tilemap to the base 
-            tilemap.SetTile(new Vector3Int(x,y,0),tileBase); 
-            Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
-            
-            int rotation = 90 * baseTileData.rotation;
-            transformMatrix.SetTRS(
-                GetOffsetPosition(ref transformMatrix,baseTileData.rotation),
-                baseTileData.mirror
-                    ? Quaternion.Euler(0f, 180f, rotation)
-                    : Quaternion.Euler(0f, 0f, rotation),
-                Vector3.one
-            );
-            tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
+            PlaceTile.RotateTileInMap(tilemap, tileBase, new Vector3Int(x, y, 0), baseTileData.rotation,baseTileData.mirror);
         }
-
-        private Vector3 GetOffsetPosition(ref Matrix4x4 matrix, int rotation)
-        {
-            if (rotation % 2 == 0)
-            {
-                return matrix.GetPosition();
-            }
-            
-            Vector3 tileOffset = matrix.GetPosition();
-            (tileOffset.x, tileOffset.y) = (tileOffset.y, tileOffset.x);
-            return tileOffset;
-        }
+        
         
         public override void hitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);

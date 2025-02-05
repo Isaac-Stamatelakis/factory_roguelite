@@ -52,12 +52,12 @@ namespace TileMaps.Previewer {
                 return;
             }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            previewTile(playerScript.PlayerInventory.getSelectedId(), mousePosition);
+            PreviewTile(playerScript.PlayerInventory.getSelectedId(), mousePosition);
             
         }   
-        public void previewTile(string id, Vector2 position) {
+        public void PreviewTile(string id, Vector2 position) {
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
-            if (!itemObject || itemObject is not IPlacableItem placableTile) {
+            if (itemObject is not IPlacableItem placableItem) {
                 placementRecord?.Clear();
                 return;
             }
@@ -67,21 +67,26 @@ namespace TileMaps.Previewer {
             }
             placementRecord?.Clear();
             
-            TileBase itemTileBase = placableTile.getTile();
+            TileBase itemTileBase = placableItem.getTile();
             if (itemTileBase is ConduitStateTile conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
             }
             else
             {
-                placementRecord = PreviewStandardTile(itemObject, itemTileBase, placePosition, position);
+                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject, itemTileBase, placePosition, position);
+            }
+
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            if (itemObject is TileItem tileItem)
+            {
+                tilemap.color = PlaceTile.TilePlacable(playerScript.TilePlacementOptions, tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
             }
             
-            tilemap.color = PlaceTile.ItemPlacable(itemObject,position, DimensionManager.Instance.GetPlayerSystem(playerScript.transform)) ? placableColor : nonPlacableColor;
 
         }
 
-        private SingleTilePlacementRecord PreviewStandardTile(ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
+        private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = 0;
             if (itemTileBase is IRestrictedTile restrictedTile) {
@@ -94,7 +99,7 @@ namespace TileMaps.Previewer {
             } else {
                 tileBase = itemTileBase;
             } 
-            tilemap.SetTile(placePosition,tileBase);
+            PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition, tilePlacementOptions.Rotation,false);
             return new SingleTilePlacementRecord(itemObject.id, placePosition,tilemap);
         }
 
