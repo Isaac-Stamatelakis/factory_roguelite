@@ -273,12 +273,11 @@ namespace TileMaps.Place {
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             int rotation = placementData?.Rotation ?? 0;
 
-            if (tileItem.tile is HammerTile and not NatureTile)
+            if (tileItem.tile is HammerTile)
             {
                 int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
                 if (hammerTileRotation > 0) rotation = hammerTileRotation;
             }
-            
             
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);

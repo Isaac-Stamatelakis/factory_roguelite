@@ -7,9 +7,12 @@ using TileMaps.Layer;
 using TileMaps.Type;
 
 namespace Tiles {
-    
+    public interface IStateLayerTile
+    {
+        public TileType GetTileType(int state);
+    }
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
-    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, IIDTile, ITypeSwitchType, IStateTile
+    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, IIDTile, ITypeSwitchType, IStateTile, IStateLayerTile
     {
         public string id;
         public Tile left;
@@ -71,6 +74,11 @@ namespace Tiles {
         public int getStateAmount()
         {
             return 4;
+        }
+
+        public TileType GetTileType(int state)
+        {
+            return state < 2 ? TileType.Block : TileType.Object;
         }
     }
 }

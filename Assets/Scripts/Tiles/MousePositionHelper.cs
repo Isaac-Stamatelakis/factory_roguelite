@@ -91,9 +91,18 @@ namespace Tiles {
             return value;
         }
 
-        public static bool MouseBiasDirection(int mousePosition, MousePlacement mousePlacement)
+        public static bool MouseBiasDirection(int mouseBias, MousePlacement mousePlacement)
         {
-            return (mousePosition & (int)MousePlacement.Left) != 0;
+            return (mouseBias & (int)mousePlacement) != 0;
+        }
+
+        public static bool MouseCentered(bool vertical, Vector2 mousePosition, float epsilon = 0.125f)
+        {
+            float dif = vertical
+                ? mousePosition.x - TileHelper.getRealTileCenter(mousePosition.x)
+                : mousePosition.y - TileHelper.getRealTileCenter(mousePosition.y);
+            if (dif < 0) dif *= -1;
+            return dif <= epsilon;
         }
     }
 }

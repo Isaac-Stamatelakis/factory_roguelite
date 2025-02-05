@@ -6,9 +6,12 @@ using TileMaps.Place;
 using TileMaps.Layer;
 
 namespace Tiles {
+    public interface INoDelayPreviewTile {
+    
+    }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile, INoDelayPreviewTile
     {
         public string id;
         public Tile onBlock;
@@ -38,14 +41,14 @@ namespace Tiles {
             //Debug.Log("Left" + left + "," + "Right" + right + "," + "Down" + down + "," + "Background" + background);
             // Priotize placing down
             int mousePosition = MousePositionUtils.GetMousePlacement(position);
-            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Down) && !left && !right && down) {
+            if (down && MousePositionUtils.MouseCentered(true,position)) {
                 return 0;
             }
             // If top 
-            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left) && left) {
+            if (left && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left)) {
                 return 1;
             }
-            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right) && right) {
+            if (right && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right)) {
                 return 2;
             }
             if (!left && !right && !down && background) {

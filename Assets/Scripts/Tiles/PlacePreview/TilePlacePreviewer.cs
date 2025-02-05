@@ -64,24 +64,27 @@ namespace TileMaps.Previewer {
                 placementRecord?.Clear();
                 return;
             }
+
+            TileBase tileBase = placableItem.getTile();
+            if (ReferenceEquals(tileBase, null)) return;
+            
             int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
             Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
             
-            if (placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
+            if (tileBase is not INoDelayPreviewTile && placementRecord != null && placementRecord.RecordMatch(placePosition,itemObject.id) && mousePlacement == lastMousePlacement) {
                 return;
             }
             lastMousePlacement = mousePlacement;
             placementRecord?.Clear();
             
-            TileBase itemTileBase = placableItem.getTile();
-            if (itemTileBase is ConduitStateTile conduitStateTile)
+            if (tileBase is ConduitStateTile conduitStateTile)
             {
                 placementRecord = PreviewConduitTile(conduitStateTile,itemObject,placePosition);
             }
             else
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject, itemTileBase, placePosition, position);
+                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject, tileBase, placePosition, position);
             }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
@@ -107,6 +110,13 @@ namespace TileMaps.Previewer {
                 tileBase = itemTileBase;
             }
 
+            SingleTilePlacementRecord record =  new SingleTilePlacementRecord(itemObject.id, placePosition,tilemap);
+            if (itemObject is TileItem tileItem && !tileItem.tileOptions.rotatable)
+            {
+                tilemap.SetTile(placePosition,tileBase);
+                return record;
+            }
+            
             int rotation = tilePlacementOptions.Rotation;
             if (itemTileBase is HammerTile)
             {
@@ -122,9 +132,12 @@ namespace TileMaps.Previewer {
             {
                 PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition,rotation,false);
             }
-            
-            return new SingleTilePlacementRecord(itemObject.id, placePosition,tilemap);
+
+
+            return record;
         }
+        
+        
 
         
 
