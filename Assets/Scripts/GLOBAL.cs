@@ -64,7 +64,7 @@ public static class Global
     }
 
     public static Vector2Int getSpriteSize(Sprite sprite) {
-        if (sprite == null) {
+        if (!sprite) {
             return Vector2Int.zero;
         }
         return new Vector2Int((int) (sprite.rect.width / Global.PIXELS_PER_BLOCK), (int) (sprite.rect.height / Global.PIXELS_PER_BLOCK));

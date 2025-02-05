@@ -232,10 +232,13 @@ namespace TileMaps {
             } else {
                 Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
                 int rotation = 90 * baseTileData.rotation;
-                transformMatrix.SetTRS(Vector3.zero,
+                transformMatrix.SetTRS(
+                    transformMatrix.GetPosition(),
                     baseTileData.mirror
                         ? Quaternion.Euler(0f, 180f, rotation)
-                        : Quaternion.Euler(0f, 0f, rotation), Vector3.one);
+                        : Quaternion.Euler(0f, 0f, rotation),
+                    Vector3.one
+                );
                 tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
             }
             
