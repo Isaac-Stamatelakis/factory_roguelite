@@ -29,7 +29,7 @@ namespace TileMaps {
 
     public interface IRotatableTileMap
     {
-        public void IterateRotatableTile(Vector2Int position, int direction);
+        public void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData);
     }
 
     public interface IHammerTileMap
@@ -221,29 +221,48 @@ namespace TileMaps {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
-            tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
-            if (!tileItem.tileOptions.rotatable) return;
+            
+            if (!tileItem.tileOptions.rotatable) 
+            {
+                tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
+                return;
+            }
             
             if (tileBase is IStateRotationTile stateRotationTile) {
                 tilemap.SetTile(
                     new Vector3Int(x,y,0), 
                     stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
                 );
-            } else {
-                Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
-                int rotation = 90 * baseTileData.rotation;
-                transformMatrix.SetTRS(
-                    transformMatrix.GetPosition(),
-                    baseTileData.mirror
-                        ? Quaternion.Euler(0f, 180f, rotation)
-                        : Quaternion.Euler(0f, 0f, rotation),
-                    Vector3.one
-                );
-                tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
+                return;
             }
             
+            tilemap.SetTile(new Vector3Int(x,y,0),null); // This is required to reset the transform matrix in the tilemap to the base 
+            tilemap.SetTile(new Vector3Int(x,y,0),tileBase); 
+            Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
+            
+            int rotation = 90 * baseTileData.rotation;
+            transformMatrix.SetTRS(
+                GetOffsetPosition(ref transformMatrix,baseTileData.rotation),
+                baseTileData.mirror
+                    ? Quaternion.Euler(0f, 180f, rotation)
+                    : Quaternion.Euler(0f, 0f, rotation),
+                Vector3.one
+            );
+            tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
         }
 
+        private Vector3 GetOffsetPosition(ref Matrix4x4 matrix, int rotation)
+        {
+            if (rotation % 2 == 0)
+            {
+                return matrix.GetPosition();
+            }
+            
+            Vector3 tileOffset = matrix.GetPosition();
+            (tileOffset.x, tileOffset.y) = (tileOffset.y, tileOffset.x);
+            return tileOffset;
+        }
+        
         public override void hitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             if (!hitHardness(hitTilePosition)) return;
@@ -321,21 +340,13 @@ namespace TileMaps {
             WriteTile(partition,tilePositionInPartition,newChiselTileItem);
         }
 
-        public void IterateRotatableTile(Vector2Int position, int direction)
+        public void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
         {
-            IChunkPartition partition = GetPartitionAtPosition(position);
-            if (partition == null) return;
-            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
-            
             TileItem tileItem = getTileItem(position);
-            if (ReferenceEquals(tileItem, null)) return;
-            
-            if (!tileItem.tileOptions.rotatable) return;
-            BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             const int ROTATION_COUNT = 4;
             int newRotation = ((baseTileData.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
             baseTileData.rotation = newRotation;
-         
+            
             SetTile(position.x,position.y,tileItem);
         }
 

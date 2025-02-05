@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Chunks;
+using Chunks.Partitions;
+using Chunks.Systems;
 using Dimensions;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Newtonsoft.Json;
+using Player;
 using Player.Mouse;
 using Player.Tool;
 using Player.Tool.Object;
@@ -11,6 +15,7 @@ using PlayerModule.Mouse;
 using TileMaps;
 using TileMaps.Layer;
 using TileMaps.Type;
+using Tiles;
 using UnityEngine;
 
 
@@ -53,8 +58,9 @@ namespace Robot.Tool.Instances
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerTransform).GetTileMap(TileMapType.Block);
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerScript.transform).GetTileMap(TileMapType.Block);
             Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
             int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
             
@@ -65,8 +71,7 @@ namespace Robot.Tool.Instances
                     chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);
                     break;
                 case BuildinatorMode.Rotator:
-                    if (iWorldTileMap is not IRotatableTileMap rotatableTileMap) return;
-                    rotatableTileMap.IterateRotatableTile((Vector2Int)cellPosition, direction);
+                    Rotate(playerScript, cellPosition, direction);
                     break;
                 case BuildinatorMode.Hammer:
                     if (iWorldTileMap is not IHammerTileMap stateTile) return;
@@ -75,6 +80,20 @@ namespace Robot.Tool.Instances
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void Rotate(PlayerScript playerScript, Vector3Int cellPosition, int direction)
+        {
+            ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            IChunkSystem chunkSystem = system;
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition((Vector2Int)cellPosition);
+            if (partition == null) return;
+            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
+            if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            
+            WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
+            worldTileMap?.IterateRotatableTile((Vector2Int)cellPosition, direction, baseTileData);
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

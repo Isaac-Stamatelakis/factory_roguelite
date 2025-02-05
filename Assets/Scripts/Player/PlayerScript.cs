@@ -16,13 +16,11 @@ namespace Player
         private PlayerInventory playerInventory;
         private PlayerRobot playerRobot;
         private PlayerIO playerIO;
-        private ClosedChunkSystem currentSystem;
         private ConduitPlacementOptions conduitPlacementOptions;
         
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
-        public ClosedChunkSystem CurrentSystem => currentSystem;
         public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
         
         public void Start()
