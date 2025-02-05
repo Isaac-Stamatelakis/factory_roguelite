@@ -27,7 +27,7 @@ namespace Tiles {
             {
                  if (PlaceTile.tileInDirection(mousePosition, direction, TileMapLayer.Base)) directionsWithTile.Add(direction);
             }
-            
+      
             int mousePlacement = GetMousePlacement(mousePosition);
             bool biasLeft = (mousePlacement & (int)MousePlacement.Left) != 0;
             bool biasDown = (mousePlacement & (int)MousePlacement.Down) != 0;
@@ -40,7 +40,7 @@ namespace Tiles {
             bool lu = directionsWithTile.Contains(Direction.Left) && directionsWithTile.Contains(Direction.Up);
             bool rd = directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Down);
             bool ru = directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Up);
-
+            
             if (ld && rd)
             {
                 return biasLeft ? LD_ROT : RD_ROT;
@@ -59,11 +59,27 @@ namespace Tiles {
             {
                 return biasDown ? RD_ROT : RU_ROT;
             }
+            
+            if (directionsWithTile.Contains(Direction.Down))
+            {
+                return biasLeft ? LD_ROT : RD_ROT;
+            }
 
-            if (ru) return RU_ROT;
-            if (rd) return RD_ROT;
-            if (lu) return LU_ROT;
-            if (ld) return LD_ROT;
+            if (directionsWithTile.Contains(Direction.Up))
+            {
+                return biasLeft ? LU_ROT : RU_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Right))
+            {
+                return biasDown ? RD_ROT : RU_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Left))
+            {
+                return biasDown ? LD_ROT : LU_ROT;
+            }
+            
             return NO_AUTO_ROTATION;
         }
 
