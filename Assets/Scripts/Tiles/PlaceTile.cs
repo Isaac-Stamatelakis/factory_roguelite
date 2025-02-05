@@ -380,19 +380,7 @@ namespace TileMaps.Place {
             }
             return false;
         }
-        /**
-        Snaps the given x,y onto the grid. 
-        **/
-        public static Vector2 snapGrid(float x, float y) {
-        // a 32 pixel sprite takes up 1 x 1 area of space, 16 x 16 takes up 0.5 x 0.5. 
-            return new Vector2(snap(x), snap(y));
-        }
-
-        public static float getAdjustedY(float y, float spriteSizeY) {
-            return y + (Mathf.CeilToInt(spriteSizeY/2f)-1)/2f;
-        }
-
-
+        
         public static int snap(float value) {
             return Mathf.FloorToInt(2*value);
         }
@@ -428,9 +416,7 @@ namespace TileMaps.Place {
             }
             return false;
         }
-
-
-
+        
         /**
         returns true if there is a tile within the range, inclusive
         **/

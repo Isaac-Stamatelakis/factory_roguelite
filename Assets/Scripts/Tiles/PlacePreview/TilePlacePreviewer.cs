@@ -35,6 +35,7 @@ namespace TileMaps.Previewer {
             unhighlightedContainer.name = "UnhighlightedTilemap";
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             unhighlightedContainer.AddComponent<TilemapRenderer>();
+            unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
             playerScript = PlayerManager.Instance.GetPlayer();
 
         }
@@ -141,6 +142,7 @@ namespace TileMaps.Previewer {
                 {
                     state += (int) directionState;
                 }
+                
                 TileBase tile = adjStateTile.getTileAtState(state);
                 unhighlightedTileMap.SetTile(position + direction, tile);
                 placePositions.Add(position + direction);
