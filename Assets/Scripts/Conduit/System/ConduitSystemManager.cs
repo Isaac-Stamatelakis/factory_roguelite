@@ -5,9 +5,12 @@ using System.Linq;
 using Conduits.Ports;
 using TileEntity;
 using System;
+using Chunks.Partitions;
 using Player;
 using TileMaps.Conduit;
+using TileMaps.Layer;
 using Tiles;
+using Unity.VisualScripting;
 
 namespace Conduits.Systems {
     public enum ConduitPlacementMode
@@ -73,25 +76,13 @@ namespace Conduits.Systems {
             if (ReferenceEquals(layout,null) || !layout) {
                 return;
             }
-            switch (type) {
-                case ConduitType.Item:
-                    chunkConduitPorts[tileEntity] = layout.itemPorts;
-                    break;
-                case ConduitType.Fluid:
-                    chunkConduitPorts[tileEntity] = layout.fluidPorts;
-                    break;
-                case ConduitType.Energy:
-                    chunkConduitPorts[tileEntity] = layout.energyPorts;
-                    break;
-                case ConduitType.Signal:
-                    chunkConduitPorts[tileEntity] = layout.signalPorts;
-                    break;
-                case ConduitType.Matrix:
-                    chunkConduitPorts[tileEntity] = layout.matrixPorts;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+
+            Vector2Int partitionPosition = Global.getPartitionFromCell(tileEntity.getCellPosition())-tileEntity.getChunk().GetPosition()*Global.PARTITIONS_PER_CHUNK;
+            var partition = tileEntity.getChunk().GetPartition(partitionPosition);
+            var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
+            if (entityPorts == null) return;
+            chunkConduitPorts[tileEntity] = entityPorts;
+            
             foreach (TileEntityPortData port in chunkConduitPorts[tileEntity])
             {
                 Vector2Int position = port.position + tileEntity.getCellPosition();
@@ -379,10 +370,8 @@ namespace Conduits.Systems {
             return null;
         }
         public EntityPortType GetPortTypeAtPosition(int x, int y) {
-            // TODO make this more efficent
             Vector2Int pos = new Vector2Int(x,y);
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
-                //Vector2Int distVec = kvp.Key - new Vector2Int(x,y);
                 foreach (TileEntityPortData tileEntityPort in kvp.Value) {
                     // Key is tileEntityPosition
                     if (tileEntityPort.position + kvp.Key.getCellPosition() == pos) { // Conduit is placed on tileEntityPort

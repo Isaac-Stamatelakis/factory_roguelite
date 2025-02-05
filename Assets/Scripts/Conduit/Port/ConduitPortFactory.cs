@@ -1,11 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Chunks.Partitions;
 using Conduits.Systems;
 using UnityEngine;
 using Newtonsoft.Json;
 using TileEntity;
 using Items;
+using TileMaps.Layer;
+using Tiles;
 
 namespace Conduits.Ports {
     public enum PortDataType
@@ -18,11 +21,13 @@ namespace Conduits.Ports {
     public static class ConduitPortFactory
     {
         public static readonly int PORT_COLORS = 16;
-        public static List<TileEntityPortData> GetEntityPorts(IConduitPortTileEntity conduitPortTileEntity, ConduitType type)
+        public static List<TileEntityPortData> GetEntityPorts(IChunkPartition partition, ITileEntityInstance tileEntityInstance, ConduitType type)
         {
+            if (tileEntityInstance is not IConduitPortTileEntity conduitPortTileEntity) return null;
             ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
-            if (layout == null) return null;
-            return GetEntityPorts(layout, type);
+            if (!layout) return null;
+            List<TileEntityPortData> ports = GetEntityPorts(layout, type);
+            return RotateEntityPorts(ports, partition, tileEntityInstance.getPositionInPartition());
         }
 
         public static List<TileEntityPortData> GetEntityPorts(ConduitPortLayout layout, ConduitType type)
@@ -41,6 +46,71 @@ namespace Conduits.Ports {
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+        }
+
+        public static List<TileEntityPortData> RotateEntityPorts(List<TileEntityPortData> entityPorts, IChunkPartition partition, Vector2Int positionInPartition)
+        {
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            if (baseTileData.rotation == 0)
+            {
+                return entityPorts;
+            }
+           
+            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
+            Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
+            List<TileEntityPortData> tileEntityPortDatas = new List<TileEntityPortData>();
+            foreach (TileEntityPortData portData in entityPorts)
+            {
+                Vector2Int rotatedPosition = GetRotationPortPosition(portData.position, baseTileData.rotation, spriteSize);
+                TileEntityPortData rotated = new TileEntityPortData(portData.portType,rotatedPosition);
+                tileEntityPortDatas.Add(rotated);
+            }
+            return tileEntityPortDatas;
+        }
+        /// <summary>
+        /// Rotates port positions
+        /// </summary>
+        /// <param name="portPosition"></param>
+        /// <param name="rotation"></param>
+        /// <param name="spriteSize">Sprite size of tile entity in world tile space (16px)</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Vector2Int GetRotationPortPosition(Vector2Int portPosition, int rotation, Vector2Int spriteSize)
+        {
+            if (spriteSize.x % 2 == 0 && rotation is 2 or 3)
+            {
+                portPosition += Vector2Int.left;
+            }
+
+            if (spriteSize.y % 2 == 0 && rotation is 1 or 2)
+            {
+                portPosition += Vector2Int.down;
+            }
+            Debug.Log(rotation);
+            switch (rotation)
+            {
+                case 0:
+                    return portPosition;
+                case 1:
+                    portPosition *= new Vector2Int(1, -1);
+                    SwapVector(ref portPosition);
+                    return portPosition;
+                case 2:
+                    portPosition *= new Vector2Int(-1, -1);
+                    //SwapVector(ref portPosition);
+                    return portPosition;
+                case 3:
+                    portPosition *= new Vector2Int(-1, 1);
+                    SwapVector(ref portPosition);
+                    return portPosition;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        private static void SwapVector(ref Vector2Int vector2Int)
+        {
+            (vector2Int.x, vector2Int.y) = (vector2Int.y, vector2Int.x);   
         }
         public static IConduitPort Deserialize(string data, ConduitType conduitType, ConduitItem conduitItem, ITileEntityInstance tileEntityInstance, Vector2Int conduitPosition) {
             if (data == null) {

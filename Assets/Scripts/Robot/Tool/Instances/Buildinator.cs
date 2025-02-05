@@ -12,6 +12,7 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
 using TileMaps.Type;
@@ -84,16 +85,33 @@ namespace Robot.Tool.Instances
 
         private void Rotate(PlayerScript playerScript, Vector3Int cellPosition, int direction)
         {
+            Vector2Int cellPositionV2 = (Vector2Int)cellPosition;
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
             IChunkSystem chunkSystem = system;
-            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition((Vector2Int)cellPosition);
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPositionV2);
             if (partition == null) return;
+            
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
             if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
+            ITileEntityInstance tileEntityInstance = partition.GetTileEntity(positionInPartition);
+            IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
+            ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = system as ConduitTileClosedChunkSystem;
+            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitTileClosedChunkSystem, null);
+            if (updatePort)
+            {
+                conduitTileClosedChunkSystem.TileEntityDeleteUpdate(cellPositionV2);
+            }
+            
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             
             WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
-            worldTileMap?.IterateRotatableTile((Vector2Int)cellPosition, direction, baseTileData);
+            worldTileMap?.IterateRotatableTile(cellPositionV2, direction, baseTileData);
+
+
+            if (updatePort)
+            {
+                conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
+            }
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
