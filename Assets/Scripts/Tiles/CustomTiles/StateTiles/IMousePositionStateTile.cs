@@ -8,10 +8,8 @@ namespace Tiles {
     /// <summary>
     /// Used for tiles with different sprites depending on state
     /// </summary>
-    public interface IRestrictedTile {
-        
-        public int getStateAtPosition(Vector2 position, VerticalMousePosition verticalMousePosition,HorizontalMousePosition horizontalMousePosition);
-        
+    public interface IMousePositionStateTile {
+        public int GetStateAtPosition(Vector2 position);
     }
 
     public interface ITypeSwitchType {

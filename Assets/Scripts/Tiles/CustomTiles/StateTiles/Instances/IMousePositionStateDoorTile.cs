@@ -9,7 +9,7 @@ using TileMaps.Type;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
-    public class RestrictedDoorTile : TileBase, IRestrictedTile, IIDTile, ITypeSwitchType, IStateTile
+    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, IIDTile, ITypeSwitchType, IStateTile
     {
         public string id;
         public Tile left;
@@ -25,12 +25,10 @@ namespace Tiles {
         {
             this.id = id;
         }
-        public int getStateAtPosition(Vector2 position, VerticalMousePosition verticalMousePosition, HorizontalMousePosition horizontalMousePosition) {
-            
-            if (horizontalMousePosition == HorizontalMousePosition.Left) {
-                return 0;
-            }
-            return 1;
+        public int GetStateAtPosition(Vector2 position)
+        {
+            int mousePosition = MousePositionUtils.GetMousePlacement(position);
+            return MousePositionUtils.MouseBiasDirection(mousePosition, MousePlacement.Left) ? 0 : 1;
         }
 
         public TileBase getTileAtState(int state)

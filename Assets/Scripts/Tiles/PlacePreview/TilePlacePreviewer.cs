@@ -64,7 +64,7 @@ namespace TileMaps.Previewer {
                 placementRecord?.Clear();
                 return;
             }
-            int mousePlacement = PlaceTile.GetMousePlacement(position);
+            int mousePlacement = MousePositionUtils.GetMousePlacement(position);
             
             Vector3Int placePosition = PlaceTile.getItemPlacePosition(itemObject,position);
             
@@ -96,8 +96,8 @@ namespace TileMaps.Previewer {
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
-            if (itemTileBase is IRestrictedTile restrictedTile) {
-                state = restrictedTile.getStateAtPosition(position,MousePositionFactory.getVerticalMousePosition(position),MousePositionFactory.getHorizontalMousePosition(position));
+            if (itemTileBase is IMousePositionStateTile restrictedTile) {
+                state = restrictedTile.GetStateAtPosition(position);
             }
 
             TileBase tileBase;
@@ -110,7 +110,7 @@ namespace TileMaps.Previewer {
             int rotation = tilePlacementOptions.Rotation;
             if (itemTileBase is HammerTile)
             {
-                int hammerRotation = PlaceTile.CalculateHammerTileRotation(position,tilePlacementOptions.State);
+                int hammerRotation = MousePositionUtils.CalculateHammerTileRotation(position,tilePlacementOptions.State);
                 if (hammerRotation > 0) rotation = hammerRotation;
             }
 

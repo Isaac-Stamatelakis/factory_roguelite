@@ -8,7 +8,7 @@ using TileMaps.Layer;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class RestrictedTorchTile : TileBase, IRestrictedTile, IIDTile, IStateTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile
     {
         public string id;
         public Tile onBlock;
@@ -25,7 +25,7 @@ namespace Tiles {
         {
             this.id = id;
         }
-        public int getStateAtPosition(Vector2 position,VerticalMousePosition verticalMousePosition, HorizontalMousePosition horizontalMousePosition) {
+        public int GetStateAtPosition(Vector2 position) {
             // If exists tile to left place left
             // If exists tile to right place right
             // If exists tile on bottom place bottom
@@ -37,14 +37,15 @@ namespace Tiles {
             bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
             //Debug.Log("Left" + left + "," + "Right" + right + "," + "Down" + down + "," + "Background" + background);
             // Priotize placing down
-            if (verticalMousePosition == VerticalMousePosition.Bottom && !left && !right && down) {
+            int mousePosition = MousePositionUtils.GetMousePlacement(position);
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Down) && !left && !right && down) {
                 return 0;
             }
             // If top 
-            if (horizontalMousePosition == HorizontalMousePosition.Left && left) {
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left) && left) {
                 return 1;
             }
-            if (horizontalMousePosition == HorizontalMousePosition.Right && right) {
+            if (MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right) && right) {
                 return 2;
             }
             if (!left && !right && !down && background) {

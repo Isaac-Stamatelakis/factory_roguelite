@@ -56,7 +56,7 @@ public class DoorTileGenerator : EditorWindow {
         StandardTile rightOpenTile = ItemEditorFactory.standardTileCreator(rightOpen,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(rightOpenTile,tileName,"RightOpen");
 
-        RestrictedDoorTile doorTile = ScriptableObject.CreateInstance<RestrictedDoorTile>();
+        IMousePositionStateDoorTile doorTile = ScriptableObject.CreateInstance<IMousePositionStateDoorTile>();
         doorTile.left = leftClosedTile;
         doorTile.leftOpen = leftOpenTile;
         doorTile.right = rightClosedTile;

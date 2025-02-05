@@ -4,13 +4,6 @@ using UnityEngine.Tilemaps;
 
 namespace TileMaps.Previewer
 {
-    public enum MousePlacement
-    {
-        Left = 1,
-        Right = 2,
-        Up = 4,
-        Down = 8,
-    }
     public abstract class TilePlacementRecord
     {
         protected Tilemap tilemap;
@@ -35,7 +28,6 @@ namespace TileMaps.Previewer
     internal class SingleTilePlacementRecord : TilePlacementRecord
     {
         private readonly Vector3Int placePosition;
-        private MousePositionRecord mousePlacementRecord;
         
         public SingleTilePlacementRecord(string id, Vector3Int placePosition, Tilemap tilemap) : base(id,tilemap)
         {
@@ -51,12 +43,6 @@ namespace TileMaps.Previewer
         {
             return position == placePosition && id == Id;
         }
-    }
-
-    internal class MousePositionRecord
-    {
-        public bool BiasLeft;
-        public bool BiasRight;
     }
 
     internal class MultiTilePlacementRecord : TilePlacementRecord
