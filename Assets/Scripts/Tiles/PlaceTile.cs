@@ -74,12 +74,12 @@ namespace TileMaps.Place {
         {
             switch (itemObject)
             {
-                case TileItem tileItem when checkConditions && !TilePlacable(playerScript.TilePlacementOptions, tileItem,worldPlaceLocation, closedChunkSystem):
-                    return false;
                 case TileItem tileItem:
                 {
                     TileMapType tileMapType = tileItem.tileType.toTileMapType();
                     TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation);
+                    if (!TilePlacable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
+                    
                     placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData);
                     return true;
                 }
@@ -116,12 +116,12 @@ namespace TileMaps.Place {
             
         }
         
-        public static bool TilePlacable(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
+        public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
             TileMapType tileMapType = tileItem.tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
             switch (layer) {
                 case TileMapLayer.Base:
-                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementOptions.Rotation);
+                    return BaseTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem, tilePlacementData.Rotation);
                 case TileMapLayer.Background:
                     return backgroundTilePlacable(tileItem,worldPlaceLocation, closedChunkSystem);
                 default:
@@ -137,16 +137,22 @@ namespace TileMaps.Place {
             }
             return Vector3Int.zero;
         }
-        private static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation)
+        public static bool BaseTilePlacable(TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, int rotation, FloatIntervalVector exclusion = null)
         {
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.getSpriteSize(tileItem.getSprite()),rotation);
-            if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) {
-                return false;
+            if (exclusion == null)
+            {
+                if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) return false;
             }
+            else
+            {
+                if (TileWithinIntervalAreaRangeExclusion(intervalVector, exclusion, TileMapLayer.Base)) return false;
+            }
+            
+            
 
-            if (DevMode.Instance.noPlaceLimit) {
-                return true;
-            }
+            if (DevMode.Instance.noPlaceLimit) return true;
+            
     
             HashSet<Direction> adjacentBlocks = GetActivePerimeter(intervalVector, tileItem.tileType.toTileMapType().toLayer());
             
@@ -494,6 +500,23 @@ namespace TileMaps.Place {
                 floatIntervalVector.Y.UpperBound,
                 layer.toRaycastLayers()
             );
+        }
+        
+        private static bool TileWithinIntervalAreaRangeExclusion(FloatIntervalVector floatIntervalVector, FloatIntervalVector exclusion, TileMapLayer layer) {
+            float minX = floatIntervalVector.X.LowerBound;
+            float maxX = floatIntervalVector.X.UpperBound;
+            float minY = floatIntervalVector.Y.LowerBound;
+            float maxY = floatIntervalVector.Y.UpperBound;
+            
+            for (float x = minX; x <= maxX; x += 1/2f) {
+                for (float y = minY; y <= maxY; y += 1/2f) {
+                    if (x >= exclusion.X.LowerBound && x <= exclusion.X.UpperBound && y >= exclusion.Y.LowerBound && y <= exclusion.Y.UpperBound) continue;
+                    if (raycastTileInBox(new Vector2(x,y), layer.toRaycastLayers())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static HashSet<Direction> GetActivePerimeter(FloatIntervalVector floatIntervalVector, TileMapLayer layer)

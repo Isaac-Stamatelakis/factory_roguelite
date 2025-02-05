@@ -19,6 +19,7 @@ using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 
 namespace Robot.Tool.Instances
@@ -94,27 +95,19 @@ namespace Robot.Tool.Instances
             
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
             if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
-            
-            PlaceTile.TilePlacable(playerScript.TilePlacementOptions,tileItem,worldPosition,system);
-            ITileEntityInstance tileEntityInstance = partition.GetTileEntity(positionInPartition);
-            IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
-            ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = system as ConduitTileClosedChunkSystem;
-            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitTileClosedChunkSystem, null);
-            if (updatePort)
-            {
-                conduitTileClosedChunkSystem.TileEntityDeleteUpdate(cellPositionV2);
-            }
+            WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
+            if (ReferenceEquals(worldTileMap, null)) return;
             
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            worldTileMap.IterateRotatableTile(cellPositionV2, direction, baseTileData);
+        }
+
+        public static int CalculateNewRotation(int rotation, int direction)
+        {
+            const int ROTATION_COUNT = 4;
+            int newRotation = ((rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
+            return newRotation;
             
-            WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
-            worldTileMap?.IterateRotatableTile(cellPositionV2, direction, baseTileData);
-
-
-            if (updatePort)
-            {
-                conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
-            }
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

@@ -15,6 +15,8 @@ using Items;
 using Entities;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using Player;
+using Robot.Tool.Instances;
 using TileEntity.MultiBlock;
 
 namespace TileMaps {
@@ -319,11 +321,29 @@ namespace TileMaps {
         public void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
         {
             TileItem tileItem = getTileItem(position);
-            const int ROTATION_COUNT = 4;
-            int newRotation = ((baseTileData.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
-            baseTileData.rotation = newRotation;
+            int newRotation = Buildinator.CalculateNewRotation(baseTileData.rotation, direction);
+           
+            Vector2 worldPosition = tilemap.CellToWorld((Vector3Int)position);
             
+            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.getSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+            if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
+            {
+                return;
+            }
+            
+            var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
+
+            ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
+            IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
+            ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = closedChunkSystem as ConduitTileClosedChunkSystem;
+            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitTileClosedChunkSystem, null);
+            
+            // Important to delete the tile entity before the rotation changes
+            if (updatePort) conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
+            
+            baseTileData.rotation = newRotation;
             SetTile(position.x,position.y,tileItem);
+            if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)

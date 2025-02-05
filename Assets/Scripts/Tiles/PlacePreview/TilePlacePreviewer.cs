@@ -80,7 +80,7 @@ namespace TileMaps.Previewer {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
             if (itemObject is TileItem tileItem)
             {
-                tilemap.color = PlaceTile.TilePlacable(playerScript.TilePlacementOptions, tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                tilemap.color = PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation), tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
             }
             
 
