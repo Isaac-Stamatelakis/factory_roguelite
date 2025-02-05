@@ -9,6 +9,7 @@ using Tiles;
 using Items;
 using Conduits.Ports;
 using Entities;
+using Player;
 
 namespace Chunks.Partitions {
     
@@ -285,6 +286,16 @@ namespace Chunks.Partitions {
                     loadableTileEntity.Unload();
                 }
             }
+        }
+
+        public void SetHardness(Vector2Int positionInPartition, int hardness)
+        {
+            baseTileHardnessArray[positionInPartition.x, positionInPartition.y] = hardness;
+        }
+
+        public void SetBaseTileData(Vector2Int positionInPartition, BaseTileData baseTileData)
+        {
+            data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y] = baseTileData;
         }
     }
 }

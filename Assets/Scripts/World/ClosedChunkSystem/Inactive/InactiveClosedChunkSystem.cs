@@ -11,6 +11,7 @@ using Chunks.Partitions;
 using TileEntity.Instances.CompactMachines;
 using Chunks.IO;
 using TileMaps.Layer;
+using Tiles;
 
 namespace Chunks.Systems {
     public class SoftLoadedClosedChunkSystem : IChunkSystem
@@ -93,7 +94,7 @@ namespace Chunks.Systems {
 
         private void initConduitSystemManager(TileMapType conduitMapType) {
             ConduitType conduitType = conduitMapType.toConduitType();
-            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts = getTileEntityPorts(conduitType);
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts = GetTileEntityPorts(conduitType);
             IConduitSystemManager manager = ConduitSystemManagerFactory.CreateManager(
                 conduitType: conduitType,
                 conduits: GetConduits(conduitType,tileEntityPorts),
@@ -104,8 +105,7 @@ namespace Chunks.Systems {
         /// <summary>
         /// Returns a list of spots conduits can connect to tile entities of each chunk
         /// </summary>
-        private Dictionary<ITileEntityInstance, List<TileEntityPortData>> getTileEntityPorts(ConduitType conduitType) {
-            Vector2Int chunkFrameOfReference = GetBottomLeftCorner();
+        private Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetTileEntityPorts(ConduitType conduitType) {
             Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPortData = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
@@ -113,7 +113,7 @@ namespace Chunks.Systems {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    Dictionary<ITileEntityInstance, List<TileEntityPortData>> partitionPorts = ((IConduitTileChunkPartition) partition).GetEntityPorts(conduitType,chunkFrameOfReference);
+                    Dictionary<ITileEntityInstance, List<TileEntityPortData>> partitionPorts = GetEntityPorts(partition,conduitType);
                     foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in partitionPorts) {
                         tileEntityPortData[kvp.Key] = kvp.Value;
                     }
@@ -121,6 +121,24 @@ namespace Chunks.Systems {
             }
             return tileEntityPortData;
             
+        }
+        
+        private Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetEntityPorts(IChunkPartition partition, ConduitType type) {
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    Vector2Int position = new Vector2Int(x, y);
+                    ITileEntityInstance tileEntity = partition.GetTileEntity(position);
+                    
+                    var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
+                    if (entityPorts == null) {
+                        continue;
+                    }
+                    ports[tileEntity] = entityPorts;
+                }
+            }
+            return ports;
         }
 
         /// <summary>

@@ -16,12 +16,13 @@ namespace Player
         private PlayerInventory playerInventory;
         private PlayerRobot playerRobot;
         private PlayerIO playerIO;
-        private ConduitPlacementOptions conduitPlacementOptions;
-        
+        [SerializeField] private ConduitPlacementOptions conduitPlacementOptions;
+        [SerializeField] private PlayerTilePlacementOptions tilePlacementOptions;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
         public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
+        public PlayerTilePlacementOptions TilePlacementOptions => tilePlacementOptions;
         
         public void Start()
         {
@@ -39,9 +40,10 @@ namespace Player
             playerRobot.SetRobot(playerRobotItem);
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions();
+            tilePlacementOptions = new PlayerTilePlacementOptions();
         }
     }
-
+    [System.Serializable]
     public class ConduitPlacementOptions
     {
         private ConduitType lastPlacementType;
@@ -76,6 +78,23 @@ namespace Player
         public void AddPlacementPosition(Vector2Int position)
         {
             PlacementPositions.Add(position);
+        }
+    }
+
+    [System.Serializable]
+    public class PlayerTilePlacementOptions
+    {
+        public int Rotation;
+        public bool UseSmartRotation;
+    }
+
+    public class TilePlacementData
+    {
+        public int Rotation;
+
+        public TilePlacementData(int rotation)
+        {
+            Rotation = rotation;
         }
     }
 }

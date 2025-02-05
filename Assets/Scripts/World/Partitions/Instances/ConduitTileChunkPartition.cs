@@ -19,7 +19,6 @@ namespace Chunks.Partitions {
         public bool GetConduitLoaded();
         public void SetConduitLoaded(bool val);
         public void SoftLoadTileEntities();
-        public Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetEntityPorts(ConduitType conduitType,Vector2Int referenceChunk);
         public void SetConduits(Dictionary<ConduitType, IConduit[,]> conduits);
         public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
@@ -71,23 +70,7 @@ namespace Chunks.Partitions {
             tickLoaded = true;
         }
 
-        public Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetEntityPorts(ConduitType type, Vector2Int referenceFrame) {
-            Dictionary<ITileEntityInstance, List<TileEntityPortData>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
-            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
-                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
-                    ITileEntityInstance tileEntity = tileEntities[x,y];
-                    if (tileEntity is not IConduitPortTileEntity conduitInteractable) {
-                        continue;
-                    }
-                    var entityPorts = ConduitPortFactory.GetEntityPorts(conduitInteractable, type);
-                    if (entityPorts == null) {
-                        continue;
-                    }
-                    ports[tileEntity] = entityPorts;
-                }
-            }
-            return ports;
-        }
+        
         private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {

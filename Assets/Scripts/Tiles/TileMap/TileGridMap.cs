@@ -15,6 +15,8 @@ using Items;
 using Entities;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using Player;
+using Robot.Tool.Instances;
 using TileEntity.MultiBlock;
 
 namespace TileMaps {
@@ -235,33 +237,9 @@ namespace TileMaps {
                 );
                 return;
             }
-            
-            tilemap.SetTile(new Vector3Int(x,y,0),null); // This is required to reset the transform matrix in the tilemap to the base 
-            tilemap.SetTile(new Vector3Int(x,y,0),tileBase); 
-            Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(new Vector3Int(x,y));
-            
-            int rotation = 90 * baseTileData.rotation;
-            transformMatrix.SetTRS(
-                GetOffsetPosition(ref transformMatrix,baseTileData.rotation),
-                baseTileData.mirror
-                    ? Quaternion.Euler(0f, 180f, rotation)
-                    : Quaternion.Euler(0f, 0f, rotation),
-                Vector3.one
-            );
-            tilemap.SetTransformMatrix(new Vector3Int(x,y,0), transformMatrix);
+            PlaceTile.RotateTileInMap(tilemap, tileBase, new Vector3Int(x, y, 0), baseTileData.rotation,baseTileData.mirror);
         }
-
-        private Vector3 GetOffsetPosition(ref Matrix4x4 matrix, int rotation)
-        {
-            if (rotation % 2 == 0)
-            {
-                return matrix.GetPosition();
-            }
-            
-            Vector3 tileOffset = matrix.GetPosition();
-            (tileOffset.x, tileOffset.y) = (tileOffset.y, tileOffset.x);
-            return tileOffset;
-        }
+        
         
         public override void hitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
@@ -343,11 +321,29 @@ namespace TileMaps {
         public void IterateRotatableTile(Vector2Int position, int direction, BaseTileData baseTileData)
         {
             TileItem tileItem = getTileItem(position);
-            const int ROTATION_COUNT = 4;
-            int newRotation = ((baseTileData.rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
-            baseTileData.rotation = newRotation;
+            int newRotation = Buildinator.CalculateNewRotation(baseTileData.rotation, direction);
+           
+            Vector2 worldPosition = tilemap.CellToWorld((Vector3Int)position);
             
+            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.getSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+            if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
+            {
+                return;
+            }
+            
+            var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
+
+            ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
+            IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;
+            ConduitTileClosedChunkSystem conduitTileClosedChunkSystem = closedChunkSystem as ConduitTileClosedChunkSystem;
+            bool updatePort = portTileEntity != null && !ReferenceEquals(conduitTileClosedChunkSystem, null);
+            
+            // Important to delete the tile entity before the rotation changes
+            if (updatePort) conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
+            
+            baseTileData.rotation = newRotation;
             SetTile(position.x,position.y,tileItem);
+            if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)

@@ -12,11 +12,14 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
+using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 
 namespace Robot.Tool.Instances
@@ -71,7 +74,7 @@ namespace Robot.Tool.Instances
                     chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);
                     break;
                 case BuildinatorMode.Rotator:
-                    Rotate(playerScript, cellPosition, direction);
+                    Rotate(playerScript, mousePosition, cellPosition, direction);
                     break;
                 case BuildinatorMode.Hammer:
                     if (iWorldTileMap is not IHammerTileMap stateTile) return;
@@ -82,18 +85,29 @@ namespace Robot.Tool.Instances
             }
         }
 
-        private void Rotate(PlayerScript playerScript, Vector3Int cellPosition, int direction)
+        private void Rotate(PlayerScript playerScript, Vector2 worldPosition, Vector3Int cellPosition, int direction)
         {
+            Vector2Int cellPositionV2 = (Vector2Int)cellPosition;
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
             IChunkSystem chunkSystem = system;
-            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition((Vector2Int)cellPosition);
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPositionV2);
             if (partition == null) return;
+            
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
             if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
-            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            
             WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
-            worldTileMap?.IterateRotatableTile((Vector2Int)cellPosition, direction, baseTileData);
+            if (ReferenceEquals(worldTileMap, null)) return;
+            
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            worldTileMap.IterateRotatableTile(cellPositionV2, direction, baseTileData);
+        }
+
+        public static int CalculateNewRotation(int rotation, int direction)
+        {
+            const int ROTATION_COUNT = 4;
+            int newRotation = ((rotation+direction) % ROTATION_COUNT + ROTATION_COUNT) % ROTATION_COUNT;
+            return newRotation;
+            
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

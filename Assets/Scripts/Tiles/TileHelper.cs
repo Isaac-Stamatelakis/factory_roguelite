@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,19 +13,49 @@ public class TileHelper
     /// <summary>
     /// Returns the real world covered area of the tile
     /// </summary>
-    public static FloatIntervalVector getRealCoveredArea(Vector2 realPlacePosition, Vector2 spriteSize) {
-        float minX = getRealTileCenter(realPlacePosition.x) -(Mathf.Ceil(spriteSize.x/2)-1)/2;
-        float maxX = getRealTileCenter(realPlacePosition.x) + (Mathf.Floor(spriteSize.x/2))/2;
-        float minY = getRealTileCenter(realPlacePosition.y) -(Mathf.Ceil(spriteSize.y/2)-1)/2;
-        float maxY = getRealTileCenter(realPlacePosition.y) + (Mathf.Floor(spriteSize.y/2))/2;
+    public static FloatIntervalVector getRealCoveredArea(Vector2 realPlacePosition, Vector2 spriteSize, int rotation)
+    {
+        const float TILE_SIZE = 0.5f;
+        float minX = -(Mathf.Ceil(spriteSize.x/2)-1)/2;
+        float maxX = (Mathf.Floor(spriteSize.x/2))/2;
+        float minY = -(Mathf.Ceil(spriteSize.y/2)-1)/2;
+        float maxY = (Mathf.Floor(spriteSize.y/2))/2;
+        
+        switch (rotation)
+        {
+            case 0:
+            case 2:
+                break;
+            case 1: // 90 degrees
+                (minX, maxX, minY, maxY) = (minY, maxY, -maxX, -minX);
+                if (spriteSize.x % 2 == 0)
+                {
+                    minY += TILE_SIZE;
+                    maxY += TILE_SIZE;
+                }
+                break;
+            case 3: // 270 degrees
+                (minX, maxX, minY, maxY) = (-maxY, -minY, minX, maxX);
+                if (spriteSize.y % 2 == 0)
+                {
+                    minX += TILE_SIZE;
+                    maxX += TILE_SIZE;
+                }
+                break;
+            default:
+                // Handle invalid rotation values
+                throw new ArgumentException("Invalid rotation value.");
+        }
+        
+        Vector2 realPlacePositionCenter = new Vector2(getRealTileCenter(realPlacePosition.x), getRealTileCenter(realPlacePosition.y));
         return new FloatIntervalVector(
             new Interval<float>(
-                getRealTileCenter(realPlacePosition.x) -(Mathf.Ceil(spriteSize.x/2)-1)/2,
-                getRealTileCenter(realPlacePosition.x) + (Mathf.Floor(spriteSize.x/2))/2
+                realPlacePositionCenter.x+minX,
+                realPlacePositionCenter.x+maxX
             ),
             new Interval<float> (
-                getRealTileCenter(realPlacePosition.y) -(Mathf.Ceil(spriteSize.y/2)-1)/2,
-                getRealTileCenter(realPlacePosition.y) + (Mathf.Floor(spriteSize.y/2))/2
+                realPlacePositionCenter.y+minY,
+                realPlacePositionCenter.y+maxY
             )
         );
     }
