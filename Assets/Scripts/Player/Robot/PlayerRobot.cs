@@ -59,6 +59,15 @@ namespace Player {
         private int blockLayer;
         private int platformLayer;
         private int ignorePlatformFrames;
+        private float moveDirTime;
+        
+        const float MINIMUM_DIRECTIONAL_MOVE_DIR = 0.2f;
+        const float DIRECTIONAL_MOVE_ACC_MODIFIER = 3f;
+        const float DIRECTIONAL_MOVE_FRICTION = 10;
+        const float TURN_AROUND_MODIFIER = 10f;
+        private JumpEvent jumpEvent;
+        private int freezeYFrames;
+        
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
@@ -73,6 +82,7 @@ namespace Player {
         {
             mPlayerRobotUI.Display(robotData,currentRobot);
             MoveUpdate();
+            cameraBounds.UpdateCameraBounds();
         }
 
         private void MoveUpdate()
@@ -92,44 +102,104 @@ namespace Player {
         {
             Vector2 velocity = Vector2.zero;
             velocity.y = rb.velocity.y;
-            bool moved = false;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-                velocity.x = -speed;
-                spriteRenderer.flipX = true;
-                moved = true;
-                if (IsOnGround())
+            
+            bool movedLeft = DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
+            bool movedRight = DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+            
+            
+            if (!movedLeft && !movedRight)
+            {
+                float dif = DIRECTIONAL_MOVE_FRICTION * Time.deltaTime;
+                if (moveDirTime > 0)
                 {
-                    bool autoJump = CanAutoJump(Direction.Left);
-                    if (!autoJump && WalkingIntoSlope(Direction.Left))
-                    {
-                        liveYUpdates = 3;
-                    }
+                    moveDirTime -= dif;
+                    if (moveDirTime < 0) moveDirTime = 0;
+                }
+                if (moveDirTime < 0)
+                {
+                    moveDirTime += dif;
+                    if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-                velocity.x = +speed;
-                spriteRenderer.flipX = false;
-                moved = true;
-                if (IsOnGround())
+
+            const float MAX_MOVE_DIR = 1;
+            
+            if (moveDirTime > MAX_MOVE_DIR) moveDirTime = MAX_MOVE_DIR;
+            if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
+            
+            int sign = moveDirTime < 0 ? -1 : 1;
+            float move = DIRECTIONAL_MOVE_ACC_MODIFIER*moveDirTime * sign;
+            
+            velocity.x = sign * Mathf.Lerp(0,speed,move);
+
+            const float JUMP_SPEED = 8;
+            if (IsOnGround() && Input.GetKeyDown(KeyCode.Space))
+            {
+                jumpEvent = new JumpEvent();
+                velocity.y = JUMP_SPEED;
+            }
+
+            
+
+            if (jumpEvent != null)
+            {
+                if (Input.GetKey(KeyCode.Space))
                 {
-                    bool autoJump = CanAutoJump(Direction.Right);
-                    if (!autoJump && WalkingIntoSlope(Direction.Right))
-                    {
-                        liveYUpdates = 3;
-                    }
+                    jumpEvent.IterateTime();
+                    rb.gravityScale = jumpEvent.GetGravityModifier() * defaultGravityScale;
+                }
+                else
+                {
+                    rb.gravityScale = defaultGravityScale;   
                 }
             }
-            if ((onBlock|| onPlatform) && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
-                if (Input.GetKey(KeyCode.S)) {
-                    ignorePlatformFrames = 5;
-                } else {
-                    velocity.y = 12f;
-                }
-                onBlock = false;
-                moved = true;
+
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                jumpEvent = null;
+            }
+            if (jumpEvent != null && Input.GetKey(KeyCode.Space))
+            {
+                
+            }
+
+            if (onPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            {
+                ignorePlatformFrames = 5;
             }
             rb.velocity = velocity;
-            if (moved) cameraBounds.UpdateCameraBounds();
+        }
+
+        private bool DirectionalMovementUpdate(Direction direction, KeyCode firstKeycode, KeyCode secondKeyCode)
+        {
+            if (!Input.GetKey(firstKeycode) && !Input.GetKey(secondKeyCode)) return false;
+            switch (direction)
+            {
+                case Direction.Left:
+                    float lmodifier = moveDirTime < 0 ? 1 : TURN_AROUND_MODIFIER;
+                    moveDirTime -= lmodifier * Time.deltaTime;
+                    
+                    spriteRenderer.flipX = true;
+                    if (moveDirTime < 0 && moveDirTime > -MINIMUM_DIRECTIONAL_MOVE_DIR) moveDirTime = -MINIMUM_DIRECTIONAL_MOVE_DIR;
+                    break;
+                case Direction.Right:
+                    float rmodifier = moveDirTime > 0 ? 1 : TURN_AROUND_MODIFIER;
+                    moveDirTime += rmodifier * Time.deltaTime;
+                    spriteRenderer.flipX = false;
+                    if (moveDirTime > 0 && moveDirTime < MINIMUM_DIRECTIONAL_MOVE_DIR) moveDirTime = MINIMUM_DIRECTIONAL_MOVE_DIR;
+                    break;
+            }
+            
+            
+            if (!IsOnGround()) return true;
+
+            if (CanAutoJump(direction)) return true;
+            if (WalkingIntoSlope(direction))
+            {
+                liveYUpdates = 3;
+            }
+
+            return true;
         }
 
         private bool IsOnGround()
@@ -184,6 +254,7 @@ namespace Player {
             vector3.y = vector3.y + Global.TILE_SIZE / 2f;
             vector3.y = ((int)(4 * vector3.y)) / 4f;
             transform.position = vector3;
+            freezeYFrames = 3;
             return true;
         }
         
@@ -217,16 +288,14 @@ namespace Player {
                 ignorePlatformFrames--;
             }
             
-            
-            
-            
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
                 const float epilson = 0.1f;
                 liveYUpdates--;
-                rb.constraints = liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson
+                freezeYFrames--;
+                rb.constraints = freezeYFrames > 0 || (liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson)
                     ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
                     : RigidbodyConstraints2D.FreezeRotation;
             }
@@ -317,29 +386,22 @@ namespace Player {
         private void FlightMovementUpdate(Transform playerTransform)
         {
             Vector3 position = playerTransform.position;
-            float speed = DevMode.Instance.FlightSpeed * Time.deltaTime;
-            bool moved = false;
+            float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-                position.x -= speed;
+                position.x -= movementSpeed;
                 spriteRenderer.flipX = true;
-                moved = true;
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-                position.x += speed;
+                position.x += movementSpeed;
                 spriteRenderer.flipX = false;
-                moved = true;
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
-                position.y += speed;
-                moved = true;
+                position.y += movementSpeed;
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
-                position.y -= speed;
-                moved = true;
+                position.y -= movementSpeed;
             }
             playerTransform.position = position;
-            if (moved) cameraBounds.UpdateCameraBounds();
-            
         }
 
         public void Heal(float amount)
@@ -484,15 +546,19 @@ namespace Player {
                 RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data));
             }
         }
-        
-        protected void rebuildCollider() {
-            Sprite sprite = spriteRenderer.sprite;
-            polygonCollider.pathCount = sprite.GetPhysicsShapeCount();
-            List<Vector2> path = new List<Vector2>();
-                for (int i = 0; i < polygonCollider.pathCount; i++) {
-                path.Clear();
-                sprite.GetPhysicsShape(i, path);
-                polygonCollider.SetPath(i, path.ToArray());
+
+        private class JumpEvent
+        {
+            private float holdTime;
+
+            public void IterateTime()
+            {
+                holdTime += Time.deltaTime;
+            }
+
+            public float GetGravityModifier()
+            {
+                return Mathf.Lerp(0f,1,2*holdTime);
             }
         }
     }
