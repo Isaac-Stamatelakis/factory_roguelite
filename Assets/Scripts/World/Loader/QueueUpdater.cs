@@ -47,7 +47,6 @@ namespace Chunks.Loaders {
         }
         public void addToQueue(List<T> chunkPositionToLoad) {
             QueueSize += chunkPositionToLoad.Count;
-            Vector2Int playerChunkPosition = closedChunkSystem.GetPlayerChunk();
             foreach (T vect in chunkPositionToLoad) {
                 updateQueue.Enqueue(vect);
             }

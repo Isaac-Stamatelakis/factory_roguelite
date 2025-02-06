@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Chunks;
@@ -17,6 +18,9 @@ using Robot.Tool;
 using RobotModule;
 using TileEntity;
 using TileMaps;
+using TileMaps.Layer;
+using TileMaps.Place;
+using Tiles;
 using UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -29,17 +33,12 @@ namespace Player {
         
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
-
-        [SerializeField] private BoxCollider2D feetBoxCollider;
-        [SerializeField] private CapsuleCollider2D feetCapsuleCollider;
         
-   
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
-        private int noCollisionWithPlatformCounter;
-        private bool onGround;
-        public bool OnGround { get => onGround; set => onGround = value; }
-        public int NoCollisionWithPlatformCounter { get => noCollisionWithPlatformCounter; set => noCollisionWithPlatformCounter = value; }
+        private bool onBlock;
+        private bool onPlatform;
+        public bool OnGround { get => onBlock; set => onBlock = value; }
         private bool climbing;
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
@@ -47,7 +46,6 @@ namespace Player {
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
-        private int groundLayers;
         private float fallTime;
         private float defaultGravityScale;
         private bool dead = false;
@@ -57,10 +55,16 @@ namespace Player {
         private CameraBounds cameraBounds;
 
         private const float TERMINAL_VELOCITY = 30f;
+        private int liveYUpdates = 0;
+        private int blockLayer;
+        private int platformLayer;
+        private int ignorePlatformFrames;
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
-            groundLayers = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform") | 1 << LayerMask.NameToLayer("SlipperyBlock"));
+            blockLayer = 1 << LayerMask.NameToLayer("Block");
+            platformLayer = 1 << LayerMask.NameToLayer("Platform");
+            
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
         }
@@ -80,10 +84,6 @@ namespace Player {
                 FlightMovementUpdate(transform);
                 return;
             }
-            
-            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
-            feetBoxCollider.enabled = !directionalInput;
-            feetCapsuleCollider.enabled = onGround && directionalInput;
 
             StandardMoveUpdate();
         }
@@ -92,33 +92,101 @@ namespace Player {
         {
             Vector2 velocity = Vector2.zero;
             velocity.y = rb.velocity.y;
-            float realTimeSpeed = speed * Time.deltaTime;
             bool moved = false;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-                //rb.AddForce(Vector2.left * realTimeSpeed, ForceMode2D.Force);
                 velocity.x = -speed;
                 spriteRenderer.flipX = true;
                 moved = true;
+                if (IsOnGround())
+                {
+                    bool autoJump = CanAutoJump(Direction.Left);
+                    if (!autoJump && WalkingIntoSlope(Direction.Left))
+                    {
+                        liveYUpdates = 3;
+                    }
+                }
             }
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
                 velocity.x = +speed;
-                //rb.AddForce(Vector2.right * realTimeSpeed, ForceMode2D.Force);
                 spriteRenderer.flipX = false;
                 moved = true;
+                if (IsOnGround())
+                {
+                    bool autoJump = CanAutoJump(Direction.Right);
+                    if (!autoJump && WalkingIntoSlope(Direction.Right))
+                    {
+                        liveYUpdates = 3;
+                    }
+                }
             }
-            if (onGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
+            if ((onBlock|| onPlatform) && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
                 if (Input.GetKey(KeyCode.S)) {
-                    noCollisionWithPlatformCounter=5;
+                    ignorePlatformFrames = 5;
                 } else {
                     velocity.y = 12f;
                 }
-                onGround = false;
+                onBlock = false;
                 moved = true;
             }
             rb.velocity = velocity;
             if (moved) cameraBounds.UpdateCameraBounds();
         }
 
+        private bool IsOnGround()
+        {
+            return onBlock || onPlatform;
+        }
+
+        private bool WalkingIntoSlope(Direction direction)
+        {
+            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
+            float playerWidth = spriteRenderer.sprite.bounds.extents.x;
+            switch (direction)
+            {
+                case Direction.Left:
+                    bottomCenter.x -= playerWidth/2f+0.05f;
+                    break;
+                case Direction.Right:
+                    bottomCenter.x += playerWidth/2f+0.05f;
+                    break;
+                default:
+                    break;
+            }
+            
+            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,Global.TILE_SIZE/2f),0,Vector2.zero,Mathf.Infinity,blockLayer);
+            return !ReferenceEquals(raycastHit.collider, null);
+        }
+
+        private bool CanAutoJump(Direction direction)
+        {
+            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
+            Vector2 adjacentTilePosition = bottomCenter + (spriteRenderer.sprite.bounds.extents.x) * (direction == Direction.Left ? Vector2.left : Vector2.right);
+            
+            Vector2 adjacentTileCenter = TileHelper.getRealTileCenter(adjacentTilePosition);
+
+            const float EPSILON = 0.02f;
+            
+            var cast = Physics2D.BoxCast(adjacentTileCenter, new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE-EPSILON), 0f, Vector2.zero, Mathf.Infinity, blockLayer);
+            if (ReferenceEquals(cast.collider,null)) return false;
+            WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
+            if (ReferenceEquals(worldTileMap, null)) return false;
+            IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem(transform);
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTileCenter);
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
+            if (partition == null) return false;
+
+            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
+            if (tileItem?.tile is not HammerTile) return false;
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+     
+            if (baseTileData.state != 1 && baseTileData.state != 3) return false;
+            var vector3 = transform.position;
+            vector3.y = vector3.y + Global.TILE_SIZE / 2f;
+            vector3.y = ((int)(4 * vector3.y)) / 4f;
+            transform.position = vector3;
+            return true;
+        }
+        
         public void FixedUpdate()
         {
             if (iFrames > 0) iFrames--;
@@ -126,22 +194,41 @@ namespace Player {
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
                 HandleClimbing();
+                onBlock = false;
                 return;
             }
 
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
+
+            const float GROUND_RANGE = 0.1f;
+            RaycastHit2D blockRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,blockLayer);
+            onBlock = !ReferenceEquals(blockRaycast.collider, null);
+
+            if (ignorePlatformFrames < 0)
+            {
+                RaycastHit2D platformRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,platformLayer);
+                onPlatform = !ReferenceEquals(platformRaycast.collider, null);
+            }
+            else
+            {
+                onPlatform = false;
+                ignorePlatformFrames--;
+            }
             
-            RaycastHit2D raycastHit = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,0.1f),0,Vector2.zero,Mathf.Infinity,groundLayers);
-            onGround = !ReferenceEquals(raycastHit.collider, null);
             
-            bool directionalInput = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
+            
+            
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
-                rb.gravityScale = onGround && !directionalInput ? 0 : defaultGravityScale;
+                const float epilson = 0.1f;
+                liveYUpdates--;
+                rb.constraints = liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson
+                    ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
+                    : RigidbodyConstraints2D.FreezeRotation;
             }
         }
         
@@ -194,7 +281,7 @@ namespace Player {
 
         private void CalculateFallTime()
         {
-            if (!onGround)
+            if (!onBlock)
             {
                 if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
                 return;
@@ -318,7 +405,6 @@ namespace Player {
             WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileGridMap, null)) return null;
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(transform);
             TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position));
             return tileItem?.tileEntity as IClimableTileEntity;
         }

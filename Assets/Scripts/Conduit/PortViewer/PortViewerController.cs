@@ -9,6 +9,7 @@ using TileEntity;
 using Conduits.Ports;
 using UI;
 using Conduits.Systems;
+using Player;
 using TileMaps.Type;
 using TileMaps;
 
@@ -24,7 +25,7 @@ namespace Conduits.PortViewer {
         
         public void initalize(ConduitTileClosedChunkSystem closedChunkSystem) {
             this.closedChunkSystem = closedChunkSystem;
-            playerInventory = GameObject.Find("Player").GetComponent<PlayerInventory>();
+            playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             itemRegistry = ItemRegistry.GetInstance();
             portViewer = GetComponentInChildren<ConduitPortViewer>();
             if (portViewer == null) {
@@ -40,7 +41,7 @@ namespace Conduits.PortViewer {
                 return;
             }
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
-            if (conduitItem == null) {
+            if (ReferenceEquals(conduitItem,null)) {
                 portViewer.deactive();
                 return;
             }

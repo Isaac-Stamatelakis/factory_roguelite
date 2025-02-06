@@ -7,19 +7,16 @@ using System.IO;
 
 public static class Global
 {
-    public const float WORLD_SPACE_PER_TILE = 0.5f;
+    public const float TILE_SIZE = 0.5f;
     private const float PIXELS_PER_BLOCK = 16;
     public const int PARTITIONS_PER_CHUNK = 6;
     public const int CHUNK_SIZE = PARTITIONS_PER_CHUNK*CHUNK_PARTITION_SIZE;
     public const int CHUNK_PARTITION_SIZE = 4;
-    private static Vector2Int chunkLoadRange = new UnityEngine.Vector2Int(2,2);
     private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public const uint SOLID_SPEED_PER_UPGRADE = 4;
     public const uint FLUID_SPEED_PER_UPGRADE = 16;
     public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
-    
-    public static  int ChunkLoadRangeX {get {return chunkLoadRange.x;}}
-    public static int ChunkLoadRangeY {get {return chunkLoadRange.y;}}
+    public const int CHUNK_LOAD_RANGE = 2;
     private static float tileBlockZ = 1;
     public static float TileBlockZ {get {return tileBlockZ;}}
     private static float entityZ = -1;

@@ -63,6 +63,10 @@ public class TileHelper
     public static float getRealTileCenter(float n) {
         return Mathf.FloorToInt(2*n)/2f+0.25f;
     }
+    
+    public static Vector2 getRealTileCenter(Vector2 vector2) {
+        return new Vector2(getRealTileCenter(vector2.x), getRealTileCenter(vector2.y));
+    }
     public static void tilePlaceTileEntityUpdate(Vector2Int position, TileItem item, WorldTileGridMap worldTileGridMap)
         {
             callTileEntityPlaceListener(worldTileGridMap.getTileEntityAtPosition(position+Vector2Int.up),item);

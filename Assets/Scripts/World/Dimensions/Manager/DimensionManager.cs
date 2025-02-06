@@ -132,8 +132,8 @@ namespace Dimensions {
             
             Vector3 playerPosition = player.position;
             
-            playerPosition.x = teleportPosition.x*Global.WORLD_SPACE_PER_TILE;
-            playerPosition.y = teleportPosition.y*Global.WORLD_SPACE_PER_TILE;
+            playerPosition.x = teleportPosition.x*Global.TILE_SIZE;
+            playerPosition.y = teleportPosition.y*Global.TILE_SIZE;
             player.transform.position = playerPosition;
             
             CanvasController.Instance.ClearStack();
