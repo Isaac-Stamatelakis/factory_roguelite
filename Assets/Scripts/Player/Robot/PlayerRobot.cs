@@ -60,13 +60,12 @@ namespace Player {
         private int platformLayer;
         private int ignorePlatformFrames;
         private float moveDirTime;
+
+        [SerializeField] private DirectionalMovementStats MovementStats;
         
-        const float MINIMUM_DIRECTIONAL_MOVE_DIR = 0.2f;
-        const float DIRECTIONAL_MOVE_ACC_MODIFIER = 3f;
-        const float DIRECTIONAL_MOVE_FRICTION = 10;
-        const float TURN_AROUND_MODIFIER = 10f;
+        
         private JumpEvent jumpEvent;
-        private int freezeYFrames;
+        private bool freezeY;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -109,7 +108,17 @@ namespace Player {
             
             if (!movedLeft && !movedRight)
             {
-                float dif = DIRECTIONAL_MOVE_FRICTION * Time.deltaTime;
+                float dif;
+                if (IsOnGround())
+                {
+                    dif = MovementStats.friction * Time.deltaTime;
+                }
+                else
+                {
+                    dif = MovementStats.airFriction * Time.deltaTime;
+                    
+                }
+                
                 if (moveDirTime > 0)
                 {
                     moveDirTime -= dif;
@@ -128,25 +137,31 @@ namespace Player {
             if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
             
             int sign = moveDirTime < 0 ? -1 : 1;
-            float move = DIRECTIONAL_MOVE_ACC_MODIFIER*moveDirTime * sign;
+            float move = MovementStats.accelationModifier*moveDirTime * sign;
             
             velocity.x = sign * Mathf.Lerp(0,speed,move);
-
-            const float JUMP_SPEED = 8;
-            if (IsOnGround() && Input.GetKeyDown(KeyCode.Space))
+            
+            if (onPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            {
+                ignorePlatformFrames = 5;
+            }
+            
+            if (ignorePlatformFrames <= 0 && IsOnGround() && Input.GetKeyDown(KeyCode.Space))
             {
                 jumpEvent = new JumpEvent();
-                velocity.y = JUMP_SPEED;
             }
-
             
-
             if (jumpEvent != null)
             {
                 if (Input.GetKey(KeyCode.Space))
                 {
-                    jumpEvent.IterateTime();
+                    
+                    if (jumpEvent.CanIncreaseJumpSpeed())
+                    {
+                        velocity.y = jumpEvent.GetJumpSpeed();
+                    }
                     rb.gravityScale = jumpEvent.GetGravityModifier() * defaultGravityScale;
+                    jumpEvent.IterateTime();
                 }
                 else
                 {
@@ -158,15 +173,8 @@ namespace Player {
             {
                 jumpEvent = null;
             }
-            if (jumpEvent != null && Input.GetKey(KeyCode.Space))
-            {
-                
-            }
 
-            if (onPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
-            {
-                ignorePlatformFrames = 5;
-            }
+            
             rb.velocity = velocity;
         }
 
@@ -176,17 +184,17 @@ namespace Player {
             switch (direction)
             {
                 case Direction.Left:
-                    float lmodifier = moveDirTime < 0 ? 1 : TURN_AROUND_MODIFIER;
+                    float lmodifier = moveDirTime < 0 ? MovementStats.moveModifier : MovementStats.turnRate;
                     moveDirTime -= lmodifier * Time.deltaTime;
                     
                     spriteRenderer.flipX = true;
-                    if (moveDirTime < 0 && moveDirTime > -MINIMUM_DIRECTIONAL_MOVE_DIR) moveDirTime = -MINIMUM_DIRECTIONAL_MOVE_DIR;
+                    if (moveDirTime < 0 && moveDirTime > -MovementStats.minMove) moveDirTime = -MovementStats.minMove;
                     break;
                 case Direction.Right:
-                    float rmodifier = moveDirTime > 0 ? 1 : TURN_AROUND_MODIFIER;
+                    float rmodifier = moveDirTime > 0 ? MovementStats.moveModifier : MovementStats.turnRate;
                     moveDirTime += rmodifier * Time.deltaTime;
                     spriteRenderer.flipX = false;
-                    if (moveDirTime > 0 && moveDirTime < MINIMUM_DIRECTIONAL_MOVE_DIR) moveDirTime = MINIMUM_DIRECTIONAL_MOVE_DIR;
+                    if (moveDirTime > 0 && moveDirTime < MovementStats.minMove) moveDirTime = MovementStats.minMove;
                     break;
             }
             
@@ -250,14 +258,27 @@ namespace Player {
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
      
             if (baseTileData.state != 1 && baseTileData.state != 3) return false;
-            var vector3 = transform.position;
-            vector3.y = vector3.y + Global.TILE_SIZE / 2f;
-            vector3.y = ((int)(4 * vector3.y)) / 4f;
-            transform.position = vector3;
-            freezeYFrames = 3;
+            StartCoroutine(AutoJumpCoroutine());
             return true;
         }
         
+        private IEnumerator AutoJumpCoroutine()
+        {
+            var jumpDestination = transform.position;
+            jumpDestination.y += Global.TILE_SIZE / 2f;
+            jumpDestination.y = ((int)(4 * jumpDestination.y)) / 4f;
+            var waitForFixedUpdate = new WaitForFixedUpdate();
+            freezeY = true;
+            for (int i = 1; i <= 3; i++)
+            {
+                Vector3 position = Vector3.Lerp(transform.position, jumpDestination, (float)i / 3);
+                transform.position = position;
+                yield return waitForFixedUpdate;
+            }
+
+            freezeY = false;
+
+        }
         public void FixedUpdate()
         {
             if (iFrames > 0) iFrames--;
@@ -294,8 +315,8 @@ namespace Player {
                 ClampFallSpeed();
                 const float epilson = 0.1f;
                 liveYUpdates--;
-                freezeYFrames--;
-                rb.constraints = freezeYFrames > 0 || (liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson)
+
+                rb.constraints = freezeY || (liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson)
                     ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
                     : RigidbodyConstraints2D.FreezeRotation;
             }
@@ -550,16 +571,38 @@ namespace Player {
         private class JumpEvent
         {
             private float holdTime;
-
+            private const float MAX_JUMP_TIME = 0.05f;
+            private float MIN_JUMP_HEIGHT = 3f;
+            private float MAX_JUMP_HEIGHT = 8f;
             public void IterateTime()
             {
                 holdTime += Time.deltaTime;
             }
 
+            public bool CanIncreaseJumpSpeed()
+            {
+                return holdTime < MAX_JUMP_TIME;
+            }
+
+            public float GetJumpSpeed()
+            {
+                return Mathf.Lerp(MIN_JUMP_HEIGHT,MAX_JUMP_HEIGHT,holdTime / MAX_JUMP_TIME);
+            }
             public float GetGravityModifier()
             {
                 return Mathf.Lerp(0f,1,2*holdTime);
             }
+        }
+
+        [System.Serializable]
+        internal class DirectionalMovementStats
+        {
+            public float minMove = 0.2f;
+            public float accelationModifier = 3f;
+            public float friction = 10;
+            public float turnRate = 10f;
+            public float moveModifier = 2f;
+            public float airFriction = 5;
         }
     }
 
