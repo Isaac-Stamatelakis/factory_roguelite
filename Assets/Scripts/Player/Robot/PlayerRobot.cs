@@ -28,7 +28,6 @@ using UnityEngine.EventSystems;
 namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
-        [SerializeField] private float speed = 50;
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -60,6 +59,7 @@ namespace Player {
         private int platformLayer;
         private int ignorePlatformFrames;
         private float moveDirTime;
+        private int coyoteFrames;
 
         [SerializeField] private DirectionalMovementStats MovementStats;
         
@@ -138,7 +138,9 @@ namespace Player {
             
             int sign = moveDirTime < 0 ? -1 : 1;
             float move = MovementStats.accelationModifier*moveDirTime * sign;
-            
+
+            float speed = MovementStats.speed;
+            if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0,speed,move);
             
             if (onPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
@@ -146,8 +148,9 @@ namespace Player {
                 ignorePlatformFrames = 5;
             }
             
-            if (ignorePlatformFrames <= 0 && IsOnGround() && Input.GetKeyDown(KeyCode.Space))
+            if (ignorePlatformFrames <= 0 && (IsOnGround() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
+                coyoteFrames = 0;
                 jumpEvent = new JumpEvent();
             }
             
@@ -281,6 +284,7 @@ namespace Player {
         }
         public void FixedUpdate()
         {
+            coyoteFrames--;
             if (iFrames > 0) iFrames--;
             CanStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
@@ -296,7 +300,16 @@ namespace Player {
 
             const float GROUND_RANGE = 0.1f;
             RaycastHit2D blockRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,blockLayer);
-            onBlock = !ReferenceEquals(blockRaycast.collider, null);
+            if (!ReferenceEquals(blockRaycast.collider,null))
+            {
+                coyoteFrames = 6;
+                onBlock = true;
+            }
+            else
+            {
+                onBlock = false;
+            }
+            
 
             if (ignorePlatformFrames < 0)
             {
@@ -603,6 +616,8 @@ namespace Player {
             public float turnRate = 10f;
             public float moveModifier = 2f;
             public float airFriction = 5;
+            public float speed = 5f;
+            public float airSpeedIncrease = 1.1f;
         }
     }
 
