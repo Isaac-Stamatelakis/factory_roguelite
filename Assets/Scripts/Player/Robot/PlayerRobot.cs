@@ -32,7 +32,7 @@ namespace Player {
         
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
-        
+        [SerializeField] private Collider2D platformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private bool onBlock;
@@ -50,6 +50,7 @@ namespace Player {
         private bool dead = false;
         private bool immuneToNextFall = false;
         private uint iFrames;
+        private TileMovementType currentTileMovementType;
         public bool Dead => dead;
         private CameraBounds cameraBounds;
 
@@ -57,11 +58,14 @@ namespace Player {
         private int liveYUpdates = 0;
         private int blockLayer;
         private int platformLayer;
+        private int baseCollidableLayer;
         private int ignorePlatformFrames;
         private float moveDirTime;
         private int coyoteFrames;
 
         [SerializeField] private DirectionalMovementStats MovementStats;
+        [SerializeField] private JumpMovementStats JumpStats;
+        
         
         
         private JumpEvent jumpEvent;
@@ -72,7 +76,7 @@ namespace Player {
             rb = GetComponent<Rigidbody2D>();
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             platformLayer = 1 << LayerMask.NameToLayer("Platform");
-            
+            baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
         }
@@ -99,8 +103,7 @@ namespace Player {
 
         private void StandardMoveUpdate()
         {
-            Vector2 velocity = Vector2.zero;
-            velocity.y = rb.velocity.y;
+            Vector2 velocity = rb.velocity;
             
             bool movedLeft = DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
             bool movedRight = DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
@@ -108,16 +111,7 @@ namespace Player {
             
             if (!movedLeft && !movedRight)
             {
-                float dif;
-                if (IsOnGround())
-                {
-                    dif = MovementStats.friction * Time.deltaTime;
-                }
-                else
-                {
-                    dif = MovementStats.airFriction * Time.deltaTime;
-                    
-                }
+                float dif = GetFriction();
                 
                 if (moveDirTime > 0)
                 {
@@ -140,6 +134,17 @@ namespace Player {
             float move = MovementStats.accelationModifier*moveDirTime * sign;
 
             float speed = MovementStats.speed;
+            switch (currentTileMovementType)
+            {
+                case TileMovementType.None:
+                    break;
+                case TileMovementType.Slippery:
+                    speed *= 1.2f;
+                    break;
+                case TileMovementType.Slow:
+                    speed *= MovementStats.slowSpeedReduction;
+                    break;
+            }
             if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0,speed,move);
             
@@ -150,6 +155,7 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (IsOnGround() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
+                velocity.y = JumpStats.jumpVelocity;
                 coyoteFrames = 0;
                 jumpEvent = new JumpEvent();
             }
@@ -158,12 +164,7 @@ namespace Player {
             {
                 if (Input.GetKey(KeyCode.Space))
                 {
-                    
-                    if (jumpEvent.CanIncreaseJumpSpeed())
-                    {
-                        velocity.y = jumpEvent.GetJumpSpeed();
-                    }
-                    rb.gravityScale = jumpEvent.GetGravityModifier() * defaultGravityScale;
+                    rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
                 }
                 else
@@ -179,6 +180,12 @@ namespace Player {
 
             
             rb.velocity = velocity;
+        }
+
+        private float GetFriction()
+        {
+            if (currentTileMovementType == TileMovementType.Slippery) return MovementStats.iceFriction;
+            return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
 
         private bool DirectionalMovementUpdate(Direction direction, KeyCode firstKeycode, KeyCode secondKeyCode)
@@ -294,26 +301,31 @@ namespace Player {
                 return;
             }
 
+            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
+
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
+            const float GROUND_RANGE = 0.1f;
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
 
-            const float GROUND_RANGE = 0.1f;
+            
             RaycastHit2D blockRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,blockLayer);
             if (!ReferenceEquals(blockRaycast.collider,null))
             {
-                coyoteFrames = 6;
+                coyoteFrames = JumpStats.coyoteFrames;
                 onBlock = true;
             }
             else
             {
                 onBlock = false;
             }
+
+            currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
             
 
             if (ignorePlatformFrames < 0)
             {
-                RaycastHit2D platformRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,platformLayer);
+                RaycastHit2D platformRaycast = Physics2D.BoxCast(bottomCenter+Vector2.up*+0.02f,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,platformLayer);
                 onPlatform = !ReferenceEquals(platformRaycast.collider, null);
             }
             else
@@ -370,7 +382,7 @@ namespace Player {
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
             iFrames = 50;
-            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            freezeY = true;
             StartCoroutine(UnPausePlayer());
         }
 
@@ -380,11 +392,12 @@ namespace Player {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
+            freezeY = false;
         }
 
         private void CalculateFallTime()
         {
-            if (!onBlock)
+            if (!IsOnGround())
             {
                 if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
                 return;
@@ -494,6 +507,18 @@ namespace Player {
             position.x = x;
             transform.position = position;
         }
+
+        private TileMovementType GetTileMovementModifier()
+        {
+            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y-Global.TILE_SIZE/2f);
+            Vector2 tileCenter = TileHelper.getRealTileCenter(bottomCenter);
+            RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
+            WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
+            if (ReferenceEquals(worldTileGridMap, null)) return TileMovementType.None;
+            
+            TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(tileCenter));
+            return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
+        }
         private IClimableTileEntity GetClimbable() {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
             RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
@@ -584,26 +609,14 @@ namespace Player {
         private class JumpEvent
         {
             private float holdTime;
-            private const float MAX_JUMP_TIME = 0.05f;
-            private float MIN_JUMP_HEIGHT = 3f;
-            private float MAX_JUMP_HEIGHT = 8f;
             public void IterateTime()
             {
                 holdTime += Time.deltaTime;
             }
-
-            public bool CanIncreaseJumpSpeed()
+            
+            public float GetGravityModifier(float initialGravityPercent, float maxGravityTime)
             {
-                return holdTime < MAX_JUMP_TIME;
-            }
-
-            public float GetJumpSpeed()
-            {
-                return Mathf.Lerp(MIN_JUMP_HEIGHT,MAX_JUMP_HEIGHT,holdTime / MAX_JUMP_TIME);
-            }
-            public float GetGravityModifier()
-            {
-                return Mathf.Lerp(0f,1,2*holdTime);
+                return Mathf.Lerp(initialGravityPercent,1,1/maxGravityTime*holdTime);
             }
         }
 
@@ -618,6 +631,17 @@ namespace Player {
             public float airFriction = 5;
             public float speed = 5f;
             public float airSpeedIncrease = 1.1f;
+            public float iceFriction = 0.1f;
+            public float slowSpeedReduction = 0.25f;
+        }
+
+        [System.Serializable]
+        internal class JumpMovementStats
+        {
+            public float initialGravityPercent = 0;
+            public float jumpVelocity = 8f;
+            public float maxGravityTime = 0.5f;
+            public int coyoteFrames;
         }
     }
 

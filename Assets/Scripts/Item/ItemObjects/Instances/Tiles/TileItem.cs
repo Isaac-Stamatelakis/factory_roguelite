@@ -8,12 +8,16 @@ using Tiles;
 using UnityEngine.AddressableAssets;
 using Items;
 
+public enum TileMovementType
+{
+    None,
+    Slippery,
+    Slow
+}
 public enum TileType {
     Block,
     Background,
     Object,
-    SlipperyBlock,
-    ClimableObject,
     Platform
 }
 public static class TileTypeExtension {
@@ -36,8 +40,6 @@ public static class TileTypeExtension {
     public static bool isSolid(this TileType tileType) {
         switch (tileType) {
             case TileType.Block:
-                return true;
-            case TileType.SlipperyBlock:
                 return true;
             default:
                 return false;
