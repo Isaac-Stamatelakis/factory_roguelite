@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Chunks.Systems;
+using Player;
 
 
 public class CameraBounds : MonoBehaviour
@@ -14,6 +16,8 @@ public class CameraBounds : MonoBehaviour
     {
         yOffset = transform.localPosition.y;
     }
+    
+    
     public void SetSystem(ClosedChunkSystem closedChunkSystem, bool bound) {
         this.closedChunkSystem = closedChunkSystem;
         if (!bound) {
@@ -82,6 +86,8 @@ public class CameraBounds : MonoBehaviour
         lastChunk = new Vector2Int(cx,cy);
     }
 
+
+
     public void UpdateCameraBounds()
     {
         if (bounds == null) return;
@@ -108,6 +114,7 @@ public class CameraBounds : MonoBehaviour
 
         position += Vector3.up * yOffset;
         transform.localPosition = position;
+       
     }
 
     public void Update() {

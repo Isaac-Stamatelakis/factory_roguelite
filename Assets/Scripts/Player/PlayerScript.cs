@@ -6,6 +6,7 @@ using Conduits.Systems;
 using Item.Slot;
 using PlayerModule;
 using PlayerModule.IO;
+using UI.QuestBook;
 using UnityEngine;
 
 namespace Player
@@ -23,6 +24,8 @@ namespace Player
         public PlayerIO PlayerIO => playerIO;
         public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
         public PlayerTilePlacementOptions TilePlacementOptions => tilePlacementOptions;
+        private QuestBookCache questBookCache;
+        public QuestBookCache QuestBookCache => questBookCache;
         
         public void Start()
         {
@@ -31,7 +34,7 @@ namespace Player
             playerRobot = GetComponent<PlayerRobot>();
             playerIO = GetComponent<PlayerIO>();
         }
-
+        
         public void Initialize()
         {
             playerIO.Deserialize();
@@ -41,6 +44,7 @@ namespace Player
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions();
             tilePlacementOptions = new PlayerTilePlacementOptions();
+            questBookCache = new QuestBookCache();
         }
     }
     [System.Serializable]

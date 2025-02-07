@@ -7,6 +7,7 @@ using Items.Inventory;
 using Items.Tags;
 using Newtonsoft.Json;
 using UI;
+using UI.QuestBook;
 using UnityEngine;
 
 namespace TileEntity.Instances.Caves.Researcher {
@@ -35,6 +36,7 @@ namespace TileEntity.Instances.Caves.Researcher {
             CaveProcessorUI caveProcessorUI = GameObject.Instantiate(TileEntityObject.uIManager.getUIElement()).GetComponent<CaveProcessorUI>();
             caveProcessorUI.DisplayTileEntityInstance(this);
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(caveProcessorUI.gameObject);
+            CacheQuestData();
         }
 
         public string Serialize()
@@ -109,7 +111,18 @@ namespace TileEntity.Instances.Caves.Researcher {
             
             if (!ResearchDriveProcess.Complete) return;
             researchedCaves.Add(ResearchDriveProcess.ResearchId);
+            CacheQuestData();
             ResearchDriveProcess = null;
+        }
+
+        private void CacheQuestData()
+        {
+            string allData = string.Empty;
+            foreach (string cave in researchedCaves)
+            {
+                allData += cave + "_";
+            }
+            PlayerManager.Instance.GetPlayer().QuestBookCache.CacheQuestData(allData, QuestTaskType.Dimension);
         }
 
         private void CopyCaveTickUpdate()

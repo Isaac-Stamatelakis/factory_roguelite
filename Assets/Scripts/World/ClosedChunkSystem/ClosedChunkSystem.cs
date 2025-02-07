@@ -32,7 +32,7 @@ namespace Chunks.Systems {
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
         protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
-        protected Transform playerTransform;
+        protected PlayerScript player;
         protected Dictionary<Vector2Int, ILoadedChunk> cachedChunks;
         public Dictionary<Vector2Int,ILoadedChunk> CachedChunk => cachedChunks;
         protected TileBreakIndicator breakIndicator;
@@ -127,7 +127,7 @@ namespace Chunks.Systems {
             chunkContainer.name = "Chunks";
             chunkContainer.transform.SetParent(transform,false);
             chunkContainerTransform = chunkContainer.transform;
-            playerTransform = GameObject.Find("Player").GetComponent<Transform>();
+            player = PlayerManager.Instance.GetPlayer();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
             this.dim = dim;
             this.coveredArea = coveredArea;
@@ -173,15 +173,12 @@ namespace Chunks.Systems {
             Vector2Int last = currentPlayerPartition;
             currentPlayerPartition = GetCurrentPartitionPosition();
             playerPartitionChangeDifference = currentPlayerPartition - last;
-            int unloadRangeX = Global.ChunkLoadRangeX;
-            int unloadRangeY = Global.ChunkLoadRangeY;
-            int rangeX = Global.ChunkLoadRangeX-1;
-            int rangeY = Global.ChunkLoadRangeY-1;
+            
             List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
-            for (int x = -unloadRangeX; x <= unloadRangeX; x++) {
-                for (int y = -unloadRangeY; y <= unloadRangeY; y++) {
+            for (int x = - Global.CHUNK_LOAD_RANGE; x <=  Global.CHUNK_LOAD_RANGE; x++) {
+                for (int y = - Global.CHUNK_LOAD_RANGE; y <=  Global.CHUNK_LOAD_RANGE; y++) {
                     Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
                     if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) {
                         continue;
@@ -203,8 +200,8 @@ namespace Chunks.Systems {
         public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {
             List<Vector2Int> positions = new List<Vector2Int>();
             Vector2Int playerChunkPosition = GetPlayerChunk();
-            for (int x = playerChunkPosition.x-Global.ChunkLoadRangeX; x  <= playerChunkPosition.x+Global.ChunkLoadRangeX; x ++) {
-                for (int y = playerChunkPosition.y-Global.ChunkLoadRangeY; y <= playerChunkPosition.y+Global.ChunkLoadRangeY; y ++) {
+            for (int x = playerChunkPosition.x-Global.CHUNK_LOAD_RANGE; x  <= playerChunkPosition.x+Global.CHUNK_LOAD_RANGE; x ++) {
+                for (int y = playerChunkPosition.y-Global.CHUNK_LOAD_RANGE; y <= playerChunkPosition.y+Global.CHUNK_LOAD_RANGE; y ++) {
                     Vector2Int vect = new Vector2Int(x,y);
                     if (ChunkInBounds(vect) && !ChunkIsCached(vect)) {
                         positions.Add(vect);
@@ -218,7 +215,7 @@ namespace Chunks.Systems {
             Vector2Int playerPosition = GetPlayerChunk();
             List<ILoadedChunk> chunks = new List<ILoadedChunk>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                if (chunk.inRange(playerPosition,Global.ChunkLoadRangeX,Global.ChunkLoadRangeY)) {
+                if (chunk.inRange(playerPosition,Global.CHUNK_LOAD_RANGE,Global.CHUNK_LOAD_RANGE)) {
                     chunks.Add(chunk);
                 }
             }
@@ -249,7 +246,7 @@ namespace Chunks.Systems {
             foreach (Chunk chunk in cachedChunks.Values)
             {
                 if (chunk.ScheduleForUnloading || chunk.isChunkLoaded() ||
-                    chunk.inRange(playerPosition, Global.ChunkLoadRangeX, Global.ChunkLoadRangeY) ||
+                    chunk.inRange(playerPosition, Global.CHUNK_LOAD_RANGE, Global.CHUNK_LOAD_RANGE) ||
                     !chunk.partionsAreAllUnloaded()) continue;
                 
                 chunk.ScheduleForUnloading = true;
@@ -258,7 +255,7 @@ namespace Chunks.Systems {
             return chunksToUnload;
         }
         public Vector2Int GetPlayerChunk() {
-            return GetChunkPositionFromWorld(playerTransform.position);
+            return GetChunkPositionFromWorld(player.transform.position);
         }
 
         public static Vector2Int GetChunkPositionFromWorld(Vector2 world) {

@@ -425,8 +425,10 @@ namespace TileMaps.Place {
         /// <summary>
         /// raycasts a given position in a 0.5f, 0.5f box.
         /// </summary>
-        private static bool raycastTileInBox(Vector2 position, int layers) {
-            return Physics2D.BoxCast(position,new Vector2(0.48f,0.48f),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+        public static bool raycastTileInBox(Vector2 position, int layers)
+        {
+            return !ReferenceEquals(
+                Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider, null);
         }
 
         public static bool raycastTileInLine(Direction direction, Vector2 position, int layers) {

@@ -39,6 +39,7 @@ namespace Tiles {
         public bool rotatable = false;
         public bool hasStates = false;
         public int hardness = 8;
+        public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;
     } 

@@ -223,7 +223,6 @@ namespace TileMaps {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
-            
             if (!tileItem.tileOptions.rotatable) 
             {
                 tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
@@ -293,6 +292,18 @@ namespace TileMaps {
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {
+            IChunkPartition partition = GetPartitionAtPosition(cellPosition);
+            if (partition == null) {
+                return null;
+            }
+            Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
+            TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+            return tileItem;
+        }
+        
+        public TileItem getTileItem(Vector2 worldPosition)
+        {
+            Vector2Int cellPosition = (Vector2Int)tilemap.WorldToCell(worldPosition);
             IChunkPartition partition = GetPartitionAtPosition(cellPosition);
             if (partition == null) {
                 return null;
