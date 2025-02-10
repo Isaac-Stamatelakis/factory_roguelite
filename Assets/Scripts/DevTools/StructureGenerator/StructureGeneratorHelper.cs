@@ -102,7 +102,7 @@ namespace DevTools.Structures {
             string path = StructureGeneratorHelper.GetStructurePath(structureName);
             string dimPath = WorldLoadUtils.GetDimPath(path, 0);
             
-            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(0,dimPath);
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(0,dimPath);
             
             Dictionary<Vector2Int, SoftLoadedConduitTileChunk> chunkDict = new Dictionary<Vector2Int, SoftLoadedConduitTileChunk>();
             IntervalVector coveredArea = new IntervalVector(new Interval<int>(0,0),new Interval<int>(0,0));

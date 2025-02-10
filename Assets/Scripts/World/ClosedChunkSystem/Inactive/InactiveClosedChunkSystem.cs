@@ -79,7 +79,7 @@ namespace Chunks.Systems {
                     if (partition is not IConduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                     }
-                    ((IConduitTileChunkPartition) partition).syncToCompactMachine(compactMachine);
+                    ((IConduitTileChunkPartition) partition).SyncToCompactMachine(compactMachine);
                 }
             }
         }
@@ -240,7 +240,7 @@ namespace Chunks.Systems {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                         continue;
                     }
-                    conduitTileChunkPartition.assembleMultiBlocks();
+                    conduitTileChunkPartition.AssembleMultiBlocks();
                 }
             }
         }

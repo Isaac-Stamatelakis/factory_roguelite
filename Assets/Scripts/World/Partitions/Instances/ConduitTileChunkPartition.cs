@@ -20,11 +20,11 @@ namespace Chunks.Partitions {
         public void SetConduitLoaded(bool val);
         public void SoftLoadTileEntities();
         public void SetConduits(Dictionary<ConduitType, IConduit[,]> conduits);
-        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
-        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
-        public void activate(ILoadedChunk loadedChunk);
-        public void syncToCompactMachine(CompactMachineInstance compactMachine);
-        public void assembleMultiBlocks();
+        public ConduitItem GetConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
+        public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
+        public void Activate(ILoadedChunk loadedChunk);
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine);
+        public void AssembleMultiBlocks();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
     {
@@ -258,13 +258,13 @@ namespace Chunks.Partitions {
             this.conduits = conduits;
         }
 
-        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
+        public ConduitItem GetConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
         {
             IConduit[,] conduitArray = conduits[type];
             return conduitArray[positionInPartition.x,positionInPartition.y].GetConduitItem();
         }
 
-        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
+        public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
         {
             string id = null;
             if (item != null) {
@@ -291,7 +291,7 @@ namespace Chunks.Partitions {
             Debug.LogError("Did not handle case for ConduitType " + type);
         }
 
-        public void activate(ILoadedChunk loadedChunk)
+        public void Activate(ILoadedChunk loadedChunk)
         {
             this.parent = loadedChunk;
             foreach (ITileEntityInstance tileEntity in tileEntities) {
@@ -302,7 +302,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void syncToCompactMachine(CompactMachineInstance compactMachine)
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null) {
@@ -315,7 +315,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void assembleMultiBlocks()
+        public void AssembleMultiBlocks()
         {
             foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {

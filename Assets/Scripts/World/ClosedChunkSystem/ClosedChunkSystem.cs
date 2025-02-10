@@ -277,7 +277,7 @@ namespace Chunks.Systems {
         }
 
         public void CacheChunk(Vector2Int chunkPosition) {
-            ILoadedChunk chunk = ChunkIO.getChunkFromJson(chunkPosition, this);
+            ILoadedChunk chunk = ChunkIO.GetChunkFromJson(chunkPosition, this);
             addChunk(chunk);
         }
 

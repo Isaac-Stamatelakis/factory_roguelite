@@ -47,10 +47,15 @@ namespace Chunks.Systems {
             InitalizeObject(dimController,coveredArea,dim);
             InitalLoadChunks(inactiveClosedChunkSystem.Chunks);
             conduitSystemManagersDict = inactiveClosedChunkSystem.ConduitSystemManagersDict;
+            foreach (var (type, conduitSystemManager) in conduitSystemManagersDict)
+            {
+                conduitSystemManager.SetSystem(this);
+            }
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystem.Chunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
-                foreach (IConduitTileChunkPartition partition in loadedChunk.GetChunkPartitions()) {
-                    partition.activate(loadedChunk);
+                foreach (IChunkPartition partition in loadedChunk.GetChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) continue;
+                    conduitTileChunkPartition.Activate(loadedChunk);
                 }
             }
             StartCoroutine(createViewer());
@@ -93,7 +98,7 @@ namespace Chunks.Systems {
         protected void InitalLoadChunks(List<SoftLoadedConduitTileChunk> unloadedChunks)
         {
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in unloadedChunks) {
-                addChunk(ChunkIO.getChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
+                addChunk(ChunkIO.GetChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
             }
             //Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
         }

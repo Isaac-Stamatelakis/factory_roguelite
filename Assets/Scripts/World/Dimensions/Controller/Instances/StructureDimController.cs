@@ -27,7 +27,7 @@ namespace DevTools.Structures {
         {
             if (system == null) {
                 string path = WorldLoadUtils.GetDimPath(0);
-                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
+                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
                 system = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
                 system.softLoad();
             }

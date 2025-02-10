@@ -70,7 +70,7 @@ namespace TileMaps.Conduit {
                 return;
             }
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(vect);
-            ConduitItem conduitItem = conduitTileChunkPartition.getConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
+            ConduitItem conduitItem = conduitTileChunkPartition.GetConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
             SpawnItemEntity(conduitItem,1,vect);
             BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
             conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
@@ -173,7 +173,7 @@ namespace TileMaps.Conduit {
                 Debug.LogError("Conduit Tile Map belonged to non conduit tile chunk partition");
                 return;
             }
-            conduitTileChunkPartition.setConduitItem(position,getType().toConduitType(),item);
+            conduitTileChunkPartition.SetConduitItem(position,getType().toConduitType(),item);
         }
     }
 }

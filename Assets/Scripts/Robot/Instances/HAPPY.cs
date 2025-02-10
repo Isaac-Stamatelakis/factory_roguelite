@@ -29,15 +29,7 @@ namespace RobotModule.Instances {
                 velocity.x = +4f;
                 spriteRenderer.flipX = false;
             }
-            if (playerRobot.OnGround && rb.velocity.y <= 0 && Input.GetKey(KeyCode.Space)) {
-                if (Input.GetKey(KeyCode.S)) {
-                    
-                } else {
-                    velocity.y = 12f;
-                }
-                
-                playerRobot.OnGround = false;
-            }
+            
             
             
             rb.velocity = velocity;
