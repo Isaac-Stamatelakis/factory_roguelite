@@ -42,6 +42,7 @@ namespace Conduits.Systems {
         public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj);
         public void SetSystem(ConduitTileClosedChunkSystem conduitTileClosedChunkSystem);
         public bool IsSystemLoaded();
+        public void SetTileMapVisibility(bool visible);
     }
 
     public interface ITickableConduitSystem {
@@ -80,9 +81,19 @@ namespace Conduits.Systems {
 
         }
 
+        protected bool CanRefreshTiles()
+        {
+            return ConduitTileMap && ConduitTileMap.gameObject.activeInHierarchy;
+        }
+
         public bool IsSystemLoaded()
         {
             return !ReferenceEquals(chunkSystem, null);
+        }
+
+        public void SetTileMapVisibility(bool visible)
+        {
+            ConduitTileMap.gameObject.SetActive(visible);
         }
 
         public IConduit GetConduitAtCellPosition(Vector2Int position)
@@ -198,11 +209,7 @@ namespace Conduits.Systems {
 
         public void RefreshSystemTiles(IConduitSystem conduitSystem)
         {
-            bool noTileMapLoaded = !ConduitTileMap;
-            if (noTileMapLoaded)
-            {
-                return;
-            }
+            if (!CanRefreshTiles()) return;
             foreach (var conduit in conduitSystem.GetConduits())
             {
                 RefreshConduitTile(conduit);
@@ -211,11 +218,7 @@ namespace Conduits.Systems {
 
         public void RefreshConduitTile(IConduit conduit)
         {
-            bool noTileMapLoaded = !ConduitTileMap;
-            if (noTileMapLoaded)
-            {
-                return;
-            }
+            if (!CanRefreshTiles()) return;
             ConduitTileMap.RefreshTile(conduit.GetX(), conduit.GetY());
         }
 

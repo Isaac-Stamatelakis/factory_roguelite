@@ -41,6 +41,7 @@ namespace Conduits.PortViewer {
         private ConduitPortViewer portViewer;
         private PlayerInventory playerInventory;
         private ItemRegistry itemRegistry;
+        public UIRingSelector RingSelectorPrefab => ringSelectorPrefab;
         
         public void Initalize(ConduitTileClosedChunkSystem closedChunkSystem) {
             this.closedChunkSystem = closedChunkSystem;
@@ -110,7 +111,7 @@ namespace Conduits.PortViewer {
                 
             List<(Color,string,PortViewMode)> modeList = new List<(Color,string,PortViewMode)>
             {
-                (Color.cyan,"Auto",PortViewMode.Auto),
+                (Color.grey,"Off",PortViewMode.None),
                 (Color.green,"Item",PortViewMode.Item),
                 (Color.blue,"Fluid",PortViewMode.Fluid),
                 (Color.red,"Signal",PortViewMode.Signal),
@@ -121,7 +122,9 @@ namespace Conduits.PortViewer {
             {
                 ringSelectorComponents.Add(new RingSelectorComponent(color,null,elementName,() => ChangePortViewMode(portViewMode)));
             }
-            ringSelector.Display(ringSelectorComponents, () => ChangePortViewMode(PortViewMode.None));
+
+            RingSelectorComponent defaultComponent = new RingSelectorComponent(Color.cyan, null, "Auto", () => ChangePortViewMode(PortViewMode.Auto));
+            ringSelector.Display(ringSelectorComponents, defaultComponent);
             CanvasController.Instance.DisplayObject(ringSelector.gameObject);
         }
         

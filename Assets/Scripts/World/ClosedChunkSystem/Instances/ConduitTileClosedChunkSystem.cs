@@ -8,6 +8,7 @@ using Chunks.Partitions;
 using Conduits;
 using TileMaps.Layer;
 using Chunks.IO;
+using Conduit.View;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Conduits.PortViewer;
@@ -18,6 +19,7 @@ using TileEntity;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;
+using Player.Controls;
 using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {
@@ -25,8 +27,10 @@ namespace Chunks.Systems {
     {
         private List<SoftLoadedConduitTileChunk> unloadedChunks;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict;
+        public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict => conduitSystemManagersDict;
         private PortViewerController viewerController;
         public PortViewerController PortViewerController => viewerController;
+        
         
         public void TileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
@@ -65,6 +69,11 @@ namespace Chunks.Systems {
             syncConduitTileMap(TileMapType.MatrixConduit);
             
             StartCoroutine(createViewer());
+
+            GameObject conduitViewListener = new GameObject();
+            ConduitViewController viewListener = conduitViewListener.AddComponent<ConduitViewController>();
+            viewListener.Initialize(this);
+            conduitViewListener.transform.SetParent(transform,false);
         }
         
         private IEnumerator createViewer() {
