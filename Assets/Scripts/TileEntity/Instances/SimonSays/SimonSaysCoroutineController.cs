@@ -21,24 +21,24 @@ namespace TileEntity.Instances.SimonSays {
 
         private IEnumerator RestartGameCoroutine()
         {
-            controller.BlockInput = true;
+            controller.PlayingSequence = true;
             yield return new WaitForSeconds(2f);
             controller.InitGame();
         }
 
         private IEnumerator showSequence(List<int> sequence)
         {
-            controller.BlockInput = true;
+            controller.PlayingSequence = true;
             foreach (int position in sequence) {
                 yield return showTile(controller.ColoredTiles[position]);
             }
-            controller.BlockInput = false;
+            controller.PlayingSequence = false;
         }
 
        
 
         public void ShowTileClick(SimonSaysColoredTileEntityInstance coloredTile) {
-            if (controller.BlockInput || controller.Restarting) {
+            if (controller.PlayingSequence || controller.Restarting) {
                 return;
             }
             

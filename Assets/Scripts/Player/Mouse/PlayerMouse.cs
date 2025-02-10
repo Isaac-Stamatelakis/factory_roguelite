@@ -133,21 +133,30 @@ namespace PlayerModule.Mouse {
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)
             {
-                (Vector2 position, IWorldTileMap tilemap) = result.Value;
-                if (tilemap is not WorldTileGridMap worldTileGridMap) return;
-                
-                Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
-                ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
-
-                if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity)) return;
-                
-                tileHighlighter.Highlight(position, tilemap.GetTilemap());
+                bool highlight = TryHighlight(result.Value);
+                if (highlight) return;
             }
-            else
+            tileHighlighter.Hide();
+        }
+
+        private bool TryHighlight((Vector2, IWorldTileMap) result)
+        {
+            (Vector2 position, IWorldTileMap tilemap) = result;
+            if (tilemap is not WorldTileGridMap worldTileGridMap) return false;
+                
+            Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
+            ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
+
+            if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity)) return false;
+            if (tileEntityInstance is IConditionalRightClickableTileEntity conditionalRightClickableTileEntity)
             {
-                tileHighlighter.Hide();
+                if (!conditionalRightClickableTileEntity.CanRightClick())
+                {
+                    return false;
+                }
             }
-
+            tileHighlighter.Highlight(position, tilemap.GetTilemap());
+            return true;
         }
 
         private void MouseScrollUpdate(Vector2 mousePosition)

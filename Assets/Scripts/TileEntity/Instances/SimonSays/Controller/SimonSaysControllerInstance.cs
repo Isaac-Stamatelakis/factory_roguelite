@@ -16,7 +16,7 @@ using TileMaps.Type;
 using UI.Chat;
 
 namespace TileEntity.Instances.SimonSays {
-    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IRightClickableTileEntity, ILoadableTileEntity
+    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IConditionalRightClickableTileEntity, ILoadableTileEntity
     {
         public SimonSaysControllerInstance(SimonSaysController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -30,7 +30,7 @@ namespace TileEntity.Instances.SimonSays {
         private List<int> currentSequence;
         private List<int> playerSequence;
         public SimonSaysCoroutineController CoroutineController { get => coroutineController; set => coroutineController = value; }
-        public bool BlockInput;
+        public bool PlayingSequence;
         public bool Restarting;
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
 
@@ -47,6 +47,11 @@ namespace TileEntity.Instances.SimonSays {
             coroutineController.init(this);
             controllerObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
             InitGame();
+        }
+
+        public bool CanRightClick()
+        {
+            return ReferenceEquals(coroutineController, null);
         }
 
         public bool EvaluateSequence() {
