@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Conduits.Systems;
 using Item.Display.ClickHandlers;
 using Item.Inventory;
 using Item.Inventory.ClickHandlers.Instances;
@@ -13,6 +14,7 @@ using TMPro;
 using UI;
 using UI.Chat;
 using UI.QuestBook;
+using UI.RingSelector;
 using UI.ToolTip;
 using Unity.VisualScripting;
 
@@ -38,6 +40,7 @@ namespace PlayerModule.KeyPress {
     }
     public class PlayerKeyPress : MonoBehaviour
     {
+        [SerializeField] private UIRingSelector ringSelectorPrefab;
         private PlayerInventory playerInventory;
 
         private PlayerScript playerScript;
@@ -53,29 +56,27 @@ namespace PlayerModule.KeyPress {
         {
             inventoryKeyPresses();
             if (PlayerKeyPressUtils.BlockKeyInput) return;
+            ControlUtils.UpdateModifierCount();
             
             if (Input.GetKeyDown(KeyCode.E)) {
                 ToolTipController.Instance.HideToolTip();
                 playerInventory.toggleInventory();
             }
 
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE)))
+            if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))
             {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
                 conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-                Debug.Log($"Switched placement mode {conduitPlacementOptions.PlacementMode}");
             }
 
-            if (ControlUtils.ControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))
+            if (ControlUtils.GetControlKeyDown(ControlConsts.TERMINATE_CONDUIT_GROUP))
             {
-                Debug.Log("Termianted");
+                ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
+                conduitPlacementOptions.ResetPlacementRecord();
             }
-                
             
             inventoryNavigationKeys();
-            
-
         }
 
         private void inventoryNavigationKeys() {

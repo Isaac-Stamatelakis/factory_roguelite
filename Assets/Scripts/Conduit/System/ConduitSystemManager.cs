@@ -118,6 +118,7 @@ namespace Conduits.Systems {
                 }
                 OnTileEntityAdd(conduit,tileEntity,port);
             }
+            chunkSystem?.PortViewerController?.Refresh();
         }
 
         public abstract void OnTileEntityAdd(TConduit conduit,ITileEntityInstance tileEntity, TileEntityPortData portData);
@@ -135,9 +136,11 @@ namespace Conduits.Systems {
                         OnTileEntityRemoved(conduit);
                     }
                     tileEntityConduitPorts.Remove(kvp.Key);
+                    chunkSystem?.PortViewerController?.Refresh();
                     return;
                 }
             }
+            
         }
 
         /// <summary>
@@ -238,6 +241,10 @@ namespace Conduits.Systems {
             conduit.SetY(y);
             conduits[new Vector2Int(x, y)] = typeConduit;
             updateSystemsOnPlace(conduit,x,y);
+            if (conduit is IPortConduit portConduit && portConduit.GetPort()?.GetInteractable() != null)
+            {
+                chunkSystem?.PortViewerController?.Refresh();
+            }
         }
 
         private void updateSystemsOnPlace(IConduit conduit, int x, int y) {
@@ -303,6 +310,7 @@ namespace Conduits.Systems {
             {
                 conduits.Remove(position);
                 TryDropConduitPortItems(conduit);
+                chunkSystem?.PortViewerController?.Refresh();
             }
             
             // Step 4, Regenerate systems by running BfsConduit on up, left, down, right, and rebuild connections

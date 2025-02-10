@@ -13,6 +13,7 @@ namespace Player.Controls
         public const string OPEN_CONDUIT_OPTIONS = "view_conduit_options";
         public const string SWITCH_CONDUIT_PLACMENT_MODE = "switch_conduit_placment_mode";
         public const string TERMINATE_CONDUIT_GROUP = "terminate_conduit_group";
+        public const string SWITCH_CONDUIT_PORT_VIEW = "switch_conduit_port_view";
         public const string HIDE_UI = "hide_ui";
         public const string HIDE_JEI = "hide_jei";
     }

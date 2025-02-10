@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduits;
 using Conduits.Systems;
 using Item.Slot;
+using Player.Controls;
 using PlayerModule;
 using PlayerModule.IO;
 using UI.QuestBook;
@@ -45,12 +46,13 @@ namespace Player
             conduitPlacementOptions = new ConduitPlacementOptions();
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
+            ControlUtils.LoadBindings();
         }
     }
     [System.Serializable]
     public class ConduitPlacementOptions
     {
-        private ConduitType lastPlacementType;
+        private ConduitType? lastPlacementType;
         public ConduitPlacementMode PlacementMode;
         private HashSet<Vector2Int> PlacementPositions = new HashSet<Vector2Int>();
 
@@ -70,14 +72,16 @@ namespace Player
         public void UpdatePlacementType(ConduitType conduitType)
         {
             if (lastPlacementType == conduitType) return;
-            lastPlacementType = conduitType;
             ResetPlacementRecord();
+            lastPlacementType = conduitType; // Important to set this after resetting
         }
         
         public void ResetPlacementRecord()
         {
+            lastPlacementType = null;
             PlacementPositions.Clear();
         }
+        
 
         public void AddPlacementPosition(Vector2Int position)
         {

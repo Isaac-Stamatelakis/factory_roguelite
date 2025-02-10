@@ -152,6 +152,7 @@ namespace TileMaps.Previewer {
             {
                 return null;
             }
+            
             List<Vector3Int> placePositions = new List<Vector3Int>{};
             List<Vector3Int> directions = new List<Vector3Int>{Vector3Int.left,Vector3Int.right,Vector3Int.up,Vector3Int.down};
             
