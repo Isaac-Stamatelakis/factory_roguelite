@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,33 +15,47 @@ using Item.Slot;
 using TileMaps;
 using TileMaps.Type;
 using UI.Chat;
+using Random = UnityEngine.Random;
 
 namespace TileEntity.Instances.SimonSays {
-    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IConditionalRightClickableTileEntity, ILoadableTileEntity
+    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IConditionalRightClickableTileEntity, ILoadableTileEntity, ISerializableTileEntity
     {
+        
         public SimonSaysControllerInstance(SimonSaysController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
+
+        private enum ConclusionState
+        {
+            Standard,
+            MatchedAll,
+            Cheater
+        }
+        private const int INITIAL_ATTEMPTS = 3;
+        private const int SPECIAL_MESSAGE_ATTEMPT = -1;
         private List<SimonSaysColoredTileEntityInstance> coloredTiles;
         public List<SimonSaysColoredTileEntityInstance> ColoredTiles {get => coloredTiles;}
         private SimonSaysCoroutineController coroutineController;
         
-        private int highestMatchingSequence;
-        private int currentChances;
         private List<int> currentSequence;
         private List<int> playerSequence;
         public SimonSaysCoroutineController CoroutineController { get => coroutineController; set => coroutineController = value; }
         public bool PlayingSequence;
         public bool Restarting;
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
+        private SimonSaysData simonSaysData;
 
         public void OnRightClick()
         {
             bool started = !ReferenceEquals(coroutineController, null);
             if (started || chunk is not ILoadedChunk loadedChunk) return;
-            TextChatUI.Instance.sendMessage("Another challenger... Very well... Repeat the pattern and I should rework you...");
+            
+
+            TextChatUI.Instance.sendMessage(simonSaysData == null
+                ? "Another challenger... Very well... Repeat the pattern and I should rework you..."
+                : "A familiar face... Next time don't run away...");
+            simonSaysData ??= new SimonSaysData(INITIAL_ATTEMPTS,0);
             InitTiles();
-            currentChances = TileEntityObject.Chances;
             GameObject controllerObject = new GameObject();
             controllerObject.name = "SimonSaysController";
             coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
@@ -70,6 +85,12 @@ namespace TileEntity.Instances.SimonSays {
 
         public void InitGame()
         {
+            if (simonSaysData.Attempts < 1)
+            {
+                simonSaysData.Attempts = SPECIAL_MESSAGE_ATTEMPT;
+                Conclude(ConclusionState.Cheater);
+                return;
+            } 
             Restarting = false;
             playerSequence = new List<int>();
             currentSequence = new List<int>();
@@ -78,9 +99,14 @@ namespace TileEntity.Instances.SimonSays {
         }
 
         public void SequenceMatch() {
-            highestMatchingSequence = Mathf.Max(highestMatchingSequence,playerSequence.Count);
-            if (highestMatchingSequence >= TileEntityObject.MaxLength) {
-                Conclude();
+            if (playerSequence.Count > simonSaysData.HighestMatchingSequence)
+            {
+                simonSaysData.HighestMatchingSequence = playerSequence.Count;
+            }
+            
+            if (playerSequence.Count >= TileEntityObject.MaxLength)
+            {
+                Conclude(ConclusionState.MatchedAll);
                 return;
             }
             playerSequence = new List<int>();
@@ -89,23 +115,37 @@ namespace TileEntity.Instances.SimonSays {
         }
         public void Lose()
         {
-            currentChances--;
-            if (currentChances > 0) {
+            simonSaysData.Attempts--;
+            if (simonSaysData.Attempts > 0) {
                 Restarting = true;
                 TextChatUI.Instance.sendMessage("Oof wrong tile...");
                 coroutineController.RestartGame();
             } else {
-                Conclude();
+                Conclude(ConclusionState.Standard);
             }
             
         }
 
+        private string GetConclusionText(ConclusionState state)
+        {
+            switch (state)
+            {
+                case ConclusionState.Standard:
+                    return $"The game has concluded. Your highest matching sequence was {simonSaysData.HighestMatchingSequence}";
+                case ConclusionState.MatchedAll:
+                    return $"Congratulations! You bested me and for that I shall grant you a special reward";
+                case ConclusionState.Cheater:
+                    return $"Nice Try... My memory isn't that bad... Next time don't run away from the challenge...";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
         /// <summary>
         /// Removes this simon says controller, replaces it with other blocks, spawns loot
         /// </summary>
-        private void Conclude() {
-            TextChatUI.Instance.sendMessage($"The game has concluded. Your highest matching sequence was {highestMatchingSequence}");
-            int lootAmount = (highestMatchingSequence*4)/TileEntityObject.MaxLength;
+        private void Conclude(ConclusionState state) {
+            TextChatUI.Instance.sendMessage(GetConclusionText(state));
+            int lootAmount = (simonSaysData.HighestMatchingSequence*4)/TileEntityObject.MaxLength;
             
             if (chunk is not ILoadedChunk loadedChunk) return;
                 
@@ -117,7 +157,7 @@ namespace TileEntity.Instances.SimonSays {
             PlaceBricks(blockTileMap,closedChunkSystem);
             PlaceChests(lootAmount, closedChunkSystem);
             
-            Unload();
+            DeActiveGame();
         }
 
         private void BreakStructure(IWorldTileMap blockTileMap, ClosedChunkSystem closedChunkSystem)
@@ -245,12 +285,44 @@ namespace TileEntity.Instances.SimonSays {
 
         public void Unload()
         {
-            if (!ReferenceEquals(coroutineController,null)) {
-                GameObject.Destroy(coroutineController);
+            bool activated = !ReferenceEquals(coroutineController,null);
+            if (simonSaysData != null)
+            {
+                if (simonSaysData.Attempts > 0 && activated) TextChatUI.Instance.sendMessage("Leaving so soon?");
+                simonSaysData.Attempts--;
             }
+
+            DeActiveGame();
         }
 
-    
+        private void DeActiveGame()
+        {
+            if (ReferenceEquals(coroutineController, null)) return;
+            GameObject.Destroy(coroutineController);
+        }
+
+
+        public string Serialize()
+        {
+            return JsonConvert.SerializeObject(simonSaysData);
+        }
+
+        public void Unserialize(string data)
+        {
+            simonSaysData = JsonConvert.DeserializeObject<SimonSaysData>(data);
+        }
+
+        private class SimonSaysData
+        {
+            public int HighestMatchingSequence;
+            public int Attempts;
+
+            public SimonSaysData(int attempts, int highestMatchingSequence)
+            {
+                Attempts = attempts;
+                HighestMatchingSequence = highestMatchingSequence;
+            }
+        }
     }
 }
 
