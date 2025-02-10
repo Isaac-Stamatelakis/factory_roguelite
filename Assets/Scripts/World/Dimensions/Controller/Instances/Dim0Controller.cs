@@ -28,9 +28,9 @@ namespace Dimensions {
 
         public void softLoadSystem() {
             string path = WorldLoadUtils.GetDimPath(0);
-            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.getUnloadedChunks(0,path);
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
             dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
-            dim0System.softLoad();
+            dim0System.SoftLoad();
             Debug.Log("Soft loaded Dim0System");
         }
         public ClosedChunkSystem ActivateSystem()

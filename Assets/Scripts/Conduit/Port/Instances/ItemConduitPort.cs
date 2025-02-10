@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Conduits.Systems;
 using Item.Slot;
 using Items;
+using Items.Tags;
 using UnityEngine;
 using Newtonsoft.Json;
 using TileEntity;
@@ -33,7 +34,8 @@ namespace Conduits.Ports {
             OutputPortData = outputPortData;
         }
     }
-    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IConduitPort, IOConduitPort
+    
+    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IOConduitPort
         where TInteractable : IConduitInteractable
         where TInputData : ConduitPortData
         where TOutputData : ConduitPortData
@@ -102,6 +104,11 @@ namespace Conduits.Ports {
                 _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null)
             };
         }
+
+        public IConduitInteractable GetInteractable()
+        {
+            return Interactable;
+        }
     }
 
     public class ConduitPortData
@@ -141,6 +148,8 @@ namespace Conduits.Ports {
             set => Filter = value;
         }
     }
+    
+    
     public class ItemConduitOutputPortData : PriorityConduitPortData, IFilterConduitPort
     {
         public ItemFilter Filter;
@@ -163,8 +172,15 @@ namespace Conduits.Ports {
         }
     }
 
-    public class ItemTileEntityPort : TileEntityConduitPort<IItemConduitInteractable, ItemConduitInputPortData, ItemConduitOutputPortData, ResourceConduitItem>, ITileEntityResourcePort
+    public interface IItemDropConduitPort
     {
+        public List<ItemSlot> GetDropItems();
+    }
+    
+    public class ItemTileEntityPort : TileEntityConduitPort<IItemConduitInteractable, ItemConduitInputPortData, ItemConduitOutputPortData, ResourceConduitItem>, ITileEntityResourcePort, IItemDropConduitPort
+    {
+        public const string FILTER_ID = "item_filter";
+        public const string UPGRADE_ID = "conduit_speed_upgrade";
         public ItemTileEntityPort(IItemConduitInteractable interactable, Vector2Int position, ItemConduitInputPortData inputPort, ItemConduitOutputPortData outputPort, ResourceConduitItem resourceConduitItem) 
             : base(interactable, position, inputPort, outputPort, resourceConduitItem)
         {
@@ -174,7 +190,6 @@ namespace Conduits.Ports {
             if (ReferenceEquals(inputPortData,null)) return;
             if (!ReferenceEquals(inputPortData.Filter, null) && !inputPortData.Filter.Filter(itemSlot)) return;
             Interactable.InsertItem(state, itemSlot, Position);
-            
         }
         
         public ItemSlot Extract(ItemState state) {
@@ -193,6 +208,29 @@ namespace Conduits.Ports {
                 default:
                     throw new ArgumentOutOfRangeException(nameof(itemState), itemState, null);
             }
+        }
+
+        public List<ItemSlot> GetDropItems()
+        {
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            ItemObject speedUpgrade = itemRegistry.GetItemObject(UPGRADE_ID);
+            List<ItemSlot> items = new List<ItemSlot>();
+            ItemSlot speedUpgradeSlot = new ItemSlot(speedUpgrade, outputPortData.SpeedUpgrades, null);
+            items.Add(speedUpgradeSlot);
+            
+            if (inputPortData.Filter != null) AddFilterItem(items, inputPortData.Filter);
+            if (outputPortData.Filter != null) AddFilterItem(items, outputPortData.ItemFilter);
+            
+            return items;
+
+        }
+
+        private void AddFilterItem(List<ItemSlot> items, ItemFilter filter)
+        {
+            ItemObject filterItem = ItemRegistry.GetInstance().GetItemObject(FILTER_ID);
+            ItemSlot inputFilter = new ItemSlot(filterItem, 1, null);
+            ItemSlotUtils.AddTag(inputFilter, ItemTag.ItemFilter, filter);
+            items.Add(inputFilter);
         }
     }
     

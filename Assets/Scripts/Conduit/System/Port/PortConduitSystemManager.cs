@@ -46,6 +46,7 @@ namespace Conduits.Systems {
             if (conduitPort == null) {
                 return;
             }
+            TryDropConduitPortItems(conduit);
             conduit.SetPort(null);
             conduit.GetConduitSystem().Rebuild();
         }

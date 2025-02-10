@@ -41,7 +41,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             path.Add(getCellPosition());
             CompactMachineTeleportKey thisKey = new CompactMachineTeleportKey(path);
-            if (!dimController.hasSystem(thisKey)) {
+            if (!dimController.HasSystem(thisKey)) {
                 dimController.AddNewSystem(thisKey,this);
             }
         }

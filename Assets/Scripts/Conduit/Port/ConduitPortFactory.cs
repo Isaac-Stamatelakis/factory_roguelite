@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using Chunks.Partitions;
 using Conduits.Systems;
 using UnityEngine;
@@ -20,10 +21,50 @@ namespace Conduits.Ports {
     }
     public static class ConduitPortFactory
     {
-        public static readonly int PORT_COLORS = 16;
+        public const int PORT_COLORS = 16;
+        
+        /// <summary>
+        /// Returns a list of spots conduits can connect to tile entities of each chunk
+        /// </summary>
+        public static Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetTileEntityPorts(ConduitType conduitType, List<SoftLoadedConduitTileChunk> softLoadedChunks) {
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPortData = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
+            foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
+                foreach (IChunkPartition partition in unloadedChunk.Partitions) {
+                    if (partition is not IConduitTileChunkPartition) {
+                        Debug.LogError("Attempted to load non-conduit partition into conduit system");
+                        continue;
+                    }
+                    Dictionary<ITileEntityInstance, List<TileEntityPortData>> partitionPorts = GetEntityPortsFromPartition(partition,conduitType);
+                    foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in partitionPorts) {
+                        tileEntityPortData[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            return tileEntityPortData;
+            
+        }
+        
+        private static Dictionary<ITileEntityInstance, List<TileEntityPortData>> GetEntityPortsFromPartition(IChunkPartition partition, ConduitType type) {
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> ports = new Dictionary<ITileEntityInstance, List<TileEntityPortData>>();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    Vector2Int position = new Vector2Int(x, y);
+                    ITileEntityInstance tileEntity = partition.GetTileEntity(position);
+                    
+                    var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
+                    if (entityPorts == null) {
+                        continue;
+                    }
+                    ports[tileEntity] = entityPorts;
+                }
+            }
+            return ports;
+        }
         public static List<TileEntityPortData> GetEntityPorts(IChunkPartition partition, ITileEntityInstance tileEntityInstance, ConduitType type)
         {
             if (tileEntityInstance is not IConduitPortTileEntity conduitPortTileEntity) return null;
+     
             ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
             if (!layout) return null;
             List<TileEntityPortData> ports = GetEntityPorts(layout, type);

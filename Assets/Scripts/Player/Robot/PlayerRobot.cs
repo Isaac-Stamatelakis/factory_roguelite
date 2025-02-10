@@ -35,9 +35,8 @@ namespace Player {
         [SerializeField] private Collider2D platformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
-        private bool onBlock;
-        private bool onPlatform;
-        public bool OnGround { get => onBlock; set => onBlock = value; }
+        public bool OnBlock;
+        public bool OnPlatform;
         private bool climbing;
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
@@ -49,7 +48,7 @@ namespace Player {
         private float defaultGravityScale;
         private bool dead = false;
         private bool immuneToNextFall = false;
-        private uint iFrames;
+        private int iFrames;
         private TileMovementType currentTileMovementType;
         public bool Dead => dead;
         private CameraBounds cameraBounds;
@@ -60,6 +59,7 @@ namespace Player {
         private int platformLayer;
         private int baseCollidableLayer;
         private int ignorePlatformFrames;
+        private int noAirFrictionFrames;
         private float moveDirTime;
         private int coyoteFrames;
 
@@ -148,7 +148,7 @@ namespace Player {
             if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0,speed,move);
             
-            if (onPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            if (OnPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
             {
                 ignorePlatformFrames = 5;
             }
@@ -185,7 +185,8 @@ namespace Player {
         private float GetFriction()
         {
             if (currentTileMovementType == TileMovementType.Slippery) return MovementStats.iceFriction;
-            return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
+
+            return IsOnGround() ? MovementStats.friction : (noAirFrictionFrames < 0 ? MovementStats.airFriction : 0);
         }
 
         private bool DirectionalMovementUpdate(Direction direction, KeyCode firstKeycode, KeyCode secondKeyCode)
@@ -222,20 +223,22 @@ namespace Player {
 
         private bool IsOnGround()
         {
-            return onBlock || onPlatform;
+            return OnBlock || OnPlatform;
         }
 
         private bool WalkingIntoSlope(Direction direction)
         {
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
+            const float BONUS = 0.1f;
+            float xExtent = playerWidth / 2f+BONUS;
             switch (direction)
             {
                 case Direction.Left:
-                    bottomCenter.x -= playerWidth/2f+0.05f;
+                    bottomCenter.x -= xExtent;
                     break;
                 case Direction.Right:
-                    bottomCenter.x += playerWidth/2f+0.05f;
+                    bottomCenter.x += xExtent;
                     break;
                 default:
                     break;
@@ -291,13 +294,18 @@ namespace Player {
         }
         public void FixedUpdate()
         {
+            Debug.Log(OnBlock);
+            Debug.Log(OnPlatform);
             coyoteFrames--;
-            if (iFrames > 0) iFrames--;
+            noAirFrictionFrames--;
+            ignorePlatformFrames--;
+            iFrames--;
+            
             CanStartClimbing();
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
                 HandleClimbing();
-                onBlock = false;
+                OnBlock = false;
                 return;
             }
 
@@ -305,46 +313,36 @@ namespace Player {
 
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
-            const float GROUND_RANGE = 0.1f;
-            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y);
-
+            if (OnBlock) coyoteFrames = JumpStats.coyoteFrames;
             
-            RaycastHit2D blockRaycast = Physics2D.BoxCast(bottomCenter,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,blockLayer);
-            if (!ReferenceEquals(blockRaycast.collider,null))
-            {
-                coyoteFrames = JumpStats.coyoteFrames;
-                onBlock = true;
-            }
-            else
-            {
-                onBlock = false;
-            }
 
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
-            
-
-            if (ignorePlatformFrames < 0)
+            if (currentTileMovementType == TileMovementType.Slippery)
             {
-                RaycastHit2D platformRaycast = Physics2D.BoxCast(bottomCenter+Vector2.up*+0.02f,new Vector2(playerWidth,GROUND_RANGE),0,Vector2.zero,Mathf.Infinity,platformLayer);
-                onPlatform = !ReferenceEquals(platformRaycast.collider, null);
-            }
-            else
-            {
-                onPlatform = false;
-                ignorePlatformFrames--;
+                noAirFrictionFrames = 10;
             }
             
             if (!DevMode.Instance.flight)
             {
                 CalculateFallTime();
                 ClampFallSpeed();
-                const float epilson = 0.1f;
                 liveYUpdates--;
+                
 
-                rb.constraints = freezeY || (liveYUpdates <= 0 && (onBlock || onPlatform) && rb.velocity.y < epilson)
-                    ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
-                    : RigidbodyConstraints2D.FreezeRotation;
+                rb.constraints = GetFreezeConstraints();
             }
+        }
+
+        private RigidbodyConstraints2D GetFreezeConstraints()
+        {
+            //if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) return RigidbodyConstraints2D.FreezeRotation;
+            if (freezeY) return RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            
+            if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
+            const float epilson = 0.1f;
+            return liveYUpdates <= 0 && (OnBlock || OnPlatform) && rb.velocity.y < epilson
+                ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
+                : RigidbodyConstraints2D.FreezeRotation;
         }
         
 
@@ -366,7 +364,7 @@ namespace Player {
             rb.velocity = vector2;
         }
 
-        public void SetIFrames(uint frames)
+        public void SetIFrames(int frames)
         {
             iFrames = frames;
         }
@@ -510,8 +508,22 @@ namespace Player {
 
         private TileMovementType GetTileMovementModifier()
         {
-            Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y-Global.TILE_SIZE/2f);
-            Vector2 tileCenter = TileHelper.getRealTileCenter(bottomCenter);
+            Vector2 extent = spriteRenderer.sprite.bounds.extents;
+            float y = gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y - Global.TILE_SIZE;
+            float xDif = extent.x - 0.1f;
+            Vector2 bottomLeft = new Vector2(gameObject.transform.position.x-xDif, y);
+            Vector2 bottomRight = new Vector2(gameObject.transform.position.x+xDif, y);
+            TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
+            TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
+            if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
+            if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
+            return TileMovementType.None;
+        }
+
+        private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
+        {
+            // This can be made more efficent without a get component
+            Vector2 tileCenter = TileHelper.getRealTileCenter(position);
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
             WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileGridMap, null)) return TileMovementType.None;
@@ -590,8 +602,6 @@ namespace Player {
 
         private void InitializeTools()
         {
-            
-
             robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
             ItemRobotToolData itemRobotToolData = robotData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);

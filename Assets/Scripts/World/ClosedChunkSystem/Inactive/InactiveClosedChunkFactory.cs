@@ -11,7 +11,7 @@ namespace Chunks.Systems {
     public static class InactiveClosedChunkFactory 
     {
         public static SoftLoadedClosedChunkSystem Import(string path) {
-            var chunks = ChunkIO.getUnloadedChunks(1,path);
+            var chunks = ChunkIO.GetUnloadedChunks(1,path);
             return new SoftLoadedClosedChunkSystem(chunks,path);
         }
     }

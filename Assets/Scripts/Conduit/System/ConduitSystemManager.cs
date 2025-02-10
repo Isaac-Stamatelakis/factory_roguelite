@@ -5,7 +5,11 @@ using System.Linq;
 using Conduits.Ports;
 using TileEntity;
 using System;
+using Chunks;
 using Chunks.Partitions;
+using Chunks.Systems;
+using Entities;
+using Item.Slot;
 using Player;
 using TileMaps.Conduit;
 using TileMaps.Layer;
@@ -36,6 +40,8 @@ namespace Conduits.Systems {
         public IConduit GetConduitAtCellPosition(Vector2Int position);
         public void ConduitJoinUpdate(IConduit conduit, IConduit adj);
         public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj);
+        public void SetSystem(ConduitTileClosedChunkSystem conduitTileClosedChunkSystem);
+        public bool IsSystemLoaded();
     }
 
     public interface ITickableConduitSystem {
@@ -47,6 +53,7 @@ namespace Conduits.Systems {
         protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
         protected ConduitTileMap ConduitTileMap;
+        protected ConduitTileClosedChunkSystem chunkSystem;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
@@ -62,6 +69,22 @@ namespace Conduits.Systems {
             conduitSystems = new List<TSystem>();
             BuildSystems();
         }
+
+        public void SetSystem(ConduitTileClosedChunkSystem chunkSystem)
+        {
+            this.chunkSystem = chunkSystem;
+            foreach (TSystem system in conduitSystems)
+            {
+                system.Rebuild();
+            }
+
+        }
+
+        public bool IsSystemLoaded()
+        {
+            return !ReferenceEquals(chunkSystem, null);
+        }
+
         public IConduit GetConduitAtCellPosition(Vector2Int position)
         {
             return conduits.GetValueOrDefault(position);
@@ -203,7 +226,7 @@ namespace Conduits.Systems {
             if (conduit == null) {
                 var currentConduit = GetConduitAtCellPosition(new Vector2Int(x, y));
                 if (currentConduit != null) {
-                    removeConduitFromSystem(currentConduit,x,y);
+                    RemoveConduitFromSystem(currentConduit,x,y);
                 }
                 return;
             }
@@ -264,7 +287,7 @@ namespace Conduits.Systems {
             RefreshConduitTile(conduit);
         }
 
-        private void removeConduitFromSystem(IConduit conduit, int x, int y) {
+        private void RemoveConduitFromSystem(IConduit conduit, int x, int y) {
             // Step 1, delete conduit system
             TSystem conduitSystem = (TSystem) conduit.GetConduitSystem();
             if (conduitSystem == null) {
@@ -279,6 +302,7 @@ namespace Conduits.Systems {
             if (conduits.ContainsKey(position))
             {
                 conduits.Remove(position);
+                TryDropConduitPortItems(conduit);
             }
             
             // Step 4, Regenerate systems by running BfsConduit on up, left, down, right, and rebuild connections
@@ -294,6 +318,22 @@ namespace Conduits.Systems {
             IConduit down = GetConduitAtCellPosition(position+Vector2Int.down);
             RemoveConduitUpdate(down,ConduitDirectionState.Up);
             
+        }
+
+        protected void TryDropConduitPortItems(IConduit conduit)
+        {
+            Vector2Int chunkPosition = Global.getChunkFromCell(conduit.GetPosition());
+            ILoadedChunk chunk = chunkSystem?.getChunk(chunkPosition);
+            if (chunk == null) return;
+            
+            if (conduit is not IPortConduit portConduit || portConduit.GetPort() is not IItemDropConduitPort itemDropConduitPort) return;
+            
+            Vector2 worldPosition = new Vector2(conduit.GetX(), conduit.GetY()) * Global.TILE_SIZE;
+            List<ItemSlot> slots = itemDropConduitPort.GetDropItems();
+            foreach (ItemSlot slot in slots)
+            {
+                ItemEntityFactory.SpawnItemEntityWithRandomVelocity(worldPosition, slot, chunk.getEntityContainer());
+            }
         }
 
         private void RemoveConduitUpdate(IConduit conduit,ConduitDirectionState connectingDirectionState)
@@ -381,7 +421,16 @@ namespace Conduits.Systems {
             }
             return EntityPortType.None;
         }
-        
+
+        private void DeleteAllSystems()
+        {
+            foreach (var (position, conduit) in conduits)
+            {
+                conduit.SetConduitSystem(null);
+            }
+            conduitSystems.Clear();
+        }
+
         private void BuildSystems()
         {
             foreach (var (position, conduit) in conduits)

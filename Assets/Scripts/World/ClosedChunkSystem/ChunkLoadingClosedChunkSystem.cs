@@ -18,7 +18,7 @@ namespace Chunks.Systems {
         {
             List<Vector2Int> chunks = GetUnCachedChunkPositionsNearPlayer();
             foreach (Vector2Int vector in chunks) {
-                addChunk(ChunkIO.getChunkFromJson(vector, this));
+                addChunk(ChunkIO.GetChunkFromJson(vector, this));
             }
             yield return null;
             Debug.Log("Chunks Near Player Loaded");

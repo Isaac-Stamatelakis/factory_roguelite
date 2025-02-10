@@ -45,7 +45,7 @@ namespace WorldModule {
                     chunkPartitionDataList.Add(ConvertPartition(chunkX,chunkY,minX,minY,partitionX,partitionY,worldTileData));
                 }
             }
-            ChunkIO.writeNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList,dimPath);
+            ChunkIO.WriteNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList,dimPath);
         }
 
         public static WorldTileConduitData CreateEmpty(Vector2Int size) {

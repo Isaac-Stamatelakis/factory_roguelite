@@ -41,15 +41,9 @@ namespace Dimensions {
 
         public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key)
         {
-            if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
-                return null;
-            }
-            if (activeSystems.ContainsKey(compactMachineTeleportKey)) {
-                return activeSystems[compactMachineTeleportKey];
-            }
-            return null;
+            return key is not CompactMachineTeleportKey compactMachineTeleportKey ? null : activeSystems.GetValueOrDefault(compactMachineTeleportKey);
         }
-        private void loadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
+        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -77,11 +71,11 @@ namespace Dimensions {
                                         Debug.LogError($"No system at path {nestedPath}");
                                         continue;
                                     }
-                                    newSystem.softLoad();
+                                    newSystem.SoftLoad();
                                     systems.Add(newSystem);
                                     CompactMachineTree newTree = new CompactMachineTree(newSystem);
                                     tree.Children[(Vector2Int)newPosition] = newTree;
-                                    loadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
+                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
                                     break;
                                 }
                             }
@@ -95,7 +89,7 @@ namespace Dimensions {
         {
             
         }
-        public bool hasSystem(CompactMachineTeleportKey key) {
+        public bool HasSystem(CompactMachineTeleportKey key) {
             return systemTree.getSystem(key.Path) != null;
         }
 
@@ -156,11 +150,7 @@ namespace Dimensions {
             CompactMachineClosedChunkSystem area = closedChunkSystemObject.AddComponent<CompactMachineClosedChunkSystem>();
             area.setCompactMachineKey(compactMachineTeleportKey);
             area.transform.SetParent(transform,false);
-            area.Initialize(
-                this,
-                system.CoveredArea,
-                1,
-                system);
+            area.Initialize(this, system.CoveredArea, 1, system);
             return area;
         }
 
@@ -168,7 +158,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem);
-            loadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
+            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 

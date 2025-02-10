@@ -20,11 +20,11 @@ namespace Chunks.Partitions {
         public void SetConduitLoaded(bool val);
         public void SoftLoadTileEntities();
         public void SetConduits(Dictionary<ConduitType, IConduit[,]> conduits);
-        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
-        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
-        public void activate(ILoadedChunk loadedChunk);
-        public void syncToCompactMachine(CompactMachineInstance compactMachine);
-        public void assembleMultiBlocks();
+        public ConduitItem GetConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
+        public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
+        public void Activate(ILoadedChunk loadedChunk);
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine);
+        public void AssembleMultiBlocks();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
     {
@@ -39,19 +39,19 @@ namespace Chunks.Partitions {
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
-                    GetConduitsFromData(serializedTileConduitData.itemConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.itemConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Fluid:
-                    GetConduitsFromData(serializedTileConduitData.fluidConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.fluidConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Energy:
-                    GetConduitsFromData(serializedTileConduitData.energyConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.energyConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Signal:
-                    GetConduitsFromData(serializedTileConduitData.signalConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.signalConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Matrix:
-                    GetConduitsFromData(serializedTileConduitData.matrixConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.matrixConduitData,conduitDict,tileEntityPorts);
                     return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
@@ -104,7 +104,8 @@ namespace Chunks.Partitions {
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options);
         }
 
-        private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
+        private void GetConduitsFromData(SeralizedChunkConduitData data, Dictionary<Vector2Int, IConduit> conduitDict,
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int partitionOffset = GetRealPosition()*Global.CHUNK_PARTITION_SIZE;
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
@@ -258,13 +259,13 @@ namespace Chunks.Partitions {
             this.conduits = conduits;
         }
 
-        public ConduitItem getConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
+        public ConduitItem GetConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type)
         {
             IConduit[,] conduitArray = conduits[type];
             return conduitArray[positionInPartition.x,positionInPartition.y].GetConduitItem();
         }
 
-        public void setConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
+        public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
         {
             string id = null;
             if (item != null) {
@@ -291,7 +292,7 @@ namespace Chunks.Partitions {
             Debug.LogError("Did not handle case for ConduitType " + type);
         }
 
-        public void activate(ILoadedChunk loadedChunk)
+        public void Activate(ILoadedChunk loadedChunk)
         {
             this.parent = loadedChunk;
             foreach (ITileEntityInstance tileEntity in tileEntities) {
@@ -302,7 +303,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void syncToCompactMachine(CompactMachineInstance compactMachine)
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null) {
@@ -315,7 +316,7 @@ namespace Chunks.Partitions {
             }
         }
 
-        public void assembleMultiBlocks()
+        public void AssembleMultiBlocks()
         {
             foreach (ITileEntityInstance tileEntity in tileEntities) {
                 if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {

@@ -91,6 +91,9 @@ namespace Conduits.Systems {
         protected void AddInputPort(TTileEntityPort tileEntityPort) {
             if (ReferenceEquals(tileEntityPort?.GetPortData(PortConnectionType.Input),null)) return;
             if (!tileEntityPort.GetPortData(PortConnectionType.Input).Enabled) return;
+            
+            bool loaded = manager.IsSystemLoaded();
+            if (!loaded && tileEntityPort.GetInteractable() is ISystemLoadedConduitPortTileEntity) return;
             int color = tileEntityPort.GetColor(PortConnectionType.Input);
             if (!coloredPriorityInputs.ContainsKey(color)) {
                 coloredPriorityInputs[color] = new List<TTileEntityPort>();

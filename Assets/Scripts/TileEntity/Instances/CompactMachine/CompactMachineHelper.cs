@@ -28,9 +28,9 @@ namespace TileEntity.Instances.CompactMachines {
         }
         public static SoftLoadedClosedChunkSystem loadSystemFromPath(List<Vector2Int> path) {
             string systemPath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
-            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.getUnloadedChunks(1,systemPath);
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(1,systemPath);
             SoftLoadedClosedChunkSystem system = new SoftLoadedClosedChunkSystem(chunks,systemPath);
-            system.softLoad();
+            system.SoftLoad();
             return system;
         }
 

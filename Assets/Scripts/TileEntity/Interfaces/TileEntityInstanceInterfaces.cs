@@ -21,6 +21,10 @@ namespace TileEntity {
         public int GetSpeed();
     }
 
+    public interface IConditionalRightClickableTileEntity : IRightClickableTileEntity
+    {
+        public bool CanRightClick();
+    }
     public interface IRightClickableTileEntity
     {
         public void OnRightClick();

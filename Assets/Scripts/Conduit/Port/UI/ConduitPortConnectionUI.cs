@@ -82,8 +82,8 @@ namespace Conduit.Port.UI
             {
                 mUpgradeInventory.gameObject.SetActive(true);
                 // All we have to consider is the number of upgrades in the slot
-                const string upgradeId = "conduit_speed_upgrade";
-                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(upgradeId);
+                
+                ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(ItemTileEntityPort.UPGRADE_ID);
                 ItemSlot itemSlot = new ItemSlot(itemObject, itemConduitOutputPortData.SpeedUpgrades, null);
                 
                 mUpgradeInventory.DisplayInventory(new List<ItemSlot>{itemSlot});
@@ -134,9 +134,8 @@ namespace Conduit.Port.UI
         {
             mFilterInventory.gameObject.SetActive(true);
             
-            const string filterId = "item_filter";
             ItemFilter filter = filterConduitPort.ItemFilter;
-            ItemObject filterItem = ItemRegistry.GetInstance().GetItemObject(filterId);
+            ItemObject filterItem = ItemRegistry.GetInstance().GetItemObject(ItemTileEntityPort.FILTER_ID);
             ItemSlot itemSlot = filter == null
                 ? null
                 : new ItemSlot(filterItem, 1, null);
