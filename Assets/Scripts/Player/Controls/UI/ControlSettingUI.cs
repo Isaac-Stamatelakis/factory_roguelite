@@ -21,6 +21,7 @@ namespace Player.Controls.UI
             backButton.onClick.AddListener(() =>
             {
                 CanvasController.Instance.PopStack();
+                ControlUtils.LoadBindings();
             });
             restoreButton.onClick.AddListener(ControlUtils.SetDefault);
             Display();

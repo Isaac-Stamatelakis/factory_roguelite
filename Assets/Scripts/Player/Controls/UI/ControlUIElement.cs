@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Player.Controls.UI
@@ -12,9 +13,10 @@ namespace Player.Controls.UI
         [SerializeField] private Button button;
         private string key;
         private List<KeyCode> selectableKeys;
-        public int count;
+        [FormerlySerializedAs("additionalListTime")] [FormerlySerializedAs("count")] public int listenUpdates;
         private List<KeyCode> cachedKeys;
         private ControlSettingUI controlSettingUI;
+        private bool listen = false;
         public void Start()
         {
             button.onClick.AddListener(() =>
@@ -23,7 +25,7 @@ namespace Player.Controls.UI
                 {
                     return;
                 }
-                count = 12;
+                listenUpdates = 5;
                 cachedKeys = new List<KeyCode>();
                 selectableKeys = ControlUtils.GetAllSelectableKeys();
             });
@@ -35,8 +37,8 @@ namespace Player.Controls.UI
             {
                 return;
             }
-            count--;
-            if (count < 0)
+            listenUpdates--;
+            if (listenUpdates < 0)
             {
                 selectableKeys = null;
                 ControlUtils.SetKeyValue(key,cachedKeys);
@@ -44,6 +46,11 @@ namespace Player.Controls.UI
                 cachedKeys = null;
                 Display();
             }
+        }
+
+        private void ListenUpdate()
+        {
+            
         }
 
         public void HighlightConflictState(bool conflict)

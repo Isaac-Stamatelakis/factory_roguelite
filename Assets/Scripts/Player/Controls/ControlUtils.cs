@@ -7,9 +7,31 @@ using UnityEngine;
 
 namespace Player.Controls
 {
+    public enum ValidAdditionalKeys
+    {
+        LShift = 1,
+        RShift = 2,
+        Ctrl = 4,
+        Alt = 8,
+        
+    }
     public static class ControlUtils
     {
         private static readonly string PREF_PREFIX = "CONTROL_";
+        private static Dictionary<string, KeyCode[]> controlDict;
+        private static HashSet<KeyCode> singleKeyCodes;
+        private static int modifierCount = 0;
+
+        public static void UpdateModifierCount()
+        {
+            modifierCount = 0;
+            if (Input.GetKey(KeyCode.LeftShift)) modifierCount ++;
+            if (Input.GetKey(KeyCode.RightShift)) modifierCount ++;
+            if (Input.GetKey(KeyCode.LeftControl)) modifierCount ++;
+            if (Input.GetKey(KeyCode.RightControl)) modifierCount ++;
+            if (Input.GetKey(KeyCode.LeftAlt)) modifierCount ++;
+            if (Input.GetKey(KeyCode.RightAlt)) modifierCount ++;
+        }
 
         private static readonly HashSet<KeyCode> unselectableKeys = new HashSet<KeyCode>
         {
@@ -29,6 +51,32 @@ namespace Player.Controls
                 kvp.Value.SetDefault(false);
             }
             return sections;
+        }
+
+        public static void LoadBindings()
+        {
+            controlDict = new Dictionary<string, KeyCode[]>();
+            singleKeyCodes = new HashSet<KeyCode>();
+            var keyCountDict = new Dictionary<KeyCode, int>();
+            var sections = GetKeyBindingSections();
+            foreach (var (name, bindings) in sections)
+            {
+                foreach (string binding in bindings.GetBindingKeys())
+                {
+                    KeyCode[] keyCodes = GetKeyCodes(binding).ToArray();
+                    controlDict[binding] = keyCodes;
+                    KeyCode primary = keyCodes.Last();
+                    keyCountDict.TryAdd(primary, 0);
+
+                    keyCountDict[primary]++;
+                }
+            }
+
+            foreach (var (keycode, count) in keyCountDict)
+            {
+                Debug.Log(count);
+                if (count == 1) singleKeyCodes.Add(keycode);
+            }
         }
 
         public static HashSet<string> GetConflictingBindings()
@@ -133,14 +181,41 @@ namespace Player.Controls
             return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(name));
         }
 
-        public static bool ControlKeyDown(string name)
+        public static bool GetControlKey(string name)
         {
-            int value = PlayerPrefs.GetInt(GetPrefKey(name));
-            // TODO add support for multiple key presses
-            
-            return false;
+            if (controlDict == null) return false;
+            controlDict.TryGetValue(name, out KeyCode[] keycodes);
+            if (keycodes == null) return false;
+            if (keycodes.Length == 1)
+            {
+                KeyCode keyCode = keycodes[0];
+                if (!singleKeyCodes.Contains(keyCode) && modifierCount > 0) return false;
+                return Input.GetKey(keycodes.Last());
+            }
+            for (int i = 0; i < keycodes.Length-1; i++)
+            {
+                if (!Input.GetKey(keycodes[i])) return false;
+            }
+            return Input.GetKey(keycodes.Last());
         }
-
+        
+        public static bool GetControlKeyDown(string name)
+        {
+            if (controlDict == null) return false;
+            controlDict.TryGetValue(name, out KeyCode[] keycodes);
+            if (keycodes == null) return false;
+            if (keycodes.Length == 1)
+            {
+                KeyCode keyCode = keycodes[0];
+                return !(!singleKeyCodes.Contains(keyCode) && modifierCount > 0) && Input.GetKeyDown(keycodes.Last());
+            }
+            for (int i = 0; i < keycodes.Length-1; i++)
+            {
+                if (!Input.GetKey(keycodes[i])) return false;
+            }
+            return Input.GetKeyDown(keycodes.Last());
+        }
+        
         public static string FormatKeyText(string key)
         {
             return key.Replace("_"," ").FirstCharacterToUpper();
@@ -150,7 +225,7 @@ namespace Player.Controls
             Dictionary<string, ControlBindingCollection> sections = GetKeyBindingSections();
             foreach (var controlBinding in sections.Values)
             {
-                controlBinding.SetDefault(true);;
+                controlBinding.SetDefault(true);
             }
         }
 

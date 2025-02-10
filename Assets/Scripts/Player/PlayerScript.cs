@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduits;
 using Conduits.Systems;
 using Item.Slot;
+using Player.Controls;
 using PlayerModule;
 using PlayerModule.IO;
 using UI.QuestBook;
@@ -45,6 +46,7 @@ namespace Player
             conduitPlacementOptions = new ConduitPlacementOptions();
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
+            ControlUtils.LoadBindings();
         }
     }
     [System.Serializable]
