@@ -41,6 +41,7 @@ namespace Conduits.Systems {
         public void ConduitJoinUpdate(IConduit conduit, IConduit adj);
         public void ConduitDisconnectUpdate(IConduit conduit, IConduit adj);
         public void SetSystem(ConduitTileClosedChunkSystem conduitTileClosedChunkSystem);
+        public bool IsSystemLoaded();
     }
 
     public interface ITickableConduitSystem {
@@ -72,8 +73,18 @@ namespace Conduits.Systems {
         public void SetSystem(ConduitTileClosedChunkSystem chunkSystem)
         {
             this.chunkSystem = chunkSystem;
-            // Rebuild conduits 
+            foreach (TSystem system in conduitSystems)
+            {
+                system.Rebuild();
+            }
+
         }
+
+        public bool IsSystemLoaded()
+        {
+            return !ReferenceEquals(chunkSystem, null);
+        }
+
         public IConduit GetConduitAtCellPosition(Vector2Int position)
         {
             return conduits.GetValueOrDefault(position);
@@ -410,7 +421,16 @@ namespace Conduits.Systems {
             }
             return EntityPortType.None;
         }
-        
+
+        private void DeleteAllSystems()
+        {
+            foreach (var (position, conduit) in conduits)
+            {
+                conduit.SetConduitSystem(null);
+            }
+            conduitSystems.Clear();
+        }
+
         private void BuildSystems()
         {
             foreach (var (position, conduit) in conduits)

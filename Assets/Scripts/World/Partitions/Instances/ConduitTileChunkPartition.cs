@@ -39,19 +39,19 @@ namespace Chunks.Partitions {
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {
                 case ConduitType.Item:
-                    GetConduitsFromData(serializedTileConduitData.itemConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.itemConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Fluid:
-                    GetConduitsFromData(serializedTileConduitData.fluidConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.fluidConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Energy:
-                    GetConduitsFromData(serializedTileConduitData.energyConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.energyConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Signal:
-                    GetConduitsFromData(serializedTileConduitData.signalConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.signalConduitData,conduitDict,tileEntityPorts);
                     return;
                 case ConduitType.Matrix:
-                    GetConduitsFromData(serializedTileConduitData.matrixConduitData,conduitDict,referenceChunk,tileEntityPorts);
+                    GetConduitsFromData(serializedTileConduitData.matrixConduitData,conduitDict,tileEntityPorts);
                     return;
             }
             Debug.LogError("ConduitTileChunkPartition method 'getConduits' did not handle case for type '" + conduitType.ToString() + "'");
@@ -104,7 +104,8 @@ namespace Chunks.Partitions {
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options);
         }
 
-        private void GetConduitsFromData(SeralizedChunkConduitData data,Dictionary<Vector2Int,IConduit> conduitDict,Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
+        private void GetConduitsFromData(SeralizedChunkConduitData data, Dictionary<Vector2Int, IConduit> conduitDict,
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             Vector2Int partitionOffset = GetRealPosition()*Global.CHUNK_PARTITION_SIZE;
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {

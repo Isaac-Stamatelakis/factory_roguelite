@@ -29,7 +29,7 @@ namespace DevTools.Structures {
                 string path = WorldLoadUtils.GetDimPath(0);
                 List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
                 system = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
-                system.softLoad();
+                system.SoftLoad();
             }
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.GetDim0Bounds();

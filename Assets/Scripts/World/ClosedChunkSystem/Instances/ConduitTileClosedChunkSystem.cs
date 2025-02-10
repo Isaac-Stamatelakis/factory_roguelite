@@ -108,6 +108,7 @@ namespace Chunks.Systems {
             foreach (var conduitSystemManager in conduitSystemManagersDict.Values)
             {
                 conduitSystemManager.SetTileMap(null);
+                conduitSystemManager.SetSystem(null);
             }
         }
 

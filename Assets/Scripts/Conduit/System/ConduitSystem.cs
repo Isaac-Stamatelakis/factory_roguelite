@@ -30,7 +30,7 @@ namespace Conduits.Systems {
                 return otherConduitSystem.ConnectsTo(this);
             }
             // Check otherConduitSystem contains any conduit in this one. O(n)
-            foreach (IConduit conduit in Conduits) {
+            foreach (TSystemConduit conduit in Conduits) {
                 if (otherConduitSystem.Contains(conduit)) {
                     return true;
                 }

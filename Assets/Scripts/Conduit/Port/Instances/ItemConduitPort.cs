@@ -34,7 +34,8 @@ namespace Conduits.Ports {
             OutputPortData = outputPortData;
         }
     }
-    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IConduitPort, IOConduitPort
+    
+    public abstract class TileEntityConduitPort<TInteractable, TInputData, TOutputData,  TConduitItem> : IColoredTileEntityPort, IOConduitPort
         where TInteractable : IConduitInteractable
         where TInputData : ConduitPortData
         where TOutputData : ConduitPortData
@@ -102,6 +103,11 @@ namespace Conduits.Ports {
                 PortConnectionType.Output => !ReferenceEquals(outputPortData, null),
                 _ => throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null)
             };
+        }
+
+        public IConduitInteractable GetInteractable()
+        {
+            return Interactable;
         }
     }
 

@@ -71,7 +71,7 @@ namespace Dimensions {
                                         Debug.LogError($"No system at path {nestedPath}");
                                         continue;
                                     }
-                                    newSystem.softLoad();
+                                    newSystem.SoftLoad();
                                     systems.Add(newSystem);
                                     CompactMachineTree newTree = new CompactMachineTree(newSystem);
                                     tree.Children[(Vector2Int)newPosition] = newTree;

@@ -13,7 +13,7 @@ namespace Conduits {
 
     public interface IConduitPort
     {
-        
+        public IConduitInteractable GetInteractable();
     }
     public abstract class PortConduit<TPort> : Conduit<ConduitItem>, IPortConduit where TPort : IConduitPort
     {
