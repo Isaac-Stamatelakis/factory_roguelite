@@ -14,6 +14,7 @@ namespace Player.Controls.Bindings
                 new (ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE, new List<KeyCode>{KeyCode.H}),
                 new (ControlConsts.TERMINATE_CONDUIT_GROUP, new List<KeyCode>{KeyCode.H, KeyCode.LeftShift}),
                 new (ControlConsts.SWITCH_CONDUIT_PORT_VIEW, new List<KeyCode>{KeyCode.J}),
+                new (ControlConsts.CHANGE_CONDUIT_VIEW_MODE, new List<KeyCode>{KeyCode.K}),
             };
         }
     }

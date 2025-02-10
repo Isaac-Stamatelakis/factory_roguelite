@@ -42,7 +42,7 @@ namespace UI.RingSelector
         private Camera mainCamera;
         private bool inCenter;
         private int lastSelectedIndex = -1;
-        private RingSelectorCallback onSelectNone;
+        private RingSelectorComponent defaultComponent;
 
         public void Start()
         {
@@ -56,10 +56,10 @@ namespace UI.RingSelector
             Debug.Log($"Selected Index: {index}");
         }
 
-        public void Display(List<RingSelectorComponent> components, RingSelectorCallback onSelectNone)
+        public void Display(List<RingSelectorComponent> components, RingSelectorComponent defaultComponent)
         {
             this.currentComponents = components;
-            this.onSelectNone = onSelectNone;
+            this.defaultComponent = defaultComponent;
             GlobalHelper.deleteAllChildren(selectableRingContainer);
             activeComponents = new UIRingSelectorElement[currentComponents.Count];
             for (int i = 0; i < components.Count; i++)
@@ -77,7 +77,7 @@ namespace UI.RingSelector
             {
                 if (lastSelectedIndex == -1)
                 {
-                    onSelectNone?.Invoke();
+                    defaultComponent.callback?.Invoke();
                 }
                 else
                 {
@@ -88,8 +88,8 @@ namespace UI.RingSelector
             }
             if (inCenter)
             {
-                panel.color = unselectedColor;
-                title.text = "None";
+                panel.color = defaultComponent.color ?? UnselectedColor;
+                title.text = defaultComponent.name;
                 lastSelectedIndex = -1;
                 selectedImage.enabled = true;
                 selectedImage.sprite = unselectedSprite;
