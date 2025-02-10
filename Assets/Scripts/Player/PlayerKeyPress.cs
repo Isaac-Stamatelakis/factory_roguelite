@@ -67,12 +67,12 @@ namespace PlayerModule.KeyPress {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
                 conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
-                Debug.Log($"Switched placement mode {conduitPlacementOptions.PlacementMode}");
             }
 
             if (ControlUtils.GetControlKeyDown(ControlConsts.TERMINATE_CONDUIT_GROUP))
             {
-                Debug.Log("Termianted");
+                ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
+                conduitPlacementOptions.ResetPlacementRecord();
             }
             
             inventoryNavigationKeys();
