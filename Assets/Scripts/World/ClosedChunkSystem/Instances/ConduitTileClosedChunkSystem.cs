@@ -73,7 +73,7 @@ namespace Chunks.Systems {
             GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
             GameObject clone = GameObject.Instantiate(portViewerControllerPrefab, transform, false);
             viewerController = clone.GetComponent<PortViewerController>();
-            viewerController.initalize(this);
+            viewerController.Initalize(this);
         }
 
         private void syncConduitTileMap(TileMapType tileMapType) {

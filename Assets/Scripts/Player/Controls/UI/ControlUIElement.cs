@@ -16,7 +16,6 @@ namespace Player.Controls.UI
         [FormerlySerializedAs("additionalListTime")] [FormerlySerializedAs("count")] public int listenUpdates;
         private List<KeyCode> cachedKeys;
         private ControlSettingUI controlSettingUI;
-        private bool listen = false;
         public void Start()
         {
             button.onClick.AddListener(() =>
@@ -47,11 +46,7 @@ namespace Player.Controls.UI
                 Display();
             }
         }
-
-        private void ListenUpdate()
-        {
-            
-        }
+        
 
         public void HighlightConflictState(bool conflict)
         {

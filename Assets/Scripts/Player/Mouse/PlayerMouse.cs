@@ -15,6 +15,7 @@ using Conduits.Systems;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
 using Conduits;
+using Conduits.PortViewer;
 using Dimensions;
 using Items;
 using TileEntity;
@@ -40,6 +41,7 @@ namespace PlayerModule.Mouse {
     public class PlayerMouse : MonoBehaviour
     {
         private PlayerInventory playerInventory;
+        public PortViewMode ConduitPortViewMode;
         private PlayerRobot playerRobot;
         private Transform playerTransform;
         private PlayerScript playerScript;
@@ -197,17 +199,6 @@ namespace PlayerModule.Mouse {
         }
         private void RightClickUpdate(Vector2 mousePosition)
         {
-            
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(playerInventory.getSelectedId());
-            if (Input.GetMouseButtonDown(1)) {
-                bool somethingClicked = false;
-                if (itemObject is ConduitItem) {
-                    somethingClicked = RightClickPort(mousePosition);
-                } else {
-                    somethingClicked = TryClickTileEntity(mousePosition);
-                }
-                if (somethingClicked) return;
-            }
             InventoryDisplayMode inventoryDisplayMode = playerInventory.Mode;
             switch (inventoryDisplayMode)
             {
@@ -220,41 +211,60 @@ namespace PlayerModule.Mouse {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            if (Input.GetMouseButtonDown(1)) {
+                if (RightClickPort(mousePosition)) return;
+                if (TryClickTileEntity(mousePosition)) return;
+            }
+            
+        }
+
+        private ConduitType? GetPortClickType()
+        {
+            switch (ConduitPortViewMode)
+            {
+                case PortViewMode.Auto:
+                    string id = playerInventory.getSelectedId();
+                    if (id == null) return null;
+                    ConduitItem conduitItem = ItemRegistry.GetInstance().GetConduitItem(id);
+                    if (ReferenceEquals(conduitItem,null)) {
+                        return null;
+                    }
+                    return conduitItem.GetConduitType();
+                case PortViewMode.None:
+                case PortViewMode.Matrix:
+                    return null;
+                case PortViewMode.Item:
+                    return ConduitType.Item;
+                case PortViewMode.Fluid:
+                    return ConduitType.Fluid;
+                case PortViewMode.Energy:
+                    return ConduitType.Energy;
+                case PortViewMode.Signal:
+                    return ConduitType.Signal;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private bool RightClickPort(Vector2 mousePosition) {
+            ConduitType? conduitType = GetPortClickType();
+            if (conduitType == null) return false;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
-            
-            string id = playerInventory.getSelectedId();
-            ConduitItem conduitItem = ItemRegistry.GetInstance().GetConduitItem(id);
-            if (ReferenceEquals(conduitItem,null)) {
+
+            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType.Value);
+            if (conduitSystemManager is not PortConduitSystemManager portConduitSystemManager) return false;
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
+            if (conduit == null) {
                 return false;
             }
-            ConduitType conduitType = conduitItem.GetConduitType();
-            IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType);
-            switch (conduitSystemManager)
-            {
-                case null:
-                    Debug.LogError("Attempted to click port of null conduit system manager");
-                    return false;
-                case PortConduitSystemManager portConduitSystemManager:
-                {
-                    Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-                    IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
-                    if (conduit == null) {
-                        return false;
-                    }
-                    IOConduitPortUI conduitPortUI = MainCanvasController.TInstance.DisplayUIElement<IOConduitPortUI>(MainSceneUIElement.IOPortViewer);
-                    IOConduitPort conduitPort = conduit.GetPort() as IOConduitPort;
-                    conduitPortUI.Display(conduitPort,conduit);
-                    return true;
-                }
-                default:
-                    return false;
-            }
+            IOConduitPortUI conduitPortUI = MainCanvasController.TInstance.DisplayUIElement<IOConduitPortUI>(MainSceneUIElement.IOPortViewer);
+            IOConduitPort conduitPort = conduit.GetPort() as IOConduitPort;
+            conduitPortUI.Display(conduitPort,conduit);
+            return true;
         }
         
         

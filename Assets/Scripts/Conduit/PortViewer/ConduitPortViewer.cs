@@ -13,32 +13,44 @@ namespace Conduits.PortViewer {
     {
         private IConduitSystemManager systemManager;
         private Dictionary<EntityPortType,TileBase> portTypeToTile;
-        public ConduitType Type {get => systemManager.GetConduitType();}
+        public ConduitType? Type {get => systemManager?.GetConduitType();}
         private Tilemap tilemap;
+        [SerializeField] private Tilemap nullConduitTileMap;
         public void Start() {
             this.tilemap = GetComponent<Tilemap>();
         }
         public bool Active {get => systemManager != null;}
         private TileMaps.IWorldTileMap conduitIWorldTileMap;
-        public void display(IConduitSystemManager systemManager, Vector3Int referenceFrame, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.IWorldTileMap conduitIWorldTileMap) {
+        public void Display(IConduitSystemManager systemManager, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.IWorldTileMap conduitIWorldTileMap) {
             this.systemManager = systemManager;
             this.conduitIWorldTileMap = conduitIWorldTileMap;
             conduitIWorldTileMap.setHighlight(true);
             tilemap.color = color;
+            nullConduitTileMap.color = color * 0.8f;
             foreach (KeyValuePair<ITileEntityInstance,List<TileEntityPortData>> kvp in systemManager.GetTileEntityPorts()) {
                 foreach (TileEntityPortData portData in kvp.Value) {
                     Vector3Int position = (Vector3Int)(kvp.Key.getCellPosition() + portData.position);
-                    tilemap.SetTile(position,portTypeToTile[portData.portType]);
+                    IConduit conduit = this.systemManager.GetConduitAtCellPosition((Vector2Int)position);
+                    TileBase tile = portTypeToTile[portData.portType];
+                    if (conduit == null)
+                    {
+                        nullConduitTileMap.SetTile(position,tile);
+                    }
+                    else
+                    {
+                        tilemap.SetTile(position,tile);
+                    }
                 }
             }
         }
 
-        public void deactive() {
+        public void Deactive() {
             if (!gameObject.activeInHierarchy || systemManager == null) {
                 return;
             }
             conduitIWorldTileMap.setHighlight(false);
             tilemap.ClearAllTiles();
+            nullConduitTileMap.ClearAllTiles();
             gameObject.SetActive(false);
             
             systemManager = null;
