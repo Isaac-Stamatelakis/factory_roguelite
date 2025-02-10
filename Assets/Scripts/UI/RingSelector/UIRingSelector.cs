@@ -8,15 +8,17 @@ using UnityEngine.UI;
 
 namespace UI.RingSelector
 {
-    public delegate void RingSelectorCallback(); 
+    public delegate void RingSelectorCallback();
     public struct RingSelectorComponent
     {
+        public Color? color;
         public Sprite sprite;
         public string name;
         public RingSelectorCallback callback;
 
-        public RingSelectorComponent(Sprite sprite, string name, RingSelectorCallback callback)
+        public RingSelectorComponent(Color? color, Sprite sprite, string name, RingSelectorCallback callback)
         {
+            this.color = color;
             this.sprite = sprite;
             this.name = name;
             this.callback = callback;
@@ -30,6 +32,7 @@ namespace UI.RingSelector
         [SerializeField] private Transform selectableRingContainer;
         [SerializeField] private UIRingSelectorElement selectorPrefab;
         [SerializeField] private Color unselectedColor;
+        [SerializeField] private Sprite unselectedSprite;
         private Image panel;
         public Color SelectedColor => panel.color;
         public Color UnselectedColor => unselectedColor;
@@ -39,22 +42,13 @@ namespace UI.RingSelector
         private Camera mainCamera;
         private bool inCenter;
         private int lastSelectedIndex = -1;
+        private RingSelectorCallback onSelectNone;
 
         public void Start()
         {
             panel = GetComponent<Image>();
             mainCamera = Camera.main;
             panel.alphaHitTestMinimumThreshold = 0.1f;
-            // Testing
-            List<RingSelectorComponent> components = new List<RingSelectorComponent>
-            {
-                new RingSelectorComponent(null, "test1", () => { selectIndex(0); }),
-                new RingSelectorComponent(null, "test1", () => { selectIndex(1); }),
-                new RingSelectorComponent(null, "test1", () => { selectIndex(1); }),
-                new RingSelectorComponent(null, "test1", () => { selectIndex(1); }),
-                new RingSelectorComponent(null, "test1", () => { selectIndex(1); }),
-            };
-            Display(components);
         }
 
         public void selectIndex(int index)
@@ -62,9 +56,10 @@ namespace UI.RingSelector
             Debug.Log($"Selected Index: {index}");
         }
 
-        public void Display(List<RingSelectorComponent> components)
+        public void Display(List<RingSelectorComponent> components, RingSelectorCallback onSelectNone)
         {
             this.currentComponents = components;
+            this.onSelectNone = onSelectNone;
             GlobalHelper.deleteAllChildren(selectableRingContainer);
             activeComponents = new UIRingSelectorElement[currentComponents.Count];
             for (int i = 0; i < components.Count; i++)
@@ -78,8 +73,26 @@ namespace UI.RingSelector
 
         public void Update()
         {
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (lastSelectedIndex == -1)
+                {
+                    onSelectNone?.Invoke();
+                }
+                else
+                {
+                    currentComponents[lastSelectedIndex].callback?.Invoke();
+                }
+                CanvasController.Instance.PopStack();
+                return;
+            }
             if (inCenter)
             {
+                panel.color = unselectedColor;
+                title.text = "None";
+                lastSelectedIndex = -1;
+                selectedImage.enabled = true;
+                selectedImage.sprite = unselectedSprite;
                 return;
             }
             Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -100,21 +113,26 @@ namespace UI.RingSelector
             {
                 return;
             }
-
-            if (lastSelectedIndex >= 0)
-            {
-                activeComponents[lastSelectedIndex].Panel.color = UnselectedColor;
-            }
+            
+            
             lastSelectedIndex = index;
-            activeComponents[index].Panel.color = SelectedColor;
+            var currentComponent = currentComponents[index];
+            
+            panel.color = currentComponent.color ?? SelectedColor;
+            title.text = currentComponents[index].name;
+            if (ReferenceEquals(currentComponent.sprite, null))
+            {
+                selectedImage.enabled = false;
+            }
+            else
+            {
+                selectedImage.enabled = true;
+                selectedImage.sprite = currentComponent.sprite;
+            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (lastSelectedIndex >= 0)
-            {
-                activeComponents[lastSelectedIndex].Panel.color = UnselectedColor;
-            }
             lastSelectedIndex = -1;
             inCenter = true;
         }

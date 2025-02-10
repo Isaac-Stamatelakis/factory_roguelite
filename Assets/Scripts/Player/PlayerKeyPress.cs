@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Conduits.Systems;
 using Item.Display.ClickHandlers;
 using Item.Inventory;
 using Item.Inventory.ClickHandlers.Instances;
@@ -39,6 +40,16 @@ namespace PlayerModule.KeyPress {
     }
     public class PlayerKeyPress : MonoBehaviour
     {
+        private enum PortViewMode
+        {
+            None,
+            Auto,
+            Item,
+            Fluid,
+            Energy,
+            Signal,
+            Matrix
+        }
         [SerializeField] private UIRingSelector ringSelectorPrefab;
         private PlayerInventory playerInventory;
 
@@ -76,8 +87,11 @@ namespace PlayerModule.KeyPress {
             }
             
             inventoryNavigationKeys();
-            
+        }
 
+        private void Test(PortViewMode portViewMode)
+        {
+            Debug.Log(portViewMode);
         }
 
         private void inventoryNavigationKeys() {
