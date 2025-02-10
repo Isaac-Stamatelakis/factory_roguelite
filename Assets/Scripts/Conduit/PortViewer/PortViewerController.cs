@@ -28,9 +28,13 @@ namespace Conduits.PortViewer {
         Signal,
         Matrix
     }
+
+    public static class PortViewerUtils
+    {
+        public static PortViewMode PortViewMode = PortViewMode.Auto;
+    }
     public class PortViewerController : MonoBehaviour
     {
-        private PortViewMode portViewMode = PortViewMode.Auto;
         [SerializeField] private UIRingSelector ringSelectorPrefab;
         [SerializeField] private ConduitPortTiles portConduitTiles;
         private ConduitTileClosedChunkSystem closedChunkSystem;
@@ -46,12 +50,28 @@ namespace Conduits.PortViewer {
             if (portViewer == null) {
                 Debug.LogWarning("Conduit Port Controller has no viewer child");
             }
+
+            switch (PortViewerUtils.PortViewMode)
+            {
+                case PortViewMode.Item:
+                    ActivateViewer(ConduitType.Item);
+                    break;
+                case PortViewMode.Fluid:
+                    ActivateViewer(ConduitType.Fluid);
+                    break;
+                case PortViewMode.Energy:
+                    ActivateViewer(ConduitType.Energy);
+                    break;
+                case PortViewMode.Signal:
+                    ActivateViewer(ConduitType.Signal);
+                    break;
+            }
         }
 
         public void Update()
         {
             KeyPressListen();
-            if (portViewMode == PortViewMode.Auto)
+            if (PortViewerUtils.PortViewMode == PortViewMode.Auto)
             {
                 AutoSelect();
             }
@@ -107,7 +127,7 @@ namespace Conduits.PortViewer {
         
         private void ChangePortViewMode(PortViewMode portViewMode)
         {
-            this.portViewMode = portViewMode;
+            PortViewerUtils.PortViewMode = portViewMode;
             PlayerManager.Instance.GetPlayer().GetComponent<PlayerMouse>().ConduitPortViewMode = portViewMode;
             switch (portViewMode)
             {
@@ -164,9 +184,9 @@ namespace Conduits.PortViewer {
             TileMapType tileMapType = conduitType.ToTileMapType();
             TileMaps.IWorldTileMap tilemap = closedChunkSystem.GetTileMap(tileMapType);
             
-            portViewer.Display(conduitSystemManager,portTypeToTile,color,tilemap);
+            portViewer.Display(conduitSystemManager,portTypeToTile,color,tilemap,closedChunkSystem.GetPlayerChunk());
         }
-
+        
         public void Refresh()
         {
             if (ReferenceEquals(portViewer, null)) return;

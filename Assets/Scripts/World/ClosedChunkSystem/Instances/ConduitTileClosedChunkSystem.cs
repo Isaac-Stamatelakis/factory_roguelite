@@ -58,15 +58,15 @@ namespace Chunks.Systems {
                     conduitTileChunkPartition.Activate(loadedChunk);
                 }
             }
-            StartCoroutine(createViewer());
-
             syncConduitTileMap(TileMapType.ItemConduit);
             syncConduitTileMap(TileMapType.FluidConduit);
             syncConduitTileMap(TileMapType.EnergyConduit);
             syncConduitTileMap(TileMapType.SignalConduit);
             syncConduitTileMap(TileMapType.MatrixConduit);
+            
+            StartCoroutine(createViewer());
         }
-
+        
         private IEnumerator createViewer() {
             var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/ConduitPortViewer/ConduitPortViewerController.prefab");
             yield return handle;
@@ -93,14 +93,15 @@ namespace Chunks.Systems {
 
         public override void PlayerChunkUpdate()
         {
-            
+            // Doesn't do anything except refresh viewer
+            viewerController?.Refresh();
         }
+        
         protected void InitalLoadChunks(List<SoftLoadedConduitTileChunk> unloadedChunks)
         {
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in unloadedChunks) {
                 addChunk(ChunkIO.GetChunkFromUnloadedChunk(unloadedConduitTileChunk,this));
             }
-            //Debug.Log("Conduit Closed Chunk System '" + name + "' Loaded " + cachedChunks.Count + " Chunks");
         }
 
         public void OnDestroy()

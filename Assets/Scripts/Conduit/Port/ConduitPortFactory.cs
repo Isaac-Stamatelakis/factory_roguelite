@@ -19,6 +19,7 @@ namespace Conduits.Ports {
         Standard,
         Priority
     }
+    
     public static class ConduitPortFactory
     {
         public const int PORT_COLORS = 16;
