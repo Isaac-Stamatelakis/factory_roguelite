@@ -13,6 +13,7 @@ using Items;
 using Player;
 using PlayerModule.KeyPress;
 using TileMaps.Layer;
+using TileMaps.Type;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -87,13 +88,24 @@ namespace TileMaps.Previewer {
                 placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject, tileBase, placePosition, position);
             }
 
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
-            if (itemObject is TileItem tileItem)
-            {
-                tilemap.color = PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation,playerScript.TilePlacementOptions.State), tileItem,position, closedChunkSystem) ? placableColor : nonPlacableColor;
-            }
+            tilemap.color = GetPlaceColor(position, itemObject);
             
+        }
 
+        private Color GetPlaceColor(Vector2 position, ItemObject itemObject)
+        {
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            switch (itemObject)
+            {
+                case TileItem tileItem:
+                    return PlaceTile.TilePlacable(new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State), tileItem, position, closedChunkSystem) ? placableColor : nonPlacableColor;
+                case ConduitItem conduitItem:
+                    TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
+                    IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
+                    return PlaceTile.ConduitPlacable(conduitItem, position, conduitMap) ? Color.white : nonPlacableColor;
+                default:
+                    return Color.white;
+            }
         }
 
         private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)

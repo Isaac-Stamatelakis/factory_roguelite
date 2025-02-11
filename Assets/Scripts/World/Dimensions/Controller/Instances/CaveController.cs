@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Chunks.Systems;
+using Player;
 using WorldModule.Caves;
 
 namespace Dimensions {
@@ -9,7 +10,7 @@ namespace Dimensions {
     {
         private CaveInstance currentCave;
         private TileClosedChunkSystem activeSystem;
-        public ClosedChunkSystem ActivateSystem()
+        public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";

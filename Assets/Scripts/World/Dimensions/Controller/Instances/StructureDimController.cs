@@ -9,7 +9,7 @@ using Chunks;
 using WorldModule;
 using Chunks.IO;
 using System.IO;
-
+using Player;
 
 
 namespace DevTools.Structures {
@@ -23,7 +23,7 @@ namespace DevTools.Structures {
             GameObject.Destroy(activeSystem.gameObject);
         }
 
-        public ClosedChunkSystem ActivateSystem()
+        public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
             if (system == null) {
                 string path = WorldLoadUtils.GetDimPath(0);
@@ -39,7 +39,8 @@ namespace DevTools.Structures {
                 this,
                 coveredArea: bounds,
                 dim: 0,
-                system
+                system,
+                playerScript
             );
             return activeSystem;
         }

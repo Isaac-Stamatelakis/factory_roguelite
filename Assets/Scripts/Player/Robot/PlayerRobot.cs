@@ -471,7 +471,7 @@ namespace Player {
             robotData.Health = currentRobot.BaseHealth;
             PlayerScript playerScript = GetComponent<PlayerScript>();
             
-            DimensionManager.Instance.SetPlayerSystem(playerScript.transform,0,new Vector2Int(0,0));
+            DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
             dead = false;
         }
 

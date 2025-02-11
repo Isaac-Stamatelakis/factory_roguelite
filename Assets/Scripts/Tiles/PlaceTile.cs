@@ -93,7 +93,7 @@ namespace TileMaps.Place {
                     if (conduitMap is not ConduitTileMap) {
                         return false;
                     }
-                    if (checkConditions && !conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
+                    if (checkConditions && !ConduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
                         return false;
                     }
                     PlaceConduit(playerScript, conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
@@ -361,7 +361,7 @@ namespace TileMaps.Place {
 
         
 
-        private static bool conduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
+        public static bool ConduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
             Vector2Int tileMapPosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
             return !iWorldTileMap.hasTile(tileMapPosition);
         }

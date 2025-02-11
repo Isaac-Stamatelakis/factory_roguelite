@@ -6,13 +6,10 @@ using Chunks.Systems;
 using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
+using Player;
 
 namespace Dimensions {
-    public interface ISoftLoadableDimension {
-        public void softLoadSystem();
-        public SoftLoadedClosedChunkSystem getSystem();
-    }
-    public class Dim0Controller : DimController, ISingleSystemController, ISoftLoadableDimension
+    public class Dim0Controller : DimController, ISingleSystemController
     {
         private SoftLoadedClosedChunkSystem dim0System;
         private ConduitTileClosedChunkSystem mainArea;
@@ -26,17 +23,17 @@ namespace Dimensions {
             dim0System.TickUpdate();
         }
 
-        public void softLoadSystem() {
+        public void SoftLoadSystem() {
             string path = WorldLoadUtils.GetDimPath(0);
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
             dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
             dim0System.SoftLoad();
             Debug.Log("Soft loaded Dim0System");
         }
-        public ClosedChunkSystem ActivateSystem()
+        public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
             if (dim0System == null) {
-                softLoadSystem();
+                SoftLoadSystem();
             }
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.GetDim0Bounds();
@@ -46,7 +43,8 @@ namespace Dimensions {
                 this,
                 coveredArea: bounds,
                 dim: 0,
-                dim0System
+                dim0System,
+                playerScript
             );
             return mainArea;
         }

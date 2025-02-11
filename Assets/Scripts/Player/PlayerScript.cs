@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Chunks.Systems;
+using Conduit.View;
 using Conduits;
 using Conduits.Systems;
 using Item.Slot;
@@ -8,6 +9,7 @@ using Player.Controls;
 using PlayerModule;
 using PlayerModule.IO;
 using UI.QuestBook;
+using UI.RingSelector;
 using UnityEngine;
 
 namespace Player
@@ -20,13 +22,17 @@ namespace Player
         private PlayerIO playerIO;
         [SerializeField] private ConduitPlacementOptions conduitPlacementOptions;
         [SerializeField] private PlayerTilePlacementOptions tilePlacementOptions;
+        [SerializeField] private ConduitViewOptions conduitViewOptions;
+        [SerializeField] private PlayerUIPrefabs prefabs;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
         public ConduitPlacementOptions ConduitPlacementOptions => conduitPlacementOptions;
         public PlayerTilePlacementOptions TilePlacementOptions => tilePlacementOptions;
+        public ConduitViewOptions ConduitViewOptions => conduitViewOptions;
         private QuestBookCache questBookCache;
         public QuestBookCache QuestBookCache => questBookCache;
+        public PlayerUIPrefabs Prefabs => prefabs;
         
         public void Start()
         {
@@ -48,6 +54,12 @@ namespace Player
             questBookCache = new QuestBookCache();
             ControlUtils.LoadBindings();
         }
+    }
+
+    [System.Serializable]
+    public class PlayerUIPrefabs
+    {
+        public UIRingSelector RingSelectorPrefab;
     }
     [System.Serializable]
     public class ConduitPlacementOptions

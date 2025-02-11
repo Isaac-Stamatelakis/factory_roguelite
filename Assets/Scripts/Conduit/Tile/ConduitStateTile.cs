@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using UI.NodeNetwork;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Tiles
 {
-    public class ConduitStateTile : TileBase, IStateTile, IIDTile
+    public class ConduitStateTile : TileBase, IStateTile, IIDTile, INoDelayPreviewTile
     {
         public string Id;
         public Tile[] Tiles;

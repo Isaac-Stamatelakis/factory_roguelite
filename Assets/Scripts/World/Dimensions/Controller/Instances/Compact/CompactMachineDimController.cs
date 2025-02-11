@@ -10,6 +10,7 @@ using WorldModule;
 using System.IO;
 using System;
 using System.Linq;
+using Player;
 using TileEntity;
 using TileMaps.Layer;
 
@@ -128,14 +129,14 @@ namespace Dimensions {
             }
         }
 
-        public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key)
+        public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
         {
             if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
                 return null;
             }
             List<Vector2Int> path = compactMachineTeleportKey.Path;
             if (path.Count == 0) {
-                return baseDimController.ActivateSystem();
+                return baseDimController.ActivateSystem(playerScript);
             }
             if (activeSystems.ContainsKey(compactMachineTeleportKey)) {
                 return activeSystems[compactMachineTeleportKey];
@@ -150,7 +151,7 @@ namespace Dimensions {
             CompactMachineClosedChunkSystem area = closedChunkSystemObject.AddComponent<CompactMachineClosedChunkSystem>();
             area.setCompactMachineKey(compactMachineTeleportKey);
             area.transform.SetParent(transform,false);
-            area.Initialize(this, system.CoveredArea, 1, system);
+            area.Initialize(this, system.CoveredArea, 1, system,playerScript);
             return area;
         }
 
