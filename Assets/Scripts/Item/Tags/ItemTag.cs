@@ -203,19 +203,41 @@ namespace Items.Tags {
             return deserializationMap[tag].Invoke(data);
         }
 
+        /// <summary>
+        /// Returns a deep copy of tags. Note this is expensive.
+        /// </summary>
+        /// <param name="itemTagCollection"></param>
+        /// <returns></returns>
+        public static ItemTagCollection CopyTags(ItemTagCollection itemTagCollection)
+        {
+            if (itemTagCollection?.Dict == null) return null;
+            ItemTagCollection newCollection = new ItemTagCollection(new Dictionary<ItemTag, object>());
+            try
+            {
+                foreach (var (tag,data) in itemTagCollection.Dict)
+                {
+                    newCollection.Dict[tag] = copyData(tag,data);
+                }
+                return newCollection;
+            }
+            catch (Exception e) when (e is NullReferenceException or JsonSerializationException)
+            {
+                return null;
+            }
+            
+        }
+
         public static object copyData(this ItemTag tag, object data) {
             if (data == null) {
                 return null;
             }
-            // ? This is probably supposed to create deep copies
-            return tag switch  {
-                ItemTag.FluidContainer => data,
-                ItemTag.EnergyContainer => data,
-                ItemTag.CompactMachine => data,
-                ItemTag.StorageDrive => data,
-                ItemTag.EncodedRecipe => data,
-                _ => data
-            };
+
+            if (!serializationFunctions.TryGetValue(tag, out var serializer) || !deserializationMap.TryGetValue(tag, out var deserializer))
+            {
+                return null;
+            }
+            string json = serializer.Invoke(data);
+            return deserializer.Invoke(json);
         }
 
         public static bool isEquivalent(this ItemTag tag, object first, object second) {

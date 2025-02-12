@@ -53,7 +53,7 @@ public static class ItemSlotFactory
     }
 
     public static ItemSlot CreateNewItemSlot(ItemObject itemObject, uint amount) {
-        ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
+        ItemTagCollection itemTagData = ItemTagFactory.Initalize(itemObject);
         return new ItemSlot(itemObject,amount,itemTagData);
     }
 
@@ -62,7 +62,7 @@ public static class ItemSlotFactory
         if (itemObject == null) {
             return null;
         }
-        ItemTagCollection itemTagData = ItemTagFactory.initalize(itemObject);
+        ItemTagCollection itemTagData = ItemTagFactory.Initalize(itemObject);
         return new ItemSlot(itemObject,amount,itemTagData);
     }
 
@@ -157,7 +157,7 @@ public static class ItemSlotFactory
         return new SerializedItemSlot(
             id: itemSlot.itemObject.id,
             amount: itemSlot.amount,
-            tags: ItemTagFactory.serialize(itemSlot.tags)
+            tags: ItemTagFactory.Serialize(itemSlot.tags)
         );
     }
 

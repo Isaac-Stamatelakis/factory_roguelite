@@ -12,6 +12,7 @@ using Tiles;
 using Items;
 using Player;
 using PlayerModule.KeyPress;
+using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
 
@@ -102,7 +103,8 @@ namespace TileMaps.Previewer {
                 case ConduitItem conduitItem:
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
-                    return PlaceTile.ConduitPlacable(conduitItem, position, conduitMap) ? Color.white : nonPlacableColor;
+                    if (conduitMap is not ConduitTileMap conduitTileMap) return nonPlacableColor;
+                    return PlaceTile.ConduitPlacable(conduitItem, position, conduitTileMap) ? Color.white : nonPlacableColor;
                 default:
                     return Color.white;
             }

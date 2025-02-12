@@ -294,8 +294,6 @@ namespace Player {
         }
         public void FixedUpdate()
         {
-            Debug.Log(OnBlock);
-            Debug.Log(OnPlatform);
             coyoteFrames--;
             noAirFrictionFrames--;
             ignorePlatformFrames--;
@@ -338,7 +336,7 @@ namespace Player {
             //if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) return RigidbodyConstraints2D.FreezeRotation;
             if (freezeY) return RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             
-            if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
+            //if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
             const float epilson = 0.1f;
             return liveYUpdates <= 0 && (OnBlock || OnPlatform) && rb.velocity.y < epilson
                 ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
@@ -520,15 +518,19 @@ namespace Player {
             return TileMovementType.None;
         }
 
-        private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
+        private TileItem GetTileItemBelow(Vector2 position)
         {
             // This can be made more efficent without a get component
             Vector2 tileCenter = TileHelper.getRealTileCenter(position);
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
             WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
-            if (ReferenceEquals(worldTileGridMap, null)) return TileMovementType.None;
+            if (ReferenceEquals(worldTileGridMap, null)) return null;
             
-            TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(tileCenter));
+            return worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(tileCenter));
+        }
+        private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
+        {
+            TileItem tileItem = GetTileItemBelow(position);
             return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
         }
         private IClimableTileEntity GetClimbable() {

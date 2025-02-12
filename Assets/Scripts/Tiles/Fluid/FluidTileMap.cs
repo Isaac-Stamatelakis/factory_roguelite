@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,16 +7,46 @@ using Chunks.Partitions;
 using UnityEngine.Tilemaps;
 using Items;
 using System.Linq;
+using Chunks;
+using Chunks.Systems;
 
 namespace Fluids {
-    public class FluidIWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
+    public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
-        private Dictionary<Vector2Int,ActiveFluidPartitionData> partitionFluidData = new Dictionary<Vector2Int, ActiveFluidPartitionData>();
-        private Dictionary<Vector2Int, int> fluidUpdates = new Dictionary<Vector2Int, int>();
-        private Dictionary<Vector2Int, float> updateFills = new Dictionary<Vector2Int, float>();
+        private uint ticks;
+        private Dictionary<uint, HashSet<Vector2Int>> tickFluidUpdates = new Dictionary<uint, HashSet<Vector2Int>>(); 
+        private Dictionary<Vector2Int, PartitionFluidData[][]> dualChunkFluidData = new Dictionary<Vector2Int, PartitionFluidData[][]>();
+
         public override void hitTile(Vector2 position)
         {
-            
+            // Cannot hit fluid tiles
+        }
+
+        public void AddChunk(ILoadedChunk loadedChunk)
+        {
+            var data = new PartitionFluidData[Global.PARTITIONS_PER_CHUNK][];
+            for (int index = 0; index < Global.PARTITIONS_PER_CHUNK; index++)
+            {
+                data[index] = new PartitionFluidData[Global.PARTITIONS_PER_CHUNK];
+            }
+
+            for (int px = 0; px < Global.PARTITIONS_PER_CHUNK; px++)
+            {
+                for (int py = 0; py < Global.PARTITIONS_PER_CHUNK; py++)
+                {
+                    IChunkPartition partition = loadedChunk.GetPartition(new Vector2Int(px, py));
+                    PartitionFluidData fluidData = partition.GetFluidData();
+                    data[px][py] = fluidData;
+                }
+            }
+
+            dualChunkFluidData[loadedChunk.GetPosition()] = data;
+        }
+
+        public void RemoveChunk(Vector2Int position)
+        {
+            if (!dualChunkFluidData.ContainsKey(position)) return;
+            dualChunkFluidData.Remove(position);
         }
 
         protected override Vector2Int GetHitTilePosition(Vector2 position)
@@ -30,9 +61,10 @@ namespace Fluids {
                 return;
             }
             Vector2Int vec = new Vector2Int(x,y);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(vec);
-            Vector2Int positionInPartition = Global.getPositionInPartition(vec);
-            ActiveFluidPartitionData fluidPartitionData = partitionFluidData[partitionPosition];
+            var tuple = GetPartitionFluidData(vec);
+       
+            if (tuple == null) return;
+            var (fluidPartitionData, positionInPartition) = tuple.Value;
             int tileIndex = Mathf.RoundToInt (8 * fluidPartitionData.fill[positionInPartition.x,positionInPartition.y]);
             Tile tile = item.getTile(tileIndex);
             tilemap.SetTile(new Vector3Int(x,y,0),tile);
@@ -40,101 +72,104 @@ namespace Fluids {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int position, FluidTileItem item)
         {
-            Vector2Int realPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE + position;
-            ActiveFluidPartitionData data = partitionFluidData[partition.GetRealPosition()];
-            data.ids[position.x,position.y] = item.id;
-            data.fill[position.x,position.y] = 8;
-            addFluidUpdate(new Vector2Int(realPosition.x,realPosition.y));
+            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            PartitionFluidData partitionFluidData = partition.GetFluidData();
+            partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
+            partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = 8;
+            AddFluidUpdate(position,item.id);
         }
-        public override IEnumerator removePartition(Vector2Int partitionPosition)
+        public void FixedUpdate()
         {
-            partitionFluidData.Remove(partitionPosition);
-            return base.removePartition(partitionPosition);
-        }
-
-
-        public override void addPartition(IChunkPartition partition)
-        {
-            base.addPartition(partition);
-            partitionFluidData[partition.GetRealPosition()] = new ActiveFluidPartitionData(partition.GetFluidData()); 
-        }
-
-        public void FixedUpdate() {
-            HashSet<Vector2Int> positionsHitThisUpdate = new HashSet<Vector2Int>();
-            foreach (KeyValuePair<Vector2Int,int> kvp in fluidUpdates.ToList()) {
-                Vector2Int position = kvp.Key;
-                int updateTime = kvp.Value;
-                fluidUpdates[kvp.Key] = updateTime-1;
-                if (updateTime >= 0) {
-                    continue;
-                }
-                fluidUpdates.Remove(kvp.Key);
-                positionsHitThisUpdate.Add(position);
-                doFluidUpdate(position);
-            }
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            foreach (var kvp in updateFills) {
-                Vector2Int position = kvp.Key;
-                float fill = kvp.Value;
-                Vector2Int partitionPosition = Global.getPartitionFromCell(position);
-                if (!partitionFluidData.ContainsKey(partitionPosition)) {
-                    continue;
-                }
-                ActiveFluidPartitionData partitionData = partitionFluidData[partitionPosition];
-                if (partitionData == null) {
-                    return;
-                }
-                Vector2Int positionInPartition = Global.getPositionInPartition(position);
-                int x = positionInPartition.x;
-                int y = positionInPartition.y;
-                
-                if (fill <= 0) {
-                    partitionData.ids[x,y] = null;
-                    partitionData.fill[x,y] = 0;
-                    SetTile(position.x,position.y,null);
-                } else {
-                    partitionData.fill[x,y] = fill;
-                    string id = partitionData.ids[x,y];
-                    SetTile(position.x,position.y,itemRegistry.GetFluidTileItem(id));
-                }
-                //addFluidUpdate(position);
-            }
-            if (updateFills.Count > 0) {
-                updateFills = new Dictionary<Vector2Int, float>();
+            ticks++;
+            if (!tickFluidUpdates.Remove(ticks, out var positions)) return;
+            
+            foreach (var position in positions)
+            {
+                DoFluidUpdate(position);
             }
             
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            // Set dual array values to new values
+            foreach (var position in positions)
+            {
+                var chunkPosition= Global.getChunkFromCell(position);
+                if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) continue;
+                Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
+                IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+                Vector2Int positionInPartition = Global.getPositionInPartition(position);
+                PartitionFluidData fluidPartitionData = partition.GetFluidData();
+                float fill = fluidPartitionData.fill[positionInPartition.x, positionInPartition.y];
+                if (fill <= 0)
+                {
+                    fluidPartitionData.ids[positionInPartition.x,positionInPartition.y] = null;
+                    fluidPartitionData.fill[positionInPartition.x,positionInPartition.y] = 0;
+                    SetTile(position.x,position.y,null);
+                } else {
+                    fluidPartitionData.fill[positionInPartition.x,positionInPartition.y] = fill;
+                    string id = fluidPartitionData.ids[positionInPartition.x,positionInPartition.y];
+                    SetTile(position.x,position.y,itemRegistry.GetFluidTileItem(id));
+                }
+
+                PartitionFluidData dualData = dataArray[partitionPosition.x][partitionPosition.y];
+                dualData.ids[positionInPartition.x, partitionPosition.y] = fluidPartitionData.ids[positionInPartition.x, positionInPartition.y];
+                dualData.fill[positionInPartition.x, partitionPosition.y] = fluidPartitionData.fill[positionInPartition.x, positionInPartition.y];
+            }
         }
         public void tileUpdate(Vector2Int position)
         {
-            addFluidUpdate(position+Vector2Int.up);
-            addFluidUpdate(position+Vector2Int.left);
-            addFluidUpdate(position+Vector2Int.down);
-            addFluidUpdate(position+Vector2Int.right);
+            AddFluidUpdate(position+Vector2Int.up);
+            AddFluidUpdate(position+Vector2Int.left);
+            AddFluidUpdate(position+Vector2Int.down);
+            AddFluidUpdate(position+Vector2Int.right);
         }
 
-        private void doFluidUpdate(Vector2Int position) {
-            Vector2Int partitionPosition = Global.getPartitionFromCell(position);
-            if (!partitionFluidData.ContainsKey(partitionPosition)) {
-                return;
-            }
-            Vector2Int centerPositionInPartition = Global.getPositionInPartition(position);
-            ActiveFluidPartitionData centerPartitionData = partitionFluidData[partitionPosition];
-            CellFluidData cellFluidData = getFluidData(position,centerPositionInPartition,centerPartitionData);
-            FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(cellFluidData.id);
-            if (fluidTileItem == null) {
-                return;
-            }
+        private void AddFluidUpdate(Vector2Int position)
+        {
+            var chunkPosition= Global.getChunkFromCell(position);
+            if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return;
+            Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
+            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            PartitionFluidData fluidPartitionData = partition.GetFluidData();
+            AddFluidUpdate(position,fluidPartitionData.ids[positionInPartition.x,positionInPartition.y]);
+        }
 
+        private FluidData GetFluidData(FluidData[][] fluidData, Vector2Int partition, Vector2Int positionInPartition)
+        {
+            int idx = positionInPartition.x + partition.x * Global.CHUNK_PARTITION_SIZE;
+            int idy = positionInPartition.y + partition.y * Global.CHUNK_PARTITION_SIZE;
+            return fluidData[idx][idy];
+        }
+        
+        private (PartitionFluidData,Vector2Int)? GetPartitionFluidData(Vector2Int position)
+        {
+            var (chunkPosition, partitionPosition, positionInPartition) = Global.GetChunkPartitionAndPositionInPartitionPositions(position);
+            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            IChunkPartition partition = chunk?.GetPartition(partitionPosition);
+            if (partition == null) return null;
+            return (partition.GetFluidData(),positionInPartition);
+        }
+        
+        
+        private void DoFluidUpdate(Vector2Int position)
+        {
+
+            /*
+            var data = GetFluidData(position);
+            if (data == null) return;
+            if (originData == null) return;
+            FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(originFluidData.id);
+            if (ReferenceEquals(fluidTileItem,null)) return;
             
             Vector2Int adjGravityPosition = fluidTileItem.fluidOptions.InvertedGravity ? position + Vector2Int.up : position + Vector2Int.down;
             CellFluidData adjGravityData = getFluidData(adjGravityPosition,partitionPosition,centerPartitionData);
-            
+
             // Fall / Rise
             string baseId = adjGravityData.baseId;
             bool waterLogged;
             bool solidGravityAdj;
-            checkBaseTileProperties(baseId,out waterLogged,out solidGravityAdj);
-            if (!solidGravityAdj && adjGravityData.id == null && adjGravityData.fluidPartitionData != null) { 
+            CheckBaseTileProperties(baseId,out waterLogged,out solidGravityAdj);
+            if (!solidGravityAdj && adjGravityData.id == null && adjGravityData.fluidPartitionData != null) {
                 adjGravityData.id = cellFluidData.id;
                 adjGravityData.fill = cellFluidData.fill;
                 cellFluidData.fill = 0;
@@ -158,16 +193,16 @@ namespace Fluids {
                 }
                 setUpdatedFluidTile(cellFluidData);
                 setUpdatedFluidTile(adjGravityData);
-                addFluidUpdate(cellFluidData.position);
-                addFluidUpdate(adjGravityData.position);
+                AddFluidUpdate(cellFluidData.position);
+                AddFluidUpdate(adjGravityData.position);
             }
 
             CellFluidData leftFluidData = getFluidData(position + Vector2Int.left,partitionPosition,centerPartitionData);
             CellFluidData rightFluidData = getFluidData(position + Vector2Int.right,partitionPosition,centerPartitionData);
-            
+
             bool canMergeLeft = (leftFluidData.baseId == null && leftFluidData.fluidPartitionData != null && (leftFluidData.id == null || leftFluidData.id == cellFluidData.id));
             bool canMergeRight = (rightFluidData.baseId == null && rightFluidData.fluidPartitionData != null && (rightFluidData.id == null || rightFluidData.id == cellFluidData.id));
-            
+
             if (!canMergeLeft && !canMergeRight) {
                 return;
             }
@@ -188,7 +223,7 @@ namespace Fluids {
                 }
                 leftFluidData.id = cellFluidData.id;
                 setUpdatedFluidTile(leftFluidData);
-            }   
+            }
 
             if (mergeRight) {
                 float right = (cellFluidData.fill-rightFluidData.fill)/divisor;
@@ -203,8 +238,8 @@ namespace Fluids {
             }
             tileUpdate(cellFluidData.position);
             setUpdatedFluidTile(cellFluidData);
+            */
 
-        
             /*
             if (averageDifferent(cellFluidData.fill,avg,epilson)) {
                 cellFluidData.fill = avg;
@@ -218,20 +253,20 @@ namespace Fluids {
 
             }
             if (canMergeRight && averageDifferent(rightFluidData.fill,avg,epilson)) {
-                rightFluidData.id = cellFluidData.id;  
-                rightFluidData.fill = avg;  
-                setUpdatedFluidTile(rightFluidData);            
+                rightFluidData.id = cellFluidData.id;
+                rightFluidData.fill = avg;
+                setUpdatedFluidTile(rightFluidData);
             }
             */
-            
-            
+
+
             /*
             bool canMergeLeft = (leftFluidData.baseId == null && leftFluidData.fluidPartitionData != null && ((leftFluidData.id == null || leftFluidData.id == centerId) || leftFluidData.fill < centerFill));
             bool canMergeRight = (rightFluidData.baseId == null && rightFluidData.fluidPartitionData != null && ((rightFluidData.id == null || rightFluidData.id == centerId) || rightFluidData.fill < centerFill));
             if (!canMergeLeft && !canMergeRight) {
                 return;
             }
-            
+
             if (canMergeLeft && canMergeRight) {
                 float leftChange = (centerFill-leftFluidData.fill)/4f;
                 float rightChange = (centerFill-rightFluidData.fill)/4f;
@@ -262,7 +297,7 @@ namespace Fluids {
                 if (rightFluidData.id == null) {
                     rightFluidData.id = centerId;
                 }
-                setUpdatedFluidTile(rightFluidData);    
+                setUpdatedFluidTile(rightFluidData);
                 addFluidUpdate(rightFluidData.position);
             }
             setUpdatedFluidTile(
@@ -275,9 +310,10 @@ namespace Fluids {
             );
             */
             //addFluidUpdate(position);
-            
+
         }
 
+        /*
         private bool averageDifferent(float fill, float avg, float epilson) {
             return Mathf.Abs(fill-avg) >= epilson;  
         }
@@ -292,6 +328,7 @@ namespace Fluids {
                 updateFills[position] = fill;
             }
         }
+        
 
 
         private void setUpdatedFluidTile(CellFluidData cellFluidData) {
@@ -317,33 +354,13 @@ namespace Fluids {
             }
         }
         
-        private CellFluidData getFluidData(Vector2Int position, Vector2Int centerPartitionPosition, ActiveFluidPartitionData centerFluidPartitionData) {
-            Vector2Int partitionPosition = Global.getPartitionFromCell(position);
-            Vector2Int positionInPartition = Global.getPositionInPartition(position);
-            ActiveFluidPartitionData fluidPartitionData = null;
-            if (centerFluidPartitionData.Equals(partitionPosition)) {
-                fluidPartitionData = centerFluidPartitionData;
-            } else if (partitionFluidData.ContainsKey(partitionPosition)) {
-                fluidPartitionData = partitionFluidData[partitionPosition];
-            }
-            return new CellFluidData(
-                position,
-                partitionPosition,
-                positionInPartition,
-                fluidPartitionData
-            );
-        }
-        private void checkBaseTileProperties(string baseId, out bool waterLogged, out bool solid) {
+        private static void CheckBaseTileProperties(string baseId, out bool waterLogged, out bool solid) {
             solid = false;
             waterLogged = false;
-            // TODO: Add support for tile blocks of large sizes (not sure if this is worth could just have a hard restriction on size)
-            if (baseId == null) {
-                return;
-            }
+            
+            if (baseId == null) return;
             TileItem tileItem = ItemRegistry.GetInstance().GetTileItem(baseId);
-            if (tileItem == null) {
-                return;
-            }
+            if (ReferenceEquals(tileItem,null)) return;
             TileType tileType = tileItem.tileType;
             solid = tileType.isSolid();
             if (!solid || tileItem.tile is not Tile tile) {
@@ -351,55 +368,26 @@ namespace Fluids {
             }
             waterLogged = tile.colliderType == Tile.ColliderType.Sprite;
         }
+        */
+        
 
-        private void addFluidUpdate(Vector2Int position) {
-            if (fluidUpdates.ContainsKey(position)) {
-                return;
+        private void AddFluidUpdate(Vector2Int position, string fluidItemId)
+        {
+            if (fluidItemId == null) return;
+            
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(fluidItemId);
+            if (ReferenceEquals(fluidTileItem,null)) return;
+            uint viscosity = (uint)fluidTileItem.fluidOptions.Viscosity;
+            if (viscosity == 0) return;
+            
+            uint updateTick = ticks + (uint)fluidTileItem.fluidOptions.Viscosity;
+            if (!tickFluidUpdates.ContainsKey(updateTick))
+            {
+                tickFluidUpdates.Add(updateTick, new HashSet<Vector2Int>());
             }
-            FluidTileItem fluidTileItem = getFluidTileItem(position);
-            if (fluidTileItem == null) {
-                return;
-            }
-            fluidUpdates[position] = fluidTileItem.fluidOptions.Viscosity;
+            tickFluidUpdates[updateTick].Add(position);
         }
-
-        private FluidTileItem getFluidTileItem(Vector2Int position) {
-            Vector2Int partitionPosition = Global.getPartitionFromCell(position);
-            if (!partitionFluidData.ContainsKey(partitionPosition)) {
-                return null;
-            }
-            Vector2Int positionInPartition = Global.getPositionInPartition(position);
-            string id = partitionFluidData[partitionPosition].ids[positionInPartition.x,positionInPartition.y];
-            if (id == null) {
-                return null;
-            }
-            return ItemRegistry.GetInstance().GetFluidTileItem(id);
-        }
-
-        private FluidData? getFluidData(Vector2Int position) {
-            Vector2Int partitionPosition = Global.getPartitionFromCell(position);
-            if (!partitionFluidData.ContainsKey(partitionPosition)) {
-                return null;
-            }
-            Vector2Int positionInPartition = Global.getPositionInPartition(position);
-            string id = partitionFluidData[partitionPosition].ids[positionInPartition.x,positionInPartition.y];
-            if (id == null) {
-                return null;
-            }
-            float fill = partitionFluidData[partitionPosition].fill[positionInPartition.x,positionInPartition.y];
-            return new FluidData(fill,id);
-        }
-        private class ActiveFluidPartitionData {
-            public string[,] ids;
-            public string[,] baseIds;
-            public float[,] fill;
-            public ActiveFluidPartitionData(PartitionFluidData partitionFluidData) {
-                this.ids = partitionFluidData.ids;
-                this.baseIds = partitionFluidData.baseIds;
-                this.fill = partitionFluidData.fill;
-            }
-        }
-
         private struct FluidData {
             public float fill;
             public string id;
@@ -411,6 +399,7 @@ namespace Fluids {
             }
         }
         
+        /*
         private struct CellFluidData {
             public CellFluidData(Vector2Int position, Vector2Int partitionPosition, Vector2Int positionInPartition, ActiveFluidPartitionData fluidPartitionData) {
                 this.position = position;
@@ -446,6 +435,7 @@ namespace Fluids {
             public bool full;
             public string baseId;
         }
+        */
     }
 }
 

@@ -67,12 +67,16 @@ namespace Chunks.Systems {
             }
             Vector2Int chunkPosition = chunk.GetPosition();
             cachedChunks[chunkPosition] = chunk;
+            FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+            fluidWorldTileMap?.AddChunk(chunk);
         }
         public void removeChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.GetPosition();
             if (ChunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
+            FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+            fluidWorldTileMap?.RemoveChunk(chunkPosition);
         }
 
         public ILoadedChunk getChunk(Vector2Int position) {
