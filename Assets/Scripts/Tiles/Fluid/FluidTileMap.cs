@@ -13,6 +13,7 @@ using Chunks.Systems;
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
+        private HashSet<Vector2Int> refreshedPositions = new HashSet<Vector2Int>(1024);
         const float EPSILON = 0.005f;
         private const float MAX_FILL = 1f;
         private uint ticks;
@@ -95,7 +96,14 @@ namespace Fluids {
                 string id = orgCellData.GetId();
                 FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(id);
                 if (ReferenceEquals(fluidTileItem,null)) continue;
-                //VerticalFluidUpdate(orgCellData, fluidTileItem);
+                VerticalFluidUpdate(orgCellData, fluidTileItem);
+            }
+            
+            foreach (var position in positions)
+            {
+                SyncDualToPartition(position);
+                SyncDualToPartition(position+Vector2Int.down);
+                SyncDualToPartition(position+Vector2Int.up);
             }
             
             foreach (var position in positions)
@@ -150,10 +158,15 @@ namespace Fluids {
             float fill = fluidCellData.GetFill();
             float adjFill = adjCellData.GetFill();
             float dif = (fill-adjFill) / divisor;
-            Debug.Log(dif);
+            adjCellData.SetPartitionId(fluidCellData.GetId());
+            if (dif < EPSILON)
+            {
+                //fluidCellData.SetPartitionFill(fill);
+                //adjCellData.SetPartitionFill(fill);
+                return;
+            }
             fluidCellData.AddToPartitionFill(-dif);
             adjCellData.AddToPartitionFill(dif);
-            adjCellData.SetPartitionId(fluidCellData.GetId());
         }
         /// <summary>
         /// Splits fluids horizontally
@@ -180,15 +193,17 @@ namespace Fluids {
 
             if (canMergeLeft)
             {
+                AddFluidUpdate(position+Vector2Int.left,id);
                 HorizontalMerge(orgCellData,nullableLeft.Value,divisor);
             }
 
             if (canMergeRight)
             {
+                AddFluidUpdate(position+Vector2Int.right,id);
                 HorizontalMerge(orgCellData,nullableRight.Value,divisor);
             }
-            AddFluidUpdate(position+Vector2Int.right,id);
-            AddFluidUpdate(position+Vector2Int.left,id);
+            
+            
             AddFluidUpdate(position,id);
         }
 
@@ -219,9 +234,33 @@ namespace Fluids {
             }
                 
             PartitionFluidData dualData = dataArray[partitionPosition.x][partitionPosition.y];
-            dualData.ids[positionInPartition.x, positionInPartition.y] = dualData.ids[positionInPartition.x, positionInPartition.y];
-            dualData.fill[positionInPartition.x, positionInPartition.y] = dualData.fill[positionInPartition.x, positionInPartition.y];
+            dualData.ids[positionInPartition.x, positionInPartition.y] = partitionData.ids[positionInPartition.x, positionInPartition.y];
+            dualData.fill[positionInPartition.x, positionInPartition.y] = partitionData.fill[positionInPartition.x, positionInPartition.y];
         }
+
+        private void SyncDualToPartition(Vector2Int position)
+        {
+            var chunkPosition= Global.getChunkFromCell(position);
+            if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return;
+            Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
+            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            PartitionFluidData partitionData = partition.GetFluidData();
+            
+            float fill = partitionData.fill[positionInPartition.x, positionInPartition.y];
+            if (fill <= 0)
+            {
+                partitionData.ids[positionInPartition.x,positionInPartition.y] = null;
+                partitionData.fill[positionInPartition.x,positionInPartition.y] = 0;
+            } else {
+                partitionData.fill[positionInPartition.x,positionInPartition.y] = fill;
+            }
+                
+            PartitionFluidData dualData = dataArray[partitionPosition.x][partitionPosition.y];
+            dualData.ids[positionInPartition.x, positionInPartition.y] = partitionData.ids[positionInPartition.x, positionInPartition.y];
+            dualData.fill[positionInPartition.x, positionInPartition.y] = partitionData.fill[positionInPartition.x, positionInPartition.y];
+        }
+
         public void tileUpdate(Vector2Int position)
         {
             AddFluidUpdate(position+Vector2Int.up);
