@@ -286,9 +286,9 @@ namespace TileMaps {
             }
         }
 
-        protected override void WriteTile(IChunkPartition partition, Vector2Int position, TileItem item)
+        protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, TileItem item)
         {
-            partition?.SetTile(position,getType().toLayer(),item);
+            partition?.SetTile(positionInPartition,getType().toLayer(),item);
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {

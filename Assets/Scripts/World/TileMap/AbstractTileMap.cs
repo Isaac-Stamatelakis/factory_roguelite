@@ -128,7 +128,7 @@ namespace TileMaps {
         {
             SetTile(x, y, item as TItem);
         }
-        protected abstract void WriteTile(IChunkPartition partition, Vector2Int position, TItem item);
+        protected abstract void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, TItem item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
