@@ -66,7 +66,7 @@ namespace Player {
         private int platformLayer;
         private int baseCollidableLayer;
         private int ignorePlatformFrames;
-        private int noAirFrictionFrames;
+        private int slipperyFrames;
         private float moveDirTime;
         private int coyoteFrames;
 
@@ -112,10 +112,11 @@ namespace Player {
 
         private void MoveUpdate()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            
             
             if (DevMode.Instance.flight)
             {
+                if (PlayerKeyPressUtils.BlockKeyInput) return;
                 FlightMovementUpdate(transform);
                 return;
             }
@@ -129,10 +130,11 @@ namespace Player {
         }
         private void StandardMoveUpdate()
         {
+            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
-            bool movedLeft = DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
-            bool movedRight = DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+            bool movedLeft = !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
+            bool movedRight = !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
             
             
             if (!movedLeft && !movedRight)
@@ -157,7 +159,7 @@ namespace Player {
             if (moveDirTime < -MAX_MOVE_DIR) moveDirTime = -MAX_MOVE_DIR;
             
             int sign = moveDirTime < 0 ? -1 : 1;
-            float move = MovementStats.accelationModifier*moveDirTime * sign;
+            float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
 
             float speed = MovementStats.speed;
             switch (currentTileMovementType)
@@ -172,21 +174,9 @@ namespace Player {
                     break;
             }
             if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
-            velocity.x = sign * Mathf.Lerp(0,speed,move);
-            
-            if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
-            {
-                ignorePlatformFrames = 5;
-            }
-            
-            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
-            {
-                velocity.y = JumpStats.jumpVelocity;
-                coyoteFrames = 0;
-                liveYUpdates = 3;
-                jumpEvent = new JumpEvent();
-            }
-            
+            velocity.x = sign * Mathf.Lerp(0,speed,wishdir);
+
+            SpaceBarMovementUpdate(ref velocity);
             if (jumpEvent != null)
             {
                 if (Input.GetKey(KeyCode.Space))
@@ -199,21 +189,41 @@ namespace Player {
                     rb.gravityScale = defaultGravityScale;   
                 }
             }
-
             if (Input.GetKeyUp(KeyCode.Space))
             {
                 jumpEvent = null;
             }
-
-            
             rb.velocity = velocity;
+        }
+
+        private void SpaceBarMovementUpdate(ref Vector2 velocity)
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput)
+            {
+                rb.gravityScale = defaultGravityScale;   
+                jumpEvent = null;
+
+                return;
+            }
+            if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            {
+                ignorePlatformFrames = 5;
+            }
+            
+            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
+            {
+                velocity.y = JumpStats.jumpVelocity;
+                coyoteFrames = 0;
+                liveYUpdates = 3;
+                jumpEvent = new JumpEvent();
+            }
         }
 
         private float GetFriction()
         {
-            if (currentTileMovementType == TileMovementType.Slippery) return MovementStats.iceFriction;
+            if (currentTileMovementType == TileMovementType.Slippery || slipperyFrames > 0) return MovementStats.iceFriction;
 
-            return IsOnGround() ? MovementStats.friction : (noAirFrictionFrames < 0 ? MovementStats.airFriction : 0);
+            return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
 
         private bool DirectionalMovementUpdate(Direction direction, KeyCode firstKeycode, KeyCode secondKeyCode)
@@ -311,8 +321,7 @@ namespace Player {
             const int STEPS = 3;
             var jumpDestination = transform.position;
             jumpDestination.y += Global.TILE_SIZE / 2f;
-            jumpDestination.y = ((int)(4 * jumpDestination.y)) / 4f;
-            
+            jumpDestination.y = Mathf.CeilToInt(4 * jumpDestination.y) / 4f;
             var waitForFixedUpdate = new WaitForFixedUpdate();
             freezeY = true;
             for (int i = 1; i <= STEPS; i++)
@@ -330,12 +339,12 @@ namespace Player {
         public void FixedUpdate()
         {
             coyoteFrames--;
-            noAirFrictionFrames--;
+            slipperyFrames--;
             ignorePlatformFrames--;
             iFrames--;
             
             CanStartClimbing();
-            float playerWidth = spriteRenderer.sprite.bounds.extents.x;
+           
             if (climbing) {
                 HandleClimbing();
                 RemoveCollisionState(CollisionState.OnGround);
@@ -352,7 +361,7 @@ namespace Player {
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
             if (currentTileMovementType == TileMovementType.Slippery)
             {
-                noAirFrictionFrames = MovementStats.iceNoAirFrictionFrames;
+                slipperyFrames = MovementStats.iceNoAirFrictionFrames;
             }
             
             if (!DevMode.Instance.flight)
@@ -374,7 +383,7 @@ namespace Player {
             ;
             const float epilson = 0.1f;
             if (freezeY) return FREEZE_Y;
-            if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
+            if (currentTileMovementType == TileMovementType.Slippery && CollisionStateActive(CollisionState.OnSlope)) return RigidbodyConstraints2D.FreezeRotation;
 
             if (liveYUpdates > 0) return FREEZE_Z;
             
@@ -555,12 +564,13 @@ namespace Player {
         private TileMovementType GetTileMovementModifier()
         {
             Vector2 extent = spriteRenderer.sprite.bounds.extents;
-            float y = gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y - Global.TILE_SIZE;
-            float xDif = extent.x - 0.1f;
+            float y = gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y - Global.TILE_SIZE/4f;
+            float xDif = extent.x-0.1f;
             Vector2 bottomLeft = new Vector2(gameObject.transform.position.x-xDif, y);
             Vector2 bottomRight = new Vector2(gameObject.transform.position.x+xDif, y);
             TileMovementType left = GetMovementTypeAtWorldPosition(bottomLeft);
             TileMovementType right = GetMovementTypeAtWorldPosition(bottomRight);
+            
             if (left == TileMovementType.Slow || right == TileMovementType.Slow) return TileMovementType.Slow;
             if (left == TileMovementType.Slippery || right == TileMovementType.Slippery) return TileMovementType.Slippery;
             return TileMovementType.None;
@@ -571,10 +581,12 @@ namespace Player {
             // This can be made more efficent without a get component
             Vector2 tileCenter = TileHelper.getRealTileCenter(position);
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
-            WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
-            if (ReferenceEquals(worldTileGridMap, null)) return null;
+            if (ReferenceEquals(objHit.collider, null)) return null;
+            IChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(tileCenter);
+            var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             
-            return worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(tileCenter));
+            return partition.GetTileItem(positionInPartition, TileMapLayer.Base);
         }
         private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
         {
