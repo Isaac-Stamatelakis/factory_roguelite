@@ -90,10 +90,10 @@ namespace TileMaps.Place {
                 {
                     TileMapType tileMapType = conduitItem.GetConduitType().ToTileMapType();
                     IWorldTileMap conduitMap = closedChunkSystem.GetTileMap(tileMapType);
-                    if (conduitMap is not ConduitTileMap) {
+                    if (conduitMap is not ConduitTileMap conduitTileMap) {
                         return false;
                     }
-                    if (checkConditions && !conduitPlacable(conduitItem,worldPlaceLocation,conduitMap)) {
+                    if (checkConditions && !ConduitPlacable(conduitItem,worldPlaceLocation,conduitTileMap)) {
                         return false;
                     }
                     PlaceConduit(playerScript, conduitItem,worldPlaceLocation,conduitMap,(ConduitTileClosedChunkSystem)closedChunkSystem);
@@ -351,7 +351,7 @@ namespace TileMaps.Place {
         }
 
         private static bool placeFluid(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            if (iWorldTileMap is not FluidIWorldTileMap fluidTileMap) {
+            if (iWorldTileMap is not FluidWorldTileMap fluidTileMap) {
                 return false;
             }
             Vector2Int placePosition = Global.getCellPositionFromWorld(worldPosition);
@@ -361,9 +361,9 @@ namespace TileMaps.Place {
 
         
 
-        private static bool conduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            Vector2Int tileMapPosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
-            return !iWorldTileMap.hasTile(tileMapPosition);
+        public static bool ConduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, ConduitTileMap conduitTileMap) {
+            Vector2Int tileMapPosition = conduitTileMap.worldToTileMapPosition(worldPosition);
+            return !conduitTileMap.hasTile(tileMapPosition);
         }
 
         private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {

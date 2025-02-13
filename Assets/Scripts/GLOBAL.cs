@@ -81,6 +81,14 @@ public static class Global
         return new Vector2Int(Mathf.FloorToInt(((float) cellPosition.x)/(Global.CHUNK_PARTITION_SIZE)), Mathf.FloorToInt(((float)cellPosition.y)/(Global.CHUNK_PARTITION_SIZE)));
     }
 
+    public static (Vector2Int, Vector2Int, Vector2Int) GetChunkPartitionAndPositionInPartitionPositions(Vector2Int cellPosition)
+    {
+        Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+        Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
+        Vector2Int positionInPartition = getPositionInPartition(cellPosition);
+        return (chunkPosition, partitionPosition, positionInPartition);
+    }
+
     public static Vector2Int getPositionInPartition(Vector2Int cellPosition)
     {
         return getPositionInObject(cellPosition,Global.CHUNK_PARTITION_SIZE);

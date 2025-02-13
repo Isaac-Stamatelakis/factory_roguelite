@@ -9,6 +9,7 @@ using Dimensions;
 using PlayerModule;
 using WorldModule;
 using System.IO;
+using Player;
 using UI.Chat;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -150,12 +151,12 @@ namespace TileEntity.Instances {
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             
             Debug.Log("Teleporting to " + currentCave.name);
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
             caveController.setCurrentCave(caveInstance);
             
-            DimensionManager.Instance.SetPlayerSystem(playerTransform, -1,spawnPosition);
+            DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition);
             
             TextChatUI.Instance.sendMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }

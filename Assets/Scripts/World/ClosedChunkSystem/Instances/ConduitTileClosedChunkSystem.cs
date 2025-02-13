@@ -19,6 +19,7 @@ using TileEntity;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;
+using Player;
 using Player.Controls;
 using Object = UnityEngine.Object;
 
@@ -44,7 +45,7 @@ namespace Chunks.Systems {
             }
         }
         
-        public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem) {
+        public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, PlayerScript playerScript) {
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
             TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.LitMaterial);
             TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
@@ -62,30 +63,30 @@ namespace Chunks.Systems {
                     conduitTileChunkPartition.Activate(loadedChunk);
                 }
             }
-            syncConduitTileMap(TileMapType.ItemConduit);
-            syncConduitTileMap(TileMapType.FluidConduit);
-            syncConduitTileMap(TileMapType.EnergyConduit);
-            syncConduitTileMap(TileMapType.SignalConduit);
-            syncConduitTileMap(TileMapType.MatrixConduit);
+            SyncConduitTileMap(TileMapType.ItemConduit);
+            SyncConduitTileMap(TileMapType.FluidConduit);
+            SyncConduitTileMap(TileMapType.EnergyConduit);
+            SyncConduitTileMap(TileMapType.SignalConduit);
+            SyncConduitTileMap(TileMapType.MatrixConduit);
             
-            StartCoroutine(createViewer());
+            StartCoroutine(CreateViewer(playerScript));
 
             GameObject conduitViewListener = new GameObject();
             ConduitViewController viewListener = conduitViewListener.AddComponent<ConduitViewController>();
-            viewListener.Initialize(this);
+            viewListener.Initialize(this,playerScript);
             conduitViewListener.transform.SetParent(transform,false);
         }
         
-        private IEnumerator createViewer() {
+        private IEnumerator CreateViewer(PlayerScript playerScript) {
             var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/ConduitPortViewer/ConduitPortViewerController.prefab");
             yield return handle;
             GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
             GameObject clone = GameObject.Instantiate(portViewerControllerPrefab, transform, false);
             viewerController = clone.GetComponent<PortViewerController>();
-            viewerController.Initalize(this);
+            viewerController.Initialize(this,playerScript);
         }
 
-        private void syncConduitTileMap(TileMapType tileMapType) {
+        private void SyncConduitTileMap(TileMapType tileMapType) {
             IWorldTileMap iWorldTileMap = tileGridMaps[tileMapType];
             if (iWorldTileMap is not ConduitTileMap) {
                 Debug.LogError("Attempted to assign conduit manager to a non conduit tile map");

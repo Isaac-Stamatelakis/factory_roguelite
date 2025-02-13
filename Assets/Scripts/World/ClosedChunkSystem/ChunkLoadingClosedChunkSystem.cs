@@ -13,25 +13,6 @@ namespace Chunks.Systems {
     {
         protected ChunkLoader chunkLoader;
         protected ChunkUnloader chunkUnloader;
-
-        protected IEnumerator initalLoadChunks()
-        {
-            List<Vector2Int> chunks = GetUnCachedChunkPositionsNearPlayer();
-            foreach (Vector2Int vector in chunks) {
-                addChunk(ChunkIO.GetChunkFromJson(vector, this));
-            }
-            yield return null;
-            Debug.Log("Chunks Near Player Loaded");
-        }
-
-        protected IEnumerator initalLoad() {
-            yield return StartCoroutine(initalLoadChunks());
-            PlayerPartitionUpdate();
-            Debug.Log("Partitions Near Player Loaded");
-            yield return new WaitForSeconds(1f);
-            Debug.Log("Player Activated");
-        }
-
         public override void InitLoaders()
         {
             chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();

@@ -140,7 +140,7 @@ namespace Chunks.Systems {
             } else if (tileType.isConduit()) {
                 return container.AddComponent<ConduitTileMap>();
             } else if (tileType.isFluid()) {
-                return container.AddComponent<FluidIWorldTileMap>();
+                return container.AddComponent<FluidWorldTileMap>();
             }
 
             throw new ArgumentOutOfRangeException();

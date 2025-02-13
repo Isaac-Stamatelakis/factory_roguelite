@@ -9,14 +9,14 @@ using Items.Tags.Matrix;
 namespace Items.Tags{
     public static class ItemTagFactory
     {
-        public static ItemTagCollection initalize(ItemObject itemObject) {
+        public static ItemTagCollection Initalize(ItemObject itemObject) {
             if (itemObject is ITaggableItem taggable) {
                 return initalizeFromTaggable(taggable);
             }
             return null; 
         }
 
-        public static string serialize(ItemTagCollection tagData) {
+        public static string Serialize(ItemTagCollection tagData) {
             if (tagData == null || tagData.Dict == null) {
                 return null;
             }

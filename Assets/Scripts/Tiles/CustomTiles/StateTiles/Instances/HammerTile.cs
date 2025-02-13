@@ -14,6 +14,11 @@ namespace Tiles {
     
     public class HammerTile : TileBase, IIDTile, IStateTile
     {
+        public const int BASE_TILE_STATE = 0;
+        public const int SLAB_TILE_STATE = 1;
+        public const int SLANT_TILE_STATE = 2;
+        public const int STAIR_TILE_STATE = 3;
+        
         [SerializeField] public string id;
         [SerializeField] public TileBase baseTile;
         [SerializeField] public Tile cleanSlab;

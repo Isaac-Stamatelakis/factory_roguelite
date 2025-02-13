@@ -5,6 +5,7 @@ using System;
 using Dimensions;
 using PlayerModule;
 using Items;
+using Player;
 using UnityEngine.Rendering.Universal;
 
 namespace UI.Chat {
@@ -16,7 +17,7 @@ namespace UI.Chat {
         public override void execute()
         {
             int dim = ChatCommandParameterParser.ParseInt(parameters,0,"dim",null);
-            Transform player = PlayerManager.Instance.GetPlayer().transform;
+            PlayerScript player = PlayerManager.Instance.GetPlayer();
             Vector2 position = player.transform.position;
             if (parameters.Length > 1) {
                 position.x = ChatCommandParameterParser.ParseFloat(parameters,1,"x",position.x);

@@ -23,7 +23,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         public override IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
         {
             tileEntities ??= new ITileEntityInstance[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
-            fluidIWorldTileMap = (FluidIWorldTileMap)tileGridMaps[TileMapType.Fluid];
+            fluidWorldTileMap = (FluidWorldTileMap)tileGridMaps[TileMapType.Fluid];
             yield return base.Load(tileGridMaps,direction);
             
             const int ENTITY_LOAD_PER_UPDATE = 5;
@@ -44,7 +44,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
             
         }
-        private FluidIWorldTileMap fluidIWorldTileMap;
+        private FluidWorldTileMap fluidWorldTileMap;
 
         public override void Save()
         {

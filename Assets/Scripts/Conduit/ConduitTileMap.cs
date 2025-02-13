@@ -164,7 +164,7 @@ namespace TileMaps.Conduit {
             return new Vector2Int(cellPosition.x,cellPosition.y);
         }
 
-        protected override void WriteTile(IChunkPartition partition, Vector2Int position, ConduitItem item)
+        protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, ConduitItem item)
         {
             if (partition == null) {
                 return;
@@ -173,7 +173,7 @@ namespace TileMaps.Conduit {
                 Debug.LogError("Conduit Tile Map belonged to non conduit tile chunk partition");
                 return;
             }
-            conduitTileChunkPartition.SetConduitItem(position,getType().toConduitType(),item);
+            conduitTileChunkPartition.SetConduitItem(positionInPartition,getType().toConduitType(),item);
         }
     }
 }

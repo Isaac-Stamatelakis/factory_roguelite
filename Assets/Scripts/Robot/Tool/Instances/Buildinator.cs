@@ -63,7 +63,7 @@ namespace Robot.Tool.Instances
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerScript.transform).GetTileMap(TileMapType.Block);
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
             Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
             int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
             
@@ -88,7 +88,7 @@ namespace Robot.Tool.Instances
         private void Rotate(PlayerScript playerScript, Vector2 worldPosition, Vector3Int cellPosition, int direction)
         {
             Vector2Int cellPositionV2 = (Vector2Int)cellPosition;
-            ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             IChunkSystem chunkSystem = system;
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPositionV2);
             if (partition == null) return;

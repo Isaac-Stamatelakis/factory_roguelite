@@ -104,7 +104,7 @@ namespace PlayerModule.Mouse {
             
             if (!leftClick && !rightClick) return;
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
                 return;
             }
@@ -121,7 +121,7 @@ namespace PlayerModule.Mouse {
         public void FixedUpdate()
         {
             if (PlayerKeyPressUtils.BlockKeyInput) return;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
                 return;
             }
@@ -179,7 +179,7 @@ namespace PlayerModule.Mouse {
         public static ILoadedChunk GetChunk(Vector2 mousePosition)
         {
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
                 return null;
             }
@@ -203,7 +203,7 @@ namespace PlayerModule.Mouse {
             switch (inventoryDisplayMode)
             {
                 case InventoryDisplayMode.Inventory:
-                    HandlePlace(mousePosition,DimensionManager.Instance.GetPlayerSystem(playerTransform));
+                    HandlePlace(mousePosition,DimensionManager.Instance.GetPlayerSystem());
                     break;
                 case InventoryDisplayMode.Tools:
                     IRobotToolInstance currentTool = playerInventory.CurrentTool;
@@ -249,7 +249,7 @@ namespace PlayerModule.Mouse {
         private bool RightClickPort(Vector2 mousePosition) {
             ConduitType? conduitType = GetPortClickType();
             if (conduitType == null) return false;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerTransform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }

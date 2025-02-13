@@ -35,6 +35,7 @@ namespace TileMaps {
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
         public void BreakTile(Vector2Int position);
+        public ClosedChunkSystem GetSystem();
     }
 
     public interface ITileMapListener {
@@ -128,7 +129,7 @@ namespace TileMaps {
         {
             SetTile(x, y, item as TItem);
         }
-        protected abstract void WriteTile(IChunkPartition partition, Vector2Int position, TItem item);
+        protected abstract void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, TItem item);
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
@@ -189,6 +190,12 @@ namespace TileMaps {
         public virtual void BreakTile(Vector2Int position) {
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
         }
+
+        public ClosedChunkSystem GetSystem()
+        {
+            return closedChunkSystem;
+        }
+
         protected virtual void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);
             if (chunk == null) {

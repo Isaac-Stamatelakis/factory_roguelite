@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerModule;
 using Chunks.Systems;
+using Conduit.View;
 using Items;
 using UnityEngine.Tilemaps;
 using TileEntity;
@@ -28,11 +29,7 @@ namespace Conduits.PortViewer {
         Signal,
         Matrix
     }
-
-    public static class PortViewerUtils
-    {
-        public static PortViewMode PortViewMode = PortViewMode.Auto;
-    }
+    
     public class PortViewerController : MonoBehaviour
     {
         [SerializeField] private UIRingSelector ringSelectorPrefab;
@@ -42,17 +39,20 @@ namespace Conduits.PortViewer {
         private PlayerInventory playerInventory;
         private ItemRegistry itemRegistry;
         public UIRingSelector RingSelectorPrefab => ringSelectorPrefab;
+        private PlayerScript playerScript;
         
-        public void Initalize(ConduitTileClosedChunkSystem closedChunkSystem) {
+        public void Initialize(ConduitTileClosedChunkSystem closedChunkSystem, PlayerScript playerScript) {
             this.closedChunkSystem = closedChunkSystem;
             playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             itemRegistry = ItemRegistry.GetInstance();
             portViewer = GetComponentInChildren<ConduitPortViewer>();
+            this.playerScript = playerScript;
             if (portViewer == null) {
                 Debug.LogWarning("Conduit Port Controller has no viewer child");
             }
 
-            switch (PortViewerUtils.PortViewMode)
+            ConduitViewOptions conduitViewOptions = playerScript.ConduitViewOptions;
+            switch (conduitViewOptions.PortViewMode)
             {
                 case PortViewMode.Item:
                     ActivateViewer(ConduitType.Item);
@@ -72,7 +72,7 @@ namespace Conduits.PortViewer {
         public void Update()
         {
             KeyPressListen();
-            if (PortViewerUtils.PortViewMode == PortViewMode.Auto)
+            if (playerScript.ConduitViewOptions.PortViewMode == PortViewMode.Auto)
             {
                 AutoSelect();
             }
@@ -130,7 +130,7 @@ namespace Conduits.PortViewer {
         
         private void ChangePortViewMode(PortViewMode portViewMode)
         {
-            PortViewerUtils.PortViewMode = portViewMode;
+            playerScript.ConduitViewOptions.PortViewMode = portViewMode;
             PlayerManager.Instance.GetPlayer().GetComponent<PlayerMouse>().ConduitPortViewMode = portViewMode;
             switch (portViewMode)
             {

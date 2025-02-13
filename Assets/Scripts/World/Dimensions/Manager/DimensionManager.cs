@@ -62,13 +62,13 @@ namespace Dimensions {
             Debug.Log($"Loading world from path {path}");
 
             SoftLoadSystems();
-            SetPlayerSystem(playerScript.transform,0,Vector2Int.zero);
+            SetPlayerSystem(playerScript,0,Vector2Int.zero);
         }
     
 
         public abstract void SoftLoadSystems();
 
-        public ClosedChunkSystem GetPlayerSystem(Transform player)
+        public ClosedChunkSystem GetPlayerSystem()
         {
             return activeSystem;
         }
@@ -77,7 +77,7 @@ namespace Dimensions {
             return activeSystem?.Dim ?? int.MinValue;
         }
 
-        private ClosedChunkSystem GetControllerSystem(DimController controller, IDimensionTeleportKey key = null)
+        private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)
         {
             switch (controller)
             {
@@ -86,7 +86,7 @@ namespace Dimensions {
                     var system = singleSystemController.GetActiveSystem();
                     if (!system)
                     {
-                        system = singleSystemController.ActivateSystem();
+                        system = singleSystemController.ActivateSystem(playerScript);
                     }
                     return system;
                 }
@@ -95,7 +95,7 @@ namespace Dimensions {
                     var system = multipleSystemController.GetActiveSystem(key);
                     if (!system)
                     {
-                        system = multipleSystemController.ActivateSystem(key);
+                        system = multipleSystemController.ActivateSystem(key, playerScript);
                     }
                     return system;
                 }
@@ -103,15 +103,15 @@ namespace Dimensions {
                     throw new ArgumentOutOfRangeException();
             }
         }
-        public void SetPlayerSystem(Transform player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
+        public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
             DimController controller = GetDimController(dim);
-            ClosedChunkSystem newSystem = GetControllerSystem(controller, key);
+            ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             
             if (!newSystem) {
                 Debug.LogError("Could not switch player system");
                 return;
             }
-            player.GetComponent<PlayerRobot>().TemporarilyPausePlayer();
+            player.PlayerRobot.TemporarilyPausePlayer();
             
             if (ReferenceEquals(newSystem,activeSystem))
             {
@@ -130,7 +130,7 @@ namespace Dimensions {
             newSystem.InitalizeMiscObjects(miscObjects);
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
             
-            Vector3 playerPosition = player.position;
+            Vector3 playerPosition = player.transform.position;
             
             playerPosition.x = teleportPosition.x*Global.TILE_SIZE;
             playerPosition.y = teleportPosition.y*Global.TILE_SIZE;
