@@ -41,7 +41,7 @@ namespace Player.Mouse
 
             Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
-                IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem(playerTransform).GetTileMap(tileMapType);
+                IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
                     hitableTileMap.deleteTile(mousePosition);

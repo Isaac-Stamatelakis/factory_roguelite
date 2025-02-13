@@ -95,7 +95,7 @@ namespace TileMaps.Previewer {
 
         private Color GetPlaceColor(Vector2 position, ItemObject itemObject)
         {
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             switch (itemObject)
             {
                 case TileItem tileItem:
@@ -161,7 +161,7 @@ namespace TileMaps.Previewer {
             {
                 return null;
             }
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem(playerScript.transform);
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
             {
                 return null;

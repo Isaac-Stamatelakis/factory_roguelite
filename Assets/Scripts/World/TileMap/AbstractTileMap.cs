@@ -35,6 +35,7 @@ namespace TileMaps {
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
         public void BreakTile(Vector2Int position);
+        public ClosedChunkSystem GetSystem();
     }
 
     public interface ITileMapListener {
@@ -189,6 +190,12 @@ namespace TileMaps {
         public virtual void BreakTile(Vector2Int position) {
             tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
         }
+
+        public ClosedChunkSystem GetSystem()
+        {
+            return closedChunkSystem;
+        }
+
         protected virtual void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);
             if (chunk == null) {

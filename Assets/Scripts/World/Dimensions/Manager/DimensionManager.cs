@@ -68,7 +68,7 @@ namespace Dimensions {
 
         public abstract void SoftLoadSystems();
 
-        public ClosedChunkSystem GetPlayerSystem(Transform player)
+        public ClosedChunkSystem GetPlayerSystem()
         {
             return activeSystem;
         }

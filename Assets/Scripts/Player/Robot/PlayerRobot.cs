@@ -26,6 +26,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Player {
+    public enum CollisionState
+    {
+        OnWall,
+        OnGround,
+        OnSlope,
+        OnPlatform
+    }
     public class PlayerRobot : MonoBehaviour
     {
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
@@ -35,9 +42,8 @@ namespace Player {
         [SerializeField] private Collider2D platformCollider;
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
-        public bool OnBlock;
-        public bool OnPlatform;
         private bool climbing;
+        private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
         private RobotItemData robotData;
@@ -88,6 +94,21 @@ namespace Player {
             cameraBounds.UpdateCameraBounds();
         }
 
+        public void AddCollisionState(CollisionState state)
+        {
+            collisionStates.Add(state);
+        }
+
+        public void RemoveCollisionState(CollisionState state)
+        {
+            collisionStates.Remove(state);
+        }
+
+        public bool CollisionStateActive(CollisionState state)
+        {
+            return collisionStates.Contains(state);
+        }
+
         private void MoveUpdate()
         {
             if (PlayerKeyPressUtils.BlockKeyInput) return;
@@ -101,6 +122,10 @@ namespace Player {
             StandardMoveUpdate();
         }
 
+        public bool CanJump()
+        {
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+        }
         private void StandardMoveUpdate()
         {
             Vector2 velocity = rb.velocity;
@@ -148,15 +173,16 @@ namespace Player {
             if (!IsOnGround()) speed *= MovementStats.airSpeedIncrease;
             velocity.x = sign * Mathf.Lerp(0,speed,move);
             
-            if (OnPlatform && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
             {
                 ignorePlatformFrames = 5;
             }
             
-            if (ignorePlatformFrames <= 0 && (IsOnGround() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
+            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
                 velocity.y = JumpStats.jumpVelocity;
                 coyoteFrames = 0;
+                liveYUpdates = 3;
                 jumpEvent = new JumpEvent();
             }
             
@@ -213,17 +239,19 @@ namespace Player {
             if (!IsOnGround()) return true;
 
             if (CanAutoJump(direction)) return true;
+            
             if (WalkingIntoSlope(direction))
             {
                 liveYUpdates = 3;
             }
+            
 
             return true;
         }
 
         private bool IsOnGround()
         {
-            return OnBlock || OnPlatform;
+            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05);
         }
 
         private bool WalkingIntoSlope(Direction direction)
@@ -261,7 +289,7 @@ namespace Player {
             if (ReferenceEquals(cast.collider,null)) return false;
             WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
-            IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem(transform);
+            IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem();
             Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTileCenter);
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
             if (partition == null) return false;
@@ -277,14 +305,15 @@ namespace Player {
         
         private IEnumerator AutoJumpCoroutine()
         {
+            const int STEPS = 10;
             var jumpDestination = transform.position;
             jumpDestination.y += Global.TILE_SIZE / 2f;
             jumpDestination.y = ((int)(4 * jumpDestination.y)) / 4f;
             var waitForFixedUpdate = new WaitForFixedUpdate();
             freezeY = true;
-            for (int i = 1; i <= 3; i++)
+            for (int i = 1; i <= STEPS; i++)
             {
-                Vector3 position = Vector3.Lerp(transform.position, jumpDestination, (float)i / 3);
+                Vector3 position = Vector3.Lerp(transform.position, jumpDestination, (float)i / STEPS);
                 transform.position = position;
                 yield return waitForFixedUpdate;
             }
@@ -303,7 +332,7 @@ namespace Player {
             float playerWidth = spriteRenderer.sprite.bounds.extents.x;
             if (climbing) {
                 HandleClimbing();
-                OnBlock = false;
+                RemoveCollisionState(CollisionState.OnGround);
                 return;
             }
 
@@ -311,7 +340,7 @@ namespace Player {
 
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
             
-            if (OnBlock) coyoteFrames = JumpStats.coyoteFrames;
+            if (CanJump()) coyoteFrames = JumpStats.coyoteFrames;
             
 
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
@@ -333,14 +362,25 @@ namespace Player {
 
         private RigidbodyConstraints2D GetFreezeConstraints()
         {
-            //if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)) return RigidbodyConstraints2D.FreezeRotation;
-            if (freezeY) return RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-            
-            //if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
+            const RigidbodyConstraints2D FREEZE_Y =
+                RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+            const RigidbodyConstraints2D FREEZE_Z = RigidbodyConstraints2D.FreezeRotation;
+            ;
             const float epilson = 0.1f;
-            return liveYUpdates <= 0 && (OnBlock || OnPlatform) && rb.velocity.y < epilson
-                ? RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation
-                : RigidbodyConstraints2D.FreezeRotation;
+            if (freezeY) return FREEZE_Y;
+            if (currentTileMovementType == TileMovementType.Slippery) return RigidbodyConstraints2D.FreezeRotation;
+
+            if (liveYUpdates > 0) return FREEZE_Z;
+            
+            if (CollisionStateActive(CollisionState.OnSlope) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            {
+                return FREEZE_Y;
+            }
+            if (CollisionStateActive(CollisionState.OnWall)) return FREEZE_Z;
+            
+            return IsOnGround() && rb.velocity.y < epilson
+                ? FREEZE_Y
+                : FREEZE_Z;
         }
         
 
@@ -389,6 +429,8 @@ namespace Player {
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
             freezeY = false;
+            collisionStates.Clear(); // Might do weird things
+            
         }
 
         private void CalculateFallTime()
