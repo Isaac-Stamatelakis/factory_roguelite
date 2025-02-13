@@ -21,7 +21,8 @@ namespace Player.Movement
         public void OnTriggerStay2D(Collider2D other)
         {
             bool? onslope = OnSlope(other);
-            if (onslope == null) return;
+            bool cached = onslope == null;
+            if (cached) return;
             
             if (onslope.Value)
             {
@@ -34,6 +35,11 @@ namespace Player.Movement
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>True if on slope, false if not on slope, null if tile item is cached</returns>
         private bool? OnSlope(Collider2D other)
         {
             Vector2Int cellPosition = Global.getCellPositionFromWorld(other.ClosestPoint(transform.position));
@@ -45,6 +51,7 @@ namespace Player.Movement
             if (tileItem?.tile is not HammerTile hammerTile) return false;
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
             return baseTileData.state > 1;
+            // This might not be needed
             //if (hammerTile is not NatureTile natureTile) return baseTileData.state > 1;
 
             //int natureSlantLength = natureTile.natureSlants.Length;

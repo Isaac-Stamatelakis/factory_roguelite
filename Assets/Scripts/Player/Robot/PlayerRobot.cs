@@ -43,6 +43,7 @@ namespace Player {
         [SerializeField] private PlayerDeathScreenUI deathScreenUIPrefab;
         private PolygonCollider2D polygonCollider;
         private bool climbing;
+        private bool autoJumping;
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
@@ -278,6 +279,7 @@ namespace Player {
 
         private bool CanAutoJump(Direction direction)
         {
+            if (autoJumping) return false;
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
             Vector2 adjacentTilePosition = bottomCenter + (spriteRenderer.sprite.bounds.extents.x) * (direction == Direction.Left ? Vector2.left : Vector2.right);
             
@@ -305,19 +307,23 @@ namespace Player {
         
         private IEnumerator AutoJumpCoroutine()
         {
-            const int STEPS = 10;
+            autoJumping = true;
+            const int STEPS = 3;
             var jumpDestination = transform.position;
             jumpDestination.y += Global.TILE_SIZE / 2f;
             jumpDestination.y = ((int)(4 * jumpDestination.y)) / 4f;
+            
             var waitForFixedUpdate = new WaitForFixedUpdate();
             freezeY = true;
             for (int i = 1; i <= STEPS; i++)
             {
+                jumpDestination.x = transform.position.x;
                 Vector3 position = Vector3.Lerp(transform.position, jumpDestination, (float)i / STEPS);
                 transform.position = position;
                 yield return waitForFixedUpdate;
             }
 
+            autoJumping = false;
             freezeY = false;
 
         }
@@ -346,7 +352,7 @@ namespace Player {
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
             if (currentTileMovementType == TileMovementType.Slippery)
             {
-                noAirFrictionFrames = 10;
+                noAirFrictionFrames = MovementStats.iceNoAirFrictionFrames;
             }
             
             if (!DevMode.Instance.flight)
@@ -687,6 +693,7 @@ namespace Player {
             public float airSpeedIncrease = 1.1f;
             public float iceFriction = 0.1f;
             public float slowSpeedReduction = 0.25f;
+            public int iceNoAirFrictionFrames = 10;
         }
 
         [System.Serializable]
