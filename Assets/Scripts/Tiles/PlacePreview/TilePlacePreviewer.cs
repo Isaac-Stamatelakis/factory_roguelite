@@ -35,14 +35,18 @@ namespace TileMaps.Previewer {
         {
             mainCamera = Camera.main;
             tilemap = GetComponent<Tilemap>();
+            
             GameObject unhighlightedContainer = new GameObject();
             unhighlightedContainer.transform.SetParent(transform,false);
             unhighlightedContainer.name = "UnhighlightedTilemap";
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             unhighlightedContainer.AddComponent<TilemapRenderer>();
             unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
-            playerScript = PlayerManager.Instance.GetPlayer();
+        }
 
+        public void Initialize(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
         }
 
         // Update is called once per frame

@@ -7,24 +7,37 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image tileImage;
-        private bool active;
-        public void Display(PlayerTilePlacementOptions tilePlacementOptions)
+        private PlayerScript playerScript;
+        public void Display(PlayerScript playerScript)
         {
-            this.active = tilePlacementOptions.Indiciator;
-            tileImage.color = tilePlacementOptions.Indiciator ? Color.blue : Color.gray;
+            this.playerScript = playerScript;
+            Refresh();
+        }
+
+        private void Refresh()
+        {
+            tileImage.color = playerScript.TilePlacementOptions.Indiciator ? Color.blue : Color.gray;
         }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview:  {(active ? "Active" : "Inactive")}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview:  {(playerScript.TilePlacementOptions.Indiciator ? "Active" : "Inactive")}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
+            OnPointerEnter(eventData);
+            playerScript.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
+            Refresh();
         }
     }
 }

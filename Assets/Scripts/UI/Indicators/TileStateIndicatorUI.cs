@@ -1,3 +1,5 @@
+using System;
+using Player;
 using Tiles;
 using UI.ToolTip;
 using UnityEngine;
@@ -6,18 +8,23 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileStateIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class TileStateIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image tileImage;
         [SerializeField] private Sprite baseSprite;
         [SerializeField] private Sprite slabSprite;
         [SerializeField] private Sprite slantSprite;
         [SerializeField] private Sprite stairSprite;
-        private int currentState;
-        public void Display(int state)
+        private PlayerTilePlacementOptions tilePlacementOption;
+        public void Display(PlayerTilePlacementOptions tilePlacementOptions)
         {
-            currentState = state;
-            Sprite sprite = GetSprite(state);
+            this.tilePlacementOption = tilePlacementOptions;
+            RefreshDisplay();
+        }
+
+        public void RefreshDisplay()
+        {
+            Sprite sprite = GetSprite(tilePlacementOption.State);
             if (ReferenceEquals(sprite, null))
             {
                 tileImage.enabled = false;
@@ -64,12 +71,32 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(currentState)}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(tilePlacementOption.State)}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            const int MAX_STATE = 3;
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    tilePlacementOption.State++;
+                    if (tilePlacementOption.State > MAX_STATE) tilePlacementOption.State = 0;
+                    break;
+                case PointerEventData.InputButton.Right:
+                    tilePlacementOption.State--;
+                    if (tilePlacementOption.State < 0) tilePlacementOption.State = MAX_STATE;
+                    break;
+                default:
+                    return;
+            }
+            RefreshDisplay();
+            OnPointerEnter(eventData);
         }
     }
 }

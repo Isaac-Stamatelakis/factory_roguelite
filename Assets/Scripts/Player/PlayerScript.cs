@@ -6,8 +6,10 @@ using Conduits;
 using Conduits.Systems;
 using Item.Slot;
 using Player.Controls;
+using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using TileMaps.Previewer;
 using UI.QuestBook;
 using UI.RingSelector;
 using UnityEngine;
@@ -24,6 +26,8 @@ namespace Player
         [SerializeField] private PlayerTilePlacementOptions tilePlacementOptions;
         [SerializeField] private ConduitViewOptions conduitViewOptions;
         [SerializeField] private PlayerUIPrefabs prefabs;
+        [SerializeField] private PlayerUIContainer playerUIContainer;
+        [SerializeField] private TilePlacePreviewer placePreviewer;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
@@ -33,6 +37,7 @@ namespace Player
         private QuestBookCache questBookCache;
         public QuestBookCache QuestBookCache => questBookCache;
         public PlayerUIPrefabs Prefabs => prefabs;
+        public PlayerUIContainer PlayerUIContainer => playerUIContainer;
         
         public void Start()
         {
@@ -53,6 +58,13 @@ namespace Player
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             ControlUtils.LoadBindings();
+            playerUIContainer.IndicatorManager.Initialize(this);
+            placePreviewer.Initialize(this);
+        }
+
+        public void SetPlacePreviewerState(bool state)
+        {
+            placePreviewer.gameObject.SetActive(state);
         }
     }
 

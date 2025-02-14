@@ -31,9 +31,9 @@ namespace UI.Indicators
             conduitPortIndicatorUI?.Display(playerScript.ConduitViewOptions);
             conduitViewIndicatorUI?.Display(playerScript.ConduitViewOptions);
             conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
-            tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions.Rotation);
-            tileStateIndicatorUI.Display(playerScript.TilePlacementOptions.State);
-            tilePreviewerIndicatorUI.Display(playerScript.TilePlacementOptions);
+            tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
+            tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
+            tilePreviewerIndicatorUI.Display(playerScript);
         }
 
         public void SetColor(Color color)
