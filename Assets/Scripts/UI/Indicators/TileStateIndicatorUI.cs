@@ -1,19 +1,30 @@
+using System;
+using Player;
 using Tiles;
+using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileStateIndicatorUI : MonoBehaviour
+    public class TileStateIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image tileImage;
         [SerializeField] private Sprite baseSprite;
         [SerializeField] private Sprite slabSprite;
         [SerializeField] private Sprite slantSprite;
         [SerializeField] private Sprite stairSprite;
-        public void Display(int state)
+        private PlayerTilePlacementOptions tilePlacementOption;
+        public void Display(PlayerTilePlacementOptions tilePlacementOptions)
         {
-            Sprite sprite = GetSprite(state);
+            this.tilePlacementOption = tilePlacementOptions;
+            RefreshDisplay();
+        }
+
+        public void RefreshDisplay()
+        {
+            Sprite sprite = GetSprite(tilePlacementOption.State);
             if (ReferenceEquals(sprite, null))
             {
                 tileImage.enabled = false;
@@ -39,6 +50,53 @@ namespace UI.Indicators
                 default:
                     return null;
             }
+        }
+
+        private string GetStateName(int state)
+        {
+            switch (state)
+            {
+                case HammerTile.BASE_TILE_STATE:
+                    return "Tile";
+                case HammerTile.SLAB_TILE_STATE:
+                    return "Slab";
+                case HammerTile.SLANT_TILE_STATE:
+                    return "Slant";
+                case HammerTile.STAIR_TILE_STATE:
+                    return "Stair";
+                default:
+                    return null;
+            }
+        }
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(tilePlacementOption.State)}");
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            const int MAX_STATE = 3;
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    tilePlacementOption.State++;
+                    if (tilePlacementOption.State > MAX_STATE) tilePlacementOption.State = 0;
+                    break;
+                case PointerEventData.InputButton.Right:
+                    tilePlacementOption.State--;
+                    if (tilePlacementOption.State < 0) tilePlacementOption.State = MAX_STATE;
+                    break;
+                default:
+                    return;
+            }
+            RefreshDisplay();
+            OnPointerEnter(eventData);
         }
     }
 }

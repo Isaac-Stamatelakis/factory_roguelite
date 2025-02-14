@@ -18,20 +18,11 @@ namespace PlayerModule.IO {
     public class PlayerIO : MonoBehaviour
     {
         [SerializeField] public PlayerData playerData;
-        TilePlacePreviewController tilePlacePreviewController;
-        DevMode devMode;
-        // Start is called before the first frame update
-        void Awake()
-        {
-            devMode = GetComponent<DevMode>();
-            tilePlacePreviewController = GameObject.Find("PlacePreviewController").GetComponent<TilePlacePreviewController>();
-        }
-
+       
         public void Deserialize() {
             string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             string json = File.ReadAllText(playerJsonPath);
             playerData = JsonConvert.DeserializeObject<PlayerData>(json);
-            tilePlacePreviewController.Toggle();
         }
         
         void OnDestroy() {

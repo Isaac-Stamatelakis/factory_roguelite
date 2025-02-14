@@ -69,22 +69,15 @@ namespace Chunks.Systems {
             SyncConduitTileMap(TileMapType.SignalConduit);
             SyncConduitTileMap(TileMapType.MatrixConduit);
             
-            StartCoroutine(CreateViewer(playerScript));
-
+            viewerController = playerScript.TileViewers.ConduitPortViewer;
+            viewerController.Initialize(this,playerScript);
             GameObject conduitViewListener = new GameObject();
             ConduitViewController viewListener = conduitViewListener.AddComponent<ConduitViewController>();
             viewListener.Initialize(this,playerScript);
             conduitViewListener.transform.SetParent(transform,false);
+            
         }
         
-        private IEnumerator CreateViewer(PlayerScript playerScript) {
-            var handle = Addressables.LoadAssetAsync<Object>("Assets/Prefabs/ConduitPortViewer/ConduitPortViewerController.prefab");
-            yield return handle;
-            GameObject portViewerControllerPrefab = AddressableUtils.validateHandle<GameObject>(handle);
-            GameObject clone = GameObject.Instantiate(portViewerControllerPrefab, transform, false);
-            viewerController = clone.GetComponent<PortViewerController>();
-            viewerController.Initialize(this,playerScript);
-        }
 
         private void SyncConduitTileMap(TileMapType tileMapType) {
             IWorldTileMap iWorldTileMap = tileGridMaps[tileMapType];

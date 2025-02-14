@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Conduits.PortViewer;
 using Conduits.Systems;
 using Item.Display.ClickHandlers;
 using Item.Inventory;
@@ -68,6 +69,7 @@ namespace PlayerModule.KeyPress {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
                 conduitPlacementOptions.PlacementMode = GlobalHelper.ShiftEnum(1, conduitPlacementOptions.PlacementMode);
+                playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Refresh();
             }
 
             if (ControlUtils.GetControlKeyDown(ControlConsts.TERMINATE_CONDUIT_GROUP))
@@ -75,8 +77,38 @@ namespace PlayerModule.KeyPress {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
             }
-            
+
+            if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PORT_VIEW))
+            {
+                ChangePortModePress();
+            }
             inventoryNavigationKeys();
+        }
+        
+        public void ChangePortModePress()
+        {
+            UIRingSelector ringSelector = GameObject.Instantiate(ringSelectorPrefab);
+            List<RingSelectorComponent> ringSelectorComponents = new List<RingSelectorComponent>();
+                
+            List<(Color,string,PortViewMode)> modeList = new List<(Color,string,PortViewMode)>
+            {
+                (Color.grey,"Off",PortViewMode.None),
+                (Color.green,"Item",PortViewMode.Item),
+                (Color.blue,"Fluid",PortViewMode.Fluid),
+                (Color.red,"Signal",PortViewMode.Signal),
+                (Color.yellow,"Energy",PortViewMode.Energy),
+                (Color.magenta,"Matrix",PortViewMode.Matrix),
+            };
+            PortViewerController portViewerController = playerScript.TileViewers.ConduitPortViewer;
+            foreach (var (color, elementName, portViewMode) in modeList)
+            {
+                ringSelectorComponents.Add(new RingSelectorComponent(color,null,elementName,() => portViewerController.ChangePortViewMode(portViewMode)));
+            }
+
+            CanvasController.Instance.PopStack();
+            RingSelectorComponent defaultComponent = new RingSelectorComponent(Color.cyan, null, "Auto", () => portViewerController.ChangePortViewMode(PortViewMode.Auto));
+            ringSelector.Display(ringSelectorComponents, defaultComponent);
+            CanvasController.Instance.DisplayObject(ringSelector.gameObject);
         }
 
         private void inventoryNavigationKeys() {

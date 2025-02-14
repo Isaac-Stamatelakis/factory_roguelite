@@ -293,16 +293,15 @@ namespace Player {
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
             Vector2 adjacentTilePosition = bottomCenter + (spriteRenderer.sprite.bounds.extents.x) * (direction == Direction.Left ? Vector2.left : Vector2.right);
             
-            Vector2 adjacentTileCenter = TileHelper.getRealTileCenter(adjacentTilePosition);
 
             const float EPSILON = 0.02f;
             
-            var cast = Physics2D.BoxCast(adjacentTileCenter, new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE-EPSILON), 0f, Vector2.zero, Mathf.Infinity, blockLayer);
+            var cast = Physics2D.BoxCast(adjacentTilePosition, new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 0f, Vector2.zero, Mathf.Infinity, blockLayer);
             if (ReferenceEquals(cast.collider,null)) return false;
             WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
             IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTileCenter);
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTilePosition);
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
             if (partition == null) return false;
 

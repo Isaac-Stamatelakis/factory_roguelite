@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using Chunks.Systems;
 using Conduit.View;
 using Conduits;
+using Conduits.PortViewer;
 using Conduits.Systems;
 using Item.Slot;
 using Player.Controls;
+using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using TileMaps.Previewer;
+using Tiles;
+using Tiles.Highlight;
 using UI.QuestBook;
 using UI.RingSelector;
 using UnityEngine;
@@ -24,6 +29,8 @@ namespace Player
         [SerializeField] private PlayerTilePlacementOptions tilePlacementOptions;
         [SerializeField] private ConduitViewOptions conduitViewOptions;
         [SerializeField] private PlayerUIPrefabs prefabs;
+        [SerializeField] private PlayerUIContainer playerUIContainer;
+        [SerializeField] private TileViewerCollection tileViewers;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
@@ -33,6 +40,8 @@ namespace Player
         private QuestBookCache questBookCache;
         public QuestBookCache QuestBookCache => questBookCache;
         public PlayerUIPrefabs Prefabs => prefabs;
+        public PlayerUIContainer PlayerUIContainer => playerUIContainer;
+        public TileViewerCollection TileViewers => tileViewers;
         
         public void Start()
         {
@@ -53,9 +62,40 @@ namespace Player
             tilePlacementOptions = new PlayerTilePlacementOptions();
             questBookCache = new QuestBookCache();
             ControlUtils.LoadBindings();
+            playerUIContainer.IndicatorManager.Initialize(this);
+            tileViewers.Initialize(this);
         }
+
+        
     }
 
+    [System.Serializable]
+    public class TileViewerCollection
+    {
+        public TileBreakIndicator TileBreakIndicator;
+        public TilePlacePreviewer TilePlacePreviewer;
+        public TileHighlighter TileHighlighter;
+        public PortViewerController ConduitPortViewer;
+        public void SetPlacePreviewerState(bool state)
+        {
+            TilePlacePreviewer.gameObject.SetActive(state);
+        }
+        public void SetHighligherState(bool state)
+        {
+            TileHighlighter.gameObject.SetActive(state);
+        }
+
+        public void SetConduitPortState(bool state)
+        {
+            ConduitPortViewer.gameObject.SetActive(state);
+        }
+
+        public void Initialize(PlayerScript playerScript)
+        {
+            TilePlacePreviewer.Initialize(playerScript);
+        }
+
+    }
     [System.Serializable]
     public class PlayerUIPrefabs
     {
@@ -104,6 +144,7 @@ namespace Player
     [System.Serializable]
     public class PlayerTilePlacementOptions
     {
+        public bool Indiciator = true;
         public int Rotation;
         public int State;
     }

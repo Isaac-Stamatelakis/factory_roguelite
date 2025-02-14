@@ -1,15 +1,43 @@
+using Player;
 using Tiles;
+using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileHighligherIndicatorUI : MonoBehaviour
+    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image tileImage;
-        public void Display(bool active)
+        private PlayerScript playerScript;
+        public void Display(PlayerScript playerScript)
         {
-            tileImage.color = active ? Color.blue : Color.gray;
+            this.playerScript = playerScript;
+            Refresh();
+        }
+
+        private void Refresh()
+        {
+            tileImage.color = playerScript.TilePlacementOptions.Indiciator ? Color.blue : Color.gray;
+        }
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview:  {(playerScript.TilePlacementOptions.Indiciator ? "Active" : "Inactive")}");
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
+            OnPointerEnter(eventData);
+            playerScript.TileViewers.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
+            Refresh();
         }
     }
 }
