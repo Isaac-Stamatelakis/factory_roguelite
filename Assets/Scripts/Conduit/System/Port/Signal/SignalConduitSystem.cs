@@ -67,11 +67,14 @@ namespace Conduits.Systems {
                 }
             }
             base.Rebuild();
+            
             for (int i = 0; i < colorActivations.Length; i++)
             {
                 colorActivations[i] = false;
             }
-            //TickUpdate();
+           
+            //Debug.Log(manager.IsSystemLoaded());
+            //TickUpdate(); // TOOD Find way to make this work
         }
     }
 }

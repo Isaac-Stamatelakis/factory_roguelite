@@ -126,7 +126,33 @@ namespace Tiles {
             const int D_ROT = 0;
             const int L_ROT = 3;
             const int U_ROT = 2;
+
+            if (directionsWithTile.Count == 4)
+            {
+                bool biasDown = (mousePlacement & (int)MousePlacement.Down) != 0;
+                return biasDown ? D_ROT : U_ROT;
+            }
            
+            if (directionsWithTile.Contains(Direction.Down) && directionsWithTile.Contains(Direction.Up) && directionsWithTile.Contains(Direction.Left))
+            {
+                return L_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Down) && directionsWithTile.Contains(Direction.Up) && directionsWithTile.Contains(Direction.Right))
+            {
+                return R_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Down) && directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Left))
+            {
+                return D_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Up) && directionsWithTile.Contains(Direction.Right) && directionsWithTile.Contains(Direction.Left))
+            {
+                return U_ROT;
+            }
+            
             if (directionsWithTile.Contains(Direction.Down) && directionsWithTile.Contains(Direction.Up))
             {
                 bool biasDown = (mousePlacement & (int)MousePlacement.Down) != 0;
@@ -138,6 +164,8 @@ namespace Tiles {
                 bool biasLeft = (mousePlacement & (int)MousePlacement.Left) != 0;
                 return biasLeft ? L_ROT : R_ROT;
             }
+            
+            
 
             
             if (directionsWithTile.Contains(Direction.Up))
