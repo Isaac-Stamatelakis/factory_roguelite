@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitPlacementModeIndicatorUI : MonoBehaviour
+    public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image conduitImage;
 

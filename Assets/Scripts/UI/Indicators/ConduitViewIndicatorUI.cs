@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitViewIndicatorUI : MonoBehaviour
+    public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image mMatrixImage;
         [SerializeField] private Image mEnergyImage;

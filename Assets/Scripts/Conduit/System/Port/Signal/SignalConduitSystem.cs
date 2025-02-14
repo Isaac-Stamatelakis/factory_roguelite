@@ -71,6 +71,7 @@ namespace Conduits.Systems {
             {
                 colorActivations[i] = false;
             }
+            TickUpdate();
         }
     }
 }

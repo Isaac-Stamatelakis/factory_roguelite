@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileRotationIndicatorUI : MonoBehaviour
+    public class TileRotationIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image tileImage;
         private int currentRotation;

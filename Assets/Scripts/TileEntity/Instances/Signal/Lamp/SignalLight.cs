@@ -35,8 +35,9 @@ namespace TileEntity.Instances.Signal {
         
         public void InsertSignal(bool signal, Vector2Int portPosition)
         {
+            if (signal == active) return;
             active = signal;
-            if (signal) {
+            if (active) {
                 Load();
             } else {
                 Unload();
@@ -52,27 +53,31 @@ namespace TileEntity.Instances.Signal {
             }
             Color color = TileEntityObject.color;
             color.a = 1;
-            if (lightObject == null) {
-                lightObject = new GameObject();
-                lightObject.name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"; 
-                Light2D light = lightObject.AddComponent<Light2D>();
-                light.lightType = Light2D.LightType.Point;
-                light.intensity = TileEntityObject.intensity;
-                light.color = color;
-                light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
-                light.pointLightOuterRadius=TileEntityObject.radius;
-                light.falloffIntensity=TileEntityObject.falloff;
-                lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
-                lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-                if (tileItem.tile is IStateTile stateTile) {
-                    TileEntityUtils.stateSwitch(this,1); // set on
-                }
+            if (!ReferenceEquals(lightObject,null)) return;
+            lightObject = new GameObject();
+            lightObject.name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"; 
+            Light2D light = lightObject.AddComponent<Light2D>();
+            light.lightType = Light2D.LightType.Point;
+            light.intensity = TileEntityObject.intensity;
+            light.color = color;
+            light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
+            light.pointLightOuterRadius=TileEntityObject.radius;
+            light.falloffIntensity=TileEntityObject.falloff;
+            lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
+            lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            if (tileItem.tile is IStateTile stateTile) {
+                TileEntityUtils.stateSwitch(this,1); // set on
             }
         }
 
         public void Unload()
         {
-            GameObject.Destroy(lightObject);
+            if (!ReferenceEquals(lightObject, null))
+            {
+                GameObject.Destroy(lightObject);
+                lightObject = null;
+            }
+            
             if (tileItem.tile is IStateTile stateTile) {
                 TileEntityUtils.stateSwitch(this,0); // set off
             }

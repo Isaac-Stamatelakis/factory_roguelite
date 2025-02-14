@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileStateIndicatorUI : MonoBehaviour
+    public class TileStateIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image tileImage;
         [SerializeField] private Sprite baseSprite;

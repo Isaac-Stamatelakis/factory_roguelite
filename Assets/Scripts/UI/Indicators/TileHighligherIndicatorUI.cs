@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileHighligherIndicatorUI : MonoBehaviour
+    public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image tileImage;
         private bool active;
