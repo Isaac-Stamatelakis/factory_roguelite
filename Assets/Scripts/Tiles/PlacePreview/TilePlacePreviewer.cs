@@ -61,7 +61,7 @@ namespace TileMaps.Previewer {
                 return;
             }
             Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            PreviewTile(playerScript.PlayerInventory.getSelectedId(), mousePosition);
+            PreviewTile(playerScript?.PlayerInventory.getSelectedId(), mousePosition);
             
         }   
         public void PreviewTile(string id, Vector2 position) {

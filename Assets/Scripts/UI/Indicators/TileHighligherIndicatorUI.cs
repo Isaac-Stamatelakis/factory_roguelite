@@ -36,7 +36,7 @@ namespace UI.Indicators
         {
             playerScript.TilePlacementOptions.Indiciator = !playerScript.TilePlacementOptions.Indiciator;
             OnPointerEnter(eventData);
-            playerScript.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
+            playerScript.TileViewers.SetPlacePreviewerState(playerScript.TilePlacementOptions.Indiciator);
             Refresh();
         }
     }

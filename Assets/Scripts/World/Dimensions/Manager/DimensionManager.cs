@@ -119,6 +119,15 @@ namespace Dimensions {
                 return;
             }
             
+            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
+            {
+                conduitTileClosedChunkSystem.PortViewerController.DeActivate();
+                player.TileViewers.ConduitPortViewer.enabled = false;
+            }
+            else
+            {
+                player.TileViewers.ConduitPortViewer.enabled = true;
+            }
             
             if (!ReferenceEquals(activeSystem,null) && !ReferenceEquals(activeSystem, newSystem))
             {

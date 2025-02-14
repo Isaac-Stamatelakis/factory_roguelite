@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image mMatrixImage;
         [SerializeField] private Image mEnergyImage;
@@ -92,6 +92,11 @@ namespace UI.Indicators
         public void OnPointerExit(PointerEventData eventData)
         {
             ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            
         }
     }
 }

@@ -2,6 +2,8 @@ using System;
 using Conduit.View;
 using Conduits.Ports;
 using Conduits.PortViewer;
+using Player;
+using PlayerModule.KeyPress;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,14 +11,20 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField] private Image portImage;
-        private ConduitViewOptions currentViewOptions;
-        public void Display(ConduitViewOptions conduitViewOptions)
+        
+        private PlayerScript playerScript;
+        public void Display(PlayerScript playerScript)
         {
-            this.currentViewOptions = conduitViewOptions;
-            portImage.color = GetDisplayColor(conduitViewOptions);
+            this.playerScript = playerScript;
+            Refresh();
+        }
+
+        public void Refresh()
+        {
+            portImage.color = GetDisplayColor(playerScript.ConduitViewOptions);
         }
 
         private Color GetDisplayColor(ConduitViewOptions conduitViewOptions)
@@ -44,12 +52,17 @@ namespace UI.Indicators
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {currentViewOptions?.PortViewMode}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {playerScript.ConduitViewOptions?.PortViewMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            playerScript.GetComponent<PlayerKeyPress>().ChangePortModePress();
         }
     }
 }
