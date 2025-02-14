@@ -10,22 +10,13 @@ namespace Chunks.Loaders {
         public override bool canUpdate(Chunk value, Vector2Int playerPosition)
         {
             value.ScheduleForUnloading = false;
-            return value != null && closedChunkSystem.ChunkIsCached(value.GetPosition()) && value.partionsAreAllUnloaded();
+            return closedChunkSystem.ChunkIsCached(value.GetPosition()) && value.partionsAreAllUnloaded();
         }
 
         public override Vector2Int getPlayerPosition()
         {
             return closedChunkSystem.GetPlayerChunk();
         }
-
-
-        /*
-public float delay = 1F; // 1
-[SerializeField]
-public int rapidUploadThreshold = 10000;
-[SerializeField]
-public int uploadAmountThreshold = 1000;
-*/
 
         public override void update(Chunk value)
         {

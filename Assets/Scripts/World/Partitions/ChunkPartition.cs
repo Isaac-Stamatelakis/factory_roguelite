@@ -167,9 +167,6 @@ namespace Chunks.Partitions {
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
             if (layer != TileMapLayer.Base) return;
-            if (tileEntity is ILoadableTileEntity entity) {
-                entity.Load();
-            }
             tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
             if ( tileEntity is ITickableTileEntity tickableTileEntity) {
                 tickableTileEntities?.Add(tickableTileEntity);

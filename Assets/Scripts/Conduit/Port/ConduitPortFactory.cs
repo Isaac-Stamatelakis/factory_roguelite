@@ -320,6 +320,22 @@ namespace Conduits.Ports {
                     throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
             }
         }
+        
+        public static Color GetConduitPortColor(ConduitType conduitType) {
+            switch (conduitType) {
+                case ConduitType.Item:
+                    return Color.green;
+                case ConduitType.Fluid:
+                    return Color.blue;
+                case ConduitType.Energy:
+                    return Color.yellow;
+                case ConduitType.Signal:
+                    return Color.red;
+                case ConduitType.Matrix:
+                    return Color.magenta;
+            }
+            throw new System.Exception($"Did not cover case for ConduitType {conduitType}");
+        }
         public static Color GetColorFromInt(int index)
         {
             return index switch

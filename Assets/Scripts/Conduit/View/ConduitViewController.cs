@@ -83,6 +83,7 @@ namespace Conduit.View
             {
                 ringSelectorComponents.Add(new RingSelectorComponent(color,null,elementName,() => UpdateView(active,whitelist)));
             }
+            CanvasController.Instance.PopStack();
             RingSelectorComponent defaultComponent = new RingSelectorComponent(Color.cyan,null,"All",() => UpdateView(ConduitViewMode.All,null));
             ringSelector.Display(ringSelectorComponents, defaultComponent);
             CanvasController.Instance.DisplayObject(ringSelector.gameObject);

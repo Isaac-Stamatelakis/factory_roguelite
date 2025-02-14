@@ -74,7 +74,6 @@ namespace Player.Controls
 
             foreach (var (keycode, count) in keyCountDict)
             {
-                Debug.Log(count);
                 if (count == 1) singleKeyCodes.Add(keycode);
             }
         }

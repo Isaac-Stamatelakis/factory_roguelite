@@ -15,9 +15,9 @@ namespace Tiles {
 
     public static class MousePositionUtils
     {
+        const int NO_AUTO_ROTATION = -1;
         public static int CalculateHammerTileRotation(Vector2 mousePosition, int placementState)
         {
-            const int NO_AUTO_ROTATION = -1;
             if (placementState == 0) return NO_AUTO_ROTATION;
             List<Direction> directions = new List<Direction>
                 { Direction.Left, Direction.Right, Direction.Down, Direction.Up };
@@ -27,8 +27,26 @@ namespace Tiles {
             {
                  if (PlaceTile.tileInDirection(mousePosition, direction, TileMapLayer.Base)) directionsWithTile.Add(direction);
             }
-      
+
+            if (directionsWithTile.Count == 0) return NO_AUTO_ROTATION;
+            
             int mousePlacement = GetMousePlacement(mousePosition);
+            switch (placementState)
+            {
+                case HammerTile.SLAB_TILE_STATE:
+                    return CalculateSlabState(directionsWithTile, mousePlacement);
+                case HammerTile.SLANT_TILE_STATE:
+                case HammerTile.STAIR_TILE_STATE:
+                    return CalculateSlantStairState(directionsWithTile, mousePlacement);
+                default:
+                    return NO_AUTO_ROTATION;
+            }
+            
+            
+        }
+
+        private static int CalculateSlantStairState(HashSet<Direction> directionsWithTile, int mousePlacement)
+        {
             bool biasLeft = (mousePlacement & (int)MousePlacement.Left) != 0;
             bool biasDown = (mousePlacement & (int)MousePlacement.Down) != 0;
             const int RD_ROT = 0;
@@ -60,6 +78,26 @@ namespace Tiles {
                 return biasDown ? RD_ROT : RU_ROT;
             }
             
+            if (ld)
+            {
+                return LD_ROT;
+            }
+
+            if (lu)
+            {
+                return LU_ROT;
+            }
+
+            if (ru)
+            {
+                return RU_ROT;
+            }
+
+            if (rd)
+            {
+                return RD_ROT;
+            }
+            
             if (directionsWithTile.Contains(Direction.Down))
             {
                 return biasLeft ? LD_ROT : RD_ROT;
@@ -79,6 +117,48 @@ namespace Tiles {
             {
                 return biasDown ? LD_ROT : LU_ROT;
             }
+            
+            return NO_AUTO_ROTATION;
+        }
+        private static int CalculateSlabState(HashSet<Direction> directionsWithTile, int mousePlacement)
+        {
+            const int R_ROT = 1;
+            const int D_ROT = 0;
+            const int L_ROT = 3;
+            const int U_ROT = 2;
+           
+            if (directionsWithTile.Contains(Direction.Down) && directionsWithTile.Contains(Direction.Up))
+            {
+                bool biasDown = (mousePlacement & (int)MousePlacement.Down) != 0;
+                return biasDown ? D_ROT : U_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Left) && directionsWithTile.Contains(Direction.Right))
+            {
+                bool biasLeft = (mousePlacement & (int)MousePlacement.Left) != 0;
+                return biasLeft ? L_ROT : R_ROT;
+            }
+
+            
+            if (directionsWithTile.Contains(Direction.Up))
+            {
+                return U_ROT;
+            }
+            if (directionsWithTile.Contains(Direction.Down))
+            {
+                return D_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Right))
+            {
+                return R_ROT;
+            }
+            
+            if (directionsWithTile.Contains(Direction.Left))
+            {
+                return L_ROT;
+            }
+            
             
             return NO_AUTO_ROTATION;
         }

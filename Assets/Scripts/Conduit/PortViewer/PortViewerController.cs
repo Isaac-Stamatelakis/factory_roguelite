@@ -123,6 +123,7 @@ namespace Conduits.PortViewer {
                 ringSelectorComponents.Add(new RingSelectorComponent(color,null,elementName,() => ChangePortViewMode(portViewMode)));
             }
 
+            CanvasController.Instance.PopStack();
             RingSelectorComponent defaultComponent = new RingSelectorComponent(Color.cyan, null, "Auto", () => ChangePortViewMode(PortViewMode.Auto));
             ringSelector.Display(ringSelectorComponents, defaultComponent);
             CanvasController.Instance.DisplayObject(ringSelector.gameObject);
@@ -176,7 +177,7 @@ namespace Conduits.PortViewer {
             portViewer.name = $"{conduitType} Port Viewer";
             portViewer.gameObject.SetActive(true);
             
-            Color color = getConduitPortColor(conduitType);
+            Color color = ConduitPortFactory.GetConduitPortColor(conduitType);
 
             Dictionary<EntityPortType,TileBase> portTypeToTile = new Dictionary<EntityPortType, TileBase>();
             portTypeToTile[EntityPortType.All] = portConduitTiles.AnyTile;
@@ -200,21 +201,7 @@ namespace Conduits.PortViewer {
             ActivateViewer(currentType.Value);
         }
 
-        private Color getConduitPortColor(ConduitType conduitType) {
-            switch (conduitType) {
-                case ConduitType.Item:
-                    return Color.green;
-                case ConduitType.Fluid:
-                    return Color.blue;
-                case ConduitType.Energy:
-                    return Color.yellow;
-                case ConduitType.Signal:
-                    return Color.red;
-                case ConduitType.Matrix:
-                    return Color.magenta;
-            }
-            throw new System.Exception($"Did not cover case for ConduitType {conduitType}");
-        }
+        
     }
 
     [System.Serializable]
