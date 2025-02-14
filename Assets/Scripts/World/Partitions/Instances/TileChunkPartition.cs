@@ -276,7 +276,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             farLoaded = true;
             SeralizedWorldData data = (SeralizedWorldData) GetData();
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            string[,] tileIds = data.baseData.ids;
+      
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     if (tileEntities[x,y] != null) {
@@ -287,13 +287,10 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         continue;
                     }
                     TileItem tileItem = itemRegistry.GetTileItem(id);
-                    if (tileItem == null) {
-                        continue;
-                    }
-                    TileEntityObject tileEntity = tileItem.tileEntity;
-                    if (tileEntity == null || !tileEntity.ExtraLoadRange) {
-                        continue;
-                    }
+                    TileEntityObject tileEntity = tileItem?.tileEntity;
+                    if (ReferenceEquals(tileEntity, null) || !tileEntity.ExtraLoadRange) continue;
+                        
+                    
                     string tileEntityData = data.baseData.sTileEntityOptions[x,y];
                     Vector2Int position = this.position * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x,y);
                     tileEntities[x,y] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
