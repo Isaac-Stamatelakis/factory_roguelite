@@ -85,15 +85,7 @@ namespace PlayerModule {
                 playerToolListUI.Highlight(false);
             }
         }
-
-        public void toggleInventory() {
-            expanded = !expanded;
-            if (expanded) {
-                playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory);
-            } else {
-                playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
-            }
-        }
+        
         public void ChangeSelectedSlot(int slot) {
             switch (mode)
             {

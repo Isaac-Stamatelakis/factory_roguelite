@@ -108,6 +108,7 @@ namespace Player
     public class PlayerUIPrefabs
     {
         public UIRingSelector RingSelectorPrefab;
+        public PlayerInventoryUI PlayerInventoryUIPrefab;
     }
     [System.Serializable]
     public class ConduitPlacementOptions

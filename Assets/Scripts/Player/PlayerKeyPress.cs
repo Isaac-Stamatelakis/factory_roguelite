@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using Items.Inventory;
 using Player;
 using Player.Controls;
+using Player.UI;
 using TMPro;
 using UI;
 using UI.Chat;
@@ -59,9 +60,13 @@ namespace PlayerModule.KeyPress {
             if (PlayerKeyPressUtils.BlockKeyInput) return;
             ControlUtils.UpdateModifierCount();
             
-            if (Input.GetKeyDown(KeyCode.E)) {
-                ToolTipController.Instance.HideToolTip();
-                playerInventory.toggleInventory();
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
+                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject);
+                //ToolTipController.Instance.HideToolTip();
+                
+                //playerInventory.toggleInventory();
             }
 
             if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))

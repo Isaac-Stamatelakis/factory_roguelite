@@ -24,7 +24,7 @@ namespace UI.Indicators
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions.Rotation}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions?.Rotation}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
