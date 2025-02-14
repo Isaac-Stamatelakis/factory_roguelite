@@ -1,5 +1,8 @@
+using Player;
 using Tiles;
+using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI.Indicators
@@ -7,9 +10,21 @@ namespace UI.Indicators
     public class TileHighligherIndicatorUI : MonoBehaviour
     {
         [SerializeField] private Image tileImage;
-        public void Display(bool active)
+        private bool active;
+        public void Display(PlayerTilePlacementOptions tilePlacementOptions)
         {
-            tileImage.color = active ? Color.blue : Color.gray;
+            this.active = tilePlacementOptions.Indiciator;
+            tileImage.color = tilePlacementOptions.Indiciator ? Color.blue : Color.gray;
+        }
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview:  {(active ? "Active" : "Inactive")}");
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            ToolTipController.Instance.HideToolTip();
         }
     }
 }

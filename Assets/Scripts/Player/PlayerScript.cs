@@ -104,6 +104,7 @@ namespace Player
     [System.Serializable]
     public class PlayerTilePlacementOptions
     {
+        public bool Indiciator = true;
         public int Rotation;
         public int State;
     }

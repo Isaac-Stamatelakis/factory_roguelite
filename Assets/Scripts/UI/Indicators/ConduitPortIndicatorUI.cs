@@ -2,17 +2,20 @@ using System;
 using Conduit.View;
 using Conduits.Ports;
 using Conduits.PortViewer;
+using UI.ToolTip;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitPortIndicatorUI : MonoBehaviour
+    public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image portImage;
+        private ConduitViewOptions currentViewOptions;
         public void Display(ConduitViewOptions conduitViewOptions)
         {
-
+            this.currentViewOptions = conduitViewOptions;
             portImage.color = GetDisplayColor(conduitViewOptions);
         }
 
@@ -37,6 +40,16 @@ namespace UI.Indicators
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {currentViewOptions?.PortViewMode}");
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            ToolTipController.Instance.HideToolTip();
         }
     }
 }
