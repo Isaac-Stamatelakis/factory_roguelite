@@ -321,7 +321,7 @@ namespace Chunks.Systems {
                         partition.Save();
                     }
                 }
-                ChunkIO.writeChunk(chunk);
+                ChunkIO.WriteChunk(chunk);
             }
         }
 
@@ -334,7 +334,8 @@ namespace Chunks.Systems {
 
         public IChunk GetChunkAtPosition(Vector2Int chunkPosition)
         {
-            return cachedChunks[chunkPosition];
+            cachedChunks.TryGetValue(chunkPosition, out var chunk);
+            return chunk;
         }
     }
 

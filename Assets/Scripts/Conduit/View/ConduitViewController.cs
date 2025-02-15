@@ -66,6 +66,11 @@ namespace Conduit.View
         private void KeyPressListen()
         {
             if (!ControlUtils.GetControlKeyDown(ControlConsts.CHANGE_CONDUIT_VIEW_MODE) || ReferenceEquals(chunkSystem, null)) return;
+            DisplayRadialMenu();
+        }
+
+        public void DisplayRadialMenu()
+        {
             UIRingSelector ringSelector = GameObject.Instantiate(playerScript.Prefabs.RingSelectorPrefab);
             List<RingSelectorComponent> ringSelectorComponents = new List<RingSelectorComponent>();
                 
@@ -95,6 +100,7 @@ namespace Conduit.View
             viewOptions.ConduitViewMode = conduitViewMode;
             viewOptions.WhiteListType = whiteListType;
             DisplayView();
+            playerScript.PlayerUIContainer.IndicatorManager.conduitViewIndicatorUI.Refresh();
         }
 
         public void DisplayView()
@@ -146,6 +152,7 @@ namespace Conduit.View
         {
             this.chunkSystem = chunkSystem;
             this.playerScript = playerScript;
+            this.playerScript.TileViewers.ConduitViewController = this;
             DisplayView();
         }
     }

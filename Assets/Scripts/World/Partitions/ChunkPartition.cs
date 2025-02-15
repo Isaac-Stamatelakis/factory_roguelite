@@ -21,10 +21,9 @@ namespace Chunks.Partitions {
         protected bool scheduledForFarLoading = false;
         protected Vector2Int position;
         protected T data;
-        public ITileEntityInstance[,] tileEntities;
-
+        
+        public Dictionary<Vector2Int,ITileEntityInstance> tileEntities;
         protected int[,] baseTileHardnessArray;
-        //public TileOptions[,] tileOptionsArray;
         public List<ITickableTileEntity> tickableTileEntities;
         protected IChunk parent;
 
@@ -167,43 +166,39 @@ namespace Chunks.Partitions {
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
         {
             if (layer != TileMapLayer.Base) return;
-            tileEntities[positionInPartition.x,positionInPartition.y] = tileEntity;
+            tileEntities[positionInPartition] = tileEntity;
             if ( tileEntity is ITickableTileEntity tickableTileEntity) {
                 tickableTileEntities?.Add(tickableTileEntity);
             }
         }
 
-        public void BreakTileEntity(TileMapLayer layer, Vector2Int position)
+        public void BreakTileEntity(TileMapLayer layer, Vector2Int positionInPartition)
         {
             if (layer != TileMapLayer.Base) {
                 return;
             }
-            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
+
+            if (!tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity)) return;
             if (tileEntity is IBreakActionTileEntity breakActionTileEntity) {
                 breakActionTileEntity.OnBreak();
             }
             if (tileEntity is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.Unload();
             }
-            
-            tileEntities[position.x,position.y] = null;
+
+            tileEntities.Remove(positionInPartition);
             if (tileEntity is ITickableTileEntity tickableTileEntity) {
                 tickableTileEntities?.Remove(tickableTileEntity);
             }
             
         }
 
-        public bool ClickTileEntity(Vector2Int position)
+        public bool ClickTileEntity(Vector2Int positionInPartition)
         {
-            ITileEntityInstance tileEntity = tileEntities[position.x,position.y];
-            if (tileEntity == null) {
-                return false;
-            }
-            if (tileEntity is IRightClickableTileEntity rightClickableTileEntity) {
-                rightClickableTileEntity.OnRightClick();
-                return true;
-            }
-            return false;
+            if (!tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity)) return false;
+            if (tileEntity is not IRightClickableTileEntity rightClickableTileEntity) return false;
+            rightClickableTileEntity.OnRightClick();
+            return true;
         }
 
         public bool GetLoaded()
@@ -216,12 +211,10 @@ namespace Chunks.Partitions {
             loaded = val;
         }
         
-        public ITileEntityInstance GetTileEntity(Vector2Int position)
+        public ITileEntityInstance GetTileEntity(Vector2Int positionInPartition)
         {
-            if (tileEntities == null) {
-                return null;
-            }
-            return tileEntities[position.x,position.y];
+            tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity);
+            return tileEntity;
         }
 
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
@@ -278,7 +271,7 @@ namespace Chunks.Partitions {
             {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
                 {
-                    var tileEntity = tileEntities[x, y];
+                    if (!tileEntities.TryGetValue(new Vector2Int(x, y), out ITileEntityInstance tileEntity)) continue;
                     if (tileEntity is not ILoadableTileEntity loadableTileEntity) continue;
                     loadableTileEntity.Unload();
                 }

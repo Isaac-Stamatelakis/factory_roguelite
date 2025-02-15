@@ -15,11 +15,17 @@ using Object = UnityEngine.Object;
 namespace WorldModule {
     public class WorldManager
     {
+        public enum WorldType
+        {
+            Default,
+            Structure
+        }
         private static WorldManager instance;
         private string worldName;
         private WorldMetaData metaData;
         private HashSet<string> unlockedGameStages = new HashSet<string>();
         private QuestBookLibrary questBookLibrary;
+        public WorldType WorldLoadType = WorldType.Default;
         private WorldManager() {
             worldName = "world0"; // Default
         }

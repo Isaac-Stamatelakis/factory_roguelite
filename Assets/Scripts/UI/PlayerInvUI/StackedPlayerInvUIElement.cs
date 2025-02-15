@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
 using Items.Inventory;
 using PlayerModule;
 using TileEntity.Instances.Machine.UI;
@@ -11,6 +12,7 @@ namespace UI.PlayerInvUI
     public class StackedPlayerInvUIElement : MonoBehaviour
     {
         [SerializeField] private InventoryUI playerInventoryUI;
+        [SerializeField] private InventoryUI trashCanUI;
         [SerializeField] private GameObject playerInventoryContainer;
 
         private InventoryUI originalPlayerInventoryUI;
@@ -19,7 +21,13 @@ namespace UI.PlayerInvUI
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             playerInventoryUI.DisplayInventory(playerInventory.Inventory);
             originalPlayerInventoryUI = playerInventory.InventoryUI;
+            trashCanUI.DisplayInventory(new List<ItemSlot>{null},false);
             playerInventoryUI.AddCallback(RefreshBaseUI);
+        }
+
+        public void Update()
+        {
+            trashCanUI.SetItem(0,null);
         }
 
         private void RefreshBaseUI(int index)

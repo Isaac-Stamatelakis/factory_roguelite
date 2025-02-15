@@ -121,8 +121,7 @@ namespace Dimensions {
             
             if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
             {
-                conduitTileClosedChunkSystem.PortViewerController.DeActivate();
-                player.TileViewers.ConduitPortViewer.enabled = false;
+                player.TileViewers.DisableConduitViewers();
             }
             else
             {

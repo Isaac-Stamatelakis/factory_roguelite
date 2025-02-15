@@ -29,7 +29,7 @@ namespace UI.Indicators
         public void Initialize(PlayerScript playerScript)
         {
             conduitPortIndicatorUI?.Display(playerScript);
-            conduitViewIndicatorUI?.Display(playerScript.ConduitViewOptions);
+            conduitViewIndicatorUI?.Display(playerScript);
             conduitPlacementModeIndicatorUI?.Display(playerScript.ConduitPlacementOptions);
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);

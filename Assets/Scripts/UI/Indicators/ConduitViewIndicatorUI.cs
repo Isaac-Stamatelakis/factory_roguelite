@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Conduit.View;
+using Player;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,18 +17,20 @@ namespace UI.Indicators
         [SerializeField] private Image mItemImage;
         [SerializeField] private Image mFluidImage;
 
-        public void Start()
+        private PlayerScript playerScript;
+        
+        public void Display(PlayerScript playerScript)
+        {
+            this.playerScript = playerScript;
+        }
+
+        public void Refresh()
         {
             mMatrixImage.enabled = false;
             mEnergyImage.enabled = false;
             mSignalImage.enabled = false;
             mItemImage.enabled = false;
             mFluidImage.enabled = false;
-        }
-
-        private ConduitViewOptions currentViewOptions;
-        public void Display(ConduitViewOptions conduitViewOptions)
-        {
             Dictionary<ConduitType, Image> conduitImages = new Dictionary<ConduitType, Image>
             {
                 [ConduitType.Matrix] = mMatrixImage,
@@ -38,7 +41,7 @@ namespace UI.Indicators
             };
             
             Image centerImage = conduitImages[ConduitType.Signal];
-            switch (conduitViewOptions.ConduitViewMode)
+            switch (playerScript.ConduitViewOptions.ConduitViewMode)
             {
                 case ConduitViewMode.None:
                     centerImage.enabled = true;
@@ -50,7 +53,7 @@ namespace UI.Indicators
                     return;
             }
 
-            var conduitTypes = GetViewConduitTypes(conduitViewOptions);
+            var conduitTypes = GetViewConduitTypes(playerScript.ConduitViewOptions);
             foreach (ConduitType conduitType in conduitTypes)
             {
                 conduitImages[conduitType].enabled = true;
@@ -86,7 +89,14 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode:  {currentViewOptions?.ConduitViewMode}");
+            string text = GetToolTipText();
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode: {text}");
+        }
+
+        private string GetToolTipText()
+        {
+            if (playerScript.ConduitViewOptions.ConduitViewMode != ConduitViewMode.WhiteList)return playerScript.ConduitViewOptions.ConduitViewMode.ToString();
+            return playerScript.ConduitViewOptions.WhiteListType.ToString();
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -96,7 +106,7 @@ namespace UI.Indicators
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            
+            playerScript.TileViewers.ConduitViewController?.DisplayRadialMenu();
         }
     }
 }

@@ -66,7 +66,7 @@ namespace Chunks {
             IChunk chunk = GetChunkAtPosition(chunkPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(cellPosition);
             Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
-            return (chunk.GetPartition(partitionPosition), positionInPartition);
+            return (chunk?.GetPartition(partitionPosition), positionInPartition);
         }
 
     }
@@ -163,7 +163,7 @@ namespace Chunks {
 
         public virtual void unload()
         {
-            ChunkIO.writeChunk(this);
+            ChunkIO.WriteChunk(this);
             GameObject.Destroy(gameObject);
 
         }

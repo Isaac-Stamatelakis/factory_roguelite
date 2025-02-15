@@ -23,9 +23,9 @@ namespace Chunks.Partitions {
         public bool InRange(Vector2Int target, int xRange, int yRange);
         public void Tick();
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition);
-        public void BreakTileEntity(TileMapLayer layer, Vector2Int position);
-        public bool ClickTileEntity(Vector2Int position);
-        public ITileEntityInstance GetTileEntity(Vector2Int position);
+        public void BreakTileEntity(TileMapLayer layer, Vector2Int positionInPartition);
+        public bool ClickTileEntity(Vector2Int positionInPartition);
+        public ITileEntityInstance GetTileEntity(Vector2Int positionInPartition);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
         public PartitionFluidData GetFluidData();

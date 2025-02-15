@@ -147,7 +147,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
 
-        public static void teleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
+        public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
             IChunk chunk = compactMachine.getChunk();
             if (chunk is not ILoadedChunk loadedChunk) {
@@ -169,7 +169,7 @@ namespace TileEntity.Instances.CompactMachines {
                 key:parentKey
             );
         }
-        public static void teleportIntoCompactMachine(CompactMachineInstance compactMachine) {
+        public static void TeleportIntoCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
             IChunk chunk = compactMachine.getChunk();
             if (chunk is not ILoadedChunk loadedChunk) {

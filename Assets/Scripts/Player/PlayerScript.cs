@@ -76,6 +76,7 @@ namespace Player
         public TilePlacePreviewer TilePlacePreviewer;
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
+        [HideInInspector] public ConduitViewController ConduitViewController;
         public void SetPlacePreviewerState(bool state)
         {
             TilePlacePreviewer.gameObject.SetActive(state);
@@ -95,11 +96,19 @@ namespace Player
             TilePlacePreviewer.Initialize(playerScript);
         }
 
+        public void DisableConduitViewers()
+        {
+            ConduitPortViewer.DeActivate();
+            ConduitPortViewer.enabled = false;
+            ConduitViewController = null;
+        }
+
     }
     [System.Serializable]
     public class PlayerUIPrefabs
     {
         public UIRingSelector RingSelectorPrefab;
+        public PlayerInventoryUI PlayerInventoryUIPrefab;
     }
     [System.Serializable]
     public class ConduitPlacementOptions

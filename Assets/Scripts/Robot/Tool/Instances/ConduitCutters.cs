@@ -11,15 +11,15 @@ using UnityEngine;
 
 namespace Robot.Tool.Instances
 {
-    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>
+    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, ISubModeRobotToolInstance
     {
         
         private LineRenderer lineRenderer;
         public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject) : base(toolData, robotObject)
         {
         }
-
-        public override Sprite GetSprite()
+        
+        public override Sprite GetPrimaryModeSprite()
         {
             return toolData.Type switch
             {
@@ -84,8 +84,30 @@ namespace Robot.Tool.Instances
             }
             
         }
-        
-        
+
+        public override string GetModeName()
+        {
+            return toolData?.Type.ToString();
+        }
+
+        public string GetSubModeName()
+        {
+            return toolData?.CutterMode.ToString();
+        }
+
+        public Sprite GetSubModeSprite()
+        {
+            switch(toolData.CutterMode)
+            {
+                case ConduitCutterMode.Standard:
+                    return robotObject.LaserModeSprite;
+                case ConduitCutterMode.Disconnect:
+                    return robotObject.SpliceModeSprite;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
 
         private void UpdateLineRenderer(Vector2 mousePosition)
         {

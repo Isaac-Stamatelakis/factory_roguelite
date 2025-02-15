@@ -19,8 +19,8 @@ namespace Robot.Tool.Instances
         {
          
         }
-
-        public override Sprite GetSprite()
+        
+        public override Sprite GetPrimaryModeSprite()
         {
             switch (toolData.Layer)
             {
@@ -71,6 +71,11 @@ namespace Robot.Tool.Instances
             toolData.Layer = toolData.Layer == TileMapLayer.Base ? TileMapLayer.Background : TileMapLayer.Base;
         }
 
+        public override string GetModeName()
+        {
+            return toolData?.Layer.ToString();
+        }
+        
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
             Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;

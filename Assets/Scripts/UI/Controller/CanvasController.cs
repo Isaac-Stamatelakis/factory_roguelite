@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Player.Controls;
 using Player.Controls.Bindings;
@@ -58,10 +59,17 @@ namespace UI
             {
                 if (Input.GetKeyDown(key))
                 {
-                    PopStack();
+                    StartCoroutine(DelayStartPopStack());
                     return;
                 }
             }
+        }
+
+        private IEnumerator DelayStartPopStack()
+        {
+            yield return null;
+            PopStack();
+
         }
 
         public void ClearStack()

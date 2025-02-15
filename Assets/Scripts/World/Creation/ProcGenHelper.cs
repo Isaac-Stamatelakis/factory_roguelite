@@ -43,9 +43,12 @@ namespace WorldModule {
             for (int partitionX = 0; partitionX < Global.PARTITIONS_PER_CHUNK; partitionX ++) {
                 for (int partitionY = 0; partitionY < Global.PARTITIONS_PER_CHUNK; partitionY ++) {
                     chunkPartitionDataList.Add(ConvertPartition(chunkX,chunkY,minX,minY,partitionX,partitionY,worldTileData));
+                    
                 }
             }
-            ChunkIO.WriteNewChunk(new Vector2Int(chunkX,chunkY),dim,chunkPartitionDataList,dimPath);
+
+            SoftLoadedConduitTileChunk softLoadedChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList, new Vector2Int(chunkX, chunkY), dim);
+            ChunkIO.WriteChunk(softLoadedChunk);
         }
 
         public static WorldTileConduitData CreateEmpty(Vector2Int size) {

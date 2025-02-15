@@ -52,7 +52,7 @@ namespace UI.Indicators
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {playerScript.ConduitViewOptions?.PortViewMode}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {playerScript?.ConduitViewOptions?.PortViewMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)
