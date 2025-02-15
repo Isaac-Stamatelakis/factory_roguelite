@@ -27,6 +27,7 @@ namespace Robot.Tool
     {
         public Sprite GetSprite();
         public void ModeSwitch(MoveDirection moveDirection, bool subMode);
+        public string GetName();
     }
     public abstract class RobotToolInstance<TData, TObject> : IRobotToolInstance 
         where TData : RobotToolData 
@@ -45,6 +46,10 @@ namespace Robot.Tool
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
         public abstract void ModeSwitch(MoveDirection moveDirection, bool subMode);
+        public string GetName()
+        {
+            return robotObject?.name;
+        }
     }
 
     public abstract class RobotToolData

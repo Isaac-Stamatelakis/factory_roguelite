@@ -31,6 +31,7 @@ namespace Player {
         OnWall,
         OnGround,
         OnSlope,
+        HeadContact,
         OnPlatform
     }
     public class PlayerRobot : MonoBehaviour
@@ -179,7 +180,11 @@ namespace Player {
             SpaceBarMovementUpdate(ref velocity);
             if (jumpEvent != null)
             {
-                if (Input.GetKey(KeyCode.Space))
+                if (collisionStates.Contains(CollisionState.HeadContact))
+                {
+                    rb.gravityScale = defaultGravityScale;
+                    jumpEvent = null;
+                } else if (Input.GetKey(KeyCode.Space))
                 {
                     rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
@@ -296,8 +301,19 @@ namespace Player {
 
             const float EPSILON = 0.02f;
             
-            var cast = Physics2D.BoxCast(adjacentTilePosition, new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 0f, Vector2.zero, Mathf.Infinity, blockLayer);
+            var cast = Physics2D.BoxCast(adjacentTilePosition, 
+                new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 
+                0f, Vector2.zero, Mathf.Infinity, blockLayer
+            );
             if (ReferenceEquals(cast.collider,null)) return false;
+            
+            var wallCast = Physics2D.BoxCast(
+                adjacentTilePosition+Vector2.up*Global.TILE_SIZE, 
+                new Vector2(Global.TILE_SIZE-EPSILON, Global.TILE_SIZE/4f), 
+                0f, Vector2.zero, Mathf.Infinity, blockLayer
+            );
+            if (!ReferenceEquals(wallCast.collider,null)) return false;
+            
             WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
             IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem();

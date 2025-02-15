@@ -62,7 +62,7 @@ namespace PlayerModule {
 
         public void InitializeToolDisplay()
         {
-            playerToolListUI.Initialize(playerRobot.RobotTools);
+            playerToolListUI.Initialize(playerRobot.RobotTools, this);
         }
 
         public void Refresh()
@@ -94,11 +94,16 @@ namespace PlayerModule {
                     playerInventoryGrid.HighlightSlot(slot);
                     break;
                 case InventoryDisplayMode.Tools:
-                    selectedTool = slot % playerRobot.RobotTools.Count;
-                    playerToolListUI.IterateSelectedTool(selectedTool);
+                    ChangeSelectedTool(slot % playerRobot.RobotTools.Count);
                     break;
             }
             
+        }
+
+        public void ChangeSelectedTool(int index)
+        {
+            selectedTool = index;
+            playerToolListUI.SetOffset(selectedTool);
         }
         
         
@@ -121,7 +126,7 @@ namespace PlayerModule {
                     ChangeSelectedSlot(selectedSlot); 
                     break;
                 case InventoryDisplayMode.Tools:
-                    selectedTool += iterator;
+                    selectedTool -= iterator; // This is reverse for some reason?
                     selectedTool = (int) Global.modInt(selectedTool,playerRobot.RobotTools.Count);
                     ChangeSelectedSlot(selectedTool); 
                     break;
