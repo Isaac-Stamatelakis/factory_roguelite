@@ -67,7 +67,7 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
-                CompactMachineHelper.teleportIntoCompactMachine(this);
+                CompactMachineHelper.TeleportIntoCompactMachine(this);
                 return;
             }
             GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();

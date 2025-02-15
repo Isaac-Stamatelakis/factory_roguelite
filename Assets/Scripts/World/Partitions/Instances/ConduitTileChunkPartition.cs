@@ -23,7 +23,6 @@ namespace Chunks.Partitions {
         public ConduitItem GetConduitItemAtPosition(Vector2Int positionInPartition, ConduitType type);
         public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void Activate(ILoadedChunk loadedChunk);
-        public void SyncToCompactMachine(CompactMachineInstance compactMachine);
         public void AssembleMultiBlocks();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
@@ -270,10 +269,8 @@ namespace Chunks.Partitions {
 
         public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item)
         {
-            string id = null;
-            if (item != null) {
-                id = item.id;
-            }
+            string id = item?.id;
+            
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData)GetData();
             switch (type) {
                 case ConduitType.Item:
@@ -302,17 +299,7 @@ namespace Chunks.Partitions {
                 tileEntity?.setChunk(loadedChunk);
             }
         }
-
-        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
-        {
-            foreach (ITileEntityInstance tileEntity in tileEntities.Values) {
-                if (tileEntity is not ICompactMachineInteractable compactMachineInteractable) {
-                    continue;
-                }
-                compactMachineInteractable.SyncToCompactMachine(compactMachine);
-            }
-        }
-
+        
         public void AssembleMultiBlocks()
         {
             foreach (ITileEntityInstance tileEntity in tileEntities.Values) {

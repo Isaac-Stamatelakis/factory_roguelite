@@ -30,7 +30,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
         private void teleport() {
-            CompactMachineHelper.teleportIntoCompactMachine(compactMachine);
+            CompactMachineHelper.TeleportIntoCompactMachine(compactMachine);
         }
         private void toggle() {
             
