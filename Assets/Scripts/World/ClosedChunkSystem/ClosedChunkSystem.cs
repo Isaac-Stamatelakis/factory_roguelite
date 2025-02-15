@@ -321,7 +321,7 @@ namespace Chunks.Systems {
                         partition.Save();
                     }
                 }
-                ChunkIO.writeChunk(chunk);
+                ChunkIO.WriteChunk(chunk);
             }
         }
 

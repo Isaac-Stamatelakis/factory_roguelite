@@ -163,7 +163,7 @@ namespace Chunks {
 
         public virtual void unload()
         {
-            ChunkIO.writeChunk(this);
+            ChunkIO.WriteChunk(this);
             GameObject.Destroy(gameObject);
 
         }

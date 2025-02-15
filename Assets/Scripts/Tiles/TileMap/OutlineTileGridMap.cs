@@ -63,6 +63,7 @@ namespace TileMaps {
             Vector2Int tilePosition = new Vector2Int(x, y);
             IChunkPartition partition = GetPartitionAtPosition(tilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(tilePosition);
+            if (partition == null) return;
             BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
             int state = baseTileData.state;
 

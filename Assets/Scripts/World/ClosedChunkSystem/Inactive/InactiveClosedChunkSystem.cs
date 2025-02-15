@@ -201,7 +201,7 @@ namespace Chunks.Systems {
                     conduitTileChunkPartition.SetConduits(partitionConduits);
                     partition.Save();
                 }
-                ChunkIO.writeChunk(chunk,path:savePath,directory:true);
+                ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
             }
         }
 
