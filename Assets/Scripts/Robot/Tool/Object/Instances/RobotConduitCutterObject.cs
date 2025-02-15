@@ -11,6 +11,8 @@ namespace Player.Tool.Object
         public Sprite EnergyLayerSprite;
         public Sprite SignalLayerSprite;
         public Sprite MatrixLayerSprite;
+        public Sprite LaserModeSprite;
+        public Sprite SpliceModeSprite;
         public LineRenderer LineRendererPrefab;
     }
 }

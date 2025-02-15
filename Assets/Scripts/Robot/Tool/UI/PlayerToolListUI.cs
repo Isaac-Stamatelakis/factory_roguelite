@@ -4,11 +4,14 @@ using Player.Tool;
 using Player.Tool.UI;
 using PlayerModule;
 using Robot.Tool;
+using Robot.Tool.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerToolListUI : MonoBehaviour
 {
+    [SerializeField] private PlayerToolUIIndicator primaryIndicator;
+    [SerializeField] private PlayerToolUIIndicator secondaryIndicator;
     private int offset;
     PlayerToolListElementUI[] elements;
     private List<IRobotToolInstance> tools;
@@ -29,6 +32,15 @@ public class PlayerToolListUI : MonoBehaviour
         this.playerInventory = playerInventory;
         Display();
     }
+    
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            playerInventory?.CurrentTool.ModeSwitch(MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
+            playerInventory?.PlayerRobotToolUI.Display();
+        }
+    }
     public void Display()
     {
         if (tools.Count == 0) return;
@@ -37,6 +49,19 @@ public class PlayerToolListUI : MonoBehaviour
             int index = (i + offset) % tools.Count;
             elements[i].Display(index,tools[index],playerInventory.ChangeSelectedTool);
         }
+        
+        IRobotToolInstance current = tools[offset];
+        primaryIndicator.Display(current);
+        if (current is ISubModeRobotToolInstance)
+        {
+            secondaryIndicator.Display(current);
+            secondaryIndicator.gameObject.SetActive(true);
+        }
+        else
+        {
+            secondaryIndicator.gameObject.SetActive(false);
+        }
+
     }
     
     public void IterateSelectedTool(int iterator)

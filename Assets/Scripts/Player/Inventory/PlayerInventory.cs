@@ -37,7 +37,6 @@ namespace PlayerModule {
         private GameObject inventoryContainer;
         private GameObject inventoryItemContainer;
         private GameObject hotbarNumbersContainer;
-        private bool expanded = false;
         public PlayerInventoryData PlayerInventoryData => playerInventoryData;
         public List<ItemSlot> Inventory => playerInventoryData.Inventory;
         public InventoryUI InventoryUI => playerInventoryGrid;

@@ -26,8 +26,16 @@ namespace Robot.Tool
     public interface IRobotToolInstance : IPlayerClickHandler
     {
         public Sprite GetSprite();
+        public Sprite GetPrimaryModeSprite();
         public void ModeSwitch(MoveDirection moveDirection, bool subMode);
         public string GetName();
+        public string GetModeName();
+        
+    }
+    
+    public interface ISubModeRobotToolInstance {
+        public string GetSubModeName();
+        public Sprite GetSubModeSprite();
     }
     public abstract class RobotToolInstance<TData, TObject> : IRobotToolInstance 
         where TData : RobotToolData 
@@ -40,7 +48,13 @@ namespace Robot.Tool
         }
         protected TData toolData;
         protected TObject robotObject;
-        public abstract Sprite GetSprite();
+
+        public Sprite GetSprite()
+        {
+            return robotObject?.ToolSprite;
+        }
+        public abstract Sprite GetPrimaryModeSprite();
+
         public abstract void BeginClickHold(Vector2 mousePosition);
         public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
@@ -50,6 +64,8 @@ namespace Robot.Tool
         {
             return robotObject?.name;
         }
+
+        public abstract string GetModeName();
     }
 
     public abstract class RobotToolData

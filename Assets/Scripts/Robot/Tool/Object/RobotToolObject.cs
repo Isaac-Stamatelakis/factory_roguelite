@@ -12,6 +12,6 @@ namespace Player.Tool
     
     public abstract class RobotToolObject : ScriptableObject
     {
-        
+        public Sprite ToolSprite;
     }
 }

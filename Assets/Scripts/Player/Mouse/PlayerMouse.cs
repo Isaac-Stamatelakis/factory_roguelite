@@ -95,12 +95,7 @@ namespace PlayerModule.Mouse {
             {
                 toolClickHandlerCollection.Terminate(MouseButtonKey.Right);
             }
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                playerInventory.CurrentTool.ModeSwitch(MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
-                playerInventory.PlayerRobotToolUI.Display();
-            }
+            
             
             if (!leftClick && !rightClick) return;
             

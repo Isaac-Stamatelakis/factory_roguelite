@@ -30,8 +30,8 @@ namespace Robot.Tool.Instances
         {
          
         }
-
-        public override Sprite GetSprite()
+        
+        public override Sprite GetPrimaryModeSprite()
         {
             switch (toolData.Mode)
             {
@@ -45,6 +45,7 @@ namespace Robot.Tool.Instances
                     throw new ArgumentOutOfRangeException();
             }
         }
+
 
         public override void BeginClickHold(Vector2 mousePosition)
         {
@@ -121,6 +122,11 @@ namespace Robot.Tool.Instances
         {
             int direction = moveDirection == MoveDirection.Left ? -1 : 1;
             toolData.Mode = GlobalHelper.ShiftEnum(direction, toolData.Mode);
+        }
+
+        public override string GetModeName()
+        {
+            return toolData?.Mode.ToString();
         }
     }
 
