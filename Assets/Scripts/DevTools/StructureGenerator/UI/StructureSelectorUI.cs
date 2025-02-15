@@ -33,7 +33,9 @@ namespace DevTools.Structures {
                 string path = StructureGeneratorHelper.GetStructurePath(this.title.text);
                 
                 WorldManager.getInstance().SetWorldName(path);
-                SceneManager.LoadScene("StructureGenerator");
+                WorldManager.getInstance().WorldLoadType = WorldManager.WorldType.Structure;
+                WorldLoadUtils.UsePersistentPath = false;
+                SceneManager.LoadScene("MainScene");
             });
         }
 

@@ -20,6 +20,7 @@ namespace WorldModule {
     
     public static class WorldLoadUtils
     {
+        // Change this for accessing worlds in other folders persisent.
         public static bool UsePersistentPath = true;
         
         private static readonly string defaultWorldFolder = "worlds"; 

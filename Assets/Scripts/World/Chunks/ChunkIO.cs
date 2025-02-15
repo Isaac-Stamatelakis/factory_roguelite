@@ -49,14 +49,9 @@ namespace Chunks.IO {
         public static ILoadedChunk GetChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             string chunkName = GetName(chunkPosition);
             string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
-            string json;
-            if (File.Exists(filePath))
-            {
-                json = File.ReadAllText(filePath);
-            } else {
-                return null;
-            }
-            
+            if (!File.Exists(filePath)) return null;
+            byte[] compressed = File.ReadAllBytes(filePath);
+            string json = DecompressString(compressed);
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             if (closedChunkSystem is TileClosedChunkSystem) {
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeralizedWorldData>>(json));
