@@ -194,6 +194,11 @@ namespace PlayerModule.Mouse {
         }
         private void RightClickUpdate(Vector2 mousePosition)
         {
+            
+            if (Input.GetMouseButtonDown(1)) {
+                if (RightClickPort(mousePosition)) return;
+                if (TryClickTileEntity(mousePosition)) return;
+            }
             InventoryDisplayMode inventoryDisplayMode = playerInventory.Mode;
             switch (inventoryDisplayMode)
             {
@@ -206,11 +211,6 @@ namespace PlayerModule.Mouse {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            if (Input.GetMouseButtonDown(1)) {
-                if (RightClickPort(mousePosition)) return;
-                if (TryClickTileEntity(mousePosition)) return;
-            }
-            
         }
 
         private ConduitType? GetPortClickType()

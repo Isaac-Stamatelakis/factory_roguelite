@@ -64,14 +64,15 @@ namespace Chunks.Partitions {
                 Debug.LogError("Attempted to tick load partition which is already ticked loaded");
                 return;
             }
-            tileEntities ??= new ITileEntityInstance[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
+
+            tileEntities ??= new Dictionary<Vector2Int, ITileEntityInstance>();
             tickableTileEntities = new List<ITickableTileEntity>();
-            loadTickableTileEntityLayer(data.baseData);
+            LoadTickableTileEntityLayer(data.baseData);
             tickLoaded = true;
         }
 
         
-        private void loadTickableTileEntityLayer(SerializedBaseTileData data) {
+        private void LoadTickableTileEntityLayer(SerializedBaseTileData data) {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
@@ -83,8 +84,10 @@ namespace Chunks.Partitions {
                     if (ReferenceEquals(tileItem?.tileEntity,null)) {
                         continue;
                     }
-                    tileEntities[x,y] = PlaceSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],new Vector2Int(x,y));
-                    if (tileEntities[x, y] is ITickableTileEntity tickableTileEntity)
+                    Vector2Int positionInPartition = new Vector2Int(x, y);
+                    ITileEntityInstance tileEntityInstance = PlaceSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],positionInPartition);
+                    tileEntities[positionInPartition] = tileEntityInstance;
+                    if (tileEntityInstance is ITickableTileEntity tickableTileEntity)
                     {
                         tickableTileEntities.Add(tickableTileEntity);
                     }
@@ -295,20 +298,14 @@ namespace Chunks.Partitions {
         public void Activate(ILoadedChunk loadedChunk)
         {
             this.parent = loadedChunk;
-            foreach (ITileEntityInstance tileEntity in tileEntities) {
-                if (tileEntity == null) {
-                    continue;
-                }
-                tileEntity.setChunk(loadedChunk);
+            foreach (ITileEntityInstance tileEntity in tileEntities.Values) {
+                tileEntity?.setChunk(loadedChunk);
             }
         }
 
         public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
-            foreach (ITileEntityInstance tileEntity in tileEntities) {
-                if (tileEntity == null) {
-                    continue;
-                }
+            foreach (ITileEntityInstance tileEntity in tileEntities.Values) {
                 if (tileEntity is not ICompactMachineInteractable compactMachineInteractable) {
                     continue;
                 }
@@ -318,8 +315,8 @@ namespace Chunks.Partitions {
 
         public void AssembleMultiBlocks()
         {
-            foreach (ITileEntityInstance tileEntity in tileEntities) {
-                if (tileEntity == null || tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {
+            foreach (ITileEntityInstance tileEntity in tileEntities.Values) {
+                if (tileEntity is not IMultiBlockTileEntity multiBlockTileEntity) {
                     continue;
                 }
                 multiBlockTileEntity.AssembleMultiBlock();
