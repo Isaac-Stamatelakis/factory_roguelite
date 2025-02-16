@@ -29,9 +29,19 @@ namespace UI.TitleScreen.Select
 
         public void DisplayData(WorldDisplayData worldDisplayData)
         {
+            if (worldDisplayData.Corrupted)
+            {
+                createDateText.text = "?";
+                lastAccessDateText.text = "?";
+            }
+            else
+            {
+                createDateText.text = worldDisplayData.CreateTime.Value.ToString("MM/dd/yyyy HH:mm");
+                lastAccessDateText.text = worldDisplayData.LastAccessTime.Value.ToString("MM/dd/yyyy HH:mm");
+            }
             nameText.text = worldDisplayData.Name;
-            createDateText.text = worldDisplayData.CreateTime.ToString("MM/dd/yyyy HH:mm");
-            lastAccessDateText.text = worldDisplayData.LastAccessTime.ToString("MM/dd/yyyy HH:mm");
+            
+            
         }
 
         public void SetHighlight(Color? color)

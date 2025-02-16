@@ -51,7 +51,9 @@ namespace WorldModule {
             {
                 WorldCreation.InitializeMetaData(metaDataPath);
             }
-            metaData = JsonConvert.DeserializeObject<WorldMetaData>(File.ReadAllText(metaDataPath));
+
+            string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Meta);
+            metaData = JsonConvert.DeserializeObject<WorldMetaData>(json);
             unlockedGameStages = new HashSet<string>();
             foreach (string gameStageId in metaData.UnlockedGameStages)
             {
@@ -69,7 +71,7 @@ namespace WorldModule {
         {
             string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
             
-            string questBookJson = File.Exists(questBookPath) ? File.ReadAllText(questBookPath) : File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
+            string questBookJson = File.Exists(questBookPath) ? WorldLoadUtils.GetWorldFileJson(WorldFileType.Questbook) : File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
             SetQuestBookFromJson(questBookJson);
             
             
@@ -81,15 +83,13 @@ namespace WorldModule {
             metaData.LastAccessDate = DateTime.Now;
             metaData.UnlockedGameStages = unlockedGameStages.ToList();
             string json = JsonConvert.SerializeObject(metaData);
-            string metaDataPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta);
-            File.WriteAllText(metaDataPath, json);
+            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Meta,json);
         }
 
         public void SaveQuestBook()
         {
-            string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
             string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
-            File.WriteAllText(questBookPath, json);
+            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Questbook,json);
         }
 
         public void UnlockGameStage(GameStageObject gameStageObject)
