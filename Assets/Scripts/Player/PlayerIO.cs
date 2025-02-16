@@ -25,12 +25,17 @@ namespace PlayerModule.IO {
             playerData = JsonConvert.DeserializeObject<PlayerData>(json);
         }
         
-        void OnDestroy() {
+        void OnDestroy()
+        {
+            if (playerData == null) return;
             playerData.x = transform.position.x;
             playerData.y = transform.position.y;
             playerData.dim = DimensionManager.Instance.GetPlayerDimension();
-            playerData.sInventoryData = PlayerInventoryFactory.Serialize(GetComponent<PlayerInventory>().PlayerInventoryData);
-            string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
+
+            PlayerInventory playerInventory = GetComponent<PlayerInventory>();
+            if (playerInventory.PlayerInventoryData == null) return;
+            playerData.sInventoryData = PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData);
+    
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);

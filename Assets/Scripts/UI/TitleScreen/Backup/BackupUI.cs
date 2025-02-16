@@ -45,6 +45,7 @@ namespace UI.TitleScreen.Backup
             int index = 0;
             foreach (string dateFolder in dateFolders)
             {
+                string date = Path.GetFileName(dateFolder);
                 string[] backupPaths = Directory.GetDirectories(dateFolder);
                 foreach (string backUpPath in backupPaths)
                 {
@@ -52,7 +53,7 @@ namespace UI.TitleScreen.Backup
                     BackupListElementUI backupListElementUI = Instantiate(backupListElementUIPrefab, mList.transform);
                     backupListElementUIs.Add(backupListElementUI);
                     
-                    string date = Path.GetFileName(dateFolder);
+                    
                     string time = Path.GetFileName(backUpPath);
                     backupListElementUI.Display(date,time,index,SelectElement);
                     index++;

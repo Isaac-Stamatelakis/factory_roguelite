@@ -22,6 +22,7 @@ using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using World.BackUp;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -54,37 +55,43 @@ namespace Dimensions {
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
             yield return recipeLoad;
+            
+            string path = WorldLoadUtils.GetCurrentWorldPath();
+            Debug.Log($"Loading world from path {path}");
+            
+            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            catalogueControllers.ShowAll();
+            
+            WorldManager worldManager = WorldManager.getInstance();
+            if (!TryExecuteInitialLoad(worldManager.InitializeMetaData, null, "MetaData")) yield break;
+            if (!TryExecuteInitialLoad(worldManager.InitializeQuestBook,null, "QuestBook")) yield break;
+            
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            if (!TryExecuteInitialLoad(playerScript.Initialize,null, "Player")) yield break;
+            
+            
+            if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
+            
+            SetPlayerSystem(playerScript, 0, Vector2Int.zero);
+            WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
+            WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
+     
+        }
+        
 
+        private bool TryExecuteInitialLoad(Action action, Action errorAction, string loadName)
+        {
             try
             {
-                WorldManager.getInstance().InitializeMetaData();
-                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-                playerScript.Initialize();
-
-                ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-                catalogueControllers.ShowAll();
-
-                WorldManager.getInstance().InitializeQuestBook();
-
-                string path = WorldLoadUtils.GetCurrentWorldPath();
-                Debug.Log($"Loading world from path {path}");
-
-                SoftLoadSystems();
-                SetPlayerSystem(playerScript, 0, Vector2Int.zero);
+                action.Invoke();
+                return true;
             }
-            catch (NullReferenceException e)
+            catch (Exception e) when (e is NullReferenceException or ArgumentNullException or JsonSerializationException or FileNotFoundException)
             {
-                Debug.LogWarning(e);
+                Debug.LogError($"World failed to load at stage {loadName} e.Message");
+                SceneManager.LoadScene("TitleScreen");
+                return false;
             }
-            catch (IOException e)
-            {
-
-            }
-            catch (JsonSerializationException e)
-            {
-                
-            }
-            
         }
 
         protected abstract List<DimController> GetAllControllers();

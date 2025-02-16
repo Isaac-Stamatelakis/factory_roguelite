@@ -68,9 +68,7 @@ namespace WorldModule {
 
         public void InitializeQuestBook()
         {
-            string questBookPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook);
-            
-            string questBookJson = File.Exists(questBookPath) ? WorldLoadUtils.GetWorldFileJson(WorldFileType.Questbook) : File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
+            string questBookJson = WorldLoadUtils.GetWorldFileJson(WorldFileType.Questbook);
             SetQuestBookFromJson(questBookJson);
             
             
@@ -87,6 +85,7 @@ namespace WorldModule {
         public void SaveQuestBook()
         {
             string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
+            if (json == null) return;
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Questbook,json);
         }
 
