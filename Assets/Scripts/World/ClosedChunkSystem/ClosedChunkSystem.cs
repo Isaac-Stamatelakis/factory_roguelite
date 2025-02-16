@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Chunks;
 using Chunks.IO;
@@ -310,11 +311,11 @@ namespace Chunks.Systems {
             if (isQuitting) {
                 return;
             }
+            partitionUnloader.clearQueue();
             saveOnDestroy();
         }
 
         public virtual void saveOnDestroy() {
-            partitionUnloader.clearQueue();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
@@ -322,6 +323,22 @@ namespace Chunks.Systems {
                     }
                 }
                 ChunkIO.WriteChunk(chunk);
+            }
+        }
+
+        public IEnumerator SaveCoroutine()
+        {
+            var delay = new WaitForFixedUpdate();
+            List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
+            foreach (Vector2Int chunkPosition in currentlyCachedChunks) {
+                if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    if (partition.GetLoaded()) {
+                        partition.Save();
+                    }
+                }
+                ChunkIO.WriteChunk(chunk);
+                yield return delay;
             }
         }
 

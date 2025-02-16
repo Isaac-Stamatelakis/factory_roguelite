@@ -29,6 +29,8 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        private int ticksSinceLastSave = 40;
+        private const int AUTO_SAVE_TIME = 50 * 300; // One per 5 minutes 
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
@@ -64,7 +66,41 @@ namespace Dimensions {
             SoftLoadSystems();
             SetPlayerSystem(playerScript,0,Vector2Int.zero);
         }
-    
+
+        protected abstract List<DimController> GetAllControllers();
+
+        public void FixedUpdate()
+        {
+            if (!activeSystem) return;
+            ticksSinceLastSave++;
+            if (ticksSinceLastSave < AUTO_SAVE_TIME) return;
+            ticksSinceLastSave = 0;
+            StartCoroutine(AutoSaveCoroutine());
+        }
+
+        private IEnumerator AutoSaveCoroutine()
+        {
+            List<DimController> controllers = GetAllControllers();
+            Debug.Log("Auto Saving Started");
+            int systems = 0;
+            foreach (DimController controller in controllers)
+            {
+                if (controller is ISingleSystemController singleSystemController)
+                {
+                    yield return StartCoroutine(singleSystemController.SaveSystem());
+                    systems++;
+                } else if (controller is IMultipleSystemController multipleSystemController)
+                {
+                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    {
+                        systems++;
+                        yield return StartCoroutine(system?.SaveCoroutine());
+                    }
+                }
+            }
+            Debug.Log($"Saved {systems} systems.");
+        }
+
 
         public abstract void SoftLoadSystems();
 

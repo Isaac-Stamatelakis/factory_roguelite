@@ -205,6 +205,28 @@ namespace Chunks.Systems {
             }
         }
 
+        public IEnumerator SaveCoroutine()
+        {
+            WaitForFixedUpdate wait = new WaitForFixedUpdate();
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                        Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
+                        continue;
+                    }
+                    Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
+                    foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
+                        IConduitSystemManager manager = kvp.Value;
+                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
+                    }
+                    conduitTileChunkPartition.SetConduits(partitionConduits);
+                    partition.Save();
+                }
+                ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
+                yield return wait;
+            }
+        }
+
         public void TickUpdate() {
             foreach (IConduitSystemManager manager in conduitSystemManagersDict.Values) {
                 if (manager is ITickableConduitSystem tickableConduitSystem) {

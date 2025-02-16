@@ -25,6 +25,7 @@ namespace Dimensions {
         public override void Awake() {
             base.Awake();
         }
+
         private ISingleSystemController baseDimController;
         private CompactMachineTree systemTree;
         private List<SoftLoadedClosedChunkSystem> systems = new List<SoftLoadedClosedChunkSystem>();
@@ -34,9 +35,10 @@ namespace Dimensions {
                 system.TickUpdate();
             }
         }
-        public void OnDestroy() {
+        public void OnDestroy()
+        {
             foreach (SoftLoadedClosedChunkSystem system in systems) {
-                system.Save();
+                system?.Save();
             }
         }
 
@@ -44,6 +46,12 @@ namespace Dimensions {
         {
             return key is not CompactMachineTeleportKey compactMachineTeleportKey ? null : activeSystems.GetValueOrDefault(compactMachineTeleportKey);
         }
+
+        public List<SoftLoadedClosedChunkSystem> GetAllInactiveSystems()
+        {
+            return systems;
+        }
+
         private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
