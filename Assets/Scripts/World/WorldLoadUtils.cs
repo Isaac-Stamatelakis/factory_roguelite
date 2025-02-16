@@ -51,6 +51,16 @@ namespace WorldModule {
             string mainFolderPath = Path.Combine(worldPath, CURRENT_FOLDER_PATH);
             return Path.Combine(mainFolderPath, value);
         }
+
+        public static string GetBackUpPath(string worldName)
+        {
+            return Path.Combine(GetWorldPath(worldName), BACKUP_FOLDER_PATH);
+        }
+        
+        public static string GetMainPath(string worldName)
+        {
+            return Path.Combine(GetWorldPath(worldName), CURRENT_FOLDER_PATH);
+        }
         
 
         private static string GetWorldFileName(WorldFileType worldFileType)

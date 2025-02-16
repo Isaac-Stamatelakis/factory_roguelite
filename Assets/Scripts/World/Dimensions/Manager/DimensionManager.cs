@@ -21,6 +21,7 @@ using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
+using World.BackUp;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -32,7 +33,7 @@ namespace Dimensions {
     {
         [SerializeField] private AssetReference AutoSavePrefabRef;
         private int ticksSinceLastSave;
-        private const int AUTO_SAVE_TIME = 50 * 300;
+        private const int AUTO_SAVE_TIME = 200; //* 300;
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
@@ -73,7 +74,8 @@ namespace Dimensions {
 
         public void FixedUpdate()
         {
-            if (!activeSystem) return;
+            bool canAutoBackup = activeSystem && WorldLoadUtils.UsePersistentPath;
+            if (!canAutoBackup) return;
             ticksSinceLastSave++;
             if (ticksSinceLastSave < AUTO_SAVE_TIME) return;
             StartCoroutine(AutoSaveCoroutine());
@@ -110,6 +112,7 @@ namespace Dimensions {
             Debug.Log($"Saved {systems} systems.");
             ticksSinceLastSave = 0;
             StartCoroutine(autoSaveUI.CompletionFade());
+            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
         }
 
 
