@@ -31,8 +31,11 @@ namespace WorldModule {
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
-            
-            InitializeMetaData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta));
+            string mainPath = Path.Combine(path, WorldLoadUtils.CURRENT_FOLDER_PATH);
+            string backUpPath = Path.Combine(path, WorldLoadUtils.BACKUP_FOLDER_PATH);
+            Directory.CreateDirectory(mainPath);
+            Directory.CreateDirectory(backUpPath);
+            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
             InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
 
             string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);

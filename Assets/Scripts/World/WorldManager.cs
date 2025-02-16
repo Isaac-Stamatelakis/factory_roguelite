@@ -46,14 +46,13 @@ namespace WorldModule {
 
         public void InitializeMetaData()
         {
-            string metaDataPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta);
+            string metaDataPath = WorldLoadUtils.GetMetaDataPath(worldName);
             if (!File.Exists(metaDataPath))
             {
                 WorldCreation.InitializeMetaData(metaDataPath);
             }
-
-            string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Meta);
-            metaData = JsonConvert.DeserializeObject<WorldMetaData>(json);
+            
+            metaData = WorldLoadUtils.GetWorldMetaData(worldName);
             unlockedGameStages = new HashSet<string>();
             foreach (string gameStageId in metaData.UnlockedGameStages)
             {
@@ -82,8 +81,7 @@ namespace WorldModule {
         {
             metaData.LastAccessDate = DateTime.Now;
             metaData.UnlockedGameStages = unlockedGameStages.ToList();
-            string json = JsonConvert.SerializeObject(metaData);
-            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Meta,json);
+            WorldLoadUtils.WriteMetaData(worldName, metaData);
         }
 
         public void SaveQuestBook()

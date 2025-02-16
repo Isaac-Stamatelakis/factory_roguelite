@@ -12,7 +12,6 @@ using World.Serialization;
 namespace WorldModule {
     public enum WorldFileType
     {
-        Meta,
         DimensionFolder,
         Player,
         Questbook,
@@ -25,15 +24,17 @@ namespace WorldModule {
         // Change this for accessing worlds in other folders persisent.
         public static bool UsePersistentPath = true;
         
-        private const string defaultWorldFolder = "worlds"; 
-        private const string playerDataName = "player_data.json";
-        private const string dimensionFolderName = "Dimensions";
-        private const string dimFolderPrefix = "dim";
-        private const string META_DATA_PATH = "meta.json";
-        private const string QUESTBOOK_PATH = "questbook.json";
-        private const string STRUCTURE_META_PATH = "structure_meta.json";
+        public const string DEFAULT_WORLD_FOLDER = "worlds"; 
+        public const string PLAYER_DATA_FILE = "player_data.json";
+        public const string DIMENSION_FOLDER_PATH = "Dimensions";
+        public const string DIM_FOLDER_PREFIX = "dim";
+        public const string META_DATA_PATH = "meta.json";
+        public const string QUESTBOOK_PATH = "questbook.json";
+        public const string STRUCTURE_META_PATH = "structure_meta.json";
+        public const string BACKUP_FOLDER_PATH = "Backups";
+        public const string CURRENT_FOLDER_PATH = "Main";
 
-        public static string DefaultWorldFolder => defaultWorldFolder;
+        public static string DefaultWorldFolder => DEFAULT_WORLD_FOLDER;
         public static string GetWorldComponentPath(WorldFileType worldFileType)
         {
             return GetWorldComponentPath(WorldManager.getInstance().GetWorldName(), worldFileType);
@@ -41,18 +42,23 @@ namespace WorldModule {
         
         public static string GetWorldComponentPath(string worldName, WorldFileType worldFileType)
         {
-            string value = GetWorldFileValue(worldFileType);
+            string value = GetWorldFileName(worldFileType);
             string worldPath = GetWorldPath(worldName);
-            return Path.Combine(worldPath, value);
+            if (!UsePersistentPath) // Loads directly without backups
+            {
+                return Path.Combine(worldPath, value);
+            }
+            string mainFolderPath = Path.Combine(worldPath, CURRENT_FOLDER_PATH);
+            return Path.Combine(mainFolderPath, value);
         }
+        
 
-        private static string GetWorldFileValue(WorldFileType worldFileType)
+        private static string GetWorldFileName(WorldFileType worldFileType)
         {
             return worldFileType switch
             {
-                WorldFileType.Meta => META_DATA_PATH,
-                WorldFileType.DimensionFolder => dimensionFolderName,
-                WorldFileType.Player => playerDataName,
+                WorldFileType.DimensionFolder => DIMENSION_FOLDER_PATH,
+                WorldFileType.Player => PLAYER_DATA_FILE,
                 WorldFileType.Questbook => QUESTBOOK_PATH,
                 WorldFileType.StructureMeta => STRUCTURE_META_PATH,
                 _ => throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null)
@@ -111,10 +117,15 @@ namespace WorldModule {
             }
         }
 
-        public static WorldMetaData GetWorldMetaData(string worldName)
+        public static string GetMetaDataPath(string worldName)
         {
             string worldPath = GetWorldPath(worldName);
-            string metaDataPath = Path.Combine(worldPath, GetWorldFileValue(WorldFileType.Meta));
+            return Path.Combine(worldPath, META_DATA_PATH);
+        }
+
+        public static WorldMetaData GetWorldMetaData(string worldName)
+        {
+            string metaDataPath = GetMetaDataPath(worldName);
             if (!File.Exists(metaDataPath))
             {
                 WorldCreation.InitializeMetaData(metaDataPath);
@@ -125,13 +136,21 @@ namespace WorldModule {
             WorldMetaData worldMetaData = JsonConvert.DeserializeObject<WorldMetaData>(json);
             return worldMetaData;
         }
+
+        public static void WriteMetaData(string worldName, WorldMetaData worldMetaData)
+        {
+            string worldPath = GetWorldPath(worldName);
+            string path = Path.Combine(worldPath, META_DATA_PATH);
+            byte[] bytes = CompressString(JsonConvert.SerializeObject(worldMetaData));
+            File.WriteAllBytes(path, bytes);
+        }
         
         
         public static string GetDimPath(int dim) {
-            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),DIM_FOLDER_PREFIX + dim.ToString());
         }
         public static string GetDimPath(string worldName, int dim) {
-            return Path.Combine(worldName, GetWorldFileValue( WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(worldName, GetWorldFileName( WorldFileType.DimensionFolder),DIM_FOLDER_PREFIX + dim.ToString());
         }
         public static bool DimExists(int dim) {
             string path = GetDimPath(dim);
@@ -142,7 +161,7 @@ namespace WorldModule {
         {
             if (UsePersistentPath)
             {
-                return Path.Combine(Application.persistentDataPath, defaultWorldFolder, worldName);
+                return Path.Combine(Application.persistentDataPath, DEFAULT_WORLD_FOLDER, worldName);
             }
 
             return worldName;
