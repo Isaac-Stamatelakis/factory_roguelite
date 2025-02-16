@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UI.ConfirmPopup;
+using UI.TitleScreen.Backup;
 using UnityEngine;
 using UnityEngine.UI;
 using World.Serialization;
@@ -19,6 +20,7 @@ namespace UI.TitleScreen.Select
         [SerializeField] private Button restoreButton;
         [SerializeField] private Button unselectButton;
         [SerializeField] private Button createButton;
+        [SerializeField] private BackupUI backupUIPrefab;
         [SerializeField] private Button backButton;
         [SerializeField] private Color highlightColor;
         [SerializeField] private Transform elementList;
@@ -60,6 +62,14 @@ namespace UI.TitleScreen.Select
                 worldCreationUI.Initalize(AddWorld);
                 CanvasController.Instance.DisplayObject(worldCreationUI.gameObject);
             });
+            
+            restoreButton.onClick.AddListener(() =>
+            {
+                BackupUI backupUI = Instantiate(backupUIPrefab);
+                backupUI.Display(worldNames[selected]);
+                CanvasController.Instance.DisplayObject(backupUI.gameObject);
+            });
+
             
             deleteButton.onClick.AddListener(() =>
             {

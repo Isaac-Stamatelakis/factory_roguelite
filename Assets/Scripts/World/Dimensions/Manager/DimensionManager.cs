@@ -11,6 +11,7 @@ using System.IO;
 using System.Numerics;
 using Tiles;
 using Items;
+using Newtonsoft.Json;
 using Player;
 using Player.Tool;
 using RecipeModule;
@@ -33,7 +34,7 @@ namespace Dimensions {
     {
         [SerializeField] private AssetReference AutoSavePrefabRef;
         private int ticksSinceLastSave;
-        private const int AUTO_SAVE_TIME = 200; //* 300;
+        private const int AUTO_SAVE_TIME = 50 * 300;
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
@@ -49,25 +50,41 @@ namespace Dimensions {
         }
         public IEnumerator InitalLoad()
         {
-            WorldManager.getInstance().InitializeMetaData();
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
             yield return recipeLoad;
-            
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-            playerScript.Initialize();
-            
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.ShowAll();
-            
-            WorldManager.getInstance().InitializeQuestBook();
 
-            string path = WorldLoadUtils.GetCurrentWorldPath();
-            Debug.Log($"Loading world from path {path}");
+            try
+            {
+                WorldManager.getInstance().InitializeMetaData();
+                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+                playerScript.Initialize();
 
-            SoftLoadSystems();
-            SetPlayerSystem(playerScript,0,Vector2Int.zero);
+                ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+                catalogueControllers.ShowAll();
+
+                WorldManager.getInstance().InitializeQuestBook();
+
+                string path = WorldLoadUtils.GetCurrentWorldPath();
+                Debug.Log($"Loading world from path {path}");
+
+                SoftLoadSystems();
+                SetPlayerSystem(playerScript, 0, Vector2Int.zero);
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.LogWarning(e);
+            }
+            catch (IOException e)
+            {
+
+            }
+            catch (JsonSerializationException e)
+            {
+                
+            }
+            
         }
 
         protected abstract List<DimController> GetAllControllers();

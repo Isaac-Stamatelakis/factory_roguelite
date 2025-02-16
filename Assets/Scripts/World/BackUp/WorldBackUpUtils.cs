@@ -29,6 +29,18 @@ namespace World.BackUp
             Directory.CreateDirectory(backupFilePathBackup);
             CopyDirectory(mainPath, backupFilePathBackup);
         }
+
+        public static void RestoreBackUp(string worldName, string backupPath)
+        {
+            if (!Directory.Exists(backupPath))
+            {
+                Debug.LogError($"Backup doesn't exist");
+                return;
+            }
+            string mainPath = WorldLoadUtils.GetMainPath(worldName);
+            Debug.Log($"Restored world from path {backupPath} into {mainPath}");
+            CopyDirectory(backupPath, mainPath);
+        }
         
         public static void CopyDirectory(string sourceDir, string targetDir)
         {
