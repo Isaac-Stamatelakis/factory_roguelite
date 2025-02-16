@@ -88,8 +88,7 @@ namespace DevTools.Structures {
                 sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            string playerDataPath = Path.Combine(path,"player_data.json");
-            File.WriteAllText(playerDataPath,json);
+            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }
         
         /// <summary>

@@ -137,7 +137,6 @@ namespace Chunks.Systems {
             return null;
         }
         private Dictionary<Vector2Int, IConduit> GetConduits(ConduitType conduitType,Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
-            Vector2Int chunkFrameOfReference = GetBottomLeftCorner();
             Dictionary<Vector2Int, IConduit> conduits = new Dictionary<Vector2Int, IConduit>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
@@ -145,7 +144,7 @@ namespace Chunks.Systems {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    chunkPartition.GetConduits(conduitType,conduits,chunkFrameOfReference,tileEntityPorts);
+                    chunkPartition.GetConduits(conduitType,conduits,tileEntityPorts);
                 }
             }
             return conduits;

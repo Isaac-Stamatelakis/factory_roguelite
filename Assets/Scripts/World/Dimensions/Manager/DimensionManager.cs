@@ -31,8 +31,8 @@ namespace Dimensions {
     public abstract class DimensionManager : MonoBehaviour
     {
         [SerializeField] private AssetReference AutoSavePrefabRef;
-        private int ticksSinceLastSave = 40;
-        private const int AUTO_SAVE_TIME = 50 * 4; // One per 5 minutes 
+        private int ticksSinceLastSave;
+        private const int AUTO_SAVE_TIME = 50 * 300;
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;

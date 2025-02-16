@@ -49,7 +49,7 @@ namespace WorldModule {
             }
 
             SoftLoadedConduitTileChunk softLoadedChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList, new Vector2Int(chunkX, chunkY), dim);
-            ChunkIO.WriteChunk(softLoadedChunk);
+            ChunkIO.WriteChunk(softLoadedChunk, path: dimPath,directory:true);
         }
 
         public static WorldTileConduitData CreateEmpty(Vector2Int size) {
