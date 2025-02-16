@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UI.ConfirmPopup;
+using UI.TitleScreen.Backup;
 using UnityEngine;
 using UnityEngine.UI;
 using World.Serialization;
@@ -19,6 +20,7 @@ namespace UI.TitleScreen.Select
         [SerializeField] private Button restoreButton;
         [SerializeField] private Button unselectButton;
         [SerializeField] private Button createButton;
+        [SerializeField] private BackupUI backupUIPrefab;
         [SerializeField] private Button backButton;
         [SerializeField] private Color highlightColor;
         [SerializeField] private Transform elementList;
@@ -61,6 +63,14 @@ namespace UI.TitleScreen.Select
                 CanvasController.Instance.DisplayObject(worldCreationUI.gameObject);
             });
             
+            restoreButton.onClick.AddListener(() =>
+            {
+                BackupUI backupUI = Instantiate(backupUIPrefab);
+                backupUI.Display(worldNames[selected]);
+                CanvasController.Instance.DisplayObject(backupUI.gameObject);
+            });
+
+            
             deleteButton.onClick.AddListener(() =>
             {
                 ConfirmPopupUI confirmPopupUI = Instantiate(confirmPopupUIPrefab);
@@ -71,23 +81,32 @@ namespace UI.TitleScreen.Select
             backButton.onClick.AddListener(CanvasController.Instance.PopStack);
             string[] worlds = GetWorlds();
             string[] formattedWorlds = new string[worlds.Length];
-            WorldMetaData[] metaDataArray = new WorldMetaData[worlds.Length];
+            List<WorldMetaData> worldMetaDataList = new List<WorldMetaData>();
             for (int i = 0; i < worlds.Length; i++)
             {
                 string worldName = Path.GetFileName(worlds[i].TrimEnd(Path.DirectorySeparatorChar));
                 formattedWorlds[i] = worldName;
-                WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
-                metaDataArray[i] = worldMetaData;
+                try
+                {
+                    WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
+                    worldMetaDataList.Add(worldMetaData);
+                }
+                catch (IOException e)
+                {
+                    worldMetaDataList.Add(null);
+                    Debug.LogWarning($"Corrupted Meta Data {e}");
+                }
                 
             }
-            var combined = formattedWorlds.Zip(metaDataArray, (world, meta) => new { World = world, Meta = meta });
-            var sorted = combined.OrderByDescending(x => x.Meta.LastAccessDate);
+            var combined = formattedWorlds.Zip(worldMetaDataList, (world, meta) => new { World = world, Meta = meta });
+            var sorted = combined.OrderByDescending(x => x.Meta?.LastAccessDate);
             var sortedList = sorted.ToList();
             for (int i = 0; i < sortedList.Count(); i++)
             {
+                WorldMetaData worldMetaData = sortedList[i].Meta;
                 string worldName = sortedList[i].World;
                 worldNames.Add(worldName);
-                DisplayWorld(worldName,i);
+                DisplayWorld(worldName,i,worldMetaData);
             }
             
         }
@@ -118,16 +137,17 @@ namespace UI.TitleScreen.Select
         private void AddWorld(string worldName)
         {
             worldNames.Add(worldName);
+            WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
             int index = worldNames.Count - 1;
-            DisplayWorld(worldName, index);
+            DisplayWorld(worldName, index, worldMetaData);
             worldElements[index].transform.SetSiblingIndex(0);
         }
 
-        private void DisplayWorld(string worldName, int index)
+        private void DisplayWorld(string worldName, int index, WorldMetaData worldMetaData)
         {
-            SelectWorldElement worldElement = Instantiate(selectWorldElementPrefab,elementList);
-            WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
-            WorldDisplayData worldDisplayData = new WorldDisplayData(worldName,worldMetaData.CreationDate, worldMetaData.LastAccessDate);
+            SelectWorldElement worldElement = Instantiate(selectWorldElementPrefab,elementList,false);
+            
+            WorldDisplayData worldDisplayData = new WorldDisplayData(worldName,worldMetaData?.CreationDate, worldMetaData?.LastAccessDate, worldMetaData==null);
             worldElement.Initalize(index,ClickWorldElement,worldDisplayData);
             worldElements.Add(worldElement);
         }

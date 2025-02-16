@@ -28,11 +28,8 @@ namespace DevTools.Structures {
     }
     public static class StructureGeneratorHelper
     {
-        private static string parameterId = "structure_parameter";
-        private static string fillId = "structure_fill";
-        
-        public static string ParimeterId { get => parameterId; set => parameterId = value; }
-        public static string FillId { get => fillId; set => fillId = value; }
+        public const string PAREMETER_ID = "structure_parameter";
+        public const string FILL_ID = "structure_fill";
         public static string GetStructurePath(string structureName) {
             string folderPath = GetFolderPath();
             return Path.Combine(folderPath,structureName);
@@ -78,9 +75,9 @@ namespace DevTools.Structures {
             }
             WorldGenerationFactory.SaveToJson(dimData,caveSize,0,structureDimPath);
             PlayerInventoryData playerInventoryData = PlayerInventoryFactory.GetDefault();
-            playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(parameterId),
+            playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(PAREMETER_ID),
                 Global.MaxSize, null);
-            playerInventoryData.Inventory[1] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(fillId),
+            playerInventoryData.Inventory[1] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(FILL_ID),
                 Global.MaxSize, null);
             
             PlayerData playerData = new PlayerData(
@@ -91,8 +88,7 @@ namespace DevTools.Structures {
                 sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            string playerDataPath = Path.Combine(path,"player_data.json");
-            File.WriteAllText(playerDataPath,json);
+            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }
         
         /// <summary>
@@ -125,7 +121,7 @@ namespace DevTools.Structures {
                     for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                         for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                             string baseId = data.baseData.ids[x,y];
-                            if (baseId == StructureGeneratorHelper.ParimeterId) {
+                            if (baseId == StructureGeneratorHelper.PAREMETER_ID) {
                                 Vector2Int normalizedPosition = partition.GetRealPosition()*Global.CHUNK_PARTITION_SIZE+new Vector2Int(x,y)-offset;
                                 perimeter[normalizedPosition.x,normalizedPosition.y] = true;
                                 enforceEnclosure = true; // If even a single perimeter tile is in the map, enforce enclosure is on
@@ -171,7 +167,7 @@ namespace DevTools.Structures {
                 WorldTileConduitData areaData = WorldGenerationFactory.CreateEmpty(areaSize);
                 for (int x = 0; x < areaSize.x; x++) {
                     for (int y = 0; y < areaSize.y; y++) {
-                        areaData.baseData.ids[x,y] = StructureGeneratorHelper.FillId;
+                        areaData.baseData.ids[x,y] = FILL_ID;
                     }
                 }
                 foreach (Vector2Int vector in area) {

@@ -21,7 +21,7 @@ namespace PlayerModule.IO {
        
         public void Deserialize() {
             string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
-            string json = File.ReadAllText(playerJsonPath);
+            string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Player);
             playerData = JsonConvert.DeserializeObject<PlayerData>(json);
         }
         
@@ -33,7 +33,8 @@ namespace PlayerModule.IO {
             string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
             playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
-            File.WriteAllText(playerJsonPath,Newtonsoft.Json.JsonConvert.SerializeObject(playerData));
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
+            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }
         
         public string GetPlayerInventoryData() {

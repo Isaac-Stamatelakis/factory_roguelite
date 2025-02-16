@@ -37,6 +37,11 @@ namespace Dimensions {
             return activeSystem;
         }
 
+        public IEnumerator SaveSystem()
+        {
+            if (!activeSystem) yield break;
+            yield return activeSystem.SaveCoroutine();
+        }
     }
 }
 

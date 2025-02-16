@@ -31,8 +31,11 @@ namespace WorldModule {
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
-            
-            InitializeMetaData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Meta));
+            string mainPath = Path.Combine(path, WorldLoadUtils.CURRENT_FOLDER_PATH);
+            string backUpPath = Path.Combine(path, WorldLoadUtils.BACKUP_FOLDER_PATH);
+            Directory.CreateDirectory(mainPath);
+            Directory.CreateDirectory(backUpPath);
+            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
             InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
 
             string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
@@ -46,18 +49,20 @@ namespace WorldModule {
         public static void InitializeMetaData(string path)
         {
             WorldMetaData worldMetaData =
-                new WorldMetaData(DateTime.Now, DateTime.Now, new List<string>
-                {
-                    "0"
-                });
+            new WorldMetaData(DateTime.Now, DateTime.Now, new List<string>
+            {
+                "0"
+            });
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
-            File.WriteAllText(path, json);
+            byte[] compressed = WorldLoadUtils.CompressString(json);
+            File.WriteAllBytes(path, compressed);
         }
 
         public static void InitializeQuestBook(string path)
         {
             string defaultJson = File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
-            File.WriteAllText(path,defaultJson);
+            byte[] compressed = WorldLoadUtils.CompressString(defaultJson);
+            File.WriteAllBytes(path, compressed);
         }
 
         private static void InitPlayerData(string path) {
@@ -69,7 +74,8 @@ namespace WorldModule {
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault())
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            File.WriteAllText(path,json);
+            byte[] compressed = WorldLoadUtils.CompressString(json);
+            File.WriteAllBytes(path, compressed);
         }
 
         public static void DeleteWorld(string name)

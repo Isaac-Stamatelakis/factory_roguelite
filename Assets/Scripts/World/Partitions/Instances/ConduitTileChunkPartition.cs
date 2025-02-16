@@ -15,7 +15,8 @@ using Tiles;
 
 namespace Chunks.Partitions {
     public interface IConduitTileChunkPartition {
-        public void GetConduits(ConduitType conduitType,Dictionary<Vector2Int,IConduit> conduitDict, Vector2Int referenceChunk,Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts);
+        public void GetConduits(ConduitType conduitType, Dictionary<Vector2Int, IConduit> conduitDict,
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts);
         public bool GetConduitLoaded();
         public void SetConduitLoaded(bool val);
         public void SoftLoadTileEntities();
@@ -33,7 +34,8 @@ namespace Chunks.Partitions {
         {
         }
 
-        public void GetConduits(ConduitType conduitType, Dictionary<Vector2Int,IConduit> conduitDict, Vector2Int referenceChunk, Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts)
+        public void GetConduits(ConduitType conduitType, Dictionary<Vector2Int, IConduit> conduitDict,
+            Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts)
         {
             WorldTileConduitData serializedTileConduitData = (WorldTileConduitData) data;
             switch (conduitType) {

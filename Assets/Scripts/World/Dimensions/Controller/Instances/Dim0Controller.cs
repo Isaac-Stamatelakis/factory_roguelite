@@ -16,6 +16,8 @@ namespace Dimensions {
         public override void Awake() {
             base.Awake();
         }
+        
+
         public void FixedUpdate() {
             if (ReferenceEquals(dim0System,null)) {
                 return;
@@ -58,13 +60,20 @@ namespace Dimensions {
             return mainArea != null;
         }
 
-        public void OnDestroy() {
-            dim0System.Save();
+        public void OnDestroy()
+        {
+            dim0System?.Save();
         }
         public ClosedChunkSystem GetActiveSystem()
         {
             return mainArea;
         }
+
+        public IEnumerator SaveSystem()
+        {
+            yield return dim0System?.SaveCoroutine();
+        }
+
 
         public SoftLoadedClosedChunkSystem getSystem()
         {

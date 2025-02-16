@@ -11,6 +11,7 @@ using System.IO;
 using System.Numerics;
 using Tiles;
 using Items;
+using Newtonsoft.Json;
 using Player;
 using Player.Tool;
 using RecipeModule;
@@ -19,7 +20,9 @@ using Recipe;
 using UI;
 using UI.JEI;
 using UI.QuestBook;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
+using World.BackUp;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -29,6 +32,9 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        [SerializeField] private AssetReference AutoSavePrefabRef;
+        private int ticksSinceLastSave;
+        private const int AUTO_SAVE_TIME = 50 * 300;
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
@@ -44,27 +50,88 @@ namespace Dimensions {
         }
         public IEnumerator InitalLoad()
         {
-            WorldManager.getInstance().InitializeMetaData();
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
             yield return itemLoad;
             yield return recipeLoad;
-            
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-            playerScript.Initialize();
-            
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.ShowAll();
-            
-            WorldManager.getInstance().InitializeQuestBook();
 
-            string path = WorldLoadUtils.GetCurrentWorldPath();
-            Debug.Log($"Loading world from path {path}");
+            try
+            {
+                WorldManager.getInstance().InitializeMetaData();
+                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+                playerScript.Initialize();
 
-            SoftLoadSystems();
-            SetPlayerSystem(playerScript,0,Vector2Int.zero);
+                ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+                catalogueControllers.ShowAll();
+
+                WorldManager.getInstance().InitializeQuestBook();
+
+                string path = WorldLoadUtils.GetCurrentWorldPath();
+                Debug.Log($"Loading world from path {path}");
+
+                SoftLoadSystems();
+                SetPlayerSystem(playerScript, 0, Vector2Int.zero);
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.LogWarning(e);
+            }
+            catch (IOException e)
+            {
+
+            }
+            catch (JsonSerializationException e)
+            {
+                
+            }
+            
         }
-    
+
+        protected abstract List<DimController> GetAllControllers();
+
+        public void FixedUpdate()
+        {
+            bool canAutoBackup = activeSystem && WorldLoadUtils.UsePersistentPath;
+            if (!canAutoBackup) return;
+            ticksSinceLastSave++;
+            if (ticksSinceLastSave < AUTO_SAVE_TIME) return;
+            StartCoroutine(AutoSaveCoroutine());
+            ticksSinceLastSave = int.MinValue; // Will be set to 0 once coroutine done
+        }
+
+        private IEnumerator AutoSaveCoroutine()
+        {
+            var handle = Addressables.LoadAssetAsync<GameObject>(AutoSavePrefabRef);
+            yield return handle;
+            GameObject autoSavePrefab = handle.Result;
+            Canvas canvas = CanvasController.Instance.GetComponentInParent<Canvas>();
+            AutoSaveUI autoSaveUI = GameObject.Instantiate(autoSavePrefab,canvas.transform,false).GetComponent<AutoSaveUI>();
+            
+            yield return StartCoroutine(autoSaveUI.DisplayCountdown());
+            List<DimController> controllers = GetAllControllers();
+            Debug.Log("Auto Saving Started");
+            int systems = 0;
+            foreach (DimController controller in controllers)
+            {
+                if (controller is ISingleSystemController singleSystemController)
+                {
+                    yield return StartCoroutine(singleSystemController.SaveSystem());
+                    systems++;
+                } else if (controller is IMultipleSystemController multipleSystemController)
+                {
+                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    {
+                        systems++;
+                        yield return StartCoroutine(system?.SaveCoroutine());
+                    }
+                }
+            }
+            Debug.Log($"Saved {systems} systems.");
+            ticksSinceLastSave = 0;
+            StartCoroutine(autoSaveUI.CompletionFade());
+            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
+        }
+
 
         public abstract void SoftLoadSystems();
 

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using Newtonsoft.Json;
 using World.Serialization;
 
@@ -10,7 +12,6 @@ using World.Serialization;
 namespace WorldModule {
     public enum WorldFileType
     {
-        Meta,
         DimensionFolder,
         Player,
         Questbook,
@@ -23,15 +24,17 @@ namespace WorldModule {
         // Change this for accessing worlds in other folders persisent.
         public static bool UsePersistentPath = true;
         
-        private static readonly string defaultWorldFolder = "worlds"; 
-        private static readonly string playerDataName = "player_data.json";
-        private static readonly string dimensionFolderName = "Dimensions";
-        private static readonly string dimFolderPrefix = "dim";
-        private static readonly string META_DATA_PATH = "meta.json";
-        private static readonly string QUESTBOOK_PATH = "questbook.json";
-        private static readonly string STRUCTURE_META_PATH = "structure_meta.json";
+        public const string DEFAULT_WORLD_FOLDER = "worlds"; 
+        public const string PLAYER_DATA_FILE = "player_data.json";
+        public const string DIMENSION_FOLDER_PATH = "Dimensions";
+        public const string DIM_FOLDER_PREFIX = "dim";
+        public const string META_DATA_PATH = "meta.json";
+        public const string QUESTBOOK_PATH = "questbook.json";
+        public const string STRUCTURE_META_PATH = "structure_meta.json";
+        public const string BACKUP_FOLDER_PATH = "Backups";
+        public const string CURRENT_FOLDER_PATH = "Main";
 
-        public static string DefaultWorldFolder => defaultWorldFolder;
+        public static string DefaultWorldFolder => DEFAULT_WORLD_FOLDER;
         public static string GetWorldComponentPath(WorldFileType worldFileType)
         {
             return GetWorldComponentPath(WorldManager.getInstance().GetWorldName(), worldFileType);
@@ -39,42 +42,125 @@ namespace WorldModule {
         
         public static string GetWorldComponentPath(string worldName, WorldFileType worldFileType)
         {
-            string value = GetWorldFileValue(worldFileType);
+            string value = GetWorldFileName(worldFileType);
             string worldPath = GetWorldPath(worldName);
-            return Path.Combine(worldPath, value);
+            if (!UsePersistentPath) // Loads directly without backups
+            {
+                return Path.Combine(worldPath, value);
+            }
+            string mainFolderPath = Path.Combine(worldPath, CURRENT_FOLDER_PATH);
+            return Path.Combine(mainFolderPath, value);
         }
 
-        private static string GetWorldFileValue(WorldFileType worldFileType)
+        public static string GetBackUpPath(string worldName)
+        {
+            return Path.Combine(GetWorldPath(worldName), BACKUP_FOLDER_PATH);
+        }
+        
+        public static string GetMainPath(string worldName)
+        {
+            return Path.Combine(GetWorldPath(worldName), CURRENT_FOLDER_PATH);
+        }
+        
+
+        private static string GetWorldFileName(WorldFileType worldFileType)
         {
             return worldFileType switch
             {
-                WorldFileType.Meta => META_DATA_PATH,
-                WorldFileType.DimensionFolder => dimensionFolderName,
-                WorldFileType.Player => playerDataName,
+                WorldFileType.DimensionFolder => DIMENSION_FOLDER_PATH,
+                WorldFileType.Player => PLAYER_DATA_FILE,
                 WorldFileType.Questbook => QUESTBOOK_PATH,
                 WorldFileType.StructureMeta => STRUCTURE_META_PATH,
                 _ => throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null)
             };
         }
 
-        public static WorldMetaData GetWorldMetaData(string worldName)
+        public static string GetWorldFileJson(WorldFileType worldFileType)
+        {
+            string path = GetWorldComponentPath(worldFileType);
+            return GetWorldFileJson(path);
+        }
+
+        public static void SaveWorldFileJson(WorldFileType worldFileType, string json)
+        {
+            string path = GetWorldComponentPath(worldFileType);
+            byte[] compressed = CompressString(json);
+            File.WriteAllBytes(path,compressed);
+        }
+        
+        public static string GetWorldFileJson(string worldName, WorldFileType worldFileType)
+        {
+            string path = GetWorldComponentPath(worldName, worldFileType);
+            return GetWorldFileJson(path);
+        }
+
+        private static string GetWorldFileJson(string path)
+        {
+            byte[] compressed = File.ReadAllBytes(path);
+            string json = DecompressString(compressed);
+            return json;
+        }
+        
+        public static byte[] CompressString(string input)
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+            using (var outputStream = new MemoryStream())
+            {
+                using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
+                {
+                    gzipStream.Write(inputBytes, 0, inputBytes.Length);
+                }
+                return outputStream.ToArray();
+            }
+        }
+        
+        public static string DecompressString(byte[] input)
+        {
+            using (var inputStream = new MemoryStream(input))
+            using (var gzipStream = new GZipStream(inputStream, CompressionMode.Decompress))
+            using (var outputStream = new MemoryStream())
+            {
+                gzipStream.CopyTo(outputStream);
+                byte[] outputBytes = outputStream.ToArray();
+                return Encoding.UTF8.GetString(outputBytes);
+            }
+        }
+
+        public static string GetMetaDataPath(string worldName)
         {
             string worldPath = GetWorldPath(worldName);
-            string metaDataPath = Path.Combine(worldPath, GetWorldFileValue(WorldFileType.Meta));
+            return Path.Combine(worldPath, META_DATA_PATH);
+        }
+
+        public static WorldMetaData GetWorldMetaData(string worldName)
+        {
+            string metaDataPath = GetMetaDataPath(worldName);
             if (!File.Exists(metaDataPath))
             {
                 WorldCreation.InitializeMetaData(metaDataPath);
             }
-            WorldMetaData worldMetaData = JsonConvert.DeserializeObject<WorldMetaData>(File.ReadAllText(metaDataPath));
+
+            byte[] compressed = File.ReadAllBytes(metaDataPath);
+            string json = DecompressString(compressed);
+            WorldMetaData worldMetaData = JsonConvert.DeserializeObject<WorldMetaData>(json);
             return worldMetaData;
+        }
+
+        public static void WriteMetaData(string worldName, WorldMetaData worldMetaData)
+        {
+            string worldPath = GetWorldPath(worldName);
+            string path = Path.Combine(worldPath, META_DATA_PATH);
+            byte[] bytes = CompressString(JsonConvert.SerializeObject(worldMetaData));
+            File.WriteAllBytes(path, bytes);
         }
         
         
         public static string GetDimPath(int dim) {
-            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(GetWorldComponentPath(WorldFileType.DimensionFolder),DIM_FOLDER_PREFIX + dim.ToString());
         }
         public static string GetDimPath(string worldName, int dim) {
-            return Path.Combine(worldName, GetWorldFileValue( WorldFileType.DimensionFolder),dimFolderPrefix + dim.ToString());
+            return Path.Combine(worldName, GetWorldFileName( WorldFileType.DimensionFolder),DIM_FOLDER_PREFIX + dim.ToString());
         }
         public static bool DimExists(int dim) {
             string path = GetDimPath(dim);
@@ -85,7 +171,7 @@ namespace WorldModule {
         {
             if (UsePersistentPath)
             {
-                return Path.Combine(Application.persistentDataPath, defaultWorldFolder, worldName);
+                return Path.Combine(Application.persistentDataPath, DEFAULT_WORLD_FOLDER, worldName);
             }
 
             return worldName;

@@ -43,6 +43,16 @@ namespace Dimensions {
             return compactMachineDimController;
         }
 
+        protected override List<DimController> GetAllControllers()
+        {
+            return new List<DimController>
+            {
+                overworldDimController,
+                caveDimController,
+                compactMachineDimController
+            };
+        }
+
         public override void SoftLoadSystems()
         {
             overworldDimController.SoftLoadSystem();

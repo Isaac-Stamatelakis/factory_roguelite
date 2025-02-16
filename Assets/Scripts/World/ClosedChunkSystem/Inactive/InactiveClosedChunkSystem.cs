@@ -137,7 +137,6 @@ namespace Chunks.Systems {
             return null;
         }
         private Dictionary<Vector2Int, IConduit> GetConduits(ConduitType conduitType,Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityPorts) {
-            Vector2Int chunkFrameOfReference = GetBottomLeftCorner();
             Dictionary<Vector2Int, IConduit> conduits = new Dictionary<Vector2Int, IConduit>();
             foreach (SoftLoadedConduitTileChunk unloadedChunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in unloadedChunk.Partitions) {
@@ -145,7 +144,7 @@ namespace Chunks.Systems {
                         Debug.LogError("Attempted to load non-conduit partition into conduit system");
                         continue;
                     }
-                    chunkPartition.GetConduits(conduitType,conduits,chunkFrameOfReference,tileEntityPorts);
+                    chunkPartition.GetConduits(conduitType,conduits,tileEntityPorts);
                 }
             }
             return conduits;
@@ -202,6 +201,28 @@ namespace Chunks.Systems {
                     partition.Save();
                 }
                 ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
+            }
+        }
+
+        public IEnumerator SaveCoroutine()
+        {
+            WaitForFixedUpdate wait = new WaitForFixedUpdate();
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                        Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
+                        continue;
+                    }
+                    Dictionary<ConduitType, IConduit[,]> partitionConduits = new Dictionary<ConduitType, IConduit[,]>();
+                    foreach (KeyValuePair<TileMapType,IConduitSystemManager> kvp in conduitSystemManagersDict) {
+                        IConduitSystemManager manager = kvp.Value;
+                        partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
+                    }
+                    conduitTileChunkPartition.SetConduits(partitionConduits);
+                    partition.Save();
+                }
+                ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
+                yield return wait;
             }
         }
 

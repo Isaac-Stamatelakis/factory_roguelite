@@ -6,6 +6,7 @@ using System;
 using Entities;
 using Chunks.Partitions;
 using Chunks;
+using DevTools.Structures;
 using Tiles;
 using WorldModule.Caves;
 
@@ -48,7 +49,7 @@ namespace WorldModule {
             }
 
             SoftLoadedConduitTileChunk softLoadedChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList, new Vector2Int(chunkX, chunkY), dim);
-            ChunkIO.WriteChunk(softLoadedChunk);
+            ChunkIO.WriteChunk(softLoadedChunk, path: dimPath,directory:true);
         }
 
         public static WorldTileConduitData CreateEmpty(Vector2Int size) {
@@ -97,8 +98,8 @@ namespace WorldModule {
             );
         }
 
-        public static void MapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
-            MapWorldTileData(copyTo,copyFrom,positionTo,positionFrom);
+        public static void MapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom, bool cullStructureIds = false) {
+            MapWorldTileData(copyTo,copyFrom,positionTo,positionFrom, cullStructureIds);
             copyTo.itemConduitData.ids[positionTo.x,positionTo.y] = copyFrom.itemConduitData.ids[positionFrom.x,positionFrom.y];
             copyTo.itemConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.itemConduitData.conduitOptions[positionFrom.x,positionFrom.y];
 
@@ -116,11 +117,16 @@ namespace WorldModule {
             
         }
 
-        public static void MapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
-            copyTo.baseData.ids[positionTo.x,positionTo.y] = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
-            copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
-            copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
-
+        public static void MapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom, bool cullStructureIds = false) {
+            string fromBaseId = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
+            if (!cullStructureIds || fromBaseId != StructureGeneratorHelper.FILL_ID)
+            {
+                copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
+                copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
+                copyTo.baseData.ids[positionTo.x, positionTo.y] = fromBaseId;
+            }
+            
+            
             copyTo.backgroundData.ids[positionTo.x,positionTo.y] = copyFrom.backgroundData.ids[positionFrom.x,positionFrom.y];
 
             copyTo.fluidData.ids[positionTo.x,positionTo.y] = copyFrom.fluidData.ids[positionFrom.x,positionFrom.y];

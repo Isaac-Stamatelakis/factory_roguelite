@@ -29,7 +29,7 @@ namespace Chunks.IO {
                 int x = Convert.ToInt32(xy[0]);
                 int y = Convert.ToInt32(xy[1]);
                 byte[] compressedData = File.ReadAllBytes(file);
-                string json = DecompressString(compressedData);
+                string json = WorldLoadUtils.DecompressString(compressedData);
                 List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<WorldTileConduitData>>(json));
                 SoftLoadedConduitTileChunk unloadedConduitTileChunk = new SoftLoadedConduitTileChunk(chunkPartitionDataList,new Vector2Int(x,y),dim);
@@ -51,7 +51,7 @@ namespace Chunks.IO {
             string filePath = getPath(chunkPosition,closedChunkSystem.Dim);
             if (!File.Exists(filePath)) return null;
             byte[] compressed = File.ReadAllBytes(filePath);
-            string json = DecompressString(compressed);
+            string json = WorldLoadUtils.DecompressString(compressed);
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();
             if (closedChunkSystem is TileClosedChunkSystem) {
                 chunkPartitionDataList.AddRange(Newtonsoft.Json.JsonConvert.DeserializeObject<List<SeralizedWorldData>>(json));
@@ -80,33 +80,8 @@ namespace Chunks.IO {
             }
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(chunk.GetChunkPartitionData());
-            byte[] compressed = CompressString(json);
+            byte[] compressed = WorldLoadUtils.CompressString(json);
             File.WriteAllBytes(path,compressed);
-        }
-        private static byte[] CompressString(string input)
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
-            using (var outputStream = new MemoryStream())
-            {
-                using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
-                {
-                    gzipStream.Write(inputBytes, 0, inputBytes.Length);
-                }
-                return outputStream.ToArray();
-            }
-        }
-        
-        private static string DecompressString(byte[] input)
-        {
-            using (var inputStream = new MemoryStream(input))
-            using (var gzipStream = new GZipStream(inputStream, CompressionMode.Decompress))
-            using (var outputStream = new MemoryStream())
-            {
-                gzipStream.CopyTo(outputStream);
-                byte[] outputBytes = outputStream.ToArray();
-                return Encoding.UTF8.GetString(outputBytes);
-            }
         }
         
         public static string getPath(Vector2Int chunkPosition, int dim) {

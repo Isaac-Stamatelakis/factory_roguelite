@@ -28,7 +28,7 @@ namespace WorldModule.Caves {
                 StructureVariant variant = structure.variants[index];
                 Vector2Int normalizedPlacementPosition = new Vector2Int(width,height)/2 + presetStructure.location - variant.Size / 2 - new Vector2Int(Global.CHUNK_SIZE,Global.CHUNK_SIZE)/2;
                 Debug.Log((normalizedPlacementPosition));
-                AreaStructureDistributorUtils.placeStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
+                AreaStructureDistributorUtils.PlaceStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
             }
             foreach (StructureFrequency structureFrequency in randomStructures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
@@ -66,7 +66,7 @@ namespace WorldModule.Caves {
                 }
                 
                 placedStructures[(Vector2Int)randomPosition] = variant;
-                AreaStructureDistributorUtils.placeStructure(worldTileData,(Vector2Int)randomPosition, variant.Data, variant.Size);
+                AreaStructureDistributorUtils.PlaceStructure(worldTileData,(Vector2Int)randomPosition, variant.Data, variant.Size);
                 return;
             }
         }
@@ -116,7 +116,7 @@ namespace WorldModule.Caves {
                 for (int y = 0; y < smallest.Size.y; y++) {
                     Vector2Int cellPosition = new Vector2Int(x,y);
                     string smallestBaseId = smallestData.baseData.ids[cellPosition.x,cellPosition.y];
-                    if (smallestBaseId == StructureGeneratorHelper.FillId) {
+                    if (smallestBaseId == StructureGeneratorHelper.FILL_ID) {
                         continue;
                     }
                     Vector2Int largestRelativePosition = largestPosition - smallestPosition + cellPosition;
@@ -125,7 +125,7 @@ namespace WorldModule.Caves {
                         continue;
                     }
                     string largestBaseId = largestData.baseData.ids[largestRelativePosition.x,largestRelativePosition.y];
-                    if (largestBaseId != StructureGeneratorHelper.FillId) {
+                    if (largestBaseId != StructureGeneratorHelper.FILL_ID) {
                         return false;
                     }
                 }
@@ -143,19 +143,19 @@ namespace WorldModule.Caves {
             return new Vector2Int(ranX,ranY);
         }
 
-        public static void placeStructure(SeralizedWorldData caveData, Vector2Int position, WorldTileConduitData variantData, Vector2Int structureSize) {
+        public static void PlaceStructure(SeralizedWorldData caveData, Vector2Int position, WorldTileConduitData variantData, Vector2Int structureSize) {
             if (caveData is WorldTileConduitData worldTileConduitData) {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.MapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector);
+                        WorldGenerationFactory.MapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector,true);
                     }
                 }
             } else {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.MapWorldTileData(caveData,variantData,position+vector,vector);
+                        WorldGenerationFactory.MapWorldTileData(caveData,variantData,position+vector,vector,true);
                     }
                 }
             }
