@@ -19,6 +19,7 @@ using Recipe;
 using UI;
 using UI.JEI;
 using UI.QuestBook;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -29,8 +30,9 @@ namespace Dimensions {
     }
     public abstract class DimensionManager : MonoBehaviour
     {
+        [SerializeField] private AssetReference AutoSavePrefabRef;
         private int ticksSinceLastSave = 40;
-        private const int AUTO_SAVE_TIME = 50 * 300; // One per 5 minutes 
+        private const int AUTO_SAVE_TIME = 50 * 4; // One per 5 minutes 
         [SerializeField] private DimensionObjects miscObjects;
         public MiscDimAssets MiscDimAssets;
         private static DimensionManager instance;
@@ -74,12 +76,19 @@ namespace Dimensions {
             if (!activeSystem) return;
             ticksSinceLastSave++;
             if (ticksSinceLastSave < AUTO_SAVE_TIME) return;
-            ticksSinceLastSave = 0;
             StartCoroutine(AutoSaveCoroutine());
+            ticksSinceLastSave = int.MinValue; // Will be set to 0 once coroutine done
         }
 
         private IEnumerator AutoSaveCoroutine()
         {
+            var handle = Addressables.LoadAssetAsync<GameObject>(AutoSavePrefabRef);
+            yield return handle;
+            GameObject autoSavePrefab = handle.Result;
+            Canvas canvas = CanvasController.Instance.GetComponentInParent<Canvas>();
+            AutoSaveUI autoSaveUI = GameObject.Instantiate(autoSavePrefab,canvas.transform,false).GetComponent<AutoSaveUI>();
+            
+            yield return StartCoroutine(autoSaveUI.DisplayCountdown());
             List<DimController> controllers = GetAllControllers();
             Debug.Log("Auto Saving Started");
             int systems = 0;
@@ -99,6 +108,8 @@ namespace Dimensions {
                 }
             }
             Debug.Log($"Saved {systems} systems.");
+            ticksSinceLastSave = 0;
+            StartCoroutine(autoSaveUI.CompletionFade());
         }
 
 
