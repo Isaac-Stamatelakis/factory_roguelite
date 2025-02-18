@@ -61,6 +61,7 @@ namespace UI.QuestBook {
     public static class QuestBookLibraryFactory {
         public static string Serialize(QuestBookLibrary library)
         {
+            if (library == null) return null;
             List<SerializedQuestBook> serializedBooks = new List<SerializedQuestBook>();
             foreach (QuestBook questBook in library.QuestBooks) {
                 serializedBooks.Add(ConvertQuestBook(questBook));

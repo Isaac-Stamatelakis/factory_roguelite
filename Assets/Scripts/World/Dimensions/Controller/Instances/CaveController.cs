@@ -12,6 +12,7 @@ namespace Dimensions {
         private TileClosedChunkSystem activeSystem;
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
+            if (currentCave == null) return null;
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
@@ -37,10 +38,16 @@ namespace Dimensions {
             return activeSystem;
         }
 
-        public IEnumerator SaveSystem()
+        public IEnumerator SaveSystemCoroutine()
         {
             if (!activeSystem) yield break;
             yield return activeSystem.SaveCoroutine();
+        }
+
+        public void SaveSystem()
+        {
+            if (!activeSystem) return;
+            activeSystem.Save();
         }
     }
 }

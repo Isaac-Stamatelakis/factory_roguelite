@@ -58,12 +58,7 @@ namespace Dimensions {
             overworldDimController.SoftLoadSystem();
             compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);
         }
-
-        public void OnDestroy()
-        {
-            WorldManager.getInstance().SaveMetaData();
-            WorldManager.getInstance().SaveQuestBook();
-        }
+        
     }
 }
 

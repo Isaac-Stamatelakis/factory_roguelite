@@ -59,19 +59,20 @@ namespace Dimensions {
         {
             return mainArea != null;
         }
-
-        public void OnDestroy()
-        {
-            dim0System?.Save();
-        }
+        
         public ClosedChunkSystem GetActiveSystem()
         {
             return mainArea;
         }
 
-        public IEnumerator SaveSystem()
+        public IEnumerator SaveSystemCoroutine()
         {
             yield return dim0System?.SaveCoroutine();
+        }
+
+        public void SaveSystem()
+        {
+            dim0System?.Save();
         }
 
 
