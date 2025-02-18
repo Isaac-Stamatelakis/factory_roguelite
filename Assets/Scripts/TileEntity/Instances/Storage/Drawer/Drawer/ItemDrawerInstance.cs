@@ -12,7 +12,7 @@ using TileEntity.MultiBlock;
 
 namespace TileEntity.Instances.Storage {
     public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, 
-        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate
+        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate, IRefreshOnItemExtractTileEntity
     {
         private const string SPRITE_SUFFIX = "_visual";
         private ItemSlot itemSlot;
@@ -174,9 +174,14 @@ namespace TileEntity.Instances.Storage {
 
         public void SetAggregator(IMultiBlockTileEntity aggregator)
         {
-            Debug.Log("HI");
             if (aggregator is not DrawerControllerInstance drawerControllerInstance) return;
             controller = drawerControllerInstance;
+        }
+
+        public void RefreshOnExtraction()
+        {
+            Debug.Log("HI");
+            LoadVisual();
         }
     }
 }

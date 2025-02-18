@@ -181,9 +181,11 @@ namespace Conduits.Ports {
     {
         public const string FILTER_ID = "item_filter";
         public const string UPGRADE_ID = "conduit_speed_upgrade";
+        private IRefreshOnItemExtractTileEntity refreshOnItemExtractTileEntity;
         public ItemTileEntityPort(IItemConduitInteractable interactable, Vector2Int position, ItemConduitInputPortData inputPort, ItemConduitOutputPortData outputPort, ResourceConduitItem resourceConduitItem) 
             : base(interactable, position, inputPort, outputPort, resourceConduitItem)
         {
+            refreshOnItemExtractTileEntity = interactable as IRefreshOnItemExtractTileEntity;
         }
         
         public void Insert(ItemState state, ItemSlot itemSlot) {
@@ -195,6 +197,11 @@ namespace Conduits.Ports {
         public ItemSlot Extract(ItemState state) {
             if (ReferenceEquals(outputPortData,null)) return null;
             return Interactable.ExtractItem(state, Position, outputPortData.Filter);
+        }
+
+        public void RefreshExtractor()
+        {
+            refreshOnItemExtractTileEntity?.RefreshOnExtraction();
         }
 
         public uint GetExtractionRate(ItemState itemState)

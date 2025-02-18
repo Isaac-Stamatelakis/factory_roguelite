@@ -49,6 +49,7 @@ namespace Conduits.Systems {
             {
                 IterateStandard(outputPort,inputPorts,tempItemSlot,toInsert,amount);
             }
+            outputPort.RefreshExtractor();
         }
 
         private void IterateStandard(ItemTileEntityPort outputPort, List<ItemTileEntityPort> inputPorts, ItemSlot tempItemSlot, ItemSlot toInsert, uint amount)

@@ -7,7 +7,7 @@ using Item.Slot;
 using UnityEngine;
 
 namespace TileEntity.Instances.Storage {
-    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, IItemConduitInteractable, IMultiBlockTileEntity, IConduitPortTileEntity
+    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, IItemConduitInteractable, IMultiBlockTileEntity, IConduitPortTileEntity, IRefreshOnItemExtractTileEntity
     {
         private List<ItemDrawerInstance> drawers;
         public DrawerControllerInstance(DrawerController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -61,6 +61,11 @@ namespace TileEntity.Instances.Storage {
         public ConduitPortLayout GetConduitPortLayout()
         {
             return tileEntityObject.ConduitLayout;
+        }
+
+        public void RefreshOnExtraction()
+        {
+            
         }
     }
 }
