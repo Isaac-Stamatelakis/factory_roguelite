@@ -14,8 +14,10 @@ namespace World.BackUp
     {
         private const string DATE_FORMAT = "yyyy_MM_dd";
         private const string TIME_FORMAT = "HH_mm_ss";
+        public static bool EnableBackups = false;
         public static void BackUpWorld(string worldName)
         {
+            if (!EnableBackups) return;
             string backupFolderPath = WorldLoadUtils.GetBackUpPath(worldName);
             DateTime currentTime = DateTime.Now;
             string formattedDate = FormatDate(currentTime);

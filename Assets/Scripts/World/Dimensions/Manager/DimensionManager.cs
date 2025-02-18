@@ -122,7 +122,7 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    yield return StartCoroutine(singleSystemController.SaveSystem());
+                    yield return StartCoroutine(singleSystemController.SaveSystemCoroutine());
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
@@ -149,6 +149,35 @@ namespace Dimensions {
         public int GetPlayerDimension()
         {
             return activeSystem?.Dim ?? int.MinValue;
+        }
+
+        public void OnDestroy()
+        {
+            bool loadedSuccessfully = activeSystem;
+            if (!loadedSuccessfully) return;
+            List<DimController> controllers = GetAllControllers();
+            foreach (DimController controller in controllers)
+            {
+                if (controller is ISingleSystemController singleSystemController)
+                {
+                    singleSystemController.SaveSystem();
+                } else if (controller is IMultipleSystemController multipleSystemController)
+                {
+                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    {
+                        system.Save();
+                    }
+                }
+            }
+
+            
+            if (WorldLoadUtils.UsePersistentPath)
+            {
+                WorldManager.getInstance().SaveMetaData();
+                WorldManager.getInstance().SaveQuestBook();
+                WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
+            }
+            
         }
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)

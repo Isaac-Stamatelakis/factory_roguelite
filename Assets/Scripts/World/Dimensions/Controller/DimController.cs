@@ -16,8 +16,10 @@ namespace Dimensions {
     public interface ISingleSystemController {
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript);
         public ClosedChunkSystem GetActiveSystem();
-        public IEnumerator SaveSystem();
+        public IEnumerator SaveSystemCoroutine();
+        public void SaveSystem();
     }
+    
     public abstract class DimController : MonoBehaviour
     {
         private Transform entityContainer;

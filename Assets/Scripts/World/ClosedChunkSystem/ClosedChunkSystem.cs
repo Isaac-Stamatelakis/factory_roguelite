@@ -304,7 +304,7 @@ namespace Chunks.Systems {
 
         public void OnApplicationQuit() {
             isQuitting = true;
-            saveOnDestroy();
+            Save();
         }
         public void OnDisable()
         {
@@ -312,10 +312,10 @@ namespace Chunks.Systems {
                 return;
             }
             partitionUnloader.clearQueue();
-            saveOnDestroy();
+            //Save();
         }
 
-        public virtual void saveOnDestroy() {
+        public virtual void Save() {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
@@ -325,6 +325,7 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk);
             }
         }
+        
 
         public IEnumerator SaveCoroutine()
         {
