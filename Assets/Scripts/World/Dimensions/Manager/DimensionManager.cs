@@ -81,6 +81,10 @@ namespace Dimensions {
 
         private bool TryExecuteInitialLoad(Action action, Action errorAction, string loadName)
         {
+            #if UNITY_EDITOR
+            action.Invoke();
+            return true;
+            #endif
             try
             {
                 action.Invoke();
@@ -88,7 +92,7 @@ namespace Dimensions {
             }
             catch (Exception e) when (e is NullReferenceException or ArgumentNullException or JsonSerializationException or FileNotFoundException)
             {
-                Debug.LogError($"World failed to load at stage {loadName} e.Message");
+                Debug.LogError($"World failed to load at stage {loadName}: '{e.Message}'");
                 SceneManager.LoadScene("TitleScreen");
                 return false;
             }

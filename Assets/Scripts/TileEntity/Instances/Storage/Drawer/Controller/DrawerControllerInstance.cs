@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Chunks;
 using Conduits.Ports;
 using Item.Slot;
 using UnityEngine;
 
 namespace TileEntity.Instances.Storage {
-    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, IItemConduitInteractable, IMultiBlockTileEntity
+    public class DrawerControllerInstance : TileEntityInstance<DrawerController>, IItemConduitInteractable, IMultiBlockTileEntity, IConduitPortTileEntity
     {
         private List<ItemDrawerInstance> drawers;
         public DrawerControllerInstance(DrawerController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -15,23 +16,18 @@ namespace TileEntity.Instances.Storage {
 
         public void AssembleMultiBlock()
         {
-            List<ItemDrawerInstance> drawers = new List<ItemDrawerInstance>();
-            TileEntityUtils.dfsTileEntity(this,drawers);
-        }
-
-        public List<Vector2Int> GetConnectedPositions()
-        {
-            // TODO
-            return new List<Vector2Int>();
+            this.drawers = TileEntityUtils.BFSTileEntityComponent<ItemDrawerInstance>(this,TileType.Object);
+            TileEntityUtils.SyncTileMultiBlockAggregates(this,this,this.drawers);
         }
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot itemSlot = drawer.ItemSlot;
-                if (itemSlot == null || itemSlot.itemObject == null) {
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                     continue;
                 }
+                
                 return itemSlot;
             }
             return null;
@@ -39,23 +35,32 @@ namespace TileEntity.Instances.Storage {
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) {
+                return;
+            }
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
-                if (ItemSlotUtils.AreEqual(drawerSlot,toInsert) && ItemSlotUtils.CanInsertIntoSlot(drawerSlot,toInsert,drawer.Amount)) {
-                    ItemSlotUtils.InsertIntoSlot(drawerSlot,toInsert,drawerSlot.amount);
+                uint maxSize = drawer.Amount;
+                if (ItemSlotUtils.AreEqual(drawerSlot,toInsert) && ItemSlotUtils.CanInsertIntoSlot(drawerSlot,toInsert,maxSize)) {
+                    ItemSlotUtils.InsertIntoSlot(drawerSlot,toInsert,maxSize);
                 }
-                if (toInsert.itemObject == null || toInsert.amount == 0) {
+                if (ItemSlotUtils.IsItemSlotNull(toInsert)) {
                     return;
                 }
             }
             foreach (ItemDrawerInstance drawer in drawers) {
                 ItemSlot drawerSlot = drawer.ItemSlot;
-                if (drawerSlot == null || drawerSlot.itemObject == null) {
-                    drawerSlot = ItemSlotFactory.Copy(toInsert);
-                    toInsert.itemObject = null;
-                    return;
-                }
+                if (!ItemSlotUtils.IsItemSlotNull(drawerSlot)) continue;
+                drawer.ItemSlot = ItemSlotFactory.Copy(toInsert);
+                toInsert.amount = 0;
+                drawer.LoadVisual();
+                return;
             }
+        }
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return tileEntityObject.ConduitLayout;
         }
     }
 }

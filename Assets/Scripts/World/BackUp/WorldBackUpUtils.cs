@@ -66,6 +66,7 @@ namespace World.BackUp
 
         public static void CleanUpBackups(string worldName)
         {
+            if (!EnableBackups) return;
             string backupFolderPath = WorldLoadUtils.GetBackUpPath(worldName);
             string[] dateFolders = Directory.GetDirectories(backupFolderPath);
             Array.Sort(dateFolders);

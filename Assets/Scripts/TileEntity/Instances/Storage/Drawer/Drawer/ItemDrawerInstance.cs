@@ -8,10 +8,13 @@ using Items;
 using Items.Inventory;
 using Entities;
 using Item.Slot;
+using TileEntity.MultiBlock;
 
 namespace TileEntity.Instances.Storage {
-    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, ITileItemUpdateReciever
+    public class ItemDrawerInstance : TileEntityInstance<ItemDrawer>, ILeftClickableTileEntity, IRightClickableTileEntity, 
+        ISerializableTileEntity, ILoadableTileEntity, IConduitPortTileEntity, IItemConduitInteractable, IBreakActionTileEntity, IMultiBlockTileAggregate
     {
+        private const string SPRITE_SUFFIX = "_visual";
         private ItemSlot itemSlot;
         private SpriteRenderer visualElement;
         private float invincibilityFrames;
@@ -23,13 +26,8 @@ namespace TileEntity.Instances.Storage {
 
         public uint Amount {get => TileEntityObject.MaxStacks*Global.MaxSize;}
 
-        public ItemSlot ItemSlot { get => itemSlot; }
-
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
-        {
-            loadVisual();
-            return itemSlot;
-        }
+        public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
+        
 
         public ConduitPortLayout GetConduitPortLayout()
         {
@@ -38,22 +36,20 @@ namespace TileEntity.Instances.Storage {
 
         public void Load()
         {
-            loadVisual();
+            LoadVisual();
         }
 
-        private void loadVisual() {
+        public void LoadVisual() {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                if (visualElement != null) {
-                    visualElement.sprite = null;
-                }
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
+                if (visualElement) visualElement.sprite = null;
                 return;
             } 
-            if (visualElement == null) {
+            if (!visualElement) {
                 GameObject visualElementObject = new GameObject();
-                visualElementObject.name = itemSlot.itemObject.name + "_visual";
+                visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
                 visualElement = visualElementObject.AddComponent<SpriteRenderer>();
                 visualElement.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
                 visualElement.transform.position = getWorldPosition();    
@@ -66,15 +62,10 @@ namespace TileEntity.Instances.Storage {
 
         public void OnLeftClick()
         {
-            if (!CanInteract()) {
+            if (!CanInteract() || ItemSlotUtils.IsItemSlotNull(itemSlot) || chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
-            if (chunk is not ILoadedChunk loadedChunk) {
-                return;
-            }
+            
             ItemSlot toDrop = ItemSlotFactory.createEmptyItemSlot();
             toDrop.itemObject = itemSlot.itemObject;
             toDrop.amount = GlobalHelper.MinUInt(Global.MaxSize, itemSlot.amount);
@@ -84,7 +75,7 @@ namespace TileEntity.Instances.Storage {
             }
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(),toDrop,loadedChunk.getEntityContainer());
             invincibilityFrames = 0.2f;
-            loadVisual();
+            LoadVisual();
         }
 
         public bool CanInteract() {
@@ -96,22 +87,23 @@ namespace TileEntity.Instances.Storage {
         {
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             ItemSlot playerItemSlot = playerInventory.getSelectedItemSlot();
-            if (itemSlot == null || itemSlot.itemObject == null) {
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 itemSlot = playerItemSlot;
                 playerInventory.removeSelectedItemSlot();
-                loadVisual();
-            } else {
-                if (
-                    ItemSlotUtils.AreEqual(itemSlot,playerItemSlot) &&
-                    ItemSlotUtils.CanInsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize)
-                ) {
-                    ItemSlotUtils.InsertIntoSlot(itemSlot,playerItemSlot,TileEntityObject.MaxStacks*Global.MaxSize);
-                    if (playerItemSlot.amount <= 0) {
-                        playerInventory.removeSelectedItemSlot();
-                        loadVisual();
-                    }
-                } 
+                LoadVisual();
+                return;
             }
+
+            if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot,
+                    playerItemSlot, TileEntityObject.MaxStacks * Global.MaxSize)) return;
+            
+            ItemSlotUtils.InsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MaxSize);
+            if (playerItemSlot.amount > 0) return;
+            
+            playerInventory.removeSelectedItemSlot();
+            LoadVisual();
+
+
         }
 
         public string Serialize()
@@ -133,12 +125,10 @@ namespace TileEntity.Instances.Storage {
 
         public void OnBreak()
         {
-            if (chunk is not ILoadedChunk loadedChunk) {
+            if (chunk is not ILoadedChunk loadedChunk || ReferenceEquals(itemSlot,null)) {
                 return;
             }
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                return;
-            }
+            
             while (itemSlot.amount > 0)
             {
                 uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MaxSize);
@@ -153,23 +143,13 @@ namespace TileEntity.Instances.Storage {
             if (!CanInteract()) {
                 return false;
             }
-            return itemSlot == null || itemSlot.itemObject==null;
-        }
 
-        public void tileUpdate(TileItem tileItem)
-        {
-            if (controller == null) {
-                return;
-            }
-            if (tileItem != null && !(tileItem.tileEntity != null && tileItem.tileEntity is ItemDrawer drawer)) {
-                return;
-            }
-            controller.AssembleMultiBlock();
+            return ItemSlotUtils.IsItemSlotNull(itemSlot);
         }
 
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
-            throw new System.NotImplementedException();
+            return itemSlot;
         }
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
@@ -177,14 +157,26 @@ namespace TileEntity.Instances.Storage {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
                 itemSlot = ItemSlotFactory.Copy(toInsert);
                 toInsert.amount = 0;
-                loadVisual();
+                LoadVisual();
                 return;
             }
 
             if (!ItemSlotUtils.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize))
                 return;
             ItemSlotUtils.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize);
-            loadVisual();
+            LoadVisual();
+        }
+
+        public IMultiBlockTileEntity GetAggregator()
+        {
+            return controller;
+        }
+
+        public void SetAggregator(IMultiBlockTileEntity aggregator)
+        {
+            Debug.Log("HI");
+            if (aggregator is not DrawerControllerInstance drawerControllerInstance) return;
+            controller = drawerControllerInstance;
         }
     }
 }
