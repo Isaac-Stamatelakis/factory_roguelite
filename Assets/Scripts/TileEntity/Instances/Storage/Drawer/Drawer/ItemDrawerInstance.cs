@@ -8,6 +8,7 @@ using Items;
 using Items.Inventory;
 using Entities;
 using Item.Slot;
+using Items.Transmutable;
 using TileEntity.MultiBlock;
 
 namespace TileEntity.Instances.Storage {
@@ -52,11 +53,22 @@ namespace TileEntity.Instances.Storage {
                 visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
                 visualElement = visualElementObject.AddComponent<SpriteRenderer>();
                 visualElement.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-                visualElement.transform.position = getWorldPosition();    
+                visualElement.transform.position = getWorldPosition();
+                
             }
             
             visualElement.sprite = itemSlot.itemObject.getSprite();
-            visualElement.transform.localScale = ItemDisplayUtils.getConstrainedItemScale(visualElement.sprite,new Vector2(0.5f,0.5f));
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                visualElement.color = transmutableItemObject.getMaterial()?.color ?? Color.white;
+            }
+            else
+            {
+                visualElement.color = Color.white;
+            }
+
+            const float TILE_COVER_RATIO = 0.7f;
+            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElement.sprite);
 
         }
 

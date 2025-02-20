@@ -86,7 +86,7 @@ namespace Items {
             return fAmount.ToString("0.00" + suffix + FLUID_SUFFIX);
         }
         public static Vector3 GetItemScale(Sprite sprite) {
-            Vector2 size = getItemSize(sprite);
+            Vector2 size = GetItemSize(sprite);
             if (size == Vector2.zero) {
                 return Vector3.one;
             }
@@ -104,19 +104,23 @@ namespace Items {
             
         }
         /// <summary>
-        /// Calculates the scale for a sprite to fit within a given size while maintaining its aspect ratio.
+        /// Returns the a scale for spriterenderer such that the Sprite fits within a 16x16 pixel box
         /// </summary>
-        /// <param name="sprite">The sprite to be scaled.</param>
-        /// <param name="size">The maximum size in tiles the sprite should fit within.</param>
-        /// <returns>The scale factors for the sprite to fit within the specified size.</returns>
-        public static Vector2 getConstrainedItemScale(Sprite sprite, Vector2 size) {
+        /// <param name="sprite"></param>
+        /// <returns></returns>
+        public static Vector2 GetSpriteRenderItemScale(Sprite sprite)
+        {
             Vector2 itemSize = new Vector2(sprite.rect.width, sprite.rect.height)/16f;
-            float scaleX = size.x / itemSize.x;
-            float scaleY = size.y / itemSize.y;
-            return new Vector2(scaleX,scaleY);
+            if (itemSize.x < itemSize.y)
+            {
+                return new Vector2(1/itemSize.y,1/itemSize.y);
+            } else
+            {
+                return new Vector2(1/itemSize.x,1/itemSize.x);
+            }
         }
 
-        public static Vector2 getItemSize(Sprite sprite) {
+        public static Vector2 GetItemSize(Sprite sprite) {
             if (!sprite) {
                 return Vector2.zero;
             }
