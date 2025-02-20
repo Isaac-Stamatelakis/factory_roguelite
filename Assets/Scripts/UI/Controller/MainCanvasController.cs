@@ -4,6 +4,7 @@ using Conduit.Port.UI;
 using Item.ItemObjects.Instances.Tiles.Chisel;
 using Recipe.Viewer;
 using UI.Catalogue.InfoViewer;
+using UI.JEI;
 using UI.PauseScreen;
 using UI.PlayerInvUI;
 using UI.QuestBook;
@@ -25,6 +26,9 @@ namespace UI
         [SerializeField] private StackedPlayerInvUIElement stackedPlayerInvUIElementPrefab;
         [SerializeField] private IOConduitPortUI ioConduitPortUIPrefab;
         [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
+        [SerializeField] private Canvas canvas;
+        [SerializeField] private ItemCatalogueController mItemCatalogueController;
+        
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -41,6 +45,10 @@ namespace UI
             }
         }
 
+        public Canvas GetCanvas()
+        {
+            return canvas;
+        }
         public T DisplayUIElement<T>(MainSceneUIElement mainSceneUIElement)
         {
             GameObject clone = GetMainSceneUIElement(mainSceneUIElement);

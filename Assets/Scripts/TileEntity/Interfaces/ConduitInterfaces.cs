@@ -28,6 +28,11 @@ public interface IConduitInteractable
 {
     
 }
+
+public interface IRefreshOnItemExtractTileEntity
+{
+    public void RefreshOnExtraction();
+}
 public interface IEnergyConduitInteractable : IConduitInteractable{
     /// <summary>
     /// Inputs energy into a container

@@ -259,6 +259,24 @@ namespace TileEntity {
 
             return alreadyConnected;
         }
+        
+        public static bool SyncTileMultiBlockAggregates<T>(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<T> aggregates) where T : IMultiBlockTileAggregate
+        {
+            bool alreadyConnected = false;
+            foreach (T multiBlockAggregate in aggregates)
+            {
+                IMultiBlockTileEntity multiBlockTileEntity = multiBlockAggregate.GetAggregator();
+                bool connectedToOther = multiBlockTileEntity != null && !ReferenceEquals(multiBlockTileEntity, multiBlockCast);
+                if (connectedToOther)
+                {
+                    alreadyConnected = true;
+                    continue;
+                }
+                multiBlockAggregate.SetAggregator(multiBlockCast);
+            }
+
+            return alreadyConnected;
+        }
 
         public static List<Vector2Int> BFSTile(ITileEntityInstance tileEntityInstance, TileItem tileItem, bool includeSelf = true)
         {
@@ -349,36 +367,7 @@ namespace TileEntity {
     
             return result;
         }
-
-        public static void dfsTileEntity<T>(ITileEntityInstance tileEntity, HashSet<T> visited) {
-            if (tileEntity == null || tileEntity is not T typedTileEntity) {
-                return;
-            }
-            if (visited.Contains(typedTileEntity)) {
-                return;
-            }
-            visited.Add(typedTileEntity);
-            Vector2Int cellPosition = tileEntity.getCellPosition();
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.up),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.down),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.left),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
-        }
-
-        public static void dfsTileEntity<T>(ITileEntityInstance tileEntity, List<T> visited) {
-            if (tileEntity == null || tileEntity is not T typedTileEntity) {
-                return;
-            }
-            if (visited.Contains(typedTileEntity)) {
-                return;
-            }
-            visited.Add(typedTileEntity);
-            Vector2Int cellPosition = tileEntity.getCellPosition();
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.up),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.down),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.left),visited);
-            dfsTileEntity<T>(getAdjacentTileEntity(tileEntity,Vector2Int.right),visited);
-        }
+        
 
         public static void DisplayTileEntityUI<T>(GameObject uiPrefab, T instance) where T : ITileEntityInstance
         {

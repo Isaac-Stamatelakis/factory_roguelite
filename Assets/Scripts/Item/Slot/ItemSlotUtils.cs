@@ -131,11 +131,11 @@ namespace Item.Slot
             return inventory;
         }
 
-        public static void InsertIntoSlot(ItemSlot toCombineInto, ItemSlot toTakeFrom, uint size) {
+        public static void InsertIntoSlot(ItemSlot toCombineInto, ItemSlot toTakeFrom, uint maxSize) {
             uint sum = toCombineInto.amount + toTakeFrom.amount;
-            if (sum > size) {
-                toCombineInto.amount = size;
-                toTakeFrom.amount = sum-size;
+            if (sum > maxSize) {
+                toCombineInto.amount = maxSize;
+                toTakeFrom.amount = sum-maxSize;
             } else {
                 toCombineInto.amount = sum;
                 toTakeFrom.amount = 0;

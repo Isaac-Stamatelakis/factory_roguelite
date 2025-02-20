@@ -63,7 +63,7 @@ namespace PlayerModule.KeyPress {
             if (Input.GetKeyDown(KeyCode.E))
             {
                 PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
-                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E},blocker:true);
+                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E});
             }
 
             if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))

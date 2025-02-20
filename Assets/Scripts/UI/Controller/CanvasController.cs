@@ -80,6 +80,7 @@ namespace UI
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
+            transform.SetSiblingIndex(0);
             mBlocker.gameObject.SetActive(false);
             
         }
@@ -107,10 +108,11 @@ namespace UI
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
-                mBlocker.gameObject.SetActive(newTop.Blocker);
+                transform.SetSiblingIndex(newTop.priority);
             }
             else
             {
+                transform.SetSiblingIndex(0);
                 mBlocker.gameObject.SetActive(false);
             }
             
@@ -124,16 +126,15 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool blocker = false)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,blocker));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             
-            mBlocker.gameObject.SetActive(uiInfo.Blocker);
             if (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo current = uiObjectStack.Peek();
@@ -149,9 +150,11 @@ namespace UI
                 }
             }
 
+            mBlocker.gameObject.SetActive(true);
             canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
+            transform.SetSiblingIndex(uiInfo.priority);
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)
@@ -167,17 +170,16 @@ namespace UI
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
-        public bool Blocker;
+        public int priority;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, bool blocker)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
             this.hideOnStack = hideOnStack;
             this.hideParent = hideParent;
             this.originalParent = originalParent;
-            Blocker = blocker;
-            
+            this.priority = priority;
         }
     }
     

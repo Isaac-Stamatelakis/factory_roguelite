@@ -24,13 +24,14 @@ namespace TileEntity.Instances.Matrix {
 
         public void AssembleMultiBlock()
         {
+            return; // TODO Fix this
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.removeAutoCrafter(this);
             }
             totalMemory = 0;
             totalProcessors = 0;
             HashSet<IMatrixCraftTile> connectedCraftTiles = new HashSet<IMatrixCraftTile>();
-            TileEntityUtils.dfsTileEntity(this,connectedCraftTiles); 
+            //TileEntityUtils.dfsTileEntity(this,connectedCraftTiles); 
             foreach (IMatrixCraftTile craftTile in connectedCraftTiles) {
                 craftTile.deactivate();
             }

@@ -265,19 +265,24 @@ namespace UI.Chat {
         }
         private void addMessageToList(string text, float time) {
             TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, textList.transform, false);
-            newMessage.init(text,this,time);
+            newMessage.Initialize(text,this,time,false);
         }
 
         public void DisplayRecordedMessages()
         {
+            for (int i = 0; i < textList.transform.childCount; i++)
+            {
+                Transform child = textList.transform.GetChild(i);
+                child.GetComponent<TextChatMessageUI>().SetBackground(true);
+            }
             for (var i = (recordedMessages.Count-textList.transform.childCount)-1; i >=0 ; i--)
             {
                 var recordedMessage = recordedMessages[i];
                 TextChatMessageUI newMessage = GameObject.Instantiate(textChatMessageUIPrefab, textList.transform, false);
                 newMessage.transform.SetAsFirstSibling();
                 tempMessages.Add(newMessage.gameObject);
-                newMessage.init(recordedMessage.Content, this, 0);
-                newMessage.setFade(false);
+                newMessage.Initialize(recordedMessage.Content, this, 0,true);
+                newMessage.SetFade(false);
             }
         }
         public void showTextField() {
@@ -296,6 +301,11 @@ namespace UI.Chat {
             {
                 GameObject.Destroy(tempMessage);
             }
+            for (int i = 0; i < textList.transform.childCount; i++)
+            {
+                Transform child = textList.transform.GetChild(i);
+                child.GetComponent<TextChatMessageUI>().SetBackground(false);
+            }
             tempMessages.Clear();
             inputField.text = "";
             inputField.DeactivateInputField();
@@ -307,7 +317,7 @@ namespace UI.Chat {
             for (int i = 0; i < textList.transform.childCount; i++) {
                 Transform messageTransform = textList.transform.GetChild(i);
                 TextChatMessageUI textChatMessageUI = messageTransform.GetComponent<TextChatMessageUI>();
-                textChatMessageUI.setFade(fade);
+                textChatMessageUI.SetFade(fade);
             }
         }
     }
