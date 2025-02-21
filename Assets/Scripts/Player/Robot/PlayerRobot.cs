@@ -91,6 +91,7 @@ namespace Player {
 
         public void Update()
         {
+            Debug.Log(collisionStates.Contains(CollisionState.OnPlatform));
             mPlayerRobotUI.Display(robotData,currentRobot);
             MoveUpdate();
             cameraBounds.UpdateCameraBounds();
