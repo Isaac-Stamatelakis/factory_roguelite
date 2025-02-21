@@ -151,8 +151,8 @@ namespace Chunks.Systems {
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.Initalize(this,LoadUtils.getPartitionUnloaderVariables());
             
-            partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
-            partitionFarLoader.Initalize(this,LoadUtils.getPartitionFarLoaderVariables());
+            //partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
+            //partitionFarLoader.Initalize(this,LoadUtils.getPartitionFarLoaderVariables());
             
         }
 
@@ -198,7 +198,12 @@ namespace Chunks.Systems {
             }
             partitionLoader.addToQueue(partitionsToLoad);
             partitionUnloader.addToQueue(partitionsToUnload);
-            partitionFarLoader.addToQueue(partitionsToFarLoad);
+
+            foreach (IChunkPartition partition in partitionsToFarLoad)
+            {
+                partition.LoadFarLoadTileEntities();
+            }
+            //partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 
         public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {

@@ -141,7 +141,6 @@ namespace Chunks.Partitions {
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
                 if (loading)
                 {
-                    Debug.Log("Interupt");
                     yield break;
                 }
                 yield return tileMap.removePartition(realPosition);

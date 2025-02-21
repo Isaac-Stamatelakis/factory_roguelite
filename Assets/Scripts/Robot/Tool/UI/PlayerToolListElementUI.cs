@@ -25,7 +25,7 @@ namespace Player.Tool.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, robotToolInstance.GetName());
+            ToolTipController.Instance.ShowToolTip(transform.position, robotToolInstance?.GetName());
         }
 
         public void OnPointerExit(PointerEventData eventData)

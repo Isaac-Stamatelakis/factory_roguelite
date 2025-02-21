@@ -98,6 +98,10 @@ namespace Player {
 
         public void AddCollisionState(CollisionState state)
         {
+            if (state == CollisionState.OnGround)
+            {
+                liveYUpdates = 3;
+            }
             collisionStates.Add(state);
         }
 
@@ -136,9 +140,10 @@ namespace Player {
             
             bool movedLeft = !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
             bool movedRight = !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+
+            bool moveUpdate = movedLeft ^ movedRight; // xor
             
-            
-            if (!movedLeft && !movedRight)
+            if (!moveUpdate)
             {
                 float dif = GetFriction();
                 
