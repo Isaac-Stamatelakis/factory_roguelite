@@ -31,7 +31,7 @@ namespace UI.Chat {
             {
                 RobotItem robotItem = ItemRegistry.GetInstance().GetRobotItem(id);
                 if (robotItem == null) {
-                    chatUI.sendMessage("Invalid id");
+                    chatUI.SendChatMessage("Invalid id");
                     return;
                 }
                     

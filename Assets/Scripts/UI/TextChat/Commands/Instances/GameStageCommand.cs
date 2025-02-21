@@ -37,7 +37,7 @@ namespace UI.Chat {
                     DevMode.Instance.EnableGameStages = false;
                     break;
                 default:
-                    TextChatUI.Instance.sendMessage("Invalid mode. Use 'add' or 'remove'.");
+                    TextChatUI.Instance.SendChatMessage("Invalid mode. Use 'add' or 'remove'.");
                     break;
             }
         }

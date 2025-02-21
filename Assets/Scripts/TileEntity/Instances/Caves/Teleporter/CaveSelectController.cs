@@ -158,7 +158,7 @@ namespace TileEntity.Instances {
             
             DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition);
             
-            TextChatUI.Instance.sendMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
+            TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }
 }

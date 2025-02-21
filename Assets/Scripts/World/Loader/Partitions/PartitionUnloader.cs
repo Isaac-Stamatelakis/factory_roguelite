@@ -6,12 +6,20 @@ using Chunks.Systems;
 using Chunks.Partitions;
 
 namespace Chunks.Loaders {
+    public class PartitionUnloadFailUpdater : QueueFailUpdater<IChunkPartition>
+    {
+        public override void OnUpdateFail(IChunkPartition value)
+        {
+            
+        }
+    }
     public class PartitionUnloader : QueueUpdater<IChunkPartition>
     {
-        private PartitionLoader loader;
-        public void setLoader(PartitionLoader loader) {
-            this.loader = loader;
+        public override void InitializeMiscUpdaters()
+        {
+            queueFailUpdater = new PartitionUnloadFailUpdater();
         }
+
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
             value.SetScheduleForUnloading(false);
@@ -20,7 +28,6 @@ namespace Chunks.Loaders {
 
         public override void update(IChunkPartition value)
         {
-            value.SetTileLoaded(false);
             StartCoroutine(closedChunkSystem.UnloadChunkPartition(value));
         }
 

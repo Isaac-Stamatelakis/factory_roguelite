@@ -52,7 +52,7 @@ namespace UI.Chat {
             }
             
             WorldManager.getInstance().SetQuestBookFromJson(GetJson(stage));
-            chatUI.sendMessage($"<color=green>Set quest book to stage '{stage}'</color>");
+            chatUI.SendChatMessage($"<color=green>Set quest book to stage '{stage}'</color>");
         }
 
         private string GetJson(string stage)

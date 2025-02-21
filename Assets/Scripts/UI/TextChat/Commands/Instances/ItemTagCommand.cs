@@ -40,14 +40,14 @@ namespace UI.Chat {
         {
             if (itemSlot.tags?.Dict == null || itemSlot.tags.Dict.Count == 0)
             {
-                textChatUI.sendMessage("No tag data");
+                textChatUI.SendChatMessage("No tag data");
                 return;
             }
             
             foreach (var (tag, tagData) in itemSlot.tags.Dict)
             {
                 string sData = tag.serialize(itemSlot.tags);
-                textChatUI.sendMessage($"{tag} : {sData}");
+                textChatUI.SendChatMessage($"{tag} : {sData}");
             }
         }
     

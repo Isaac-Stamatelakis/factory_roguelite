@@ -23,7 +23,7 @@ namespace UI.Chat {
 #endif
             Dictionary<string, CameraViewSize> dict = getNameDict();
             if (!dict.ContainsKey(sizeName)) {
-                chatUI.sendMessage($"{sizeName} is not a valid camera size");
+                chatUI.SendChatMessage($"{sizeName} is not a valid camera size");
                 return;
             }
             CameraViewSize size = dict[sizeName];

@@ -146,14 +146,13 @@ namespace Chunks.Systems {
 
         public virtual void InitLoaders() {
             partitionLoader = chunkContainerTransform.gameObject.AddComponent<PartitionLoader>();
-            partitionLoader.initalize(this,LoadUtils.getPartitionLoaderVariables());
+            partitionLoader.Initalize(this,LoadUtils.getPartitionLoaderVariables());
 
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
-            partitionUnloader.initalize(this,LoadUtils.getPartitionUnloaderVariables());
-            partitionUnloader.setLoader(partitionLoader);
-
+            partitionUnloader.Initalize(this,LoadUtils.getPartitionUnloaderVariables());
+            
             partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
-            partitionFarLoader.initalize(this,LoadUtils.getPartitionFarLoaderVariables());
+            partitionFarLoader.Initalize(this,LoadUtils.getPartitionFarLoaderVariables());
             
         }
 

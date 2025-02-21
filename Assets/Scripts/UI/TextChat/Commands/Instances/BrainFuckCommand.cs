@@ -20,7 +20,7 @@ namespace UI.Chat {
             var rb = playerScript.GetComponent<Rigidbody2D>();
             rb.freezeRotation = !rb.freezeRotation;
             
-            chatUI.sendMessage(rb.freezeRotation ? "Back to normal" : "Why would you run this?");
+            chatUI.SendChatMessage(rb.freezeRotation ? "Back to normal" : "Why would you run this?");
             if (!rb.freezeRotation) return;
             
             var rotation = playerScript.transform.rotation;
