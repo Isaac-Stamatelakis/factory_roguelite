@@ -6,8 +6,10 @@ using System.IO;
 namespace DevTools {
     public enum DevTool
     {
-        Structure,
-        QuestBook
+        Structure = 0,
+        QuestBook = 1,
+        Upgrade = 2,
+        
     }
     public static class DevToolUtils
     {

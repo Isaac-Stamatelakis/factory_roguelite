@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.Slot;
 using Player.Tool;
 using Robot.Tool;
+using Robot.Upgrades;
 using UnityEngine;
 namespace RobotModule {
     public class RobotItemData
@@ -17,11 +18,6 @@ namespace RobotModule {
             this.Energy = energy;
             this.RobotUpgradeData = robotUpgradeData;
         }
-    }
-
-    public class RobotUpgradeData
-    {
-        
     }
 }
 

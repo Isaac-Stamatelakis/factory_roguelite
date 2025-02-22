@@ -8,23 +8,42 @@ using System.Linq;
 using WorldModule.Caves;
 
 namespace DevTools.Structures {
-    public class StructureDevControllerUI : MonoBehaviour
+    public abstract class DevToolListUI : MonoBehaviour
     {
-        [SerializeField] private VerticalLayoutGroup list;
-        [SerializeField] private Button addButton;
+        [SerializeField] protected VerticalLayoutGroup mList;
+        [SerializeField] protected Button mAddButton;
+
+        protected abstract void OnAddButtonClick();
+        public abstract void DisplayList();
+        public void Initialize() {
+            mAddButton.onClick.AddListener(OnAddButtonClick);
+            DisplayList();
+        }
+    }
+    public class StructureDevControllerUI : DevToolListUI
+    {
         [SerializeField] private StructureSelectorUI listElementPrefab;
         [SerializeField] private NewStructurePopUpUI newStructurePopUpUIPrefab;
-        public void init() {
-            addButton.onClick.AddListener(() => {
-                NewStructurePopUpUI newStructurePopUpUI = GameObject.Instantiate(newStructurePopUpUIPrefab);
-                newStructurePopUpUI.init(this);
-                newStructurePopUpUI.transform.SetParent(transform,false);
-            });
-            displayList();
+        
+        private class FolderInfo {
+            public string name;
+            public DateTime lastModified;
+            public FolderInfo(string name, DateTime lastModified) {
+                this.name = name;
+                this.lastModified = lastModified;
+            }
         }
 
-        public void displayList() {
-            GlobalHelper.deleteAllChildren(list.transform);
+        protected override void OnAddButtonClick()
+        {
+            NewStructurePopUpUI newStructurePopUpUI = GameObject.Instantiate(newStructurePopUpUIPrefab);
+            newStructurePopUpUI.init(this);
+            newStructurePopUpUI.transform.SetParent(transform,false);
+        }
+
+        public override void DisplayList()
+        {
+            GlobalHelper.deleteAllChildren(mList.transform);
             string directoryPath = StructureGeneratorHelper.GetFolderPath();
             string[] folders = Directory.GetDirectories(directoryPath);
             List<FolderInfo> folderValues = new List<FolderInfo>();
@@ -39,16 +58,7 @@ namespace DevTools.Structures {
             foreach (FolderInfo folderInfo in folderValues) {
                 StructureSelectorUI listElement = GameObject.Instantiate(listElementPrefab);
                 listElement.init(this, folderInfo.name,folderInfo.lastModified.ToString());
-                listElement.transform.SetParent(list.transform);
-            }
-        }
-
-        private class FolderInfo {
-            public string name;
-            public DateTime lastModified;
-            public FolderInfo(string name, DateTime lastModified) {
-                this.name = name;
-                this.lastModified = lastModified;
+                listElement.transform.SetParent(mList.transform);
             }
         }
     }

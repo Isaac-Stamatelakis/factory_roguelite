@@ -33,6 +33,7 @@ namespace DevTools {
         [SerializeField] private Button homeButton;
         [SerializeField] private Button structureButton;
         [SerializeField] private Button questButton;
+        [SerializeField] private Button robotToolButton;
         private Transform currentUI;
         private string baseText;
         public void setTitleText(string text) {
@@ -82,7 +83,7 @@ namespace DevTools {
                 case DevToolPage.Structure:
                     setTitleText("Structure Generator");
                     StructureDevControllerUI structureDevControllerUI = GameObject.Instantiate(structureDevControllerUIPrefab);
-                    structureDevControllerUI.init();
+                    structureDevControllerUI.Initialize();
                     addUI(structureDevControllerUI.transform);
                     break;
                 default:

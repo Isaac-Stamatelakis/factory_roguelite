@@ -144,7 +144,6 @@ namespace Player {
             bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
 
             bool moveUpdate = movedLeft ^ movedRight; // xor
-            
             if (!moveUpdate)
             {
                 float dif = GetFriction();

@@ -70,7 +70,7 @@ namespace DevTools.Structures {
                 }
                 StructureGenerationOption generationOption = StructureGeneratorOptionFactory.createOption(genOption,itemSlots[0].id);
                 StructureGeneratorHelper.NewStructure(nameField.text,generationOption,bounds);
-                controllerUI.displayList();
+                controllerUI.DisplayList();
                 GameObject.Destroy(gameObject);
             });
             itemSlots = new List<SerializedItemSlot>{new SerializedItemSlot("stone",0,null)};
