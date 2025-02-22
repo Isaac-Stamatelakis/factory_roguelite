@@ -28,7 +28,8 @@ using UnityEngine.EventSystems;
 namespace Player {
     public enum CollisionState
     {
-        OnWall,
+        OnWallLeft,
+        OnWallRight,
         OnGround,
         OnSlope,
         HeadContact,
@@ -139,8 +140,8 @@ namespace Player {
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
-            bool movedLeft = !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
-            bool movedRight = !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+            bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
+            bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
 
             bool moveUpdate = movedLeft ^ movedRight; // xor
             
@@ -412,7 +413,7 @@ namespace Player {
             {
                 return FREEZE_Y;
             }
-            if (CollisionStateActive(CollisionState.OnWall)) return FREEZE_Z;
+            if (CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight)) return FREEZE_Z;
             
             return IsOnGround() && rb.velocity.y < epilson
                 ? FREEZE_Y
