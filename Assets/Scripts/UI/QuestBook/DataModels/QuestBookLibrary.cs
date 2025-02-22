@@ -203,7 +203,7 @@ namespace UI.QuestBook {
         }
 
         private class SerializedQuestBookNode {
-            public HashSet<int> connections;
+            public List<int> connections;
             public string serializedItemImage;
             public float x;
             public float y;
@@ -211,7 +211,7 @@ namespace UI.QuestBook {
             public SerializedQuestBookContent content;
             public bool requireAllPrerequisites;
 
-            public SerializedQuestBookNode(float x, float y, string serializedItemImage, SerializedQuestBookContent content, HashSet<int> connections, int id, bool requireAllPrerequisites) {
+            public SerializedQuestBookNode(float x, float y, string serializedItemImage, SerializedQuestBookContent content, List<int> connections, int id, bool requireAllPrerequisites) {
                 this.x = x;
                 this.y = y;
                 this.serializedItemImage = serializedItemImage;

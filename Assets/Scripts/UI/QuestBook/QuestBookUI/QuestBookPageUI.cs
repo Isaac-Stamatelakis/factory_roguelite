@@ -6,10 +6,9 @@ using UI.NodeNetwork;
 using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
-    public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage, QuestEditModeController>
+    public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage>
     {
         [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
-        [SerializeField] private QuestEditModeController questEditModeController;
         [SerializeField] private GameObject linePrefab;
         private QuestBookLibrary library;
         public QuestBookLibrary Library {get => library;}
@@ -29,7 +28,7 @@ namespace UI.QuestBook {
             }
             else
             {
-                questEditModeController.gameObject.SetActive(false);
+                editController.gameObject.SetActive(false);
             }
         }
         public override void DisplayLines()
@@ -50,7 +49,7 @@ namespace UI.QuestBook {
                     }
                     QuestBookNode otherNode = library.IdNodeMap[id];
                     bool complete = otherNode.Content.Task.IsComplete();
-                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,complete,linePrefab);
+                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),questBookNode.GetPosition(),LineContainer,complete,linePrefab);
                 }
             }
         }
@@ -84,8 +83,8 @@ namespace UI.QuestBook {
 
         protected override void initEditMode()
         {
-            questEditModeController.gameObject.SetActive(true);
-            questEditModeController.init(this);
+            editController.gameObject.SetActive(true);
+            editController.Initialize(this);
         }
 
         protected override bool nodeDiscovered(QuestBookNode node)
@@ -126,7 +125,7 @@ namespace UI.QuestBook {
                     new QuestBookCommandRewards(new List<QuestBookCommandReward>()),
                     QuestBookNodeSize.Regular
                 ),
-                new HashSet<int>(),
+                new List<int>(),
                 library.GetSmallestNewID(),
                 true
             );

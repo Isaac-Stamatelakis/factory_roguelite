@@ -16,9 +16,9 @@ namespace UI.QuestBook {
         [SerializeField] private TextMeshProUGUI idText;
         [SerializeField] private Image panel;
         private QuestBookNode node;
-        private HashSet<int> nodeConnections;
+        private List<int> nodeConnections;
         
-        public void init(HashSet<int> nodeConnections, QuestBookNode node) {
+        public void init(List<int> nodeConnections, QuestBookNode node) {
             this.node = node;
             this.nodeConnections = nodeConnections;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);

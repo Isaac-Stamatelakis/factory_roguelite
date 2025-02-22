@@ -26,7 +26,7 @@ namespace UI.NodeNetwork {
             this.nodeNetwork = nodeNetwork;
             holdClickInstance = new LongClickHandler(this);
             DisplayImage();
-            transform.position = node.getPosition();
+            transform.position = node.GetPosition();
             
         }
 

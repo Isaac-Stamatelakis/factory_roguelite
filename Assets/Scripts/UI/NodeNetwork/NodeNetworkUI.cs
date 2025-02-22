@@ -23,13 +23,13 @@ namespace UI.NodeNetwork {
         View,
         EditConnection
     }
-    public abstract class NodeNetworkUI<TNode,TNetwork,TEditorUI> : MonoBehaviour, INodeNetworkUI 
-        where TNode : INode where TEditorUI : INodeNetworkEditController where TNetwork : INodeNetwork<TNode>
+    public abstract class NodeNetworkUI<TNode,TNetwork> : MonoBehaviour, INodeNetworkUI 
+        where TNode : INode where TNetwork : INodeNetwork<TNode>
     {
         [SerializeField] protected Transform nodeContainer;
         [SerializeField] protected Transform lineContainer;
         [SerializeField] protected Transform contentMaskContainer;
-        private TEditorUI editController;
+        [SerializeField] protected NodeNetworkEditorUI editController;
         public Transform NodeContainer { get => nodeContainer;}
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => transform;}
@@ -99,7 +99,7 @@ namespace UI.NodeNetwork {
         {
             INodeUI nodeUI = nodeUIDict[node];
             const int change = 64;
-            Vector3 position = node.getPosition();
+            Vector3 position = node.GetPosition();
             Vector3 changeVector = change * GetDirectionVector(direction);
             
 
@@ -240,24 +240,24 @@ namespace UI.NodeNetwork {
             if (selectedNodeElement == null) {
                 return;
             }
-            if (selectedNodeElement.getId() == clickedNode.getId()) {
+            if (selectedNodeElement.GetId() == clickedNode.GetId()) {
                 return;
             }
 
-            HashSet<int> clickedPreReqs = clickedNode.getPrerequisites();
-            HashSet<int> selectedPreReqs = CurrentSelected.GetNode().getPrerequisites();
+            List<int> clickedPreReqs = clickedNode.GetPrerequisites();
+            List<int> selectedPreReqs = CurrentSelected.GetNode().GetPrerequisites();
             
-            bool clickPreReq = clickedPreReqs.Contains(selectedNodeElement.getId());
-            bool connectPreReq = selectedPreReqs.Contains(clickedNode.getId());
+            bool clickPreReq = clickedPreReqs.Contains(selectedNodeElement.GetId());
+            bool connectPreReq = selectedPreReqs.Contains(clickedNode.GetId());
             
             if (clickPreReq)
             {
-                clickedPreReqs.Remove(selectedNodeElement.getId());
-                selectedPreReqs.Remove(clickedNode.getId());
+                clickedPreReqs.Remove(selectedNodeElement.GetId());
+                selectedPreReqs.Remove(clickedNode.GetId());
             } else
             {
-                selectedPreReqs.Remove(clickedNode.getId());
-                clickedPreReqs.Add(selectedNodeElement.getId());
+                selectedPreReqs.Remove(clickedNode.GetId());
+                clickedPreReqs.Add(selectedNodeElement.GetId());
             }
             
             DisplayLines();
