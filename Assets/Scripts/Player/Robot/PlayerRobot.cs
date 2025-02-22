@@ -91,7 +91,6 @@ namespace Player {
 
         public void Update()
         {
-            Debug.Log(collisionStates.Contains(CollisionState.OnPlatform));
             mPlayerRobotUI.Display(robotData,currentRobot);
             MoveUpdate();
             cameraBounds.UpdateCameraBounds();
@@ -99,7 +98,8 @@ namespace Player {
 
         public void AddCollisionState(CollisionState state)
         {
-            if (state == CollisionState.OnGround)
+            if (collisionStates.Contains(state)) return;
+            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
                 liveYUpdates = 3;
             }
@@ -218,7 +218,7 @@ namespace Player {
             }
             if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
             {
-                ignorePlatformFrames = 5;
+                ignorePlatformFrames = 3;
             }
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
