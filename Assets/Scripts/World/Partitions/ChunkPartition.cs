@@ -16,6 +16,7 @@ namespace Chunks.Partitions {
     public abstract class ChunkPartition<T> : IChunkPartition where T : SeralizedWorldData
     {
         protected bool loaded;
+        protected bool loading;
         protected bool farLoaded;
         protected bool scheduledForUnloading = false;
         protected bool scheduledForFarLoading = false;
@@ -73,7 +74,9 @@ namespace Chunks.Partitions {
         /// <summary> 
         /// loads chunkpartition into tilegridmaps at given angle
         /// </summary>
-        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction) {
+        public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
+        {
+            loading = true;
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();
                 if (!tileGridMap.containsPartition(realPartitionPosition)) {
@@ -119,7 +122,7 @@ namespace Chunks.Partitions {
                     }
                     break;
             }
-            
+            loading = false;
             SetTileLoaded(true);
         }
 
@@ -136,7 +139,12 @@ namespace Chunks.Partitions {
             Save();
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
+                if (loading)
+                {
+                    yield break;
+                }
                 yield return tileMap.removePartition(realPosition);
+                
             }
         }
         public void UnloadEntities() {

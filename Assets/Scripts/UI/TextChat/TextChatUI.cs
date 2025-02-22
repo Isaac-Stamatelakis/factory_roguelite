@@ -140,7 +140,7 @@ namespace UI.Chat {
             string parsedWhiteSpace = message.Replace(" ", "");
             if (parsedWhiteSpace.Length <= 0) return;
             RecordMessage(message);
-            sendMessage(message);
+            SendChatMessage(message);
         }
         public void RecordMessage(string message) {
             if (recordedMessages.Count > 50) {
@@ -214,7 +214,7 @@ namespace UI.Chat {
                 inputField.text = $"{prefix}{reconstructed}";
                 inputField.caretPosition=inputField.text.Length;
             } else {
-                sendMessage(FromArray(suggested.ToArray(), ", "));
+                SendChatMessage(FromArray(suggested.ToArray(), ", "));
             }
         }
 
@@ -229,7 +229,7 @@ namespace UI.Chat {
             return val;
         }
     
-        public void sendMessage(string text) {
+        public void SendChatMessage(string text) {
             if (text.Length == 0) {
                 return;
             }
@@ -241,13 +241,17 @@ namespace UI.Chat {
             
             addMessageToList(text,DISPLAY_DURATION);
         }
+        
+        public void SendChatMessage(string text, string sender) {
+            SendChatMessage($"{sender}: {text}");
+        }
 
         public void ExecuteCommand(string command, bool printErrors = true)
         {
             ChatCommandToken commandToken = ChatTokenizer.tokenize(command);
             ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
             if (chatCommand == null) {
-                if (printErrors) sendMessage("<color=red>" + $"Unknown command: '{command}'" + "</color>");
+                if (printErrors) SendChatMessage("<color=red>" + $"Unknown command: '{command}'" + "</color>");
                 return;
             }
             try
@@ -256,11 +260,11 @@ namespace UI.Chat {
             }
             catch (IndexOutOfRangeException)
             {
-                sendMessage($"<color=red>Command '{commandToken.Command}' has an invalid parameter format. Please check the format and try again. Type /help {commandToken.Command} for the correct usage.</color>");
+                SendChatMessage($"<color=red>Command '{commandToken.Command}' has an invalid parameter format. Please check the format and try again. Type /help {commandToken.Command} for the correct usage.</color>");
             }
             catch (Exception e) when (e is ChatParseException or FormatException or OverflowException)
             {
-                sendMessage("<color=red>" + e.Message + "</color>");
+                SendChatMessage("<color=red>" + e.Message + "</color>");
             }
         }
         private void addMessageToList(string text, float time) {

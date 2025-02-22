@@ -44,6 +44,7 @@ namespace TileEntity.Instances.SimonSays {
         public bool Restarting;
         public List<int> PlayerSequence { get => playerSequence; set => playerSequence = value; }
         private SimonSaysData simonSaysData;
+        private const string CHAT_NAME = "<color=purple>Unknown Entity</color>";
 
         public void OnRightClick()
         {
@@ -51,9 +52,9 @@ namespace TileEntity.Instances.SimonSays {
             if (started || chunk is not ILoadedChunk loadedChunk) return;
             
 
-            TextChatUI.Instance.sendMessage(simonSaysData == null
+            TextChatUI.Instance.SendChatMessage(simonSaysData == null
                 ? "Another challenger... Very well... Repeat the pattern and I should rework you..."
-                : "A familiar face... Next time don't run away...");
+                : "A familiar face... Next time don't run away...", CHAT_NAME);
             simonSaysData ??= new SimonSaysData(INITIAL_ATTEMPTS,0);
             InitTiles();
             GameObject controllerObject = new GameObject();
@@ -118,7 +119,7 @@ namespace TileEntity.Instances.SimonSays {
             simonSaysData.Attempts--;
             if (simonSaysData.Attempts > 0) {
                 Restarting = true;
-                TextChatUI.Instance.sendMessage("Oof wrong tile...");
+                TextChatUI.Instance.SendChatMessage("Oof wrong tile...",CHAT_NAME);
                 coroutineController.RestartGame();
             } else {
                 Conclude(ConclusionState.Standard);
@@ -144,7 +145,7 @@ namespace TileEntity.Instances.SimonSays {
         /// Removes this simon says controller, replaces it with other blocks, spawns loot
         /// </summary>
         private void Conclude(ConclusionState state) {
-            TextChatUI.Instance.sendMessage(GetConclusionText(state));
+            TextChatUI.Instance.SendChatMessage(GetConclusionText(state),CHAT_NAME);
             int lootAmount = (simonSaysData.HighestMatchingSequence*4)/TileEntityObject.MaxLength;
             
             if (chunk is not ILoadedChunk loadedChunk) return;
@@ -288,7 +289,7 @@ namespace TileEntity.Instances.SimonSays {
             bool activated = !ReferenceEquals(coroutineController,null);
             if (simonSaysData != null)
             {
-                if (simonSaysData.Attempts > 0 && activated) TextChatUI.Instance.sendMessage("Leaving so soon?");
+                if (simonSaysData.Attempts > 0 && activated) TextChatUI.Instance.SendChatMessage("Leaving so soon?");
                 simonSaysData.Attempts--;
             }
 

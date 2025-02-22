@@ -98,6 +98,11 @@ namespace Player {
 
         public void AddCollisionState(CollisionState state)
         {
+            if (collisionStates.Contains(state)) return;
+            if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
+            {
+                liveYUpdates = 3;
+            }
             collisionStates.Add(state);
         }
 
@@ -136,9 +141,10 @@ namespace Player {
             
             bool movedLeft = !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
             bool movedRight = !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+
+            bool moveUpdate = movedLeft ^ movedRight; // xor
             
-            
-            if (!movedLeft && !movedRight)
+            if (!moveUpdate)
             {
                 float dif = GetFriction();
                 
@@ -212,7 +218,7 @@ namespace Player {
             }
             if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
             {
-                ignorePlatformFrames = 5;
+                ignorePlatformFrames = 3;
             }
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))

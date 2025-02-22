@@ -16,30 +16,44 @@ namespace Chunks.Loaders {
         public int RapidUpdateThreshold;
         public int RapidSpeed;
         public int BaseBatchSize;
-        public QueueSortingMode SortingMode;
+        public int QueueCapacity;
 
-        public QueueUpdateVariables(float delay, int rapidUpdateThreshold, int rapidUpdateSpeed, int baseBatchSize, QueueSortingMode sortingMode)
+        public QueueUpdateVariables(float delay, int rapidUpdateThreshold, int rapidUpdateSpeed, int baseBatchSize, int queueCapacity)
         {
-            this.SortingMode = sortingMode;
+            this.QueueCapacity = queueCapacity;
             this.Delay = delay;
             RapidUpdateThreshold = rapidUpdateThreshold;
             RapidSpeed = rapidUpdateSpeed;
             BaseBatchSize = baseBatchSize;
         }
     }
+
+    public abstract class QueueFailUpdater<T>
+    {
+        public abstract void OnUpdateFail(T value);
+    }
     public abstract class QueueUpdater<T> : MonoBehaviour
     {
         [SerializeField] protected QueueUpdateVariables variables;
         protected ClosedChunkSystem closedChunkSystem;
         protected Queue<T> updateQueue;
+        private int MINIUMUM_QUEUE_CAPACITY = 32;
         public int QueueSize;
         private float timeSinceLastBatch;
+        protected QueueFailUpdater<T> queueFailUpdater;
         public bool Activated => updateQueue.Count > 0;
 
-        public void initalize(ClosedChunkSystem closedChunkSystem, QueueUpdateVariables updateVariables) {
+        public void Initalize(ClosedChunkSystem closedChunkSystem, QueueUpdateVariables updateVariables) {
             this.closedChunkSystem = closedChunkSystem;
-            updateQueue = new Queue<T>();
+            int capacity = updateVariables.QueueCapacity < MINIUMUM_QUEUE_CAPACITY ? MINIUMUM_QUEUE_CAPACITY : updateVariables.QueueCapacity;
+            updateQueue = new Queue<T>(capacity);
             this.variables = updateVariables;
+            InitializeMiscUpdaters();
+        }
+
+        public virtual void InitializeMiscUpdaters()
+        {
+            
         }
 
         public void clearQueue() {
@@ -65,12 +79,14 @@ namespace Chunks.Loaders {
                 T updateElement = updateQueue.Dequeue();
                 QueueSize--;
                 if (!canUpdate(updateElement,playerPosition)) {
+                    queueFailUpdater?.OnUpdateFail(updateElement);
                     continue;
                 }
                 update(updateElement);
                 updates--;
             }
         }
+        
       
         public abstract bool canUpdate(T value, Vector2Int playerPosition);
         public abstract void update(T value);

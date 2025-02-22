@@ -11,7 +11,7 @@ namespace Chunks.Loaders {
                 rapidUpdateSpeed: 25,
                 rapidUpdateThreshold: 2,
                 baseBatchSize: 1,
-                sortingMode: QueueSortingMode.Closest
+                queueCapacity: 32
             );
         }
         public static QueueUpdateVariables getChunkUnloaderVariables() {
@@ -20,7 +20,7 @@ namespace Chunks.Loaders {
                 rapidUpdateSpeed: 1,
                 rapidUpdateThreshold: 50,
                 baseBatchSize: 1,
-                sortingMode: QueueSortingMode.Farthest
+                queueCapacity: 32
             );
         }
         public static QueueUpdateVariables getPartitionLoaderVariables() {
@@ -29,7 +29,7 @@ namespace Chunks.Loaders {
                 rapidUpdateSpeed: 3,
                 rapidUpdateThreshold: 6,
                 baseBatchSize: 5,
-                sortingMode: QueueSortingMode.Closest
+                queueCapacity: 32
             );
         }
         
@@ -39,7 +39,7 @@ namespace Chunks.Loaders {
                 rapidUpdateSpeed: 2,
                 rapidUpdateThreshold: 100,
                 baseBatchSize: 2,
-                sortingMode: QueueSortingMode.Farthest
+                queueCapacity: 338
             );
         }
 
@@ -49,7 +49,7 @@ namespace Chunks.Loaders {
                 rapidUpdateSpeed: 3,
                 rapidUpdateThreshold: 6,
                 baseBatchSize: 2,
-                sortingMode: QueueSortingMode.Closest
+                queueCapacity: 32
             );
         }
 

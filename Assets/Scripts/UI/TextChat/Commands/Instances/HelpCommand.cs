@@ -25,7 +25,7 @@ namespace UI.Chat {
             {
                 throw new ChatParseException($"Error running 'help': {parameters[0]} is not a valid command");
             }
-            chatUI.sendMessage($"Usage of {parameters[0]}:\n{chatCommand.getDescription()}");
+            chatUI.SendChatMessage($"Usage of {parameters[0]}:\n{chatCommand.getDescription()}");
 
         }
 
@@ -68,7 +68,7 @@ namespace UI.Chat {
                 if (i < commandsToSend.Count-1) chat += $", ";
             }
 
-            chatUI.sendMessage(chat);
+            chatUI.SendChatMessage(chat);
         }
         public List<string> getAutoFill(int paramIndex)
         {

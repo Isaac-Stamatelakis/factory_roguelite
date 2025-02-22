@@ -16,10 +16,10 @@ namespace Chunks.Systems {
         public override void InitLoaders()
         {
             chunkLoader = chunkContainerTransform.gameObject.AddComponent<ChunkLoader>();
-            chunkLoader.initalize(this,LoadUtils.getChunkLoaderVariables());
+            chunkLoader.Initalize(this,LoadUtils.getChunkLoaderVariables());
 
             chunkUnloader = ChunkContainerTransform.gameObject.AddComponent<ChunkUnloader>();
-            chunkUnloader.initalize(this,LoadUtils.getChunkUnloaderVariables());
+            chunkUnloader.Initalize(this,LoadUtils.getChunkUnloaderVariables());
             base.InitLoaders();
         }
 
