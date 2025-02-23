@@ -126,6 +126,23 @@ namespace Robot.Upgrades {
             return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
         }
 
+
+        public static Dictionary<T, int> GetUpgradeCount<T>(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList) where T : Enum
+        {
+            Dictionary<T, int> upgradeCount = new Dictionary<T, int>();
+            foreach (RobotUpgradeNodeData upgradeNodeData in nodeDataList)
+            {
+                foreach (RobotUpgradeData upgradeData in upgradeDataList)
+                {
+                    if (upgradeData.Id != upgradeNodeData.Id) continue;
+                    T enumValue = (T)Convert.ChangeType(upgradeNodeData.UpgradeType, typeof(T));
+                    upgradeCount.TryAdd(enumValue, 0);
+                    upgradeCount[enumValue] += upgradeData.Amount;
+                }
+            }
+
+            return upgradeCount;
+        }
         
     }
 
