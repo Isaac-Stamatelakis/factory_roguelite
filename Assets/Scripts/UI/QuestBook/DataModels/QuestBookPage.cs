@@ -15,7 +15,7 @@ namespace UI.QuestBook {
             this.Nodes = nodes;
         }
 
-        public List<QuestBookNode> getNodes()
+        public List<QuestBookNode> GetNodes()
         {
             return Nodes;
         }

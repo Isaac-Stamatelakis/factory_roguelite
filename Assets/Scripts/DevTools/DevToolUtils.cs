@@ -6,11 +6,14 @@ using System.IO;
 namespace DevTools {
     public enum DevTool
     {
-        Structure,
-        QuestBook
+        Structure = 0,
+        QuestBook = 1,
+        Upgrade = 2,
+        
     }
     public static class DevToolUtils
     {
+        public const string SCENE_NAME = "DevTools";
         public static string GetDevToolPath(DevTool devTool) {
             string devPath = Path.Combine(Application.streamingAssetsPath,devTool.ToString());
             if (!Directory.Exists(devPath)) {

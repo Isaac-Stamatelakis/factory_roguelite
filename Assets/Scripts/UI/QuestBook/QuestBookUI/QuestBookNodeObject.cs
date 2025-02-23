@@ -14,9 +14,9 @@ namespace UI.QuestBook {
     {
         private int counter;
         private ItemObject itemObject;
-        public override void Init(QuestBookNode node, QuestBookPageUI nodeNetwork)
+        public override void Initialize(QuestBookNode node, QuestBookPageUI nodeNetwork)
         {
-            base.Init(node, nodeNetwork);
+            base.Initialize(node, nodeNetwork);
             itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
             DisplayImage();
         }

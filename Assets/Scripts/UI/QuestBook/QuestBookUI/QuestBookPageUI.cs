@@ -6,11 +6,9 @@ using UI.NodeNetwork;
 using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
-    public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage, QuestEditModeController>
+    public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage>
     {
         [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
-        [SerializeField] private QuestEditModeController questEditModeController;
-        [SerializeField] private GameObject linePrefab;
         private QuestBookLibrary library;
         public QuestBookLibrary Library {get => library;}
         private QuestBook questBook;
@@ -24,45 +22,34 @@ namespace UI.QuestBook {
             this.questBook = questBook;
             this.library = questBookLibrary;
             this.questBookUI = questBookUI;
-            if (QuestBookUtils.EditMode) {
-                initEditMode();
-            }
-            else
-            {
-                questEditModeController.gameObject.SetActive(false);
-            }
+            editController.gameObject.SetActive(QuestBookUtils.EditMode);
         }
-        public override void DisplayLines()
-        {
-            GlobalHelper.deleteAllChildren(LineContainer);
-            HashSet<int> pageIds = new HashSet<int>();
-            foreach (QuestBookNode node in NodeNetwork.getNodes()) {
-                pageIds.Add(node.Id);
-            }
-            Dictionary<int, QuestBookNode> idNodeMap = library.IdNodeMap;
-            foreach (QuestBookNode questBookNode in nodeNetwork.getNodes())
-            {
-                
-                bool discovered = nodeDiscovered(questBookNode);
-                foreach (int id in questBookNode.Prerequisites) {
-                    if (!pageIds.Contains(id)) {
-                        continue;
-                    }
-                    QuestBookNode otherNode = library.IdNodeMap[id];
-                    bool complete = otherNode.Content.Task.IsComplete();
-                    QuestBookUIFactory.GenerateLine(otherNode.getPosition(),questBookNode.getPosition(),LineContainer,complete,linePrefab);
-                }
-            }
-        }
+        
         protected override INodeUI GenerateNode(QuestBookNode node)
         {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
-            nodeObject.Init(node,this);
+            nodeObject.Initialize(node,this);
             RectTransform nodeRectTransform = (RectTransform)nodeObject.transform;
             nodeRectTransform.sizeDelta = GetNodeVectorSize(node.Content.Size);
             nodeObject.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
             return nodeObject;
         }
+
+        public override bool ShowAllComplete()
+        {
+            return QuestBookUtils.SHOW_ALL_COMPLETED;
+        }
+
+        public override void OnDeleteSelectedNode()
+        {
+            // Does nothing
+        }
+
+        public override QuestBookNode LookUpNode(int id)
+        {
+            return library.IdNodeMap.GetValueOrDefault(id);
+        }
+        
 
         private Vector2 GetNodeVectorSize(QuestBookNodeSize nodeSize)
         {
@@ -81,36 +68,7 @@ namespace UI.QuestBook {
                     throw new ArgumentOutOfRangeException(nameof(nodeSize), nodeSize, null);
             }
         }
-
-        protected override void initEditMode()
-        {
-            questEditModeController.gameObject.SetActive(true);
-            questEditModeController.init(this);
-        }
-
-        protected override bool nodeDiscovered(QuestBookNode node)
-        {
-            
-            foreach (int prereqID in node.Prerequisites) {
-                if (!library.IdNodeMap.ContainsKey(prereqID)) continue;
-                bool preReqComplete = library.IdNodeMap[prereqID].Content.Task.IsComplete();
-                if (node.RequireAllPrerequisites && !preReqComplete)  {
-                    return false;
-                }
-                if (!node.RequireAllPrerequisites && preReqComplete) {
-                    return true;
-                }
-            }
-            // If the loop has gotten to this point, there are two cases
-            // i) If its RequireAllPrequestites, then all are complete so return RequireAllPrequresites aka true
-            // ii) If its not RequireAllPrequesites, then atleast one is not complete so return not RequireAllPrequreistes aka false
-            return node.RequireAllPrerequisites;
-        }
-
-        public override void AddNode(INodeUI nodeUI)
-        {
-            
-        }
+        
 
         public override void PlaceNewNode(Vector2 position)
         {
@@ -126,7 +84,7 @@ namespace UI.QuestBook {
                     new QuestBookCommandRewards(new List<QuestBookCommandReward>()),
                     QuestBookNodeSize.Regular
                 ),
-                new HashSet<int>(),
+                new List<int>(),
                 library.GetSmallestNewID(),
                 true
             );

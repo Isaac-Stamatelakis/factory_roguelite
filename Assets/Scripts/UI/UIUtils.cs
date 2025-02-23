@@ -5,12 +5,25 @@ using UnityEngine;
 namespace UI {
     public static class UIUtils
     {
-        private static readonly string globalUIContainerName = "GlobalUIController";
-        private static readonly string textChatName = "TextChat";
-
-        public static string GlobalUIContainerName => globalUIContainerName;
-
-        public static string TextChatName => textChatName;
+        public static IEnumerator TransitionUIElement(RectTransform rectTransform, Vector3 destination, bool moveLocal = false)
+        {
+            const int updates = 200;
+            for (int i = 0; i < updates; i++)
+            {
+                Vector3 newPosition = Vector3.Lerp(moveLocal ? rectTransform.localPosition : rectTransform.position, destination, (float)i / updates);
+                if (moveLocal)
+                {
+                    rectTransform.localPosition = newPosition;
+                }
+                else
+                {
+                    rectTransform.position = newPosition;
+                }
+                
+                yield return null;
+            }
+            yield return null;
+        }
     }
 }
 

@@ -5,10 +5,11 @@ using UnityEngine;
 namespace UI.NodeNetwork {
     public interface INode
     {
-        public Vector3 getPosition();
+        public Vector3 GetPosition();
         public void SetPosition(Vector3 pos);
-        public int getId();
-        public HashSet<int> getPrerequisites();
+        public int GetId();
+        public List<int> GetPrerequisites();
+        public bool IsCompleted();
     }
 }
 

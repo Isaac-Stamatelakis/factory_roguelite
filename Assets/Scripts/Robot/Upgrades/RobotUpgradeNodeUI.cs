@@ -1,0 +1,25 @@
+using Item.Slot;
+using Items;
+using Microsoft.Unity.VisualStudio.Editor;
+using UI.NodeNetwork;
+using UnityEngine;
+using Image = UnityEngine.UI.Image;
+
+namespace Robot.Upgrades
+{
+    public class RobotUpgradeNodeUI : NodeUI<RobotUpgradeNode,RobotUpgradeNetworkUI>
+    {
+        protected override void openContent()
+        {
+            nodeNetwork.RobotUpgradeUI.DisplayNodeContent(node);
+        }
+        
+        public override void DisplayImage()
+        {
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.NodeData?.IconItemId);
+            Sprite sprite = itemObject?.getSprite();
+            if (sprite) image.sprite = sprite;
+           
+        }
+    }
+}

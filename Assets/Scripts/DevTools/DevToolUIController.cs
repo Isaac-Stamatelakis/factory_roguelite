@@ -6,47 +6,57 @@ using TMPro;
 using UnityEngine.UI;
 using UI;
 using DevTools.Structures;
+using DevTools.Upgrades;
+using Items;
 using UI.QuestBook;
 
 namespace DevTools {
-    public class DevToolUIController : MonoBehaviour
+    public class DevToolUIController : CanvasController
     {
         private enum DevToolPage
         {
             Title,
             Structure,
-            QuestBook
+            QuestBook,
+            Upgrade
         }
 
         [SerializeField] private StructureDevControllerUI structureDevControllerUIPrefab;
         [SerializeField] private QuestBookCreationSceneController questBookCreationSceneControllerPrefab;
+        [SerializeField] private DevToolUpgradeSelector upgradeSelectorUIPrefab;
         private static DevToolPage page = DevToolPage.Title;
-       
-        private static DevToolUIController instance;
-        public static DevToolUIController Instance => instance;
-        public void Awake() {
-            instance = this;
-            Display();
+        
+        public override void EmptyListen()
+        {
+            
         }
+
+        public override void ListenKeyPresses()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                PopStack();
+            }
+        }
+
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private GameObject home;
         [SerializeField] private Button homeButton;
         [SerializeField] private Button structureButton;
         [SerializeField] private Button questButton;
+        [SerializeField] private Button robotToolButton;
         private Transform currentUI;
         private string baseText;
-        public void setTitleText(string text) {
+        public void SetTitleText(string text) {
             title.text = text;
         }
-        public void setHomeVisibility(bool state) {
+        public void SetHomeVisibility(bool state) {
             home.SetActive(state);
             homeButton.gameObject.SetActive(!state);
+            PopStack();
         }
-        public void addUI(Transform ui) {
-            ui.transform.SetParent(transform,false);
-            currentUI = ui;
-        }
-        public void resetTitleText() {
+       
+        public void ResetTitleText() {
             title.text = baseText;
         }
 
@@ -55,7 +65,6 @@ namespace DevTools {
             {
                 page = DevToolPage.Title;
                 Display();
-                GameObject.Destroy(currentUI.gameObject);
             });
             
             structureButton.onClick.AddListener(() =>
@@ -64,28 +73,42 @@ namespace DevTools {
                 Display();
             });
             
+            robotToolButton.onClick.AddListener(() =>
+            {
+                page = DevToolPage.Upgrade;
+                Display();
+            });
             questButton.onClick.AddListener(() => {
                 QuestBookCreationSceneController questBookCreationSceneController = Instantiate(questBookCreationSceneControllerPrefab);
             });
+            Display();
+            StartCoroutine(ItemRegistry.LoadItems());
         }
 
         public void Display()
         {
-            setHomeVisibility(page == DevToolPage.Title);
+            SetHomeVisibility(page == DevToolPage.Title);
 
             switch (page)
             {
                 case DevToolPage.Title:
                 case DevToolPage.QuestBook:
-                    setTitleText("Developer Tools");
+                    SetTitleText("Developer Tools");
                     break;
                 case DevToolPage.Structure:
-                    setTitleText("Structure Generator");
+                    SetTitleText("Structure Generator");
                     StructureDevControllerUI structureDevControllerUI = GameObject.Instantiate(structureDevControllerUIPrefab);
-                    structureDevControllerUI.init();
-                    addUI(structureDevControllerUI.transform);
+                    structureDevControllerUI.Initialize();
+                    DisplayObject(structureDevControllerUI.gameObject);
+                    break;
+                case DevToolPage.Upgrade:
+                    SetTitleText("Robot Upgrades");
+                    DevToolUpgradeSelector upgradeSelector = GameObject.Instantiate(upgradeSelectorUIPrefab);
+                    upgradeSelector.Initialize();
+                    DisplayObject(upgradeSelector.gameObject);
                     break;
                 default:
+                    
                     throw new ArgumentOutOfRangeException();
             }
         }

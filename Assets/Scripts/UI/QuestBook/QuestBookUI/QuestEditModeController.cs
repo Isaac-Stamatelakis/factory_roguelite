@@ -6,9 +6,6 @@ using TMPro;
 using UI.NodeNetwork;
 
 namespace UI.QuestBook {
-    public class QuestEditModeController : NodeNetworkEditorUI<QuestBookNode>
-    {
-        
-    }
+    
 }
 

@@ -22,7 +22,6 @@ namespace Player.Movement
         
         public void OnTriggerStay2D(Collider2D other)
         {
-            Debug.Log(OnPlatform(other));
             if (OnPlatform(other))
             {
                 playerRobot.AddCollisionState(CollisionState.OnPlatform);

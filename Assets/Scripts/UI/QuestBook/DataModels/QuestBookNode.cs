@@ -8,7 +8,7 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookNode : INode
     {
-        public HashSet<int> Prerequisites;
+        public List<int> Prerequisites;
         public SerializedItemSlot ImageSeralizedItemSlot;
         public float X;
         public float Y;
@@ -16,7 +16,7 @@ namespace UI.QuestBook {
         public QuestBookNodeContent Content;
         public bool RequireAllPrerequisites;
 
-        public QuestBookNode(Vector2 position, SerializedItemSlot serializedItemSlot, QuestBookNodeContent content, HashSet<int> prerequisites, int id, bool requireAllPrerequisites) {
+        public QuestBookNode(Vector2 position, SerializedItemSlot serializedItemSlot, QuestBookNodeContent content, List<int> prerequisites, int id, bool requireAllPrerequisites) {
             this.X = position.x;
             this.Y = position.y;
             this.ImageSeralizedItemSlot = serializedItemSlot;
@@ -26,7 +26,7 @@ namespace UI.QuestBook {
             this.RequireAllPrerequisites = requireAllPrerequisites;
         }
 
-        public Vector3 getPosition()
+        public Vector3 GetPosition()
         {
             return new Vector3(X,Y,0);
         }
@@ -37,14 +37,19 @@ namespace UI.QuestBook {
             Y = pos.y;
         }
 
-        public int getId()
+        public int GetId()
         {
             return Id;
         }
 
-        public HashSet<int> getPrerequisites()
+        public List<int> GetPrerequisites()
         {
             return Prerequisites;
+        }
+
+        public bool IsCompleted()
+        {
+            return Content?.Task?.IsComplete() ?? false;
         }
     }
 }

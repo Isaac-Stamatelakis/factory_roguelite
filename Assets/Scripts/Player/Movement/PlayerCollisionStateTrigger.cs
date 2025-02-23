@@ -14,7 +14,8 @@ namespace Player.Movement
         private enum TriggerableCollisionState
         {
             HeadContact = Player.CollisionState.HeadContact,
-            WallContact = Player.CollisionState.OnWall,
+            LeftWall = Player.CollisionState.OnWallLeft,
+            RightWall = Player.CollisionState.OnWallRight,
             GroundContact = Player.CollisionState.OnGround,
             
         }

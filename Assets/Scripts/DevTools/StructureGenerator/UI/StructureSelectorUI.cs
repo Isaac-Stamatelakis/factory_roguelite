@@ -46,11 +46,11 @@ namespace DevTools.Structures {
             string oldPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text);
             string newPath = Path.Combine(StructureGeneratorHelper.GetFolderPath(),newTitle);
             Directory.Move(oldPath, newPath);
-            structureDevControllerUI.displayList();
+            structureDevControllerUI.DisplayList();
         }
         public void deleteSelf() {
             Directory.Delete(Path.Combine(StructureGeneratorHelper.GetFolderPath(),title.text),true);
-            structureDevControllerUI.displayList();
+            structureDevControllerUI.DisplayList();
         }
         public string getTitle() {
             return title.text;
