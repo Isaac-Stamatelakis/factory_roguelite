@@ -678,7 +678,6 @@ namespace Player {
             InitializeTools();
             
             
-            currentRobot.init(gameObject);
             SetFlightProperties();
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }

@@ -15,8 +15,8 @@ namespace Robot {
         public Sprite defaultSprite;
         public float BaseHealth;
         public ulong MaxEnergy;
-        public abstract void handleMovement(Transform playerTransform);
-        public abstract void init(GameObject playerGameObject);
+        [Header("From StreamingAssets/Upgrade")]
+        public string UpgradePath;
     }
 
     public interface IEnergyRechargeRobot

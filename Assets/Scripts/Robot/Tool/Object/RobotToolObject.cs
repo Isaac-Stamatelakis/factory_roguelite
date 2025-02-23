@@ -13,5 +13,7 @@ namespace Player.Tool
     public abstract class RobotToolObject : ScriptableObject
     {
         public Sprite ToolSprite;
+        [Header("From StreamingAssets/Upgrade")]
+        public string UpgradePath;
     }
 }

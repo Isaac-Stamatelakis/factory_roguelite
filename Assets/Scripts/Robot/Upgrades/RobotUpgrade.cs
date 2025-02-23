@@ -123,6 +123,11 @@ namespace Robot.Upgrades {
                     return "Grants bonus jumps in the air to robot";
                 case RobotUpgrade.Flight:
                     return "Grants flight";
+                case RobotUpgrade.Reach:
+                case RobotUpgrade.Dash:
+                case RobotUpgrade.Hover:
+                case RobotUpgrade.Teleport:
+                    return null;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -13,34 +13,6 @@ namespace RobotModule.Instances {
     public class HAPPY : RobotObject, IEnergyRechargeRobot
     {
         public ulong RechargeRate = 8;
-        public override void handleMovement(Transform playerTransform)
-        {
-            Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
-            PlayerRobot playerRobot = playerTransform.GetComponent<PlayerRobot>();
-            SpriteRenderer spriteRenderer = playerTransform.GetComponent<SpriteRenderer>();
-
-            Vector2 velocity = Vector2.zero;
-            velocity.y = rb.velocity.y;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-                velocity.x = -4f;
-                spriteRenderer.flipX = true;
-            }
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-                velocity.x = +4f;
-                spriteRenderer.flipX = false;
-            }
-            
-            
-            
-            rb.velocity = velocity;
-        }
-
-        public override void init(GameObject playerGameObject)
-        {
-            Rigidbody2D rigidbody2D = playerGameObject.GetComponent<Rigidbody2D>();
-            rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
-        }
-
         public ulong EnergyRechargeRate => RechargeRate;
     }
 }
