@@ -5,6 +5,7 @@ using Player.Tool;
 using Player.Tool.Object;
 using Robot.Tool.Instances;
 using Robot.Tool.Object;
+using Robot.Upgrades;
 using TileMaps.Layer;
 using UnityEngine;
 
@@ -92,7 +93,7 @@ namespace Robot.Tool
         public static string Serialize(ItemRobotToolData itemRobotToolData)
         {
             List<string> toolData = SerializeList(itemRobotToolData.Tools);
-            SerializedItemRobotToolData sData = new SerializedItemRobotToolData(toolData, itemRobotToolData.Types);
+            SerializedItemRobotToolData sData = new SerializedItemRobotToolData(toolData, itemRobotToolData.Types, itemRobotToolData.Upgrades);
             return JsonConvert.SerializeObject(sData);
         }
 
@@ -104,7 +105,7 @@ namespace Robot.Tool
             {
                 robotTools.Add(Deserialize(robotToolData.ToolData[i], robotToolData.Types[i]));
             }
-            return new ItemRobotToolData( robotToolData.Types, robotTools);
+            return new ItemRobotToolData( robotToolData.Types, robotTools, robotToolData.Upgrades);
         }
 
         public static RobotToolData Deserialize(string toolData, RobotToolType type)
@@ -188,11 +189,13 @@ namespace Robot.Tool
         {
             public List<string> ToolData;
             public List<RobotToolType> Types;
+            public List<RobotUpgradeData> Upgrades;
 
-            public SerializedItemRobotToolData(List<string> toolData, List<RobotToolType> types)
+            public SerializedItemRobotToolData(List<string> toolData, List<RobotToolType> types, List<RobotUpgradeData> upgrades)
             {
                 ToolData = toolData;
                 this.Types = types;
+                this.Upgrades = upgrades;
             }
         }
     }
@@ -201,11 +204,13 @@ namespace Robot.Tool
     {
         public List<RobotToolType> Types;
         public List<RobotToolData> Tools;
+        public List<RobotUpgradeData> Upgrades;
 
-        public ItemRobotToolData(List<RobotToolType> types, List<RobotToolData> tools)
+        public ItemRobotToolData(List<RobotToolType> types, List<RobotToolData> tools, List<RobotUpgradeData> upgrades)
         {
             Types = types;
             Tools = tools;
+            Upgrades = upgrades;
         }
     }
 }

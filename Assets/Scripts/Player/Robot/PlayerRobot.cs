@@ -15,6 +15,7 @@ using PlayerModule;
 using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
+using Robot.Upgrades;
 using RobotModule;
 using TileEntity;
 using TileMaps;
@@ -665,7 +666,7 @@ namespace Player {
             if (!tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
             {
                 Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
-                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>());
+                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>(), new List<RobotUpgradeData>());
                 // TODO robotupgrade data
                 RobotItemData newItemData = new RobotItemData(robotToolData,null, currentRobot.BaseHealth,0);
                 tagData[ItemTag.RobotData] = newItemData;

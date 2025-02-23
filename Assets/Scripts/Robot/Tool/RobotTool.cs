@@ -51,7 +51,7 @@ namespace Robot.Tool
 
         public Sprite GetSprite()
         {
-            return robotObject?.ToolSprite;
+            return robotObject?.ToolIconItem?.getSprite();
         }
         public abstract Sprite GetPrimaryModeSprite();
 

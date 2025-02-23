@@ -11,12 +11,12 @@ namespace RobotModule {
         public float Health;
         public ulong Energy;
         public ItemRobotToolData ToolData;
-        public RobotUpgradeData RobotUpgradeData;
-        public RobotItemData(ItemRobotToolData toolData, RobotUpgradeData robotUpgradeData, float health, ulong energy) {
+        public List<RobotUpgradeData> RobotUpgrades;
+        public RobotItemData(ItemRobotToolData toolData, List<RobotUpgradeData> robotUpgrades, float health, ulong energy) {
             this.ToolData = toolData;
             this.Health = health;
             this.Energy = energy;
-            this.RobotUpgradeData = robotUpgradeData;
+            this.RobotUpgrades = robotUpgrades;
         }
     }
 }
