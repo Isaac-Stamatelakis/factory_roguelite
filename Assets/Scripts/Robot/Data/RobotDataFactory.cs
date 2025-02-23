@@ -11,6 +11,7 @@ using Recipe.Objects;
 using Robot;
 using Robot.Tool;
 using Robot.Tool.Object;
+using Robot.Upgrades;
 
 namespace RobotModule {
     public static class RobotDataFactory
@@ -49,7 +50,7 @@ namespace RobotModule {
                 defaultData.Add(RobotToolFactory.GetDefault(robotToolType));
             }
             RobotObject robotObject = robotItem.robot;
-            ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData);
+            ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData, new List<RobotUpgradeData>());
             RobotItemData robotItemData = new RobotItemData(
                 defaultToolData, null, robotObject.BaseHealth, 0
             );

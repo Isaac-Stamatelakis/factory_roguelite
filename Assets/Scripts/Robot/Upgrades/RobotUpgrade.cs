@@ -4,27 +4,71 @@ using Newtonsoft.Json;
 using Player.Tool;
 using TMPro;
 using UI.NodeNetwork;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using WorldModule;
 
 namespace Robot.Upgrades {
     public static class RobotUpgradeUtils
     {
-        public static RobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
+        public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
         {
             string json = WorldLoadUtils.DecompressString(bytes);
             if (json == null) return null;
             try
             {
-                return JsonConvert.DeserializeObject<RobotUpgradeNodeNetwork>(json);
+                SerializedRobotUpgradeNodeNetwork network = JsonConvert.DeserializeObject<SerializedRobotUpgradeNodeNetwork>(json);
+                network.NodeData ??= new List<RobotUpgradeNodeData>();
+                return network;
             }
             catch (JsonSerializationException e)
             {
                 Debug.LogWarning(e);
                 return null;
             }
-            
-        } 
+        }
+
+        public static RobotUpgradeNodeNetwork FromSerializedNetwork(SerializedRobotUpgradeNodeNetwork sNetwork)
+        {
+            if (sNetwork == null) return null;
+            List<RobotUpgradeNode> robotUpgradeNodes = new List<RobotUpgradeNode>();
+            foreach (RobotUpgradeNodeData nodeData in sNetwork.NodeData)
+            {
+                robotUpgradeNodes.Add(new RobotUpgradeNode(nodeData,new RobotUpgradeData(nodeData.Id,0)));
+            }
+
+            return new RobotUpgradeNodeNetwork(sNetwork.Type,sNetwork.SubType,robotUpgradeNodes);
+        }
+        
+        public static RobotUpgradeNodeNetwork FromSerializedNetwork(SerializedRobotUpgradeNodeNetwork sNetwork, List<RobotUpgradeData> upgradeDataList)
+        {
+            RobotUpgradeNodeNetwork robotUpgradeNodeNetwork = FromSerializedNetwork(sNetwork);
+            if (robotUpgradeNodeNetwork == null) return null;
+            Dictionary<int, RobotUpgradeNode> upgradeNodeDict = new Dictionary<int, RobotUpgradeNode>();
+            foreach (RobotUpgradeNode node in robotUpgradeNodeNetwork.UpgradeNodes)
+            {
+                upgradeNodeDict[node.GetId()] = node;
+            }
+
+            foreach (RobotUpgradeData upgradeData in upgradeDataList)
+            {
+                RobotUpgradeNode node = upgradeNodeDict.GetValueOrDefault(upgradeData.Id);
+                if (node == null) continue;
+                node.InstanceData.Amount = upgradeData.Amount;
+            }
+            return robotUpgradeNodeNetwork;
+        }
+
+        public static SerializedRobotUpgradeNodeNetwork ToSerializedNetwork(RobotUpgradeNodeNetwork network)
+        {
+            if (network == null) return null;
+            List<RobotUpgradeNodeData> nodeDataList = new List<RobotUpgradeNodeData>();
+            foreach (RobotUpgradeNode node in network.UpgradeNodes)
+            {
+                nodeDataList.Add(node.NodeData);
+            }
+            return new SerializedRobotUpgradeNodeNetwork(network.Type,network.SubType,nodeDataList);
+        }
         public static int GetNextUpgradeId(RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
         {
             List<RobotUpgradeNode> nodes = robotUpgradeNodeNetwork.GetNodes();
@@ -37,6 +81,13 @@ namespace Robot.Upgrades {
             }
 
             return largest + 1;
+        }
+        
+        public static uint GetRequireAmountMultiplier(RobotUpgradeNode robotUpgradeNode)
+        {
+            if ((robotUpgradeNode.InstanceData?.Amount ?? 0) == 0) return 1;
+            int amount = robotUpgradeNode.InstanceData.Amount;
+            return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
         }
 
         
@@ -87,6 +138,11 @@ namespace Robot.Upgrades {
         BonusJump = 2,
         RocketBoots = 3,
         Flight = 4,
+        Reach = 5,
+        Dash = 6,
+        Hover = 7,
+        Teleport = 8,
+        
     }
 
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
@@ -111,6 +167,11 @@ namespace Robot.Upgrades {
                     return "Grants bonus jumps in the air to robot";
                 case RobotUpgrade.Flight:
                     return "Grants flight";
+                case RobotUpgrade.Reach:
+                case RobotUpgrade.Dash:
+                case RobotUpgrade.Hover:
+                case RobotUpgrade.Teleport:
+                    return null;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -254,6 +315,20 @@ namespace Robot.Upgrades {
             Type = type;
             SubType = subType;
             UpgradeNodes = upgradeNodes;
+        }
+    }
+
+    public class SerializedRobotUpgradeNodeNetwork
+    {
+        public RobotUpgradeType Type;
+        public int SubType;
+        public List<RobotUpgradeNodeData> NodeData;
+
+        public SerializedRobotUpgradeNodeNetwork(RobotUpgradeType type, int subType, List<RobotUpgradeNodeData> nodeData)
+        {
+            Type = type;
+            SubType = subType;
+            NodeData = nodeData;
         }
     }
     public class RobotUpgradeData

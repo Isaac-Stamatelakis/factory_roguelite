@@ -45,7 +45,7 @@ namespace Player.Movement
             Vector2Int cellPosition = Global.getCellPositionFromWorld(other.ClosestPoint(transform.position));
             IChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
-            TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
+            TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);
             if (ReferenceEquals(tileItem, cachedTileItem)) return null;
             cachedTileItem = tileItem;
             if (tileItem?.tile is not HammerTile hammerTile) return false;

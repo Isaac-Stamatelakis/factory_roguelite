@@ -25,9 +25,15 @@ namespace DevTools.Upgrades
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            RobotUpgradeNodeNetwork nodeNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(File.ReadAllBytes(upgradeInfo.Path));
+            SerializedRobotUpgradeNodeNetwork sNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(File.ReadAllBytes(upgradeInfo.Path));
             RobotUpgradeUI robotUpgradeUI = Instantiate(robotUpgradeNetworkUIPrefab);
-            robotUpgradeUI.Initialize(nodeNetwork);
+            RobotUpgradeNodeNetwork robotUpgradeNodeNetwork = RobotUpgradeUtils.FromSerializedNetwork(sNetwork);
+            if (robotUpgradeNodeNetwork == null)
+            {
+                Debug.LogError($"Upgrade data at path '{upgradeInfo.Path}' is corrupted :(");
+                return;
+            }
+            robotUpgradeUI.Initialize(mNameText.text,robotUpgradeNodeNetwork);
             robotUpgradeUI.SetUpgradeInfo(upgradeInfo);
             CanvasController.Instance.DisplayObject(robotUpgradeUI.gameObject);
             

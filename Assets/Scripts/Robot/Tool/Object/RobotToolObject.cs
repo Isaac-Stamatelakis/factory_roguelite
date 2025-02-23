@@ -1,3 +1,4 @@
+using Items;
 using UnityEngine;
 
 namespace Player.Tool
@@ -12,6 +13,8 @@ namespace Player.Tool
     
     public abstract class RobotToolObject : ScriptableObject
     {
-        public Sprite ToolSprite;
+        public ItemObject ToolIconItem;
+        [Header("From StreamingAssets/Upgrade")]
+        public string UpgradePath;
     }
 }

@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DevTools;
+using Item.Slot;
+using Items;
 using Items.Inventory;
+using PlayerModule;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -19,13 +22,14 @@ namespace Robot.Upgrades
         [SerializeField] private Button mUpgradeButton;
         [SerializeField] private Button mAddItemButton;
         [SerializeField] private Transform mEditElementContainer;
-        [SerializeField] private Button mEditImageButton;
         [SerializeField] private TMP_InputField mCostMultiplerField;
         [SerializeField] private TMP_InputField mAmountField;
+        [SerializeField] private ItemSlotUI mItemSlotUI;
         private RobotUpgradeNode robotUpgradeNode;
         public RobotUpgradeNode RobotUpgradeNode => robotUpgradeNode;
         [SerializeField] private SerializedItemSlotEditorUI mItemSlotEditorUIPrefab;
         [SerializeField] private UpgradeCostItemUI mUpgradeCostItemUIPrefab;
+        [SerializeField] private TextMeshProUGUI mProgressText;
         
         public SerializedItemSlotEditorUI ItemSlotEditorUIPrefab => mItemSlotEditorUIPrefab;
 
@@ -58,13 +62,16 @@ namespace Robot.Upgrades
             mTitleDropDown.onValueChanged.RemoveAllListeners();
             mAddItemButton.onClick.RemoveAllListeners();
             mAmountField.onValueChanged.RemoveAllListeners();
-            mEditImageButton.onClick.RemoveAllListeners();
+            mItemSlotUI.GetComponent<Button>().onClick.RemoveAllListeners();
             mCostMultiplerField.onValueChanged.RemoveAllListeners();
             
             mTitleDropDown.value = robotUpgradeNode.NodeData.UpgradeType;
             mTitleDropDown.interactable = editable;
             mAddItemButton.gameObject.SetActive(editable);
             mEditElementContainer.gameObject.SetActive(editable);
+            
+            DisplayItemIcon();
+            
             if (editable)
             {
                 mTitleDropDown.GetComponent<Image>().enabled = true;
@@ -86,14 +93,7 @@ namespace Robot.Upgrades
                 
                 mCostMultiplerField.text = this.robotUpgradeNode.NodeData.CostMultiplier.ToString(CultureInfo.InvariantCulture);
                 mAmountField.text = this.robotUpgradeNode.NodeData.UpgradeAmount.ToString();
-                
-                mEditImageButton.onClick.AddListener(() =>
-                {
-                    SerializedItemSlotEditorUI itemSlotEditorUI = Instantiate(ItemSlotEditorUIPrefab);
-                    List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot> { new(robotUpgradeNode.NodeData.IconItemId,1,null) };
-                    itemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,displayTags:false,displayAmount:false,displayTrash:false,displayArrows:false,callback:OnIconChange);
-                    itemSlotEditorUI.transform.SetParent(transform.parent,false);
-                });
+               
                 mAmountField.onValueChanged.AddListener((value) =>
                 {
                     try
@@ -101,6 +101,7 @@ namespace Robot.Upgrades
                         int amount = Convert.ToInt32(value);
                         if (amount < 0) amount = 1;
                         robotUpgradeNode.NodeData.UpgradeAmount = amount;
+                        DisplayItemIcon();
                     }
                     catch (FormatException)
                     {
@@ -120,6 +121,13 @@ namespace Robot.Upgrades
                         mCostMultiplerField.text = robotUpgradeNode.NodeData.CostMultiplier.ToString(CultureInfo.InvariantCulture);
                     }
                 });
+                mItemSlotUI.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    SerializedItemSlotEditorUI itemSlotEditorUI = Instantiate(ItemSlotEditorUIPrefab);
+                    List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot> { new(robotUpgradeNode.NodeData.IconItemId,1,null) };
+                    itemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,displayTags:false,displayAmount:false,displayTrash:false,displayArrows:false,callback:OnIconChange);
+                    itemSlotEditorUI.transform.SetParent(transform.parent,false);
+                });
             }
             
             
@@ -128,10 +136,26 @@ namespace Robot.Upgrades
             DisplayItemCost();
         }
 
+        private void DisplayItemIcon()
+        {
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(robotUpgradeNode.NodeData.IconItemId);
+            if (!itemObject)
+            {
+                itemObject = ItemRegistry.GetInstance().GetItemObject("stone");
+            }
+            ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
+            int upgradedAmount = robotUpgradeNode.InstanceData?.Amount ?? 0;
+            mProgressText.text = $"Upgraded {upgradedAmount}/{robotUpgradeNode.NodeData.UpgradeAmount}";
+            mProgressText.color = upgradedAmount >= robotUpgradeNode.NodeData.UpgradeAmount ? Color.green : Color.white;
+            mItemSlotUI.Display(itemSlot);
+        }
+        
+
         private void OnIconChange(SerializedItemSlot serializedItemSlot)
         {
             robotUpgradeNode.NodeData.IconItemId = serializedItemSlot.id;
             networkUI.Display();
+            DisplayItemIcon();
         }
 
         public void DisplayItemCost()
@@ -144,10 +168,60 @@ namespace Robot.Upgrades
             }
         }
 
+        private void IterateUpgradeAmount(int amount = 1)
+        {
+            robotUpgradeNode.InstanceData.Amount += amount;
+            networkUI.Display();
+            DisplayItemIcon();
+        }
+
         public void OnUpgradeClick()
         {
             bool editable = SceneManager.GetActiveScene().name == DevToolUtils.SCENE_NAME;
-            if (editable) return;
+            robotUpgradeNode.InstanceData ??= new RobotUpgradeData(robotUpgradeNode.GetId(), 0);
+            if (robotUpgradeNode.InstanceData.Amount >= robotUpgradeNode.NodeData.UpgradeAmount) return;
+            if (editable)
+            {
+                int amount = Input.GetKeyDown(KeyCode.LeftShift) ? -1 : 1; // For testing
+                IterateUpgradeAmount(amount);
+                return;
+            }
+
+            PlayerManager playerManager = PlayerManager.Instance;
+            if (!playerManager) return;
+            PlayerInventory playerInventory = playerManager.GetPlayer().PlayerInventory;
+
+            uint costMultiplier = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode);
+            foreach (SerializedItemSlot serializedItemSlot in robotUpgradeNode.NodeData.Cost)
+            {
+                ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
+                itemSlot.amount *= costMultiplier;
+                uint playerAmount = ItemSlotUtils.AmountOf(itemSlot, playerInventory.Inventory);
+                if (playerAmount < itemSlot.amount) return;
+            }
+            
+            foreach (SerializedItemSlot serializedItemSlot in robotUpgradeNode.NodeData.Cost)
+            {
+                string id = serializedItemSlot.id;
+                uint amount = serializedItemSlot.amount * costMultiplier;
+
+                foreach (ItemSlot itemSlot in playerInventory.Inventory)
+                {
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.itemObject.id != id) continue;
+                    if (itemSlot.amount >= amount)
+                    {
+                        itemSlot.amount -= amount;
+                        break;
+                    }
+                    amount -= itemSlot.amount;
+                    itemSlot.amount = 0;
+                    
+                    if (amount == 0) break;
+                }
+            }
+            
+            networkUI.Display();
+            DisplayItemIcon();
         }
     }
 }
