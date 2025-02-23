@@ -45,6 +45,7 @@ namespace UI.NodeNetwork {
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
         private RightClickEvent rightClickEvent;
+        protected bool movementEnabled = true;
         
 
         private readonly Dictionary<KeyCode[], Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode[], Direction>
@@ -212,7 +213,9 @@ namespace UI.NodeNetwork {
         }
         
         
-        private void HandleZoom() {
+        private void HandleZoom()
+        {
+            if (!movementEnabled) return;
             float scrollInput = Input.GetAxis("Mouse ScrollWheel");
             if (scrollInput != 0)
             {
@@ -232,6 +235,7 @@ namespace UI.NodeNetwork {
         }
 
         private void HandleRightClick() {
+            if (!movementEnabled) return;
             if (Input.GetMouseButtonDown(1))
             {
                 rightClickEvent = new RightClickEvent(Input.mousePosition-ContentContainer.position);

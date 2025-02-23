@@ -1,7 +1,9 @@
+using DevTools;
 using Items.Inventory;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Robot.Upgrades
@@ -9,7 +11,7 @@ namespace Robot.Upgrades
     public class RobotUpgradeNodeContentUI : MonoBehaviour
     {
         [SerializeField] private VerticalLayoutGroup mItemList;
-        [SerializeField] private TextMeshProUGUI mTitleText;
+        [SerializeField] private TMP_Dropdown mTitleDropDown;
         [SerializeField] private TextMeshProUGUI mDescriptionText;
         [SerializeField] private Button mUpgradeButton;
         private RobotUpgradeNode robotUpgradeNode;
@@ -20,7 +22,8 @@ namespace Robot.Upgrades
         public SerializedItemSlotEditorUI ItemSlotEditorUIPrefab => mItemSlotEditorUIPrefab;
 
         private RobotUpgradeNodeNetwork nodeNetwork;
-        public void Initialize(RobotUpgradeNode robotUpgradeNode, RobotUpgradeNodeNetwork nodeNetwork)
+        public bool UnActivated => robotUpgradeNode == null;
+        public void DisplayUpgradeNode(RobotUpgradeNode robotUpgradeNode, RobotUpgradeNodeNetwork nodeNetwork)
         {
             this.robotUpgradeNode = robotUpgradeNode;
             Display();
@@ -30,7 +33,20 @@ namespace Robot.Upgrades
             DisplayItemCost();
             mUpgradeButton.onClick.AddListener(OnUpgradeClick);
             RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type, nodeNetwork.SubType);
-            mTitleText.text = robotUpgradeInfo?.GetTitle(robotUpgradeNode.NodeData.UpgradeType);
+
+            bool editable = SceneManager.GetActiveScene().name == DevToolUtils.SCENE_NAME;
+            mTitleDropDown.options = robotUpgradeInfo?.GetDropDownOptions();
+            mTitleDropDown.value = robotUpgradeNode.NodeData.UpgradeType;
+            mTitleDropDown.interactable = editable;
+            if (editable)
+            {
+                mTitleDropDown.GetComponent<TextMeshProUGUI>().gameObject.SetActive(true);
+                Image[] images = mTitleDropDown.GetComponentsInChildren<Image>();
+                foreach (Image image in images)
+                {
+                    image.gameObject.SetActive(true);
+                }
+            }
             mDescriptionText.text = robotUpgradeInfo?.GetDescription(robotUpgradeNode.NodeData.UpgradeType);
         }
 

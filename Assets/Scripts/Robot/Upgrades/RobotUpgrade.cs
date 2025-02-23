@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Player.Tool;
+using TMPro;
 using UI.NodeNetwork;
 using UnityEngine;
 using WorldModule;
@@ -75,7 +76,7 @@ namespace Robot.Upgrades {
 
     internal abstract class RobotUpgradeInfo
     {
-        public abstract string GetTitle(int upgrade);
+        public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
     }
 
@@ -90,9 +91,9 @@ namespace Robot.Upgrades {
 
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
     {
-        public override string GetTitle(int upgrade)
+        public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
-            return ((RobotUpgrade)upgrade).ToString();
+            return GlobalHelper.EnumToDropDown<RobotUpgrade>();
         }
 
         public override string GetDescription(int upgrade)
@@ -126,10 +127,9 @@ namespace Robot.Upgrades {
     
     internal class RobotDrillUpgradeInfo : RobotUpgradeInfo
     {
-        public override string GetTitle(int upgrade)
+        public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
-            RobotDrillUpgrade robotDrillUpgrade = (RobotDrillUpgrade)upgrade;
-            return robotDrillUpgrade.ToString();
+            return GlobalHelper.EnumToDropDown<RobotDrillUpgrade>();
         }
 
         public override string GetDescription(int upgrade)
@@ -158,10 +158,9 @@ namespace Robot.Upgrades {
     
     internal class RobotConduitUpgradeInfo : RobotUpgradeInfo
     {
-        public override string GetTitle(int upgrade)
+        public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
-            ConduitSlicerUpgrade robotDrillUpgrade = (ConduitSlicerUpgrade)upgrade;
-            return robotDrillUpgrade.ToString();
+            return GlobalHelper.EnumToDropDown<ConduitSlicerUpgrade>();
         }
 
         public override string GetDescription(int upgrade)
