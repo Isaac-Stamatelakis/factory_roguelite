@@ -38,6 +38,13 @@ namespace Robot.Upgrades {
 
             return largest + 1;
         }
+        
+        public static uint GetRequireAmountMultiplier(RobotUpgradeNode robotUpgradeNode)
+        {
+            if ((robotUpgradeNode.InstanceData?.Amount ?? 0) == 0) return 1;
+            int amount = robotUpgradeNode.InstanceData.Amount;
+            return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
+        }
 
         
     }
@@ -87,6 +94,11 @@ namespace Robot.Upgrades {
         BonusJump = 2,
         RocketBoots = 3,
         Flight = 4,
+        Reach = 5,
+        Dash = 6,
+        Hover = 7,
+        Teleport = 8,
+        
     }
 
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo

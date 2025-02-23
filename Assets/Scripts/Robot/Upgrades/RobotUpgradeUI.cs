@@ -2,35 +2,40 @@ using System;
 using System.IO;
 using DevTools.Upgrades;
 using Newtonsoft.Json;
+using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using WorldModule;
 
 namespace Robot.Upgrades
 {
     public class RobotUpgradeUI : MonoBehaviour
     {
-        [SerializeField] private RobotUpgradeNetworkUI robotUpgradeNetworkUI;
-        [SerializeField] private RobotUpgradeNodeContentUI robotUpgradeNodeContentUI;
+        [FormerlySerializedAs("robotUpgradeNetworkUI")] [SerializeField] private RobotUpgradeNetworkUI mRobotUpgradeNetworkUI;
+        [FormerlySerializedAs("robotUpgradeNodeContentUI")] [SerializeField] private RobotUpgradeNodeContentUI mRobotUpgradeNodeContentUI;
+        [SerializeField] private TextMeshProUGUI mTitleText;
         private RobotUpgradeNodeNetwork nodeNetwork;
         private DevToolUpgradeInfo upgradeInfo;
         private Vector3 contentLocation;
 
         public void Start()
         {
-            contentLocation = robotUpgradeNodeContentUI.transform.position;
-            var vector3 = robotUpgradeNodeContentUI.transform.localPosition;
+            contentLocation = mRobotUpgradeNodeContentUI.transform.position;
+            var vector3 = mRobotUpgradeNodeContentUI.transform.localPosition;
             vector3.x = 0;
-            robotUpgradeNodeContentUI.transform.localPosition = vector3;
-            robotUpgradeNodeContentUI.DisableEditElements();
+            mRobotUpgradeNodeContentUI.transform.localPosition = vector3;
+            mRobotUpgradeNodeContentUI.DisableEditElements();
         }
 
-        public void Initialize(RobotUpgradeNodeNetwork nodeNetwork)
+        public void Initialize(string networkName, RobotUpgradeNodeNetwork nodeNetwork)
         {
             this.nodeNetwork = nodeNetwork;
-            robotUpgradeNodeContentUI.Initialize(this.robotUpgradeNetworkUI, this.nodeNetwork);
-            robotUpgradeNetworkUI.Initialize(this,nodeNetwork);
+            mRobotUpgradeNodeContentUI.Initialize(this.mRobotUpgradeNetworkUI, this.nodeNetwork);
+            mRobotUpgradeNetworkUI.Initialize(this,nodeNetwork);
+
+            mTitleText.text = networkName;
         }
 
         internal void SetUpgradeInfo(DevToolUpgradeInfo upgradeInfo)
@@ -41,18 +46,18 @@ namespace Robot.Upgrades
         public void DisplayNodeContent(RobotUpgradeNode robotUpgradeNode)
         {
             
-            if (robotUpgradeNode == null && !robotUpgradeNodeContentUI.UnActivated)
+            if (robotUpgradeNode == null && !mRobotUpgradeNodeContentUI.UnActivated)
             {
-                Vector3 destination = new Vector3(0,robotUpgradeNodeContentUI.transform.localPosition.y, 0);
-                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.robotUpgradeNodeContentUI.transform, destination,moveLocal:true));
-                robotUpgradeNodeContentUI.DisplayUpgradeNode(null);
+                Vector3 destination = new Vector3(0,mRobotUpgradeNodeContentUI.transform.localPosition.y, 0);
+                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.mRobotUpgradeNodeContentUI.transform, destination,moveLocal:true));
+                mRobotUpgradeNodeContentUI.DisplayUpgradeNode(null);
                 return;
             }
-            if (robotUpgradeNodeContentUI.UnActivated)
+            if (mRobotUpgradeNodeContentUI.UnActivated)
             {
-                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.robotUpgradeNodeContentUI.transform, contentLocation));
+                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.mRobotUpgradeNodeContentUI.transform, contentLocation));
             }
-            robotUpgradeNodeContentUI.DisplayUpgradeNode(robotUpgradeNode);
+            mRobotUpgradeNodeContentUI.DisplayUpgradeNode(robotUpgradeNode);
         }
         
 

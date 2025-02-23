@@ -27,7 +27,7 @@ namespace DevTools.Upgrades
         {
             RobotUpgradeNodeNetwork nodeNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(File.ReadAllBytes(upgradeInfo.Path));
             RobotUpgradeUI robotUpgradeUI = Instantiate(robotUpgradeNetworkUIPrefab);
-            robotUpgradeUI.Initialize(nodeNetwork);
+            robotUpgradeUI.Initialize(mNameText.text,nodeNetwork);
             robotUpgradeUI.SetUpgradeInfo(upgradeInfo);
             CanvasController.Instance.DisplayObject(robotUpgradeUI.gameObject);
             
