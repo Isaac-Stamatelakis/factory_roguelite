@@ -12,6 +12,8 @@ namespace Robot.Upgrades
         {
             nodeNetwork = robotUpgradeNodeNetwork;
             editController.gameObject.SetActive(SceneManager.GetActiveScene().name == "DevTools");
+            editController.Initialize(this);
+            Display();
         }
         protected override INodeUI GenerateNode(RobotUpgradeNode node)
         {

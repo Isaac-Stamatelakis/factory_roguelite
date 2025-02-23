@@ -24,15 +24,15 @@ namespace Robot.Upgrades {
         public static int GetNextUpgradeId(RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
         {
             List<RobotUpgradeNode> nodes = robotUpgradeNodeNetwork.GetNodes();
-            if (nodes == null) return 0;
-            int lowest = 0;
+            if (nodes == null || nodes.Count == 0) return 0;
+            int largest = 0;
             foreach (RobotUpgradeNode node in nodes)
             {
                 int id = node.GetId();
-                if (id < lowest) lowest = id;
+                if (id > largest) largest = id;
             }
 
-            return lowest + 1;
+            return largest + 1;
         }
     }
     
@@ -50,8 +50,8 @@ namespace Robot.Upgrades {
         public int UpgradeType;
         public int UpgradeAmount = 1;
         public int CostMultiplier = 1;
-        public List<SerializedItemSlot> Cost;
-        public List<int> PreReqs;
+        public List<SerializedItemSlot> Cost = new List<SerializedItemSlot>();
+        public List<int> PreReqs = new List<int>();
         public Vector2Int Position;
         public string IconItemId;
 

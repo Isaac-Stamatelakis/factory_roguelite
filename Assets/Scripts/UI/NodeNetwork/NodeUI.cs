@@ -11,17 +11,18 @@ namespace UI.NodeNetwork {
         public GameObject GetGameObject();
         public void DisplayImage();
     }
-    public abstract class NodeUI<Node,NetworkUI> : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, ILongClickable, INodeUI
-    where Node : INode where NetworkUI : INodeNetworkUI
+    public abstract class NodeUI<TNode, TNetworkUI> : MonoBehaviour, IPointerClickHandler, IPointerDownHandler,
+        IPointerUpHandler, ILongClickable, INodeUI
+    where TNode : INode where TNetworkUI : INodeNetworkUI
     {
         [SerializeField] protected Image image;
         [SerializeField] protected Button button;
         [SerializeField] protected Image panel;
         private LongClickHandler holdClickInstance;
-        protected Node node;
-        protected NetworkUI nodeNetwork;
+        protected TNode node;
+        protected TNetworkUI nodeNetwork;
         
-        public virtual void Initialize(Node node, NetworkUI nodeNetwork) {
+        public virtual void Initialize(TNode node, TNetworkUI nodeNetwork) {
             this.node = node;
             this.nodeNetwork = nodeNetwork;
             holdClickInstance = new LongClickHandler(this);

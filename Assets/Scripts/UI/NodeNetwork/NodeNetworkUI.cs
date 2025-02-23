@@ -62,8 +62,12 @@ namespace UI.NodeNetwork {
                 nodeUI.SetSelect(false);
                 return;
             }
-            CurrentSelected?.SetSelect(false);
 
+            if (CurrentSelected?.GetGameObject())
+            {
+                CurrentSelected?.SetSelect(false);
+            }
+            
             CurrentSelected = nodeUI;
             CurrentSelected?.SetSelect(true);
         }
@@ -137,6 +141,8 @@ namespace UI.NodeNetwork {
             GlobalHelper.deleteAllChildren(LineContainer);
             foreach (TNode node in nodeNetwork.GetNodes())
             {
+                List<int> preRequites = node.GetPrerequisites();
+                if (preRequites == null) continue;
                 foreach (int id in node.GetPrerequisites()) {
                     TNode otherNode = LookUpNode(id);
                     if (otherNode == null) continue;
@@ -255,12 +261,10 @@ namespace UI.NodeNetwork {
             if (selectedNodeElement.GetId() == clickedNode.GetId()) {
                 return;
             }
-
             List<int> clickedPreReqs = clickedNode.GetPrerequisites();
             List<int> selectedPreReqs = CurrentSelected.GetNode().GetPrerequisites();
             
             bool clickPreReq = clickedPreReqs.Contains(selectedNodeElement.GetId());
-            bool connectPreReq = selectedPreReqs.Contains(clickedNode.GetId());
             
             if (clickPreReq)
             {

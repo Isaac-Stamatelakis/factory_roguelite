@@ -61,7 +61,7 @@ namespace UI.NodeNetwork {
             }
             Vector2 mousePosition = Input.mousePosition;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
-            Vector2 gridPosition = snapGrid(mousePosition,contentContainer.position,contentContainer.localScale.x);
+            Vector2 gridPosition = SnapGrid(mousePosition,contentContainer.position,contentContainer.localScale.x);
             spawnedNodeObject.transform.position = gridPosition;
             if (Input.GetMouseButton(0)) {
                 nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
@@ -70,7 +70,7 @@ namespace UI.NodeNetwork {
             }
         }
 
-        private static Vector2 snapGrid(Vector2 mousePosition, Vector2 containerPosition, float containerScale) {
+        private static Vector2 SnapGrid(Vector2 mousePosition, Vector2 containerPosition, float containerScale) {
             float scaledGrid = NodeNetworkConfig.GRID_SIZE*containerScale;
             float snappedX = Mathf.Round((mousePosition.x - containerPosition.x) / scaledGrid) * scaledGrid + containerPosition.x;
             float snappedY = Mathf.Round((mousePosition.y - containerPosition.y) / scaledGrid) * scaledGrid + containerPosition.y;

@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UI;
 using DevTools.Structures;
 using DevTools.Upgrades;
+using Items;
 using UI.QuestBook;
 
 namespace DevTools {
@@ -81,6 +82,7 @@ namespace DevTools {
                 QuestBookCreationSceneController questBookCreationSceneController = Instantiate(questBookCreationSceneControllerPrefab);
             });
             Display();
+            StartCoroutine(ItemRegistry.LoadItems());
         }
 
         public void Display()

@@ -10,8 +10,7 @@ namespace Robot.Upgrades
     public class RobotUpgradeNodeUI : NodeUI<RobotUpgradeNode,RobotUpgradeNetworkUI>
     {
         [SerializeField] private Image mIconImage;
-        private RobotUpgradeNode robotUpgradeNode;
-        private RobotUpgradeNetworkUI networkUI;
+        
         
         protected override void openContent()
         {
@@ -20,7 +19,7 @@ namespace Robot.Upgrades
         
         public override void DisplayImage()
         {
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(robotUpgradeNode.NodeData?.IconItemId);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.NodeData?.IconItemId);
             mIconImage.sprite = itemObject?.getSprite();
         }
     }
