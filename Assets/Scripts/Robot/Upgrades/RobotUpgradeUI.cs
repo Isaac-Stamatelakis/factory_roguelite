@@ -8,7 +8,6 @@ using WorldModule;
 
 namespace Robot.Upgrades
 {
-    // This class is required to prevent node network from moving itself within canvas. Might be useful for additional features later as well
     public class RobotUpgradeUI : MonoBehaviour
     {
         [SerializeField] private RobotUpgradeNetworkUI robotUpgradeNetworkUI;
@@ -17,12 +16,17 @@ namespace Robot.Upgrades
         public void Initialize(RobotUpgradeNodeNetwork nodeNetwork)
         {
             this.nodeNetwork = nodeNetwork;
-            robotUpgradeNetworkUI.Initialize(nodeNetwork);
+            robotUpgradeNetworkUI.Initialize(this,nodeNetwork);
         }
 
         internal void SetUpgradeInfo(DevToolUpgradeInfo upgradeInfo)
         {
             this.upgradeInfo = upgradeInfo;
+        }
+
+        public void DisplayNodeContent(RobotUpgradeNode robotUpgradeNode)
+        {
+            
         }
 
         public void OnDestroy()

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Player.Tool;
 using UI.NodeNetwork;
 using UnityEngine;
 using WorldModule;
@@ -15,8 +17,9 @@ namespace Robot.Upgrades {
             {
                 return JsonConvert.DeserializeObject<RobotUpgradeNodeNetwork>(json);
             }
-            catch
+            catch (JsonSerializationException e)
             {
+                Debug.LogWarning(e);
                 return null;
             }
             
@@ -34,7 +37,146 @@ namespace Robot.Upgrades {
 
             return largest + 1;
         }
+
+        
     }
+
+    internal static class RobotUpgradeInfoFactory
+    {
+        public static RobotUpgradeInfo GetRobotUpgradeInfo(RobotUpgradeType robotUpgradeType, int subType)
+        {
+            switch (robotUpgradeType)
+            {
+                case RobotUpgradeType.Tool:
+                    return GetRobotToolUpgradeInfo((RobotToolType)subType);
+                case RobotUpgradeType.Robot:
+                    return new SelfRobotUpgradeInfo();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static RobotUpgradeInfo GetRobotToolUpgradeInfo(RobotToolType robotUpgradeType)
+        {
+            switch (robotUpgradeType)
+            {
+                case RobotToolType.LaserDrill:
+                    return new RobotDrillUpgradeInfo();
+                case RobotToolType.ConduitSlicers:
+                    return new RobotConduitUpgradeInfo();
+                case RobotToolType.LaserGun:
+                case RobotToolType.Buildinator:
+                    return null;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(robotUpgradeType), robotUpgradeType, null);
+            }
+        }
+    }
+
+    internal abstract class RobotUpgradeInfo
+    {
+        public abstract string GetTitle(int upgrade);
+        public abstract string GetDescription(int upgrade);
+    }
+
+    internal enum RobotUpgrade
+    {
+        Speed = 0,
+        JumpHeight = 1,
+        BonusJump = 2,
+        RocketBoots = 3,
+        Flight = 4,
+    }
+
+    internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
+    {
+        public override string GetTitle(int upgrade)
+        {
+            return ((RobotUpgrade)upgrade).ToString();
+        }
+
+        public override string GetDescription(int upgrade)
+        {
+            RobotUpgrade robotUpgrade = (RobotUpgrade)upgrade;
+            switch (robotUpgrade)
+            {
+                case RobotUpgrade.Speed:
+                    return "Increases robot move speed";
+                case RobotUpgrade.JumpHeight:
+                    return "Increases robot jump height";
+                case RobotUpgrade.BonusJump:
+                    return "Grants bonus jumps in the air to robot";
+                case RobotUpgrade.RocketBoots:
+                    return "Grants bonus jumps in the air to robot";
+                case RobotUpgrade.Flight:
+                    return "Grants flight";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    internal enum RobotDrillUpgrade
+    {
+        Speed = 0,
+        Fortune = 1,
+        MultiBreak = 2,
+        VeinMine = 3,
+    }
+    
+    internal class RobotDrillUpgradeInfo : RobotUpgradeInfo
+    {
+        public override string GetTitle(int upgrade)
+        {
+            RobotDrillUpgrade robotDrillUpgrade = (RobotDrillUpgrade)upgrade;
+            return robotDrillUpgrade.ToString();
+        }
+
+        public override string GetDescription(int upgrade)
+        {
+            RobotDrillUpgrade robotDrillUpgrade = (RobotDrillUpgrade)upgrade;
+            switch (robotDrillUpgrade)
+            {
+                case RobotDrillUpgrade.Speed:
+                    return "Increases mining speed";
+                case RobotDrillUpgrade.Fortune:
+                    return "Higher chance of drops";
+                case RobotDrillUpgrade.MultiBreak:
+                    return "Unlocks higher break sizes";
+                case RobotDrillUpgrade.VeinMine:
+                    return "Unlocks vein mein";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    internal enum ConduitSlicerUpgrade
+    {
+        VeinMine = 0,
+    }
+    
+    internal class RobotConduitUpgradeInfo : RobotUpgradeInfo
+    {
+        public override string GetTitle(int upgrade)
+        {
+            ConduitSlicerUpgrade robotDrillUpgrade = (ConduitSlicerUpgrade)upgrade;
+            return robotDrillUpgrade.ToString();
+        }
+
+        public override string GetDescription(int upgrade)
+        {
+            ConduitSlicerUpgrade robotDrillUpgrade = (ConduitSlicerUpgrade)upgrade;
+            switch (robotDrillUpgrade)
+            {
+                case ConduitSlicerUpgrade.VeinMine:
+                    return "Unlocks vein mine conduit breaking";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+    
     
     public enum RobotUpgradeType
     {

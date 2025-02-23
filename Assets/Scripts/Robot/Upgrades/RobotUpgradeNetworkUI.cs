@@ -8,8 +8,11 @@ namespace Robot.Upgrades
     public class RobotUpgradeNetworkUI : NodeNetworkUI<RobotUpgradeNode, RobotUpgradeNodeNetwork>
     {
         [SerializeField] private RobotUpgradeNodeUI robotUpgradeNodeUIPrefab;
-        public void Initialize(RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
+        private RobotUpgradeUI robotUpgradeUI;
+        public RobotUpgradeUI RobotUpgradeUI => robotUpgradeUI;
+        public void Initialize(RobotUpgradeUI robotUpgradeUI, RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
         {
+            this.robotUpgradeUI = robotUpgradeUI;
             nodeNetwork = robotUpgradeNodeNetwork;
             editController.gameObject.SetActive(SceneManager.GetActiveScene().name == "DevTools");
             editController.Initialize(this);

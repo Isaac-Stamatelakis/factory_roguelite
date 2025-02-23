@@ -33,13 +33,13 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (QuestBookUtils.EditMode) {
-                    navigateToEditMode();
+                    NavigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
 
             }
         }
-        private void navigateToEditMode() {
+        private void NavigateToEditMode() {
             UIAssetManager assetManager = taskUI.QuestBookTaskPageUI.AssetManager;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = assetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
             serializedItemSlotEditorUI.Init(itemQuestTask.Items,index,this,gameObject);

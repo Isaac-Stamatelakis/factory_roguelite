@@ -13,6 +13,7 @@ namespace DevTools {
     }
     public static class DevToolUtils
     {
+        public const string SCENE_NAME = "DevTools";
         public static string GetDevToolPath(DevTool devTool) {
             string devPath = Path.Combine(Application.streamingAssetsPath,devTool.ToString());
             if (!Directory.Exists(devPath)) {
