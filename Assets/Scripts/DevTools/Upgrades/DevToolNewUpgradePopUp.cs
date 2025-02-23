@@ -70,7 +70,7 @@ namespace DevTools.Upgrades
             
             RobotUpgradeType type = (RobotUpgradeType)mTypeDropDownMenu.value;
             int subType = (int)mSubTypeDropDownMenu.value;
-            RobotUpgradeNodeNetwork nodeNetwork = new RobotUpgradeNodeNetwork(type,subType,new List<RobotUpgradeNode>());
+            SerializedRobotUpgradeNodeNetwork nodeNetwork = new SerializedRobotUpgradeNodeNetwork(type,subType,new List<RobotUpgradeNodeData>());
             
             string folderPath = DevToolUtils.GetDevToolPath(DevTool.Upgrade);
             string path = Path.Combine(folderPath,upgradeName) + ".bin";

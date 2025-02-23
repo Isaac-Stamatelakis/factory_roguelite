@@ -5,13 +5,15 @@ using Newtonsoft.Json;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UIElements;
 using WorldModule;
 
 namespace Robot.Upgrades
 {
-    public class RobotUpgradeUI : MonoBehaviour
+    public class RobotUpgradeUI : MonoBehaviour, IPointerClickHandler
     {
         [FormerlySerializedAs("robotUpgradeNetworkUI")] [SerializeField] private RobotUpgradeNetworkUI mRobotUpgradeNetworkUI;
         [FormerlySerializedAs("robotUpgradeNodeContentUI")] [SerializeField] private RobotUpgradeNodeContentUI mRobotUpgradeNodeContentUI;
@@ -45,12 +47,14 @@ namespace Robot.Upgrades
 
         public void DisplayNodeContent(RobotUpgradeNode robotUpgradeNode)
         {
-            
-            if (robotUpgradeNode == null && !mRobotUpgradeNodeContentUI.UnActivated)
+            if (robotUpgradeNode == null)
             {
-                Vector3 destination = new Vector3(0,mRobotUpgradeNodeContentUI.transform.localPosition.y, 0);
-                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.mRobotUpgradeNodeContentUI.transform, destination,moveLocal:true));
-                mRobotUpgradeNodeContentUI.DisplayUpgradeNode(null);
+                if (!mRobotUpgradeNodeContentUI.UnActivated)
+                {
+                    Vector3 destination = new Vector3(0,mRobotUpgradeNodeContentUI.transform.localPosition.y, 0);
+                    StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.mRobotUpgradeNodeContentUI.transform, destination,moveLocal:true));
+                    mRobotUpgradeNodeContentUI.DisplayUpgradeNode(null);
+                }
                 return;
             }
             if (mRobotUpgradeNodeContentUI.UnActivated)
@@ -70,9 +74,16 @@ namespace Robot.Upgrades
                 Debug.LogWarning("Tried to edit robot upgrade network outside of dev tools");
                 return;
             }
-            string json = JsonConvert.SerializeObject(nodeNetwork);
+
+            SerializedRobotUpgradeNodeNetwork serializedRobotUpgradeNodeNetwork = RobotUpgradeUtils.ToSerializedNetwork(nodeNetwork);
+            string json = JsonConvert.SerializeObject(serializedRobotUpgradeNodeNetwork);
             byte[] bytes = WorldLoadUtils.CompressString(json);
             File.WriteAllBytes(path, bytes);
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            DisplayNodeContent(null);
         }
     }
 }
