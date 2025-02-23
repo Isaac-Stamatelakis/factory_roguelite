@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UI.NodeNetwork {
     public interface INodeNetwork<T> {
-        public List<T> getNodes();
+        public List<T> GetNodes();
     }
 }
 

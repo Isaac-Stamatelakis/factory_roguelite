@@ -1,20 +1,50 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UI.NodeNetwork;
 using UnityEngine;
+using WorldModule;
 
 namespace Robot.Upgrades {
+    public static class RobotUpgradeUtils
+    {
+        public static RobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
+        {
+            string json = WorldLoadUtils.DecompressString(bytes);
+            if (json == null) return null;
+            try
+            {
+                return JsonConvert.DeserializeObject<RobotUpgradeNodeNetwork>(json);
+            }
+            catch
+            {
+                return null;
+            }
+            
+        } 
+        public static int GetNextUpgradeId(RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
+        {
+            List<RobotUpgradeNode> nodes = robotUpgradeNodeNetwork.GetNodes();
+            if (nodes == null) return 0;
+            int lowest = 0;
+            foreach (RobotUpgradeNode node in nodes)
+            {
+                int id = node.GetId();
+                if (id < lowest) lowest = id;
+            }
+
+            return lowest + 1;
+        }
+    }
+    
     public enum RobotUpgradeType
     {
-        Self,
-        Tool
+        Tool = 0,
+        Robot = 1,
+        
     }
+    
 
-    public class RobotUpgradeData
-    {
-        public List<RobotUpgradeData> Upgrades;
-    }
-
-    public class RobotUpgradeNode : INode
+    public class RobotUpgradeNodeData
     {
         public int Id;
         public int UpgradeType;
@@ -24,24 +54,46 @@ namespace Robot.Upgrades {
         public List<int> PreReqs;
         public Vector2Int Position;
         public string IconItemId;
+
+        public RobotUpgradeNodeData(int id)
+        {
+            Id = id;
+        }
+    }
+    public class RobotUpgradeNode : INode
+    {
+        public RobotUpgradeNodeData NodeData;
+        public RobotUpgradeData InstanceData;
         public Vector3 GetPosition()
         {
-            return new Vector3(Position.x, Position.y, 0);
+            Vector2Int position = NodeData.Position;
+            return new Vector3(position.x, position.y, 0);
         }
 
         public void SetPosition(Vector3 pos)
         {
-            Position = new Vector2Int((int)pos.x, (int)pos.y);
+            NodeData.Position = new Vector2Int((int)pos.x, (int)pos.y);
         }
 
         public int GetId()
         {
-            return Id;
+            return NodeData.Id;
         }
 
         public List<int> GetPrerequisites()
         {
-            return PreReqs;
+            return NodeData.PreReqs;
+        }
+
+        public bool IsCompleted()
+        {
+            return (InstanceData?.Amount ?? 0) >= NodeData.UpgradeAmount;
+        }
+
+        public RobotUpgradeNode(RobotUpgradeNodeData nodeData, RobotUpgradeData instanceData)
+        {
+            NodeData = nodeData;
+            InstanceData = instanceData;
         }
     }
 
@@ -50,7 +102,7 @@ namespace Robot.Upgrades {
         public RobotUpgradeType Type;
         public int SubType;
         public List<RobotUpgradeNode> UpgradeNodes;
-        public List<RobotUpgradeNode> getNodes()
+        public List<RobotUpgradeNode> GetNodes()
         {
             return UpgradeNodes;
         }
@@ -62,12 +114,12 @@ namespace Robot.Upgrades {
             UpgradeNodes = upgradeNodes;
         }
     }
-    public class RobotUpgradeNodeData
+    public class RobotUpgradeData
     {
         public int Id;
         public int Amount;
 
-        public RobotUpgradeNodeData(int id, int amount)
+        public RobotUpgradeData(int id, int amount)
         {
             Id = id;
             Amount = amount;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public static class GlobalHelper 
@@ -58,5 +59,16 @@ public static class GlobalHelper
         int value = Convert.ToInt32(enumValue);
         int shiftedValue = (value + amount + enumCount) % enumCount;
         return (T)Enum.ToObject(typeof(T), shiftedValue);
+    }
+
+    public static List<TMP_Dropdown.OptionData> EnumToDropDown<T>() where T : Enum
+    {
+        Array values = Enum.GetValues(typeof(T));
+        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+        foreach (T value in values)
+        {
+            options.Add(new TMP_Dropdown.OptionData(value.ToString()));
+        }
+        return options;
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook;
 
 namespace UI.NodeNetwork {
     public interface INodeNetworkUI {
@@ -13,7 +14,6 @@ namespace UI.NodeNetwork {
         public void ModifyConnection(INode node);
         public void Display();
         public void DisplayLines();
-        public void AddNode(INodeUI nodeUI);
         public Transform GetContentContainer();
         public void PlaceNewNode(Vector2 position);
         public GameObject GenerateNewNodeObject();
@@ -30,6 +30,8 @@ namespace UI.NodeNetwork {
         [SerializeField] protected Transform lineContainer;
         [SerializeField] protected Transform contentMaskContainer;
         [SerializeField] protected NodeNetworkEditorUI editController;
+        
+        [SerializeField] private GameObject linePrefab;
         public Transform NodeContainer { get => nodeContainer;}
         public Transform LineContainer { get => lineContainer;}
         public Transform ContentContainer {get => transform;}
@@ -52,6 +54,7 @@ namespace UI.NodeNetwork {
             { new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down },
             { new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up }
         };
+        
         public void SelectNode(INodeUI nodeUI)
         {
             if (nodeUI != null && nodeUI.Equals(CurrentSelected))
@@ -72,7 +75,7 @@ namespace UI.NodeNetwork {
             GlobalHelper.deleteAllChildren(nodeContainer);
             
             nodeUIDict = new Dictionary<TNode, INodeUI>();
-            foreach (TNode node in nodeNetwork.getNodes()) {
+            foreach (TNode node in nodeNetwork.GetNodes()) {
                 INodeUI nodeUI = GenerateNode(node);
                 nodeUIDict[node] = nodeUI;
             }
@@ -80,11 +83,12 @@ namespace UI.NodeNetwork {
         }
 
         protected abstract INodeUI GenerateNode(TNode node);
+        public abstract bool ShowAllComplete();
 
         public void DeleteNode(TNode node)
         {
             CurrentSelected = null;
-            nodeNetwork.getNodes().Remove(node);
+            nodeNetwork.GetNodes().Remove(node);
             INodeUI nodeUI = nodeUIDict[node];
             GameObject.Destroy(nodeUI.GetGameObject());
             DisplayLines();
@@ -128,9 +132,21 @@ namespace UI.NodeNetwork {
             }
         }
 
-        public abstract void DisplayLines();
+        public void DisplayLines()
+        {
+            GlobalHelper.deleteAllChildren(LineContainer);
+            foreach (TNode node in nodeNetwork.GetNodes())
+            {
+                foreach (int id in node.GetPrerequisites()) {
+                    TNode otherNode = LookUpNode(id);
+                    if (otherNode == null) continue;
+                    bool complete = ShowAllComplete() || otherNode.IsCompleted();
+                    QuestBookUIFactory.GenerateLine(otherNode.GetPosition(),node.GetPosition(),LineContainer,complete,linePrefab);
+                }
+            }
+        }
 
-        protected abstract bool nodeDiscovered(TNode node);
+        public abstract TNode LookUpNode(int id);
         
         private bool IsPressed(KeyCode[] keyCodes, bool hold = true)
         {
@@ -189,8 +205,7 @@ namespace UI.NodeNetwork {
             }
         }
         
-
-        protected abstract void initEditMode();
+        
         private void HandleZoom() {
             float scrollInput = Input.GetAxis("Mouse ScrollWheel");
             if (scrollInput != 0)
@@ -233,10 +248,7 @@ namespace UI.NodeNetwork {
         }
         public void ModifyConnection(INode clickedNode)
         {
-            if (CurrentSelected == null) {
-                return;
-            }
-            INode selectedNodeElement = CurrentSelected.GetNode();
+            INode selectedNodeElement = CurrentSelected?.GetNode();
             if (selectedNodeElement == null) {
                 return;
             }
@@ -272,8 +284,6 @@ namespace UI.NodeNetwork {
                     break;
             }
         }
-
-        public abstract void AddNode(INodeUI nodeUI);
 
         public Transform GetContentContainer()
         {

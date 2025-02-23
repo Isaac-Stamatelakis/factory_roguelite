@@ -1,43 +1,57 @@
+using System.Collections.Generic;
 using UI.NodeNetwork;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Robot.Upgrades
 {
     public class RobotUpgradeNetworkUI : NodeNetworkUI<RobotUpgradeNode, RobotUpgradeNodeNetwork>
     {
+        [SerializeField] private RobotUpgradeNodeUI robotUpgradeNodeUIPrefab;
+        public void Initialize(RobotUpgradeNodeNetwork robotUpgradeNodeNetwork)
+        {
+            nodeNetwork = robotUpgradeNodeNetwork;
+            editController.gameObject.SetActive(SceneManager.GetActiveScene().name == "DevTools");
+        }
         protected override INodeUI GenerateNode(RobotUpgradeNode node)
         {
-            throw new System.NotImplementedException();
+            RobotUpgradeNodeUI robotUpgradeNodeUI = GameObject.Instantiate(robotUpgradeNodeUIPrefab);
+            robotUpgradeNodeUI.Initialize(node,this);
+            RectTransform nodeRectTransform = (RectTransform)robotUpgradeNodeUI.transform;
+            robotUpgradeNodeUI.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
+            return robotUpgradeNodeUI;
         }
 
-        public override void DisplayLines()
+        public override bool ShowAllComplete()
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
-        public override void AddNode(INodeUI nodeUI)
+        public override RobotUpgradeNode LookUpNode(int id)
         {
-            throw new System.NotImplementedException();
+            foreach (RobotUpgradeNode node in nodeNetwork.UpgradeNodes)
+            {
+                if (node.GetId() == id) return node;
+            }
+
+            return null;
         }
+
 
         public override void PlaceNewNode(Vector2 position)
         {
-            throw new System.NotImplementedException();
+            int id = RobotUpgradeUtils.GetNextUpgradeId(nodeNetwork);
+            RobotUpgradeNodeData nodeData = new RobotUpgradeNodeData(id);
+            RobotUpgradeData upgradeData = new RobotUpgradeData(id, 0);
+            RobotUpgradeNode robotUpgradeNode = new RobotUpgradeNode(nodeData, upgradeData);
+            robotUpgradeNode.SetPosition(position);
+            nodeNetwork.UpgradeNodes ??= new List<RobotUpgradeNode>();
+            nodeNetwork.UpgradeNodes.Add(robotUpgradeNode);
         }
 
         public override GameObject GenerateNewNodeObject()
         {
-            throw new System.NotImplementedException();
-        }
-
-        protected override bool nodeDiscovered(RobotUpgradeNode node)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        protected override void initEditMode()
-        {
-            throw new System.NotImplementedException();
+            return GameObject.Instantiate(robotUpgradeNodeUIPrefab).gameObject;
         }
     }
 }

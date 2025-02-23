@@ -46,6 +46,11 @@ namespace UI.QuestBook {
         {
             return Prerequisites;
         }
+
+        public bool IsCompleted()
+        {
+            return Content?.Task?.IsComplete() ?? false;
+        }
     }
 }
 

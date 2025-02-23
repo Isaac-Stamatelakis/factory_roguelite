@@ -81,7 +81,7 @@ namespace UI
                 Destroy(top.gameObject);
             }
             transform.SetSiblingIndex(0);
-            mBlocker.gameObject.SetActive(false);
+            mBlocker?.gameObject.SetActive(false);
             
         }
         public void PopStack()
@@ -113,7 +113,7 @@ namespace UI
             else
             {
                 transform.SetSiblingIndex(0);
-                mBlocker.gameObject.SetActive(false);
+                mBlocker?.gameObject.SetActive(false);
             }
             
             
@@ -150,7 +150,7 @@ namespace UI
                 }
             }
 
-            mBlocker.gameObject.SetActive(true);
+            mBlocker?.gameObject.SetActive(true);
             canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);

@@ -8,21 +8,25 @@ namespace DevTools.Upgrades
     public class DevToolUpgradeSelector : DevToolListUI
     {
         [SerializeField] private DevToolUpgradeListElement upgradeListElementPrefab;
+        [SerializeField] private DevToolNewUpgradePopUp newUpgradePopUpPrefab;
         protected override void OnAddButtonClick()
         {
-            
+            DevToolNewUpgradePopUp newUpgradePopUp = Instantiate(newUpgradePopUpPrefab, transform, false);
+            newUpgradePopUp.Initialize(this);
         }
 
         public override void DisplayList()
         {
+            GlobalHelper.deleteAllChildren(mList.transform);
             string path = DevToolUtils.GetDevToolPath(DevTool.Upgrade);
-            string[] folders = Directory.GetDirectories(path);
+            string[] files = Directory.GetFiles(path);
             
-            foreach (string folder in folders)
+            foreach (string file in files)
             {
-                DevToolUpgradeInfo info = new DevToolUpgradeInfo(folder);
+                if (file.Contains(".meta")) continue;
+                DevToolUpgradeInfo info = new DevToolUpgradeInfo(file);
                 DevToolUpgradeListElement devToolUpgradeListElement = Instantiate(upgradeListElementPrefab,mList.transform);
-                devToolUpgradeListElement.Display(info);
+                devToolUpgradeListElement.Display(this,info);
                 
             }
         }

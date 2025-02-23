@@ -9,6 +9,7 @@ namespace UI.NodeNetwork {
         public void SetPosition(Vector3 pos);
         public int GetId();
         public List<int> GetPrerequisites();
+        public bool IsCompleted();
     }
 }
 

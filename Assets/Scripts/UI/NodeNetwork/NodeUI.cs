@@ -21,7 +21,7 @@ namespace UI.NodeNetwork {
         protected Node node;
         protected NetworkUI nodeNetwork;
         
-        public virtual void Init(Node node, NetworkUI nodeNetwork) {
+        public virtual void Initialize(Node node, NetworkUI nodeNetwork) {
             this.node = node;
             this.nodeNetwork = nodeNetwork;
             holdClickInstance = new LongClickHandler(this);
