@@ -190,7 +190,7 @@ namespace Robot.Upgrades {
         public int Id;
         public int UpgradeType;
         public int UpgradeAmount = 1;
-        public int CostMultiplier = 1;
+        public float CostMultiplier = 1;
         public List<SerializedItemSlot> Cost = new List<SerializedItemSlot>();
         public List<int> PreReqs = new List<int>();
         public Vector2Int Position;

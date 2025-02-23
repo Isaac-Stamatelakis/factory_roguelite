@@ -28,6 +28,7 @@ namespace Robot.Upgrades
         public void Initialize(RobotUpgradeNodeNetwork nodeNetwork)
         {
             this.nodeNetwork = nodeNetwork;
+            robotUpgradeNodeContentUI.Initialize(this.nodeNetwork);
             robotUpgradeNetworkUI.Initialize(this,nodeNetwork);
         }
 
@@ -42,6 +43,8 @@ namespace Robot.Upgrades
             {
                 StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.robotUpgradeNodeContentUI.transform, contentLocation));
             }
+            robotUpgradeNodeContentUI.DisplayUpgradeNode(robotUpgradeNode);
+            
         }
 
         public void OnDestroy()

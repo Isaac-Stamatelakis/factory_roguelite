@@ -12,35 +12,42 @@ namespace Robot.Upgrades
     internal class UpgradeCostItemUI : ItemSlotUI, IPointerClickHandler, IItemListReloadable
     {
         private RobotUpgradeNodeContentUI robotUpgradeNodeContentUI;
-        private SerializedItemSlot serializedItemSlot;
         private uint gottenAmount;
         private int index;
-        public void Initialize(SerializedItemSlot serializedItemSlot, int index, RobotUpgradeNodeContentUI robotUpgradeNodeContentUI) {
+        private RobotUpgradeNode robotUpgradeNode;
+        public void Initialize(RobotUpgradeNode robotUpgradeNode, int index, RobotUpgradeNodeContentUI robotUpgradeNodeContentUI) {
             this.robotUpgradeNodeContentUI = robotUpgradeNodeContentUI;
-            this.serializedItemSlot = serializedItemSlot;
+            this.robotUpgradeNode = robotUpgradeNode;
             this.index = index;
             reload();
         }
         public override void SetAmountText()
         {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(robotUpgradeNode.NodeData.Cost[index]);
+            uint requiredAmount = GetRequireAmountMultiplier() * itemSlot.amount;
             mBottomText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
             mBottomText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
-                               ItemDisplayUtils.FormatAmountText(itemSlot.amount,oneInvisible:false);
+                               ItemDisplayUtils.FormatAmountText(requiredAmount,oneInvisible:false);
  
         }
 
+        private uint GetRequireAmountMultiplier()
+        {
+            if ((robotUpgradeNode.InstanceData?.Amount ?? 0) == 0) return 1;
+            int amount = robotUpgradeNode.InstanceData.Amount;
+            return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
+        }
         public void OnPointerClick(PointerEventData eventData)
         {
             if (SceneManager.GetActiveScene().name != DevToolUtils.SCENE_NAME) return;
             SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(robotUpgradeNodeContentUI.ItemSlotEditorUIPrefab);
-            serializedItemSlotEditorUI.Init(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,this,gameObject);
-            CanvasController.Instance.DisplayObject(serializedItemSlotEditorUI.gameObject);
+            serializedItemSlotEditorUI.Init(robotUpgradeNodeContentUI.RobotUpgradeNode.NodeData.Cost,index,this,gameObject,displayTags:false);
+            serializedItemSlotEditorUI.transform.SetParent(robotUpgradeNodeContentUI.transform.parent,false);
         }
 
         public void reload()
         {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
+            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(robotUpgradeNode.NodeData.Cost[index]);
             
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             
@@ -55,7 +62,7 @@ namespace Robot.Upgrades
 
         public void reloadAll()
         {
-            
+            robotUpgradeNodeContentUI.DisplayItemCost();
         }
     }
 }
