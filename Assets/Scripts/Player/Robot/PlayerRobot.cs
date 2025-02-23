@@ -51,6 +51,7 @@ namespace Player {
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
         private RobotItemData robotData;
+        public RobotItemData RobotData => robotData;
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;

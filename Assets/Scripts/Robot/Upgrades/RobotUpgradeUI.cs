@@ -83,7 +83,7 @@ namespace Robot.Upgrades
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            DisplayNodeContent(null);
+            //DisplayNodeContent(null);
         }
     }
 }

@@ -69,7 +69,8 @@ namespace Robot.Upgrades
             mTitleDropDown.interactable = editable;
             mAddItemButton.gameObject.SetActive(editable);
             mEditElementContainer.gameObject.SetActive(editable);
-            
+
+            mUpgradeButton.interactable = !this.robotUpgradeNode.IsCompleted();
             DisplayItemIcon();
             
             if (editable)
@@ -219,7 +220,7 @@ namespace Robot.Upgrades
                     if (amount == 0) break;
                 }
             }
-            
+            IterateUpgradeAmount();
             networkUI.Display();
             DisplayItemIcon();
         }

@@ -20,7 +20,7 @@ namespace RobotModule {
         public static string Serialize(RobotItemData robotItemData) {
             SeralizedRobotItemData seralizedRobotItemData = new SeralizedRobotItemData(
                 RobotToolFactory.Serialize(robotItemData.ToolData),
-                null,
+                robotItemData.RobotUpgrades,
                 robotItemData.Health,
                 robotItemData.Energy
             );
@@ -28,12 +28,15 @@ namespace RobotModule {
         }
         public static RobotItemData Deserialize(string data) {
             SeralizedRobotItemData seralizedRobotItemData = JsonConvert.DeserializeObject<SeralizedRobotItemData>(data);
-            return new RobotItemData(
+            RobotItemData robotItemData = new RobotItemData(
                 RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData),
-                null,
+                seralizedRobotItemData.RobotUpgradeData,
                 seralizedRobotItemData.Health,
                 seralizedRobotItemData.Energy
             );
+            robotItemData.RobotUpgrades ??= new List<RobotUpgradeData>();
+            return robotItemData;
+
         }
         public static ItemSlot GetDefaultRobot()
         {
@@ -75,12 +78,12 @@ namespace RobotModule {
             public string SerializedToolData;
             public ulong Energy;
             public float Health;
-            public string SerializedUpgradeData;
-            public SeralizedRobotItemData(string serializedToolData, string serializedUpgradeData, float health, ulong energy) {
+            public List<RobotUpgradeData> RobotUpgradeData;
+            public SeralizedRobotItemData(string serializedToolData, List<RobotUpgradeData> robotUpgradeData, float health, ulong energy) {
                 this.SerializedToolData = serializedToolData;
                 this.Energy = energy;
                 this.Health = health;
-                this.SerializedUpgradeData = serializedUpgradeData;
+                this.RobotUpgradeData = robotUpgradeData;
             }
         }
     }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using DevTools;
 using Newtonsoft.Json;
 using Player.Tool;
 using TMPro;
@@ -11,6 +13,22 @@ using WorldModule;
 namespace Robot.Upgrades {
     public static class RobotUpgradeUtils
     {
+        public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
+        {
+            if (!upgradePath.EndsWith(".bin"))
+            {
+                upgradePath += ".bin";
+            }
+            string filePath = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.Upgrade), upgradePath);
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning($"Tried to read invalid upgrade path '{filePath}'");
+                return null;
+            }
+
+            byte[] bytes = File.ReadAllBytes(filePath);
+            return DeserializeRobotNodeNetwork(bytes);
+        }
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
         {
             string json = WorldLoadUtils.DecompressString(bytes);
@@ -50,12 +68,30 @@ namespace Robot.Upgrades {
                 upgradeNodeDict[node.GetId()] = node;
             }
 
-            foreach (RobotUpgradeData upgradeData in upgradeDataList)
+
+            HashSet<int> upgradeDataListIds = new HashSet<int>();
+
+            for (var index = 0; index < upgradeDataList.Count; index++)
             {
+                var upgradeData = upgradeDataList[index];
                 RobotUpgradeNode node = upgradeNodeDict.GetValueOrDefault(upgradeData.Id);
-                if (node == null) continue;
-                node.InstanceData.Amount = upgradeData.Amount;
+                if (node == null)
+                {
+                    upgradeDataList.RemoveAt(index); // Remove nodes that no longer exist
+                    continue;
+                }
+
+                upgradeDataListIds.Add(node.GetId());
+                node.InstanceData = upgradeData;
             }
+
+            // Add nodes to upgrade list which are not included
+            foreach (var (id, node) in upgradeNodeDict)
+            {
+                if (upgradeDataListIds.Contains(id)) continue;
+                upgradeDataList.Add(new RobotUpgradeData(id,0));
+            }
+
             return robotUpgradeNodeNetwork;
         }
 
