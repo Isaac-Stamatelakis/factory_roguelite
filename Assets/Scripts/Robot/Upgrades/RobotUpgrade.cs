@@ -193,7 +193,8 @@ namespace Robot.Upgrades {
         public float CostMultiplier = 1;
         public List<SerializedItemSlot> Cost = new List<SerializedItemSlot>();
         public List<int> PreReqs = new List<int>();
-        public Vector2Int Position;
+        public float X;
+        public float Y;
         public string IconItemId;
 
         public RobotUpgradeNodeData(int id)
@@ -207,13 +208,13 @@ namespace Robot.Upgrades {
         public RobotUpgradeData InstanceData;
         public Vector3 GetPosition()
         {
-            Vector2Int position = NodeData.Position;
-            return new Vector3(position.x, position.y, 0);
+            return new Vector3(NodeData.X, NodeData.Y);
         }
 
         public void SetPosition(Vector3 pos)
         {
-            NodeData.Position = new Vector2Int((int)pos.x, (int)pos.y);
+            NodeData.X = pos.x;
+            NodeData.Y = pos.y;
         }
 
         public int GetId()

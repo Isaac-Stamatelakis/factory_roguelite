@@ -23,12 +23,13 @@ namespace Robot.Upgrades
             var vector3 = robotUpgradeNodeContentUI.transform.localPosition;
             vector3.x = 0;
             robotUpgradeNodeContentUI.transform.localPosition = vector3;
+            robotUpgradeNodeContentUI.DisableEditElements();
         }
 
         public void Initialize(RobotUpgradeNodeNetwork nodeNetwork)
         {
             this.nodeNetwork = nodeNetwork;
-            robotUpgradeNodeContentUI.Initialize(this.nodeNetwork);
+            robotUpgradeNodeContentUI.Initialize(this.robotUpgradeNetworkUI, this.nodeNetwork);
             robotUpgradeNetworkUI.Initialize(this,nodeNetwork);
         }
 
@@ -39,13 +40,21 @@ namespace Robot.Upgrades
 
         public void DisplayNodeContent(RobotUpgradeNode robotUpgradeNode)
         {
+            
+            if (robotUpgradeNode == null && !robotUpgradeNodeContentUI.UnActivated)
+            {
+                Vector3 destination = new Vector3(0,robotUpgradeNodeContentUI.transform.localPosition.y, 0);
+                StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.robotUpgradeNodeContentUI.transform, destination,moveLocal:true));
+                robotUpgradeNodeContentUI.DisplayUpgradeNode(null);
+                return;
+            }
             if (robotUpgradeNodeContentUI.UnActivated)
             {
                 StartCoroutine(UIUtils.TransitionUIElement((RectTransform)this.robotUpgradeNodeContentUI.transform, contentLocation));
             }
             robotUpgradeNodeContentUI.DisplayUpgradeNode(robotUpgradeNode);
-            
         }
+        
 
         public void OnDestroy()
         {

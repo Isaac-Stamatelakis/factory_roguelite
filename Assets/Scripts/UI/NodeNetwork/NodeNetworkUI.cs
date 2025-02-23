@@ -89,9 +89,14 @@ namespace UI.NodeNetwork {
 
         protected abstract INodeUI GenerateNode(TNode node);
         public abstract bool ShowAllComplete();
+        public abstract void OnDeleteSelectedNode();
 
         public void DeleteNode(TNode node)
         {
+            if (ReferenceEquals(CurrentSelected?.GetNode(),node))
+            {
+                OnDeleteSelectedNode();
+            }
             CurrentSelected = null;
             nodeNetwork.GetNodes().Remove(node);
             INodeUI nodeUI = nodeUIDict[node];
@@ -178,16 +183,10 @@ namespace UI.NodeNetwork {
             HandleRightClick();
             if (selectedNode == null)
             {
-                foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
-                {
-                    if (!IsPressed(keycodes)) continue;
-                    Vector3 position = transform.position;
-                    const int SPEED = 5;
-                    position -= SPEED*GetDirectionVector(direction);
-                    transform.position = position;
-                }
+                KeyPressMoveUpdate();
                 return;
             }
+            
             if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
             {
                 DeleteNode((TNode)selectedNode.GetNode());
@@ -209,6 +208,19 @@ namespace UI.NodeNetwork {
             {
                 if (!IsPressed(keycodes)) continue;
                 MoveNode((TNode)selectedNode?.GetNode(),direction);
+            }
+        }
+
+        private void KeyPressMoveUpdate()
+        {
+            if (!movementEnabled) return;
+            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
+            {
+                if (!IsPressed(keycodes)) continue;
+                Vector3 position = transform.position;
+                const int SPEED = 5;
+                position -= SPEED*GetDirectionVector(direction);
+                transform.position = position;
             }
         }
         

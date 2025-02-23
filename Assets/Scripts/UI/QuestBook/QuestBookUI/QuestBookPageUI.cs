@@ -40,6 +40,11 @@ namespace UI.QuestBook {
             return QuestBookUtils.SHOW_ALL_COMPLETED;
         }
 
+        public override void OnDeleteSelectedNode()
+        {
+            // Does nothing
+        }
+
         public override QuestBookNode LookUpNode(int id)
         {
             return library.IdNodeMap.GetValueOrDefault(id);

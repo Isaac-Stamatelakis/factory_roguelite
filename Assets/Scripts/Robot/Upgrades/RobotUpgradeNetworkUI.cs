@@ -33,6 +33,11 @@ namespace Robot.Upgrades
             return false;
         }
 
+        public override void OnDeleteSelectedNode()
+        {
+            robotUpgradeUI.DisplayNodeContent(null);
+        }
+
         public override RobotUpgradeNode LookUpNode(int id)
         {
             foreach (RobotUpgradeNode node in nodeNetwork.UpgradeNodes)
