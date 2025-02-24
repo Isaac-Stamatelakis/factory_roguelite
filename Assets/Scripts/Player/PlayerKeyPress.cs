@@ -63,6 +63,7 @@ namespace PlayerModule.KeyPress {
             if (Input.GetKeyDown(KeyCode.E))
             {
                 PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
+                playerInventoryUI.Display(playerScript);
                 CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E});
             }
 

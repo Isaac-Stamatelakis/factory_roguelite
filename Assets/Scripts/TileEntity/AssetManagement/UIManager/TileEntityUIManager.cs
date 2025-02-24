@@ -18,6 +18,7 @@ namespace TileEntity {
             if (!AssetReference.RuntimeKeyIsValid()) {
                 return;
             }
+            Debug.Log(AssetReference.SubObjectName);
             this.loading = true;
             AsyncOperationHandle<GameObject> handle = AssetReference.LoadAssetAsync<GameObject>();
             handle.Completed += onLoad;
@@ -50,6 +51,7 @@ namespace TileEntity {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: UI prefab not loaded into memory");
                 return;
             }
+            Debug.Log(uiElementPrefab);
             GameObject instantiated = GameObject.Instantiate(uiElementPrefab);
             TUIElement uiComponent = instantiated.GetComponent<TUIElement>();
             if (uiComponent == null) {

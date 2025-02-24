@@ -12,57 +12,49 @@ using TileEntity.Instances;
 using Dimensions;
 using Item.Slot;
 using Player;
+using Robot.Upgrades;
 
 namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
-        [SerializeField] public PlayerData playerData;
+        //[SerializeField] public PlayerData playerData;
        
-        public void Deserialize() {
+        public PlayerData Deserialize() {
             string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Player);
-            playerData = JsonConvert.DeserializeObject<PlayerData>(json);
+            return JsonConvert.DeserializeObject<PlayerData>(json);
         }
         
         void OnDestroy()
         {
-            if (playerData == null) return;
-            playerData.x = transform.position.x;
-            playerData.y = transform.position.y;
-            playerData.dim = DimensionManager.Instance.GetPlayerDimension();
-
             PlayerInventory playerInventory = GetComponent<PlayerInventory>();
-            if (playerInventory.PlayerInventoryData == null) return;
-            playerData.sInventoryData = PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData);
-    
-            ItemSlot robotItem = GetComponent<PlayerRobot>().robotItemSlot;
-            playerData.playerRobot = ItemSlotFactory.seralizeItemSlot(robotItem);
+            PlayerRobot playerRobot = GetComponent<PlayerRobot>();
+            PlayerData playerData = new PlayerData(
+                transform.position.x, 
+                transform.position.y, 
+                ItemSlotFactory.seralizeItemSlot(playerRobot.robotItemSlot),
+                PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData),
+                JsonConvert.SerializeObject(playerRobot.RobotUpgradeLoadOut)
+            );
+            
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }
-        
-        public string GetPlayerInventoryData() {
-            return playerData.sInventoryData;
-        }
-
     }
 
     [System.Serializable]
     public class PlayerData {
-        public PlayerData(float x, float y, string playerRobot, string name, string sInventoryData) {
+        public PlayerData(float x, float y, string playerRobot, string sInventoryData, string sRobotLoadOut) {
             this.x = x;
             this.y = y;
             this.playerRobot = playerRobot;
-            this.name = name;
             this.sInventoryData = sInventoryData;
         }
         public float x;
         public float y;
-        public int dim;
         public string playerRobot;
-        public string name;
         public string sInventoryData;
-        public int stage;
+        public string sRobotLoadOut;
     }
 }

@@ -16,6 +16,7 @@ using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
 using RobotModule;
 using TileEntity;
 using TileMaps;
@@ -50,7 +51,9 @@ namespace Player {
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
+        public RobotObject CurrentRobot => currentRobot;
         private RobotItemData robotData;
+        public RobotItemData RobotData => robotData;
         public List<IRobotToolInstance> RobotTools;
         private Dictionary<RobotToolType, RobotToolObject> currentRobotToolObjects;
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
@@ -75,8 +78,8 @@ namespace Player {
 
         [SerializeField] private DirectionalMovementStats MovementStats;
         [SerializeField] private JumpMovementStats JumpStats;
-        
-        
+
+        public RobotUpgradeLoadOut RobotUpgradeLoadOut;
         
         private JumpEvent jumpEvent;
         private bool freezeY;
@@ -647,6 +650,14 @@ namespace Player {
             }
             rb.velocity = velocity;
         }
+
+        public void Initialize(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
+        {
+            SetRobot(itemSlot);
+
+            RobotUpgradeLoadOut = RobotUpgradeUtils.VerifyIntegrityOfLoadOut(loadOutData,robotData);
+
+        }
         
         public void SetRobot(ItemSlot newRobot)
         {
@@ -683,6 +694,10 @@ namespace Player {
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
 
+        public void SetRobotLoadOut(RobotUpgradeLoadOut loadOut)
+        {
+            this.RobotUpgradeLoadOut = loadOut;
+        }
         private void InitializeTools()
         {
             robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];

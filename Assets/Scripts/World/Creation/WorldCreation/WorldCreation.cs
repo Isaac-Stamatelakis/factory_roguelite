@@ -70,8 +70,8 @@ namespace WorldModule {
                 x: 0,
                 y: 0,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
-                name: "Izakio",
-                sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault())
+                sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
+                sRobotLoadOut: null
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             byte[] compressed = WorldLoadUtils.CompressString(json);

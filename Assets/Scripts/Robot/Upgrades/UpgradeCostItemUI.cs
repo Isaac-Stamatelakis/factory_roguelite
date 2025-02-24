@@ -23,9 +23,14 @@ namespace Robot.Upgrades
         }
         public override void SetAmountText()
         {
+            
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(robotUpgradeNode.NodeData.Cost[index]);
             uint requiredAmount = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode) * itemSlot.amount;
-            mBottomText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
+            if (robotUpgradeNode.IsCompleted())
+            {
+                gottenAmount = requiredAmount;
+            }
+            mBottomText.color = gottenAmount >= requiredAmount ? Color.green : Color.red;
             mBottomText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
                                ItemDisplayUtils.FormatAmountText(requiredAmount,oneInvisible:false);
  

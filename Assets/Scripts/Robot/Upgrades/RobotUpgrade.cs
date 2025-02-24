@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using DevTools;
 using Newtonsoft.Json;
 using Player.Tool;
+using Robot.Upgrades.LoadOut;
+using RobotModule;
 using TMPro;
 using UI.NodeNetwork;
 using UnityEditor.Experimental.GraphView;
@@ -11,6 +15,22 @@ using WorldModule;
 namespace Robot.Upgrades {
     public static class RobotUpgradeUtils
     {
+        public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
+        {
+            if (!upgradePath.EndsWith(".bin"))
+            {
+                upgradePath += ".bin";
+            }
+            string filePath = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.Upgrade), upgradePath);
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning($"Tried to read invalid upgrade path '{filePath}'");
+                return null;
+            }
+
+            byte[] bytes = File.ReadAllBytes(filePath);
+            return DeserializeRobotNodeNetwork(bytes);
+        }
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(byte[] bytes)
         {
             string json = WorldLoadUtils.DecompressString(bytes);
@@ -28,6 +48,53 @@ namespace Robot.Upgrades {
             }
         }
 
+        public static RobotUpgradeLoadOut DeserializeRobotStatLoadOut(string json)
+        {
+            if (json == null) return null;
+            try
+            {
+                return JsonConvert.DeserializeObject<RobotUpgradeLoadOut>(json);
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogWarning($"Error deserializing stat loadout '{e.Message}'");
+                return null;
+            }
+        }
+        public static RobotUpgradeLoadOut VerifyIntegrityOfLoadOut(RobotUpgradeLoadOut loadOut, RobotItemData robotItemData)
+        {
+            if (loadOut == null)
+            {
+                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection();
+                loadOut = new RobotUpgradeLoadOut(selfCollection, new Dictionary<RobotToolType, RobotStatLoadOutCollection>());
+            }
+
+            if ((loadOut.SelfLoadOuts.LoadOuts?.Count ?? 0) == 0)
+            {
+                loadOut.SelfLoadOuts = CreateNewLoadOutCollection();
+            }
+
+            foreach (var tool in robotItemData.ToolData.Types)
+            {
+                if (!loadOut.ToolLoadOuts.ContainsKey(tool))
+                {
+                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
+                }
+
+                if ((loadOut.ToolLoadOuts[tool].LoadOuts?.Count ?? 0) == 0)
+                {
+                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
+                }
+            }
+            return loadOut;
+        }
+
+        private static RobotStatLoadOutCollection CreateNewLoadOutCollection()
+        {
+            return new RobotStatLoadOutCollection(
+                0, 
+                new List<RobotStatLoadOut>{new (new Dictionary<int, int>(), new Dictionary<int, float>())});
+        }
         public static RobotUpgradeNodeNetwork FromSerializedNetwork(SerializedRobotUpgradeNodeNetwork sNetwork)
         {
             if (sNetwork == null) return null;
@@ -50,12 +117,30 @@ namespace Robot.Upgrades {
                 upgradeNodeDict[node.GetId()] = node;
             }
 
-            foreach (RobotUpgradeData upgradeData in upgradeDataList)
+
+            HashSet<int> upgradeDataListIds = new HashSet<int>();
+
+            for (var index = 0; index < upgradeDataList.Count; index++)
             {
+                var upgradeData = upgradeDataList[index];
                 RobotUpgradeNode node = upgradeNodeDict.GetValueOrDefault(upgradeData.Id);
-                if (node == null) continue;
-                node.InstanceData.Amount = upgradeData.Amount;
+                if (node == null)
+                {
+                    upgradeDataList.RemoveAt(index); // Remove nodes that no longer exist
+                    continue;
+                }
+
+                upgradeDataListIds.Add(node.GetId());
+                node.InstanceData = upgradeData;
             }
+
+            // Add nodes to upgrade list which are not included
+            foreach (var (id, node) in upgradeNodeDict)
+            {
+                if (upgradeDataListIds.Contains(id)) continue;
+                upgradeDataList.Add(new RobotUpgradeData(id,0));
+            }
+
             return robotUpgradeNodeNetwork;
         }
 
@@ -90,6 +175,22 @@ namespace Robot.Upgrades {
             return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
         }
 
+
+        public static Dictionary<int, int> BuildUpgradeDict(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList)
+        {
+            Dictionary<int, int> upgradeCount = new Dictionary<int, int>();
+            foreach (RobotUpgradeNodeData upgradeNodeData in nodeDataList)
+            {
+                foreach (RobotUpgradeData upgradeData in upgradeDataList)
+                {
+                    if (upgradeData.Id != upgradeNodeData.Id) continue;
+                    upgradeCount.TryAdd(upgradeNodeData.UpgradeType, 0);
+                    upgradeCount[upgradeNodeData.UpgradeType] += upgradeData.Amount;
+                }
+            }
+
+            return upgradeCount;
+        }
         
     }
 
@@ -129,6 +230,7 @@ namespace Robot.Upgrades {
     {
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
+        public abstract string GetTitle(int upgrade);
     }
 
     internal enum RobotUpgrade
@@ -176,6 +278,11 @@ namespace Robot.Upgrades {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((RobotUpgrade)upgrade).ToString();
+        }
     }
 
     internal enum RobotDrillUpgrade
@@ -210,6 +317,11 @@ namespace Robot.Upgrades {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((RobotDrillUpgrade)upgrade).ToString();
+        }
     }
 
     internal enum ConduitSlicerUpgrade
@@ -234,6 +346,11 @@ namespace Robot.Upgrades {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
     }
     

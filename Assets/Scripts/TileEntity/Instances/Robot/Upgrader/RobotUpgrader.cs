@@ -1,12 +1,15 @@
 using Chunks;
+using Robot.Upgrades;
 using UI;
 using UnityEngine;
 
 namespace TileEntity.Instances.Robot.Upgrader
 {
+    [CreateAssetMenu(fileName = "E~Signal Source", menuName = "Tile Entity/Robot/Upgrader")]
     public class RobotUpgrader : TileEntityObject
     {
-        public TileEntityUIManager UIAssetManager;
+        public RobotUpgraderUI UpgraderUIPrefab;
+  
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new RobotUpgraderInstance(this, tilePosition, tileItem, chunk);
@@ -14,7 +17,7 @@ namespace TileEntity.Instances.Robot.Upgrader
         
     }
 
-    public class RobotUpgraderInstance : TileEntityInstance<RobotUpgrader>, IRightClickableTileEntity, IManagedUITileEntity
+    public class RobotUpgraderInstance : TileEntityInstance<RobotUpgrader>, IRightClickableTileEntity
     {
         public RobotUpgraderInstance(RobotUpgrader tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
@@ -22,12 +25,10 @@ namespace TileEntity.Instances.Robot.Upgrader
 
         public void OnRightClick()
         {
-            tileEntityObject.UIAssetManager.Display<RobotUpgraderInstance,RobotUpgraderUI>(this);
+            RobotUpgraderUI robotUpgradeUI = GameObject.Instantiate(tileEntityObject.UpgraderUIPrefab);
+            robotUpgradeUI.DisplayTileEntityInstance(this);
+            CanvasController.Instance.DisplayObject(robotUpgradeUI.gameObject);
         }
-
-        public TileEntityUIManager getUIManager()
-        {
-            return tileEntityObject.UIAssetManager;
-        }
+        
     }
 }
