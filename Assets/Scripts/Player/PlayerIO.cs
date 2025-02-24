@@ -21,7 +21,6 @@ namespace PlayerModule.IO {
         //[SerializeField] public PlayerData playerData;
        
         public PlayerData Deserialize() {
-            string playerJsonPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
             string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Player);
             return JsonConvert.DeserializeObject<PlayerData>(json);
         }
@@ -50,6 +49,7 @@ namespace PlayerModule.IO {
             this.y = y;
             this.playerRobot = playerRobot;
             this.sInventoryData = sInventoryData;
+            this.sRobotLoadOut = sRobotLoadOut;
         }
         public float x;
         public float y;

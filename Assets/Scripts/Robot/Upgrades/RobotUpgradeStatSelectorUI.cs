@@ -8,10 +8,10 @@ namespace Robot.Upgrades
 {
     public class RobotStatLoadOut
     {
-        public Dictionary<int, int> ContinuousValues;
-        public Dictionary<int, float> DiscreteValues;
+        public Dictionary<int, float> ContinuousValues;
+        public Dictionary<int, int> DiscreteValues;
 
-        public RobotStatLoadOut(Dictionary<int, int> continuousValues, Dictionary<int, float> discreteValues)
+        public RobotStatLoadOut(Dictionary<int, float> continuousValues, Dictionary<int, int> discreteValues)
         {
             ContinuousValues = continuousValues;
             DiscreteValues = discreteValues;
@@ -27,28 +27,18 @@ namespace Robot.Upgrades
         internal void Display(RobotStatLoadOut statLoadOut, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo)
         {
             GlobalHelper.deleteAllChildren(mList.transform);
-            List<int> upgrades = new List<int>();
-            foreach (var (id, value) in statLoadOut.ContinuousValues)
-            {
-                if (!statUpgradeDict.ContainsKey(id)) continue;
-                upgrades.Add(id);
-            }
-
-            foreach (var (id, value) in statLoadOut.DiscreteValues)
-            {
-                if (!statUpgradeDict.ContainsKey(id)) continue;
-                upgrades.Add(id);
-            }
+            List<int> upgrades = upgradeInfo.GetAllUpgrades();
             upgrades.Sort();
             foreach (int upgrade in upgrades)
             {
+                if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
+
                 string title = upgradeInfo.GetTitle(upgrade);
-                int maxValue = statUpgradeDict[upgrade];
-                if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out int intValue))
+                if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
                 {
                     void OnValueChanged(int newValue)
                     {
-                        statLoadOut.ContinuousValues[upgrade] = newValue;
+                        statLoadOut.DiscreteValues[upgrade] = newValue;
                     };
                     if (maxValue == 1)
                     {
@@ -62,11 +52,11 @@ namespace Robot.Upgrades
                     }
                 }
 
-                if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out float floatValue))
+                if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
                 {
                     void OnValueChanged(float newValue)
                     {
-                        statLoadOut.DiscreteValues[upgrade] = newValue;
+                        statLoadOut.ContinuousValues[upgrade] = newValue;
                     }
 
                     FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);

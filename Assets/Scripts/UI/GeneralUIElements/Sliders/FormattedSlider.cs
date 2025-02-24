@@ -39,7 +39,7 @@ namespace UI.GeneralUIElements.Sliders
 
         private void SetFloatValueText(float bonus, float value)
         {
-            mValueText.text = $"{(bonus+value):F0})";
+            mValueText.text = $"{(bonus+value):F1}";
         }
         private int GetStep(float value, int maxSteps)
         {
@@ -68,11 +68,13 @@ namespace UI.GeneralUIElements.Sliders
 
         public void DisplayBool(string title, int initial, Action<int> valueChangeCallback, string falseText = "Off", string trueText = "On")
         {
-            mNameText.text = title;
+            mNameText.text = $"{title}:";
             mScrollBar.numberOfSteps = 2;
             
             mScrollBar.onValueChanged.RemoveAllListeners();
-            mScrollBar.value = initial == 0 ? 0 : 1;
+            int val = initial == 0 ? 0 : 1;
+            mScrollBar.value = val;
+            DisplayBoolText(val, falseText, trueText);
             mScrollBar.size = 0.5f;
             mScrollBar.onValueChanged.AddListener((value) =>
             {
@@ -84,7 +86,7 @@ namespace UI.GeneralUIElements.Sliders
 
         private void DisplayBoolText(int value, string falseText, string trueText)
         {
-            mNameText.text = value == 0 ? trueText : falseText;
+            mValueText.text = value == 0 ? trueText : falseText;
         }
     }
 }
