@@ -86,7 +86,7 @@ namespace UI.GeneralUIElements.Sliders
 
         private void DisplayBoolText(int value, string falseText, string trueText)
         {
-            mValueText.text = value == 0 ? trueText : falseText;
+            mValueText.text = value == 0 ? falseText : trueText;
         }
     }
 }
