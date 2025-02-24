@@ -18,7 +18,7 @@ namespace TileEntity {
             if (!AssetReference.RuntimeKeyIsValid()) {
                 return;
             }
-            Debug.Log(AssetReference.SubObjectName);
+           
             this.loading = true;
             AsyncOperationHandle<GameObject> handle = AssetReference.LoadAssetAsync<GameObject>();
             handle.Completed += onLoad;

@@ -14,7 +14,7 @@ namespace Entities {
     {
         public void OnDisable() {
             ClosedChunkSystem system = transform.parent.GetComponentInChildren<ClosedChunkSystem>();
-            
+            if (!system) return;
             DimController dimController = transform.parent.GetComponent<DimController>();
             for (int i = 0; i < transform.childCount; i++) {
                 Transform entityTransform = transform.GetChild(i);

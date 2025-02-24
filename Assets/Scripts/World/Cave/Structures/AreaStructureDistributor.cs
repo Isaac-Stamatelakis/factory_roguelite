@@ -27,7 +27,6 @@ namespace WorldModule.Caves {
                 int index = UnityEngine.Random.Range(0, structure.variants.Count);
                 StructureVariant variant = structure.variants[index];
                 Vector2Int normalizedPlacementPosition = new Vector2Int(width,height)/2 + presetStructure.location - variant.Size / 2 - new Vector2Int(Global.CHUNK_SIZE,Global.CHUNK_SIZE)/2;
-                Debug.Log((normalizedPlacementPosition));
                 AreaStructureDistributorUtils.PlaceStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
             }
             foreach (StructureFrequency structureFrequency in randomStructures) {
