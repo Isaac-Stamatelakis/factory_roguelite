@@ -16,6 +16,16 @@ namespace Robot.Upgrades
             ContinuousValues = continuousValues;
             DiscreteValues = discreteValues;
         }
+        
+        public float GetCountinuousValue(int upgrade)
+        {
+            return ContinuousValues.GetValueOrDefault(upgrade);
+        }
+
+        public int GetDiscreteValue(int upgrade)
+        {
+            return DiscreteValues.GetValueOrDefault(upgrade);
+        }
     }
     
     public class RobotUpgradeStatSelectorUI : MonoBehaviour

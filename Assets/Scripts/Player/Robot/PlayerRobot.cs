@@ -172,7 +172,8 @@ namespace Player {
             int sign = moveDirTime < 0 ? -1 : 1;
             float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
 
-            float speed = MovementStats.speed;
+            float bonusSpeed = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.Speed) ?? 0;
+            float speed = MovementStats.speed + bonusSpeed;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -227,7 +228,8 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
-                velocity.y = JumpStats.jumpVelocity;
+                float bonusJumpHeight = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.JumpHeight) ?? 0;
+                velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
                 jumpEvent = new JumpEvent();
