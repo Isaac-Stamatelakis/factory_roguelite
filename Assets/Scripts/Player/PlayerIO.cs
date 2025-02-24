@@ -12,6 +12,7 @@ using TileEntity.Instances;
 using Dimensions;
 using Item.Slot;
 using Player;
+using Robot.Upgrades;
 
 namespace PlayerModule.IO {
 
@@ -34,7 +35,7 @@ namespace PlayerModule.IO {
                 transform.position.y, 
                 ItemSlotFactory.seralizeItemSlot(playerRobot.robotItemSlot),
                 PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData),
-                null
+                JsonConvert.SerializeObject(playerRobot.RobotUpgradeLoadOut)
             );
             
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);

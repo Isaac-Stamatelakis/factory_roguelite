@@ -4,6 +4,8 @@ using System.IO;
 using DevTools;
 using Newtonsoft.Json;
 using Player.Tool;
+using Robot.Upgrades.LoadOut;
+using RobotModule;
 using TMPro;
 using UI.NodeNetwork;
 using UnityEditor.Experimental.GraphView;
@@ -46,6 +48,53 @@ namespace Robot.Upgrades {
             }
         }
 
+        public static RobotUpgradeLoadOut DeserializeRobotStatLoadOut(string json)
+        {
+            if (json == null) return null;
+            try
+            {
+                return JsonConvert.DeserializeObject<RobotUpgradeLoadOut>(json);
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogWarning($"Error deserializing stat loadout '{e.Message}'");
+                return null;
+            }
+        }
+        public static RobotUpgradeLoadOut VerifyIntegrityOfLoadOut(RobotUpgradeLoadOut loadOut, RobotItemData robotItemData)
+        {
+            if (loadOut == null)
+            {
+                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection();
+                loadOut = new RobotUpgradeLoadOut(selfCollection, new Dictionary<RobotToolType, RobotStatLoadOutCollection>());
+            }
+
+            if ((loadOut.SelfLoadOuts.LoadOuts?.Count ?? 0) == 0)
+            {
+                loadOut.SelfLoadOuts = CreateNewLoadOutCollection();
+            }
+
+            foreach (var tool in robotItemData.ToolData.Types)
+            {
+                if (!loadOut.ToolLoadOuts.ContainsKey(tool))
+                {
+                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
+                }
+
+                if ((loadOut.ToolLoadOuts[tool].LoadOuts?.Count ?? 0) == 0)
+                {
+                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
+                }
+            }
+            return loadOut;
+        }
+
+        private static RobotStatLoadOutCollection CreateNewLoadOutCollection()
+        {
+            return new RobotStatLoadOutCollection(
+                0, 
+                new List<RobotStatLoadOut>{new (new Dictionary<int, int>(), new Dictionary<int, float>())});
+        }
         public static RobotUpgradeNodeNetwork FromSerializedNetwork(SerializedRobotUpgradeNodeNetwork sNetwork)
         {
             if (sNetwork == null) return null;
@@ -127,17 +176,16 @@ namespace Robot.Upgrades {
         }
 
 
-        public static Dictionary<T, int> GetUpgradeCount<T>(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList) where T : Enum
+        public static Dictionary<int, int> BuildUpgradeDict(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList)
         {
-            Dictionary<T, int> upgradeCount = new Dictionary<T, int>();
+            Dictionary<int, int> upgradeCount = new Dictionary<int, int>();
             foreach (RobotUpgradeNodeData upgradeNodeData in nodeDataList)
             {
                 foreach (RobotUpgradeData upgradeData in upgradeDataList)
                 {
                     if (upgradeData.Id != upgradeNodeData.Id) continue;
-                    T enumValue = (T)Convert.ChangeType(upgradeNodeData.UpgradeType, typeof(T));
-                    upgradeCount.TryAdd(enumValue, 0);
-                    upgradeCount[enumValue] += upgradeData.Amount;
+                    upgradeCount.TryAdd(upgradeNodeData.UpgradeType, 0);
+                    upgradeCount[upgradeNodeData.UpgradeType] += upgradeData.Amount;
                 }
             }
 

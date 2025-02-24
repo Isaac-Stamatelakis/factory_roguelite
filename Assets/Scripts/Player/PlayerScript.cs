@@ -10,6 +10,9 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
+using RobotModule;
 using TileMaps.Previewer;
 using Tiles;
 using Tiles.Highlight;
@@ -55,8 +58,11 @@ namespace Player
         {
             PlayerData playerData = playerIO.Deserialize();
             playerInventory.Initialize(playerData.sInventoryData);
+            
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
-            playerRobot.SetRobot(playerRobotItem);
+            RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
+            playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
+            
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions();
             tilePlacementOptions = new PlayerTilePlacementOptions();
