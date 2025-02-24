@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UI.GeneralUIElements.Sliders
 {
-    public class FormattedNumSlider : MonoBehaviour
+    public class FormattedSlider : MonoBehaviour
     {
         
         [SerializeField] private Scrollbar mScrollBar;

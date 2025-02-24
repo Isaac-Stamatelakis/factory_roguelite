@@ -182,6 +182,7 @@ namespace Robot.Upgrades {
     {
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
+        public abstract string GetTitle(int upgrade);
     }
 
     internal enum RobotUpgrade
@@ -229,6 +230,11 @@ namespace Robot.Upgrades {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((RobotUpgrade)upgrade).ToString();
+        }
     }
 
     internal enum RobotDrillUpgrade
@@ -263,6 +269,11 @@ namespace Robot.Upgrades {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((RobotDrillUpgrade)upgrade).ToString();
+        }
     }
 
     internal enum ConduitSlicerUpgrade
@@ -287,6 +298,11 @@ namespace Robot.Upgrades {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public override string GetTitle(int upgrade)
+        {
+            return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
     }
     

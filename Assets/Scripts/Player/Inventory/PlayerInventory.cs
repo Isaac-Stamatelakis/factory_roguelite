@@ -51,8 +51,8 @@ namespace PlayerModule {
             playerPickUp = GetComponentInChildren<PlayerPickUp>();
         }
 
-        public void Initialize() {
-            playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(GetComponent<PlayerIO>().GetPlayerInventoryData());
+        public void Initialize(string json) {
+            playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(json);
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
             playerInventoryGrid.HighlightSlot(0);
             playerInventoryGrid.AddListener(this);

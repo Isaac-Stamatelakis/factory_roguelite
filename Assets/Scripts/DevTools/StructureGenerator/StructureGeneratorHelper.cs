@@ -84,8 +84,8 @@ namespace DevTools.Structures {
                 x: 0,
                 y: 0,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
-                name: "Izakio",
-                sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData)
+                sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData),
+                sRobotLoadOut: null
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);

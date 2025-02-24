@@ -53,9 +53,9 @@ namespace Player
         
         public void Initialize()
         {
-            playerIO.Deserialize();
-            playerInventory.Initialize();
-            ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerIO.playerData.playerRobot);
+            PlayerData playerData = playerIO.Deserialize();
+            playerInventory.Initialize(playerData.sInventoryData);
+            ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
             playerRobot.SetRobot(playerRobotItem);
             playerInventory.InitializeToolDisplay();
             conduitPlacementOptions = new ConduitPlacementOptions();
