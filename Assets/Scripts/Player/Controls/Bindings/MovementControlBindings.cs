@@ -14,6 +14,7 @@ namespace Player.Controls.Bindings
                 new(ControlConsts.MOVE_RIGHT, new List<KeyCode>{KeyCode.D}),
                 new(ControlConsts.MOVE_UP, new List<KeyCode>{KeyCode.W}),
                 new (ControlConsts.MOVE_DOWN, new List<KeyCode>{KeyCode.S}),
+                new (ControlConsts.RECALL, new List<KeyCode>{KeyCode.R}),
                 new (ControlConsts.TELEPORT, new List<KeyCode>{KeyCode.Z})
             };
         }

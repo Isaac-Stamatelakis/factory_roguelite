@@ -85,6 +85,8 @@ namespace PlayerModule.KeyPress {
             {
                 ChangePortModePress();
             }
+            
+            
             inventoryNavigationKeys();
         }
         

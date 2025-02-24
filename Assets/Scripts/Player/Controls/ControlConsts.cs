@@ -8,6 +8,7 @@ namespace Player.Controls
         public const string MOVE_DOWN = "move_down";
         public const string MOVE_UP = "move_up";
         public const string TELEPORT = "teleport";
+        public const string RECALL = "recall";
         public const string CHANGE_TOOL = "change_tool";
         public const string TOOL_SELECTOR = "tool_selector";
         public const string TOOL_OPTIONS = "tool_options";

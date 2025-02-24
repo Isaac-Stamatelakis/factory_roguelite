@@ -169,9 +169,9 @@ namespace Robot.Upgrades {
             return (uint)(Mathf.Pow(robotUpgradeNode.NodeData.CostMultiplier, amount));
         }
 
-        public static int GetDiscreteValue(RobotUpgradeLoadOut loadOut, int upgrade)
+        public static int GetDiscreteValue(RobotStatLoadOutCollection loadOut, int upgrade)
         {
-            return loadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue(upgrade) ?? 0;
+            return loadOut?.GetCurrent()?.GetDiscreteValue(upgrade) ?? 0;
         }
         
         public static float GetContinuousValue(RobotUpgradeLoadOut loadOut, int upgrade)

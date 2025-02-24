@@ -79,6 +79,8 @@ namespace Player {
         private int coyoteFrames;
         private int bonusJumps;
 
+        private bool recalling;
+        
         [SerializeField] private DirectionalMovementStats MovementStats;
         [SerializeField] private JumpMovementStats JumpStats;
 
@@ -127,10 +129,17 @@ namespace Player {
 
         private void MoveUpdate()
         {
-
             if (!PlayerKeyPressUtils.BlockKeyInput)
             {
-                TeleportUpdate();
+                if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) > 0)
+                {
+                    TeleportUpdate();
+                }
+                
+                if (!recalling && ControlUtils.GetControlKeyDown(ControlConsts.RECALL))
+                {
+                    StartCoroutine(RecallCoroutine());
+                }
             }
             if (DevMode.Instance.flight)
             {
@@ -140,6 +149,16 @@ namespace Player {
             }
 
             StandardMoveUpdate();
+        }
+
+        private IEnumerator RecallCoroutine()
+        {
+            recalling = true;
+            // TODO some sound effect and animation
+            const float RECALL_DELAY = 0.2f;
+            yield return new WaitForSeconds(RECALL_DELAY);
+            DimensionManager.Instance.SetPlayerSystem(GetComponent<PlayerScript>(),0,Vector2Int.zero);
+            recalling = false;
         }
 
         private void TeleportUpdate()
@@ -155,7 +174,11 @@ namespace Player {
                 if (!mainCamera) return;
                 Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
                 playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
-                playerTeleportEvent.TryTeleport();
+                bool teleported = playerTeleportEvent.TryTeleport();
+                if (teleported)
+                {
+                    fallTime = 0;
+                }
             }
         }
 
