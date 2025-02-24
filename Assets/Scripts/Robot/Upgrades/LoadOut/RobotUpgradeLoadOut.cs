@@ -14,12 +14,7 @@ namespace Robot.Upgrades.LoadOut
             SelfLoadOuts = selfLoadOuts;
             ToolLoadOuts = toolLoadOuts;
         }
-    }
-
-    public class RobotUpgradeLoadOutDict
-    {
-        public Dictionary<int,int> RobotUpgradeLoadOuts;
-        public Dictionary<RobotToolType, Dictionary<int,int>> ToolLoadOuts;
+        
     }
 
     public class RobotStatLoadOutCollection

@@ -75,6 +75,7 @@ namespace Player {
         private int slipperyFrames;
         private float moveDirTime;
         private int coyoteFrames;
+        private int bonusJumps;
 
         [SerializeField] private DirectionalMovementStats MovementStats;
         [SerializeField] private JumpMovementStats JumpStats;
@@ -137,7 +138,13 @@ namespace Player {
 
         public bool CanJump()
         {
-            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
+            return bonusJumps > 0 || IsGrounded();
+        }
+
+        public bool IsGrounded()
+        {
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) ||
+                   CollisionStateActive(CollisionState.OnSlope);
         }
         private void StandardMoveUpdate()
         {
@@ -172,7 +179,8 @@ namespace Player {
             int sign = moveDirTime < 0 ? -1 : 1;
             float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
 
-            float speed = MovementStats.speed;
+            float bonusSpeed = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.Speed) ?? 0;
+            float speed = MovementStats.speed + bonusSpeed;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -227,9 +235,11 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
-                velocity.y = JumpStats.jumpVelocity;
+                float bonusJumpHeight = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.JumpHeight) ?? 0;
+                velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
+                bonusJumps--;
                 jumpEvent = new JumpEvent();
             }
         }
@@ -379,8 +389,15 @@ namespace Player {
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
 
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
-            
-            if (CanJump()) coyoteFrames = JumpStats.coyoteFrames;
+
+            if (IsGrounded())
+            {
+                coyoteFrames = JumpStats.coyoteFrames;
+                if (bonusJumps <= 0)
+                {
+                    bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
+                }
+            }
             
 
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DevTools;
 using Newtonsoft.Json;
 using Player.Tool;
@@ -65,35 +66,28 @@ namespace Robot.Upgrades {
         {
             if (loadOut == null)
             {
-                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection();
+                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection(RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0));
                 loadOut = new RobotUpgradeLoadOut(selfCollection, new Dictionary<RobotToolType, RobotStatLoadOutCollection>());
             }
-
-            if ((loadOut.SelfLoadOuts.LoadOuts?.Count ?? 0) == 0)
-            {
-                loadOut.SelfLoadOuts = CreateNewLoadOutCollection();
-            }
+            
 
             foreach (var tool in robotItemData.ToolData.Types)
             {
-                if (!loadOut.ToolLoadOuts.ContainsKey(tool))
-                {
-                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
-                }
+                if (loadOut.ToolLoadOuts.ContainsKey(tool)) continue;
+                RobotUpgradeInfo toolInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool, (int)tool);
+                if (toolInfo == null) continue;
+                
+                loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection(toolInfo);
 
-                if ((loadOut.ToolLoadOuts[tool].LoadOuts?.Count ?? 0) == 0)
-                {
-                    loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection();
-                }
             }
             return loadOut;
         }
 
-        private static RobotStatLoadOutCollection CreateNewLoadOutCollection()
+        private static RobotStatLoadOutCollection CreateNewLoadOutCollection(RobotUpgradeInfo robotUpgradeInfo)
         {
             return new RobotStatLoadOutCollection(
                 0, 
-                new List<RobotStatLoadOut>{new (new Dictionary<int, int>(), new Dictionary<int, float>())});
+                new List<RobotStatLoadOut>{robotUpgradeInfo.GetRobotStatLoadOut()});
         }
         public static RobotUpgradeNodeNetwork FromSerializedNetwork(SerializedRobotUpgradeNodeNetwork sNetwork)
         {
@@ -231,6 +225,41 @@ namespace Robot.Upgrades {
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
         public abstract string GetTitle(int upgrade);
+
+        public RobotStatLoadOut GetRobotStatLoadOut()
+        {
+            RobotStatLoadOut loadOut = new RobotStatLoadOut(new Dictionary<int, float>(), new Dictionary<int, int>());
+            VerifyStatLoadOut(loadOut);
+            return loadOut;
+        }
+
+        public void VerifyStatLoadOut(RobotStatLoadOut robotStatLoadOut)
+        {
+            List<int> continuousUpgrades = GetContinuousUpgrades();
+            foreach (int continuousUpgrade in continuousUpgrades)
+            {
+                robotStatLoadOut.ContinuousValues.TryAdd(continuousUpgrade, 0);
+
+                if (robotStatLoadOut.DiscreteValues.ContainsKey(continuousUpgrade))
+                {
+                    robotStatLoadOut.DiscreteValues.Remove(continuousUpgrade);
+                }
+            }
+
+            List<int> allUpgrades = GetAllUpgrades();
+            foreach (int upgrade in allUpgrades)
+            {
+                if (continuousUpgrades.Contains(upgrade)) continue;
+                robotStatLoadOut.DiscreteValues.TryAdd(upgrade, 0);
+                if (robotStatLoadOut.ContinuousValues.ContainsKey(upgrade))
+                {
+                    robotStatLoadOut.ContinuousValues.Remove(upgrade);
+                }
+            }
+
+        }
+        public abstract List<int> GetContinuousUpgrades();
+        public abstract List<int> GetAllUpgrades();
     }
 
     internal enum RobotUpgrade
@@ -283,6 +312,20 @@ namespace Robot.Upgrades {
         {
             return ((RobotUpgrade)upgrade).ToString();
         }
+
+        public override List<int> GetContinuousUpgrades()
+        {
+            return new List<int>
+            {
+                (int)RobotUpgrade.Speed,
+                (int)RobotUpgrade.JumpHeight,
+            };
+        }
+
+        public override List<int> GetAllUpgrades()
+        {
+            return System.Enum.GetValues(typeof(RobotUpgrade)).Cast<int>().ToList();
+        }
     }
 
     internal enum RobotDrillUpgrade
@@ -322,6 +365,19 @@ namespace Robot.Upgrades {
         {
             return ((RobotDrillUpgrade)upgrade).ToString();
         }
+        
+        public override List<int> GetContinuousUpgrades()
+        {
+            return new List<int>
+            {
+                (int)RobotDrillUpgrade.Speed
+            };
+        }
+
+        public override List<int> GetAllUpgrades()
+        {
+            return System.Enum.GetValues(typeof(RobotDrillUpgrade)).Cast<int>().ToList();
+        }
     }
 
     internal enum ConduitSlicerUpgrade
@@ -351,6 +407,17 @@ namespace Robot.Upgrades {
         public override string GetTitle(int upgrade)
         {
             return ((ConduitSlicerUpgrade)upgrade).ToString();
+        }
+        
+
+        public override List<int> GetContinuousUpgrades()
+        {
+            return new List<int>();
+        }
+
+        public override List<int> GetAllUpgrades()
+        {
+            return System.Enum.GetValues(typeof(ConduitSlicerUpgrade)).Cast<int>().ToList();
         }
     }
     
