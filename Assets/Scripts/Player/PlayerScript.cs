@@ -60,7 +60,6 @@ namespace Player
             playerInventory.Initialize(playerData.sInventoryData);
             
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
-            Debug.Log(playerData.sRobotLoadOut);
             RobotUpgradeLoadOut robotStatLoadOut = RobotUpgradeUtils.DeserializeRobotStatLoadOut(playerData.sRobotLoadOut);
             playerRobot.Initialize(playerRobotItem,robotStatLoadOut);
             

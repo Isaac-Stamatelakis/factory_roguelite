@@ -7,7 +7,9 @@ using Dimensions;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using Player.Controls;
 using Player.Inventory;
+using Player.Movement;
 using Player.Robot;
 using Player.Tool;
 using Player.UI;
@@ -84,6 +86,7 @@ namespace Player {
         
         private JumpEvent jumpEvent;
         private bool freezeY;
+        private PlayerTeleportEvent playerTeleportEvent;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -124,8 +127,11 @@ namespace Player {
 
         private void MoveUpdate()
         {
-            
-            
+
+            if (!PlayerKeyPressUtils.BlockKeyInput)
+            {
+                TeleportUpdate();
+            }
             if (DevMode.Instance.flight)
             {
                 if (PlayerKeyPressUtils.BlockKeyInput) return;
@@ -134,6 +140,23 @@ namespace Player {
             }
 
             StandardMoveUpdate();
+        }
+
+        private void TeleportUpdate()
+        {
+            if (playerTeleportEvent != null)
+            {
+                playerTeleportEvent.IterateTime(Time.deltaTime);
+                if (playerTeleportEvent.Expired()) playerTeleportEvent = null;
+            }
+            if (ControlUtils.GetControlKeyDown(ControlConsts.TELEPORT) && playerTeleportEvent == null)
+            {
+                Camera mainCamera = Camera.main;
+                if (!mainCamera) return;
+                Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+                playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
+                playerTeleportEvent.TryTeleport();
+            }
         }
 
         public bool CanJump()
@@ -235,15 +258,16 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
-                float bonusJumpHeight = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.JumpHeight) ?? 0;
+                float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
                 bonusJumps--;
+                fallTime = 0;
                 jumpEvent = new JumpEvent();
             }
         }
-
+        
         private float GetFriction()
         {
             if (currentTileMovementType == TileMovementType.Slippery || slipperyFrames > 0) return MovementStats.iceFriction;
