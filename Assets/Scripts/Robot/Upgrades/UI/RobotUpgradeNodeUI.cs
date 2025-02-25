@@ -1,6 +1,7 @@
 using Item.Slot;
 using Items;
 using Microsoft.Unity.VisualStudio.Editor;
+using Robot.Upgrades.Network;
 using UI.NodeNetwork;
 using UnityEngine;
 using Image = UnityEngine.UI.Image;

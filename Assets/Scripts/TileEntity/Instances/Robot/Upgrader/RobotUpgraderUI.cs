@@ -11,6 +11,7 @@ using Player.Tool;
 using Robot;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 using RobotModule;
 using TMPro;
 using UI;

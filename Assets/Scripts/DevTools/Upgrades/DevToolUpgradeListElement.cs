@@ -1,6 +1,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 using TMPro;
 using UI;
 using UI.NodeNetwork;

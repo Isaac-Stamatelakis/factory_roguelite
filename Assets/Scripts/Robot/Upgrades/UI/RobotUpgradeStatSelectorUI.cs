@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Robot.Upgrades.Info;
 using UI.GeneralUIElements.Sliders;
 using UnityEngine;
 using UnityEngine.UI;

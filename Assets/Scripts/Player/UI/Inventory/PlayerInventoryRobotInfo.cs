@@ -7,6 +7,8 @@ using Items.Inventory;
 using Player.Tool;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Info;
+using Robot.Upgrades.Network;
 using UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;

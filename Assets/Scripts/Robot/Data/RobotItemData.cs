@@ -4,6 +4,7 @@ using Item.Slot;
 using Player.Tool;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 using UnityEngine;
 namespace RobotModule {
     public class RobotItemData

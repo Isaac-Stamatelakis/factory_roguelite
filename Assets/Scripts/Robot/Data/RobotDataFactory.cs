@@ -12,6 +12,7 @@ using Robot;
 using Robot.Tool;
 using Robot.Tool.Object;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 
 namespace RobotModule {
     public static class RobotDataFactory
