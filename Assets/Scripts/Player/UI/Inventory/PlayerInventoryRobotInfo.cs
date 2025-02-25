@@ -3,7 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
 using Items;
+using Items.Inventory;
+using Player.Tool;
+using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Info;
+using Robot.Upgrades.Network;
 using UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -17,6 +22,7 @@ namespace Player.UI.Inventory
         [SerializeField] private AssetReference mStatSelectorUIPrefabRef;
         [SerializeField] private ItemSlotUI mRobotItemSlotUI;
         [SerializeField] private Button mModifyStatButton;
+        [SerializeField] private InventoryUI mToolInventoryUI;
         private RobotUpgradeStatSelectorUI statSelectorUIPrefab;
 
         public void Start()
@@ -37,14 +43,55 @@ namespace Player.UI.Inventory
             mRobotItemSlotUI.Display(playerRobot.robotItemSlot);
             mModifyStatButton.onClick.AddListener(() =>
             {
-                
-                SerializedRobotUpgradeNodeNetwork network = RobotUpgradeUtils.DeserializeRobotNodeNetwork(playerRobot.CurrentRobot?.UpgradePath);
-                if (network == null) return;
-                Dictionary<int, int> upgradeDict = RobotUpgradeUtils.BuildUpgradeDict(network.NodeData, playerRobot.RobotData.RobotUpgrades);
-                RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
-                statSelectorUI.Display(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts.GetCurrent(),upgradeDict,RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0));
-                CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
+                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(
+                    playerRobot.CurrentRobot?.UpgradePath,
+                    playerRobot.RobotUpgradeLoadOut.SelfLoadOuts.GetCurrent(),
+                    playerRobot.RobotData.RobotUpgrades,
+                    RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0)
+                );
+                DisplayData(upgradeDisplayData);
+
             });
+            List<ItemSlot> toolItems = RobotToolFactory.ToolInstancesToItems(playerRobot.RobotTools);
+            mToolInventoryUI.DisplayInventory(toolItems);
+            mToolInventoryUI.OverrideClickAction((int index) =>
+            {
+                string upgradePath = playerRobot.RobotTools[index].GetToolObject().UpgradePath;
+                List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
+                RobotToolType toolType = playerRobot.ToolTypes[index];
+                RobotStatLoadOut statLoadOut = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType)?.GetCurrent();
+                RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
+                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOut, upgradeData, robotUpgradeInfo);
+                DisplayData(upgradeDisplayData);
+            });
+        }
+
+        private void DisplayData(UpgradeDisplayData upgradeDisplayData)
+        {
+            if (upgradeDisplayData.StatLoadOut == null) return;
+            SerializedRobotUpgradeNodeNetwork network = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradeDisplayData.UpgradePath);
+            if (network == null) return;
+            Dictionary<int, int> upgradeDict = RobotUpgradeUtils.BuildUpgradeDict(network.NodeData, upgradeDisplayData.UpgradeData);
+            RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
+            statSelectorUI.Display(upgradeDisplayData.StatLoadOut,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
+            CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
+        }
+        
+
+        private struct UpgradeDisplayData
+        {
+            public string UpgradePath;
+            public RobotStatLoadOut StatLoadOut;
+            public List<RobotUpgradeData> UpgradeData;
+            public RobotUpgradeInfo RobotUpgradeInfo;
+
+            public UpgradeDisplayData(string upgradePath, RobotStatLoadOut statLoadOut, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo)
+            {
+                UpgradePath = upgradePath;
+                StatLoadOut = statLoadOut;
+                UpgradeData = upgradeData;
+                RobotUpgradeInfo = robotUpgradeInfo;
+            }
         }
     }
 }

@@ -16,7 +16,8 @@ namespace Items.Inventory {
         Standard,
         Recipe,
         UnInteractable,
-        BlockInput
+        BlockInput,
+        OverrideAction
         
     }
     public interface IInventoryListener
@@ -51,6 +52,7 @@ namespace Items.Inventory {
         public bool EnableToolTip => enableToolTip;
         private uint maxStackSize = Global.MaxSize; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
+        private Action<int> overrideClickAction;
         
         public void Awake()
         {
@@ -87,6 +89,17 @@ namespace Items.Inventory {
                 if (i >= slots.Count || i >= textList.Count) break;
                 slots[i].SetTopText(textList[i]);
             }
+        }
+
+        public void OverrideClickAction(Action<int> callback)
+        {
+            InventoryInteractMode = InventoryInteractMode.OverrideAction;
+            overrideClickAction = callback;
+        }
+
+        public Action<int> GetOverrideAction()
+        {
+            return overrideClickAction;
         }
 
         public void ResetTopText()

@@ -14,7 +14,11 @@ namespace Robot.Upgrades.LoadOut
             SelfLoadOuts = selfLoadOuts;
             ToolLoadOuts = toolLoadOuts;
         }
-        
+
+        public RobotStatLoadOutCollection GetToolLoadOut(RobotToolType toolType)
+        {
+            return ToolLoadOuts.GetValueOrDefault(toolType);
+        }
     }
 
     public class RobotStatLoadOutCollection

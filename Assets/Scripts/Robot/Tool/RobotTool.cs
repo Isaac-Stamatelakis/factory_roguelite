@@ -30,7 +30,8 @@ namespace Robot.Tool
         public void ModeSwitch(MoveDirection moveDirection, bool subMode);
         public string GetName();
         public string GetModeName();
-        
+        public RobotToolObject GetToolObject();
+
     }
     
     public interface ISubModeRobotToolInstance {
@@ -66,6 +67,10 @@ namespace Robot.Tool
         }
 
         public abstract string GetModeName();
+        public RobotToolObject GetToolObject()
+        {
+            return robotObject;
+        }
     }
 
     public abstract class RobotToolData

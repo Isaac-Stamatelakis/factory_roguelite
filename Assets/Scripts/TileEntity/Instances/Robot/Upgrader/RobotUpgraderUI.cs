@@ -7,8 +7,11 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Player;
+using Player.Tool;
 using Robot;
+using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 using RobotModule;
 using TMPro;
 using UI;
@@ -26,6 +29,7 @@ namespace TileEntity.Instances.Robot.Upgrader
         [SerializeField] private ItemSlotUI mRobotItemSlotUI;
         [SerializeField] private Button mUpgradeButton;
         [SerializeField] private InventoryUI mToolInventoryUI;
+        private List<UpgradeDisplayData> toolClickDataList;
 
         private RobotUpgradeUI robotUpgradeUIPrefab;
         public void Start()
@@ -45,10 +49,10 @@ namespace TileEntity.Instances.Robot.Upgrader
             PlayerRobot playerRobot = PlayerManager.Instance.GetPlayer().PlayerRobot;
             RobotItemData robotItemData = playerRobot.RobotData;
             RobotItem robotItem = playerRobot.robotItemSlot?.itemObject as RobotItem;
-            DisplayRobot(robotItem, robotItemData);
+            DisplayRobot(robotItem, robotItemData, playerRobot.RobotTools);
         }
 
-        public void DisplayRobot(RobotItem robotItem, RobotItemData robotItemData)
+        public void DisplayRobot(RobotItem robotItem, RobotItemData robotItemData, List<IRobotToolInstance> toolInstances)
         {
             bool error = false;
             if (!robotItem)
@@ -63,7 +67,7 @@ namespace TileEntity.Instances.Robot.Upgrader
             }
             if (error)
             {
-                GameObject.Destroy(gameObject);
+                Destroy(gameObject);
                 return;
             }
             mRobotItemSlotUI.Display(new ItemSlot(robotItem,1,null));
@@ -74,8 +78,34 @@ namespace TileEntity.Instances.Robot.Upgrader
                 string upgradePath = robotObject.UpgradePath;
                 DisplayPath(upgradePath,robotItemData.RobotUpgrades);
             });
+
+            
+            List<ItemSlot> toolItems = RobotToolFactory.ToolInstancesToItems(toolInstances);
+            mToolInventoryUI.DisplayInventory(toolItems);
+            mToolInventoryUI.OverrideClickAction(OnToolClick);
+            toolClickDataList = new List<UpgradeDisplayData>();
+            robotItemData.ToolData.Upgrades ??= new List<List<RobotUpgradeData>>();
+            for (var index = 0; index < toolInstances.Count; index++)
+            {
+                if (index >= robotItemData.ToolData.Upgrades.Count)
+                {
+                    robotItemData.ToolData.Upgrades.Add(new List<RobotUpgradeData>());
+                }
+                var upgradeData = robotItemData.ToolData.Upgrades[index];
+                var tool = toolInstances[index];
+                toolClickDataList.Add(new UpgradeDisplayData(tool.GetToolObject().UpgradePath, upgradeData));
+            }
         }
 
+        private void OnToolClick(int index)
+        {
+            DisplayPath(toolClickDataList[index]);
+        }
+
+        private void DisplayPath(UpgradeDisplayData upgradeDisplayData)
+        {
+            DisplayPath(upgradeDisplayData.UpgradePath,upgradeDisplayData.UpgradeData);
+        }
         private void DisplayPath(string upgradePath, List<RobotUpgradeData> upgradeData)
         {
             SerializedRobotUpgradeNodeNetwork sNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradePath);
@@ -85,6 +115,18 @@ namespace TileEntity.Instances.Robot.Upgrader
             RobotUpgradeUI robotUpgradeUI = Instantiate(robotUpgradeUIPrefab);
             CanvasController.Instance.DisplayObject(robotUpgradeUI.gameObject);
             robotUpgradeUI.Initialize(upgradePath,upgradeNodeNetwork);
+        }
+
+        private struct UpgradeDisplayData
+        {
+            public string UpgradePath;
+            public List<RobotUpgradeData> UpgradeData;
+
+            public UpgradeDisplayData(string upgradePath, List<RobotUpgradeData> upgradeData)
+            {
+                UpgradePath = upgradePath;
+                UpgradeData = upgradeData;
+            }
         }
     }
 }

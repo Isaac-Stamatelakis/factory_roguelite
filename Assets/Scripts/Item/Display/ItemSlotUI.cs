@@ -132,7 +132,7 @@ namespace Items {
             
             DisplayTagVisuals(itemSlot);
         }
-
+        
         public void Display(ItemSlot itemSlot, string topText)
         {
             Display(itemSlot);

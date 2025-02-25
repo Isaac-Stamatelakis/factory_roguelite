@@ -12,6 +12,7 @@ using Robot;
 using Robot.Tool;
 using Robot.Tool.Object;
 using Robot.Upgrades;
+using Robot.Upgrades.Network;
 
 namespace RobotModule {
     public static class RobotDataFactory
@@ -48,12 +49,16 @@ namespace RobotModule {
             
             List<RobotToolType> defaultTypes = new List<RobotToolType> { RobotToolType.LaserDrill, RobotToolType.ConduitSlicers, RobotToolType.Buildinator };
             List<RobotToolData> defaultData = new List<RobotToolData>();
+            List<List<RobotUpgradeData>> newUpgradeData = new List<List<RobotUpgradeData>>();
             foreach (RobotToolType robotToolType in defaultTypes)
             {
                 defaultData.Add(RobotToolFactory.GetDefault(robotToolType));
+                newUpgradeData.Add(new List<RobotUpgradeData>());
             }
             RobotObject robotObject = robotItem.robot;
-            ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData, new List<RobotUpgradeData>());
+            
+            
+            ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData, newUpgradeData);
             RobotItemData robotItemData = new RobotItemData(
                 defaultToolData, null, robotObject.BaseHealth, 0
             );

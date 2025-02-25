@@ -6,6 +6,8 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using PlayerModule;
+using Robot.Upgrades.Info;
+using Robot.Upgrades.Network;
 using TMPro;
 using UI;
 using UnityEngine;
