@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Item.Slot;
 using Newtonsoft.Json;
 using Player.Tool;
 using Player.Tool.Object;
@@ -7,6 +8,7 @@ using Robot.Tool.Instances;
 using Robot.Tool.Object;
 using Robot.Upgrades;
 using TileMaps.Layer;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 namespace Robot.Tool
@@ -38,6 +40,7 @@ namespace Robot.Tool
 
             return dict;
         } 
+        
         public static IRobotToolInstance GetInstance(RobotToolType type, RobotToolObject toolObject, RobotToolData robotToolData)
         {
             switch (type)
@@ -185,28 +188,41 @@ namespace Robot.Tool
             return serializedTools;
         }
 
+        public static List<ItemSlot> ToolInstancesToItems(List<IRobotToolInstance> toolInstances)
+        {
+            List<ItemSlot> items = new List<ItemSlot>();
+            foreach (IRobotToolInstance tool in toolInstances)
+            {
+                items.Add(new ItemSlot(tool.GetToolObject().ToolIconItem,1,null));
+            }
+
+            return items;
+        }
+
         private class SerializedItemRobotToolData
         {
             public List<string> ToolData;
             public List<RobotToolType> Types;
-            public List<RobotUpgradeData> Upgrades;
+            public List<List<RobotUpgradeData>> Upgrades;
 
-            public SerializedItemRobotToolData(List<string> toolData, List<RobotToolType> types, List<RobotUpgradeData> upgrades)
+            public SerializedItemRobotToolData(List<string> toolData, List<RobotToolType> types, List<List<RobotUpgradeData>> upgrades)
             {
                 ToolData = toolData;
                 this.Types = types;
                 this.Upgrades = upgrades;
             }
         }
+        
+        
     }
 
     public class ItemRobotToolData
     {
         public List<RobotToolType> Types;
         public List<RobotToolData> Tools;
-        public List<RobotUpgradeData> Upgrades;
+        public List<List<RobotUpgradeData>> Upgrades;
 
-        public ItemRobotToolData(List<RobotToolType> types, List<RobotToolData> tools, List<RobotUpgradeData> upgrades)
+        public ItemRobotToolData(List<RobotToolType> types, List<RobotToolData> tools, List<List<RobotUpgradeData>> upgrades)
         {
             Types = types;
             Tools = tools;

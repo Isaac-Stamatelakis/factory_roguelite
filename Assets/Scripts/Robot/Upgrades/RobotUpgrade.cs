@@ -196,6 +196,7 @@ namespace Robot.Upgrades {
             return upgradeCount;
         }
         
+        
     }
 
     internal static class RobotUpgradeInfoFactory
@@ -283,6 +284,10 @@ namespace Robot.Upgrades {
         Dash = 6,
         Hover = 7,
         Teleport = 8,
+        Light = 9,
+        NightVision = 10,
+        ItemMagnet = 11,
+        
         
     }
 

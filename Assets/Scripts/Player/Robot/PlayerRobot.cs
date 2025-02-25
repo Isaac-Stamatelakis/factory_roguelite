@@ -734,21 +734,9 @@ namespace Player {
             currentRobot = robotItem.robot;
             
             ItemTagCollection tags = this.robotItemSlot.tags;
-            if (tags?.Dict == null)
+            if (tags?.Dict == null || !tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
             {
-                tags = new ItemTagCollection(new Dictionary<ItemTag, object>());
-            }
-            if (!tags.Dict.ContainsKey(ItemTag.RobotData) || tags.Dict[ItemTag.RobotData] is not RobotItemData)
-            {
-                Dictionary<ItemTag, object> tagData = new Dictionary<ItemTag, object>();
-                ItemRobotToolData robotToolData = new ItemRobotToolData(new List<RobotToolType>(), new List<RobotToolData>(), new List<RobotUpgradeData>());
-                // TODO robotupgrade data
-                RobotItemData newItemData = new RobotItemData(robotToolData,null, currentRobot.BaseHealth,0);
-                tagData[ItemTag.RobotData] = newItemData;
-                ItemTagCollection itemTagCollection = new ItemTagCollection(tagData);
-                robotItemSlot.tags = itemTagCollection;
-
-                robotItemSlot.tags = itemTagCollection;
+                this.robotItemSlot = RobotDataFactory.GetDefaultRobot();
             }
             
             InitializeTools();
