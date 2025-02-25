@@ -42,7 +42,7 @@ namespace Robot.Upgrades.Info
 
         }
         public abstract List<int> GetContinuousUpgrades();
-        public abstract List<int> GetUnEditableUpg
+        public abstract List<int> GetConstantUpgrades();
         public abstract List<int> GetAllUpgrades();
     }
 }

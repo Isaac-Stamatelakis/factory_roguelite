@@ -51,6 +51,11 @@ namespace Robot.Upgrades.Info.Instances
             };
         }
 
+        public override List<int> GetConstantUpgrades()
+        {
+            return new List<int>();
+        }
+
         public override List<int> GetAllUpgrades()
         {
             return System.Enum.GetValues(typeof(RobotUpgrade)).Cast<int>().ToList();

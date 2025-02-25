@@ -46,7 +46,8 @@ namespace Player.UI.Inventory
                 UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(
                     playerRobot.CurrentRobot?.UpgradePath,
                     playerRobot.RobotUpgradeLoadOut.SelfLoadOuts.GetCurrent(),
-                    playerRobot.RobotData.RobotUpgrades
+                    playerRobot.RobotData.RobotUpgrades,
+                    RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0)
                 );
                 DisplayData(upgradeDisplayData);
 
@@ -59,7 +60,8 @@ namespace Player.UI.Inventory
                 List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
                 RobotToolType toolType = playerRobot.ToolTypes[index];
                 RobotStatLoadOut statLoadOut = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType)?.GetCurrent();
-                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOut, upgradeData);
+                RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
+                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOut, upgradeData, robotUpgradeInfo);
                 DisplayData(upgradeDisplayData);
             });
         }
@@ -71,7 +73,7 @@ namespace Player.UI.Inventory
             if (network == null) return;
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.BuildUpgradeDict(network.NodeData, upgradeDisplayData.UpgradeData);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
-            statSelectorUI.Display(upgradeDisplayData.StatLoadOut,upgradeDict,RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0));
+            statSelectorUI.Display(upgradeDisplayData.StatLoadOut,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
             CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
         }
         
@@ -81,12 +83,14 @@ namespace Player.UI.Inventory
             public string UpgradePath;
             public RobotStatLoadOut StatLoadOut;
             public List<RobotUpgradeData> UpgradeData;
+            public RobotUpgradeInfo RobotUpgradeInfo;
 
-            public UpgradeDisplayData(string upgradePath, RobotStatLoadOut statLoadOut, List<RobotUpgradeData> upgradeData)
+            public UpgradeDisplayData(string upgradePath, RobotStatLoadOut statLoadOut, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo)
             {
                 UpgradePath = upgradePath;
                 StatLoadOut = statLoadOut;
                 UpgradeData = upgradeData;
+                RobotUpgradeInfo = robotUpgradeInfo;
             }
         }
     }

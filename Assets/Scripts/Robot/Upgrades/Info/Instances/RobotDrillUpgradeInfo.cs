@@ -25,6 +25,8 @@ namespace Robot.Upgrades.Info.Instances
                     return "Unlocks higher break sizes";
                 case RobotDrillUpgrade.VeinMine:
                     return "Unlocks vein mein";
+                case RobotDrillUpgrade.Tier:
+                    return "Increases mining tier";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -40,6 +42,14 @@ namespace Robot.Upgrades.Info.Instances
             return new List<int>
             {
                 (int)RobotDrillUpgrade.Speed
+            };
+        }
+
+        public override List<int> GetConstantUpgrades()
+        {
+            return new List<int>
+            {
+                (int)RobotDrillUpgrade.Tier
             };
         }
 

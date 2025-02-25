@@ -39,41 +39,59 @@ namespace Robot.Upgrades
         {
             GlobalHelper.deleteAllChildren(mList.transform);
             List<int> upgrades = upgradeInfo.GetAllUpgrades();
+            List<int> constantUpgrades = upgradeInfo.GetConstantUpgrades();
             upgrades.Sort();
             foreach (int upgrade in upgrades)
             {
+                
                 if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
-
                 string title = upgradeInfo.GetTitle(upgrade);
-                if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
+                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue);
+                if (!slider) continue;
+                if (constantUpgrades.Contains(upgrade))
                 {
-                    void OnValueChanged(int newValue)
-                    {
-                        statLoadOut.DiscreteValues[upgrade] = newValue;
-                    };
-                    if (maxValue == 1)
-                    {
-                        FormattedSlider slider = Instantiate(mBoolSliderPrefab, mList.transform);
-                        slider.DisplayBool(title,intValue,OnValueChanged);
-                    }
-                    else
-                    {
-                        FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                        slider.DisplayInteger(title,intValue,maxValue,0,OnValueChanged);
-                    }
+                    slider.GetComponent<Slider>().interactable = false;
                 }
 
-                if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
-                {
-                    void OnValueChanged(float newValue)
-                    {
-                        statLoadOut.ContinuousValues[upgrade] = newValue;
-                    }
-
-                    FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                    slider.DisplayFloat(title,floatValue,maxValue,0,OnValueChanged);
-                }
             }
         }
+
+        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue)
+        {
+            if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
+            {
+                void OnValueChanged(int newValue)
+                {
+                    statLoadOut.DiscreteValues[upgrade] = newValue;
+                };
+                if (maxValue == 1)
+                {
+                    FormattedSlider slider = Instantiate(mBoolSliderPrefab, mList.transform);
+                    slider.DisplayBool(title,intValue,OnValueChanged);
+                    return slider;
+                }
+                else
+                {
+                    FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
+                    slider.DisplayInteger(title,intValue,maxValue,0,OnValueChanged);
+                    return slider;
+                }
+            }
+
+            if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
+            {
+                void OnValueChanged(float newValue)
+                {
+                    statLoadOut.ContinuousValues[upgrade] = newValue;
+                }
+
+                FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
+                slider.DisplayFloat(title,floatValue,maxValue,0,OnValueChanged);
+                return slider;
+            }
+            Debug.Log(statLoadOut.DiscreteValues.ToString());
+            return null;
+        }
     }
+    
 }
