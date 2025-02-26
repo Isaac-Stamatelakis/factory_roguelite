@@ -25,8 +25,7 @@ namespace Robot.Tool.Instances
 {
     public interface IVeinMineEvent
     {
-        public int Execute(int veinMinePower);
-        public bool Iterate();
+        public int Execute(Vector2Int initial, int veinMinePower);
     }
     public abstract class VeinMineEvent<T> : IVeinMineEvent where T : IHitableTileMap
     {
@@ -44,34 +43,22 @@ namespace Robot.Tool.Instances
         {
             this.hitableTileMap = hitableTileMap;
             this.initialPosition = initialPosition;
-            queue.Enqueue(this.initialPosition);
         }
 
-        public int Execute(int veinMinePower)
+        public int Execute(Vector2Int initial, int veinMinePower)
         {
+            Expand(initialPosition);
             int breaks = 0;
             
-            
-            queue.Enqueue(initialPosition);
-            while (breaks < veinMinePower)
+            while (breaks < veinMinePower && queue.Count > 0)
             {
                 bool broken = TryIterate();
-                if (!broken) break;
-                breaks++;
+                if (!broken) breaks++;
             }
-
+            
             return breaks;
         }
-
-        public bool Iterate()
-        {
-            while (queue.Count > 0)
-            {
-                if (TryIterate()) return true;
-            }
-
-            return false;
-        }
+        
 
         private bool TryIterate()
         {
@@ -190,8 +177,28 @@ namespace Robot.Tool.Instances
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
             UpdateLineRenderer(mousePosition);
-            bool hit = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
-            if (!hit) return;
+
+            if (toolData.Layer == TileMapLayer.Base)
+            {
+                bool hit = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
+                if (!hit) return;
+            }
+
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            WorldTileGridMap worldTileGridMap = null;
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                    worldTileGridMap = closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap;
+                    break;
+                case TileMapLayer.Background:
+                    worldTileGridMap = closedChunkSystem.GetTileMap(TileMapType.Background) as WorldTileGridMap;
+                    break;
+                default:
+                    break;
+            }
+
+            if (!worldTileGridMap) return;
             
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
@@ -200,10 +207,11 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             if (multiBreak == 0)
             {
+                TileItem tileItem = worldTileGridMap.getTileItem(mousePosition);
                 bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
                 if (broken)
                 {
-                    TryVeinMine(mousePosition, veinMinePower, drillPower);
+                    TryVeinMine(worldTileGridMap, tileItem, mousePosition, veinMinePower, drillPower);
                 }
                 return;
             }
@@ -220,9 +228,15 @@ namespace Robot.Tool.Instances
             
         }
 
-        private bool TryVeinMine(Vector2 mousePosition, int veinMinePower, int drillPower)
+        private bool TryVeinMine(WorldTileGridMap worldTileGridMap, TileItem initialItem, Vector2 mousePosition, int veinMinePower, int drillPower)
         {
-            if (veinMinePower < 0) return false;
+            if (veinMinePower <= 1) return false;
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, initialItem, drillPower, cellPosition);
+            int? broken = veinMineEvent?.Execute(cellPosition, veinMinePower);
+            return broken > 0;
+            /*
+            
             List<Vector2Int> directions = new List<Vector2Int>
             {
                 Vector2Int.up,
@@ -260,24 +274,20 @@ namespace Robot.Tool.Instances
                 index++;
                 index %= veinMineEvents.Count;
             }
-            return broken > 0;
+            */
+            
         }
 
-        private IVeinMineEvent GetVeinMineEvent(int drillPower, Vector2Int current)
+        private IVeinMineEvent GetVeinMineEvent(WorldTileGridMap worldTileGridMap, TileItem initialTile, int drillPower, Vector2Int current)
         {
             TileMapLayer tileMapLayer = toolData.Layer;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             switch (tileMapLayer)
             {
                 case TileMapLayer.Base:
-                    WorldTileGridMap worldTileGridMap = closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap;
-                    if (!worldTileGridMap) return null;
-                    TileItem tileItem = worldTileGridMap.getTileItem(current);
-                    if (ReferenceEquals(tileItem, null)) return null;
-                    int hardness = tileItem.tileOptions.hardness;
+                    int hardness = initialTile.tileOptions.hardness;
                     return new BlockVeinMineEvent(worldTileGridMap, current, drillPower, hardness);
                 case TileMapLayer.Background:
-                    return new BackGroundVeinMineEvent(closedChunkSystem.GetTileMap(TileMapType.Background) as WorldTileGridMap, current);
+                    return new BackGroundVeinMineEvent(worldTileGridMap, current);
                 default:
                     return null;
             }
