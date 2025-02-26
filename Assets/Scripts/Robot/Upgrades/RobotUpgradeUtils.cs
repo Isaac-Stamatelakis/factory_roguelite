@@ -14,6 +14,7 @@ namespace Robot.Upgrades
 {
     public static class RobotUpgradeUtils
     {
+        public const int TILES_PER_VEIN_MINE_UPGRADE = 4;
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
         {
             if (!upgradePath.EndsWith(".bin"))
@@ -86,7 +87,6 @@ namespace Robot.Upgrades
                     {
                         robotUpgradeInfo.VerifyStatLoadOut(toolLoadOut);
                     }
-                    continue;
                 }
                 loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection(toolInfo);
 
@@ -219,6 +219,11 @@ namespace Robot.Upgrades
                 }
             }
             return count;
+        }
+
+        public static int GetVeinMinePower(float veinMineUpgrades)
+        {
+            return 1 + (int)(TILES_PER_VEIN_MINE_UPGRADE * veinMineUpgrades);
         }
     }
 }

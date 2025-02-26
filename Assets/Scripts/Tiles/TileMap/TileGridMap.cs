@@ -151,6 +151,16 @@ namespace TileMaps {
             }
         }
 
+        public override bool BreakAndDropTile(Vector2Int position)
+        {
+            if (!mTileMap.GetTile(new Vector3Int(position.x,position.y,0))) return false;
+            TileItem tileItem = getTileItem(position);
+            DropItem(tileItem, position);
+            
+            BreakTile(position);
+            return true;
+        }
+
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
@@ -240,14 +250,10 @@ namespace TileMaps {
         }
         
         
-        public override void HitTile(Vector2 position) {
+        public override bool HitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
-            if (!hitHardness(hitTilePosition)) return;
-            
-            TileItem tileItem = getTileItem(hitTilePosition);
-            DropItem(tileItem, hitTilePosition);
-            
-            BreakTile(hitTilePosition);
+            if (!hitHardness(hitTilePosition)) return false;
+            return BreakAndDropTile(hitTilePosition);
         }
 
         public bool CanHitTile(int power, Vector2 position)

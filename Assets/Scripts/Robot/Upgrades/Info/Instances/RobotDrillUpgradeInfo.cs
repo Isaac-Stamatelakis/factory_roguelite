@@ -41,7 +41,8 @@ namespace Robot.Upgrades.Info.Instances
         {
             return new List<int>
             {
-                (int)RobotDrillUpgrade.Speed
+                (int)RobotDrillUpgrade.Speed,
+                (int)RobotDrillUpgrade.VeinMine
             };
         }
 
@@ -49,7 +50,7 @@ namespace Robot.Upgrades.Info.Instances
         {
             return new List<int>
             {
-                (int)RobotDrillUpgrade.Tier
+                (int)RobotDrillUpgrade.Tier,
             };
         }
 

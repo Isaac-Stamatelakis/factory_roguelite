@@ -14,9 +14,10 @@ using Item.Slot;
 using Items;
 
 namespace TileMaps {
-    public interface IHitableTileMap {
-        public void HitTile(Vector2 position);
-        public void DeleteTile(Vector2 position);
+    public interface IHitableTileMap : IWorldTileMap{
+        public bool HitTile(Vector2 position);
+        public bool DeleteTile(Vector2 position);
+        public bool BreakAndDropTile(Vector2Int position);
     }
 
     public interface IConditionalHitableTileMap : IHitableTileMap
@@ -38,8 +39,8 @@ namespace TileMaps {
         public void setHighlight(bool on);
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
-        public void BreakTile(Vector2Int position);
         public ClosedChunkSystem GetSystem();
+        public void BreakTile(Vector2Int position);
     }
 
     public interface ITileMapListener {
@@ -147,15 +148,18 @@ namespace TileMaps {
             CallListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
-        public abstract void HitTile(Vector2 position);
+        public abstract bool HitTile(Vector2 position);
 
-        public virtual void DeleteTile(Vector2 position) {
+        public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
+            Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
+            if (!mTileMap.GetTile(vect)) return false;
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);
             WriteTile(partition,tilePositionInPartition,null);
             CallListeners(hitTilePosition);
+            return true;
         }
 
         protected abstract void SetTile(int x, int y,TItem item);
@@ -192,8 +196,11 @@ namespace TileMaps {
             return new Vector2Int(vect.x,vect.y);
         }
         public virtual void BreakTile(Vector2Int position) {
-            tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
+            Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
+            tilemap.SetTile(vector3Int, null);
         }
+
+        public abstract bool BreakAndDropTile(Vector2Int position);
 
         public ClosedChunkSystem GetSystem()
         {
