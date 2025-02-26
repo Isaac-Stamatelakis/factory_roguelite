@@ -144,6 +144,7 @@ namespace Chunks.Partitions {
                         tileEntity : tileEntity,
                         portType: port
                     );
+                    if (conduit == null) continue;
                     conduitDict[cellPosition] = conduit;
                 }
             }

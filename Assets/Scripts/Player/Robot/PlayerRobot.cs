@@ -281,7 +281,7 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
             {
-                float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut, (int)RobotUpgrade.JumpHeight); 
+                float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
@@ -718,9 +718,8 @@ namespace Player {
         public void Initialize(ItemSlot itemSlot, RobotUpgradeLoadOut loadOutData)
         {
             SetRobot(itemSlot);
-
             RobotUpgradeLoadOut = RobotUpgradeUtils.VerifyIntegrityOfLoadOut(loadOutData,robotData);
-
+            InitializeTools();
         }
         
         public void SetRobot(ItemSlot newRobot)
@@ -739,9 +738,7 @@ namespace Player {
                 this.robotItemSlot = RobotDataFactory.GetDefaultRobot();
             }
             
-            InitializeTools();
-            
-            
+            robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
             SetFlightProperties();
             spriteRenderer.sprite = currentRobot.defaultSprite; 
         }
@@ -752,7 +749,6 @@ namespace Player {
         }
         private void InitializeTools()
         {
-            robotData = (RobotItemData)robotItemSlot.tags.Dict[ItemTag.RobotData];
             ItemRobotToolData itemRobotToolData = robotData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
             RobotTools = new List<IRobotToolInstance>();
@@ -760,9 +756,10 @@ namespace Player {
             {
                 var type = itemRobotToolData.Types[i];
                 var data = itemRobotToolData.Tools[i];
+                var loadOut = RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(type);
                 if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
                 
-                RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data));
+                RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data,loadOut));
             }
         }
 

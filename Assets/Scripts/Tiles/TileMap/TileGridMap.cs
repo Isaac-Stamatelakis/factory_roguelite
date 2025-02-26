@@ -38,7 +38,7 @@ namespace TileMaps {
     {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  
@@ -151,6 +151,16 @@ namespace TileMaps {
             }
         }
 
+        public override bool BreakAndDropTile(Vector2Int position)
+        {
+            if (!mTileMap.GetTile(new Vector3Int(position.x,position.y,0))) return false;
+            TileItem tileItem = getTileItem(position);
+            DropItem(tileItem, position);
+            
+            BreakTile(position);
+            return true;
+        }
+
         public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
@@ -240,14 +250,18 @@ namespace TileMaps {
         }
         
         
-        public override void hitTile(Vector2 position) {
+        public override bool HitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
-            if (!hitHardness(hitTilePosition)) return;
-            
+            if (!hitHardness(hitTilePosition)) return false;
+            return BreakAndDropTile(hitTilePosition);
+        }
+
+        public bool CanHitTile(int power, Vector2 position)
+        {
+            Vector2Int hitTilePosition = GetHitTilePosition(position);
             TileItem tileItem = getTileItem(hitTilePosition);
-            DropItem(tileItem, hitTilePosition);
-            
-            BreakTile(hitTilePosition);
+            if (ReferenceEquals(tileItem, null)) return false;
+            return (int)tileItem.tileOptions.requiredToolTier <= power;
         }
 
         private void DropItem(TileItem tileItem, Vector2Int hitTilePosition)

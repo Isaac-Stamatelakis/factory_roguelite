@@ -37,6 +37,7 @@ namespace Robot.Upgrades
             this.nodeNetwork = nodeNetwork;
             mRobotUpgradeNodeContentUI.Initialize(this.mRobotUpgradeNetworkUI, this.nodeNetwork);
             mRobotUpgradeNetworkUI.Initialize(this,nodeNetwork);
+            
 
             mTitleText.text = networkName;
         }

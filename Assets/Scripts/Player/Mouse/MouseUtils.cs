@@ -30,25 +30,30 @@ namespace Player.Mouse
 {
     public static class MouseUtils
     {
-        public static void HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition)
+        /// <summary>
+        /// Hits tile at mouse position in tile layer
+        /// </summary>
+        /// <param name="tileMapLayer"></param>
+        /// <param name="mousePosition"></param>
+        /// <param name="power"></param>
+        /// <returns>True if broken false if not</returns>
+        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, int power = 0)
         {
             if (tileMapLayer.raycastable())
             {
                 int layer = tileMapLayer.toRaycastLayers();
-                RaycastHitBlock(mousePosition,layer);
-                return;
+                return RaycastHitBlock(mousePosition,layer,power);
             }
-
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
                 IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
-                    hitableTileMap.deleteTile(mousePosition);
-                } else {
-                    hitableTileMap.hitTile(mousePosition);
+                    return hitableTileMap.DeleteTile(mousePosition);
                 }
+                return hitableTileMap.HitTile(mousePosition);
             }
+            return false;
         }
         
         
@@ -59,7 +64,8 @@ namespace Player.Mouse
         /// <param name="position">Raycast position</param>
         /// <param name="layer">Unity layer for raycast</param>
         /// <returns>True if damages tilemap, false otherwise</returns>
-        private static bool RaycastHitBlock(Vector2 position, int layer) {
+        ///
+        private static bool RaycastHitBlock(Vector2 position, int layer, int power) {
             RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
             if (ReferenceEquals(hit.collider, null)) return false;
             GameObject container = hit.collider.gameObject;
@@ -78,11 +84,15 @@ namespace Player.Mouse
                 }
             }
             if (DevMode.Instance.instantBreak) {
-                hitableTileMap.deleteTile(position);
-            } else {
-                hitableTileMap.hitTile(position);
+                hitableTileMap.DeleteTile(position);
+                return true;
             }
-            return true;            
+
+            if (hitableTileMap is IConditionalHitableTileMap conditionalHitableTileMap)
+            {
+                if (!conditionalHitableTileMap.CanHitTile(power, position)) return false;
+            }
+            return hitableTileMap.HitTile(position);
         }
         
         /// <summary>

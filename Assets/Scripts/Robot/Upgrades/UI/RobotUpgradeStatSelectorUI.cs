@@ -43,20 +43,20 @@ namespace Robot.Upgrades
             upgrades.Sort();
             foreach (int upgrade in upgrades)
             {
-                
                 if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
                 string title = upgradeInfo.GetTitle(upgrade);
-                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue);
-                if (!slider) continue;
-                if (constantUpgrades.Contains(upgrade))
+                bool isConstant = constantUpgrades.Contains(upgrade);
+                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant);
+                if (!slider)
                 {
-                    slider.GetComponent<Slider>().interactable = false;
+                    continue;
                 }
-
+                if (isConstant) slider.GetComponentInChildren<Scrollbar>().gameObject.SetActive(false);
+                
             }
         }
 
-        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue)
+        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant)
         {
             if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
             {
@@ -64,7 +64,7 @@ namespace Robot.Upgrades
                 {
                     statLoadOut.DiscreteValues[upgrade] = newValue;
                 };
-                if (maxValue == 1)
+                if (maxValue == 1 && !isConstant)
                 {
                     FormattedSlider slider = Instantiate(mBoolSliderPrefab, mList.transform);
                     slider.DisplayBool(title,intValue,OnValueChanged);
@@ -89,7 +89,6 @@ namespace Robot.Upgrades
                 slider.DisplayFloat(title,floatValue,maxValue,0,OnValueChanged);
                 return slider;
             }
-            Debug.Log(statLoadOut.DiscreteValues.ToString());
             return null;
         }
     }

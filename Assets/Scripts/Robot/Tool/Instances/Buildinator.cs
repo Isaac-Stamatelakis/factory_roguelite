@@ -12,6 +12,8 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
 using TileEntity;
 using TileMaps;
 using TileMaps.Layer;
@@ -26,7 +28,7 @@ namespace Robot.Tool.Instances
 {
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>
     {
-        public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject) : base(toolData, robotObject)
+        public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
         {
          
         }

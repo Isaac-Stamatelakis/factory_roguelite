@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Player.Tool;
 using UnityEngine;
@@ -18,6 +19,19 @@ namespace Robot.Upgrades.LoadOut
         public RobotStatLoadOutCollection GetToolLoadOut(RobotToolType toolType)
         {
             return ToolLoadOuts.GetValueOrDefault(toolType);
+        }
+
+        public RobotStatLoadOutCollection GetCollection(RobotUpgradeType upgradeType, int subType)
+        {
+            switch (upgradeType)
+            {
+                case RobotUpgradeType.Tool:
+                    return GetToolLoadOut((RobotToolType)subType);
+                case RobotUpgradeType.Robot:
+                    return SelfLoadOuts;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(upgradeType), upgradeType, null);
+            }
         }
     }
 

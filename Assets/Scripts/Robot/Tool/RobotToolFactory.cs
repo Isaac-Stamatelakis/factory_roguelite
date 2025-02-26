@@ -7,6 +7,7 @@ using Player.Tool.Object;
 using Robot.Tool.Instances;
 using Robot.Tool.Object;
 using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
 using TileMaps.Layer;
 using UnityEditor.UIElements;
@@ -42,16 +43,16 @@ namespace Robot.Tool
             return dict;
         } 
         
-        public static IRobotToolInstance GetInstance(RobotToolType type, RobotToolObject toolObject, RobotToolData robotToolData)
+        public static IRobotToolInstance GetInstance(RobotToolType type, RobotToolObject toolObject, RobotToolData robotToolData, RobotStatLoadOutCollection loadOut)
         {
             switch (type)
             {
                 case RobotToolType.LaserDrill:
-                    return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject);
+                    return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject, loadOut);
                 case RobotToolType.ConduitSlicers:
-                    return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject);
+                    return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject, loadOut);
                 case RobotToolType.Buildinator:
-                    return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject);
+                    return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject, loadOut);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }

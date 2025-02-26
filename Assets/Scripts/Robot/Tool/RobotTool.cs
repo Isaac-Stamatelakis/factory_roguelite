@@ -6,6 +6,8 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
 using TileMaps.Layer;
 using UnityEngine;
 
@@ -42,14 +44,16 @@ namespace Robot.Tool
         where TData : RobotToolData 
         where TObject : RobotToolObject
     {
-        protected RobotToolInstance(TData toolData, TObject robotObject)
+        protected RobotToolInstance(TData toolData, TObject robotObject, RobotStatLoadOutCollection statLoadOutCollection)
         {
             this.toolData = toolData;
             this.robotObject = robotObject;
+            this.statLoadOutCollection = statLoadOutCollection;
         }
         protected TData toolData;
         protected TObject robotObject;
-
+        protected RobotStatLoadOutCollection statLoadOutCollection;
+        
         public Sprite GetSprite()
         {
             return robotObject?.ToolIconItem?.getSprite();

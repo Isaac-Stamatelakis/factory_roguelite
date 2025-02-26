@@ -14,11 +14,16 @@ using Item.Slot;
 using Items;
 
 namespace TileMaps {
-    public interface IHitableTileMap {
-        public void hitTile(Vector2 position);
-        public void deleteTile(Vector2 position);
+    public interface IHitableTileMap : IWorldTileMap{
+        public bool HitTile(Vector2 position);
+        public bool DeleteTile(Vector2 position);
+        public bool BreakAndDropTile(Vector2Int position);
     }
 
+    public interface IConditionalHitableTileMap : IHitableTileMap
+    {
+        public bool CanHitTile(int power, Vector2 position);
+    }
     public interface IWorldTileMap {
         public void addPartition(IChunkPartition partition);
         public IEnumerator removePartition(Vector2Int partitionPosition);
@@ -34,8 +39,8 @@ namespace TileMaps {
         public void setHighlight(bool on);
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
-        public void BreakTile(Vector2Int position);
         public ClosedChunkSystem GetSystem();
+        public void BreakTile(Vector2Int position);
     }
 
     public interface ITileMapListener {
@@ -143,15 +148,18 @@ namespace TileMaps {
             CallListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
-        public abstract void hitTile(Vector2 position);
+        public abstract bool HitTile(Vector2 position);
 
-        public virtual void deleteTile(Vector2 position) {
+        public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
+            Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
+            if (!mTileMap.GetTile(vect)) return false;
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);
             WriteTile(partition,tilePositionInPartition,null);
             CallListeners(hitTilePosition);
+            return true;
         }
 
         protected abstract void SetTile(int x, int y,TItem item);
@@ -188,8 +196,11 @@ namespace TileMaps {
             return new Vector2Int(vect.x,vect.y);
         }
         public virtual void BreakTile(Vector2Int position) {
-            tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
+            Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
+            tilemap.SetTile(vector3Int, null);
         }
+
+        public abstract bool BreakAndDropTile(Vector2Int position);
 
         public ClosedChunkSystem GetSystem()
         {
@@ -220,7 +231,7 @@ namespace TileMaps {
 
         public bool hasTile(Vector2Int position)
         {
-            return mTileMap.GetTile(new Vector3Int(position.x,position.y,0)) != null;
+            return mTileMap.GetTile(new Vector3Int(position.x, position.y, 0));
         }
         /// <summary>
         /// Removes the tile from the tilemap without modifying any data

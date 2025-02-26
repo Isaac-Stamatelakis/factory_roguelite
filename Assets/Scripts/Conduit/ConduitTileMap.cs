@@ -16,27 +16,50 @@ namespace TileMaps.Conduit {
     {
         private IConduitSystemManager conduitSystemManager;
 
-        public IConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
+        public IConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value; get => conduitSystemManager; }
 
-        public override void deleteTile(Vector2 position)
+        public override bool DeleteTile(Vector2 position)
         {
-            
             if (conduitSystemManager == null) {
-                return;
+                return false;
             }
-            base.deleteTile(position);
+
+            if (!base.DeleteTile(position))
+            {
+                return false;
+            }
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
+            return true;
         }
+
+        public override bool BreakAndDropTile(Vector2Int position)
+        {
+            if (conduitSystemManager == null) {
+                return false;
+            }
+            Vector3Int cellPosition = new Vector3Int(position.x,position.y,0);
+            if (ReferenceEquals(mTileMap.GetTile(cellPosition), null)) return false;
+            IChunkPartition partition = GetPartitionAtPosition(position);
+            if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
+                Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
+                return false;
+            }
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(position);
+            SpawnItemEntity(conduit.GetConduitItem(),1,position);
+            BreakTile(position);
+            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            WriteTile(partition,positionInPartition,null);
+            conduitSystemManager.SetConduit(position.x,position.y,null);
+            return true;
+        }
+
         protected override void SetTile(int x, int y, ConduitItem conduitItem)
         {
             var tile = conduitItem.Tile;
             IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(new Vector2Int(x,y));
-            if (ReferenceEquals(conduit, null))
-            {
-                Debug.LogError($"Tried to place conduit which was null in system at position {new Vector2Int(x,y)}.");
-                return;
-            }
+            if (conduit == null) return;
+            
             var stateTile = tile.getTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }
@@ -55,25 +78,9 @@ namespace TileMaps.Conduit {
             tilemap.SetTile(cellPosition,stateTile);
         }
 
-        public override void hitTile(Vector2 position)
+        public override bool HitTile(Vector2 position)
         {
-            if (conduitSystemManager == null) {
-                return;
-            }
-            Vector3Int cellPosition = mTileMap.WorldToCell(position);
-            cellPosition.z = 0;
-            Vector2Int vect = new Vector2Int(cellPosition.x,cellPosition.y);
-            if (ReferenceEquals(mTileMap.GetTile(cellPosition), null)) return;
-            IChunkPartition partition = GetPartitionAtPosition(vect);
-            if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
-                Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
-                return;
-            }
-            Vector2Int tilePositionInPartition = GetTilePositionInPartition(vect);
-            ConduitItem conduitItem = conduitTileChunkPartition.GetConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-            SpawnItemEntity(conduitItem,1,vect);
-            BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
-            conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
+            return BreakAndDropTile((Vector2Int)mTileMap.WorldToCell(position));
         }
 
         public void DisconnectConduits(Vector2 position)

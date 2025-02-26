@@ -16,7 +16,7 @@ namespace UI.GeneralUIElements.Sliders
 
         public void DisplayInteger(string title, int initial, int maxValue, int bonusDisplay, Action<int> valueChangeCallback)
         {
-            mNameText.text = title;
+            mNameText.text = $"{title}:";
             
             mScrollBar.onValueChanged.RemoveAllListeners();
             mScrollBar.value = (float)initial/maxValue;
@@ -54,7 +54,7 @@ namespace UI.GeneralUIElements.Sliders
         }
         public void DisplayFloat(string title, float initial, float maxValue, float bonusDisplay, Action<float> valueChangeCallback)
         {
-            mNameText.text = title;
+            mNameText.text = $"{title}:";
             mScrollBar.numberOfSteps = 0;
             mScrollBar.onValueChanged.RemoveAllListeners();
             mScrollBar.value = initial / maxValue;
