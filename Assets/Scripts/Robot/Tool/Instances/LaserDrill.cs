@@ -6,16 +6,19 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using Robot.Upgrades;
+using Robot.Upgrades.Info;
+using Robot.Upgrades.LoadOut;
 using TileMaps.Layer;
 using UnityEngine;
 
 
 namespace Robot.Tool.Instances
 {
-    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>
+    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler
     {
         private LineRenderer lineRenderer;
-        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject) : base(toolData, robotObject)
+        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
         {
          
         }
@@ -50,7 +53,7 @@ namespace Robot.Tool.Instances
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
             UpdateLineRenderer(mousePosition);
-            MouseUtils.HitTileLayer(toolData.Layer, mousePosition);
+            MouseUtils.HitTileLayer(toolData.Layer, mousePosition, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
@@ -80,6 +83,11 @@ namespace Robot.Tool.Instances
         {
             Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
+        }
+
+        public float GetSpeedMultiplier()
+        {
+            return 1 + RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.Speed);
         }
     }
 

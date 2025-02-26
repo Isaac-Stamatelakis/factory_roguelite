@@ -5,8 +5,10 @@ using DevTools;
 using Item.Slot;
 using Items;
 using Items.Inventory;
+using Player;
 using PlayerModule;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
 using TMPro;
 using UI;
@@ -32,7 +34,6 @@ namespace Robot.Upgrades
         [SerializeField] private SerializedItemSlotEditorUI mItemSlotEditorUIPrefab;
         [SerializeField] private UpgradeCostItemUI mUpgradeCostItemUIPrefab;
         [SerializeField] private TextMeshProUGUI mProgressText;
-        
         public SerializedItemSlotEditorUI ItemSlotEditorUIPrefab => mItemSlotEditorUIPrefab;
 
         private RobotUpgradeNodeNetwork nodeNetwork;
@@ -46,9 +47,8 @@ namespace Robot.Upgrades
             RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type, nodeNetwork.SubType);
             mTitleDropDown.options = robotUpgradeInfo?.GetDropDownOptions() ?? new List<TMP_Dropdown.OptionData>();
             mUpgradeButton.onClick.AddListener(OnUpgradeClick);
-            
         }
-
+        
         public void DisableEditElements()
         {
             mEditElementContainer.gameObject.SetActive(false);
@@ -208,7 +208,8 @@ namespace Robot.Upgrades
 
             PlayerManager playerManager = PlayerManager.Instance;
             if (!playerManager) return;
-            PlayerInventory playerInventory = playerManager.GetPlayer().PlayerInventory;
+            PlayerScript playerScript = playerManager.GetPlayer();
+            PlayerInventory playerInventory = playerScript.PlayerInventory;
 
             uint costMultiplier = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode);
             foreach (SerializedItemSlot serializedItemSlot in robotUpgradeNode.NodeData.Cost)
@@ -238,9 +239,40 @@ namespace Robot.Upgrades
                     if (amount == 0) break;
                 }
             }
+            RobotUpgradeInfo upgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type,nodeNetwork.SubType);
+            List<int> constUpgrades = upgradeInfo.GetConstantUpgrades();
+            
+            if (constUpgrades.Contains(robotUpgradeNode.NodeData.UpgradeType))
+            {
+                UpdateConstantValues(playerScript.PlayerRobot, robotUpgradeNode.NodeData.UpgradeType);
+            }
+            
             IterateUpgradeAmount();
             networkUI.Display();
             DisplayItemIcon();
+        }
+
+        private void UpdateConstantValues(PlayerRobot playerRobot, int upgrade)
+        {
+            int totalUpgrades = 0;
+            foreach (var node in nodeNetwork.UpgradeNodes)
+            {
+                if (node.NodeData.UpgradeType != upgrade) continue;
+                totalUpgrades += node.InstanceData.Amount;
+            }
+            
+            RobotStatLoadOutCollection loadOutCollection = playerRobot.RobotUpgradeLoadOut.GetCollection(nodeNetwork.Type, nodeNetwork.SubType);
+            foreach (RobotStatLoadOut robotStatLoadOut in loadOutCollection.LoadOuts)
+            {
+                if (robotStatLoadOut.DiscreteValues.ContainsKey(upgrade))
+                {
+                    robotStatLoadOut.DiscreteValues[upgrade] = totalUpgrades;
+                } else if (robotStatLoadOut.ContinuousValues.ContainsKey(upgrade))
+                {
+                    robotStatLoadOut.DiscreteValues[upgrade] = totalUpgrades;
+                }
+            }
+
         }
     }
 }

@@ -30,23 +30,22 @@ namespace Player.Mouse
 {
     public static class MouseUtils
     {
-        public static void HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition)
+        public static void HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, int power = 0)
         {
             if (tileMapLayer.raycastable())
             {
                 int layer = tileMapLayer.toRaycastLayers();
-                RaycastHitBlock(mousePosition,layer);
+                RaycastHitBlock(mousePosition,layer,power);
                 return;
             }
-
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
+            
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
                 IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(tileMapType);
                 if (iWorldTileMap is not IHitableTileMap hitableTileMap) continue;
                 if (DevMode.Instance.instantBreak) {
-                    hitableTileMap.deleteTile(mousePosition);
+                    hitableTileMap.DeleteTile(mousePosition);
                 } else {
-                    hitableTileMap.hitTile(mousePosition);
+                    hitableTileMap.HitTile(mousePosition);
                 }
             }
         }
@@ -59,7 +58,7 @@ namespace Player.Mouse
         /// <param name="position">Raycast position</param>
         /// <param name="layer">Unity layer for raycast</param>
         /// <returns>True if damages tilemap, false otherwise</returns>
-        private static bool RaycastHitBlock(Vector2 position, int layer) {
+        private static bool RaycastHitBlock(Vector2 position, int layer, int power) {
             RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
             if (ReferenceEquals(hit.collider, null)) return false;
             GameObject container = hit.collider.gameObject;
@@ -78,9 +77,13 @@ namespace Player.Mouse
                 }
             }
             if (DevMode.Instance.instantBreak) {
-                hitableTileMap.deleteTile(position);
+                hitableTileMap.DeleteTile(position);
             } else {
-                hitableTileMap.hitTile(position);
+                if (hitableTileMap is IConditionalHitableTileMap conditionalHitableTileMap)
+                {
+                    if (!conditionalHitableTileMap.CanHitTile(power, position)) return false;
+                }
+                hitableTileMap.HitTile(position);
             }
             return true;            
         }

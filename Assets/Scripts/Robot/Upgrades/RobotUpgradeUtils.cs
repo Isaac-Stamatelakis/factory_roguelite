@@ -62,19 +62,32 @@ namespace Robot.Upgrades
         }
         public static RobotUpgradeLoadOut VerifyIntegrityOfLoadOut(RobotUpgradeLoadOut loadOut, RobotItemData robotItemData)
         {
+            RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot, 0);
             if (loadOut == null)
             {
-                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection(RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0));
+                RobotStatLoadOutCollection selfCollection = CreateNewLoadOutCollection(robotUpgradeInfo);
                 loadOut = new RobotUpgradeLoadOut(selfCollection, new Dictionary<RobotToolType, RobotStatLoadOutCollection>());
             }
+            else
+            {
+                foreach (var selfLoadout in loadOut.SelfLoadOuts.LoadOuts)
+                {
+                    robotUpgradeInfo.VerifyStatLoadOut(selfLoadout);
+                }
+            }
             
-
             foreach (var tool in robotItemData.ToolData.Types)
             {
-                if (loadOut.ToolLoadOuts.ContainsKey(tool)) continue;
                 RobotUpgradeInfo toolInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool, (int)tool);
                 if (toolInfo == null) continue;
-                
+                if (loadOut.ToolLoadOuts.TryGetValue(tool, out var value))
+                {
+                    foreach (var toolLoadOut in value.LoadOuts)
+                    {
+                        robotUpgradeInfo.VerifyStatLoadOut(toolLoadOut);
+                    }
+                    continue;
+                }
                 loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection(toolInfo);
 
             }
@@ -172,13 +185,13 @@ namespace Robot.Upgrades
             return loadOut?.GetCurrent()?.GetDiscreteValue(upgrade) ?? 0;
         }
         
-        public static float GetContinuousValue(RobotUpgradeLoadOut loadOut, int upgrade)
+        public static float GetContinuousValue(RobotStatLoadOutCollection loadOut, int upgrade)
         {
-            return loadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue(upgrade) ?? 0;
+            return loadOut.GetCurrent()?.GetCountinuousValue(upgrade) ?? 0;
         }
 
 
-        public static Dictionary<int, int> BuildUpgradeDict(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList)
+        public static Dictionary<int, int> GetAmountOfUpgrades(List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList)
         {
             Dictionary<int, int> upgradeCount = new Dictionary<int, int>();
             foreach (RobotUpgradeNodeData upgradeNodeData in nodeDataList)
@@ -190,10 +203,22 @@ namespace Robot.Upgrades
                     upgradeCount[upgradeNodeData.UpgradeType] += upgradeData.Amount;
                 }
             }
-
             return upgradeCount;
         }
         
-        
+        public static int GetAmountOfUpgrade(int upgrade, List<RobotUpgradeNodeData> nodeDataList, List<RobotUpgradeData> upgradeDataList)
+        {
+            int count = 0;
+            foreach (RobotUpgradeNodeData upgradeNodeData in nodeDataList)
+            {
+                if (upgradeNodeData.UpgradeType != upgrade) continue;
+                foreach (RobotUpgradeData upgradeData in upgradeDataList)
+                {
+                    if (upgradeData.Id != upgradeNodeData.Id) continue;
+                    count += upgradeData.Amount;
+                }
+            }
+            return count;
+        }
     }
 }

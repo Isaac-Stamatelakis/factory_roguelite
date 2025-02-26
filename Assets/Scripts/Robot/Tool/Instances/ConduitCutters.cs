@@ -3,6 +3,8 @@ using Dimensions;
 using Items;
 using Player.Mouse;
 using Player.Tool.Object;
+using Robot.Upgrades;
+using Robot.Upgrades.LoadOut;
 using TileMaps;
 using TileMaps.Conduit;
 using TileMaps.Layer;
@@ -15,7 +17,7 @@ namespace Robot.Tool.Instances
     {
         
         private LineRenderer lineRenderer;
-        public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject) : base(toolData, robotObject)
+        public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
         {
         }
         

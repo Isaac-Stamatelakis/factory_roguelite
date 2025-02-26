@@ -11,6 +11,11 @@ namespace Player.Mouse
         public void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
+
+    public interface IAcceleratedClickHandler
+    {
+        public float GetSpeedMultiplier();
+    }
     public class HoldClickHandler
     {
         private float counter = 0f;
@@ -19,11 +24,13 @@ namespace Player.Mouse
         private MouseButtonKey mouseButtonKey;
         private bool active;
         private float lastUse;
+        private IAcceleratedClickHandler acceleratedClickHandler;
         public HoldClickHandler(IPlayerClickHandler clickHandler, MouseButtonKey mouseButtonKey)
         {
             this.clickHandler = clickHandler;
             this.mouseIndex = (int)mouseButtonKey;
             lastUse = Time.time;
+            acceleratedClickHandler = clickHandler as IAcceleratedClickHandler;
         }
 
         public void Tick(Vector2 mousePosition)
@@ -47,7 +54,9 @@ namespace Player.Mouse
                 counter = 0;
                 return;
             }
-            counter += Time.deltaTime;
+
+            float multipler = acceleratedClickHandler?.GetSpeedMultiplier() ?? 1;
+            counter += multipler * Time.deltaTime;
             if (clickHandler.HoldClickUpdate(mousePosition,mouseButtonKey, counter))
             {
                 counter = 0f;

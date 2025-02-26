@@ -38,7 +38,7 @@ namespace TileMaps {
     {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  
@@ -240,7 +240,7 @@ namespace TileMaps {
         }
         
         
-        public override void hitTile(Vector2 position) {
+        public override void HitTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             if (!hitHardness(hitTilePosition)) return;
             
@@ -248,6 +248,14 @@ namespace TileMaps {
             DropItem(tileItem, hitTilePosition);
             
             BreakTile(hitTilePosition);
+        }
+
+        public bool CanHitTile(int power, Vector2 position)
+        {
+            Vector2Int hitTilePosition = GetHitTilePosition(position);
+            TileItem tileItem = getTileItem(hitTilePosition);
+            if (ReferenceEquals(tileItem, null)) return false;
+            return (int)tileItem.tileOptions.requiredToolTier <= power;
         }
 
         private void DropItem(TileItem tileItem, Vector2Int hitTilePosition)

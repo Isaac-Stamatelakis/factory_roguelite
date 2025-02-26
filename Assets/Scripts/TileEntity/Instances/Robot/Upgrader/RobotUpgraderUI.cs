@@ -11,6 +11,8 @@ using Player.Tool;
 using Robot;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Info;
+using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
 using RobotModule;
 using TMPro;
@@ -52,6 +54,8 @@ namespace TileEntity.Instances.Robot.Upgrader
             DisplayRobot(robotItem, robotItemData, playerRobot.RobotTools);
         }
 
+        
+
         public void DisplayRobot(RobotItem robotItem, RobotItemData robotItemData, List<IRobotToolInstance> toolInstances)
         {
             bool error = false;
@@ -83,6 +87,7 @@ namespace TileEntity.Instances.Robot.Upgrader
             List<ItemSlot> toolItems = RobotToolFactory.ToolInstancesToItems(toolInstances);
             mToolInventoryUI.DisplayInventory(toolItems);
             mToolInventoryUI.OverrideClickAction(OnToolClick);
+           
             toolClickDataList = new List<UpgradeDisplayData>();
             robotItemData.ToolData.Upgrades ??= new List<List<RobotUpgradeData>>();
             for (var index = 0; index < toolInstances.Count; index++)
@@ -96,7 +101,8 @@ namespace TileEntity.Instances.Robot.Upgrader
                 toolClickDataList.Add(new UpgradeDisplayData(tool.GetToolObject().UpgradePath, upgradeData));
             }
         }
-
+        
+        
         private void OnToolClick(int index)
         {
             DisplayPath(toolClickDataList[index]);
@@ -106,12 +112,17 @@ namespace TileEntity.Instances.Robot.Upgrader
         {
             DisplayPath(upgradeDisplayData.UpgradePath,upgradeDisplayData.UpgradeData);
         }
+        
         private void DisplayPath(string upgradePath, List<RobotUpgradeData> upgradeData)
         {
             SerializedRobotUpgradeNodeNetwork sNetwork = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradePath);
             RobotUpgradeNodeNetwork upgradeNodeNetwork = RobotUpgradeUtils.FromSerializedNetwork(sNetwork, upgradeData);
-            
-            if (upgradeNodeNetwork == null) return;
+
+            if (upgradeNodeNetwork == null)
+            {
+                Debug.Log("Tried to display invalid node network");
+                return;
+            }
             RobotUpgradeUI robotUpgradeUI = Instantiate(robotUpgradeUIPrefab);
             CanvasController.Instance.DisplayObject(robotUpgradeUI.gameObject);
             robotUpgradeUI.Initialize(upgradePath,upgradeNodeNetwork);

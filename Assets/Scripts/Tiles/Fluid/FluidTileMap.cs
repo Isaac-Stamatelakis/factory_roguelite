@@ -26,7 +26,7 @@ namespace Fluids {
         private Dictionary<uint, HashSet<Vector2Int>> tickFluidUpdates = new Dictionary<uint, HashSet<Vector2Int>>(); 
         private Dictionary<Vector2Int, PartitionFluidData[][]> dualChunkFluidData = new Dictionary<Vector2Int, PartitionFluidData[][]>();
 
-        public override void hitTile(Vector2 position)
+        public override void HitTile(Vector2 position)
         {
             // Cannot hit fluid tiles
         }

@@ -18,13 +18,13 @@ namespace TileMaps.Conduit {
 
         public IConduitSystemManager ConduitSystemManager {set => conduitSystemManager = value;}
 
-        public override void deleteTile(Vector2 position)
+        public override void DeleteTile(Vector2 position)
         {
             
             if (conduitSystemManager == null) {
                 return;
             }
-            base.deleteTile(position);
+            base.DeleteTile(position);
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
         }
@@ -55,7 +55,7 @@ namespace TileMaps.Conduit {
             tilemap.SetTile(cellPosition,stateTile);
         }
 
-        public override void hitTile(Vector2 position)
+        public override void HitTile(Vector2 position)
         {
             if (conduitSystemManager == null) {
                 return;

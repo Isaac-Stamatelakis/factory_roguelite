@@ -68,10 +68,22 @@ namespace Player.UI.Inventory
 
         private void DisplayData(UpgradeDisplayData upgradeDisplayData)
         {
-            if (upgradeDisplayData.StatLoadOut == null) return;
+            bool error = false;
+            if (upgradeDisplayData.StatLoadOut == null)
+            {
+                error = true;
+                Debug.LogWarning("Tried to display null stat load out");
+            }
+
             SerializedRobotUpgradeNodeNetwork network = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradeDisplayData.UpgradePath);
-            if (network == null) return;
-            Dictionary<int, int> upgradeDict = RobotUpgradeUtils.BuildUpgradeDict(network.NodeData, upgradeDisplayData.UpgradeData);
+            if (network == null)
+            {
+                error = true;
+                Debug.LogWarning("Tried to display null network");
+            }
+
+            if (error) return;
+            Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
             statSelectorUI.Display(upgradeDisplayData.StatLoadOut,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
             CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Items;
+using TileEntity;
 
 namespace Tiles {
     /// <summary>
@@ -39,6 +40,7 @@ namespace Tiles {
         public bool rotatable = false;
         public bool hasStates = false;
         public int hardness = 8;
+        public Tier requiredToolTier;
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;

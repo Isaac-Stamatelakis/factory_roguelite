@@ -15,10 +15,14 @@ using Items;
 
 namespace TileMaps {
     public interface IHitableTileMap {
-        public void hitTile(Vector2 position);
-        public void deleteTile(Vector2 position);
+        public void HitTile(Vector2 position);
+        public void DeleteTile(Vector2 position);
     }
 
+    public interface IConditionalHitableTileMap : IHitableTileMap
+    {
+        public bool CanHitTile(int power, Vector2 position);
+    }
     public interface IWorldTileMap {
         public void addPartition(IChunkPartition partition);
         public IEnumerator removePartition(Vector2Int partitionPosition);
@@ -143,9 +147,9 @@ namespace TileMaps {
             CallListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
-        public abstract void hitTile(Vector2 position);
+        public abstract void HitTile(Vector2 position);
 
-        public virtual void deleteTile(Vector2 position) {
+        public virtual void DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
