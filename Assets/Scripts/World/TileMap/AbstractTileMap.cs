@@ -231,7 +231,7 @@ namespace TileMaps {
 
         public bool hasTile(Vector2Int position)
         {
-            return mTileMap.GetTile(new Vector3Int(position.x,position.y,0)) != null;
+            return mTileMap.GetTile(new Vector3Int(position.x, position.y, 0));
         }
         /// <summary>
         /// Removes the tile from the tilemap without modifying any data
