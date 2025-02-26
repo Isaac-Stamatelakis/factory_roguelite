@@ -1,4 +1,5 @@
 using System;
+using Conduits;
 using Dimensions;
 using Items;
 using Player.Mouse;
@@ -53,7 +54,7 @@ namespace Robot.Tool.Instances
             switch (toolData.CutterMode)
             {
                 case ConduitCutterMode.Standard:
-                    MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition);
+                    BreakConduit(mousePosition);
                     break;
                 case ConduitCutterMode.Disconnect:
                     if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
@@ -66,6 +67,24 @@ namespace Robot.Tool.Instances
                     throw new ArgumentOutOfRangeException();
             }
             
+        }
+
+        private void BreakConduit(Vector2 mousePosition)
+        {
+            float veinMine = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.VeinMine);
+            int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMine);
+            veinMinePower = 10;
+            ConduitTileMap conduitTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(toolData.Type.ToTileMapType()) as ConduitTileMap;
+            if (!conduitTileMap) return;
+            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            IConduit conduit = conduitTileMap.ConduitSystemManager.GetConduitAtCellPosition(cellPosition);
+            if (conduit == null) return;
+            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition);
+            
+            if (veinMinePower <= 1) return;
+
+            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, conduit);
+            veinMineEvent.Execute(cellPosition,veinMinePower);
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

@@ -45,11 +45,12 @@ namespace TileMaps.Conduit {
                 Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
                 return false;
             }
-            Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
-            ConduitItem conduitItem = conduitTileChunkPartition.GetConduitItemAtPosition(tilePositionInPartition,getType().toConduitType());
-            SpawnItemEntity(conduitItem,1,position);
-            BreakTile(new Vector2Int(cellPosition.x,cellPosition.y));
-            conduitSystemManager.SetConduit(cellPosition.x,cellPosition.y,null);
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(position);
+            SpawnItemEntity(conduit.GetConduitItem(),1,position);
+            BreakTile(position);
+            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            WriteTile(partition,positionInPartition,null);
+            conduitSystemManager.SetConduit(position.x,position.y,null);
             return true;
         }
 
@@ -57,11 +58,8 @@ namespace TileMaps.Conduit {
         {
             var tile = conduitItem.Tile;
             IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(new Vector2Int(x,y));
-            if (ReferenceEquals(conduit, null))
-            {
-                Debug.LogError($"Tried to place conduit which was null in system at position {new Vector2Int(x,y)}.");
-                return;
-            }
+            if (conduit == null) return;
+            
             var stateTile = tile.getTileAtState(conduit.GetActivatedState());
             tilemap.SetTile(new Vector3Int(x,y,0),stateTile);
         }

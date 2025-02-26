@@ -30,30 +30,28 @@ namespace Robot.Tool.Instances
     public abstract class VeinMineEvent<T> : IVeinMineEvent where T : IHitableTileMap
     {
         protected T hitableTileMap;
-        protected Vector2Int initialPosition;
-        Queue<Vector2Int> queue = new Queue<Vector2Int>();
-        List<Vector2Int> directions = new List<Vector2Int>
+        protected Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        protected List<Vector2Int> directions = new List<Vector2Int>
         {
             Vector2Int.left,
             Vector2Int.right,
             Vector2Int.up,
             Vector2Int.down,
         };
-        protected VeinMineEvent(T hitableTileMap, Vector2Int initialPosition)
+        protected VeinMineEvent(T hitableTileMap)
         {
             this.hitableTileMap = hitableTileMap;
-            this.initialPosition = initialPosition;
         }
 
         public int Execute(Vector2Int initial, int veinMinePower)
         {
-            Expand(initialPosition);
+            InitialExpand(initial);
             int breaks = 0;
             
             while (breaks < veinMinePower && queue.Count > 0)
             {
                 bool broken = TryIterate();
-                if (!broken) breaks++;
+                if (broken) breaks++;
             }
             
             return breaks;
@@ -65,6 +63,7 @@ namespace Robot.Tool.Instances
             Vector2Int current = queue.Dequeue();
             
             if (!hitableTileMap.hasTile(current)) return false;
+            Expand(current);
             if (DevMode.Instance.instantBreak)
             {
                 hitableTileMap.DeleteTile(new Vector2(current.x,current.y) * Global.TILE_SIZE);
@@ -73,12 +72,11 @@ namespace Robot.Tool.Instances
             {
                 hitableTileMap.BreakAndDropTile(current);
             }
-            Expand(current);
-
+            
             return true;
         }
 
-        private void Expand(Vector2Int current)
+        protected void Expand(Vector2Int current)
         {
             foreach (Vector2Int direction in directions)
             {
@@ -87,6 +85,8 @@ namespace Robot.Tool.Instances
                 queue.Enqueue(newPosition);
             }
         }
+
+        protected abstract void InitialExpand(Vector2Int initial);
         protected abstract bool CanExpandTo(Vector2Int position, Vector2Int origin);
     }
 
@@ -95,10 +95,15 @@ namespace Robot.Tool.Instances
         private int drillPower;
         private int initialHardness;
 
-        public BlockVeinMineEvent(WorldTileGridMap hitableTileMap, Vector2Int initial, int drillPower, int initialHardness) : base(hitableTileMap, initial)
+        public BlockVeinMineEvent(WorldTileGridMap hitableTileMap, int drillPower, int initialHardness) : base(hitableTileMap)
         {
             this.drillPower = drillPower;
             this.initialHardness = initialHardness;
+        }
+
+        protected override void InitialExpand(Vector2Int initial)
+        {
+            Expand(initial);
         }
 
         protected override bool CanExpandTo(Vector2Int position, Vector2Int origin)
@@ -111,9 +116,14 @@ namespace Robot.Tool.Instances
 
     public class BackGroundVeinMineEvent : VeinMineEvent<WorldTileGridMap>
     {
-        public BackGroundVeinMineEvent(WorldTileGridMap hitableTileMap, Vector2Int initial) : base(hitableTileMap, initial)
+        public BackGroundVeinMineEvent(WorldTileGridMap hitableTileMap) : base(hitableTileMap)
         {
            
+        }
+
+        protected override void InitialExpand(Vector2Int initial)
+        {
+            Expand(initial);
         }
 
         protected override bool CanExpandTo(Vector2Int position, Vector2Int origin)
@@ -123,8 +133,25 @@ namespace Robot.Tool.Instances
     }
     public class ConduitVeinMineEvent : VeinMineEvent<ConduitTileMap>
     {
-        public ConduitVeinMineEvent(ConduitTileMap hitableTileMap, Vector2Int initial) : base(hitableTileMap, initial)
+        private IConduit initialConduit;
+        public ConduitVeinMineEvent(ConduitTileMap hitableTileMap, IConduit initialConduit) : base(hitableTileMap)
         {
+            this.initialConduit = initialConduit;
+        }
+
+        protected override void InitialExpand(Vector2Int initial)
+        {
+            foreach (Vector2Int direction in directions)
+            {
+                Vector2Int newPosition = initial + direction;
+                IConduit conduit = hitableTileMap.ConduitSystemManager.GetConduitAtCellPosition(newPosition);
+                if (conduit == null) continue;
+                Vector2Int dif = newPosition - initial;
+                ConduitDirectionState? conduitDirectionState = ConduitUtils.StateFromVector2Int(dif);
+                if (conduitDirectionState == null) continue;
+                if (!initialConduit.ConnectsDirection(conduitDirectionState.Value)) continue;
+                queue.Enqueue(newPosition);
+            }
         }
 
         protected override bool CanExpandTo(Vector2Int position, Vector2Int origin)
@@ -133,7 +160,7 @@ namespace Robot.Tool.Instances
             if (originConduit == null) return false;
             IConduit conduit = hitableTileMap.ConduitSystemManager.GetConduitAtCellPosition(position);
             if (conduit == null) return false;
-            Vector2Int dif = origin - position;
+            Vector2Int dif = position-origin;
             ConduitDirectionState? conduitDirectionState = ConduitUtils.StateFromVector2Int(dif);
             if (conduitDirectionState == null) return false;
             return originConduit.ConnectsDirection(conduitDirectionState.Value);
@@ -232,62 +259,21 @@ namespace Robot.Tool.Instances
         {
             if (veinMinePower <= 1) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, initialItem, drillPower, cellPosition);
+            IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, initialItem, drillPower);
             int? broken = veinMineEvent?.Execute(cellPosition, veinMinePower);
             return broken > 0;
-            /*
-            
-            List<Vector2Int> directions = new List<Vector2Int>
-            {
-                Vector2Int.up,
-                Vector2Int.down,
-                Vector2Int.left,
-                Vector2Int.right,
-            };
-            
-            List<IVeinMineEvent> veinMineEvents = new List<IVeinMineEvent>(); // Vein mine events try to break the initial block so this is required to get around that
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            foreach (Vector2Int direction in directions)
-            {
-                
-                IVeinMineEvent veinMineEvent = GetVeinMineEvent(drillPower, cellPosition + direction);
-                if (veinMineEvent == null) continue;
-                veinMineEvents.Add(veinMineEvent);
-            }
-
-            if (veinMineEvents.Count == 0) return false;
-            int broken = 0;
-            int index = 0;
-            int noBreakIterations = 0;
-            while (broken < veinMinePower)
-            {
-                IVeinMineEvent veinMineEvent = veinMineEvents[index];
-                if (veinMineEvent.Iterate())
-                {
-                    broken++;
-                }
-                else
-                {
-                    noBreakIterations++;
-                }
-                if (noBreakIterations >= veinMineEvents.Count) break;
-                index++;
-                index %= veinMineEvents.Count;
-            }
-            */
-            
         }
 
-        private IVeinMineEvent GetVeinMineEvent(WorldTileGridMap worldTileGridMap, TileItem initialTile, int drillPower, Vector2Int current)
+        private IVeinMineEvent GetVeinMineEvent(WorldTileGridMap worldTileGridMap, TileItem initialTile, int drillPower)
         {
             TileMapLayer tileMapLayer = toolData.Layer;
             switch (tileMapLayer)
             {
                 case TileMapLayer.Base:
                     int hardness = initialTile.tileOptions.hardness;
-                    return new BlockVeinMineEvent(worldTileGridMap, current, drillPower, hardness);
+                    return new BlockVeinMineEvent(worldTileGridMap, drillPower, hardness);
                 case TileMapLayer.Background:
-                    return new BackGroundVeinMineEvent(worldTileGridMap, current);
+                    return new BackGroundVeinMineEvent(worldTileGridMap);
                 default:
                     return null;
             }
