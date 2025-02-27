@@ -18,6 +18,7 @@ using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
 using Robot.Upgrades;
+using Robot.Upgrades.Info;
 using Robot.Upgrades.Instances.RocketBoots;
 using Robot.Upgrades.LoadOut;
 using RobotModule;
@@ -28,6 +29,7 @@ using TileMaps.Place;
 using Tiles;
 using UI;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
 
 namespace Player {
@@ -84,6 +86,7 @@ namespace Player {
         
         [SerializeField] private DirectionalMovementStats MovementStats;
         [SerializeField] private JumpMovementStats JumpStats;
+        [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
 
         public RobotUpgradeLoadOut RobotUpgradeLoadOut;
         
@@ -114,6 +117,18 @@ namespace Player {
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
                 liveYUpdates = 3;
+                if (bonusJumps <= 0)
+                {
+                    bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
+                }
+
+                int rocketBootUpgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
+                if (rocketBootUpgrades > 0)
+                {
+                    rocketBoots ??= new RocketBoots();
+                    rocketBoots.FlightTime = 1+rocketBootUpgrades;
+                }
+                
             }
             collisionStates.Add(state);
         }
@@ -315,17 +330,19 @@ namespace Player {
             
             if (!IsOnGround() && rocketBoots != null)
             {
-                if (!rocketBoots.Active)
+                if (!rocketBoots.Active &&  Input.GetKeyDown(KeyCode.Space))
                 {
-                    rocketBoots.Active = Input.GetKeyDown(KeyCode.Space);
+                    StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
                 }
 
                 if (rocketBoots.Active)
                 {
                     rocketBoots.UpdateBoost(Input.GetKey(KeyCode.Space));
-                    if (rocketBoots.Boost < 0 && rocketBoots.FlightTime < 0)
+                    if (rocketBoots.Boost <= 0 && rocketBoots.FlightTime < 0)
                     {
+                        rocketBoots.Terminate();
                         rocketBoots = null;
+                        rb.gravityScale = defaultGravityScale;
                     }
                 }
             }
@@ -480,17 +497,6 @@ namespace Player {
             if (IsGrounded())
             {
                 coyoteFrames = JumpStats.coyoteFrames;
-                if (bonusJumps <= 0)
-                {
-                    bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
-                }
-
-                if (rocketBoots == null)
-                {
-                    rocketBoots = new RocketBoots();
-                }
-
-                rocketBoots.FlightTime = 5;
             }
             
 
@@ -824,7 +830,7 @@ namespace Player {
         }
 
         [System.Serializable]
-        internal class DirectionalMovementStats
+        private class DirectionalMovementStats
         {
             public float minMove = 0.2f;
             public float accelationModifier = 3f;
@@ -840,12 +846,18 @@ namespace Player {
         }
 
         [System.Serializable]
-        internal class JumpMovementStats
+        private class JumpMovementStats
         {
             public float initialGravityPercent = 0;
             public float jumpVelocity = 8f;
             public float maxGravityTime = 0.5f;
             public int coyoteFrames;
+        }
+
+        [System.Serializable]
+        private class RobotUpgradeAssetReferences
+        {
+            public AssetReference RocketBootParticles;
         }
     }
 
