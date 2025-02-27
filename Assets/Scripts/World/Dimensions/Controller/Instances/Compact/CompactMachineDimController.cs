@@ -94,9 +94,51 @@ namespace Dimensions {
             }
         }
 
-        private void LoadCompactMachineInteractableTileEntity()
+        public void RemoveCompactMachineSystem(CompactMachineTeleportKey key, string hash)
         {
-            
+            CompactMachineTree tree = systemTree.getTree(key.Path);
+            SaveTree(tree);
+            RemoveNode(key);
+            string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
+            string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
+            GlobalHelper.CopyDirectory(dimPath,hashPath);
+            Directory.Delete(dimPath,true);
+            Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+        }
+
+        private void SaveTree(CompactMachineTree compactMachineTree)
+        {
+            compactMachineTree.System.Save();
+            foreach (var (position, child) in compactMachineTree.Children)
+            {
+                SaveTree(child);
+            }
+        }
+
+        private void RemoveNode(CompactMachineTeleportKey key)
+        {
+            List<Vector2Int> path = key.Path;
+            CompactMachineTree tree = systemTree;
+            CompactMachineTree compactMachineTreeParent = null;
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Vector2Int position = path[i];
+                tree = tree.Children[position];
+            }
+            Vector2Int lastPosition = path[^1];
+            CompactMachineTree removed = tree.Children[lastPosition];
+            tree.Children.Remove(lastPosition);
+            RemoveFromList(removed);
+        }
+
+        private void RemoveFromList(CompactMachineTree tree)
+        {
+            // O(n*m)
+            systems.Remove(tree.System);
+            foreach (var (position, child) in tree.Children)
+            {
+                RemoveFromList(child);
+            }
         }
         public bool HasSystem(CompactMachineTeleportKey key) {
             return systemTree.getSystem(key.Path) != null;

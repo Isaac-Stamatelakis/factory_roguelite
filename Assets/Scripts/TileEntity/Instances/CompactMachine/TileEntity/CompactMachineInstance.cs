@@ -140,6 +140,10 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnBreak()
         {
             if (chunk is not ILoadedChunk loadedChunk) return;
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return;
+            }
             // Drops itself with hash
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
@@ -147,10 +151,7 @@ namespace TileEntity.Instances.CompactMachines {
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
-            string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
-            GlobalHelper.CopyDirectory(dimPath,hashPath);
-            // Move content from path into hash folder
+            compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, hash);
         }
         
 
