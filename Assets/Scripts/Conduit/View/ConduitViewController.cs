@@ -141,7 +141,7 @@ namespace Conduit.View
 
         private ConduitType? GetSelectedConduitType()
         {
-            string id = playerScript.PlayerInventory.getSelectedId();
+            string id = playerScript.PlayerInventory.GetSelectedId();
             if (id == null) return null;
             ConduitItem conduitItem = ItemRegistry.GetInstance().GetConduitItem(id);
             return  conduitItem?.GetConduitType();

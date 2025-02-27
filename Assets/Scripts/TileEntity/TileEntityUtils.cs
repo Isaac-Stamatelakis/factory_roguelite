@@ -12,6 +12,7 @@ using Conduits.Ports;
 using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
+using TileEntity.Instances.CompactMachines;
 using TileEntity.MultiBlock;
 using TileMaps;
 using TileMaps.Layer;
@@ -69,7 +70,11 @@ namespace TileEntity {
                         placeInitializable1.PlaceInitialize();
                     }
                 }
-                
+            }
+
+            if (load && tileEntityInstance is ICompactMachine compactMachine)
+            {
+                compactMachine.PlaceInitializeWithHash(data);
             }
             return tileEntityInstance;
         }

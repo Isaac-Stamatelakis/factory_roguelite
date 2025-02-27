@@ -136,9 +136,9 @@ namespace PlayerModule {
         }
 
         public void Give(ItemSlot itemSlot) {
-            if (ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory, itemSlot, Global.MaxSize))
+            if (ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory, itemSlot, Global.MAX_SIZE))
             {
-                ItemSlotUtils.InsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MAX_SIZE);
                 Refresh();
                 return;
             }
@@ -175,10 +175,15 @@ namespace PlayerModule {
             Refresh();
         }
 
-        public string getSelectedId()
+        public string GetSelectedId()
         {
             if (ItemSlotUtils.IsItemSlotNull(playerInventoryData.Inventory[selectedSlot])) return null;
             return playerInventoryData.Inventory[selectedSlot].itemObject.id;
+        }
+
+        public ItemSlot GetSelectedItemSlot()
+        {
+            return playerInventoryData.Inventory[selectedSlot];
         }
 
         public ItemSlot getSelectedItemSlot() {

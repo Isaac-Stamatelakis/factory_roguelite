@@ -125,7 +125,7 @@ namespace Entities {
             ItemSlot hitObjectSlot = other.itemSlot;
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) return;
             
-            ItemSlotUtils.InsertIntoSlot(itemSlot,hitObjectSlot,Global.MaxSize);
+            ItemSlotUtils.InsertIntoSlot(itemSlot,hitObjectSlot,Global.MAX_SIZE);
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) Destroy(other.gameObject);
         }
 
@@ -138,7 +138,7 @@ namespace Entities {
             RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
             foreach (RaycastHit2D leftHit in leftHits) {
                 if (leftHit.collider.gameObject.Equals(gameObject)) continue;
-                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MaxSize) break;
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
                 if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
                 ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
                 MergeItemEntities(leftEntity);

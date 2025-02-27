@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Storage {
         {
         }
 
-        public uint Amount {get => TileEntityObject.MaxStacks*Global.MaxSize;}
+        public uint Amount {get => TileEntityObject.MaxStacks*Global.MAX_SIZE;}
 
         public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
         
@@ -80,7 +80,7 @@ namespace TileEntity.Instances.Storage {
             
             ItemSlot toDrop = ItemSlotFactory.createEmptyItemSlot();
             toDrop.itemObject = itemSlot.itemObject;
-            toDrop.amount = GlobalHelper.MinUInt(Global.MaxSize, itemSlot.amount);
+            toDrop.amount = GlobalHelper.MinUInt(Global.MAX_SIZE, itemSlot.amount);
             itemSlot.amount -= toDrop.amount;
             if (itemSlot.amount <= 0) {
                 itemSlot = null;
@@ -107,9 +107,9 @@ namespace TileEntity.Instances.Storage {
             }
 
             if (!ItemSlotUtils.AreEqual(itemSlot, playerItemSlot) || !ItemSlotUtils.CanInsertIntoSlot(itemSlot,
-                    playerItemSlot, TileEntityObject.MaxStacks * Global.MaxSize)) return;
+                    playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE)) return;
             
-            ItemSlotUtils.InsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MaxSize);
+            ItemSlotUtils.InsertIntoSlot(itemSlot, playerItemSlot, TileEntityObject.MaxStacks * Global.MAX_SIZE);
             if (playerItemSlot.amount > 0) return;
             
             playerInventory.removeSelectedItemSlot();
@@ -143,7 +143,7 @@ namespace TileEntity.Instances.Storage {
             
             while (itemSlot.amount > 0)
             {
-                uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MaxSize);
+                uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MAX_SIZE);
                 itemSlot.amount -= amount;
                 ItemSlot drop = ItemSlotFactory.CreateNewItemSlot(itemSlot.itemObject,(uint)amount);
                 ItemEntityFactory.SpawnItemEntity(getWorldPosition(),drop,loadedChunk.getEntityContainer());
@@ -173,9 +173,9 @@ namespace TileEntity.Instances.Storage {
                 return;
             }
 
-            if (!ItemSlotUtils.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize))
+            if (!ItemSlotUtils.CanInsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MAX_SIZE))
                 return;
-            ItemSlotUtils.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MaxSize);
+            ItemSlotUtils.InsertIntoSlot(itemSlot, toInsert, TileEntityObject.MaxStacks * Global.MAX_SIZE);
             LoadVisual();
         }
 

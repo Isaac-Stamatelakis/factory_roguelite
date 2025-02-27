@@ -89,7 +89,7 @@ namespace Conduits.PortViewer {
 
         private void AutoSelect()
         {
-            string id = playerInventory.getSelectedId();
+            string id = playerInventory.GetSelectedId();
             if (id == null) {
                 portViewer.Deactive();
                 return;

@@ -48,7 +48,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             if (grabbedItemProperties.HaveTakenFromSlot(this))
             {
-                if (grabbedSlot.amount >= Global.MaxSize) return;
+                if (grabbedSlot.amount >= Global.MAX_SIZE) return;
                 inventorySlot.amount--; 
                 grabbedSlot.amount++;
             }

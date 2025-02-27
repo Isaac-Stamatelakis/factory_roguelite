@@ -17,6 +17,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Newtonsoft.Json;
 using PlayerModule;
 using TileEntity;
+using TileEntity.Instances.CompactMachines;
 using Tiles;
 using UI.QuestBook;
 using World.Serialization;
@@ -35,6 +36,9 @@ namespace WorldModule {
             string backUpPath = Path.Combine(path, WorldLoadUtils.BACKUP_FOLDER_PATH);
             Directory.CreateDirectory(mainPath);
             Directory.CreateDirectory(backUpPath);
+
+            CompactMachineUtils.InitializeCompactMachineFolder();
+            
             InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
             InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
 

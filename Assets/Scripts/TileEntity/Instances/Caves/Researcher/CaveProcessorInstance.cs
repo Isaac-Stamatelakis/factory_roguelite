@@ -172,7 +172,7 @@ namespace TileEntity.Instances.Caves.Researcher {
             
             ItemSlot output = OutputDrives[0];
             if (ItemSlotUtils.IsItemSlotNull(output)) return true;
-            if (output.amount >= Global.MaxSize) return false;
+            if (output.amount >= Global.MAX_SIZE) return false;
             string outputCopyId = output.tags?.Dict?[ItemTag.CaveData] as string;
             return outputCopyId == null || outputCopyId == CurrentlyCopyingCave;
         }

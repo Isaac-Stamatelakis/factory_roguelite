@@ -76,9 +76,9 @@ namespace DevTools.Structures {
             WorldGenerationFactory.SaveToJson(dimData,caveSize,0,structureDimPath);
             PlayerInventoryData playerInventoryData = PlayerInventoryFactory.GetDefault();
             playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(PAREMETER_ID),
-                Global.MaxSize, null);
+                Global.MAX_SIZE, null);
             playerInventoryData.Inventory[1] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(FILL_ID),
-                Global.MaxSize, null);
+                Global.MAX_SIZE, null);
             
             PlayerData playerData = new PlayerData(
                 x: 0,

@@ -41,7 +41,7 @@ namespace Player.Inventory
                 if (itemEntity.LifeTime < MINIMUM_PICKUP_TIME) continue;
                 while (true)
                 {
-                    bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MaxSize);
+                    bool inserted = ItemSlotUtils.InsertIntoInventory(playerInventory.Inventory, itemEntity.itemSlot, Global.MAX_SIZE);
                     if (!inserted) break;
                     if (!ItemSlotUtils.IsItemSlotNull(itemEntity.itemSlot)) continue;
 

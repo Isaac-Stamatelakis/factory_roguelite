@@ -19,7 +19,7 @@ namespace TileEntity.Instances.CompactMachines {
                 Debug.LogWarning("Tried to teleport out of compact machine with unsynced teleporter");
                 return;
             }
-            CompactMachineHelper.TeleportOutOfCompactMachine(compactMachine);
+            CompactMachineUtils.TeleportOutOfCompactMachine(compactMachine);
         }
 
         public void SyncToCompactMachine(CompactMachineInstance compactMachine)

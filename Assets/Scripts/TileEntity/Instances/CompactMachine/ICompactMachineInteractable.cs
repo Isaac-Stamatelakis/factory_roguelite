@@ -8,8 +8,9 @@ namespace TileEntity.Instances.CompactMachines {
         public void SyncToCompactMachine(CompactMachineInstance compactMachine);
     }
 
-    public interface ICompactMachine {
-        
+    public interface ICompactMachine
+    {
+        public void PlaceInitializeWithHash(string hash);
     }
 
 }

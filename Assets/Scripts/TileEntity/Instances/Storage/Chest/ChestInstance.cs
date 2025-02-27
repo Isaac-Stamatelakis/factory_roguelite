@@ -43,7 +43,7 @@ namespace TileEntity.Instances
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            ItemSlotUtils.InsertIntoInventory(Items, toInsert, Global.MaxSize);
+            ItemSlotUtils.InsertIntoInventory(Items, toInsert, Global.MAX_SIZE);
         }
     }
     public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 

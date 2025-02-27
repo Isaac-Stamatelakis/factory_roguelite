@@ -7,10 +7,11 @@ using Chunks;
 using Dimensions;
 using UnityEngine.AddressableAssets;
 using Chunks.Systems;
+using Items.Tags;
 
 namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntityObject, IManagedUITileEntity
+    public class CompactMachine : TileEntityObject, IManagedUITileEntity, ITagPlacementTileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
         public string StructurePath;
@@ -23,6 +24,11 @@ namespace TileEntity.Instances.CompactMachines {
         public TileEntityUIManager getUIManager()
         {
             return UIManager;
+        }
+
+        public ItemTag GetItemTag()
+        {
+            return ItemTag.CompactMachine;
         }
     }
 }

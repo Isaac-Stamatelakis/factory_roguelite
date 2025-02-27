@@ -74,14 +74,14 @@ namespace Robot.Upgrades.Instances.VeinMine
                         List<ItemSlot> droppedItems = ItemSlotUtils.GetTileItemDrop(tileItem);
                         foreach (ItemSlot itemSlot in droppedItems)
                         {
-                            ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MaxSize);
+                            ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MAX_SIZE);
                         }
                         
                     }
                     else
                     {
                         ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
-                        ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MaxSize);
+                        ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MAX_SIZE);
                     }
                     
                 }

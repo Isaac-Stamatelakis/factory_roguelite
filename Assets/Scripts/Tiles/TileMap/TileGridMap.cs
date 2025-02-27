@@ -169,8 +169,6 @@ namespace TileMaps {
                 TileItem tileItem = getTileItem(position);
                 DropItem(tileItem, position);
             }
-            
-            
             BreakTile(position);
             return true;
         }

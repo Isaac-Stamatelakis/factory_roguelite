@@ -50,7 +50,7 @@ namespace Items.Inventory {
         public InventoryRestrictionMode TagRestrictionMode => restrictionMode;
         private bool enableToolTip = true;
         public bool EnableToolTip => enableToolTip;
-        private uint maxStackSize = Global.MaxSize; // TODO Change this for fluids
+        private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
         private Action<int> overrideClickAction;
         

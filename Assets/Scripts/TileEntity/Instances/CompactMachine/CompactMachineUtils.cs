@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,80 +13,30 @@ using Chunks;
 using PlayerModule;
 using UnityEngine.AddressableAssets;
 using System.Linq;
+using System.Security.Cryptography;
 using DevTools.Structures;
 using Newtonsoft.Json;
 
 namespace TileEntity.Instances.CompactMachines {
-    public static class CompactMachineHelper 
+    public static class CompactMachineUtils 
     {
-        /// 4*24^6 < |2^31-1| < |-2^31|
-        private static int maxDepth = 4;
-        public static int MaxDepth {get => maxDepth; }
-        public static readonly string CONTENT_PATH = "_content";
-
-        public static Vector2Int getPositionInNextRing(Vector2Int position) {
-            return position*seperationPerTile();
-        }
-        public static SoftLoadedClosedChunkSystem loadSystemFromPath(List<Vector2Int> path) {
-            string systemPath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
+        public const int MAX_DEPTH = 4;
+        public const string CONTENT_PATH = "_content";
+        public const string COMPACT_MACHINE_PATH = "CompactMachines";
+        
+        public static SoftLoadedClosedChunkSystem LoadSystemFromPath(List<Vector2Int> path) {
+            string systemPath = Path.Combine(GetPositionFolderPath(path),CONTENT_PATH);
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(1,systemPath);
             SoftLoadedClosedChunkSystem system = new SoftLoadedClosedChunkSystem(chunks,systemPath);
             system.SoftLoad();
             return system;
         }
-
-        /// </summary>
-        /// 
-        /// <summary>
-        public static Vector2Int getRingSizeInChunks() {
-            IntervalVector dim0Area = WorldCreation.GetDim0Bounds();
-            return dim0Area.getSize();
-        }
-
-        public static List<Vector2Int> getTreePath(Vector2Int position) {
-            List<Vector2Int> path = new List<Vector2Int>();
-            Vector2Int size = getRingSizeInChunks();
-            int depth = getDepth(position);
-            double divider = size.x * Mathf.Pow(seperationPerTile(),depth); 
-            Vector2Int temp = position;
-            while (depth > 0) {
-                double x = position.x/divider;
-                double y = position.y/divider;
-                depth --;   
-                Vector2Int depthPosition = new Vector2Int((int)x,(int)y);
-                temp -= depthPosition;
-                position -= depthPosition;
-                path.Add(depthPosition);
-                divider /= seperationPerTile();
-            }
-            path.Add(temp);
-            return path;
-        }
-
-        public static int getDepth(Vector2Int position) {
-            Vector2Int size = getRingSizeInChunks();
-            int depth = 0;
-            int val = size.x*seperationPerTile();
-            while (position.x >= val) {
-                depth++;
-                val *= seperationPerTile();
-            }
-            return depth;   
-        }
-        public static int seperationPerTile() {
-            return Global.CHUNK_SIZE;
-        }
-
-        public static Vector2Int getParentPosition(CompactMachineInstance compactMachine) {
-            Vector2Int position = compactMachine.getCellPosition();
-            return new Vector2Int(Mathf.FloorToInt(position.x/seperationPerTile()),Mathf.FloorToInt(position.y/seperationPerTile()));
-        }
-
+        
 
         /// </summary>
         /// Maps a port inside a compact machine to its port on the compact machine tile entity
         /// <summary>
-        public static Vector2Int getPortPositionInLayout(Vector2Int relativePortPosition, ConduitPortLayout layout, ConduitType type) {
+        public static Vector2Int GetPortPositionInLayout(Vector2Int relativePortPosition, ConduitPortLayout layout, ConduitType type) {
             List<TileEntityPortData> possiblePorts = null;
             switch (type) {
                 case ConduitType.Item:
@@ -120,7 +71,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
         public static void InitalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
-            string savePath = Path.Combine(getPositionFolderPath(path),CONTENT_PATH);
+            string savePath = Path.Combine(GetPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
             Structure structure = StructureGeneratorHelper.LoadStructure(compactMachine.TileEntityObject.StructurePath);
             if (structure == null) {
@@ -138,7 +89,7 @@ namespace TileEntity.Instances.CompactMachines {
             Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
         }
 
-        public static string getPositionFolderPath(List<Vector2Int> path) {
+        public static string GetPositionFolderPath(List<Vector2Int> path) {
             string systemPath = WorldLoadUtils.GetDimPath(1);
             foreach (Vector2Int position in path) {
                 systemPath = Path.Combine(systemPath,$"{position.x},{position.y}");
@@ -147,6 +98,10 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
 
+        public static string GetHashedPath()
+        {
+            return Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), COMPACT_MACHINE_PATH);
+        }
         public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
             IChunk chunk = compactMachine.getChunk();
@@ -197,6 +152,81 @@ namespace TileEntity.Instances.CompactMachines {
                 compactMachine.Teleporter.getCellPosition() + Vector2Int.one,
                 key:key
             );
+        }
+
+        /// <summary>
+        /// Generates a random hash to be used for a compact machine
+        /// </summary>
+        /// <returns></returns>
+        public static string GenerateHash()
+        {
+            const int ATTEMPTS = 64;
+            for (int i = 0; i < ATTEMPTS; i++)
+            {
+                byte[] hash = new byte[8]; 
+                using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(hash);
+                }
+
+                string hashString = BitConverter.ToString(hash).Replace("-","");
+                if (!HashExists(hashString)) return hashString;
+                Debug.Log($"Hash collision '{hash}'");
+            }
+            // Has to fail 64 attempts of finding a hash which doesn't exist in a 2^64 search space. 
+            // Assuming a very 65536 compact machines, the odds of this are astromonically low.
+            // 1/(2^64/65536)^64
+            throw new Exception("Hash generation failed somehow");
+        }
+
+        public static bool HashExists(string hash)
+        {
+            string compactMachineFolder = GetHashedPath();
+            string[] folders = Directory.GetDirectories(compactMachineFolder);
+            foreach (string folder in folders)
+            {
+                string fileName = Path.GetFileName(folder);
+                Debug.Log(fileName);
+                if (hash == fileName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static void ActivateHashSystem(string hash, List<Vector2Int> path)
+        {
+            string folderPath = GetPositionFolderPath(path);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string hashContentPath = Path.Combine(GetHashedPath(), hash);
+            Debug.Log(hashContentPath);
+            GlobalHelper.CopyDirectory(hashContentPath, folderPath);
+            Debug.Log(folderPath);
+            if (!DevMode.Instance.noPlaceCost)
+            {
+                Directory.Delete(hashContentPath,true);
+            }
+            
+
+        }
+
+        public static void InitializeHashFolder(string hashString)
+        {
+            string compactMachineFolder = GetHashedPath();
+            string newPath = Path.Combine(compactMachineFolder, hashString);
+            Directory.CreateDirectory(newPath);
+            Debug.Log($"Created Compact Machine Hash folder at '{newPath}'");
+        }
+
+        public static void InitializeCompactMachineFolder()
+        {
+            string path = GetHashedPath();
+            Directory.CreateDirectory(path);
         }
     }
 }

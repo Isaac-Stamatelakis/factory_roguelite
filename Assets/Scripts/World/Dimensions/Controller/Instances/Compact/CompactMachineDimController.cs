@@ -74,7 +74,7 @@ namespace Dimensions {
                                 {
                                     Vector2Int newPosition = nestedCompactMachine.getCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
-                                    string contentPath = Path.Combine(nestedPath,CompactMachineHelper.CONTENT_PATH);
+                                    string contentPath = Path.Combine(nestedPath,CompactMachineUtils.CONTENT_PATH);
                                     SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
                                     if (newSystem == null) {
                                         Debug.LogError($"No system at path {nestedPath}");
@@ -107,7 +107,7 @@ namespace Dimensions {
         /// Null path means that 
         /// </summary>
         
-        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
+        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine, string hash) {
             List<Vector2Int> systemPath = key.Path;
             List<Vector2Int> parentPath = new List<Vector2Int>();
             for (int i = 0; i < systemPath.Count-1; i++) {
@@ -115,8 +115,16 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
-            CompactMachineHelper.InitalizeCompactMachineSystem(compactMachine, systemPath);
-            SoftLoadedClosedChunkSystem newSystem = CompactMachineHelper.loadSystemFromPath(systemPath);
+            if (CompactMachineUtils.HashExists(hash))
+            {
+                CompactMachineUtils.ActivateHashSystem(hash, systemPath);
+            }
+            else
+            {
+                CompactMachineUtils.InitalizeCompactMachineSystem(compactMachine, systemPath);
+            }
+            
+            SoftLoadedClosedChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(systemPath);
             
             CompactMachineTree newTree = new CompactMachineTree(
                 newSystem

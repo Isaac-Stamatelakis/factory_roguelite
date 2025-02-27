@@ -68,7 +68,7 @@ namespace TileEntity {
             switch (state)
             {
                 case ItemState.Solid:
-                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.itemInputs, toInsert, Global.MaxSize)) parent.InventoryUpdate(0);;
+                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.itemInputs, toInsert, Global.MAX_SIZE)) parent.InventoryUpdate(0);;
                     break;
                 case ItemState.Fluid:
                     Tier tier = Tier.Basic;
@@ -85,7 +85,7 @@ namespace TileEntity {
 
         public void TryOutputRecipe(ItemRecipe itemRecipe)
         {
-            ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.itemOutputs, itemRecipe.SolidOutputs, Global.MaxSize);
+            ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.itemOutputs, itemRecipe.SolidOutputs, Global.MAX_SIZE);
             ItemSlotUtils.InsertInventoryIntoInventory(tileEntityInventory.fluidOutputs,itemRecipe.FluidOutputs , 64000); // TODO change from 64000 to vary with tier
             bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
             if (!recipeConsumed) return;
