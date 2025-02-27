@@ -298,6 +298,7 @@ namespace Item.Slot
 
         public static List<ItemSlot> GetTileItemDrop(TileItem tileItem)
         {
+            if (!tileItem) return new List<ItemSlot>();
             List<ItemSlot> dropItems = new List<ItemSlot>();
             var dropOptions = tileItem.tileOptions.dropOptions;
             if (dropOptions.Count == 0) {

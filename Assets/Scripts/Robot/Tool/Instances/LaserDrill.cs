@@ -101,7 +101,7 @@ namespace Robot.Tool.Instances
                 bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
                 if (broken)
                 {
-                    if (!drop)
+                    if (!drop && !DevMode.Instance.instantBreak)
                     {
                         List<ItemSlot> itemDrops = ItemSlotUtils.GetTileItemDrop(tileItem);
                         PlayerManager.Instance.GetPlayer().PlayerInventory.GiveItems(itemDrops);
@@ -111,13 +111,19 @@ namespace Robot.Tool.Instances
                 }
                 return;
             }
-            
+
+            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             for (int x = -multiBreak; x <= multiBreak; x++)
             {
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
-                    MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
+                    TileItem tileItem = worldTileGridMap.getTileItem(position);
+                    bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
+                    if (broken && !drop)
+                    {
+                        playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(tileItem));
+                    }
                 }
             }
             

@@ -44,7 +44,7 @@ namespace UI.GeneralUIElements.Sliders
         }
         private int GetStep(float value, int maxSteps)
         {
-            return (int)((0.5d/maxSteps + value) * maxSteps);
+            return (int)((0.5d/(maxSteps-1) + value) * (maxSteps-1));
         }
 
         private void SetAnchorStep(int step, int maxSteps)

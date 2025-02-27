@@ -44,7 +44,7 @@ namespace Robot.Upgrades.Info.Instances
                 case RobotDrillUpgrade.Fortune:
                     break;
                 case RobotDrillUpgrade.MultiBreak:
-                    break;
+                    return new RobotDrillMultiBreakUpgradeFormatter();
                 case RobotDrillUpgrade.VeinMine:
                     return new VeinMineUpgradeFormatter();
                 case RobotDrillUpgrade.Tier:
@@ -99,6 +99,15 @@ namespace Robot.Upgrades.Info.Instances
         public string Format(float upgrade)
         {
             return $"{upgrade:P2}";
+        }
+    }
+
+    public class RobotDrillMultiBreakUpgradeFormatter : IDiscreteUpgradeAmountFormatter
+    {
+        public string Format(int value)
+        {
+            int range = 1 + 2 * value;
+            return $"{range}x{range}";
         }
     }
 }
