@@ -16,6 +16,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using DevTools.Structures;
 using Newtonsoft.Json;
+using TileEntity.Instances.CompactMachine;
 
 namespace TileEntity.Instances.CompactMachines {
     public static class CompactMachineUtils 
@@ -23,6 +24,7 @@ namespace TileEntity.Instances.CompactMachines {
         public const int MAX_DEPTH = 4;
         public const string CONTENT_PATH = "_content";
         public const string COMPACT_MACHINE_PATH = "CompactMachines";
+        public const string META_DATA_PATH = "meta.bin";
         
         public static SoftLoadedClosedChunkSystem LoadSystemFromPath(List<Vector2Int> path) {
             string systemPath = Path.Combine(GetPositionFolderPath(path),CONTENT_PATH);
@@ -98,7 +100,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
 
 
-        public static string GetHashedPath()
+        public static string GetCompactMachineHashFoldersPath()
         {
             return Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), COMPACT_MACHINE_PATH);
         }
@@ -181,12 +183,11 @@ namespace TileEntity.Instances.CompactMachines {
 
         public static bool HashExists(string hash)
         {
-            string compactMachineFolder = GetHashedPath();
+            string compactMachineFolder = GetCompactMachineHashFoldersPath();
             string[] folders = Directory.GetDirectories(compactMachineFolder);
             foreach (string folder in folders)
             {
                 string fileName = Path.GetFileName(folder);
-                Debug.Log(fileName);
                 if (hash == fileName)
                 {
                     return true;
@@ -203,12 +204,12 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 Directory.CreateDirectory(folderPath);
             }
-            string hashContentPath = Path.Combine(GetHashedPath(), hash);
-            Debug.Log(hashContentPath);
+            string hashContentPath = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
+            
             GlobalHelper.CopyDirectory(hashContentPath, folderPath);
-            Debug.Log(folderPath);
             if (!DevMode.Instance.noPlaceCost)
             {
+                Debug.Log($"Deleted hashed content at '{hashContentPath}'");
                 Directory.Delete(hashContentPath,true);
             }
             
@@ -217,15 +218,57 @@ namespace TileEntity.Instances.CompactMachines {
 
         public static void InitializeHashFolder(string hashString)
         {
-            string compactMachineFolder = GetHashedPath();
+            string compactMachineFolder = GetCompactMachineHashFoldersPath();
             string newPath = Path.Combine(compactMachineFolder, hashString);
             Directory.CreateDirectory(newPath);
+            InitializeMetaData(newPath);
             Debug.Log($"Created Compact Machine Hash folder at '{newPath}'");
         }
 
+        internal static CompactMachineMetaData GetMetaData(string path)
+        {
+            if (!Directory.Exists(path)) return null;
+            string metaDataPath = Path.Combine(path, META_DATA_PATH);
+            if (!File.Exists(metaDataPath))
+            {
+                InitializeMetaData(path);
+            }
+            byte[] binary = File.ReadAllBytes(metaDataPath);
+            string json = WorldLoadUtils.DecompressString(binary);
+            if (json == null)
+            {
+                return GetDefaultMetaData();
+            }
+            try
+            {
+                return JsonConvert.DeserializeObject<CompactMachineMetaData>(json);
+            }
+            catch (JsonSerializationException)
+            {
+                return GetDefaultMetaData();
+            }
+        }
+
+        internal static void InitializeMetaData(string path)
+        {
+            SaveMetaDataJson(GetDefaultMetaData(), path);
+        }
+
+        internal static CompactMachineMetaData GetDefaultMetaData()
+        {
+            return new CompactMachineMetaData("New Compact Machine", false);
+        }
+
+        internal static void SaveMetaDataJson(CompactMachineMetaData metaData, string path)
+        {
+            string metaDataJson = JsonConvert.SerializeObject(metaData);
+            byte[] metaDataBinary = WorldLoadUtils.CompressString(metaDataJson);
+            string metaDataPath = Path.Combine(path, META_DATA_PATH);
+            File.WriteAllBytes(metaDataPath, metaDataBinary);
+        }
         public static void InitializeCompactMachineFolder()
         {
-            string path = GetHashedPath();
+            string path = GetCompactMachineHashFoldersPath();
             Directory.CreateDirectory(path);
         }
     }

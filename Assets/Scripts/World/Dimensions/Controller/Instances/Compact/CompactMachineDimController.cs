@@ -100,7 +100,7 @@ namespace Dimensions {
             SaveTree(tree);
             RemoveNode(key);
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
+            string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
             GlobalHelper.CopyDirectory(dimPath,hashPath);
             Directory.Delete(dimPath,true);
             Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
@@ -176,22 +176,7 @@ namespace Dimensions {
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
 
             LoadCompactMachineSystem(compactMachine, newTree, path);
-            /*
-            parentTree.Children[placePosition] = newTree;
-            systems.Add(newSystem);
-            foreach (IChunk chunk in newSystem.Chunks) {
-                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
-                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                compactMachineInteractable.SyncToCompactMachine(compactMachine);
-                            }
-                        }
-                    }
-                }
-            }
-            */
+           
         }
 
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
