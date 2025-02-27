@@ -44,9 +44,10 @@ namespace Robot.Upgrades
             foreach (int upgrade in upgrades)
             {
                 if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
+                if (maxValue == 0) continue;
                 string title = upgradeInfo.GetTitle(upgrade);
                 bool isConstant = constantUpgrades.Contains(upgrade);
-                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant);
+                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant, upgradeInfo);
                 if (!slider)
                 {
                     continue;
@@ -56,10 +57,20 @@ namespace Robot.Upgrades
             }
         }
 
-        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant)
+        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant, RobotUpgradeInfo upgradeInfo)
         {
             if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
             {
+                if (intValue < 0)
+                {
+                    statLoadOut.DiscreteValues[upgrade] = 0;
+                }
+
+                if (intValue > maxValue)
+                {
+                    statLoadOut.DiscreteValues[upgrade] = maxValue;
+                }
+      
                 void OnValueChanged(int newValue)
                 {
                     statLoadOut.DiscreteValues[upgrade] = newValue;
@@ -73,20 +84,30 @@ namespace Robot.Upgrades
                 else
                 {
                     FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                    slider.DisplayInteger(title,intValue,maxValue,0,OnValueChanged);
+                    slider.DisplayInteger(title,intValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IDiscreteUpgradeAmountFormatter);
                     return slider;
                 }
             }
 
             if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
             {
+                if (floatValue < 0)
+                {
+                    statLoadOut.ContinuousValues[upgrade] = 0;
+                }
+
+                if (floatValue > maxValue)
+                {
+                    statLoadOut.ContinuousValues[upgrade] = maxValue;
+                }
+                
                 void OnValueChanged(float newValue)
                 {
                     statLoadOut.ContinuousValues[upgrade] = newValue;
                 }
 
                 FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                slider.DisplayFloat(title,floatValue,maxValue,0,OnValueChanged);
+                slider.DisplayFloat(title,floatValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IContinousUpgradeAmountFormatter);
                 return slider;
             }
             return null;

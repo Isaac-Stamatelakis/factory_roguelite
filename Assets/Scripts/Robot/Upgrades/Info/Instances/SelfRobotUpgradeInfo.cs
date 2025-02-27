@@ -42,6 +42,38 @@ namespace Robot.Upgrades.Info.Instances
             return ((RobotUpgrade)upgrade).ToString();
         }
 
+        public override IAmountFormatter GetAmountFormatter(int upgrade)
+        {
+            RobotUpgrade robotUpgrade = (RobotUpgrade)upgrade;
+            switch (robotUpgrade)
+            {
+                case RobotUpgrade.Speed:
+                    break;
+                case RobotUpgrade.JumpHeight:
+                    break;
+                case RobotUpgrade.BonusJump:
+                    break;
+                case RobotUpgrade.RocketBoots:
+                    break;
+                case RobotUpgrade.Flight:
+                    break;
+                case RobotUpgrade.Reach:
+                    break;
+                case RobotUpgrade.Dash:
+                    break;
+                case RobotUpgrade.Hover:
+                    break;
+                case RobotUpgrade.Teleport:
+                    break;
+                case RobotUpgrade.Light:
+                    break;
+                case RobotUpgrade.NightVision:
+                    break;
+            }
+
+            return null;
+        }
+
         public override List<int> GetContinuousUpgrades()
         {
             return new List<int>

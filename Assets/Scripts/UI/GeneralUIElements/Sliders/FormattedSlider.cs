@@ -1,4 +1,5 @@
 using System;
+using Robot.Upgrades.Info;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,13 +15,13 @@ namespace UI.GeneralUIElements.Sliders
         [SerializeField] private TextMeshProUGUI mValueText;
 
 
-        public void DisplayInteger(string title, int initial, int maxValue, int bonusDisplay, Action<int> valueChangeCallback)
+        public void DisplayInteger(string title, int initial, int maxValue, Action<int> valueChangeCallback, IDiscreteUpgradeAmountFormatter amountFormatter)
         {
             mNameText.text = $"{title}:";
             
             mScrollBar.onValueChanged.RemoveAllListeners();
             mScrollBar.value = (float)initial/maxValue;
-            SetIntValueText(bonusDisplay, initial);
+            SetIntValueText(initial,amountFormatter);
             mScrollBar.onValueChanged.AddListener((value) =>
             {
                 // For some reason the max number of steps is 11 so have to hard code this
@@ -28,18 +29,18 @@ namespace UI.GeneralUIElements.Sliders
                 valueChangeCallback(intValue);
                 int step = GetStep(value, maxValue);
                 SetAnchorStep(step, maxValue);
-                SetIntValueText(bonusDisplay, step);
+                SetIntValueText(step,amountFormatter);
             });
         }
 
-        private void SetIntValueText(int bonus, int value)
+        private void SetIntValueText(int value, IDiscreteUpgradeAmountFormatter amountFormatter)
         {
-            mValueText.text = (bonus+value).ToString();
+            mValueText.text = amountFormatter == null ? value.ToString() : amountFormatter.Format(value);
         }
 
-        private void SetFloatValueText(float bonus, float value)
+        private void SetFloatValueText(float value, IContinousUpgradeAmountFormatter amountFormatter)
         {
-            mValueText.text = $"{(bonus+value):F1}";
+            mValueText.text = amountFormatter == null ? $"{value:F1}" : amountFormatter.Format(value);
         }
         private int GetStep(float value, int maxSteps)
         {
@@ -52,17 +53,17 @@ namespace UI.GeneralUIElements.Sliders
             float size = (1 - mScrollBar.size) / (maxSteps - 1);
             mHandleTransform.pivot = new Vector2(step * size, (step + 1) * size);
         }
-        public void DisplayFloat(string title, float initial, float maxValue, float bonusDisplay, Action<float> valueChangeCallback)
+        public void DisplayFloat(string title, float initial, float maxValue, Action<float> valueChangeCallback,IContinousUpgradeAmountFormatter amountFormatter)
         {
             mNameText.text = $"{title}:";
             mScrollBar.numberOfSteps = 0;
             mScrollBar.onValueChanged.RemoveAllListeners();
             mScrollBar.value = initial / maxValue;
-            SetFloatValueText(bonusDisplay, initial);
+            SetFloatValueText(initial, amountFormatter);
             mScrollBar.onValueChanged.AddListener((value) =>
             {
                 valueChangeCallback(value*maxValue);
-                SetFloatValueText(bonusDisplay, value*maxValue);
+                SetFloatValueText(value*maxValue, amountFormatter);
             });
         }
 

@@ -1,13 +1,28 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
 namespace Robot.Upgrades.Info
 {
+    public interface IAmountFormatter
+    {
+        
+    }
+    public interface IDiscreteUpgradeAmountFormatter : IAmountFormatter
+    {
+        public string Format(int value);
+    }
+
+    public interface IContinousUpgradeAmountFormatter : IAmountFormatter
+    {
+        public string Format(float upgrade);
+    }
     internal abstract class RobotUpgradeInfo
     {
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
         public abstract string GetTitle(int upgrade);
+        public abstract IAmountFormatter GetAmountFormatter(int upgrade);
 
         public RobotStatLoadOut GetRobotStatLoadOut()
         {
@@ -22,7 +37,10 @@ namespace Robot.Upgrades.Info
             foreach (int continuousUpgrade in continuousUpgrades)
             {
                 robotStatLoadOut.ContinuousValues.TryAdd(continuousUpgrade, 0);
-
+                if (float.IsNaN(robotStatLoadOut.ContinuousValues[continuousUpgrade]))
+                {
+                    robotStatLoadOut.ContinuousValues[continuousUpgrade] = 0;
+                }
                 if (robotStatLoadOut.DiscreteValues.ContainsKey(continuousUpgrade))
                 {
                     robotStatLoadOut.DiscreteValues.Remove(continuousUpgrade);

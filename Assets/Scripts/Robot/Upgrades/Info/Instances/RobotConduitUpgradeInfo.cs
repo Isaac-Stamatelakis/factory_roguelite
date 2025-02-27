@@ -15,20 +15,31 @@ namespace Robot.Upgrades.Info.Instances
         public override string GetDescription(int upgrade)
         {
             ConduitSlicerUpgrade robotDrillUpgrade = (ConduitSlicerUpgrade)upgrade;
-            switch (robotDrillUpgrade)
+            return robotDrillUpgrade switch
             {
-                case ConduitSlicerUpgrade.VeinMine:
-                    return "Unlocks vein mine conduit breaking";
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                ConduitSlicerUpgrade.VeinMine => "Unlocks vein mine conduit breaking",
+                ConduitSlicerUpgrade.Item_Magnet => "Teleports destroyed conduits into robot inventory",
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public override string GetTitle(int upgrade)
         {
             return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
-        
+
+        public override IAmountFormatter GetAmountFormatter(int upgrade)
+        {
+            ConduitSlicerUpgrade conduitSlicerUpgrade = (ConduitSlicerUpgrade)upgrade;
+            switch (conduitSlicerUpgrade)
+            {
+                case ConduitSlicerUpgrade.VeinMine:
+                    return new VeinMineUpgradeFormatter();
+            }
+
+            return null;
+        }
+
 
         public override List<int> GetContinuousUpgrades()
         {

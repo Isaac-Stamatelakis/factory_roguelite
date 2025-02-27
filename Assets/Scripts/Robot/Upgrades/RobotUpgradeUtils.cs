@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Item.Slot;
 using Newtonsoft.Json;
 using Player.Tool;
 using Robot.Upgrades.Info;
@@ -85,8 +86,9 @@ namespace Robot.Upgrades
                 {
                     foreach (var toolLoadOut in value.LoadOuts)
                     {
-                        robotUpgradeInfo.VerifyStatLoadOut(toolLoadOut);
+                        toolInfo.VerifyStatLoadOut(toolLoadOut);
                     }
+                    continue;
                 }
                 loadOut.ToolLoadOuts[tool] = CreateNewLoadOutCollection(toolInfo);
 

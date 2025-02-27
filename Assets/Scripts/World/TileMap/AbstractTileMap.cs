@@ -15,9 +15,9 @@ using Items;
 
 namespace TileMaps {
     public interface IHitableTileMap : IWorldTileMap{
-        public bool HitTile(Vector2 position);
+        public bool HitTile(Vector2 position, bool dropItem);
         public bool DeleteTile(Vector2 position);
-        public bool BreakAndDropTile(Vector2Int position);
+        public bool BreakAndDropTile(Vector2Int position, bool dropItem);
     }
 
     public interface IConditionalHitableTileMap : IHitableTileMap
@@ -41,6 +41,7 @@ namespace TileMaps {
         public void Initialize(TileMapType type);
         public ClosedChunkSystem GetSystem();
         public void BreakTile(Vector2Int position);
+        public ItemObject GetItemObject(Vector2Int position);
     }
 
     public interface ITileMapListener {
@@ -148,7 +149,7 @@ namespace TileMaps {
             CallListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
-        public abstract bool HitTile(Vector2 position);
+        public abstract bool HitTile(Vector2 position, bool dropItem);
 
         public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
@@ -200,7 +201,9 @@ namespace TileMaps {
             tilemap.SetTile(vector3Int, null);
         }
 
-        public abstract bool BreakAndDropTile(Vector2Int position);
+        public abstract ItemObject GetItemObject(Vector2Int position);
+
+        public abstract bool BreakAndDropTile(Vector2Int position, bool dropItem);
 
         public ClosedChunkSystem GetSystem()
         {

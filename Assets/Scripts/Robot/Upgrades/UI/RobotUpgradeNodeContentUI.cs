@@ -241,10 +241,10 @@ namespace Robot.Upgrades
             }
             RobotUpgradeInfo upgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type,nodeNetwork.SubType);
             List<int> constUpgrades = upgradeInfo.GetConstantUpgrades();
-            
-            if (constUpgrades.Contains(robotUpgradeNode.NodeData.UpgradeType))
+            int upgrade = robotUpgradeNode.NodeData.UpgradeType;
+            if (constUpgrades.Contains(upgrade))
             {
-                UpdateConstantValues(playerScript.PlayerRobot, robotUpgradeNode.NodeData.UpgradeType);
+                UpdateConstantValues(playerScript.PlayerRobot,upgrade);
             }
             
             IterateUpgradeAmount();

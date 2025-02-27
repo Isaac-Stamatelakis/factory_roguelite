@@ -33,7 +33,13 @@ namespace TileMaps.Conduit {
             return true;
         }
 
-        public override bool BreakAndDropTile(Vector2Int position)
+        public override ItemObject GetItemObject(Vector2Int position)
+        {
+            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(position);
+            return conduit?.GetConduitItem();
+        }
+
+        public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
             if (conduitSystemManager == null) {
                 return false;
@@ -45,8 +51,13 @@ namespace TileMaps.Conduit {
                 Debug.LogError("Conduit Tile belonged to non conduit tile chunk partition");
                 return false;
             }
-            IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(position);
-            SpawnItemEntity(conduit.GetConduitItem(),1,position);
+
+            if (dropItem)
+            {
+                IConduit conduit = conduitSystemManager.GetConduitAtCellPosition(position);
+                SpawnItemEntity(conduit.GetConduitItem(),1,position);
+            }
+            
             BreakTile(position);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             WriteTile(partition,positionInPartition,null);
@@ -78,9 +89,9 @@ namespace TileMaps.Conduit {
             tilemap.SetTile(cellPosition,stateTile);
         }
 
-        public override bool HitTile(Vector2 position)
+        public override bool HitTile(Vector2 position, bool dropItem)
         {
-            return BreakAndDropTile((Vector2Int)mTileMap.WorldToCell(position));
+            return BreakAndDropTile((Vector2Int)mTileMap.WorldToCell(position), dropItem);
         }
 
         public void DisconnectConduits(Vector2 position)
