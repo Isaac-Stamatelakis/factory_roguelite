@@ -82,10 +82,10 @@ namespace TileEntity.Instances.Matrix {
                     copyOutputs
                 );
                 spliced.amount = 1;
-                if (!ItemSlotUtils.CanInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize)) {
+                if (!ItemSlotUtils.CanInsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MAX_SIZE)) {
                     continue;
                 }
-                ItemSlotUtils.InsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(recipeEncoder.EncodedRecipes,spliced,Global.MAX_SIZE);
                 itemSlot.amount--;
                 if (itemSlot.amount <= 0) {
                     itemSlot.itemObject = null;

@@ -26,7 +26,7 @@ namespace UI.JEI {
                         CatalogueInfoUtils.DisplayItemInformation(itemSlot);
                         break;
                     case CatalogueMode.Cheat:
-                        ItemSlot copy = ItemSlotFactory.Splice(itemSlot,Global.MaxSize);
+                        ItemSlot copy = ItemSlotFactory.Splice(itemSlot,Global.MAX_SIZE);
                         GrabbedItemProperties grabbedItemProperties = GrabbedItemProperties.Instance;
                         grabbedItemProperties.SetItemSlot(copy);
                         break;
@@ -43,7 +43,7 @@ namespace UI.JEI {
                             grabbedItemProperties.SetItemSlot(copy);
                         } else {
                             if (grabbedItemProperties.ItemSlot.itemObject.id == itemSlot.itemObject.id) {
-                                grabbedItemProperties.ItemSlot.amount = GlobalHelper.MinUInt(Global.MaxSize, 1+grabbedItemProperties.ItemSlot.amount);
+                                grabbedItemProperties.ItemSlot.amount = GlobalHelper.MinUInt(Global.MAX_SIZE, 1+grabbedItemProperties.ItemSlot.amount);
                             } else {
                                 grabbedItemProperties.SetItemSlot(itemSlot);
                             }

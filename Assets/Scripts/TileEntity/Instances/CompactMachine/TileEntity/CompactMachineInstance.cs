@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using Conduits.Ports;
 using UnityEngine.Tilemaps;
@@ -8,11 +9,16 @@ using Chunks;
 using Dimensions;
 using Chunks.Systems;
 using Conduits;
+using Entities;
 using Item.Slot;
+using Items;
+using Items.Tags;
 using UI;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine
+    public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
+        IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine, 
+        IBreakActionTileEntity, ISerializableTileEntity, IPlaceInitializable
     {
         private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
@@ -20,6 +26,7 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
         public Vector2Int PositionInSystem { get => positionInSystem; set => positionInSystem = value; }
+        private string hash;
 
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -32,15 +39,14 @@ namespace TileEntity.Instances.CompactMachines {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            List<Vector2Int> path = new List<Vector2Int>();
-            if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
-                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
-                foreach (Vector2Int vector in key.Path) {
-                    path.Add(vector);
-                }
+            
+            if (loadedChunk.getSystem() is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+            {
+                Debug.LogWarning("Tried to initialize compact machine inside non compact machine system");
+                return;
             }
-            path.Add(getCellPosition());
-            CompactMachineTeleportKey thisKey = new CompactMachineTeleportKey(path);
+
+            CompactMachineTeleportKey thisKey = CompactMachineUtils.GetTeleportKey(compactMachineClosedChunkSystem);
             if (!dimController.HasSystem(thisKey)) {
                 dimController.AddNewSystem(thisKey,this);
             }
@@ -67,7 +73,7 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
-                CompactMachineHelper.TeleportIntoCompactMachine(this);
+                CompactMachineUtils.TeleportIntoCompactMachine(this);
                 return;
             }
             GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
@@ -102,37 +108,6 @@ namespace TileEntity.Instances.CompactMachines {
         {
             
         }
-        /*
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
-        {
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                return inventory.ItemPorts[portPosition].ExtractSolidItem(portPosition);
-            }
-            return null;
-        }
-
-        public void InsertSolidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                inventory.ItemPorts[portPosition].InsertSolidItem(itemSlot,portPosition);
-            }
-        }
-
-        public ItemSlot ExtractFluidItem(Vector2Int portPosition)
-        {
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                return inventory.FluidPorts[portPosition].ExtractFluidItem(portPosition);
-            }
-            return null;
-        }
-
-        public void InsertFluidItem(ItemSlot itemSlot, Vector2Int portPosition)
-        {
-            if (inventory.ItemPorts.ContainsKey(portPosition)) {
-                inventory.FluidPorts[portPosition].InsertFluidItem(itemSlot,portPosition);
-            }
-        }
-        */
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
             switch (state)
@@ -151,6 +126,40 @@ namespace TileEntity.Instances.CompactMachines {
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
             throw new System.NotImplementedException();
+        }
+        public string Serialize()
+        {
+            return hash;
+        }
+
+        public void Unserialize(string data)
+        {
+            hash = data;
+        }
+
+        public void OnBreak()
+        {
+            if (chunk is not ILoadedChunk loadedChunk) return;
+            if (loadedChunk.getSystem() is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+            {
+                return;
+            }
+            // Drops itself with hash
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
+            ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
+            ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize());
+            ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
+
+            CompactMachineTeleportKey key = CompactMachineUtils.GetTeleportKey(compactMachineClosedChunkSystem);
+            string path = CompactMachineUtils.GetPositionFolderPath(key.Path);
+            Debug.Log(path);
+            // Move content from path into hash folder
+        }
+
+        public void PlaceInitialize()
+        {
+            hash = CompactMachineUtils.GenerateHash();
+            CompactMachineUtils.InitializeHashFolder(Serialize());
         }
     }
 
@@ -182,9 +191,10 @@ namespace TileEntity.Instances.CompactMachines {
             }
             ports[position] = (T)interactable;
         }
-        public void addPort(ITileEntityInstance tileEntity, ConduitType type) {
-            Vector2Int positionInCompactMachine = tileEntity.getCellPosition()-CompactMachineHelper.getPositionInNextRing(compactMachine.getCellPosition()); 
-            Vector2Int positionOutsideCompactMachine = CompactMachineHelper.getPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
+        public void addPort(ITileEntityInstance tileEntity, ConduitType type)
+        {
+            Vector2Int positionInCompactMachine = tileEntity.getCellPosition(); 
+            Vector2Int positionOutsideCompactMachine = CompactMachineUtils.GetPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
             if (interactable == null) return;
             switch (type) {

@@ -136,9 +136,9 @@ namespace PlayerModule {
         }
 
         public void Give(ItemSlot itemSlot) {
-            if (ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory, itemSlot, Global.MaxSize))
+            if (ItemSlotUtils.CanInsertIntoInventory(playerInventoryData.Inventory, itemSlot, Global.MAX_SIZE))
             {
-                ItemSlotUtils.InsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MaxSize);
+                ItemSlotUtils.InsertIntoInventory(playerInventoryData.Inventory,itemSlot,Global.MAX_SIZE);
                 Refresh();
                 return;
             }

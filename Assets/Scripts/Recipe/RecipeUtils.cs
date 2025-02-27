@@ -108,7 +108,7 @@ public static class RecipeUtils {
             if (!requiredItemAmounts.TryGetValue(input.itemObject.id, out var amount)) continue;
             uint requiredRemoval = (uint) amount;
             if (requiredRemoval == 0) continue;
-            uint removal = requiredRemoval > Global.MaxSize ? Global.MaxSize : requiredRemoval;
+            uint removal = requiredRemoval > Global.MAX_SIZE ? Global.MAX_SIZE : requiredRemoval;
             if (removal > input.amount) removal = input.amount;
             requiredRemoval -= removal;
             requiredItemAmounts[input.itemObject.id] = requiredRemoval;

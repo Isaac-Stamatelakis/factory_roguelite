@@ -15,33 +15,15 @@ public static class Global
     private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public const uint SOLID_SPEED_PER_UPGRADE = 4;
     public const uint FLUID_SPEED_PER_UPGRADE = 16;
-    public static int ChunkPartitionExtraTileEntityLoadRange {get{return chunkPartitionExtraTileEntityLoadRange;}}
     public const int CHUNK_LOAD_RANGE = 2;
-    private static float tileBlockZ = 1;
-    public static float TileBlockZ {get {return tileBlockZ;}}
-    private static float entityZ = -1;
-    public static float EntityZ {get {return entityZ;}}
-    private static float tileObjectZ = 0.5f;
-    public static float TileObjectZ {get {return tileObjectZ;}}
-    public static float TileBackGroundZ { get; } = 3f;
-    private static float chunkOffset = -0.25f;  
-    public static float ChunkOffset {get {return chunkOffset;}}
     private static float tileItemEntityScalar = 0.5f;
-    private static uint maxSize = 999;
     private static readonly bool showSystemParameter = false;
-    public static uint MaxSize {get{return maxSize;}}
-    public static float TileItemEntityScalar {get {return tileItemEntityScalar;}}
-
-    private static float itemEntityLifeSpan = 300f;
-    public static float ItemEntityLifeSpawn {get{return itemEntityLifeSpan;}}
-
-    public static Cave CurrentCave { get => currentCave; set => currentCave = value; }
+    public const uint MAX_SIZE = 999;
     public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
-
     public static bool ShowSystemParameter => showSystemParameter;
     private static Cave currentCave;
-    public static int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
-    private static readonly string editorCreationPath = "EditorCreations";
+    public const int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
+    public const string editorCreationPath = "EditorCreations";
     
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {

@@ -266,14 +266,14 @@ namespace Item.Slot
             if (inputSlot.itemObject.id != toInsert.itemObject.id) {
                 return;
             }
-            if (inputSlot.amount >= Global.MaxSize) {
+            if (inputSlot.amount >= Global.MAX_SIZE) {
                 return;
             }
             // Success
             uint sum = inputSlot.amount + toInsert.amount;
-            if (sum > Global.MaxSize) {
-                toInsert.amount = sum - Global.MaxSize;
-                inputSlot.amount = Global.MaxSize;
+            if (sum > Global.MAX_SIZE) {
+                toInsert.amount = sum - Global.MAX_SIZE;
+                inputSlot.amount = Global.MAX_SIZE;
             } else {
                 inputSlot.amount = sum;
                 toInsert.amount = 0;

@@ -93,8 +93,8 @@ namespace Item.GrabbedItem {
                 {
                     if (i == clickHandler.Index) continue;
                     if (!ItemSlotUtils.AreEqual(inventory[i],itemSlot)) continue;
-                    ItemSlotUtils.InsertIntoSlot(itemSlot,inventory[i],Global.MaxSize);
-                    if (itemSlot.amount < Global.MaxSize) continue;
+                    ItemSlotUtils.InsertIntoSlot(itemSlot,inventory[i],Global.MAX_SIZE);
+                    if (itemSlot.amount < Global.MAX_SIZE) continue;
                     doubleClickEvent = null;
                     return;
                 }
@@ -135,7 +135,7 @@ namespace Item.GrabbedItem {
             if (!ItemSlotUtils.AreEqual(ItemSlot,inventorySlot)) {
                 return;
             }
-            if (inventorySlot.amount >= Global.MaxSize) {
+            if (inventorySlot.amount >= Global.MAX_SIZE) {
                 return;
             }
             inventorySlot.amount++;

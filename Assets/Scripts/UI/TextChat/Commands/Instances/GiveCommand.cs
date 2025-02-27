@@ -25,7 +25,7 @@ namespace UI.Chat {
             if (ReferenceEquals(itemObject,null)) throw new ChatParseException($"Could not find item with id: '{id}'");
             while (amount > 0)
             {
-                uint amountInSlot = amount > Global.MaxSize ? Global.MaxSize : amount;
+                uint amountInSlot = amount > Global.MAX_SIZE ? Global.MAX_SIZE : amount;
                 amount -= amountInSlot;
                 ItemSlot toGive = new ItemSlot(itemObject, amountInSlot, null);
                 playerInventory.Give(toGive);

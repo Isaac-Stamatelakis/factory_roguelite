@@ -38,11 +38,11 @@ namespace TileEntity.Instances.WorkBench {
             if (recipeObject is ItemRecipeObject itemRecipeObject)
             {
                 var outputs = ItemSlotFactory.FromEditorObjects(itemRecipeObject.Outputs);
-                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, outputs, Global.MaxSize)) return;
+                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, outputs, Global.MAX_SIZE)) return;
                 ItemRecipeObjectInstance itemRecipeObjectInstance = new ItemRecipeObjectInstance(itemRecipeObject);
                 var itemRecipe = RecipeUtils.TryCraftRecipe<ItemRecipe>(itemRecipeObjectInstance, sourceInventory, null, RecipeType.Item);
                 if (itemRecipe == null) return;
-                ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MaxSize);
+                ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MAX_SIZE);
             }
 
             if (recipeObject is TransmutableRecipeObject transmutableRecipeObject)
@@ -61,7 +61,7 @@ namespace TileEntity.Instances.WorkBench {
                 if (itemSlot.itemObject is not TransmutableItemObject transmutableItemObject) continue;
                 if (transmutableItemObject.getState() != transmutableRecipeObject.InputState) continue;
                 var output = TransmutableItemUtils.TransmuteOutput(transmutableItemObject.getMaterial(), transmutableRecipeObject);
-                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, output, Global.MaxSize)) continue;
+                if (!ItemSlotUtils.CanInsertIntoInventory(sourceInventory, output, Global.MAX_SIZE)) continue;
                 
                 var itemRecipe = RecipeFactory.GetTransmutationRecipe(
                     workBenchInstance.TileEntityObject.WorkBenchRecipeProcessor.RecipeType,
@@ -78,7 +78,7 @@ namespace TileEntity.Instances.WorkBench {
                 );
                 if (result != null)
                 {
-                    ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MaxSize);
+                    ItemSlotUtils.InsertInventoryIntoInventory(sourceInventory,itemRecipe.SolidOutputs, Global.MAX_SIZE);
                     return;
                 }
             }

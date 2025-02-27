@@ -78,7 +78,7 @@ namespace Item.GrabbedItem
                 
             }
             grabbedSlot.amount -= GetAmountFromGrabbed();
-            ItemSlotUtils.InsertIntoSlot(lastDragged.GetInventoryItem(),grabbedSlot,Global.MaxSize);
+            ItemSlotUtils.InsertIntoSlot(lastDragged.GetInventoryItem(),grabbedSlot,Global.MAX_SIZE);
         }
 
         private uint GetAmountFromGrabbed()
