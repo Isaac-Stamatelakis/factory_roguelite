@@ -7,19 +7,23 @@ using Items;
 namespace Entities {
     public static class ItemEntityFactory
     {
-        public static GameObject SpawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer) {
+        public static GameObject SpawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2? initialVelocity = null) {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot) || ReferenceEquals(itemSlot.itemObject.getSprite(),null)) {
                 return null;
             }
             GameObject tileItemEntity = new GameObject();
-            tileItemEntity.AddComponent<ItemEntity>();
-            ItemEntity itemProperties = tileItemEntity.GetComponent<ItemEntity>();
-            itemProperties.itemSlot = itemSlot;
+            ItemEntity itemEntity = tileItemEntity.AddComponent<ItemEntity>();
+            itemEntity.itemSlot = itemSlot;
             tileItemEntity.name = itemSlot.itemObject.name + "Entity";
-            itemProperties.transform.position = new Vector3(position.x,position.y,0);
-            itemProperties.transform.parent = entityContainer;
-            itemProperties.tag = "ItemEntity";
-            itemProperties.initalize();
+            itemEntity.transform.position = new Vector3(position.x,position.y,0);
+            itemEntity.transform.parent = entityContainer;
+            itemEntity.tag = "ItemEntity";
+            itemEntity.initalize();
+            if (initialVelocity != null)
+            {
+                Rigidbody2D rb = itemEntity.GetComponent<Rigidbody2D>();
+                rb.velocity = initialVelocity.Value;
+            }
         
             return tileItemEntity;
         }

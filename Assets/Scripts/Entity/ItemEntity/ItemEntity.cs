@@ -73,11 +73,30 @@ namespace Entities {
 
         public SeralizedEntityData serialize()
         {
+            SerializedItemEntityData serializedItemEntityData = new SerializedItemEntityData(
+                ItemSlotFactory.seralizeItemSlot(itemSlot),
+                rb.velocity.x,
+                rb.velocity.y
+            );
             return new SeralizedEntityData(
                 type: EntityType.Item,
                 transform.position,
-                ItemSlotFactory.seralizeItemSlot(itemSlot)
+                JsonConvert.SerializeObject(serializedItemEntityData)
             );
+        }
+
+        private class SerializedItemEntityData
+        {
+            public string ItemData;
+            public float xVelocity;
+            public float yVelocity;
+
+            public SerializedItemEntityData(string itemData, float xVelocity, float yVelocity)
+            {
+                ItemData = itemData;
+                this.xVelocity = xVelocity;
+                this.yVelocity = yVelocity;
+            }
         }
         
         public void OnTriggerEnter2D(Collider2D other)
@@ -127,16 +146,20 @@ namespace Entities {
             }
         }
 
-        private class SeralizedItemEntity {
-            public string itemData;
-            public float x;
-            public float y;
-            public SeralizedItemEntity(string itemData, float x, float y)
+        public static void SpawnFromData(Vector2 position, string data, Transform container)
+        {
+            if (data == null) return;
+            try
             {
-                this.itemData = itemData;
-                this.x = x;
-                this.y = y;
+                SerializedItemEntityData serializedItemEntityData =JsonConvert.DeserializeObject<SerializedItemEntityData>(data);
+                ItemSlot itemSlot = ItemSlotFactory.DeserializeSlot(serializedItemEntityData.ItemData);
+                ItemEntityFactory.SpawnItemEntity(position,itemSlot,container,new Vector2(serializedItemEntityData.xVelocity,serializedItemEntityData.yVelocity));
             }
+            catch (JsonSerializationException)
+            {
+                
+            }
+            
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Entities {
             Vector2 position = new Vector2(entityData.x,entityData.y);
             switch (entityData.type) {
                 case EntityType.Item:
-                    spawnItemFromData(position,entityData.data,container);
+                    ItemEntity.SpawnFromData(position,entityData.data,container);
                     break;
                 case EntityType.Mob:
                     spawnMobFromData(position,entityData.data,container);
@@ -40,11 +40,6 @@ namespace Entities {
                     Debug.LogWarning($"Tile Chunk Partition Loading does not cover case {entityData.type}");
                     break;
             }
-        }
-
-        private static void spawnItemFromData(Vector2 position, string data, Transform container) {
-            ItemSlot itemSlot = ItemSlotFactory.DeserializeSlot(data);
-            ItemEntityFactory.SpawnItemEntity(position,itemSlot,container);
         }
 
         private static void spawnMobFromData(Vector2 position, string data, Transform container) {
