@@ -173,6 +173,12 @@ namespace Dimensions {
             );
             parentTree.Children[placePosition] = newTree;
             systems.Add(newSystem);
+            string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
+
+            LoadCompactMachineSystem(compactMachine, newTree, path);
+            /*
+            parentTree.Children[placePosition] = newTree;
+            systems.Add(newSystem);
             foreach (IChunk chunk in newSystem.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
@@ -185,6 +191,7 @@ namespace Dimensions {
                     }
                 }
             }
+            */
         }
 
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
