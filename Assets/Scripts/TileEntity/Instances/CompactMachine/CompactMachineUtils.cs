@@ -203,14 +203,10 @@ namespace TileEntity.Instances.CompactMachines {
             Debug.Log($"Created Compact Machine Hash folder at '{newPath}'");
         }
 
-        public static CompactMachineTeleportKey GetTeleportKey(ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+        public static void InitializeCompactMachineFolder()
         {
-            List<Vector2Int> path = new List<Vector2Int>();
-            CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
-            foreach (Vector2Int vector in key.Path) {
-                path.Add(vector);
-            }
-            return new CompactMachineTeleportKey(path);
+            string path = GetHashedPath();
+            Directory.CreateDirectory(path);
         }
     }
 }

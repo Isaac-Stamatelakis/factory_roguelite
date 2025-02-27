@@ -39,7 +39,7 @@ namespace World.BackUp
             string mainPath = WorldLoadUtils.GetMainPath(worldName);
             Debug.Log($"Created backup of world '{worldName}' at path '{backupFilePathBackup}'");
             Directory.CreateDirectory(backupFilePathBackup);
-            CopyDirectory(mainPath, backupFilePathBackup);
+            GlobalHelper.CopyDirectory(mainPath, backupFilePathBackup);
         }
 
         public static void RestoreBackUp(string worldName, string backupPath)
@@ -51,7 +51,7 @@ namespace World.BackUp
             }
             string mainPath = WorldLoadUtils.GetMainPath(worldName);
             Debug.Log($"Restored world '{worldName}' from path {backupPath}");
-            CopyDirectory(backupPath, mainPath);
+            GlobalHelper.CopyDirectory(backupPath, mainPath);
         }
 
         private static string FormatDate(DateTime dateTime)
@@ -156,32 +156,6 @@ namespace World.BackUp
             }
 
             return removed;
-        }
-        public static void CopyDirectory(string sourceDir, string targetDir)
-        {
-            DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
-            
-            if (!sourceDirInfo.Exists)
-            {
-                throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
-            }
-            
-            if (!Directory.Exists(targetDir))
-            {
-                Directory.CreateDirectory(targetDir);
-            }
-            
-            foreach (FileInfo file in sourceDirInfo.GetFiles())
-            {
-                string targetFilePath = Path.Combine(targetDir, file.Name);
-                file.CopyTo(targetFilePath, overwrite: true);
-            }
-            
-            foreach (DirectoryInfo subDir in sourceDirInfo.GetDirectories())
-            {
-                string newTargetDir = Path.Combine(targetDir, subDir.Name);
-                CopyDirectory(subDir.FullName, newTargetDir);
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -70,5 +71,32 @@ public static class GlobalHelper
             options.Add(new TMP_Dropdown.OptionData(value.ToString()));
         }
         return options;
+    }
+    
+    public static void CopyDirectory(string sourceDir, string targetDir)
+    {
+        DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
+            
+        if (!sourceDirInfo.Exists)
+        {
+            throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
+        }
+            
+        if (!Directory.Exists(targetDir))
+        {
+            Directory.CreateDirectory(targetDir);
+        }
+            
+        foreach (FileInfo file in sourceDirInfo.GetFiles())
+        {
+            string targetFilePath = Path.Combine(targetDir, file.Name);
+            file.CopyTo(targetFilePath, overwrite: true);
+        }
+            
+        foreach (DirectoryInfo subDir in sourceDirInfo.GetDirectories())
+        {
+            string newTargetDir = Path.Combine(targetDir, subDir.Name);
+            CopyDirectory(subDir.FullName, newTargetDir);
+        }
     }
 }

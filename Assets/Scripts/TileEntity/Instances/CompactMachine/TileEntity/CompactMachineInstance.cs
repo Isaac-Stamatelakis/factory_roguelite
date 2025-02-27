@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 using Conduits.Ports;
@@ -14,6 +15,7 @@ using Item.Slot;
 using Items;
 using Items.Tags;
 using UI;
+using WorldModule;
 
 namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
@@ -36,22 +38,31 @@ namespace TileEntity.Instances.CompactMachines {
                 return;
             }
             CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
-            if (chunk is not ILoadedChunk loadedChunk) {
-                return;
-            }
             
-            if (loadedChunk.getSystem() is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+            CompactMachineTeleportKey thisKey = GetTeleportKey();
+            if (thisKey == null)
             {
-                Debug.LogWarning("Tried to initialize compact machine inside non compact machine system");
+                Debug.LogError("Tried to load compact machine with null key");
                 return;
             }
-
-            CompactMachineTeleportKey thisKey = CompactMachineUtils.GetTeleportKey(compactMachineClosedChunkSystem);
             if (!dimController.HasSystem(thisKey)) {
                 dimController.AddNewSystem(thisKey,this);
             }
         }
 
+        public CompactMachineTeleportKey GetTeleportKey()
+        {
+            if (chunk is not ILoadedChunk loadedChunk) return null;
+            List<Vector2Int> path = new List<Vector2Int>();
+            if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
+                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
+                foreach (Vector2Int vector in key.Path) {
+                    path.Add(vector);
+                }
+            }
+            path.Add(getCellPosition());
+            return new CompactMachineTeleportKey(path);
+        }
         public ConduitPortLayout GetConduitPortLayout()
         {
             return TileEntityObject.ConduitPortLayout;
@@ -140,19 +151,18 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnBreak()
         {
             if (chunk is not ILoadedChunk loadedChunk) return;
-            if (loadedChunk.getSystem() is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
-            {
-                return;
-            }
             // Drops itself with hash
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
             ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize());
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
-            CompactMachineTeleportKey key = CompactMachineUtils.GetTeleportKey(compactMachineClosedChunkSystem);
+            CompactMachineTeleportKey key = GetTeleportKey();
             string path = CompactMachineUtils.GetPositionFolderPath(key.Path);
             Debug.Log(path);
+            string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
+            string contentPath = Path.Combine(path, CompactMachineUtils.CONTENT_PATH);
+            GlobalHelper.CopyDirectory(contentPath,hashPath);
             // Move content from path into hash folder
         }
 
