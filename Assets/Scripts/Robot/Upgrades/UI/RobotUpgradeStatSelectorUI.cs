@@ -44,9 +44,10 @@ namespace Robot.Upgrades
             foreach (int upgrade in upgrades)
             {
                 if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
+                if (maxValue == 0) continue;
                 string title = upgradeInfo.GetTitle(upgrade);
                 bool isConstant = constantUpgrades.Contains(upgrade);
-                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant);
+                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant, upgradeInfo);
                 if (!slider)
                 {
                     continue;
@@ -56,7 +57,7 @@ namespace Robot.Upgrades
             }
         }
 
-        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant)
+        private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant, RobotUpgradeInfo upgradeInfo)
         {
             if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
             {
@@ -83,7 +84,7 @@ namespace Robot.Upgrades
                 else
                 {
                     FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                    slider.DisplayInteger(title,intValue,maxValue,0,OnValueChanged);
+                    slider.DisplayInteger(title,intValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IDiscreteUpgradeAmountFormatter);
                     return slider;
                 }
             }
@@ -106,7 +107,7 @@ namespace Robot.Upgrades
                 }
 
                 FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
-                slider.DisplayFloat(title,floatValue,maxValue,0,OnValueChanged);
+                slider.DisplayFloat(title,floatValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IContinousUpgradeAmountFormatter);
                 return slider;
             }
             return null;

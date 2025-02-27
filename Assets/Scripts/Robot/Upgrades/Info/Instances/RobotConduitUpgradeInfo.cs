@@ -27,7 +27,19 @@ namespace Robot.Upgrades.Info.Instances
         {
             return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
-        
+
+        public override IAmountFormatter GetAmountFormatter(int upgrade)
+        {
+            ConduitSlicerUpgrade conduitSlicerUpgrade = (ConduitSlicerUpgrade)upgrade;
+            switch (conduitSlicerUpgrade)
+            {
+                case ConduitSlicerUpgrade.VeinMine:
+                    return new VeinMineUpgradeFormatter();
+            }
+
+            return null;
+        }
+
 
         public override List<int> GetContinuousUpgrades()
         {
