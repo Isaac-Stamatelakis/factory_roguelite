@@ -17,6 +17,7 @@ using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
 using Player;
 using Robot.Tool.Instances;
+using Robot.Upgrades;
 using TileEntity.MultiBlock;
 
 namespace TileMaps {
@@ -41,11 +42,15 @@ namespace TileMaps {
     public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
     {   
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
+            SpawnItemEntity(new ItemSlot(itemObject,amount,null), hitTilePosition);
+        }
+        
+        protected void SpawnItemEntity(ItemSlot itemSlot, Vector2Int hitTilePosition) {
             ILoadedChunk chunk = GetChunk(hitTilePosition);  
 
             float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
             float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
-            Sprite[] itemSprites = itemObject.getSprites();
+            Sprite[] itemSprites = itemSlot.itemObject.getSprites();
             if (itemSprites.Length == 0) {
                 Debug.LogError("Tried to spawn item with no sprite");
                 return;
@@ -57,7 +62,6 @@ namespace TileMaps {
             if (PlaceTile.mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
-            ItemSlot itemSlot = ItemSlotFactory.CreateNewItemSlot(itemObject,amount);
             ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
 
@@ -151,11 +155,21 @@ namespace TileMaps {
             }
         }
 
-        public override bool BreakAndDropTile(Vector2Int position)
+        public override ItemObject GetItemObject(Vector2Int position)
+        {
+            return getTileItem(position);
+        }
+
+        public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
             if (!mTileMap.GetTile(new Vector3Int(position.x,position.y,0))) return false;
-            TileItem tileItem = getTileItem(position);
-            DropItem(tileItem, position);
+            
+            if (dropItem) 
+            {
+                TileItem tileItem = getTileItem(position);
+                DropItem(tileItem, position);
+            }
+            
             
             BreakTile(position);
             return true;
@@ -250,10 +264,10 @@ namespace TileMaps {
         }
         
         
-        public override bool HitTile(Vector2 position) {
+        public override bool HitTile(Vector2 position, bool dropItem) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             if (!hitHardness(hitTilePosition)) return false;
-            return BreakAndDropTile(hitTilePosition);
+            return BreakAndDropTile(hitTilePosition, dropItem);
         }
 
         public bool CanHitTile(int power, Vector2 position)
@@ -266,37 +280,10 @@ namespace TileMaps {
 
         private void DropItem(TileItem tileItem, Vector2Int hitTilePosition)
         {
-            var dropOptions = tileItem.tileOptions.dropOptions;
-            if (dropOptions.Count == 0) {
-                SpawnItemEntity(tileItem,1,hitTilePosition);
-                return;
-            }
-
-            if (dropOptions.Count == 1) // Optimization for common case
+            List<ItemSlot> dropItems = ItemSlotUtils.GetTileItemDrop(tileItem);
+            foreach (ItemSlot itemSlot in dropItems)
             {
-                DropOption dropOption = dropOptions[0];
-                if (dropOption.lowerAmount == dropOption.upperAmount)
-                {
-                    SpawnItemEntity(dropOption.itemObject,(uint)dropOption.lowerAmount,hitTilePosition);
-                    return;
-                }
-            }
-            int totalWeight = 0;
-            foreach (DropOption dropOption in dropOptions) {
-                totalWeight += dropOption.weight;
-            }
-            
-            int ran = UnityEngine.Random.Range(0,totalWeight);
-            totalWeight = 0;
-            foreach (DropOption dropOption in dropOptions) {
-                totalWeight += dropOption.weight;
-                if (totalWeight < ran) continue;
-                if (ReferenceEquals(dropOption.itemObject, null)) continue;
-                
-                uint amount = (uint)UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
-                amount = GlobalHelper.MaxUInt(1, amount);
-                SpawnItemEntity(dropOption.itemObject,amount,hitTilePosition);
-                return;
+                SpawnItemEntity(itemSlot,hitTilePosition);
             }
         }
 

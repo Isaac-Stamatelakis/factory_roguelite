@@ -60,6 +60,16 @@ namespace Robot.Upgrades
         {
             if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
             {
+                if (intValue < 0)
+                {
+                    statLoadOut.DiscreteValues[upgrade] = 0;
+                }
+
+                if (intValue > maxValue)
+                {
+                    statLoadOut.DiscreteValues[upgrade] = maxValue;
+                }
+      
                 void OnValueChanged(int newValue)
                 {
                     statLoadOut.DiscreteValues[upgrade] = newValue;
@@ -80,6 +90,16 @@ namespace Robot.Upgrades
 
             if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
             {
+                if (floatValue < 0)
+                {
+                    statLoadOut.ContinuousValues[upgrade] = 0;
+                }
+
+                if (floatValue > maxValue)
+                {
+                    statLoadOut.ContinuousValues[upgrade] = maxValue;
+                }
+                
                 void OnValueChanged(float newValue)
                 {
                     statLoadOut.ContinuousValues[upgrade] = newValue;

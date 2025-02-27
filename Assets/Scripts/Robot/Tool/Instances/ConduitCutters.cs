@@ -1,10 +1,13 @@
 using System;
 using Conduits;
 using Dimensions;
+using Item.Slot;
 using Items;
 using Player.Mouse;
 using Player.Tool.Object;
+using PlayerModule;
 using Robot.Upgrades;
+using Robot.Upgrades.Instances.VeinMine;
 using Robot.Upgrades.LoadOut;
 using TileMaps;
 using TileMaps.Conduit;
@@ -73,18 +76,28 @@ namespace Robot.Tool.Instances
         {
             float veinMine = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.VeinMine);
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMine);
-            veinMinePower = 10;
             ConduitTileMap conduitTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(toolData.Type.ToTileMapType()) as ConduitTileMap;
             if (!conduitTileMap) return;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
             IConduit conduit = conduitTileMap.ConduitSystemManager.GetConduitAtCellPosition(cellPosition);
             if (conduit == null) return;
-            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition);
+            bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.Item_Magnet) == 0;
             
+            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition,drop,0);
+            if (!drop)
+            {
+                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+                playerInventory.Give(new ItemSlot(conduit?.GetConduitItem(),1,null));
+            }
             if (veinMinePower <= 1) return;
 
-            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, conduit);
+            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, false, conduit);
             veinMineEvent.Execute(cellPosition,veinMinePower);
+            if (!drop)
+            {
+                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+                playerInventory.GiveItems(veinMineEvent.GetCollectedItems());
+            }
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

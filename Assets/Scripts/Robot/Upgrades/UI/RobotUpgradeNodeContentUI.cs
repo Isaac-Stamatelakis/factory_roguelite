@@ -241,15 +241,34 @@ namespace Robot.Upgrades
             }
             RobotUpgradeInfo upgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(nodeNetwork.Type,nodeNetwork.SubType);
             List<int> constUpgrades = upgradeInfo.GetConstantUpgrades();
-            
-            if (constUpgrades.Contains(robotUpgradeNode.NodeData.UpgradeType))
+            int upgrade = robotUpgradeNode.NodeData.UpgradeType;
+            AddNewUpgradeToStats(playerScript.PlayerRobot, upgrade, upgradeInfo);
+            if (constUpgrades.Contains(upgrade))
             {
-                UpdateConstantValues(playerScript.PlayerRobot, robotUpgradeNode.NodeData.UpgradeType);
+                UpdateConstantValues(playerScript.PlayerRobot,upgrade);
             }
             
             IterateUpgradeAmount();
             networkUI.Display();
             DisplayItemIcon();
+        }
+
+        private void AddNewUpgradeToStats(PlayerRobot playerRobot, int upgrade, RobotUpgradeInfo robotUpgradeInfo)
+        {
+            List<int> ctsUpgrades = robotUpgradeInfo.GetContinuousUpgrades();
+            RobotStatLoadOutCollection loadOutCollection = playerRobot.RobotUpgradeLoadOut.GetCollection(nodeNetwork.Type, nodeNetwork.SubType);
+            bool cts = ctsUpgrades.Contains(upgrade);
+            foreach (RobotStatLoadOut robotStatLoadOut in loadOutCollection.LoadOuts)
+            {
+                if (cts)
+                {
+                    robotStatLoadOut.ContinuousValues.TryAdd(upgrade,0);
+                }
+                else
+                {
+                    robotStatLoadOut.DiscreteValues.TryAdd(upgrade,0);
+                }
+            }
         }
 
         private void UpdateConstantValues(PlayerRobot playerRobot, int upgrade)

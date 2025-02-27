@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Items;
 using Items.Tags;
+using Tiles;
+using UnityEngine;
 
 namespace Item.Slot
 {
@@ -74,7 +76,7 @@ namespace Item.Slot
             if (contained == null) {
                 return false;
             }
-
+          
             int firstNullIndex = -1;
             // First pass look for matches
             for (int i = 0; i < contained.Count; i++) {
@@ -92,9 +94,32 @@ namespace Item.Slot
             }
 
             if (firstNullIndex < 0) return false;
+          
             contained[firstNullIndex] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
             toInsert.amount=0;
             return true;
+        }
+
+        public static void AppendToInventory(List<ItemSlot> to, ItemSlot toAppend, uint maxSize)
+        {
+            if (to == null || ItemSlotUtils.IsItemSlotNull(toAppend))
+            {
+                return;
+            }
+         
+            for (int i = 0; i < to.Count; i++) {
+                if (toAppend.amount == 0) return;
+                ItemSlot inputSlot = to[i];
+                if (IsItemSlotNull(inputSlot))
+                {
+                    continue;
+                }
+                if (!AreEqual(inputSlot,toAppend) || inputSlot.amount >= maxSize) {
+                    continue;
+                }
+                InsertIntoSlot(inputSlot,toAppend,maxSize);
+            }
+            to.Add(toAppend);
         }
 
         public static bool IsItemSlotNull(ItemSlot itemSlot)
@@ -269,6 +294,44 @@ namespace Item.Slot
                         break;
                 }
             }
+        }
+
+        public static List<ItemSlot> GetTileItemDrop(TileItem tileItem)
+        {
+            List<ItemSlot> dropItems = new List<ItemSlot>();
+            var dropOptions = tileItem.tileOptions.dropOptions;
+            if (dropOptions.Count == 0) {
+                dropItems.Add(new ItemSlot(tileItem,1,null));
+                return dropItems;
+            }
+
+            if (dropOptions.Count == 1) // Optimization for common case
+            {
+                DropOption dropOption = dropOptions[0];
+                if (dropOption.lowerAmount == dropOption.upperAmount)
+                {
+                    dropItems.Add(new ItemSlot(dropOption.itemObject,(uint)dropOption.lowerAmount,null));
+                    return dropItems;
+                }
+            }
+            int totalWeight = 0;
+            foreach (DropOption dropOption in dropOptions) {
+                totalWeight += dropOption.weight;
+            }
+            
+            int ran = UnityEngine.Random.Range(0,totalWeight);
+            totalWeight = 0;
+            foreach (DropOption dropOption in dropOptions) {
+                totalWeight += dropOption.weight;
+                if (totalWeight < ran) continue;
+                if (ReferenceEquals(dropOption.itemObject, null)) continue;
+                
+                uint amount = (uint)UnityEngine.Random.Range(dropOption.lowerAmount,dropOption.upperAmount+1);
+                amount = GlobalHelper.MaxUInt(1, amount);
+                dropItems.Add(new ItemSlot(dropOption.itemObject,amount,null));
+            }
+
+            return dropItems;
         }
     }
 }

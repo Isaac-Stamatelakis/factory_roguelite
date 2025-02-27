@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
 namespace Robot.Upgrades.Info
 {
@@ -22,7 +23,10 @@ namespace Robot.Upgrades.Info
             foreach (int continuousUpgrade in continuousUpgrades)
             {
                 robotStatLoadOut.ContinuousValues.TryAdd(continuousUpgrade, 0);
-
+                if (float.IsNaN(robotStatLoadOut.ContinuousValues[continuousUpgrade]))
+                {
+                    robotStatLoadOut.ContinuousValues[continuousUpgrade] = 0;
+                }
                 if (robotStatLoadOut.DiscreteValues.ContainsKey(continuousUpgrade))
                 {
                     robotStatLoadOut.DiscreteValues.Remove(continuousUpgrade);

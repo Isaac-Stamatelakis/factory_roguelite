@@ -149,6 +149,15 @@ namespace PlayerModule {
             ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
         }
 
+        public void GiveItems(List<ItemSlot> itemSlots)
+        {
+            if (itemSlots == null) return;
+            foreach (ItemSlot itemSlot in itemSlots)
+            {
+                Give(itemSlot);
+            }
+        }
+
         public void DropAll()
         {
             Vector2 position = transform.position;

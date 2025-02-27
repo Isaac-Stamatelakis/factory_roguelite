@@ -31,9 +31,6 @@ namespace Robot.Upgrades {
         Teleport = 8,
         Light = 9,
         NightVision = 10,
-        ItemMagnet = 11,
-        
-        
     }
     
     internal enum RobotDrillUpgrade
@@ -43,6 +40,7 @@ namespace Robot.Upgrades {
         MultiBreak = 2,
         VeinMine = 3,
         Tier = 4,
+        Item_Magnet = 5,
     }
     
     
@@ -50,6 +48,7 @@ namespace Robot.Upgrades {
     internal enum ConduitSlicerUpgrade
     {
         VeinMine = 0,
+        Item_Magnet = 1,
     }
     
     

@@ -37,12 +37,12 @@ namespace Player.Mouse
         /// <param name="mousePosition"></param>
         /// <param name="power"></param>
         /// <returns>True if broken false if not</returns>
-        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, int power = 0)
+        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power)
         {
             if (tileMapLayer.raycastable())
             {
                 int layer = tileMapLayer.toRaycastLayers();
-                return RaycastHitBlock(mousePosition,layer,power);
+                return RaycastHitBlock(mousePosition,layer,power,drop);
             }
             
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
@@ -51,7 +51,7 @@ namespace Player.Mouse
                 if (DevMode.Instance.instantBreak) {
                     return hitableTileMap.DeleteTile(mousePosition);
                 }
-                return hitableTileMap.HitTile(mousePosition);
+                return hitableTileMap.HitTile(mousePosition, drop);
             }
             return false;
         }
@@ -65,7 +65,7 @@ namespace Player.Mouse
         /// <param name="layer">Unity layer for raycast</param>
         /// <returns>True if damages tilemap, false otherwise</returns>
         ///
-        private static bool RaycastHitBlock(Vector2 position, int layer, int power) {
+        private static bool RaycastHitBlock(Vector2 position, int layer, int power, bool drop) {
             RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
             if (ReferenceEquals(hit.collider, null)) return false;
             GameObject container = hit.collider.gameObject;
@@ -92,7 +92,7 @@ namespace Player.Mouse
             {
                 if (!conditionalHitableTileMap.CanHitTile(power, position)) return false;
             }
-            return hitableTileMap.HitTile(position);
+            return hitableTileMap.HitTile(position, drop);
         }
         
         /// <summary>
