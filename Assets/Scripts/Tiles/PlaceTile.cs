@@ -15,8 +15,11 @@ using Conduits.Ports;
 using Conduits.Systems;
 using Tiles;
 using Fluids;
+using Item.Slot;
 using Items;
+using Items.Tags;
 using Player;
+using TileEntity.Instances.CompactMachines;
 using TileEntity.MultiBlock;
 using TileMaps.Previewer;
 using UnityEngine.Tilemaps;
@@ -71,9 +74,9 @@ namespace TileMaps.Place {
         ii) no tileObject within sprite size.
         iii) tileblock below, above, left, or right, or a tilebackground at the location.
         **/
-        public static bool PlaceFromWorldPosition(PlayerScript playerScript, ItemObject itemObject, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true)
+        public static bool PlaceFromWorldPosition(PlayerScript playerScript, ItemSlot itemSlot, Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem, bool checkConditions = true)
         {
-            switch (itemObject)
+            switch (itemSlot?.itemObject)
             {
                 case TileItem tileItem:
                 {
@@ -81,7 +84,7 @@ namespace TileMaps.Place {
                     TilePlacementData tilePlacementData = new TilePlacementData(playerScript.TilePlacementOptions.Rotation, playerScript.TilePlacementOptions.State);
                     if (!TilePlacable(tilePlacementData, tileItem, worldPlaceLocation, closedChunkSystem)) return false;
                     
-                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData);
+                    placeTile(tileItem,worldPlaceLocation,closedChunkSystem.GetTileMap(tileMapType),closedChunkSystem, placementData: tilePlacementData, itemTagCollection: itemSlot?.tags);
                     return true;
                 }
                 case ConduitItem conduitItem when closedChunkSystem is not ConduitTileClosedChunkSystem:
@@ -250,7 +253,7 @@ namespace TileMaps.Place {
         /// <param name = "x"> The x position to be placed at</param>
         /// <param name = "y"> The y position to be placed at </param>
         /// <param name = "containerName"> The name of the GameObjectContainer which the tile is to be placed in </param>
-        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, ITileEntityInstance presetTileEntity = null, TilePlacementData placementData = null) {
+        public static void placeTile(TileItem tileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ClosedChunkSystem closedChunkSystem, ITileEntityInstance presetTileEntity = null, TilePlacementData placementData = null, ItemTagCollection itemTagCollection = null) {
             if (iWorldTileMap == null || ReferenceEquals(tileItem,null)) {
                 return;
             }
@@ -287,7 +290,8 @@ namespace TileMaps.Place {
             
             if (!ReferenceEquals(tileItem.tileEntity, null))
             {
-                PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,worldPosition,presetTileEntity);
+                string initialData = GetPlacementData(tileItem.tileEntity, itemTagCollection);
+                PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,worldPosition,presetTileEntity,initialData:initialData);
             }
             
             if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
@@ -297,7 +301,17 @@ namespace TileMaps.Place {
             
         }
 
-        public static void PlaceTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,IWorldTileMap iWorldTileMap, Vector2 offsetPosition, ITileEntityInstance presetTileEntity = null) {
+        private static string GetPlacementData(TileEntityObject tileEntity, ItemTagCollection itemTagCollection)
+        {
+            if (itemTagCollection?.Dict == null) return null;
+            if (tileEntity is not ITagPlacementTileEntity tagPlacementTileEntity) return null;
+            ItemTag itemTag = tagPlacementTileEntity.GetItemTag();
+            if (!itemTagCollection.Dict.TryGetValue(itemTag, out object tagData)) return null;
+            
+            return tagData as string; // TOOD Chagne this to use some kind of serialization, for now its fine cause compact machines only use strings for data
+        }
+
+        public static void PlaceTileEntity(TileItem tileItem, ClosedChunkSystem closedChunkSystem,IWorldTileMap iWorldTileMap, Vector2 offsetPosition, ITileEntityInstance presetTileEntity = null, string initialData = null) {
             Vector2Int chunkPosition = Global.getChunkFromWorld(offsetPosition);
             Vector2Int tileMapPosition = Global.getCellPositionFromWorld(offsetPosition);
             Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
@@ -317,7 +331,7 @@ namespace TileMaps.Place {
             TileEntityObject tileEntity = tileItem.tileEntity;
             if (ReferenceEquals(tileEntity, null)) return;
             
-            ITileEntityInstance tileEntityInstance = presetTileEntity ?? TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true);
+            ITileEntityInstance tileEntityInstance = presetTileEntity ?? TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true, data: initialData);
             TileMapLayer layer = iWorldTileMap.getType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             

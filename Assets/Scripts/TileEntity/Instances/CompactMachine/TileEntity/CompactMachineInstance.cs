@@ -18,9 +18,13 @@ using UI;
 using WorldModule;
 
 namespace TileEntity.Instances.CompactMachines {
+    public interface ITagPlacementTileEntity
+    {
+        public ItemTag GetItemTag();
+    }
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
         IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine, 
-        IBreakActionTileEntity, ISerializableTileEntity, IPlaceInitializable
+        IBreakActionTileEntity, ISerializableTileEntity
     {
         private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
@@ -33,21 +37,6 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
             this.inventory = new CompactMachinePortInventory(this);
-            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
-                Debug.LogError("Tried to create compact machine in invalid dimension");
-                return;
-            }
-            CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
-            
-            CompactMachineTeleportKey thisKey = GetTeleportKey();
-            if (thisKey == null)
-            {
-                Debug.LogError("Tried to load compact machine with null key");
-                return;
-            }
-            if (!dimController.HasSystem(thisKey)) {
-                dimController.AddNewSystem(thisKey,this);
-            }
         }
 
         public CompactMachineTeleportKey GetTeleportKey()
@@ -158,18 +147,47 @@ namespace TileEntity.Instances.CompactMachines {
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
-            string path = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            Debug.Log(path);
+            string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
             string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
-            string contentPath = Path.Combine(path, CompactMachineUtils.CONTENT_PATH);
-            GlobalHelper.CopyDirectory(contentPath,hashPath);
+            GlobalHelper.CopyDirectory(dimPath,hashPath);
             // Move content from path into hash folder
         }
+        
 
-        public void PlaceInitialize()
+        public void PlaceInitializeWithHash(string newHash)
         {
-            hash = CompactMachineUtils.GenerateHash();
-            CompactMachineUtils.InitializeHashFolder(Serialize());
+            bool hashNull = newHash == null;
+            this.hash = newHash;
+            if (hashNull)
+            {
+                hash = CompactMachineUtils.GenerateHash();
+                CompactMachineUtils.InitializeHashFolder(Serialize());
+            }
+            
+            
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return;
+            }
+            CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
+            
+            CompactMachineTeleportKey thisKey = GetTeleportKey();
+            if (thisKey == null)
+            {
+                Debug.LogError("Tried to load compact machine with null key");
+                return;
+            }
+            if (!dimController.HasSystem(thisKey)) {
+                if (hashNull)
+                {
+                    dimController.AddNewSystem(thisKey,this, null);
+                }
+                else
+                {
+                    dimController.AddNewSystem(thisKey,this, hash);
+                }
+                
+            }
         }
     }
 

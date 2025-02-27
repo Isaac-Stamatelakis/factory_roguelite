@@ -107,7 +107,7 @@ namespace Dimensions {
         /// Null path means that 
         /// </summary>
         
-        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine) {
+        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine, string hash) {
             List<Vector2Int> systemPath = key.Path;
             List<Vector2Int> parentPath = new List<Vector2Int>();
             for (int i = 0; i < systemPath.Count-1; i++) {
@@ -115,7 +115,15 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
-            CompactMachineUtils.InitalizeCompactMachineSystem(compactMachine, systemPath);
+            if (CompactMachineUtils.HashExists(hash))
+            {
+                CompactMachineUtils.ActivateHashSystem(hash, systemPath);
+            }
+            else
+            {
+                CompactMachineUtils.InitalizeCompactMachineSystem(compactMachine, systemPath);
+            }
+            
             SoftLoadedClosedChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(systemPath);
             
             CompactMachineTree newTree = new CompactMachineTree(

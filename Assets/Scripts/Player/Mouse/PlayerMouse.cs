@@ -218,7 +218,7 @@ namespace PlayerModule.Mouse {
             switch (ConduitPortViewMode)
             {
                 case PortViewMode.Auto:
-                    string id = playerInventory.getSelectedId();
+                    string id = playerInventory.GetSelectedId();
                     if (id == null) return null;
                     ConduitItem conduitItem = ItemRegistry.GetInstance().GetConduitItem(id);
                     if (ReferenceEquals(conduitItem,null)) {
@@ -300,13 +300,10 @@ namespace PlayerModule.Mouse {
                 return false;
             }
 
-            string id = playerInventory.getSelectedId();
-            if (id == null) {
-                return false;
-            }
+            ItemSlot selectedSlot = playerInventory.getSelectedItemSlot();
+            if (ItemSlotUtils.IsItemSlotNull(selectedSlot)) return false;
             
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
-            bool placed = PlaceTile.PlaceFromWorldPosition(playerScript,itemObject,mousePosition,closedChunkSystem);
+            bool placed = PlaceTile.PlaceFromWorldPosition(playerScript,selectedSlot,mousePosition,closedChunkSystem);
             if (placed && !DevMode.Instance.noPlaceCost) {
                 playerInventory.deiterateInventoryAmount();
             }

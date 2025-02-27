@@ -185,7 +185,8 @@ namespace TileEntity.Instances.CompactMachines {
             string[] folders = Directory.GetDirectories(compactMachineFolder);
             foreach (string folder in folders)
             {
-                string fileName = Path.GetDirectoryName(folder);
+                string fileName = Path.GetFileName(folder);
+                Debug.Log(fileName);
                 if (hash == fileName)
                 {
                     return true;
@@ -193,6 +194,25 @@ namespace TileEntity.Instances.CompactMachines {
             }
 
             return false;
+        }
+
+        public static void ActivateHashSystem(string hash, List<Vector2Int> path)
+        {
+            string folderPath = GetPositionFolderPath(path);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string hashContentPath = Path.Combine(GetHashedPath(), hash);
+            Debug.Log(hashContentPath);
+            GlobalHelper.CopyDirectory(hashContentPath, folderPath);
+            Debug.Log(folderPath);
+            if (!DevMode.Instance.noPlaceCost)
+            {
+                Directory.Delete(hashContentPath,true);
+            }
+            
+
         }
 
         public static void InitializeHashFolder(string hashString)

@@ -175,10 +175,15 @@ namespace PlayerModule {
             Refresh();
         }
 
-        public string getSelectedId()
+        public string GetSelectedId()
         {
             if (ItemSlotUtils.IsItemSlotNull(playerInventoryData.Inventory[selectedSlot])) return null;
             return playerInventoryData.Inventory[selectedSlot].itemObject.id;
+        }
+
+        public ItemSlot GetSelectedItemSlot()
+        {
+            return playerInventoryData.Inventory[selectedSlot];
         }
 
         public ItemSlot getSelectedItemSlot() {
