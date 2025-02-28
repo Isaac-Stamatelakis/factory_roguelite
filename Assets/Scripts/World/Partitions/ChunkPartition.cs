@@ -221,6 +221,7 @@ namespace Chunks.Partitions {
         
         public ITileEntityInstance GetTileEntity(Vector2Int positionInPartition)
         {
+            if (tileEntities == null) return null;
             tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity);
             return tileEntity;
         }

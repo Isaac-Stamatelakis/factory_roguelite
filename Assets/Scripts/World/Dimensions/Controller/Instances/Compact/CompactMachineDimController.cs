@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using Player;
 using TileEntity;
+using TileEntity.Instances.CompactMachine;
 using TileMaps.Layer;
 
 namespace Dimensions {
@@ -22,10 +23,6 @@ namespace Dimensions {
 
     public class CompactMachineDimController : DimController, IMultipleSystemController, ICompactMachineDimension
     {
-        public override void Awake() {
-            base.Awake();
-        }
-
         private ISingleSystemController baseDimController;
         private CompactMachineTree systemTree;
         private List<SoftLoadedClosedChunkSystem> systems = new List<SoftLoadedClosedChunkSystem>();
@@ -82,7 +79,7 @@ namespace Dimensions {
                                     }
                                     newSystem.SoftLoad();
                                     systems.Add(newSystem);
-                                    CompactMachineTree newTree = new CompactMachineTree(newSystem);
+                                    CompactMachineTree newTree = new CompactMachineTree(newSystem,nestedCompactMachine.Hash);
                                     tree.Children[(Vector2Int)newPosition] = newTree;
                                     LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
                                     break;
@@ -94,12 +91,88 @@ namespace Dimensions {
             }
         }
 
-        private void LoadCompactMachineInteractableTileEntity()
+        public void RemoveCompactMachineSystem(CompactMachineTeleportKey key, string hash)
         {
-            
+            CompactMachineTree tree = systemTree.getTree(key.Path);
+            SaveTree(tree);
+            RemoveNode(key);
+            if (hash == null) return;
+            string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
+            string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
+            GlobalHelper.CopyDirectory(dimPath,hashPath);
+            Directory.Delete(dimPath,true);
+            Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+        }
+
+        private void SaveTree(CompactMachineTree compactMachineTree)
+        {
+            if (compactMachineTree?.System == null) return;
+            compactMachineTree.System.Save();
+            foreach (var (position, child) in compactMachineTree.Children)
+            {
+                SaveTree(child);
+            }
+        }
+
+        private void RemoveNode(CompactMachineTeleportKey key)
+        {
+            List<Vector2Int> path = key.Path;
+            CompactMachineTree tree = systemTree;
+            if (tree == null) return;
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Vector2Int position = path[i];
+                tree = tree.Children[position];
+            }
+            Vector2Int lastPosition = path[^1];
+            if (!tree.Children.Remove(lastPosition, out var removed)) return;
+            RemoveFromList(removed);
+        }
+
+        private void RemoveFromList(CompactMachineTree tree)
+        {
+            // O(n*m)
+            systems.Remove(tree.System);
+            foreach (var (position, child) in tree.Children)
+            {
+                RemoveFromList(child);
+            }
         }
         public bool HasSystem(CompactMachineTeleportKey key) {
             return systemTree.getSystem(key.Path) != null;
+        }
+
+        public bool IsLocked(List<Vector2Int> path)
+        {
+            CompactMachineTree tree = systemTree;
+            foreach (Vector2Int position in path)
+            {
+                if (!tree.Children.TryGetValue(position, out var newTree)) return false;
+                tree = newTree;
+                string hash = tree.hash;
+                if (hash == null) continue;
+                CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
+                if (metaData.Locked) return true;
+                
+            }
+            return false;
+        }
+        public int GetSubSystems(CompactMachineTeleportKey key)
+        {
+            int count = 0;
+            CompactMachineTree tree = systemTree.getTree(key.Path);
+            return GetSubSystems(tree);
+        }
+
+        private int GetSubSystems(CompactMachineTree tree)
+        {
+            int count = 0;
+            foreach (var (position, child) in tree.Children)
+            {
+                count += 1+GetSubSystems(child);
+            }
+
+            return count;
         }
 
         /// <summary>
@@ -126,23 +199,13 @@ namespace Dimensions {
             
             SoftLoadedClosedChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(systemPath);
             
-            CompactMachineTree newTree = new CompactMachineTree(
-                newSystem
-            );
+            CompactMachineTree newTree = new CompactMachineTree(newSystem, compactMachine.Hash);
             parentTree.Children[placePosition] = newTree;
             systems.Add(newSystem);
-            foreach (IChunk chunk in newSystem.Chunks) {
-                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x ++) {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
-                            ITileEntityInstance tileEntity = partition.GetTileEntity(new Vector2Int(x,y));
-                            if (tileEntity is ICompactMachineInteractable compactMachineInteractable) {
-                                compactMachineInteractable.SyncToCompactMachine(compactMachine);
-                            }
-                        }
-                    }
-                }
-            }
+            string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
+
+            LoadCompactMachineSystem(compactMachine, newTree, path);
+           
         }
 
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
@@ -174,19 +237,21 @@ namespace Dimensions {
         public void softLoadSystem(SoftLoadedClosedChunkSystem baseSystem, DimController baseDimController)
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
-            systemTree = new CompactMachineTree(baseSystem);
+            systemTree = new CompactMachineTree(baseSystem,null);
             LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 
         private class CompactMachineTree {
             public SoftLoadedClosedChunkSystem System;
+            public string hash;
             public Dictionary<Vector2Int,CompactMachineTree> Children;
 
-            public CompactMachineTree(SoftLoadedClosedChunkSystem system)
+            public CompactMachineTree(SoftLoadedClosedChunkSystem system, string hash)
             {
                 System = system;
                 Children = new Dictionary<Vector2Int, CompactMachineTree>();
+                this.hash = hash;
             }
             public SoftLoadedClosedChunkSystem getSystem(List<Vector2Int> path, int depth=0) {
                 if (depth == path.Count) {

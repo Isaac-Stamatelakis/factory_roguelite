@@ -16,7 +16,9 @@ using Tiles;
 
 namespace Chunks.IO {
     public class ChunkIO {
-        public static List<SoftLoadedConduitTileChunk> GetUnloadedChunks(int dim, string path) {
+        public static List<SoftLoadedConduitTileChunk> GetUnloadedChunks(int dim, string path)
+        {
+            if (!Directory.Exists(path)) return new List<SoftLoadedConduitTileChunk>();
             string[] files = Directory.GetFiles(path);
             List<SoftLoadedConduitTileChunk> unloadedChunks = new List<SoftLoadedConduitTileChunk>();
             foreach (string file in files) {

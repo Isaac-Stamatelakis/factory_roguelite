@@ -51,7 +51,6 @@ namespace TileEntity {
                 Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: UI prefab not loaded into memory");
                 return;
             }
-            Debug.Log(uiElementPrefab);
             GameObject instantiated = GameObject.Instantiate(uiElementPrefab);
             TUIElement uiComponent = instantiated.GetComponent<TUIElement>();
             if (uiComponent == null) {

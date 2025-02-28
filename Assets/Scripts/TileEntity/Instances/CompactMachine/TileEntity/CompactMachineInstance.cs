@@ -14,6 +14,7 @@ using Entities;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using TileEntity.Instances.CompactMachine;
 using UI;
 using WorldModule;
 
@@ -33,6 +34,7 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
         public Vector2Int PositionInSystem { get => positionInSystem; set => positionInSystem = value; }
         private string hash;
+        public string Hash => hash;
 
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -42,15 +44,20 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachineTeleportKey GetTeleportKey()
         {
             if (chunk is not ILoadedChunk loadedChunk) return null;
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return null;
+            }
             List<Vector2Int> path = new List<Vector2Int>();
             if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
-                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
+                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.GetCompactMachineKey();
                 foreach (Vector2Int vector in key.Path) {
                     path.Add(vector);
                 }
             }
             path.Add(getCellPosition());
-            return new CompactMachineTeleportKey(path);
+            bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
+            return new CompactMachineTeleportKey(path,locked);
         }
         public ConduitPortLayout GetConduitPortLayout()
         {
@@ -76,27 +83,7 @@ namespace TileEntity.Instances.CompactMachines {
                 CompactMachineUtils.TeleportIntoCompactMachine(this);
                 return;
             }
-            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
-            if (uiPrefab == null) {
-                Debug.LogError(getName() + " has uiprefab is null");
-                return;
-            }
-            GameObject instantiated = GameObject.Instantiate(uiPrefab);
-            CompactMachineUIController uIController = instantiated.GetComponent<CompactMachineUIController>();
-            if (uIController == null) {
-                Debug.LogError(getName() + "ui prefab doesn't have controller");
-                return;
-            }
-            uIController.display(this);
-            MainCanvasController.Instance.DisplayObject(instantiated);
-        }
-
-        public Vector2Int getTeleporterPosition() {
-            if (teleporter == null) {
-                Debug.LogError(getName() +  " Attempted to get teleporter position which was null");
-                return Vector2Int.zero;
-            }
-            return teleporter.getCellPosition();
+            TileEntityObject.UIManager.Display<CompactMachineInstance,CompactMachineUIController>(this);
         }
 
         public bool ExtractSignal(Vector2Int portPosition)
@@ -140,6 +127,10 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnBreak()
         {
             if (chunk is not ILoadedChunk loadedChunk) return;
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return;
+            }
             // Drops itself with hash
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
@@ -147,10 +138,7 @@ namespace TileEntity.Instances.CompactMachines {
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
-            string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            string hashPath = Path.Combine(CompactMachineUtils.GetHashedPath(),hash);
-            GlobalHelper.CopyDirectory(dimPath,hashPath);
-            // Move content from path into hash folder
+            compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, hash);
         }
         
 
@@ -163,7 +151,6 @@ namespace TileEntity.Instances.CompactMachines {
                 hash = CompactMachineUtils.GenerateHash();
                 CompactMachineUtils.InitializeHashFolder(Serialize());
             }
-            
             
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
@@ -188,6 +175,16 @@ namespace TileEntity.Instances.CompactMachines {
                 }
                 
             }
+        }
+
+        public int GetSubSystems()
+        {
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return 0;
+            }
+
+            return compactMachineDimManager.GetCompactMachineDimController().GetSubSystems(GetTeleportKey());
         }
     }
 

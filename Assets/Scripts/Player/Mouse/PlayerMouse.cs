@@ -245,10 +245,12 @@ namespace PlayerModule.Mouse {
             ConduitType? conduitType = GetPortClickType();
             if (conduitType == null) return false;
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            if (!closedChunkSystem.Interactable) return true; // Return true in this case so click is cancelled out
+            
             if (closedChunkSystem is not ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 return false;
             }
-
+            
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType.Value);
             if (conduitSystemManager is not PortConduitSystemManager portConduitSystemManager) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
@@ -296,7 +298,7 @@ namespace PlayerModule.Mouse {
         }
 
         private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
-            if (ReferenceEquals(closedChunkSystem,null)) {
+            if (!closedChunkSystem || !closedChunkSystem.Interactable) {
                 return false;
             }
 
