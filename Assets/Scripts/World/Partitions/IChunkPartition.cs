@@ -19,7 +19,7 @@ namespace Chunks.Partitions {
         public void SetScheduleForUnloading(bool val);
         public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction);
         public IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps);
-        public void Save();
+        public void Save(SerializationMode mode);
         public bool InRange(Vector2Int target, int xRange, int yRange);
         public void Tick();
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition);

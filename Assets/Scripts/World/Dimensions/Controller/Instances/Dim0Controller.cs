@@ -7,6 +7,7 @@ using Chunks;
 using Chunks.IO;
 using Chunks.Partitions;
 using Player;
+using TileEntity;
 
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
@@ -72,7 +73,7 @@ namespace Dimensions {
 
         public void SaveSystem()
         {
-            dim0System?.Save();
+            dim0System?.Save(SerializationMode.Standard);
         }
 
 

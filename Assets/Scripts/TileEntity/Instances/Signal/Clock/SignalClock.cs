@@ -50,7 +50,7 @@ namespace TileEntity.Instances.Signal {
             TileEntityObject.UIManager.Display<SignalClockInstance,SignalClockUI>(this);
         }
         
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return JsonConvert.SerializeObject(ClockData);
         }

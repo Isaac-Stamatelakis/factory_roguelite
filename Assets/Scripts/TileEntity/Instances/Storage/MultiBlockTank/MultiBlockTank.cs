@@ -70,7 +70,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
             DisplayFluid();
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return ItemSlotFactory.seralizeItemSlot(fluidSlot);
         }

@@ -135,7 +135,7 @@ namespace TileEntity.Instances.Matrix {
             MainCanvasController.Instance.DisplayObject(ui.gameObject);
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return ItemSlotFactory.serializeList(storageDrives);
         }

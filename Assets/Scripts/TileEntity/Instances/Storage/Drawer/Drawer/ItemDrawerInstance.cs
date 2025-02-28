@@ -118,7 +118,7 @@ namespace TileEntity.Instances.Storage {
 
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }

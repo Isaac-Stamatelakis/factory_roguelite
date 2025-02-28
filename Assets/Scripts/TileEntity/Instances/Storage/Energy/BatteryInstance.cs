@@ -26,7 +26,7 @@ namespace TileEntity.Instances.Storage {
             TileEntityObject.UIManager.Display<BatteryInstance,EnergyStorageUIController>(this);
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return Energy.ToString();
         }

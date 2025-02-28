@@ -35,7 +35,7 @@ namespace TileEntity.Instances.Signs {
             MainCanvasController.Instance.DisplayObject(instantiated);
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return JsonConvert.SerializeObject(signData);
         }

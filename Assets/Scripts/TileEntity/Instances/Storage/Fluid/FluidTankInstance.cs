@@ -66,7 +66,7 @@ namespace TileEntity.Instances.Storage {
             TileEntityObject.UIManager.Display<FluidTankInstance,FluidTankUI>(this);
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }

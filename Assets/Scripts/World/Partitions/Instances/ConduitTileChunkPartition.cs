@@ -150,9 +150,9 @@ namespace Chunks.Partitions {
             }
         }
 
-        public override void Save()
+        public override void Save(SerializationMode mode)
         {
-            base.Save();
+            base.Save(mode);
             WorldTileConduitData data = (WorldTileConduitData) GetData();
 
             if (conduits == null) return;

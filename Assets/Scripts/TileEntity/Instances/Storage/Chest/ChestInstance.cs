@@ -71,7 +71,7 @@ namespace TileEntity.Instances
             TileEntityObject.UIManager.Display<ChestInstance, ChestUI>(this,true);
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return ItemSlotFactory.serializeList(Inventory.Items);
         }

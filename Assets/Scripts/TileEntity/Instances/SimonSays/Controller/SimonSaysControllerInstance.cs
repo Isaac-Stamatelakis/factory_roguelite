@@ -303,7 +303,7 @@ namespace TileEntity.Instances.SimonSays {
         }
 
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return JsonConvert.SerializeObject(simonSaysData);
         }

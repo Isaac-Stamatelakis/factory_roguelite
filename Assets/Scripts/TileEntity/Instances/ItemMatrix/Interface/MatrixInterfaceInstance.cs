@@ -49,7 +49,7 @@ namespace TileEntity.Instances.Matrix {
             priority += amount;
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             SeralizedMatrixInterface seralizedMatrixInterface = new SeralizedMatrixInterface(
                 priority,

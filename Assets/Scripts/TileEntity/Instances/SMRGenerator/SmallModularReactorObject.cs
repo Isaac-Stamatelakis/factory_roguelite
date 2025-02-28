@@ -47,7 +47,7 @@ namespace TileEntity.Instances.SMRGenerator
             Energy += tileEntityObject.EnergyPerTick; // We can allow some overflow cause why not
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return Energy.ToString();
         }

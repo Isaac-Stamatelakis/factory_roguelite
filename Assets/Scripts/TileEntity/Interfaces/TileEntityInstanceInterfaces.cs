@@ -36,8 +36,13 @@ namespace TileEntity {
         public bool CanBreak();
     }
 
+    public enum SerializationMode
+    {
+        Standard,
+        BluePrint
+    }
     public interface ISerializableTileEntity {
-        public string Serialize();
+        public string Serialize(SerializationMode mode);
         public void Unserialize(string data);
     }
 

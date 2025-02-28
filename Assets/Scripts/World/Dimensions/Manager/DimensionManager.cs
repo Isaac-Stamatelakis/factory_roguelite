@@ -17,6 +17,7 @@ using Player.Tool;
 using RecipeModule;
 using PlayerModule;
 using Recipe;
+using TileEntity;
 using UI;
 using UI.JEI;
 using UI.QuestBook;
@@ -169,7 +170,7 @@ namespace Dimensions {
                 {
                     foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
                     {
-                        system.Save();
+                        system.Save(SerializationMode.Standard);
                     }
                 }
             }

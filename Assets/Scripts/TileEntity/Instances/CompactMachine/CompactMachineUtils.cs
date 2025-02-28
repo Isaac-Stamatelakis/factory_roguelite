@@ -129,16 +129,16 @@ namespace TileEntity.Instances.CompactMachines {
         public static void TeleportIntoCompactMachine(CompactMachineInstance compactMachine) {
             CompactMachineTeleportKey key = compactMachine.GetTeleportKey();
 
-            if (compactMachine.Teleporter == null)
-            {
-                Debug.LogError("Cannot teleport into compact machine as teleporter is null");
-                return;
-            }
+
+            Vector2Int teleportPosition = compactMachine.Teleporter == null
+                ? (Global.CHUNK_SIZE / 2 + 1) * Vector2Int.one
+                : compactMachine.Teleporter.getCellPosition() + Vector2Int.one;
+            
             DimensionManager dimensionManager = DimensionManager.Instance;
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
-                compactMachine.Teleporter.getCellPosition() + Vector2Int.one,
+                teleportPosition,
                 key:key
             );
         }

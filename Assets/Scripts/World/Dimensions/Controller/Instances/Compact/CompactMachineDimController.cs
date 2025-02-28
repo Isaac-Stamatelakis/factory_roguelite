@@ -35,7 +35,7 @@ namespace Dimensions {
         public void OnDestroy()
         {
             foreach (SoftLoadedClosedChunkSystem system in systems) {
-                system?.Save();
+                system?.Save(SerializationMode.Standard);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Dimensions {
         private void SaveTree(CompactMachineTree compactMachineTree)
         {
             if (compactMachineTree?.System == null) return;
-            compactMachineTree.System.Save();
+            compactMachineTree.System.Save(SerializationMode.Standard);
             foreach (var (position, child) in compactMachineTree.Children)
             {
                 SaveTree(child);

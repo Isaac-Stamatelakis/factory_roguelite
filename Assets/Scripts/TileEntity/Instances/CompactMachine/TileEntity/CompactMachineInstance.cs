@@ -114,7 +114,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             throw new System.NotImplementedException();
         }
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return hash;
         }
@@ -134,7 +134,7 @@ namespace TileEntity.Instances.CompactMachines {
             // Drops itself with hash
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
-            ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize());
+            ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize(SerializationMode.Standard));
             ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
@@ -149,7 +149,7 @@ namespace TileEntity.Instances.CompactMachines {
             if (hashNull)
             {
                 hash = CompactMachineUtils.GenerateHash();
-                CompactMachineUtils.InitializeHashFolder(Serialize());
+                CompactMachineUtils.InitializeHashFolder(Serialize(SerializationMode.Standard));
             }
             
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {

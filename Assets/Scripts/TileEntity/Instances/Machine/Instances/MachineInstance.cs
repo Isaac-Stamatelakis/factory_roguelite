@@ -50,7 +50,7 @@ namespace TileEntity.Instances.Machine.Instances
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(ui);
         }
 
-        public abstract string Serialize();
+        public abstract string Serialize(SerializationMode mode);
 
         public abstract void Unserialize(string data);
 

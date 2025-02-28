@@ -309,7 +309,7 @@ namespace Chunks.Systems {
 
         public void OnApplicationQuit() {
             isQuitting = true;
-            Save();
+            Save(SerializationMode.Standard);
         }
         public void OnDisable()
         {
@@ -317,14 +317,13 @@ namespace Chunks.Systems {
                 return;
             }
             partitionUnloader.clearQueue();
-            //Save();
         }
 
-        public virtual void Save() {
+        public virtual void Save(SerializationMode mode) {
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
-                        partition.Save();
+                        partition.Save(mode);
                     }
                 }
                 ChunkIO.WriteChunk(chunk);
@@ -332,7 +331,7 @@ namespace Chunks.Systems {
         }
         
 
-        public IEnumerator SaveCoroutine()
+        public IEnumerator SaveCoroutine(SerializationMode mode)
         {
             var delay = new WaitForFixedUpdate();
             List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
@@ -340,7 +339,7 @@ namespace Chunks.Systems {
                 if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
-                        partition.Save();
+                        partition.Save(mode);
                     }
                 }
                 ChunkIO.WriteChunk(chunk);

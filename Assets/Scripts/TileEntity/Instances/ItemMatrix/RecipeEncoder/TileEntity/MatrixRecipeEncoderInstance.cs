@@ -57,7 +57,7 @@ namespace TileEntity.Instances.Matrix {
             }
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             SeralizedMatrixRecipeEncoder seralizedMatrixRecipeEncoder = new SeralizedMatrixRecipeEncoder(
                 ItemSlotFactory.serializeList(blankRecipes),

@@ -39,7 +39,7 @@ namespace TileEntity.Instances.CompactMachines {
             return insertEnergy;
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             return JsonConvert.SerializeObject(energy);
         }

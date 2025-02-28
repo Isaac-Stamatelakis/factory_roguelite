@@ -129,7 +129,7 @@ namespace Chunks.Systems {
             return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
         }
 
-        public override void Save()
+        public override void Save(SerializationMode mode)
         {
             // Do nothing
         }

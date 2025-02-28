@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks.Systems;
 using Player;
+using TileEntity;
 using WorldModule.Caves;
 
 namespace Dimensions {
@@ -41,13 +42,13 @@ namespace Dimensions {
         public IEnumerator SaveSystemCoroutine()
         {
             if (!activeSystem) yield break;
-            yield return activeSystem.SaveCoroutine();
+            yield return activeSystem.SaveCoroutine(SerializationMode.Standard);
         }
 
         public void SaveSystem()
         {
             if (!activeSystem) return;
-            activeSystem.Save();
+            activeSystem.Save(SerializationMode.Standard);
         }
     }
 }

@@ -128,7 +128,7 @@ namespace Chunks.Partitions {
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
 
-        public abstract void Save();
+        public abstract void Save(SerializationMode mode);
 
         public void SetScheduleForUnloading(bool val)
         {
@@ -136,7 +136,7 @@ namespace Chunks.Partitions {
         }
 
         public virtual IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            Save();
+            Save(SerializationMode.Standard);
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
                 if (loading)

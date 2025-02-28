@@ -39,7 +39,7 @@ namespace TileEntity.Instances.Caves.Researcher {
             CacheQuestData();
         }
 
-        public string Serialize()
+        public string Serialize(SerializationMode mode)
         {
             SerializedData serializedData = new SerializedData(
                 Energy, 
