@@ -35,7 +35,7 @@ namespace Dimensions {
         public void OnDestroy()
         {
             foreach (SoftLoadedClosedChunkSystem system in systems) {
-                system?.Save(SerializationMode.Standard);
+                system?.Save();
             }
         }
 
@@ -69,7 +69,7 @@ namespace Dimensions {
                                 }
                                 case CompactMachineInstance nestedCompactMachine:
                                 {
-                                    Vector2Int newPosition = nestedCompactMachine.getCellPosition();
+                                    Vector2Int newPosition = nestedCompactMachine.GetCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                     string contentPath = Path.Combine(nestedPath,CompactMachineUtils.CONTENT_PATH);
                                     SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
@@ -107,7 +107,7 @@ namespace Dimensions {
         private void SaveTree(CompactMachineTree compactMachineTree)
         {
             if (compactMachineTree?.System == null) return;
-            compactMachineTree.System.Save(SerializationMode.Standard);
+            compactMachineTree.System.Save();
             foreach (var (position, child) in compactMachineTree.Children)
             {
                 SaveTree(child);

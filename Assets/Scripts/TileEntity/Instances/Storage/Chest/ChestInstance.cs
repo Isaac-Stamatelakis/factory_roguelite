@@ -63,7 +63,7 @@ namespace TileEntity.Instances
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            TileEntityUtils.spawnItemsOnBreak(Inventory.Items,getWorldPosition(),loadedChunk);
+            TileEntityUtils.spawnItemsOnBreak(Inventory.Items,GetWorldPosition(),loadedChunk);
         }
 
         public void OnRightClick()
@@ -71,7 +71,7 @@ namespace TileEntity.Instances
             TileEntityObject.UIManager.Display<ChestInstance, ChestUI>(this,true);
         }
 
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return ItemSlotFactory.serializeList(Inventory.Items);
         }

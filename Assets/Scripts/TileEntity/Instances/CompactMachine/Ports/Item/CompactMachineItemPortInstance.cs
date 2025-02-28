@@ -25,7 +25,7 @@ namespace TileEntity.Instances.CompactMachines {
             return TileEntityObject.Layout;
         }
         
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }

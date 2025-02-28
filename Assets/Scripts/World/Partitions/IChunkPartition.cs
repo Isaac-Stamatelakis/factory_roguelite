@@ -19,12 +19,11 @@ namespace Chunks.Partitions {
         public void SetScheduleForUnloading(bool val);
         public IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction);
         public IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps);
-        public void Save(SerializationMode mode);
+        public void Save();
         public bool InRange(Vector2Int target, int xRange, int yRange);
         public void Tick();
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition);
         public void BreakTileEntity(TileMapLayer layer, Vector2Int positionInPartition);
-        public bool ClickTileEntity(Vector2Int positionInPartition);
         public ITileEntityInstance GetTileEntity(Vector2Int positionInPartition);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);

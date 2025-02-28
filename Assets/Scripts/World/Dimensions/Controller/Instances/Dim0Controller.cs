@@ -73,7 +73,7 @@ namespace Dimensions {
 
         public void SaveSystem()
         {
-            dim0System?.Save(SerializationMode.Standard);
+            dim0System?.Save();
         }
 
 

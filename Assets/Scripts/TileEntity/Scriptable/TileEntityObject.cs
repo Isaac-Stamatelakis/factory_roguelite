@@ -6,18 +6,24 @@ using UnityEngine.Tilemaps;
 using Chunks.Partitions;
 
 namespace TileEntity {
+    public enum TileEntityUIMode
+    {
+        Standard,
+        Locked
+    }
     public interface ITileEntityInstance {
         public TileEntityObject GetTileEntity();
-        public Vector2Int getPositionInChunk();
-        public Vector2 getWorldPosition();
-        public Vector2Int getCellPosition();
-        public IChunkPartition getPartition();
-        public Vector2Int getPartitionPositionInChunk();
-        public Vector2Int getPositionInPartition();
-        public TileBase getTile();
-        public IChunk getChunk();
-        public void setChunk(IChunk chunk);
-        public string getName();
+        public Vector2Int GetPositionInChunk();
+        public Vector2 GetWorldPosition();
+        public Vector2Int GetCellPosition();
+        public IChunkPartition GetPartition();
+        public Vector2Int GetPartitionPositionInChunk();
+        public Vector2Int GetPositionInPartition();
+        public TileBase GetTile();
+        public IChunk GetChunk();
+        public void SetChunk(IChunk chunk);
+        public string GetName();
+        public TileEntityUIMode GetUIMode();
     }
 
     public interface ITieredTileEntity

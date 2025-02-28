@@ -44,14 +44,14 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             
         }
 
-        public override void Save(SerializationMode mode)
+        public override void Save()
         {
             if (tileEntities != null) {
                 for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                     for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                         if (!tileEntities.TryGetValue(new Vector2Int(x,y), out ITileEntityInstance tileEntityInstance)) continue;
                         if (tileEntityInstance is not ISerializableTileEntity serializableTileEntity) continue;
-                        data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize(mode);
+                        data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize();
                     }
                 }   
             }
@@ -89,7 +89,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
             if (tileEntityInstance is ISoftLoadableTileEntity) return false;
             if (tileEntityInstance is ISerializableTileEntity serializableTileEntity) {
-                data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize(SerializationMode.Standard);
+                data.baseData.sTileEntityOptions[x,y] = serializableTileEntity.Serialize();
             }
 
             tileEntities.Remove(vector);

@@ -29,7 +29,7 @@ namespace TileEntity.Instances.Machines
         {
         }
 
-        public override string Serialize(SerializationMode mode)
+        public override string Serialize()
         {
             SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
                 Mode,

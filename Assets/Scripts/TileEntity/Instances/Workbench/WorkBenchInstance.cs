@@ -22,7 +22,7 @@ namespace TileEntity.Instances.WorkBenchs {
             tileEntityObject.UIAssetManager.Display<WorkBenchInstance,WorkBenchUI>(this);
         }
 
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             WorkBenchData.SInventory = ItemSlotFactory.serializeList(Inventory);
             return JsonConvert.SerializeObject(WorkBenchData);

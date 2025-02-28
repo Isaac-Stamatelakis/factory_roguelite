@@ -22,28 +22,28 @@ namespace TileEntity {
             this.chunk = chunk;
         }
 
-        public Vector2Int getPositionInChunk() {
+        public Vector2Int GetPositionInChunk() {
             return positionInChunk;
         }
 
-        public Vector2 getWorldPosition() {
-            Vector2Int cellPosition = getCellPosition();
+        public Vector2 GetWorldPosition() {
+            Vector2Int cellPosition = GetCellPosition();
             return new Vector2(cellPosition.x/2f+0.25f,cellPosition.y/2f+0.25f);
         }
-        public Vector2Int getCellPosition() {
+        public Vector2Int GetCellPosition() {
             return (positionInChunk + chunk.GetPosition() * Global.CHUNK_SIZE);
         }
-        public IChunkPartition getPartition() {
-            return chunk.GetPartition(getPartitionPositionInChunk());
+        public IChunkPartition GetPartition() {
+            return chunk.GetPartition(GetPartitionPositionInChunk());
         }
-        public Vector2Int getPartitionPositionInChunk() {
+        public Vector2Int GetPartitionPositionInChunk() {
             return Global.getPartitionFromCell(positionInChunk);
         }
-        public Vector2Int getPositionInPartition() {
-            return positionInChunk-getPartitionPositionInChunk()*Global.CHUNK_PARTITION_SIZE;
+        public Vector2Int GetPositionInPartition() {
+            return positionInChunk-GetPartitionPositionInChunk()*Global.CHUNK_PARTITION_SIZE;
         }
 
-        public TileBase getTile()
+        public TileBase GetTile()
         {
             return tileItem.tile;
         }
@@ -51,19 +51,25 @@ namespace TileEntity {
             return tileItem.id;
         }
 
-        public IChunk getChunk()
+        public IChunk GetChunk()
         {
             return chunk;
         }
 
-        public void setChunk(IChunk chunk)
+        public void SetChunk(IChunk chunk)
         {
             this.chunk = chunk;
         }
 
-        public string getName()
+        public string GetName()
         {
             return TileEntityObject.name;
+        }
+
+        public TileEntityUIMode GetUIMode()
+        {
+            if (chunk is not ILoadedChunk loadedChunk) return TileEntityUIMode.Standard;
+            return loadedChunk.getSystem().Interactable ? TileEntityUIMode.Standard : TileEntityUIMode.Locked;
         }
 
         public TileEntityObject GetTileEntity()

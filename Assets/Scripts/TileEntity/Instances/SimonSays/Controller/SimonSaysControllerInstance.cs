@@ -168,7 +168,7 @@ namespace TileEntity.Instances.SimonSays {
             {
                 for (int y = -RADIUS; y <= RADIUS; y++)
                 {
-                    blockTileMap.BreakTile(getCellPosition() + new Vector2Int(x,y));
+                    blockTileMap.BreakTile(GetCellPosition() + new Vector2Int(x,y));
                 }
             }
         }
@@ -183,7 +183,7 @@ namespace TileEntity.Instances.SimonSays {
                 Vector2Int.zero
             };
             foreach (Vector2Int position in brickPlacePositions) {
-                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
+                Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f); 
                 PlaceTile.placeTile(tileEntityObject.BrickTile, worldPlacePosition, blockTileMap, closedChunkSystem);
             }
         }
@@ -207,7 +207,7 @@ namespace TileEntity.Instances.SimonSays {
                     return;
                 }
 
-                Vector2Int chestPlacePosition = getCellPosition() + position;
+                Vector2Int chestPlacePosition = GetCellPosition() + position;
                 Vector2Int chestPositionInChunk = Global.getPositionInChunk(chestPlacePosition);
                 if (ReferenceEquals(tileEntityObject.ChestTile?.tileEntity, null))
                 {
@@ -243,7 +243,7 @@ namespace TileEntity.Instances.SimonSays {
                     itemConduitInteractable.InsertItem(ItemState.Solid, itemSlot, Vector2Int.zero);
                 }
 
-                Vector2 worldPlacePosition = getWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
+                Vector2 worldPlacePosition = GetWorldPosition() + new Vector2(position.x / 2f, position.y / 2f);
                 PlaceTile.placeTile(chestTile, worldPlacePosition, chestLayerTileMap, closedChunkSystem, tileEntityInstance);
             }
         }
@@ -260,7 +260,7 @@ namespace TileEntity.Instances.SimonSays {
                     bool isController = x == 0 && y == 0;
                     if (isController) continue;
                     var (partition, positionInPartition) =
-                        system.GetPartitionAndPositionAtCellPosition(new Vector2Int(x, y) + getCellPosition());
+                        system.GetPartitionAndPositionAtCellPosition(new Vector2Int(x, y) + GetCellPosition());
                     ITileEntityInstance tileEntityInstance = partition.GetTileEntity(positionInPartition);
                     if (tileEntityInstance is not SimonSaysColoredTileEntityInstance simonSaysColoredTile) {
                         continue;
@@ -303,7 +303,7 @@ namespace TileEntity.Instances.SimonSays {
         }
 
 
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return JsonConvert.SerializeObject(simonSaysData);
         }

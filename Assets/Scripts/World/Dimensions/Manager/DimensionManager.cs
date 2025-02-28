@@ -170,7 +170,7 @@ namespace Dimensions {
                 {
                     foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
                     {
-                        system.Save(SerializationMode.Standard);
+                        system.Save();
                     }
                 }
             }

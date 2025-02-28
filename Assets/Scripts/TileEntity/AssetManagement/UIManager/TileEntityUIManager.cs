@@ -44,17 +44,17 @@ namespace TileEntity {
         }
         public void Display<TInstance, TUIElement>(TInstance tileEntityInstance, bool withPlayerInventory = false) where TInstance : ITileEntityInstance where TUIElement : ITileEntityUI<TInstance>{
             if (ReferenceEquals(AssetReference,null)) {
-                Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: No asset reference");
+                Debug.LogError($"Cannot display ui for {tileEntityInstance.GetName()}: No asset reference");
                 return;
             }
             if (ReferenceEquals(uiElementPrefab,null)) {
-                Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: UI prefab not loaded into memory");
+                Debug.LogError($"Cannot display ui for {tileEntityInstance.GetName()}: UI prefab not loaded into memory");
                 return;
             }
             GameObject instantiated = GameObject.Instantiate(uiElementPrefab);
             TUIElement uiComponent = instantiated.GetComponent<TUIElement>();
             if (uiComponent == null) {
-                Debug.LogError($"Cannot display ui for {tileEntityInstance.getName()}: Prefab doesn't have component {typeof(TUIElement).Name}");
+                Debug.LogError($"Cannot display ui for {tileEntityInstance.GetName()}: Prefab doesn't have component {typeof(TUIElement).Name}");
                 return;
             }
             uiComponent.DisplayTileEntityInstance(tileEntityInstance);

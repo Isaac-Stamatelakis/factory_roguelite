@@ -27,7 +27,7 @@ namespace TileEntity.Instances.Machine.UI
         public void DisplayTileEntityInstance(BurnerMachineInstance tileEntityInstance)
         {
             displayedInstance = tileEntityInstance;
-            title.text = tileEntityInstance.getName();
+            title.text = tileEntityInstance.GetName();
             tileEntityInventoryUI.Display(tileEntityInstance.GetItemInventory().Content,tileEntityInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(tileEntityInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddListener(tileEntityInstance);

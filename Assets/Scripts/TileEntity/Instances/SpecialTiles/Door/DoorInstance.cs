@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TileEntity.Instances {
     
-    public class DoorInstance : TileEntityInstance<Door>, IConditionalRightClickableTileEntity, ISystemLoadedConduitPortTileEntity, ISignalConduitInteractable
+    public class DoorInstance : TileEntityInstance<Door>, IConditionalRightClickableTileEntity, ILockUnInteractableRightClickTileEntity, ISystemLoadedConduitPortTileEntity, ISignalConduitInteractable
     {
         private bool signalActive;
         public DoorInstance(Door tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -63,8 +63,8 @@ namespace TileEntity.Instances {
         {
             if (active == signalActive) return;
             signalActive = active;
-            IChunkPartition chunkPartition = getPartition();
-            Vector2Int positionInPartition = getPositionInPartition();
+            IChunkPartition chunkPartition = GetPartition();
+            Vector2Int positionInPartition = GetPositionInPartition();
             
             BaseTileData baseTileData = chunkPartition.GetBaseData(positionInPartition);
             int state = baseTileData.state;

@@ -88,7 +88,7 @@ namespace TileEntity.Instances.CompactMachines {
             WorldTileConduitData systemData = variant.Data;
             Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.CHUNK_SIZE,variant.Size.y/Global.CHUNK_SIZE);
             WorldGenerationFactory.SaveToJson(systemData,chunkSize,1,savePath);
-            Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
+            Debug.Log($"{compactMachine.GetName()} Closed Chunk System Generated at {savePath}");
         }
 
         public static string GetPositionFolderPath(List<Vector2Int> path) {
@@ -106,7 +106,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
         public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            IChunk chunk = compactMachine.getChunk();
+            IChunk chunk = compactMachine.GetChunk();
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
@@ -122,7 +122,7 @@ namespace TileEntity.Instances.CompactMachines {
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
-                compactMachine.getCellPosition(),
+                compactMachine.GetCellPosition(),
                 key:parentKey
             );
         }
@@ -132,7 +132,7 @@ namespace TileEntity.Instances.CompactMachines {
 
             Vector2Int teleportPosition = compactMachine.Teleporter == null
                 ? (Global.CHUNK_SIZE / 2 + 1) * Vector2Int.one
-                : compactMachine.Teleporter.getCellPosition() + Vector2Int.one;
+                : compactMachine.Teleporter.GetCellPosition() + Vector2Int.one;
             
             DimensionManager dimensionManager = DimensionManager.Instance;
             dimensionManager.SetPlayerSystem(

@@ -185,7 +185,7 @@ namespace Chunks.Systems {
             }
         }
 
-        public void Save(SerializationMode mode) {
+        public void Save() {
             foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
@@ -198,7 +198,7 @@ namespace Chunks.Systems {
                         partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
-                    partition.Save(mode);
+                    partition.Save();
                 }
                 ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
             }
@@ -219,7 +219,7 @@ namespace Chunks.Systems {
                         partitionConduits[kvp.Key.toConduitType()] = manager.GetConduitPartitionData(partition.GetRealPosition());
                     }
                     conduitTileChunkPartition.SetConduits(partitionConduits);
-                    partition.Save(SerializationMode.Standard);
+                    partition.Save();
                 }
                 ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
                 yield return wait;

@@ -42,13 +42,13 @@ namespace Dimensions {
         public IEnumerator SaveSystemCoroutine()
         {
             if (!activeSystem) yield break;
-            yield return activeSystem.SaveCoroutine(SerializationMode.Standard);
+            yield return activeSystem.SaveCoroutine();
         }
 
         public void SaveSystem()
         {
             if (!activeSystem) return;
-            activeSystem.Save(SerializationMode.Standard);
+            activeSystem.Save();
         }
     }
 }

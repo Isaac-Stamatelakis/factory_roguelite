@@ -26,7 +26,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalClockInstance : TileEntityInstance<SignalClock>, IPlaceInitializable, IConduitPortTileEntity, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, IRightClickableTileEntity
+    public class SignalClockInstance : TileEntityInstance<SignalClock>, IPlaceInitializable, IConduitPortTileEntity, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, ILockUnInteractableRightClickTileEntity
     {
         public ClockData ClockData;
         public SignalClockInstance(SignalClock tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -50,7 +50,7 @@ namespace TileEntity.Instances.Signal {
             TileEntityObject.UIManager.Display<SignalClockInstance,SignalClockUI>(this);
         }
         
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return JsonConvert.SerializeObject(ClockData);
         }

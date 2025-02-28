@@ -122,7 +122,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(ui);
         }
 
-        public override string Serialize(SerializationMode mode)
+        public override string Serialize()
         {
             SerializedBurnerMachine serializedBurnerMachine = new SerializedBurnerMachine(
                 Mode,

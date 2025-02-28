@@ -53,7 +53,7 @@ namespace TileEntity.Instances.Storage {
                 visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
                 visualElement = visualElementObject.AddComponent<SpriteRenderer>();
                 visualElement.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-                visualElement.transform.position = getWorldPosition();
+                visualElement.transform.position = GetWorldPosition();
                 
             }
             
@@ -85,7 +85,7 @@ namespace TileEntity.Instances.Storage {
             if (itemSlot.amount <= 0) {
                 itemSlot = null;
             }
-            ItemEntityFactory.SpawnItemEntity(getWorldPosition(),toDrop,loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(GetWorldPosition(),toDrop,loadedChunk.getEntityContainer());
             invincibilityFrames = 0.2f;
             LoadVisual();
         }
@@ -118,7 +118,7 @@ namespace TileEntity.Instances.Storage {
 
         }
 
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
@@ -146,7 +146,7 @@ namespace TileEntity.Instances.Storage {
                 uint amount = GlobalHelper.MinUInt(itemSlot.amount, Global.MAX_SIZE);
                 itemSlot.amount -= amount;
                 ItemSlot drop = ItemSlotFactory.CreateNewItemSlot(itemSlot.itemObject,(uint)amount);
-                ItemEntityFactory.SpawnItemEntity(getWorldPosition(),drop,loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(GetWorldPosition(),drop,loadedChunk.getEntityContainer());
             }
         }
 

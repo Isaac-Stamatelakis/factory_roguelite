@@ -128,7 +128,7 @@ namespace Chunks.Partitions {
 
         protected abstract void iterateLoad(int x, int y,ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Vector2Int realPosition);
 
-        public abstract void Save(SerializationMode mode);
+        public abstract void Save();
 
         public void SetScheduleForUnloading(bool val)
         {
@@ -136,7 +136,7 @@ namespace Chunks.Partitions {
         }
 
         public virtual IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            Save(SerializationMode.Standard);
+            Save();
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
                 if (loading)
@@ -199,14 +199,6 @@ namespace Chunks.Partitions {
                 tickableTileEntities?.Remove(tickableTileEntity);
             }
             
-        }
-
-        public bool ClickTileEntity(Vector2Int positionInPartition)
-        {
-            if (!tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity)) return false;
-            if (tileEntity is not IRightClickableTileEntity rightClickableTileEntity) return false;
-            rightClickableTileEntity.OnRightClick();
-            return true;
         }
 
         public bool GetLoaded()

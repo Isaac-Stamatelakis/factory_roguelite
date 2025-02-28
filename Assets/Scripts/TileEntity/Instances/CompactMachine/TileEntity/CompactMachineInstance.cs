@@ -55,7 +55,7 @@ namespace TileEntity.Instances.CompactMachines {
                     path.Add(vector);
                 }
             }
-            path.Add(getCellPosition());
+            path.Add(GetCellPosition());
             bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
             return new CompactMachineTeleportKey(path,locked);
         }
@@ -114,7 +114,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             throw new System.NotImplementedException();
         }
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return hash;
         }
@@ -134,8 +134,8 @@ namespace TileEntity.Instances.CompactMachines {
             // Drops itself with hash
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
-            ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize(SerializationMode.Standard));
-            ItemEntityFactory.SpawnItemEntity(getWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
+            ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,Serialize());
+            ItemEntityFactory.SpawnItemEntity(GetWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
             compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, hash);
@@ -149,7 +149,7 @@ namespace TileEntity.Instances.CompactMachines {
             if (hashNull)
             {
                 hash = CompactMachineUtils.GenerateHash();
-                CompactMachineUtils.InitializeHashFolder(Serialize(SerializationMode.Standard));
+                CompactMachineUtils.InitializeHashFolder(Serialize());
             }
             
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
@@ -211,14 +211,14 @@ namespace TileEntity.Instances.CompactMachines {
         private void SetPortInteractable<T>(Dictionary<Vector2Int, T> ports, IConduitInteractable interactable, Vector2Int position, ConduitType type) where T : IConduitInteractable
         {
             if (ports.ContainsKey(position)) {
-                Debug.LogWarning("Duplicate key " + position + " of type " + type + " for compact machine " + compactMachine.getName());
+                Debug.LogWarning("Duplicate key " + position + " of type " + type + " for compact machine " + compactMachine.GetName());
                 return;
             }
             ports[position] = (T)interactable;
         }
         public void addPort(ITileEntityInstance tileEntity, ConduitType type)
         {
-            Vector2Int positionInCompactMachine = tileEntity.getCellPosition(); 
+            Vector2Int positionInCompactMachine = tileEntity.GetCellPosition(); 
             Vector2Int positionOutsideCompactMachine = CompactMachineUtils.GetPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
             if (interactable == null) return;

@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Storage {
         public void DisplayTileEntityInstance(BatteryInstance tileEntityInstance)
         {
             this.battery = tileEntityInstance;
-            this.textMeshProUGUI.text = tileEntityInstance.getName();
+            this.textMeshProUGUI.text = tileEntityInstance.GetName();
         }
 
         void Update()

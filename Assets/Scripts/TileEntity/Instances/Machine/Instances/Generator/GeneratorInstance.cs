@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Machines
             
         }
         
-        public override string Serialize(SerializationMode mode)
+        public override string Serialize()
         {
             SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
                 Mode,

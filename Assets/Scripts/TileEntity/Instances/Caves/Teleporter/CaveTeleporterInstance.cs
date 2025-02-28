@@ -21,7 +21,7 @@ namespace TileEntity.Instances {
             MainCanvasController.TInstance.DisplayUIWithPlayerInventory(caveTeleporterUIController.gameObject);
         }
 
-        public string Serialize(SerializationMode mode)
+        public string Serialize()
         {
             return ItemSlotFactory.serializeList(CaveStorageDrives);
         }
