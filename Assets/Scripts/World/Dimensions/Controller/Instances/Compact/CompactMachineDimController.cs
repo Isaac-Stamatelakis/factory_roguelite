@@ -67,7 +67,7 @@ namespace Dimensions {
                                     }
                                     break;
                                 }
-                                case CompactMachineInstance nestedCompactMachine:
+                                case CompactMachineInstance nestedCompactMachine when nestedCompactMachine.IsActive:
                                 {
                                     Vector2Int newPosition = nestedCompactMachine.GetCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
@@ -109,11 +109,21 @@ namespace Dimensions {
             SaveTree(tree);
             RemoveNode(key);
             if (hash == null) return;
+            CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
-            GlobalHelper.CopyDirectory(dimPath,hashPath);
+            if (metaData.Instances <= 1)
+            {
+                string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
+                GlobalHelper.CopyDirectory(dimPath,hashPath);
+                Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+            }
+            else
+            {
+                Debug.Log($"Removed system at path '{dimPath}'");
+            }
+            
             Directory.Delete(dimPath,true);
-            Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+            
         }
 
         private void SaveTree(CompactMachineTree compactMachineTree)

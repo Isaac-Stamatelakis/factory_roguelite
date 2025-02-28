@@ -7,6 +7,9 @@ using TMPro;
 using UnityEngine.UI;
 using Dimensions;
 using TileEntity.Instances.CompactMachine;
+using TileEntity.Instances.CompactMachine.UI;
+using UI;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineUIController : MonoBehaviour, ITileEntityUI<CompactMachineInstance>
@@ -16,16 +19,29 @@ namespace TileEntity.Instances.CompactMachines {
         [SerializeField] public TextMeshProUGUI mPositionText;
         [SerializeField] public TextMeshProUGUI mSubSystemText;
         [SerializeField] public TextMeshProUGUI mDepthText;
+        [SerializeField] public TextMeshProUGUI mBluePrintInstancesText;
         [SerializeField] public Button mDetailedViewButton;
         [SerializeField] public Button mTeleportButton;
-        [SerializeField] public Button mLockButton;
-        [SerializeField] public TextMeshProUGUI mLockText;
-        [SerializeField] public Button mActivateButton;
-        [SerializeField] public TextMeshProUGUI mActivateText;
+        [SerializeField] public Button mEditButton;
         [SerializeField] public TMP_InputField mNameTextField;
+        [SerializeField] private AssetReference mEditUIPrefabRef;
         private CompactMachineInstance compactMachine;
         private CompactMachineMetaData metaData;
-        
+
+        private CompactMachineEditUI editUIPrefab;
+        public void Start()
+        {
+            StartCoroutine(LoadAssets());
+        }
+
+        private IEnumerator LoadAssets()
+        {
+            var editHandle = Addressables.LoadAssetAsync<GameObject>(mEditUIPrefabRef);
+            yield return editHandle;
+            editUIPrefab = editHandle.Result.GetComponent<CompactMachineEditUI>();
+            Addressables.Release(editHandle);
+        }
+
         public void DisplayTileEntityInstance(CompactMachineInstance tileEntityInstance)
         {
             if (tileEntityInstance.Hash == null)
@@ -42,6 +58,8 @@ namespace TileEntity.Instances.CompactMachines {
             mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             mDepthText.text = $"Depth: {key.Path.Count-1}";
             mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
+            const string BLUE_PRINT_HEADER = "Instances";
+            
             if (metaData != null)
             {
                 mNameTextField.text = metaData.Name;
@@ -49,12 +67,19 @@ namespace TileEntity.Instances.CompactMachines {
                 {
                     metaData.Name = value;
                 });
-                SetLockText(metaData.Locked);
-                mLockButton.onClick.AddListener(() =>
+                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}: {metaData.Instances+1}";
+                mEditButton.onClick.AddListener(() =>
                 {
-                    metaData.Locked = !metaData.Locked;
-                    SetLockText(metaData.Locked);
+                    CompactMachineEditUI editUI = Instantiate(editUIPrefab);
+                    editUI.Display(metaData,compactMachine);
+                    CanvasController.Instance.DisplayObject(editUI.gameObject);
                 });
+            }
+            else
+            {
+                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}: ?";
+                mEditButton.interactable = false;
+                mDetailedViewButton.interactable = false;
             }
             
             mTeleportButton.onClick.AddListener(() =>
@@ -62,16 +87,7 @@ namespace TileEntity.Instances.CompactMachines {
                 CompactMachineUtils.TeleportIntoCompactMachine(tileEntityInstance);
             });
         }
-
-        private void SetLockText(bool locked)
-        {
-            mLockText.text = locked ? "Locked" : "Unlocked";
-        }
-
-        private void SetActivateText(bool activated)
-        {
-            mActivateText.text = activated ? "Activated" : "Unactivated";
-        }
+        
         private string GetPositionText(CompactMachineTeleportKey key)
         {
             string text = "Position: ";

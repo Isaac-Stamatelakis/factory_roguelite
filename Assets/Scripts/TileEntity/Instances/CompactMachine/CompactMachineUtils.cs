@@ -127,9 +127,9 @@ namespace TileEntity.Instances.CompactMachines {
             );
         }
         public static void TeleportIntoCompactMachine(CompactMachineInstance compactMachine) {
+            if (!compactMachine.IsActive) return;
             CompactMachineTeleportKey key = compactMachine.GetTeleportKey();
-
-
+            
             Vector2Int teleportPosition = compactMachine.Teleporter == null
                 ? (Global.CHUNK_SIZE / 2 + 1) * Vector2Int.one
                 : compactMachine.Teleporter.GetCellPosition() + Vector2Int.one;
@@ -192,9 +192,9 @@ namespace TileEntity.Instances.CompactMachines {
                 Directory.CreateDirectory(folderPath);
             }
             string hashContentPath = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
-            
+            CompactMachineMetaData metaData = GetMetaDataFromHash(hash);
             GlobalHelper.CopyDirectory(hashContentPath, folderPath);
-            if (!DevMode.Instance.noPlaceCost)
+            if (!DevMode.Instance.noPlaceCost && metaData.Instances <= 1)
             {
                 Debug.Log($"Deleted hashed content at '{hashContentPath}'");
                 Directory.Delete(hashContentPath,true);
@@ -265,7 +265,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         internal static CompactMachineMetaData GetDefaultMetaData()
         {
-            return new CompactMachineMetaData("New Compact Machine", false);
+            return new CompactMachineMetaData("New Compact Machine", false,0);
         }
 
         internal static void SaveMetaDataJson(CompactMachineMetaData metaData, string path)
