@@ -11,7 +11,6 @@ namespace Chunks.Systems {
     public class CompactMachineClosedChunkSystem : ConduitTileClosedChunkSystem, ICompactMachineClosedChunkSystem
     {
         private CompactMachineTeleportKey compactMachinePosition;
-
         public CompactMachineTeleportKey getCompactMachineKey()
         {
             return compactMachinePosition;

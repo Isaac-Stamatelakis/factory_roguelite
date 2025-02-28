@@ -5,13 +5,15 @@ using UnityEngine;
 namespace Dimensions {
     public class CompactMachineTeleportKey : IDimensionTeleportKey
     {
-        private List<Vector2Int> path;
-        public CompactMachineTeleportKey(List<Vector2Int> path)
+        public List<Vector2Int> Path;
+        public bool Locked;
+        public CompactMachineTeleportKey(List<Vector2Int> path, bool locked)
         {
-            this.path = path;
+            this.Path = path;
+            this.Locked = locked;
         }
 
-        public List<Vector2Int> Path { get => path; set => path = value; }
+        
     }
 
 }

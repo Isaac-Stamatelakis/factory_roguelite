@@ -14,6 +14,7 @@ using Entities;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using TileEntity.Instances.CompactMachine;
 using UI;
 using WorldModule;
 
@@ -43,6 +44,10 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachineTeleportKey GetTeleportKey()
         {
             if (chunk is not ILoadedChunk loadedChunk) return null;
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return null;
+            }
             List<Vector2Int> path = new List<Vector2Int>();
             if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
                 CompactMachineTeleportKey key = compactMachineClosedChunkSystem.getCompactMachineKey();
@@ -51,7 +56,8 @@ namespace TileEntity.Instances.CompactMachines {
                 }
             }
             path.Add(getCellPosition());
-            return new CompactMachineTeleportKey(path);
+            bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
+            return new CompactMachineTeleportKey(path,locked);
         }
         public ConduitPortLayout GetConduitPortLayout()
         {
@@ -78,14 +84,6 @@ namespace TileEntity.Instances.CompactMachines {
                 return;
             }
             TileEntityObject.UIManager.Display<CompactMachineInstance,CompactMachineUIController>(this);
-        }
-
-        public Vector2Int getTeleporterPosition() {
-            if (teleporter == null) {
-                Debug.LogError(getName() +  " Attempted to get teleporter position which was null");
-                return Vector2Int.zero;
-            }
-            return teleporter.getCellPosition();
         }
 
         public bool ExtractSignal(Vector2Int portPosition)

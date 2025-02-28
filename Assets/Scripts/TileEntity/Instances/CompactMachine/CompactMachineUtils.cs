@@ -118,7 +118,7 @@ namespace TileEntity.Instances.CompactMachines {
                     parentPath.Add(key.Path[i]);
                 }   
             }
-            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath);
+            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath,false); // TODO Get lock value
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
@@ -127,27 +127,14 @@ namespace TileEntity.Instances.CompactMachines {
             );
         }
         public static void TeleportIntoCompactMachine(CompactMachineInstance compactMachine) {
-            DimensionManager dimensionManager = DimensionManager.Instance;
-            IChunk chunk = compactMachine.getChunk();
-            if (chunk is not ILoadedChunk loadedChunk) {
-                return;
-            }
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
-            List<Vector2Int> path = new List<Vector2Int>();
-            if (closedChunkSystem is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
-                foreach (Vector2Int vector in compactMachineClosedChunkSystem.getCompactMachineKey().Path) {
-                    path.Add(vector);
-                }
-            }
-            path.Add(compactMachine.getCellPosition());
-            CompactMachineTeleportKey key = new CompactMachineTeleportKey(path);
+            CompactMachineTeleportKey key = compactMachine.GetTeleportKey();
 
             if (compactMachine.Teleporter == null)
             {
                 Debug.LogError("Cannot teleport into compact machine as teleporter is null");
                 return;
             }
-            
+            DimensionManager dimensionManager = DimensionManager.Instance;
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
@@ -212,8 +199,6 @@ namespace TileEntity.Instances.CompactMachines {
                 Debug.Log($"Deleted hashed content at '{hashContentPath}'");
                 Directory.Delete(hashContentPath,true);
             }
-            
-
         }
 
         public static void InitializeHashFolder(string hashString)
@@ -235,8 +220,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             byte[] binary = File.ReadAllBytes(metaDataPath);
             string json = WorldLoadUtils.DecompressString(binary);
-      
-            if (json == null)
+            if (json is null or "null") // Don't know what genius made this return "null". Don't think its me but who knows
             {
                 return GetDefaultMetaData();
             }
@@ -250,6 +234,30 @@ namespace TileEntity.Instances.CompactMachines {
             }
         }
 
+        internal static CompactMachineMetaData GetMetaDataFromHash(string hash)
+        {
+            string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
+            if (!Directory.Exists(path)) return null;
+            string metaDataPath = Path.Combine(path, META_DATA_PATH);
+            if (!File.Exists(metaDataPath))
+            {
+                InitializeMetaData(path);
+            }
+            byte[] binary = File.ReadAllBytes(metaDataPath);
+            string json = WorldLoadUtils.DecompressString(binary);
+            if (json is null or "null") // Don't know what genius made this return "null". Don't think its me but who knows
+            {
+                return GetDefaultMetaData();
+            }
+            try
+            {
+                return JsonConvert.DeserializeObject<CompactMachineMetaData>(json);
+            }
+            catch (JsonSerializationException)
+            {
+                return GetDefaultMetaData();
+            }
+        }
         internal static void InitializeMetaData(string path)
         {
             SaveMetaDataJson(GetDefaultMetaData(), path);
