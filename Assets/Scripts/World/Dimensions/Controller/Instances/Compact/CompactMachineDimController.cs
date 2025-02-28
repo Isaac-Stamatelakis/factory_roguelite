@@ -49,7 +49,7 @@ namespace Dimensions {
             return systems;
         }
 
-        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
+        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path, bool blueprinted) {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -80,10 +80,22 @@ namespace Dimensions {
                                     newSystem.SoftLoad();
                                     systems.Add(newSystem);
                                     CompactMachineTree newTree = new CompactMachineTree(newSystem,nestedCompactMachine.Hash);
-                                    tree.Children[(Vector2Int)newPosition] = newTree;
-                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
+                                    tree.Children[newPosition] = newTree;
+                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath, blueprinted);
                                     break;
                                 }
+                                case IBluePrintModifiedTileEntity blueprintModifyTileEntity when blueprinted:
+                                    if (blueprintModifyTileEntity is IBluePrintPlaceInitializedTileEntity placeInitializedTileEntity)
+                                    {
+                                        placeInitializedTileEntity.PlaceInitialize();
+                                    }
+
+                                    if (blueprintModifyTileEntity is IOnBluePrintActionTileEntity onBluePrintActionTileEntity)
+                                    {
+                                        onBluePrintActionTileEntity.OnBluePrint();
+                                    } 
+                                    break;
+                                    
                             }
                         }
                     }
@@ -188,6 +200,7 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
+            bool blueprinted = true; // temp
             if (CompactMachineUtils.HashExists(hash))
             {
                 CompactMachineUtils.ActivateHashSystem(hash, systemPath);
@@ -204,7 +217,7 @@ namespace Dimensions {
             systems.Add(newSystem);
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
 
-            LoadCompactMachineSystem(compactMachine, newTree, path);
+            LoadCompactMachineSystem(compactMachine, newTree, path, blueprinted);
            
         }
 
@@ -238,7 +251,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem,null);
-            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
+            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1),false);
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 

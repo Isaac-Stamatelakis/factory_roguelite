@@ -60,9 +60,18 @@ namespace TileEntity {
 
     public interface IBluePrintModifiedTileEntity
     {
-        public void OnBluePrint();
+        
     }
 
+    public interface IBluePrintPlaceInitializedTileEntity : IBluePrintModifiedTileEntity, IPlaceInitializable
+    {
+        
+    }
+
+    public interface IOnBluePrintActionTileEntity : IBluePrintModifiedTileEntity
+    {
+        public void OnBluePrint();
+    }
     public interface IStaticTileEntity {
         
     }
