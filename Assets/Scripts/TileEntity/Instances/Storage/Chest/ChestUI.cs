@@ -12,7 +12,7 @@ namespace TileEntity.Instances.Storage.Chest
         [SerializeField] private TextMeshProUGUI mTitle;
         public void DisplayTileEntityInstance(ChestInstance tileEntityInstance)
         {
-            mTitle.text = tileEntityInstance.getName();
+            mTitle.text = tileEntityInstance.GetName();
             mInventoryUI.DisplayInventory(tileEntityInstance.Inventory.Items);
         }
 

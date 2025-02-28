@@ -26,7 +26,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalClockInstance : TileEntityInstance<SignalClock>, IPlaceInitializable, IConduitPortTileEntity, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, IRightClickableTileEntity
+    public class SignalClockInstance : TileEntityInstance<SignalClock>, IPlaceInitializable, IConduitPortTileEntity, ISignalConduitInteractable, ISerializableTileEntity, ITickableTileEntity, ILockUnInteractableRightClickTileEntity
     {
         public ClockData ClockData;
         public SignalClockInstance(SignalClock tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)

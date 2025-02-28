@@ -47,7 +47,7 @@ namespace TileEntity.Instances
         }
     }
     public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 
-        IConduitPortTileEntityAggregator, IPlaceInitializable
+        IConduitPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity
     {
         public SingleItemInventory Inventory;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -63,7 +63,7 @@ namespace TileEntity.Instances
                 Debug.LogError("Attempted to spawn items in unloaded chunk");
                 return;
             }
-            TileEntityUtils.spawnItemsOnBreak(Inventory.Items,getWorldPosition(),loadedChunk);
+            TileEntityUtils.spawnItemsOnBreak(Inventory.Items,GetWorldPosition(),loadedChunk);
         }
 
         public void OnRightClick()

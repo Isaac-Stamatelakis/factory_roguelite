@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Chunks.Systems;
 using Player;
+using TileEntity;
 using WorldModule.Caves;
 
 namespace Dimensions {

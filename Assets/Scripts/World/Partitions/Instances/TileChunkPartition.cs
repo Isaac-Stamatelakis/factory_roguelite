@@ -56,11 +56,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 }   
             }
         }
-
-        public override IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            yield return base.unload(tileGridMaps);
-        }
-
+        
         public override IEnumerator UnloadTiles(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             yield return base.UnloadTiles(tileGridMaps);
             if (tileEntities == null) yield break;

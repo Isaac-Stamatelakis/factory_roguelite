@@ -130,7 +130,7 @@ namespace Chunks.Partitions {
                             break;
                         }
                         foreach (TileEntityPortData tileEntityPort in kvp.Value) {
-                            if (kvp.Key.getCellPosition() + tileEntityPort.position == cellPosition) {
+                            if (kvp.Key.GetCellPosition() + tileEntityPort.position == cellPosition) {
                                 tileEntity = kvp.Key;
                                 port = tileEntityPort.portType;
                                 break;
@@ -299,7 +299,7 @@ namespace Chunks.Partitions {
         {
             this.parent = loadedChunk;
             foreach (ITileEntityInstance tileEntity in tileEntities.Values) {
-                tileEntity?.setChunk(loadedChunk);
+                tileEntity?.SetChunk(loadedChunk);
             }
         }
         

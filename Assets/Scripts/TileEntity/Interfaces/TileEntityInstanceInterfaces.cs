@@ -25,6 +25,11 @@ namespace TileEntity {
     {
         public bool CanRightClick();
     }
+
+    public interface ILockUnInteractableRightClickTileEntity : IRightClickableTileEntity
+    {
+        
+    }
     public interface IRightClickableTileEntity
     {
         public void OnRightClick();
@@ -35,7 +40,7 @@ namespace TileEntity {
         public bool CanInteract();
         public bool CanBreak();
     }
-
+    
     public interface ISerializableTileEntity {
         public string Serialize();
         public void Unserialize(string data);
@@ -53,6 +58,20 @@ namespace TileEntity {
         public void AssembleMultiBlock();
     }
 
+    public interface IBluePrintModifiedTileEntity
+    {
+        
+    }
+
+    public interface IBluePrintPlaceInitializedTileEntity : IBluePrintModifiedTileEntity, IPlaceInitializable
+    {
+        
+    }
+
+    public interface IOnBluePrintActionTileEntity : IBluePrintModifiedTileEntity
+    {
+        public void OnBluePrint();
+    }
     public interface IStaticTileEntity {
         
     }
@@ -60,7 +79,7 @@ namespace TileEntity {
     public interface ISoftLoadableTileEntity {
 
     }
-
+    
     
 
 }

@@ -49,7 +49,7 @@ namespace Dimensions {
             return systems;
         }
 
-        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path) {
+        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path, bool blueprinted) {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -67,9 +67,9 @@ namespace Dimensions {
                                     }
                                     break;
                                 }
-                                case CompactMachineInstance nestedCompactMachine:
+                                case CompactMachineInstance nestedCompactMachine when nestedCompactMachine.IsActive:
                                 {
-                                    Vector2Int newPosition = nestedCompactMachine.getCellPosition();
+                                    Vector2Int newPosition = nestedCompactMachine.GetCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                     string contentPath = Path.Combine(nestedPath,CompactMachineUtils.CONTENT_PATH);
                                     SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
@@ -80,10 +80,22 @@ namespace Dimensions {
                                     newSystem.SoftLoad();
                                     systems.Add(newSystem);
                                     CompactMachineTree newTree = new CompactMachineTree(newSystem,nestedCompactMachine.Hash);
-                                    tree.Children[(Vector2Int)newPosition] = newTree;
-                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath);
+                                    tree.Children[newPosition] = newTree;
+                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath, blueprinted);
                                     break;
                                 }
+                                case IBluePrintModifiedTileEntity blueprintModifyTileEntity when blueprinted:
+                                    if (blueprintModifyTileEntity is IBluePrintPlaceInitializedTileEntity placeInitializedTileEntity)
+                                    {
+                                        placeInitializedTileEntity.PlaceInitialize();
+                                    }
+
+                                    if (blueprintModifyTileEntity is IOnBluePrintActionTileEntity onBluePrintActionTileEntity)
+                                    {
+                                        onBluePrintActionTileEntity.OnBluePrint();
+                                    } 
+                                    break;
+                                    
                             }
                         }
                     }
@@ -97,11 +109,21 @@ namespace Dimensions {
             SaveTree(tree);
             RemoveNode(key);
             if (hash == null) return;
+            CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
-            GlobalHelper.CopyDirectory(dimPath,hashPath);
+            if (metaData.Instances <= 1)
+            {
+                string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
+                GlobalHelper.CopyDirectory(dimPath,hashPath);
+                Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+            }
+            else
+            {
+                Debug.Log($"Removed system at path '{dimPath}'");
+            }
+            
             Directory.Delete(dimPath,true);
-            Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
+            
         }
 
         private void SaveTree(CompactMachineTree compactMachineTree)
@@ -188,6 +210,7 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
+            bool blueprinted = true; // temp
             if (CompactMachineUtils.HashExists(hash))
             {
                 CompactMachineUtils.ActivateHashSystem(hash, systemPath);
@@ -204,7 +227,7 @@ namespace Dimensions {
             systems.Add(newSystem);
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
 
-            LoadCompactMachineSystem(compactMachine, newTree, path);
+            LoadCompactMachineSystem(compactMachine, newTree, path, blueprinted);
            
         }
 
@@ -238,7 +261,7 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem,null);
-            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1));
+            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1),false);
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 

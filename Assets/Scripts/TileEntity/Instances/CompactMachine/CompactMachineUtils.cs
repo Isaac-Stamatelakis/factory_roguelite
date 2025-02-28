@@ -88,7 +88,7 @@ namespace TileEntity.Instances.CompactMachines {
             WorldTileConduitData systemData = variant.Data;
             Vector2Int chunkSize = new Vector2Int(variant.Size.x/Global.CHUNK_SIZE,variant.Size.y/Global.CHUNK_SIZE);
             WorldGenerationFactory.SaveToJson(systemData,chunkSize,1,savePath);
-            Debug.Log($"{compactMachine.getName()} Closed Chunk System Generated at {savePath}");
+            Debug.Log($"{compactMachine.GetName()} Closed Chunk System Generated at {savePath}");
         }
 
         public static string GetPositionFolderPath(List<Vector2Int> path) {
@@ -106,7 +106,7 @@ namespace TileEntity.Instances.CompactMachines {
         }
         public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            IChunk chunk = compactMachine.getChunk();
+            IChunk chunk = compactMachine.GetChunk();
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
@@ -122,23 +122,23 @@ namespace TileEntity.Instances.CompactMachines {
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
-                compactMachine.getCellPosition(),
+                compactMachine.GetCellPosition(),
                 key:parentKey
             );
         }
         public static void TeleportIntoCompactMachine(CompactMachineInstance compactMachine) {
+            if (!compactMachine.IsActive) return;
             CompactMachineTeleportKey key = compactMachine.GetTeleportKey();
-
-            if (compactMachine.Teleporter == null)
-            {
-                Debug.LogError("Cannot teleport into compact machine as teleporter is null");
-                return;
-            }
+            
+            Vector2Int teleportPosition = compactMachine.Teleporter == null
+                ? (Global.CHUNK_SIZE / 2 + 1) * Vector2Int.one
+                : compactMachine.Teleporter.GetCellPosition() + Vector2Int.one;
+            
             DimensionManager dimensionManager = DimensionManager.Instance;
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
-                compactMachine.Teleporter.getCellPosition() + Vector2Int.one,
+                teleportPosition,
                 key:key
             );
         }
@@ -192,9 +192,9 @@ namespace TileEntity.Instances.CompactMachines {
                 Directory.CreateDirectory(folderPath);
             }
             string hashContentPath = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
-            
+            CompactMachineMetaData metaData = GetMetaDataFromHash(hash);
             GlobalHelper.CopyDirectory(hashContentPath, folderPath);
-            if (!DevMode.Instance.noPlaceCost)
+            if (!DevMode.Instance.noPlaceCost && metaData.Instances <= 1)
             {
                 Debug.Log($"Deleted hashed content at '{hashContentPath}'");
                 Directory.Delete(hashContentPath,true);
@@ -265,7 +265,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         internal static CompactMachineMetaData GetDefaultMetaData()
         {
-            return new CompactMachineMetaData("New Compact Machine", false);
+            return new CompactMachineMetaData("New Compact Machine", false,0);
         }
 
         internal static void SaveMetaDataJson(CompactMachineMetaData metaData, string path)

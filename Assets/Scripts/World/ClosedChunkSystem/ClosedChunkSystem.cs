@@ -317,7 +317,6 @@ namespace Chunks.Systems {
                 return;
             }
             partitionUnloader.clearQueue();
-            //Save();
         }
 
         public virtual void Save() {

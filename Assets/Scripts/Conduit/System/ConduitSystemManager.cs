@@ -111,15 +111,15 @@ namespace Conduits.Systems {
                 return;
             }
 
-            Vector2Int partitionPosition = Global.getPartitionFromCell(tileEntity.getCellPosition())-tileEntity.getChunk().GetPosition()*Global.PARTITIONS_PER_CHUNK;
-            var partition = tileEntity.getChunk().GetPartition(partitionPosition);
+            Vector2Int partitionPosition = Global.getPartitionFromCell(tileEntity.GetCellPosition())-tileEntity.GetChunk().GetPosition()*Global.PARTITIONS_PER_CHUNK;
+            var partition = tileEntity.GetChunk().GetPartition(partitionPosition);
             var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
             if (entityPorts == null) return;
             chunkConduitPorts[tileEntity] = entityPorts;
             
             foreach (TileEntityPortData port in chunkConduitPorts[tileEntity])
             {
-                Vector2Int position = port.position + tileEntity.getCellPosition();
+                Vector2Int position = port.position + tileEntity.GetCellPosition();
                 if (!conduits.TryGetValue(position, out var conduit))
                 {
                     continue;
@@ -136,7 +136,7 @@ namespace Conduits.Systems {
         public abstract void OnTileEntityRemoved(TConduit conduit);
         public void DeleteTileEntity(Vector2Int position) {
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
-                if (kvp.Key.getCellPosition() == position) {
+                if (kvp.Key.GetCellPosition() == position) {
                     foreach (TileEntityPortData port in chunkConduitPorts[kvp.Key])
                     {
                         Vector2Int portPosition = port.position + position;
@@ -413,7 +413,7 @@ namespace Conduits.Systems {
                 //Vector2Int distVec = kvp.Key - new Vector2Int(x,y);
                 foreach (TileEntityPortData tileEntityPort in kvp.Value) {
                     // Key is tileEntityPosition
-                    if (tileEntityPort.position + kvp.Key.getCellPosition() == pos) { // Conduit is placed on tileEntityPort
+                    if (tileEntityPort.position + kvp.Key.GetCellPosition() == pos) { // Conduit is placed on tileEntityPort
                         return kvp.Key;
                     }
                 }
@@ -425,7 +425,7 @@ namespace Conduits.Systems {
             foreach (KeyValuePair<ITileEntityInstance, List<TileEntityPortData>> kvp in chunkConduitPorts) {
                 foreach (TileEntityPortData tileEntityPort in kvp.Value) {
                     // Key is tileEntityPosition
-                    if (tileEntityPort.position + kvp.Key.getCellPosition() == pos) { // Conduit is placed on tileEntityPort
+                    if (tileEntityPort.position + kvp.Key.GetCellPosition() == pos) { // Conduit is placed on tileEntityPort
                         return tileEntityPort.portType;
                     }
                 }

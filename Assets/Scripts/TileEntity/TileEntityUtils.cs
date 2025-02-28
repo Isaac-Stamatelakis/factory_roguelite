@@ -64,7 +64,7 @@ namespace TileEntity {
                 }
                 catch (JsonSerializationException e)
                 {
-                    Debug.LogWarning($"Could not deserialize tile entity {tileItem.tileEntity.name} at {tileEntityInstance.getCellPosition()}\n{e}");
+                    Debug.LogWarning($"Could not deserialize tile entity {tileItem.tileEntity.name} at {tileEntityInstance.GetCellPosition()}\n{e}");
                     if (tileEntityInstance is IPlaceInitializable placeInitializable1)
                     {
                         placeInitializable1.PlaceInitialize();
@@ -91,10 +91,10 @@ namespace TileEntity {
             };
 
             HashSet<IMultiBlockTileEntity> adjacentMultiBlocks = new HashSet<IMultiBlockTileEntity>();
-            IChunkSystem system = tileEntityInstance.getChunk().GetChunkSystem();
+            IChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
             foreach (Vector2Int direction in directions)
             {
-                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(direction + tileEntityInstance.getCellPosition());
+                var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(direction + tileEntityInstance.GetCellPosition());
                 ITileEntityInstance adjacentTileEntity = partition.GetTileEntity(positionInPartition);
                 switch (adjacentTileEntity)
                 {
@@ -134,8 +134,8 @@ namespace TileEntity {
             }
         }
         public static void stateIterate(ITileEntityInstance tileEntity, int iterationAmount) {
-            TileBase tile = tileEntity.getTile();
-            IChunk chunk = tileEntity.getChunk();
+            TileBase tile = tileEntity.GetTile();
+            IChunk chunk = tileEntity.GetChunk();
             if (tile is not ITypeSwitchType switchType) {
                 Debug.LogError("Tile Entity belongs to non switch tile");
                 return;
@@ -148,8 +148,8 @@ namespace TileEntity {
                 Debug.LogError("Attempted to layer switch in unloaded chunk");
                 return;
             }
-            IChunkPartition chunkPartition = tileEntity.getPartition();
-            Vector2Int positionInPartition = tileEntity.getPositionInPartition();
+            IChunkPartition chunkPartition = tileEntity.GetPartition();
+            Vector2Int positionInPartition = tileEntity.GetPositionInPartition();
             
             BaseTileData baseTileData = chunkPartition.GetBaseData(positionInPartition);
             int state = baseTileData.state;
@@ -157,7 +157,7 @@ namespace TileEntity {
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
             TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
-            tilemap.removeForSwitch(tileEntity.getCellPosition());
+            tilemap.removeForSwitch(tileEntity.GetCellPosition());
 
             // Switch to open/closed
             state += iterationAmount; 
@@ -167,12 +167,12 @@ namespace TileEntity {
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
-            newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
+            newMap.placeTileAtLocation(tileEntity.GetCellPosition(),stateTile.getTileAtState(state));
         }
 
         public static void stateSwitch(ITileEntityInstance tileEntity, int state) {
-            TileBase tile = tileEntity.getTile();
-            IChunk chunk = tileEntity.getChunk();
+            TileBase tile = tileEntity.GetTile();
+            IChunk chunk = tileEntity.GetChunk();
             if (tile is not ITypeSwitchType switchType) {
                 Debug.LogError("Tile Entity belongs to non switch tile");
                 return;
@@ -184,8 +184,8 @@ namespace TileEntity {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            IChunkPartition chunkPartition = tileEntity.getPartition();
-            Vector2Int positionInPartition = tileEntity.getPositionInPartition();
+            IChunkPartition chunkPartition = tileEntity.GetPartition();
+            Vector2Int positionInPartition = tileEntity.GetPositionInPartition();
             
             BaseTileData baseTileData = chunkPartition.GetBaseData(positionInPartition);
             int oldState = baseTileData.state;
@@ -193,12 +193,12 @@ namespace TileEntity {
             
             TileMapType tileMapType = switchType.getStateType(oldState);
             TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
-            tilemap.removeForSwitch(tileEntity.getCellPosition());
+            tilemap.removeForSwitch(tileEntity.GetCellPosition());
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
             TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
-            newMap.placeTileAtLocation(tileEntity.getCellPosition(),stateTile.getTileAtState(state));
+            newMap.placeTileAtLocation(tileEntity.GetCellPosition(),stateTile.getTileAtState(state));
         }
 
         /// <summary>
@@ -206,8 +206,8 @@ namespace TileEntity {
         /// </summary>
         public static ITileEntityInstance getAdjacentTileEntity(ITileEntityInstance tileEntity, Vector2Int offset) {
             
-            IChunk chunk = tileEntity.getChunk();
-            Vector2Int offsetCellPosition = tileEntity.getCellPosition()+offset;
+            IChunk chunk = tileEntity.GetChunk();
+            Vector2Int offsetCellPosition = tileEntity.GetCellPosition()+offset;
             Vector2Int chunkPosition = Global.getChunkFromCell(offsetCellPosition);
             Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             IChunkPartition partition = null;
@@ -245,7 +245,7 @@ namespace TileEntity {
         /// <param name="positions">Adjacent tile entity positions</param>
         public static bool SyncTileMultiBlockAggregates(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<Vector2Int> positions)
         {
-            IChunkSystem system = tileEntityInstance.getChunk().GetChunkSystem();
+            IChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
             bool alreadyConnected = false;
             foreach (Vector2Int position in positions)
             {
@@ -289,10 +289,10 @@ namespace TileEntity {
             TileMapType tileMapType = tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
             
-            IChunk chunk = tileEntityInstance.getChunk();
+            IChunk chunk = tileEntityInstance.GetChunk();
             IChunkSystem chunkSystem = chunk.GetChunkSystem();
             
-            Vector2Int origin = tileEntityInstance.getCellPosition();
+            Vector2Int origin = tileEntityInstance.GetCellPosition();
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
             HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
             
@@ -333,10 +333,10 @@ namespace TileEntity {
             TileMapType tileMapType = tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
             
-            IChunk chunk = tileEntityInstance.getChunk();
+            IChunk chunk = tileEntityInstance.GetChunk();
             IChunkSystem chunkSystem = chunk.GetChunkSystem();
             
-            Vector2Int origin = tileEntityInstance.getCellPosition();
+            Vector2Int origin = tileEntityInstance.GetCellPosition();
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
             HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
             

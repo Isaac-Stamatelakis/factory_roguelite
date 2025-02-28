@@ -7,7 +7,7 @@ using UI;
 
 
 namespace TileEntity.Instances.Signs {
-    public class SignInstance : TileEntityInstance<Sign>, IRightClickableTileEntity, ISerializableTileEntity
+    public class SignInstance : TileEntityInstance<Sign>, ILockUnInteractableRightClickTileEntity, ISerializableTileEntity
     {
         public SignInstance(Sign tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {

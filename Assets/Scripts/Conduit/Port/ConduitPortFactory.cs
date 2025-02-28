@@ -69,7 +69,7 @@ namespace Conduits.Ports {
             ConduitPortLayout layout = conduitPortTileEntity.GetConduitPortLayout();
             if (!layout) return null;
             List<TileEntityPortData> ports = GetEntityPorts(layout, type);
-            return RotateEntityPorts(ports, partition, tileEntityInstance.getPositionInPartition());
+            return RotateEntityPorts(ports, partition, tileEntityInstance.GetPositionInPartition());
         }
 
         public static List<TileEntityPortData> GetEntityPorts(ConduitPortLayout layout, ConduitType type)
@@ -158,7 +158,7 @@ namespace Conduits.Ports {
             }
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (ReferenceEquals(interactable, null)) return null;
-            Vector2Int position = conduitPosition - tileEntityInstance.getCellPosition();
+            Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             try
             {
                 switch (conduitType) {
@@ -281,7 +281,7 @@ namespace Conduits.Ports {
             IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, conduitType);
             if (interactable == null) return default;
             
-            Vector2Int position = conduitPosition - tileEntityInstance.getCellPosition();
+            Vector2Int position = conduitPosition - tileEntityInstance.GetCellPosition();
             switch (conduitType) {
                 case ConduitType.Item:
                 case ConduitType.Fluid:

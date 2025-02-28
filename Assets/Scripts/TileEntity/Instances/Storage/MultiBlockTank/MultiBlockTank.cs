@@ -83,7 +83,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         public void Load()
         {
             if (size == 0) return;
-            Vector2Int cellPosition = getCellPosition();
+            Vector2Int cellPosition = GetCellPosition();
             minY = cellPosition.y;
             maxY = cellPosition.y;
             fluidHeightMap = new Dictionary<int, List<int>>();

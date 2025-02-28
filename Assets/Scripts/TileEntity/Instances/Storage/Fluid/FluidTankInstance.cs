@@ -39,7 +39,7 @@ namespace TileEntity.Instances.Storage {
             GameObject fluid = new GameObject();
             fluid.name = "Fluid";
             fluid.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-            fluid.transform.position = getWorldPosition();
+            fluid.transform.position = GetWorldPosition();
             visualElement = fluid.AddComponent<SpriteRenderer>();
             updateVisual();
         }
@@ -56,7 +56,7 @@ namespace TileEntity.Instances.Storage {
             visualElement.sprite = itemSlot.itemObject.getSprite();
             float height = FillRatio*0.5f;
             visualElement.transform.localScale = new Vector3(0.5f,height,1);
-            Vector2 position = getWorldPosition();
+            Vector2 position = GetWorldPosition();
             visualElement.transform.position = new Vector3(position.x,position.y-0.25f+height/2,1.5f);
 
         }

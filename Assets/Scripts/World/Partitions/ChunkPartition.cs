@@ -201,14 +201,6 @@ namespace Chunks.Partitions {
             
         }
 
-        public bool ClickTileEntity(Vector2Int positionInPartition)
-        {
-            if (!tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity)) return false;
-            if (tileEntity is not IRightClickableTileEntity rightClickableTileEntity) return false;
-            rightClickableTileEntity.OnRightClick();
-            return true;
-        }
-
         public bool GetLoaded()
         {
             return loaded;

@@ -36,9 +36,9 @@ namespace TileEntity.Instances.Matrix {
                 craftTile.deactivate();
             }
             Dim2Bounds bounds = new Dim2Bounds(0,0,0,0);
-            Vector2Int corePosition = getCellPosition();
+            Vector2Int corePosition = GetCellPosition();
             foreach (ITileEntityInstance tileEntity in connectedCraftTiles) {
-                Vector2Int cellPosition = tileEntity.getCellPosition();
+                Vector2Int cellPosition = tileEntity.GetCellPosition();
                 Vector2Int dif = corePosition - cellPosition;
                 if (dif.x < bounds.XLowerBound) {
                     bounds.XLowerBound = dif.x;

@@ -130,21 +130,29 @@ namespace PlayerModule.Mouse {
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)
             {
-                bool highlight = TryHighlight(result.Value);
+                bool highlight = TryHighlight(closedChunkSystem, result.Value);
                 if (highlight) return;
             }
             tileHighlighter.Hide();
         }
 
-        private bool TryHighlight((Vector2, IWorldTileMap) result)
+        private bool TryHighlight(ClosedChunkSystem system, (Vector2, IWorldTileMap) result)
         {
             (Vector2 position, IWorldTileMap tilemap) = result;
             if (tilemap is not WorldTileGridMap worldTileGridMap) return false;
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
+            if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
+            
+            tileHighlighter.Highlight(position, tilemap.GetTilemap());
+            return true;
+        }
 
-            if (tileEntityInstance is not (ILeftClickableTileEntity or IRightClickableTileEntity)) return false;
+        public static bool CanRightClickTileEntity(ITileEntityInstance tileEntityInstance, ClosedChunkSystem system)
+        {
+            if (tileEntityInstance is not IRightClickableTileEntity) return false;
+            if (system && !system.Interactable && tileEntityInstance is ILockUnInteractableRightClickTileEntity) return false;
             if (tileEntityInstance is IConditionalRightClickableTileEntity conditionalRightClickableTileEntity)
             {
                 if (!conditionalRightClickableTileEntity.CanRightClick())
@@ -152,10 +160,9 @@ namespace PlayerModule.Mouse {
                     return false;
                 }
             }
-            tileHighlighter.Highlight(position, tilemap.GetTilemap());
+
             return true;
         }
-
         private void MouseScrollUpdate(Vector2 mousePosition)
         {
             if (eventSystem.IsPointerOverGameObject())
@@ -291,10 +298,10 @@ namespace PlayerModule.Mouse {
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PARTITIONS_PER_CHUNK;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
-            if (chunkPartition.ClickTileEntity(tilePositionInPartition)) {
-                return true;
-            }
-            return false;
+            ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
+            if (!CanRightClickTileEntity(tileEntityInstance, chunk.getSystem())) return false;
+            ((IRightClickableTileEntity)tileEntityInstance).OnRightClick();
+            return true;
         }
 
         private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {

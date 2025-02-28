@@ -17,6 +17,7 @@ using Player.Tool;
 using RecipeModule;
 using PlayerModule;
 using Recipe;
+using TileEntity;
 using UI;
 using UI.JEI;
 using UI.QuestBook;
@@ -239,8 +240,13 @@ namespace Dimensions {
             {
                 activeSystem.DeactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);
+                if (currentDimension)
+                {
+                    currentDimension.ClearEntities();
+                }
             }
             
+            currentDimension = controller;
             activeSystem = newSystem;
             newSystem.InitalizeMiscObjects(miscObjects);
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
