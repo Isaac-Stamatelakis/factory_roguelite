@@ -33,6 +33,7 @@ namespace TileEntity.Instances.CompactMachines {
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
         public Vector2Int PositionInSystem { get => positionInSystem; set => positionInSystem = value; }
         private string hash;
+        public string Hash => hash;
 
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -76,19 +77,7 @@ namespace TileEntity.Instances.CompactMachines {
                 CompactMachineUtils.TeleportIntoCompactMachine(this);
                 return;
             }
-            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
-            if (uiPrefab == null) {
-                Debug.LogError(getName() + " has uiprefab is null");
-                return;
-            }
-            GameObject instantiated = GameObject.Instantiate(uiPrefab);
-            CompactMachineUIController uIController = instantiated.GetComponent<CompactMachineUIController>();
-            if (uIController == null) {
-                Debug.LogError(getName() + "ui prefab doesn't have controller");
-                return;
-            }
-            uIController.display(this);
-            MainCanvasController.Instance.DisplayObject(instantiated);
+            TileEntityObject.UIManager.Display<CompactMachineInstance,CompactMachineUIController>(this);
         }
 
         public Vector2Int getTeleporterPosition() {
@@ -165,7 +154,6 @@ namespace TileEntity.Instances.CompactMachines {
                 CompactMachineUtils.InitializeHashFolder(Serialize());
             }
             
-            
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
@@ -189,6 +177,16 @@ namespace TileEntity.Instances.CompactMachines {
                 }
                 
             }
+        }
+
+        public int GetSubSystems()
+        {
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                Debug.LogError("Tried to create compact machine in invalid dimension");
+                return 0;
+            }
+
+            return compactMachineDimManager.GetCompactMachineDimController().GetSubSystems(GetTeleportKey());
         }
     }
 

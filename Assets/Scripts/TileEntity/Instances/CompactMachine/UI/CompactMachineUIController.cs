@@ -1,39 +1,87 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Dimensions;
+using TileEntity.Instances.CompactMachine;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineUIController : MonoBehaviour
+    public class CompactMachineUIController : MonoBehaviour, ITileEntityUI<CompactMachineInstance>
     {
-        [SerializeField] public TextMeshProUGUI title;
-        [SerializeField] public Button teleportButton;
-        [SerializeField] public Button toggleButton;
-        [SerializeField] public TMP_InputField nameTextField;
+        [SerializeField] public TextMeshProUGUI mTitle;
+        [SerializeField] public TextMeshProUGUI mPositionText;
+        [SerializeField] public TextMeshProUGUI mSubSystemText;
+        [SerializeField] public TextMeshProUGUI mDepthText;
+        [SerializeField] public Button mDetailedViewButton;
+        [SerializeField] public Button mTeleportButton;
+        [SerializeField] public Button mLockButton;
+        [SerializeField] public TextMeshProUGUI mLockText;
+        [SerializeField] public Button mActivateButton;
+        [SerializeField] public TextMeshProUGUI mActivateText;
+        [SerializeField] public TMP_InputField mNameTextField;
         private CompactMachineInstance compactMachine;
-
-        public void Start() {
-            toggleButton.onClick.AddListener(toggle);
-            teleportButton.onClick.AddListener(teleport);
-        }
-
-        public void OnDestroy() {
-            toggleButton.onClick.RemoveAllListeners();
-            teleportButton.onClick.RemoveAllListeners();
-
-        }
+        private CompactMachineMetaData metaData;
         
-        public void display(CompactMachineInstance compactMachine) {
-            this.compactMachine = compactMachine;
+        public void DisplayTileEntityInstance(CompactMachineInstance tileEntityInstance)
+        {
+            this.compactMachine = tileEntityInstance;
+            mTitle.text = tileEntityInstance.TileEntityObject.name;
+            CompactMachineTeleportKey key = tileEntityInstance.GetTeleportKey();
+            mPositionText.text = GetPositionText(key);
+            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+            metaData = CompactMachineUtils.GetMetaData(path);
+            mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
+            mDepthText.text = $"Depth: {key.Path.Count-1}";
+            if (metaData != null)
+            {
+                mNameTextField.text = metaData.Name;
+                mNameTextField.onValueChanged.AddListener((value) =>
+                {
+                    metaData.Name = value;
+                });
+                SetLockText(metaData.Locked);
+                mLockButton.onClick.AddListener(() =>
+                {
+                    metaData.Locked = !metaData.Locked;
+                    SetLockText(metaData.Locked);
+                });
+            }
+            
+            mTeleportButton.onClick.AddListener(() =>
+            {
+                CompactMachineUtils.TeleportIntoCompactMachine(tileEntityInstance);
+            });
         }
 
-        private void teleport() {
-            CompactMachineUtils.TeleportIntoCompactMachine(compactMachine);
+        private void SetLockText(bool locked)
+        {
+            mLockText.text = locked ? "Locked" : "Unlocked";
         }
-        private void toggle() {
-            
+
+        private void SetActivateText(bool activated)
+        {
+            mActivateText.text = activated ? "Activated" : "Unactivated";
+        }
+        private string GetPositionText(CompactMachineTeleportKey key)
+        {
+            string text = "Position: ";
+            for (var index = 0; index < key.Path.Count; index++)
+            {
+                var vector2Int = key.Path[index];
+                text += $"[{vector2Int.x},{vector2Int.y}]";
+                if (index < key.Path.Count-1) text += "->";
+            }
+
+            return text;
+        }
+
+        public void OnDestroy()
+        {
+            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+            CompactMachineUtils.SaveMetaDataJson(metaData,path);
         }
     }
 }

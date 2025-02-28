@@ -235,6 +235,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             byte[] binary = File.ReadAllBytes(metaDataPath);
             string json = WorldLoadUtils.DecompressString(binary);
+      
             if (json == null)
             {
                 return GetDefaultMetaData();
@@ -270,6 +271,12 @@ namespace TileEntity.Instances.CompactMachines {
         {
             string path = GetCompactMachineHashFoldersPath();
             Directory.CreateDirectory(path);
+        }
+
+        public 
+            static int GetSubSystemCount(CompactMachineTeleportKey key)
+        {
+            return 0;
         }
     }
 }

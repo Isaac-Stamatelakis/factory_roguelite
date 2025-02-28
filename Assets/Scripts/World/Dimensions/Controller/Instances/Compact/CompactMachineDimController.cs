@@ -144,6 +144,24 @@ namespace Dimensions {
             return systemTree.getSystem(key.Path) != null;
         }
 
+        public int GetSubSystems(CompactMachineTeleportKey key)
+        {
+            int count = 0;
+            CompactMachineTree tree = systemTree.getTree(key.Path);
+            return GetSubSystems(tree);
+        }
+
+        private int GetSubSystems(CompactMachineTree tree)
+        {
+            int count = 0;
+            foreach (var (position, child) in tree.Children)
+            {
+                count += 1+GetSubSystems(child);
+            }
+
+            return count;
+        }
+
         /// <summary>
         /// Creates a new system for a compact machine. Path should be ordered with depth 0 at 0, depth n at n.
         /// Null path means that 
