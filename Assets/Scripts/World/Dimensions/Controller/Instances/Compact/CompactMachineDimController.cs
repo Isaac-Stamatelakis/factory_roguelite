@@ -96,6 +96,7 @@ namespace Dimensions {
             CompactMachineTree tree = systemTree.getTree(key.Path);
             SaveTree(tree);
             RemoveNode(key);
+            if (hash == null) return;
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
             string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
             GlobalHelper.CopyDirectory(dimPath,hashPath);
@@ -105,6 +106,7 @@ namespace Dimensions {
 
         private void SaveTree(CompactMachineTree compactMachineTree)
         {
+            if (compactMachineTree?.System == null) return;
             compactMachineTree.System.Save();
             foreach (var (position, child) in compactMachineTree.Children)
             {
@@ -116,15 +118,14 @@ namespace Dimensions {
         {
             List<Vector2Int> path = key.Path;
             CompactMachineTree tree = systemTree;
-            CompactMachineTree compactMachineTreeParent = null;
+            if (tree == null) return;
             for (int i = 0; i < path.Count - 1; i++)
             {
                 Vector2Int position = path[i];
                 tree = tree.Children[position];
             }
             Vector2Int lastPosition = path[^1];
-            CompactMachineTree removed = tree.Children[lastPosition];
-            tree.Children.Remove(lastPosition);
+            if (!tree.Children.Remove(lastPosition, out var removed)) return;
             RemoveFromList(removed);
         }
 
@@ -146,9 +147,9 @@ namespace Dimensions {
             CompactMachineTree tree = systemTree;
             foreach (Vector2Int position in path)
             {
-                tree = tree.Children[position];
+                if (!tree.Children.TryGetValue(position, out var newTree)) return false;
+                tree = newTree;
                 string hash = tree.hash;
-                Debug.Log(hash==null);
                 if (hash == null) continue;
                 CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
                 if (metaData.Locked) return true;

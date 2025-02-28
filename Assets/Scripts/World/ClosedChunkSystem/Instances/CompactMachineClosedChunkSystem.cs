@@ -5,20 +5,21 @@ using Dimensions;
 
 namespace Chunks.Systems {
     public interface ICompactMachineClosedChunkSystem {
-        public CompactMachineTeleportKey getCompactMachineKey();
+        public CompactMachineTeleportKey GetCompactMachineKey();
         public void setCompactMachineKey(CompactMachineTeleportKey path);
     }
     public class CompactMachineClosedChunkSystem : ConduitTileClosedChunkSystem, ICompactMachineClosedChunkSystem
     {
         private CompactMachineTeleportKey compactMachinePosition;
-        public CompactMachineTeleportKey getCompactMachineKey()
+        public CompactMachineTeleportKey GetCompactMachineKey()
         {
             return compactMachinePosition;
         }
 
-        public void setCompactMachineKey(CompactMachineTeleportKey position)
+        public void setCompactMachineKey(CompactMachineTeleportKey key)
         {
-            compactMachinePosition = position;
+            compactMachinePosition = key;
+            interactable = key.Locked;
         }
     }
 }

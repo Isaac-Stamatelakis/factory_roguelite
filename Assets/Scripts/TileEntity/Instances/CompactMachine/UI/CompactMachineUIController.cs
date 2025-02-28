@@ -27,6 +27,11 @@ namespace TileEntity.Instances.CompactMachines {
         
         public void DisplayTileEntityInstance(CompactMachineInstance tileEntityInstance)
         {
+            if (tileEntityInstance.Hash == null)
+            {
+                Debug.LogWarning("Cannot display compact machine with null hash");
+                return;
+            }
             this.compactMachine = tileEntityInstance;
             mTitle.text = tileEntityInstance.TileEntityObject.name;
             CompactMachineTeleportKey key = tileEntityInstance.GetTeleportKey();

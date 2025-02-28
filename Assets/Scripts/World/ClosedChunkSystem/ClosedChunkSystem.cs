@@ -50,8 +50,9 @@ namespace Chunks.Systems {
         public int Dim {get{return dim;}}
         private bool isQuitting;
         private LoadedPartitionBoundary loadedPartitionBoundary;
-      
         private Camera mainCamera;
+        protected bool interactable = true;
+        public bool Interactable => interactable;
         public virtual void Awake () {
             mainCamera = Camera.main;
             
