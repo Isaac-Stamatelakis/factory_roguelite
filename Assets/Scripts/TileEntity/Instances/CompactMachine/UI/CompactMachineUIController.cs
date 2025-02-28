@@ -12,6 +12,7 @@ namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineUIController : MonoBehaviour, ITileEntityUI<CompactMachineInstance>
     {
         [SerializeField] public TextMeshProUGUI mTitle;
+        [SerializeField] public TextMeshProUGUI mIdText;
         [SerializeField] public TextMeshProUGUI mPositionText;
         [SerializeField] public TextMeshProUGUI mSubSystemText;
         [SerializeField] public TextMeshProUGUI mDepthText;
@@ -40,6 +41,7 @@ namespace TileEntity.Instances.CompactMachines {
             metaData = CompactMachineUtils.GetMetaData(path);
             mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             mDepthText.text = $"Depth: {key.Path.Count-1}";
+            mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
             if (metaData != null)
             {
                 mNameTextField.text = metaData.Name;

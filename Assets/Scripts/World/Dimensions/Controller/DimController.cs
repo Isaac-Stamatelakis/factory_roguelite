@@ -33,6 +33,11 @@ namespace Dimensions {
             EntityContainer component = entityContainerObject.AddComponent<EntityContainer>();
             entityContainer = entityContainerObject.transform;
         }
+
+        public void ClearEntities()
+        {
+            GlobalHelper.deleteAllChildren(entityContainer);
+        }
     }
 }
 
