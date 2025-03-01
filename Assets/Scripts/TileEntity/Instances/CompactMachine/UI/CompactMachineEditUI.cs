@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Dimensions;
 using TileEntity.Instances.CompactMachines;
 using TMPro;
@@ -16,11 +17,10 @@ namespace TileEntity.Instances.CompactMachine.UI
 
         private CompactMachineMetaData metaData;
         
-        internal void Display(CompactMachineMetaData metaData, CompactMachineInstance compactMachine, Action onStatusChange)
+        internal void Display(CompactMachineMetaData metaData, CompactMachineInstance compactMachine, Action onStatusChange, Action onHashChange)
         {
             
             this.metaData = metaData;
-            
             bool parentLocked = compactMachine.IsParentLocked();
             if (parentLocked)
             {
@@ -39,6 +39,16 @@ namespace TileEntity.Instances.CompactMachine.UI
                 mLockButton.onClick.AddListener(() =>
                 {
                     this.metaData.Locked = !this.metaData.Locked;
+                    if (!this.metaData.Locked)
+                    {
+                        OnUnLock(metaData, compactMachine, onHashChange);
+                    }
+                    else
+                    {
+                        string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+                        string dimPath = CompactMachineUtils.GetPositionFolderPath(compactMachine.GetTeleportKey().Path);
+                        GlobalHelper.CopyDirectory(dimPath, hashPath);
+                    }
                     SetLockText(this.metaData.Locked);
                     onStatusChange.Invoke();
                 });
@@ -50,6 +60,27 @@ namespace TileEntity.Instances.CompactMachine.UI
                 });
             }
             
+        }
+
+        private void OnUnLock(CompactMachineMetaData metaData, CompactMachineInstance compactMachine, Action onHashChange)
+        {
+            string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+            if (!File.Exists(hashPath)) return;
+            if (metaData.Instances <= 1) // If instances less than one no need to store content data at hash
+            {
+                string contentPath = Path.Combine(hashPath, CompactMachineUtils.CONTENT_PATH);
+                if (!File.Exists(contentPath)) return;
+                Directory.Delete(contentPath, true);
+                return;
+            }
+            // If a compact machine is blue printed and unlocked, must create a hash instance for it.
+            this.metaData.Instances--;
+            CompactMachineUtils.SaveMetaDataJson(this.metaData,hashPath);
+            string newHash = CompactMachineUtils.GenerateHash();
+            compactMachine.Hash = newHash;
+            CompactMachineUtils.InitializeHashFolder(newHash, compactMachine.getId());
+            onHashChange.Invoke();
+
         }
 
         private void SetLockText(bool locked)

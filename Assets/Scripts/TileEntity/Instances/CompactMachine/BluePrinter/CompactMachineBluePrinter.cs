@@ -40,7 +40,8 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             bluePrintInventory = new CompactMachineBluePrintInventory(
                 compactMachineInput: ItemSlotUtils.CreateNullInventory(1),
                 compactMachineOutput: ItemSlotUtils.CreateNullInventory(1),
-                itemInput: ItemSlotUtils.CreateNullInventory(DEFAULT_INVENTORY_SIZE)
+                itemInput: ItemSlotUtils.CreateNullInventory(DEFAULT_INVENTORY_SIZE),
+                null
             );
         }
 
@@ -50,7 +51,8 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
                 new SerializedCompactMachineBluePrintInventory(
                     ItemSlotFactory.serializeList(bluePrintInventory.CompactMachineInput),
                     ItemSlotFactory.serializeList(bluePrintInventory.CompactMachineOutput),
-                    ItemSlotFactory.serializeList(bluePrintInventory.ItemInput)
+                    ItemSlotFactory.serializeList(bluePrintInventory.ItemInput),
+                    bluePrintInventory.CurrentHash
                 );
             return JsonConvert.SerializeObject(serializedCompactMachineBluePrintInventory);
         }
@@ -61,22 +63,25 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             bluePrintInventory = new CompactMachineBluePrintInventory(
                 ItemSlotFactory.Deserialize(serializedCompactMachineBluePrintInventory.CompactMachineInput),
                 ItemSlotFactory.Deserialize(serializedCompactMachineBluePrintInventory.CompactMachineOutput),
-                ItemSlotFactory.Deserialize(serializedCompactMachineBluePrintInventory.ItemInput)
+                ItemSlotFactory.Deserialize(serializedCompactMachineBluePrintInventory.ItemInput),
+                serializedCompactMachineBluePrintInventory.CurrentHash
             );
         }
     }
     
     internal class CompactMachineBluePrintInventory
     {
+        public string CurrentHash;
         public List<ItemSlot> CompactMachineInput;
         public List<ItemSlot> CompactMachineOutput;
         public List<ItemSlot> ItemInput;
 
-        public CompactMachineBluePrintInventory(List<ItemSlot> compactMachineInput, List<ItemSlot> compactMachineOutput, List<ItemSlot> itemInput)
+        public CompactMachineBluePrintInventory(List<ItemSlot> compactMachineInput, List<ItemSlot> compactMachineOutput, List<ItemSlot> itemInput, string currentHash)
         {
             CompactMachineInput = compactMachineInput;
             CompactMachineOutput = compactMachineOutput;
             ItemInput = itemInput;
+            CurrentHash = currentHash;
         }
     }
 
@@ -85,12 +90,14 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
         public string CompactMachineInput;
         public string CompactMachineOutput;
         public string ItemInput;
+        public string CurrentHash;
 
-        public SerializedCompactMachineBluePrintInventory(string compactMachineInput, string compactMachineOutput, string itemInput)
+        public SerializedCompactMachineBluePrintInventory(string compactMachineInput, string compactMachineOutput, string itemInput, string currentHash)
         {
             CompactMachineInput = compactMachineInput;
             CompactMachineOutput = compactMachineOutput;
             ItemInput = itemInput;
+            CurrentHash = currentHash;
         }
     }
 }

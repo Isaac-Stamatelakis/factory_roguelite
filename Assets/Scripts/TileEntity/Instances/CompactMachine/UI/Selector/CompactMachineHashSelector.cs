@@ -25,9 +25,11 @@ namespace TileEntity.Instances.CompactMachine.UI.Selector
                 {
                     if (searchIncrease && !element.gameObject.activeInHierarchy) continue;
                     HashSelectorDisplayData displayData = element.DisplayData;
-                    bool match = displayData.MetaData.Name.Contains(search) || displayData.Hash.Contains(search);
+                    bool match = displayData.MetaData.Name.ToLower().Contains(search) || displayData.Hash.ToLower().Contains(search);
                     element.gameObject.SetActive(match);
                 }
+
+                lastSearch = search;
 
             });
         }
