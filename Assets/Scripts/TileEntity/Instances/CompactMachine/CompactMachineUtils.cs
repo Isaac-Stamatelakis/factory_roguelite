@@ -15,6 +15,7 @@ using UnityEngine.AddressableAssets;
 using System.Linq;
 using System.Security.Cryptography;
 using DevTools.Structures;
+using Item.Slot;
 using Newtonsoft.Json;
 using TileEntity.Instances.CompactMachine;
 
@@ -276,12 +277,6 @@ namespace TileEntity.Instances.CompactMachines {
         {
             string path = GetCompactMachineHashFoldersPath();
             Directory.CreateDirectory(path);
-        }
-
-        public 
-            static int GetSubSystemCount(CompactMachineTeleportKey key)
-        {
-            return 0;
         }
     }
 }

@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using Item.Slot;
 using Items.Inventory;
 using Items.Tags;
 using TileEntity.Instances.CompactMachine.UI.Selector;
+using TileEntity.Instances.CompactMachines;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -73,6 +76,10 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
         {
             currentHash = hash;
             mSelectButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Currently Selected: {hash}";
+            CompactMachineCostCalculator costCalculator = new CompactMachineCostCalculator();
+
+            List<ItemSlot> cost = costCalculator.GetCost(hash);
+            mCostInventory.DisplayInventory(cost);
         }
     }
 }

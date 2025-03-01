@@ -334,5 +334,29 @@ namespace Item.Slot
 
             return dropItems;
         }
+
+        public static List<ItemSlot> FromDict(Dictionary<string, uint> amountDict, uint maxSize)
+        {
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            List<ItemSlot> slots = new List<ItemSlot>();
+            foreach (var (id, amount) in amountDict)
+            {
+                uint tempAmount = amount;
+                ItemObject itemObject = itemRegistry.GetItemObject(id);
+                if (!itemObject) continue;
+                while (true)
+                {
+                    if (tempAmount <= maxSize)
+                    {
+                        slots.Add(new ItemSlot(itemObject,tempAmount,null));
+                        break;
+                    }
+                    tempAmount -= maxSize;
+                    slots.Add(new ItemSlot(itemObject,maxSize,null));
+                }
+            }
+
+            return slots;
+        }
     }
 }

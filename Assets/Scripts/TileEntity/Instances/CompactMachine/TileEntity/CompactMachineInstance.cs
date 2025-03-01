@@ -158,6 +158,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void PlaceInitializeWithHash(string newHash)
         {
+            compactMachineData.Active = true;
             bool hashNull = newHash == null;
             if (hashNull)
             {
