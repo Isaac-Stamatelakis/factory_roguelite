@@ -355,8 +355,21 @@ namespace Item.Slot
                     slots.Add(new ItemSlot(itemObject,maxSize,null));
                 }
             }
-
             return slots;
+        }
+        
+        public static Dictionary<string, uint> ToDict(List<ItemSlot> slots)
+        {
+            Dictionary<string, uint> dictionary = new Dictionary<string, uint>();
+            foreach (ItemSlot slot in slots)
+            {
+                string id = slot?.itemObject?.id;
+                if (id == null) continue;
+                dictionary.TryAdd(id, 0);
+                dictionary[id] += slot.amount;
+            }
+            
+            return dictionary;
         }
     }
 }

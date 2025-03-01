@@ -94,7 +94,9 @@ namespace DevTools.Structures {
         /// <summary>
         /// This generates all structures inside a structure dev tool system.
         /// </summary>
-        public static Structure LoadStructure(string structureName) {
+        public static Structure LoadStructure(string structureName)
+        {
+            if (structureName == null) return null;
             string path = StructureGeneratorHelper.GetStructurePath(structureName);
             string dimPath = WorldLoadUtils.GetDimPath(path, 0);
             

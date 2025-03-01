@@ -40,7 +40,7 @@ namespace TileEntity.Instances.CompactMachine.UI.Selector
             foreach (string hash in hashs)
             {
                 CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
-                if (metaData == null) continue;
+                if (metaData == null || !metaData.Locked) continue;
                 HashSelectorDisplayData displayData = new HashSelectorDisplayData(hash, metaData, onHashSelect);
                 CompactMachineHashSelectorElement newElement = Instantiate(mElementPrefab, mList.transform);
                 newElement.Display(displayData);

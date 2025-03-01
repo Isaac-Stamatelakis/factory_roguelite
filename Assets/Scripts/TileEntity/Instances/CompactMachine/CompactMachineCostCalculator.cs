@@ -15,23 +15,30 @@ namespace TileEntity.Instances.CompactMachine
 {
     public class CompactMachineCostCalculator
     {
-        
-        public List<ItemSlot> GetCost(string hash)
+        private Dictionary<string, uint> costDict = new Dictionary<string, uint>();
+
+        private string hash;
+        public Dictionary<string, uint> GetCostDict()
         {
-            Dictionary<string, uint> idAmountDict = new Dictionary<string, uint>();
+            return costDict;
+        }
+        public CompactMachineCostCalculator(string hash)
+        {
+            this.hash = hash;
+        }
+
+        public void Calculate()
+        {
             string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), hash);
             CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
             string structurePath = GetStructurePath(metaData.TileID);
-            Accumulate(idAmountDict, path, structurePath);
-            List<ItemSlot> itemSlots = ItemSlotUtils.FromDict(idAmountDict,Global.MAX_SIZE);
-            return itemSlots;
+            Accumulate(costDict, path, structurePath);
         }
 
         private void Accumulate(Dictionary<string, uint> idAmountDict, string path, string structureName)
         {
             string contentPath = Path.Combine(path, CompactMachineUtils.CONTENT_PATH);
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(1,contentPath);
-            Debug.Log(chunks.Count);
             foreach (SoftLoadedConduitTileChunk chunk in chunks)
             {
                 foreach (IChunkPartition partition in chunk.Partitions)
@@ -50,7 +57,6 @@ namespace TileEntity.Instances.CompactMachine
                             string newStructurePath = compactMachine.StructurePath;
                             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x, y);
                             string newPath = Path.Combine(path, $"{cellPosition.x},{cellPosition.y}"); // Should probably generalize this
-                            Debug.Log(newPath);
                             Accumulate(idAmountDict, newPath, newStructurePath);
                         }
                     }
