@@ -1,6 +1,12 @@
+using System;
+using System.Collections;
 using Items.Inventory;
 using Items.Tags;
+using TileEntity.Instances.CompactMachine.UI.Selector;
+using TMPro;
+using UI;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 namespace TileEntity.Instances.CompactMachine.BluePrinter
@@ -14,7 +20,24 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
         [SerializeField] private Button mSelectButton;
         [SerializeField] private Button mCraftButton;
 
+        [SerializeField] private AssetReference mSelectorAssetReference;
         private CompactMachineBluePrinterInstance bluePrinterInstance;
+
+        private CompactMachineHashSelector mSelectorPrefab;
+        private string currentHash;
+        public void Start()
+        {
+            StartCoroutine(LoadAssets());
+        }
+
+        private IEnumerator LoadAssets()
+        {
+            var handle = Addressables.LoadAssetAsync<GameObject>(mSelectorAssetReference);
+            yield return handle;
+            mSelectorPrefab = handle.Result.GetComponent<CompactMachineHashSelector>();
+            Addressables.Release(handle);
+        }
+
         public void DisplayTileEntityInstance(CompactMachineBluePrinterInstance tileEntityInstance)
         {
             bluePrinterInstance = tileEntityInstance;
@@ -22,20 +45,34 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             mCompactMachineInput.AddTagRestriction(ItemTag.CompactMachine);
             mCompactMachineInput.DisplayInventory(inventory.CompactMachineInput);
             
-            mCompactMachineInput.DisplayInventory(inventory.CompactMachineOutput);
             mCompactMachineOutput.SetInteractMode(InventoryInteractMode.BlockInput);
+            mCompactMachineOutput.DisplayInventory(inventory.CompactMachineOutput);
             
             mItemInput.DisplayInventory(inventory.ItemInput);
             
             mCostInventory.SetInteractMode(InventoryInteractMode.Recipe);
             
             mCraftButton.onClick.AddListener(TryCraft);
+            mSelectButton.onClick.AddListener(DisplaySelector);
             
         }
 
         private void TryCraft()
         {
             
+        }
+
+        private void DisplaySelector()
+        {
+            CompactMachineHashSelector selector = GameObject.Instantiate(mSelectorPrefab);
+            selector.Display(OnHashSelect);
+            CanvasController.Instance.DisplayObject(selector.gameObject);
+        }
+
+        private void OnHashSelect(string hash)
+        {
+            currentHash = hash;
+            mSelectButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Currently Selected: {hash}";
         }
     }
 }

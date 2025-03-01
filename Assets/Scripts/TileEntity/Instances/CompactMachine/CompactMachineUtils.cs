@@ -184,6 +184,20 @@ namespace TileEntity.Instances.CompactMachines {
             return false;
         }
 
+        public static string[] GetAllHashes()
+        {
+            string compactMachineFolder = GetCompactMachineHashFoldersPath();
+            string[] hashes = Directory.GetDirectories(compactMachineFolder);
+
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                string fileName = Path.GetFileName(hashes[i]);
+                hashes[i] = fileName;
+            }
+
+            return hashes;
+        }
+
         public static void ActivateHashSystem(string hash, List<Vector2Int> path)
         {
             string folderPath = GetPositionFolderPath(path);

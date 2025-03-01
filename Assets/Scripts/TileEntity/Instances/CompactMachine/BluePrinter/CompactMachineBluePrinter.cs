@@ -10,17 +10,8 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace TileEntity.Instances.CompactMachine.BluePrinter
 {
-    [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/BluePrinter")]
-    public class CompactMachineBluePrinterObject : TileEntityObject
-    {
-        public AssetReference UIAssetReference;
-        public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
-        {
-            return new CompactMachineBluePrinterInstance(this,tilePosition,tileItem,chunk);
-        }
-        
-    }
-    public class CompactMachineBluePrinterInstance : TileEntityInstance<CompactMachineBluePrinterObject>, IRightClickableTileEntity, ISerializableTileEntity
+    
+    public class CompactMachineBluePrinterInstance : TileEntityInstance<CompactMachineBluePrinterObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable
     {
         public const int DEFAULT_INVENTORY_SIZE = 30;
         private CompactMachineBluePrintInventory bluePrintInventory;
@@ -40,7 +31,7 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             GameObject loadedObject = handle.Result;
             CompactMachineBluePrinterUI bluePrinterUI = GameObject.Instantiate(loadedObject).GetComponent<CompactMachineBluePrinterUI>();
             bluePrinterUI.DisplayTileEntityInstance(this);
-            CanvasController.Instance.DisplayObject(bluePrinterUI.gameObject);
+            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(bluePrinterUI.gameObject);
             Addressables.Release(handle);
         }
         
