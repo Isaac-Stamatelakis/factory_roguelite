@@ -31,6 +31,7 @@ namespace TileEntity.Instances.CompactMachine
         {
             string contentPath = Path.Combine(path, CompactMachineUtils.CONTENT_PATH);
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(1,contentPath);
+            Debug.Log(chunks.Count);
             foreach (SoftLoadedConduitTileChunk chunk in chunks)
             {
                 foreach (IChunkPartition partition in chunk.Partitions)
@@ -47,8 +48,9 @@ namespace TileEntity.Instances.CompactMachine
                             TileItem tileItem = ItemRegistry.GetInstance().GetTileItem(id);
                             if (tileItem?.tileEntity is not CompactMachines.CompactMachine compactMachine) continue;
                             string newStructurePath = compactMachine.StructurePath;
-                            Vector2Int cellPosition = partition.GetRealPosition() + new Vector2Int(x, y);
-                            string newPath = Path.Combine(path, $"{cellPosition.x}, {cellPosition.y}]"); // Should probably generalize this
+                            Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x, y);
+                            string newPath = Path.Combine(path, $"{cellPosition.x},{cellPosition.y}"); // Should probably generalize this
+                            Debug.Log(newPath);
                             Accumulate(idAmountDict, newPath, newStructurePath);
                         }
                     }
