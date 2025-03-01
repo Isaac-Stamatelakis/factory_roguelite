@@ -119,7 +119,7 @@ namespace TileEntity.Instances.CompactMachines {
                     parentPath.Add(key.Path[i]);
                 }   
             }
-            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath,false); // TODO Get lock value
+            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath,compactMachine.IsParentLocked());
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 1,
