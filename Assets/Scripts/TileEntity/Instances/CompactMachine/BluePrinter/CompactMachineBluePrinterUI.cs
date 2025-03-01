@@ -29,7 +29,6 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
 
         private CompactMachineHashSelector mSelectorPrefab;
         private CompactMachineCostCalculator costCalculator;
-        private string currentHash;
         public void Start()
         {
             StartCoroutine(LoadAssets());
@@ -59,7 +58,8 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             
             mCraftButton.onClick.AddListener(TryCraft);
             mSelectButton.onClick.AddListener(DisplaySelector);
-            
+
+            DisplayCost();
         }
 
         private void TryCraft()
@@ -71,23 +71,64 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             ItemSlot inputSlot = bluePrinterInstance.BluePrintInventory.CompactMachineInput[0];
             ItemSlot outputSlot = bluePrinterInstance.BluePrintInventory.CompactMachineOutput[0];
             if (ItemSlotUtils.IsItemSlotNull(inputSlot)) return;
+            var metaData = CompactMachineUtils.GetMetaDataFromHash(bluePrinterInstance.BluePrintInventory.CurrentHash);
             
-            if (!ItemSlotUtils.IsItemSlotNull(outputSlot)) return; // TODO chagne this to look for hash
+            if (!CanOutput(outputSlot, bluePrinterInstance.BluePrintInventory.CurrentHash, metaData.TileID)) return;
             
             Dictionary<string, uint> inputDict = ItemSlotUtils.ToDict(bluePrinterInstance.BluePrintInventory.ItemInput);
             Dictionary<string, uint> costDict = costCalculator.GetCostDict();
+            
             foreach (string key in costDict.Keys)
             {
                 if (!inputDict.ContainsKey(key) || inputDict[key] < costDict[key]) return;
             }
-
-            ItemSlot output = new ItemSlot(inputSlot.itemObject, 1, null);
-            ItemSlotUtils.AddTag(output,ItemTag.CompactMachine,currentHash);
-            bluePrinterInstance.BluePrintInventory.CompactMachineOutput[0] = output;
+            
+            
+            if (ItemSlotUtils.IsItemSlotNull(outputSlot))
+            {
+                ItemSlot output = new ItemSlot(inputSlot.itemObject, 1, null);
+                ItemSlotUtils.AddTag(output,ItemTag.CompactMachine,bluePrinterInstance.BluePrintInventory.CurrentHash);
+                bluePrinterInstance.BluePrintInventory.CompactMachineOutput[0] = output;
+            }
+            else
+            {
+                outputSlot.amount++;
+            }
+            
             inputSlot.amount--;
             mItemInput.RefreshSlots();
             mCompactMachineOutput.RefreshSlots();
             mCompactMachineInput.RefreshSlots();
+
+            Dictionary<string, uint> tempCostDict = new Dictionary<string, uint>();
+            foreach (string key in costDict.Keys)
+            {
+                tempCostDict.Add(key, costDict[key]);
+            }
+            foreach (ItemSlot itemSlot in bluePrinterInstance.BluePrintInventory.ItemInput)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || !tempCostDict.TryGetValue(itemSlot.itemObject.id, out uint cost)) continue;
+                if (cost == 0) continue;
+                if (itemSlot.amount <= cost)
+                {
+                    cost -= itemSlot.amount;
+                    itemSlot.amount = 0;
+                }
+                else
+                {
+                    itemSlot.amount -= cost;
+                    cost = 0;
+                }
+                tempCostDict[itemSlot.itemObject.id] = cost;
+            }
+        }
+
+        private bool CanOutput(ItemSlot outputSlot, string hash, string inputID)
+        {
+            if (ItemSlotUtils.IsItemSlotNull(outputSlot)) return true;
+            if (outputSlot.itemObject.id != inputID || outputSlot.amount >= Global.MAX_SIZE) return false;
+            var tagValue = outputSlot.tags?.Dict?.GetValueOrDefault(ItemTag.CompactMachine) as string;
+            return tagValue == hash;
         }
 
         private void DisplaySelector()
@@ -99,7 +140,17 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
 
         private void OnHashSelect(string hash)
         {
-            currentHash = hash;
+            bluePrinterInstance.BluePrintInventory.CurrentHash = hash;
+            DisplayCost();
+        }
+
+        private void DisplayCost()
+        {
+            string hash = bluePrinterInstance.BluePrintInventory.CurrentHash;
+            if (hash == null) return;
+            var metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
+            if (metaData == null) return;
+            
             mSelectButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Currently Selected: {hash}";
             costCalculator = new CompactMachineCostCalculator(hash);
             costCalculator.Calculate();
