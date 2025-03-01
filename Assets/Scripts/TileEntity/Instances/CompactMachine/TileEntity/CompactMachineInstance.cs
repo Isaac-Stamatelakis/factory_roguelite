@@ -162,7 +162,7 @@ namespace TileEntity.Instances.CompactMachines {
             if (hashNull)
             {
                 compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
-                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash);
+                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
             else
             {

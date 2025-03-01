@@ -201,28 +201,29 @@ namespace TileEntity.Instances.CompactMachines {
             }
         }
 
-        public static void InitializeHashFolder(string hashString)
+        public static void InitializeHashFolder(string hashString, string tileID)
         {
             string compactMachineFolder = GetCompactMachineHashFoldersPath();
             string newPath = Path.Combine(compactMachineFolder, hashString);
             Directory.CreateDirectory(newPath);
-            InitializeMetaData(newPath);
+            InitializeMetaData(newPath, tileID);
             Debug.Log($"Created Compact Machine Hash folder at '{newPath}'");
         }
 
         internal static CompactMachineMetaData GetMetaData(string path)
         {
             if (!Directory.Exists(path)) return null;
+            if (!Directory.Exists(path)) return null;
             string metaDataPath = Path.Combine(path, META_DATA_PATH);
             if (!File.Exists(metaDataPath))
             {
-                InitializeMetaData(path);
+                return null;
             }
             byte[] binary = File.ReadAllBytes(metaDataPath);
             string json = WorldLoadUtils.DecompressString(binary);
             if (json is null or "null") // Don't know what genius made this return "null". Don't think its me but who knows
             {
-                return GetDefaultMetaData();
+                return null;
             }
             try
             {
@@ -230,42 +231,24 @@ namespace TileEntity.Instances.CompactMachines {
             }
             catch (JsonSerializationException)
             {
-                return GetDefaultMetaData();
+                return null;
             }
         }
 
         internal static CompactMachineMetaData GetMetaDataFromHash(string hash)
         {
             string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
-            if (!Directory.Exists(path)) return null;
-            string metaDataPath = Path.Combine(path, META_DATA_PATH);
-            if (!File.Exists(metaDataPath))
-            {
-                InitializeMetaData(path);
-            }
-            byte[] binary = File.ReadAllBytes(metaDataPath);
-            string json = WorldLoadUtils.DecompressString(binary);
-            if (json is null or "null") // Don't know what genius made this return "null". Don't think its me but who knows
-            {
-                return GetDefaultMetaData();
-            }
-            try
-            {
-                return JsonConvert.DeserializeObject<CompactMachineMetaData>(json);
-            }
-            catch (JsonSerializationException)
-            {
-                return GetDefaultMetaData();
-            }
+            return GetMetaData(path);
+
         }
-        internal static void InitializeMetaData(string path)
+        internal static void InitializeMetaData(string path, string tileID)
         {
-            SaveMetaDataJson(GetDefaultMetaData(), path);
+            SaveMetaDataJson(GetDefaultMetaData(tileID), path);
         }
 
-        internal static CompactMachineMetaData GetDefaultMetaData()
+        internal static CompactMachineMetaData GetDefaultMetaData(string tileID)
         {
-            return new CompactMachineMetaData("New Compact Machine", false,0);
+            return new CompactMachineMetaData("New Compact Machine", false,0, tileID);
         }
 
         internal static void SaveMetaDataJson(CompactMachineMetaData metaData, string path)
