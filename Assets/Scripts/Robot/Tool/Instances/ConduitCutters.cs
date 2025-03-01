@@ -17,7 +17,7 @@ using UnityEngine;
 
 namespace Robot.Tool.Instances
 {
-    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, ISubModeRobotToolInstance
+    public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, ISubModeRobotToolInstance, IDestructiveTool
     {
         
         private LineRenderer lineRenderer;

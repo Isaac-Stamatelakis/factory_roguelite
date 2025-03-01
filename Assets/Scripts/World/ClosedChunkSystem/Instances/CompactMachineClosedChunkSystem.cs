@@ -19,7 +19,7 @@ namespace Chunks.Systems {
         public void setCompactMachineKey(CompactMachineTeleportKey key)
         {
             compactMachinePosition = key;
-            interactable = key.Locked;
+            interactable = !key.Locked;
         }
     }
 }

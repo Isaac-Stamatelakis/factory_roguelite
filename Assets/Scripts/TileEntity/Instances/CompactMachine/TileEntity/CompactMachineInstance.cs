@@ -227,11 +227,11 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineTeleportKey key = GetTeleportKey();
             if (active)
             {
-                compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
             }
             else
             {
-                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);
             }
             
         }
