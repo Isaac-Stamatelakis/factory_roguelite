@@ -24,6 +24,11 @@ namespace Player.Mouse
             
             }
             var handler = clickHandlerDict[robotToolType][mouseButtonKey];
+            var last = recentlyUsed.GetValueOrDefault(mouseButtonKey);
+            if (!ReferenceEquals(handler, last))
+            {
+                last?.Terminate();
+            }
             recentlyUsed[mouseButtonKey] = handler;
             return handler;
         }

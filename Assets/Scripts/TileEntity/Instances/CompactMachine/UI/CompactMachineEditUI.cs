@@ -1,3 +1,4 @@
+using System;
 using Dimensions;
 using TileEntity.Instances.CompactMachines;
 using TMPro;
@@ -15,7 +16,7 @@ namespace TileEntity.Instances.CompactMachine.UI
 
         private CompactMachineMetaData metaData;
         
-        internal void Display(CompactMachineMetaData metaData, CompactMachineInstance compactMachine)
+        internal void Display(CompactMachineMetaData metaData, CompactMachineInstance compactMachine, Action onStatusChange)
         {
             
             this.metaData = metaData;
@@ -39,11 +40,13 @@ namespace TileEntity.Instances.CompactMachine.UI
                 {
                     this.metaData.Locked = !this.metaData.Locked;
                     SetLockText(this.metaData.Locked);
+                    onStatusChange.Invoke();
                 });
                 mActivateButton.onClick.AddListener(() =>
                 {
                     compactMachine.SetActive(!compactMachine.IsActive);
                     SetActiveText(compactMachine.IsActive);
+                    onStatusChange.Invoke();
                 });
             }
             
@@ -54,9 +57,9 @@ namespace TileEntity.Instances.CompactMachine.UI
             mLockButton.GetComponentInChildren<TextMeshProUGUI>().text = locked ? "Locked" : "Unlocked";
         }
         
-        private void SetActiveText(bool locked)
+        private void SetActiveText(bool active)
         {
-            mLockButton.GetComponentInChildren<TextMeshProUGUI>().text = locked ? "Locked" : "Unlocked";
+            mActivateButton.GetComponentInChildren<TextMeshProUGUI>().text = active ? "Activated" : "De-Activated";
         }
     }
 }

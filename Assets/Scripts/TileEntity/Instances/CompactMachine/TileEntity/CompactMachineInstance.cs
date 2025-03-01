@@ -158,11 +158,12 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void PlaceInitializeWithHash(string newHash)
         {
+            compactMachineData.Active = true;
             bool hashNull = newHash == null;
             if (hashNull)
             {
                 compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
-                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash);
+                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
             else
             {
@@ -227,11 +228,11 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineTeleportKey key = GetTeleportKey();
             if (active)
             {
-                compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
             }
             else
             {
-                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);
             }
             
         }

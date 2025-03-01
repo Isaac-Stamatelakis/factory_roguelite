@@ -33,8 +33,9 @@ namespace Player.Mouse
             acceleratedClickHandler = clickHandler as IAcceleratedClickHandler;
         }
 
-        public void Tick(Vector2 mousePosition)
+        public void Tick(Vector2 mousePosition, bool blockDestruction)
         {
+            if (blockDestruction && clickHandler is IDestructiveTool) return; 
             if (!active)
             {
                 clickHandler.BeginClickHold(mousePosition);
@@ -65,6 +66,7 @@ namespace Player.Mouse
 
         public void Terminate()
         {
+            if (!active) return;
             clickHandler.TerminateClickHold();
             lastUse = Time.time;
             active = false;

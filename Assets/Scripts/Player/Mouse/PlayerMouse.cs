@@ -105,7 +105,7 @@ namespace PlayerModule.Mouse {
             }
             
             if (leftClick) {
-                LeftClickUpdate(mousePosition);
+                LeftClickUpdate(mousePosition,closedChunkSystem);
             }
             if (rightClick) {
                 RightClickUpdate(mousePosition);
@@ -189,14 +189,14 @@ namespace PlayerModule.Mouse {
             return closedChunkSystem.getChunk(chunkPosition);
         }
 
-        private void LeftClickUpdate(Vector2 mousePosition) {
+        private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
             if (drop) {
                 return;
             }
 
             var leftClickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, MouseButtonKey.Left, playerInventory.CurrentTool);
-            leftClickHandler.Tick(mousePosition);
+            leftClickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
 
         }
         private void RightClickUpdate(Vector2 mousePosition)

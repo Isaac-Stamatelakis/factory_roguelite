@@ -12,15 +12,12 @@ public static class Global
     public const int PARTITIONS_PER_CHUNK = 6;
     public const int CHUNK_SIZE = PARTITIONS_PER_CHUNK*CHUNK_PARTITION_SIZE;
     public const int CHUNK_PARTITION_SIZE = 4;
-    private static  int chunkPartitionExtraTileEntityLoadRange = 2;
     public const uint SOLID_SPEED_PER_UPGRADE = 4;
     public const uint FLUID_SPEED_PER_UPGRADE = 16;
     public const int CHUNK_LOAD_RANGE = 2;
-    private static float tileItemEntityScalar = 0.5f;
-    private static readonly bool showSystemParameter = false;
     public const uint MAX_SIZE = 999;
     public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
-    public static bool ShowSystemParameter => showSystemParameter;
+    public const bool ShowSystemParameter = false;
     private static Cave currentCave;
     public const int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
     public const string editorCreationPath = "EditorCreations";

@@ -5,12 +5,13 @@ namespace TileEntity.Instances.CompactMachine
         public string Name;
         public bool Locked;
         public int Instances;
-        public CompactMachineMetaData(string name, bool locked, int instances)
+        public string TileID;
+        public CompactMachineMetaData(string name, bool locked, int instances, string tileID)
         {
             Name = name;
             Locked = locked;
             Instances = instances;
-
+            TileID = tileID;
         }
     }
 }

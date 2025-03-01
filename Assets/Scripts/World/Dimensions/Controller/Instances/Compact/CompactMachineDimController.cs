@@ -175,7 +175,6 @@ namespace Dimensions {
                 if (hash == null) continue;
                 CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
                 if (metaData.Locked) return true;
-                
             }
             return false;
         }
@@ -188,6 +187,7 @@ namespace Dimensions {
 
         private int GetSubSystems(CompactMachineTree tree)
         {
+            if (tree == null) return 0;
             int count = 0;
             foreach (var (position, child) in tree.Children)
             {
@@ -246,6 +246,7 @@ namespace Dimensions {
             SoftLoadedClosedChunkSystem system = systemTree.getSystem(path);
             if (system == null) {
                 Debug.LogError($"Tried to get compact machine at path {path}");
+                return null;
             }
             GameObject closedChunkSystemObject = new GameObject();
             Vector2Int center = system.GetCenter();

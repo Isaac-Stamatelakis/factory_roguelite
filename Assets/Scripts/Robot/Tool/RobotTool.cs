@@ -33,7 +33,11 @@ namespace Robot.Tool
         public string GetName();
         public string GetModeName();
         public RobotToolObject GetToolObject();
+    }
 
+    public interface IDestructiveTool
+    {
+        
     }
     
     public interface ISubModeRobotToolInstance {

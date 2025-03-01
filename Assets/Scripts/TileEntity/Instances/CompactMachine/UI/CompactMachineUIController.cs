@@ -24,6 +24,7 @@ namespace TileEntity.Instances.CompactMachines {
         [SerializeField] public Button mTeleportButton;
         [SerializeField] public Button mEditButton;
         [SerializeField] public TMP_InputField mNameTextField;
+        [SerializeField] public TextMeshProUGUI mStatusText;
         [SerializeField] private AssetReference mEditUIPrefabRef;
         private CompactMachineInstance compactMachine;
         private CompactMachineMetaData metaData;
@@ -53,13 +54,13 @@ namespace TileEntity.Instances.CompactMachines {
             mTitle.text = tileEntityInstance.TileEntityObject.name;
             CompactMachineTeleportKey key = tileEntityInstance.GetTeleportKey();
             mPositionText.text = GetPositionText(key);
-            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
-            metaData = CompactMachineUtils.GetMetaData(path);
+            metaData = CompactMachineUtils.GetMetaDataFromHash(compactMachine.Hash);
             mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             mDepthText.text = $"Depth: {key.Path.Count-1}";
             mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
-            const string BLUE_PRINT_HEADER = "Instances";
+            const string BLUE_PRINT_HEADER = "Instances: ";
             
+            mStatusText.text = GetStatusText();
             if (metaData != null)
             {
                 mNameTextField.text = metaData.Name;
@@ -67,17 +68,21 @@ namespace TileEntity.Instances.CompactMachines {
                 {
                     metaData.Name = value;
                 });
-                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}: {metaData.Instances+1}";
+                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}{metaData.Instances+1}";
                 mEditButton.onClick.AddListener(() =>
                 {
                     CompactMachineEditUI editUI = Instantiate(editUIPrefab);
-                    editUI.Display(metaData,compactMachine);
+                    editUI.Display(metaData,compactMachine, () =>
+                    {
+                        mStatusText.text = GetStatusText();
+                    });
                     CanvasController.Instance.DisplayObject(editUI.gameObject);
                 });
+                
             }
             else
             {
-                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}: ?";
+                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}?";
                 mEditButton.interactable = false;
                 mDetailedViewButton.interactable = false;
             }
@@ -86,6 +91,22 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 CompactMachineUtils.TeleportIntoCompactMachine(tileEntityInstance);
             });
+        }
+
+        private string GetStatusText()
+        {
+            string statusText = "Status: ";
+            if (!compactMachine.IsActive)
+            {
+                return statusText + "De-Activated";
+            }
+            
+            if ((metaData != null && metaData.Locked) || compactMachine.IsParentLocked())
+            {
+                return statusText + "Locked";
+            }
+
+            return statusText + "Activate";
         }
         
         private string GetPositionText(CompactMachineTeleportKey key)

@@ -146,7 +146,7 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         public override void MiddleMouseScroll()
         {
-            if (ReferenceEquals(inventoryUI.Connection, null)) return;
+            if (ReferenceEquals(inventoryUI?.Connection, null)) return;
 
             var inventory = inventoryUI.GetInventory();
             ItemSlot inventorySlot = inventory[index];
