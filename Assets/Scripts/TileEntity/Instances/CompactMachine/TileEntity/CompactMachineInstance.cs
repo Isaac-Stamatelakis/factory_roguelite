@@ -28,14 +28,11 @@ namespace TileEntity.Instances.CompactMachines {
         IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine, 
         IBreakActionTileEntity, ISerializableTileEntity
     {
-        private Vector2Int positionInSystem;
         private CompactMachinePortInventory inventory;
         private CompactMachineTeleporterInstance teleporter;
         public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
-        public Vector2Int PositionInSystem { get => positionInSystem; set => positionInSystem = value; }
-        
-        public string Hash => compactMachineData.Hash;
+        public string Hash { get => compactMachineData.Hash; set =>  compactMachineData.Hash = value; }
         public bool IsActive => compactMachineData.Active;
         private CompactMachineData compactMachineData;
 

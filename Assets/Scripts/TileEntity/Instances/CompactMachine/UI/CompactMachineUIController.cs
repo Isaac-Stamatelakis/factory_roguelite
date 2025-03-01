@@ -30,6 +30,8 @@ namespace TileEntity.Instances.CompactMachines {
         private CompactMachineMetaData metaData;
 
         private CompactMachineEditUI editUIPrefab;
+        
+        const string BLUE_PRINT_HEADER = "Instances: ";
         public void Start()
         {
             StartCoroutine(LoadAssets());
@@ -55,27 +57,34 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineTeleportKey key = tileEntityInstance.GetTeleportKey();
             mPositionText.text = GetPositionText(key);
             metaData = CompactMachineUtils.GetMetaDataFromHash(compactMachine.Hash);
-            mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             mDepthText.text = $"Depth: {key.Path.Count-1}";
-            mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
-            const string BLUE_PRINT_HEADER = "Instances: ";
+            mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             
+            mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
             mStatusText.text = GetStatusText();
+            
             if (metaData != null)
             {
-                mNameTextField.text = metaData.Name;
+                DisplayMetaData(metaData);
                 mNameTextField.onValueChanged.AddListener((value) =>
                 {
                     metaData.Name = value;
                 });
-                mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}{metaData.Instances+1}";
+
+                void OnStatusChange()
+                {
+                    mStatusText.text = GetStatusText();
+                }
+
+                void OnHashChange()
+                {
+                    mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
+                    DisplayMetaData(CompactMachineUtils.GetMetaDataFromHash(compactMachine.Hash));
+                }
                 mEditButton.onClick.AddListener(() =>
                 {
                     CompactMachineEditUI editUI = Instantiate(editUIPrefab);
-                    editUI.Display(metaData,compactMachine, () =>
-                    {
-                        mStatusText.text = GetStatusText();
-                    });
+                    editUI.Display(metaData, compactMachine, OnStatusChange, OnHashChange);
                     CanvasController.Instance.DisplayObject(editUI.gameObject);
                 });
                 
@@ -91,6 +100,13 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 CompactMachineUtils.TeleportIntoCompactMachine(tileEntityInstance);
             });
+        }
+
+        private void DisplayMetaData(CompactMachineMetaData metaData)
+        {
+            mNameTextField.text = metaData.Name;
+            mBluePrintInstancesText.text = $"{BLUE_PRINT_HEADER}{metaData.Instances+1}";
+            
         }
 
         private string GetStatusText()
