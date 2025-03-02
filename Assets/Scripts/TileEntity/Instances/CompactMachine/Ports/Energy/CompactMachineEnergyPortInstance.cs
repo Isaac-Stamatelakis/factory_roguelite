@@ -5,23 +5,55 @@ using TileEntity.Instances.Storage;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
+using Conduits;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineEnergyPortInstance : TileEntityInstance<CompactMachineEnergyPort>, 
-    ISerializableTileEntity ,IConduitPortTileEntity, IEnergyConduitInteractable, ICompactMachineInteractable
+    public enum CompactMachinePortType
     {
-        private ulong energy;
-        private CompactMachineInstance compactMachine;
-
-        public CompactMachineEnergyPortInstance(CompactMachineEnergyPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
+        Input,
+        Output
+    }
+    public abstract class CompactMachinePortObject : TileEntityObject
+    {
+        public ConduitPortLayout ConduitPortLayout;
+        internal CompactMachinePortType PortType;
+    }
+    public abstract class CompactMachinePortInstance<TObject> : TileEntityInstance<TObject>, ICompactMachineConduitPort, IBreakActionTileEntity, IConduitPortTileEntity where TObject : CompactMachinePortObject
+    {
+        protected CompactMachineInstance compactMachineInstance;
+        public CompactMachinePortInstance(TObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
+        }
+
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
+        {
+            this.compactMachineInstance = compactMachine;
+            compactMachineInstance.AddPort(GetConduitType(), this);
+        }
+
+        public abstract ConduitType GetConduitType();
+        public CompactMachinePortType GetPortType()
+        {
+            return tileEntityObject.PortType;
+        }
+
+        public void OnBreak()
+        {
+            compactMachineInstance.RemovePort(GetConduitType());
         }
 
         public ConduitPortLayout GetConduitPortLayout()
         {
-            return TileEntityObject.Layout;
+            return tileEntityObject.ConduitPortLayout;
         }
-
+    }
+    public class CompactMachineEnergyPortInstance : CompactMachinePortInstance<CompactMachineEnergyPort>, ISerializableTileEntity, IEnergyConduitInteractable
+    {
+        private ulong energy;
+        public CompactMachineEnergyPortInstance(CompactMachineEnergyPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
+        {
+        }
+        
         public ref ulong GetEnergy(Vector2Int portPosition)
         {
             return ref energy;
@@ -43,11 +75,10 @@ namespace TileEntity.Instances.CompactMachines {
         {
             return JsonConvert.SerializeObject(energy);
         }
-
-        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
+        
+        public override ConduitType GetConduitType()
         {
-            this.compactMachine = compactMachine;
-            compactMachine.Inventory.addPort(this,ConduitType.Energy);
+            return ConduitType.Energy;
         }
 
         public void Unserialize(string data)

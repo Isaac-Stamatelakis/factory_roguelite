@@ -8,7 +8,7 @@ using Chunks;
 using Item.Slot;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineItemPortInstance : TileEntityInstance<CompactMachineItemPort>, ISerializableTileEntity ,IConduitPortTileEntity, IItemConduitInteractable, ICompactMachineInteractable
+    public class CompactMachineItemPortInstance : CompactMachinePortInstance<CompactMachineItemPort>, ISerializableTileEntity, IItemConduitInteractable
     {
         public CompactMachineItemPortInstance(CompactMachineItemPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -19,22 +19,13 @@ namespace TileEntity.Instances.CompactMachines {
         {
             return itemSlot;
         }
-
-        public ConduitPortLayout GetConduitPortLayout()
-        {
-            return TileEntityObject.Layout;
-        }
+        
         
         public string Serialize()
         {
             return ItemSlotFactory.seralizeItemSlot(itemSlot);
         }
-
-        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
-        {
-            this.compactMachine = compactMachine;
-            compactMachine.Inventory.addPort(this,ConduitType.Item);
-        }
+        
 
         public void Unserialize(string data)
         {
@@ -51,6 +42,11 @@ namespace TileEntity.Instances.CompactMachines {
             if (ReferenceEquals(toInsert?.itemObject, null)) return;
             toInsert = ItemSlotFactory.Copy(toInsert);
             toInsert.amount=0;
+        }
+
+        public override ConduitType GetConduitType()
+        {
+            return ConduitType.Item;
         }
     }
 

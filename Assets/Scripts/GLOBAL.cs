@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using WorldModule.Caves;
 using System.IO;
+using TileEntity.Instances.CompactMachines;
 
 public static class Global
 {
