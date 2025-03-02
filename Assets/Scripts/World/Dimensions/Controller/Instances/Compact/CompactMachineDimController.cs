@@ -172,6 +172,7 @@ namespace Dimensions {
                 if (!tree.Children.TryGetValue(position, out var newTree)) return false;
                 tree = newTree;
                 string hash = tree.hash;
+                Debug.Log(hash);
                 if (hash == null) continue;
                 CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
                 if (metaData.Locked) return true;
@@ -211,6 +212,7 @@ namespace Dimensions {
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.getTree(parentPath);
             bool blueprinted = true; // temp
+            
             if (CompactMachineUtils.HashExists(hash))
             {
                 CompactMachineUtils.ActivateHashSystem(hash, systemPath);

@@ -252,6 +252,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         internal static CompactMachineMetaData GetMetaDataFromHash(string hash)
         {
+            if (hash == null) return null;
             string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
             return GetMetaData(path);
 

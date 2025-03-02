@@ -29,11 +29,11 @@ namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
         IRightClickableTileEntity, ICompactMachine, 
         IBreakActionTileEntity, ISerializableTileEntity,
-        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable
+        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity
     {
         private CompactMachineTeleporterInstance teleporter;
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
-        public string Hash { get => compactMachineData.Hash; set =>  compactMachineData.Hash = value; }
+        public string Hash => compactMachineData.Hash;
         public bool IsActive => compactMachineData.Active;
         private CompactMachineData compactMachineData;
         private ulong defaultEnergyZero = 0; // This is a workaround for returning a null ref 
@@ -80,6 +80,7 @@ namespace TileEntity.Instances.CompactMachines {
         
         public string Serialize()
         {
+            Debug.Log(compactMachineData.Hash);
             return JsonConvert.SerializeObject(compactMachineData);
         }
 
@@ -121,7 +122,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             compactMachineData.Active = true;
             bool hashNull = newHash == null;
-            if (hashNull)
+            if (hashNull || !CompactMachineUtils.HashExists(newHash))
             {
                 compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
                 CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
@@ -130,7 +131,6 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 compactMachineData.Hash = newHash;
             }
-            
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
@@ -163,6 +163,11 @@ namespace TileEntity.Instances.CompactMachines {
             }
 
             return compactMachineDimManager.GetCompactMachineDimController().GetSubSystems(GetTeleportKey());
+        }
+
+        public void SetHash(string hash)
+        {
+            compactMachineData.Hash = hash;
         }
 
         private struct CompactMachineData

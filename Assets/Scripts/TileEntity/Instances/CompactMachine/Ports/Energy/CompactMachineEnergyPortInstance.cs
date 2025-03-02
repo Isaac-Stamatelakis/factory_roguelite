@@ -16,7 +16,7 @@ namespace TileEntity.Instances.CompactMachines {
     public abstract class CompactMachinePortObject : TileEntityObject
     {
         public ConduitPortLayout ConduitPortLayout;
-        internal CompactMachinePortType PortType;
+        public CompactMachinePortType PortType;
     }
     public abstract class CompactMachinePortInstance<TObject> : TileEntityInstance<TObject>, ICompactMachineConduitPort, IBreakActionTileEntity, IConduitPortTileEntity where TObject : CompactMachinePortObject
     {
@@ -28,7 +28,7 @@ namespace TileEntity.Instances.CompactMachines {
         public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
             this.compactMachineInstance = compactMachine;
-            compactMachineInstance.AddPort(GetConduitType(), this);
+            compactMachineInstance.AddPort(tileEntityObject.PortType, GetConduitType(), this);
         }
 
         public abstract ConduitType GetConduitType();
@@ -39,7 +39,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void OnBreak()
         {
-            compactMachineInstance.RemovePort(GetConduitType());
+            compactMachineInstance.RemovePort(tileEntityObject.PortType,GetConduitType());
         }
 
         public ConduitPortLayout GetConduitPortLayout()

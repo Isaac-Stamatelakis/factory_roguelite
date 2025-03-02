@@ -5,6 +5,7 @@ using TileEntity.Instances.Storage;
 using Conduits.Ports;
 using Newtonsoft.Json;
 using Chunks;
+using Item.Slot;
 
 namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Item Port", menuName = "Tile Entity/Compact Machine/Port/Item")]

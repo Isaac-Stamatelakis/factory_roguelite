@@ -15,11 +15,6 @@ namespace TileEntity.Instances.CompactMachines {
         }
         private ItemSlot itemSlot;
         private CompactMachineInstance compactMachine;
-        public ItemSlot ExtractSolidItem(Vector2Int portPosition)
-        {
-            return itemSlot;
-        }
-        
         
         public string Serialize()
         {

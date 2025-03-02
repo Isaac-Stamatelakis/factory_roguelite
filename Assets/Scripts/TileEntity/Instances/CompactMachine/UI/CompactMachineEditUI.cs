@@ -77,7 +77,7 @@ namespace TileEntity.Instances.CompactMachine.UI
             this.metaData.Instances--;
             CompactMachineUtils.SaveMetaDataJson(this.metaData,hashPath);
             string newHash = CompactMachineUtils.GenerateHash();
-            compactMachine.Hash = newHash;
+            compactMachine.SetHash(newHash);
             CompactMachineUtils.InitializeHashFolder(newHash, compactMachine.getId());
             onHashChange.Invoke();
 
