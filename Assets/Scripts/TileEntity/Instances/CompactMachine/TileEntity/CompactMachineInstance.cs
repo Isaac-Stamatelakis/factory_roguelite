@@ -10,12 +10,14 @@ using Chunks;
 using Dimensions;
 using Chunks.Systems;
 using Conduits;
+using Conduits.Systems;
 using Entities;
 using Item.Slot;
 using Items;
 using Items.Tags;
 using Newtonsoft.Json;
 using TileEntity.Instances.CompactMachine;
+using TileEntity.Instances.Matrix;
 using UI;
 using WorldModule;
 
@@ -25,20 +27,22 @@ namespace TileEntity.Instances.CompactMachines {
         public ItemTag GetItemTag();
     }
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
-        IRightClickableTileEntity, IConduitPortTileEntity, IEnergyConduitInteractable, IItemConduitInteractable, ISignalConduitInteractable, ICompactMachine, 
-        IBreakActionTileEntity, ISerializableTileEntity
+        IRightClickableTileEntity, ICompactMachine, 
+        IBreakActionTileEntity, ISerializableTileEntity,
+        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity
     {
-        private CompactMachinePortInventory inventory;
         private CompactMachineTeleporterInstance teleporter;
-        public CompactMachinePortInventory Inventory { get => inventory; set => inventory = value; }
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
-        public string Hash { get => compactMachineData.Hash; set =>  compactMachineData.Hash = value; }
+        public string Hash => compactMachineData.Hash;
         public bool IsActive => compactMachineData.Active;
         private CompactMachineData compactMachineData;
+        private ulong defaultEnergyZero = 0; // This is a workaround for returning a null ref 
 
+        private Dictionary<ConduitType, IConduitInteractable> inputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
+        private Dictionary<ConduitType, IConduitInteractable> outputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
-            this.inventory = new CompactMachinePortInventory(this);
+            
         }
 
         public CompactMachineTeleportKey GetTeleportKey()
@@ -63,20 +67,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             return TileEntityObject.ConduitPortLayout;
         }
-
-        public ref ulong GetEnergy(Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
-        {
-            if (inventory.EnergyPorts.ContainsKey(portPosition)) {
-                return inventory.EnergyPorts[portPosition].InsertEnergy(energy,portPosition);
-            }
-            return 0;
-        }
-
+        
         public void OnRightClick()
         {
             if (Input.GetKey(KeyCode.LeftShift)) {
@@ -85,35 +76,8 @@ namespace TileEntity.Instances.CompactMachines {
             }
             TileEntityObject.UIManager.Display<CompactMachineInstance,CompactMachineUIController>(this);
         }
-
-        public bool ExtractSignal(Vector2Int portPosition)
-        {
-            return false;
-        }
-
-        public void InsertSignal(bool signal, Vector2Int portPosition)
-        {
-            
-        }
-        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
-        {
-            switch (state)
-            {
-                case ItemState.Solid:
-                    if (!inventory.ItemPorts.ContainsKey(portPosition)) return null;
-                    return inventory.ItemPorts[portPosition].ExtractItem(state,portPosition,filter);
-                case ItemState.Fluid:
-                    if (!inventory.FluidPorts.ContainsKey(portPosition)) return null;
-                    return inventory.FluidPorts[portPosition].ExtractItem(state,portPosition,filter);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
-        }
-
-        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
-        {
-            throw new System.NotImplementedException();
-        }
+        
+        
         public string Serialize()
         {
             return JsonConvert.SerializeObject(compactMachineData);
@@ -157,7 +121,7 @@ namespace TileEntity.Instances.CompactMachines {
         {
             compactMachineData.Active = true;
             bool hashNull = newHash == null;
-            if (hashNull)
+            if (hashNull || !CompactMachineUtils.HashExists(newHash))
             {
                 compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
                 CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
@@ -166,7 +130,6 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 compactMachineData.Hash = newHash;
             }
-            
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
@@ -188,7 +151,6 @@ namespace TileEntity.Instances.CompactMachines {
                 {
                     dimController.AddNewSystem(thisKey,this, compactMachineData.Hash);
                 }
-                
             }
         }
 
@@ -200,6 +162,11 @@ namespace TileEntity.Instances.CompactMachines {
             }
 
             return compactMachineDimManager.GetCompactMachineDimController().GetSubSystems(GetTeleportKey());
+        }
+
+        public void SetHash(string hash)
+        {
+            compactMachineData.Hash = hash;
         }
 
         private struct CompactMachineData
@@ -231,58 +198,105 @@ namespace TileEntity.Instances.CompactMachines {
             {
                 compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);
             }
-            
-        }
-    }
-
-    public class CompactMachinePortInventory {
-        private CompactMachineInstance compactMachine;
-        private Dictionary<Vector2Int, IEnergyConduitInteractable> energyPorts;
-        private Dictionary<Vector2Int, IItemConduitInteractable> itemPorts;
-        private Dictionary<Vector2Int, IItemConduitInteractable> fluidPorts;
-        private Dictionary<Vector2Int, ISignalConduitInteractable> signalPorts;
-
-        public CompactMachinePortInventory(CompactMachineInstance compactMachine) {
-            this.compactMachine = compactMachine;
-            this.energyPorts = new Dictionary<Vector2Int, IEnergyConduitInteractable>();
-            this.itemPorts = new Dictionary<Vector2Int, IItemConduitInteractable>();
-            this.fluidPorts = new Dictionary<Vector2Int, IItemConduitInteractable>();
-            this.signalPorts = new Dictionary<Vector2Int, ISignalConduitInteractable>();
         }
 
-        public Dictionary<Vector2Int, IEnergyConduitInteractable> EnergyPorts { get => energyPorts; set => energyPorts = value; }
-        public Dictionary<Vector2Int, IItemConduitInteractable> ItemPorts { get => itemPorts; set => itemPorts = value; }
-        public Dictionary<Vector2Int, IItemConduitInteractable> FluidPorts { get => fluidPorts; set => fluidPorts = value; }
-        public Dictionary<Vector2Int, ISignalConduitInteractable> SignalPorts { get => signalPorts; set => signalPorts = value; }
-
-        private void SetPortInteractable<T>(Dictionary<Vector2Int, T> ports, IConduitInteractable interactable, Vector2Int position, ConduitType type) where T : IConduitInteractable
+        public bool AddPort(CompactMachinePortType portType, ConduitType conduitType, IConduitInteractable interactable)
         {
-            if (ports.ContainsKey(position)) {
-                Debug.LogWarning("Duplicate key " + position + " of type " + type + " for compact machine " + compactMachine.GetName());
+            var map = GetConduitMap(portType);
+            bool invalid = map.TryAdd(conduitType, interactable);
+            if (invalid)
+            {
+                map[conduitType] = null;
+            }
+            return invalid;
+        }
+
+        public void RemovePort(CompactMachinePortType portType, ConduitType conduitType)
+        {
+            var map = GetConduitMap(portType);
+            if (map.Remove(conduitType)) return;
+            // If is not removed then there must be multiple of the port within the system.
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 return;
             }
-            ports[position] = (T)interactable;
+
+            CompactMachineTeleportKey key = GetTeleportKey();
+            key.Path.RemoveAt(key.Path.Count - 1);
+            compactMachineDimManager.GetCompactMachineDimController().ReSyncConduitPorts(key.Path,portType,conduitType);
         }
-        public void addPort(ITileEntityInstance tileEntity, ConduitType type)
+
+        private Dictionary<ConduitType, IConduitInteractable> GetConduitMap(CompactMachinePortType portType)
         {
-            Vector2Int positionInCompactMachine = tileEntity.GetCellPosition(); 
-            Vector2Int positionOutsideCompactMachine = CompactMachineUtils.GetPortPositionInLayout(positionInCompactMachine,compactMachine.TileEntityObject.ConduitPortLayout,type);
-            IConduitInteractable interactable = ConduitFactory.GetInteractableFromTileEntity(tileEntity, type);
-            if (interactable == null) return;
-            switch (type) {
-                case ConduitType.Item:
-                    SetPortInteractable(ItemPorts,interactable,positionOutsideCompactMachine,type);
-                    break;
-                case ConduitType.Energy:
-                    SetPortInteractable(EnergyPorts,interactable,positionOutsideCompactMachine,type);
-                    break;
-                case ConduitType.Fluid:
-                    SetPortInteractable(FluidPorts,interactable,positionOutsideCompactMachine,type);
-                    break;
-                case ConduitType.Signal:
-                    SetPortInteractable(SignalPorts,interactable,positionOutsideCompactMachine,type);
-                    break;
+            switch (portType)
+            {
+                case CompactMachinePortType.Input:
+                    return inputConduitPortMap;
+                case CompactMachinePortType.Output:
+                    return outputConduitPortMap;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(portType), portType, null);
             }
+        }
+
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            ConduitType conduitType;
+            switch (state)
+            {
+                case ItemState.Solid:
+                    conduitType = ConduitType.Item;
+                    break;
+                case ItemState.Fluid:
+                    conduitType = ConduitType.Fluid;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(conduitType);
+            return ((IItemConduitInteractable)interactable)?.ExtractItem(state, portPosition, filter);
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            ConduitType conduitType;
+            switch (state)
+            {
+                case ItemState.Solid:
+                    conduitType = ConduitType.Item;
+                    break;
+                case ItemState.Fluid:
+                    conduitType = ConduitType.Fluid;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(conduitType);
+            ((IItemConduitInteractable)interactable)?.InsertItem(state, toInsert, portPosition);
+        }
+
+        public bool ExtractSignal(Vector2Int portPosition)
+        {
+            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Signal);
+            return ((ISignalConduitInteractable)interactable)?.ExtractSignal(portPosition) ?? false;
+        }
+
+        public void InsertSignal(bool active, Vector2Int portPosition)
+        {
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(ConduitType.Signal);
+            ((ISignalConduitInteractable)interactable)?.InsertSignal(active, portPosition);
+        }
+
+        public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
+        {
+            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
+            return ((IEnergyConduitInteractable)interactable)?.InsertEnergy(energy, portPosition) ?? 0;
+        }
+
+        public ref ulong GetEnergy(Vector2Int portPosition)
+        {
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
+            if (interactable is null) return ref defaultEnergyZero;
+            return ref ((IEnergyConduitInteractable)interactable).GetEnergy(portPosition);
         }
     }
 }

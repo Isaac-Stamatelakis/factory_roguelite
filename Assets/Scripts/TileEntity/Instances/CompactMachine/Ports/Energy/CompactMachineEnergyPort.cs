@@ -8,10 +8,8 @@ using Chunks;
 
 namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Energy Port", menuName = "Tile Entity/Compact Machine/Port/Energy")]
-    public class CompactMachineEnergyPort : TileEntityObject
+    public class CompactMachineEnergyPort : CompactMachinePortObject
     {
-        public ConduitPortLayout Layout;
-
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new CompactMachineEnergyPortInstance(this,tilePosition,tileItem,chunk);

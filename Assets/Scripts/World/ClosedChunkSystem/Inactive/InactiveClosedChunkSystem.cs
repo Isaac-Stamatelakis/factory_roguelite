@@ -10,16 +10,40 @@ using Conduits.Ports;
 using Chunks.Partitions;
 using TileEntity.Instances.CompactMachines;
 using Chunks.IO;
+using Dimensions;
 using TileMaps.Layer;
 using Tiles;
 
 namespace Chunks.Systems {
+    public class SoftLoadedCompactMachineChunkSystem : SoftLoadedClosedChunkSystem, ICompactMachineClosedChunkSystem
+    {
+        private CompactMachineInstance compactMachineInstance;
+        public SoftLoadedCompactMachineChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath) : base(unloadedChunks, savePath)
+        {
+        }
+
+        public CompactMachineTeleportKey GetCompactMachineKey()
+        {
+            return compactMachineInstance.GetTeleportKey();
+        }
+
+        public void SetCompactMachine(CompactMachineInstance compactMachineInstance, CompactMachineTeleportKey key)
+        {
+            this.compactMachineInstance = compactMachineInstance;
+        }
+
+        public CompactMachineInstance GetCompactMachine()
+        {
+            return compactMachineInstance;
+        }
+    }
     public class SoftLoadedClosedChunkSystem : IChunkSystem
     {
         private IntervalVector coveredArea;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
         private List<SoftLoadedConduitTileChunk> softLoadedChunks;
         private string savePath;
+        public string SavePath => savePath;
         public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath) {
             this.softLoadedChunks = unloadedChunks;
             this.savePath = savePath;
@@ -35,17 +59,7 @@ namespace Chunks.Systems {
         public List<SoftLoadedConduitTileChunk> Chunks { get => softLoadedChunks; set => softLoadedChunks = value; }
         public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict { get => conduitSystemManagersDict; set => conduitSystemManagersDict = value; }
         public IntervalVector CoveredArea { get => coveredArea; set => coveredArea = value; }
-
-        public bool chunkIsNeighbor(SoftLoadedConduitTileChunk unloadedChunk) {
-            foreach (SoftLoadedConduitTileChunk containedChunk in softLoadedChunks) {
-                Vector2Int dif = containedChunk.GetPosition() - unloadedChunk.GetPosition();
-                if (Mathf.Abs(dif.x) <= 1 && Mathf.Abs(dif.y) <= 1) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
+        
         private void updateCoveredArea(SoftLoadedConduitTileChunk chunk) {
             if (coveredArea == null) {
                 int x = chunk.GetPosition().x;
@@ -157,10 +171,7 @@ namespace Chunks.Systems {
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
             return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
         }
-
-        public Vector2Int GetCenter() {
-            return new Vector2Int((coveredArea.X.UpperBound+coveredArea.X.LowerBound)/2,(coveredArea.Y.UpperBound+coveredArea.Y.LowerBound)/2);
-        }
+        
         private void SoftLoadTileEntities() {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {

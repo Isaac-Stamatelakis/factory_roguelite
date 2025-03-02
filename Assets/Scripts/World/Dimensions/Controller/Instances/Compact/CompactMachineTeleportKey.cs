@@ -13,6 +13,16 @@ namespace Dimensions {
             this.Locked = locked;
         }
 
+        public bool IsEqualTo(CompactMachineTeleportKey key)
+        {
+            if (key.Path.Count != Path.Count) return false;
+            for (int i = 0; i < Path.Count; i++)
+            {
+                if (Path[i] != key.Path[i]) return false;
+            }
+            return true;
+        }
+
         
     }
 

@@ -48,6 +48,15 @@ namespace TileEntity {
                 loadableTileEntity.Load();
             }
 
+            if (tileEntityInstance is ICompactMachineInteractable compactMachineInteractable)
+            {
+                var system = chunk.GetChunkSystem();
+                if (system is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+                {
+                    compactMachineInteractable.SyncToCompactMachine(compactMachineClosedChunkSystem.GetCompactMachine());
+                }
+            }
+
             if (assembleMultiblocks && tileEntityInstance is IMultiBlockTileEntity multiBlockTileEntity)
             {
                 multiBlockTileEntity.AssembleMultiBlock();

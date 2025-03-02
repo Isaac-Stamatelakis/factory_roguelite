@@ -182,7 +182,6 @@ namespace Dimensions {
                 WorldManager.getInstance().SaveQuestBook();
                 WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
             }
-            
         }
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)
@@ -262,6 +261,8 @@ namespace Dimensions {
             newSystem.InstantCacheChunksNearPlayer();
             newSystem.PlayerPartitionUpdate();
         }
+        
+        
 
         public abstract DimController GetDimController(int dim);
     }

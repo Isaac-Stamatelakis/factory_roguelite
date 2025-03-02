@@ -219,6 +219,7 @@ namespace Conduits.Ports {
 
         public List<ItemSlot> GetDropItems()
         {
+            if (outputPortData == null) return new List<ItemSlot>();
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             ItemObject speedUpgrade = itemRegistry.GetItemObject(UPGRADE_ID);
             List<ItemSlot> items = new List<ItemSlot>();
