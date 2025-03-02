@@ -278,10 +278,11 @@ namespace Dimensions {
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
         }
 
-        public void ReSyncConduitPorts(List<Vector2Int> path, CompactMachinePortType portType, ConduitType conduitType)
+        public void ReSyncConduitPorts(List<Vector2Int> path, CompactMachinePortType portType, ConduitType conduitType, Vector2Int breakCellPosition)
         {
             CompactMachineTree node = systemTree.GetTree(path);
             if (node.System is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) return;
+       
             var compactMachine = compactMachineClosedChunkSystem.GetCompactMachine();
             foreach (var chunk in node.System.Chunks)
             {
@@ -291,8 +292,13 @@ namespace Dimensions {
                     {
                         for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
                         {
-                            var tileEntity = chunkPartition.GetTileEntity(new Vector2Int(x, y));
+                            Vector2Int positionInPartition = new Vector2Int(x, y);
+                            var tileEntity = chunkPartition.GetTileEntity(positionInPartition);
+                            
                             if (tileEntity is not ICompactMachineConduitPort compactMachineConduitPort) continue;
+                            Vector2Int cellPosition = chunkPartition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
+                            if (cellPosition == breakCellPosition) continue;
+                            
                             if (compactMachineConduitPort.GetConduitType() != conduitType || compactMachineConduitPort.GetPortType() != portType) continue;
                             compactMachineConduitPort.SyncToCompactMachine(compactMachine);
                         }

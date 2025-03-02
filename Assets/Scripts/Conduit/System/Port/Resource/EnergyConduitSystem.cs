@@ -18,8 +18,9 @@ namespace Conduits.Systems {
         protected override void IterateTickUpdate(EnergyTileEntityPort outputPort, List<EnergyTileEntityPort> inputPorts, int color)
         {
             IEnergyConduitInteractable outputInteractable = outputPort.Interactable;
-            
-            ref ulong totalEnergy = ref outputInteractable.GetEnergy(outputPort.Position);
+            ulong totalEnergy = outputInteractable.GetEnergy(outputPort.Position);
+            if (totalEnergy == 0) return;
+            activeThisTick = true;
             ulong toInsert;
             ulong extractionRate = outputPort.GetExtractionRate();
             if (totalEnergy >= extractionRate) {
@@ -28,21 +29,18 @@ namespace Conduits.Systems {
             } else {
                 toInsert = totalEnergy;
             }
-
-            if (toInsert > 0)
-            {
-                activeThisTick = true;
-            }
             
             foreach (EnergyTileEntityPort inputPort in inputPorts) {
-                if (toInsert == 0) {
-                    return;
+                if (toInsert == 0)
+                {
+                    break;
                 }
                 IEnergyConduitInteractable inputInteractable = inputPort.Interactable;
                 ulong taken = inputInteractable.InsertEnergy(toInsert, inputPort.Position);
                 toInsert -= taken;
             }
-            totalEnergy += toInsert;
+            totalEnergy += toInsert; // Add back left over energy
+            outputInteractable.SetEnergy(totalEnergy,outputPort.Position);
         }
     }
 }

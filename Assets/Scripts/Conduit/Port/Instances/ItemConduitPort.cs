@@ -226,8 +226,8 @@ namespace Conduits.Ports {
             ItemSlot speedUpgradeSlot = new ItemSlot(speedUpgrade, outputPortData.SpeedUpgrades, null);
             items.Add(speedUpgradeSlot);
             
-            if (inputPortData.Filter != null) AddFilterItem(items, inputPortData.Filter);
-            if (outputPortData.Filter != null) AddFilterItem(items, outputPortData.ItemFilter);
+            if (inputPortData?.Filter != null) AddFilterItem(items, inputPortData?.Filter);
+            if (outputPortData?.Filter != null) AddFilterItem(items, outputPortData?.ItemFilter);
             
             return items;
 

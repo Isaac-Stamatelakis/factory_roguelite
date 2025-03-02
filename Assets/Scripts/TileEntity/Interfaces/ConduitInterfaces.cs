@@ -41,7 +41,8 @@ public interface IEnergyConduitInteractable : IConduitInteractable{
     /// <param name="portPosition"></param>
     /// <returns>Energy taken</returns>
     public ulong InsertEnergy(ulong energy, Vector2Int portPosition);
-    public ref ulong GetEnergy(Vector2Int portPosition);
+    public ulong GetEnergy(Vector2Int portPosition);
+    public void SetEnergy(ulong energy, Vector2Int portPosition);
 }
 public interface ISignalConduitInteractable : IConduitInteractable{
     public bool ExtractSignal(Vector2Int portPosition);

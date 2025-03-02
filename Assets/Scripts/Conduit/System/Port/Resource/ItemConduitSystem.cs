@@ -33,9 +33,8 @@ namespace Conduits.Systems {
         protected override void IterateTickUpdate(ItemTileEntityPort outputPort, List<ItemTileEntityPort> inputPorts, int color)
         {
             ItemSlot toInsert = outputPort.Extract(itemState);
-            if (toInsert == null) {
-                return;
-            }
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return;
+            
             activeThisTick = true;
             uint extractionRate = outputPort.GetExtractionRate(itemState);
             uint amount = toInsert.amount < extractionRate ? toInsert.amount : extractionRate;

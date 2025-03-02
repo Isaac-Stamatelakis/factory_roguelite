@@ -51,9 +51,14 @@ namespace TileEntity.Instances.Storage {
             return amount;
         }
 
-        public ref ulong GetEnergy(Vector2Int portPosition)
+        public ulong GetEnergy(Vector2Int portPosition)
         {
-            return ref Energy;
+            return Energy;
+        }
+
+        public void SetEnergy(ulong energy, Vector2Int portPosition)
+        {
+            Energy = energy;
         }
     }
 }
