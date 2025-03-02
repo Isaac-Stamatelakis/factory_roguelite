@@ -49,7 +49,7 @@ namespace Dimensions {
             return systems;
         }
 
-        private void LoadCompactMachineSystem(CompactMachineInstance compactMachine, CompactMachineTree tree, string path, bool blueprinted) {
+        private void LoadCompactMachineSystem(CompactMachineTree tree, string path, bool blueprinted) {
             SoftLoadedClosedChunkSystem system = tree.System;
             foreach (IChunk chunk in system.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -65,7 +65,7 @@ namespace Dimensions {
                                     Vector2Int newPosition = nestedCompactMachine.GetCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                     string contentPath = Path.Combine(nestedPath,CompactMachineUtils.CONTENT_PATH);
-                                    SoftLoadedClosedChunkSystem newSystem = InactiveClosedChunkFactory.Import(contentPath);
+                                    SoftLoadedCompactMachineChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(nestedCompactMachine,contentPath);
                                     if (newSystem == null) {
                                         Debug.LogError($"No system at path {nestedPath}");
                                         continue;
@@ -74,7 +74,7 @@ namespace Dimensions {
                                     systems.Add(newSystem);
                                     CompactMachineTree newTree = new CompactMachineTree(newSystem,nestedCompactMachine);
                                     tree.Children[newPosition] = newTree;
-                                    LoadCompactMachineSystem(nestedCompactMachine,newTree,nestedPath, blueprinted);
+                                    LoadCompactMachineSystem(newTree,nestedPath, blueprinted);
                                     break;
                                 }
                                 case IBluePrintModifiedTileEntity blueprintModifyTileEntity when blueprinted:
@@ -214,14 +214,15 @@ namespace Dimensions {
                 CompactMachineUtils.InitalizeCompactMachineSystem(compactMachine, systemPath);
             }
             
-            SoftLoadedClosedChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(systemPath);
+            SoftLoadedCompactMachineChunkSystem newSystem = CompactMachineUtils.LoadSystemFromPath(compactMachine,systemPath);
+            newSystem.SoftLoad();
             
             CompactMachineTree newTree = new CompactMachineTree(newSystem, compactMachine);
             parentTree.Children[placePosition] = newTree;
             systems.Add(newSystem);
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
 
-            LoadCompactMachineSystem(compactMachine, newTree, path, blueprinted);
+            LoadCompactMachineSystem(newTree, path, blueprinted);
            
         }
 
@@ -273,8 +274,32 @@ namespace Dimensions {
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             systemTree = new CompactMachineTree(baseSystem,null);
-            LoadCompactMachineSystem(null,systemTree,WorldLoadUtils.GetDimPath(1),false);
+            LoadCompactMachineSystem(systemTree,WorldLoadUtils.GetDimPath(1),false);
             Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
+        }
+
+        public void ReSyncConduitPorts(List<Vector2Int> path, CompactMachinePortType portType, ConduitType conduitType)
+        {
+            CompactMachineTree node = systemTree.GetTree(path);
+            if (node.System is not ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) return;
+            var compactMachine = compactMachineClosedChunkSystem.GetCompactMachine();
+            foreach (var chunk in node.System.Chunks)
+            {
+                foreach (var chunkPartition in chunk.Partitions)
+                {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+                    {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                        {
+                            var tileEntity = chunkPartition.GetTileEntity(new Vector2Int(x, y));
+                            if (tileEntity is not ICompactMachineConduitPort compactMachineConduitPort) continue;
+                            if (compactMachineConduitPort.GetConduitType() != conduitType || compactMachineConduitPort.GetPortType() != portType) continue;
+                            compactMachineConduitPort.SyncToCompactMachine(compactMachine);
+                        }
+                    }
+                }
+            }
+            
         }
 
         private class CompactMachineTree {
@@ -288,9 +313,10 @@ namespace Dimensions {
                 Children = new Dictionary<Vector2Int, CompactMachineTree>();
                 this.CompactMachineInstance = compactMachineInstance;
             }
-            public SoftLoadedClosedChunkSystem GetSystem(List<Vector2Int> path, int depth=0) {
+            public SoftLoadedCompactMachineChunkSystem GetSystem(List<Vector2Int> path, int depth=0)
+            {
                 if (depth == path.Count) {
-                    return System;
+                    return System as SoftLoadedCompactMachineChunkSystem;
                 }
                 Vector2Int key = path[depth];
                 if (Children.ContainsKey(key)) {
@@ -298,6 +324,7 @@ namespace Dimensions {
                 }
                 return null;
             }
+            
             public CompactMachineTree GetTree(List<Vector2Int> path, int depth=0) {
                 if (depth == path.Count) {
                     return this;

@@ -34,8 +34,8 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            if (ReferenceEquals(toInsert?.itemObject, null)) return;
-            toInsert = ItemSlotFactory.Copy(toInsert);
+            if (!ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            itemSlot = new ItemSlot(toInsert.itemObject, toInsert.amount, toInsert.tags);
             toInsert.amount=0;
         }
 

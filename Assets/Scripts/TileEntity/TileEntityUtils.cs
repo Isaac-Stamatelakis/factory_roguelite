@@ -51,9 +51,9 @@ namespace TileEntity {
             if (tileEntityInstance is ICompactMachineInteractable compactMachineInteractable)
             {
                 var system = chunk.GetChunkSystem();
-                if (system is CompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
+                if (system is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem)
                 {
-                    
+                    compactMachineInteractable.SyncToCompactMachine(compactMachineClosedChunkSystem.GetCompactMachine());
                 }
             }
 

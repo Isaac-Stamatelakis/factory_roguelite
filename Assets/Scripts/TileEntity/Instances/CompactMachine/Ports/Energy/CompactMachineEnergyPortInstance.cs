@@ -39,7 +39,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void OnBreak()
         {
-            compactMachineInstance.RemovePort(tileEntityObject.PortType,GetConduitType());
+            compactMachineInstance?.RemovePort(tileEntityObject.PortType,GetConduitType());
         }
 
         public ConduitPortLayout GetConduitPortLayout()

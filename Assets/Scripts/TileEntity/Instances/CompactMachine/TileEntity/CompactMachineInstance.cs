@@ -80,7 +80,6 @@ namespace TileEntity.Instances.CompactMachines {
         
         public string Serialize()
         {
-            Debug.Log(compactMachineData.Hash);
             return JsonConvert.SerializeObject(compactMachineData);
         }
 
@@ -204,7 +203,12 @@ namespace TileEntity.Instances.CompactMachines {
         public bool AddPort(CompactMachinePortType portType, ConduitType conduitType, IConduitInteractable interactable)
         {
             var map = GetConduitMap(portType);
-            return map.TryAdd(conduitType, interactable);
+            bool invalid = map.TryAdd(conduitType, interactable);
+            if (invalid)
+            {
+                map[conduitType] = null;
+            }
+            return invalid;
         }
 
         public void RemovePort(CompactMachinePortType portType, ConduitType conduitType)
@@ -212,6 +216,13 @@ namespace TileEntity.Instances.CompactMachines {
             var map = GetConduitMap(portType);
             if (map.Remove(conduitType)) return;
             // If is not removed then there must be multiple of the port within the system.
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
+                return;
+            }
+
+            CompactMachineTeleportKey key = GetTeleportKey();
+            key.Path.RemoveAt(key.Path.Count - 1);
+            compactMachineDimManager.GetCompactMachineDimController().ReSyncConduitPorts(key.Path,portType,conduitType);
         }
 
         private Dictionary<ConduitType, IConduitInteractable> GetConduitMap(CompactMachinePortType portType)
@@ -259,7 +270,7 @@ namespace TileEntity.Instances.CompactMachines {
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
-            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(conduitType);
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(conduitType);
             ((IItemConduitInteractable)interactable)?.InsertItem(state, toInsert, portPosition);
         }
 
@@ -271,7 +282,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void InsertSignal(bool active, Vector2Int portPosition)
         {
-            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Signal);
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(ConduitType.Signal);
             ((ISignalConduitInteractable)interactable)?.InsertSignal(active, portPosition);
         }
 
@@ -283,7 +294,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public ref ulong GetEnergy(Vector2Int portPosition)
         {
-            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
+            IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
             if (interactable is null) return ref defaultEnergyZero;
             return ref ((IEnergyConduitInteractable)interactable).GetEnergy(portPosition);
         }
