@@ -84,7 +84,7 @@ namespace Robot.Tool.Instances
             if (conduit == null) return;
             bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)ConduitSlicerUpgrade.Item_Magnet) == 0;
             
-            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition,drop,0);
+            MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition,drop,0,true);
             if (!drop)
             {
                 PlayerInventory playerInventory = playerScript.PlayerInventory;
