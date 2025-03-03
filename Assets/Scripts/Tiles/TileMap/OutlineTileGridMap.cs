@@ -8,7 +8,11 @@ using Tiles;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps {
-    public class OutlineWorldTileGridMap : WorldTileGridMap
+    public interface IOutlineTileGridMap
+    {
+        public (TileBase, TileBase) GetTileOutlinePair(Vector3Int position);
+    }
+    public class OutlineWorldTileGridMap : WorldTileGridMap, IOutlineTileGridMap
     {
         private Tilemap outlineTileMap;
         public override void Initialize(TileMapType tileMapType)
@@ -80,6 +84,11 @@ namespace TileMaps {
             transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation),
                 Vector3.one);
             outlineTileMap.SetTransformMatrix(vec3,transformMatrix);
+        }
+
+        public (TileBase, TileBase) GetTileOutlinePair(Vector3Int position)
+        {
+            return (tilemap.GetTile(position),outlineTileMap.GetTile(position));
         }
     }
 }

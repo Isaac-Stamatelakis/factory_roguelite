@@ -3,6 +3,7 @@ using Item.Slot;
 using Items;
 using TileMaps;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Robot.Upgrades.Instances.VeinMine
 {
@@ -27,7 +28,7 @@ namespace Robot.Upgrades.Instances.VeinMine
             Vector2Int.up,
             Vector2Int.down,
         };
-
+        
         protected VeinMineItemCollector veinMineItemCollector;
         protected VeinMineEvent(T hitableTileMap, bool dropItems)
         {
@@ -83,7 +84,6 @@ namespace Robot.Upgrades.Instances.VeinMine
                         ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
                         ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MAX_SIZE);
                     }
-                    
                 }
                 
                 hitableTileMap.BreakAndDropTile(current,drop);
@@ -91,6 +91,7 @@ namespace Robot.Upgrades.Instances.VeinMine
             
             return true;
         }
+        
         
 
         protected void Expand(Vector2Int current)

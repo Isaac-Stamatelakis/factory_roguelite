@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Item.Slot;
 using Newtonsoft.Json;
+using Player;
 using Player.Tool;
 using Player.Tool.Object;
 using Robot.Tool.Instances;
@@ -43,16 +44,16 @@ namespace Robot.Tool
             return dict;
         } 
         
-        public static IRobotToolInstance GetInstance(RobotToolType type, RobotToolObject toolObject, RobotToolData robotToolData, RobotStatLoadOutCollection loadOut)
+        public static IRobotToolInstance GetInstance(RobotToolType type, RobotToolObject toolObject, RobotToolData robotToolData, RobotStatLoadOutCollection loadOut, PlayerScript playerScript)
         {
             switch (type)
             {
                 case RobotToolType.LaserDrill:
-                    return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject, loadOut);
+                    return new LaserDrill(robotToolData as LaserDrillData, toolObject as RobotDrillObject, loadOut, playerScript);
                 case RobotToolType.ConduitSlicers:
-                    return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject, loadOut);
+                    return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject, loadOut, playerScript);
                 case RobotToolType.Buildinator:
-                    return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject, loadOut);
+                    return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject, loadOut, playerScript);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }

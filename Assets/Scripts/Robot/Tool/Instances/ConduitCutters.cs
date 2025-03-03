@@ -3,6 +3,7 @@ using Conduits;
 using Dimensions;
 using Item.Slot;
 using Items;
+using Player;
 using Player.Mouse;
 using Player.Tool.Object;
 using PlayerModule;
@@ -21,7 +22,7 @@ namespace Robot.Tool.Instances
     {
         
         private LineRenderer lineRenderer;
-        public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
+        public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
         }
         
@@ -86,7 +87,7 @@ namespace Robot.Tool.Instances
             MouseUtils.HitTileLayer(toolData.Type.ToTileMapType().toLayer(), mousePosition,drop,0);
             if (!drop)
             {
-                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+                PlayerInventory playerInventory = playerScript.PlayerInventory;
                 playerInventory.Give(new ItemSlot(conduit?.GetConduitItem(),1,null));
             }
             if (veinMinePower <= 1) return;
@@ -95,7 +96,7 @@ namespace Robot.Tool.Instances
             veinMineEvent.Execute(cellPosition,veinMinePower);
             if (!drop)
             {
-                PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+                PlayerInventory playerInventory = playerScript.PlayerInventory;
                 playerInventory.GiveItems(veinMineEvent.GetCollectedItems());
             }
         }
@@ -122,6 +123,11 @@ namespace Robot.Tool.Instances
         public override string GetModeName()
         {
             return toolData?.Type.ToString();
+        }
+
+        public override void Preview(Vector2Int cellPosition)
+        {
+            
         }
 
         public string GetSubModeName()

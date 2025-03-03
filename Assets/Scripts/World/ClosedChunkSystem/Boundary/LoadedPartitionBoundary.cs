@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,8 +12,8 @@ namespace Chunks.Systems {
     {
         private Tilemap mTileMap;
         [SerializeField] private TileBase tile;
-        List<Vector3Int> directions;
-        private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>();
+        private List<Vector3Int> directions;
+        private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>(512);
         public void Initialize()
         {
             mTileMap = gameObject.AddComponent<Tilemap>();
@@ -32,7 +33,6 @@ namespace Chunks.Systems {
                 Vector3Int.up
             };
         }
-
         public void PartitionLoaded(Vector2Int position) {
             Vector3Int vec3 = (Vector3Int) position;
             mTileMap.SetTile(vec3,null);

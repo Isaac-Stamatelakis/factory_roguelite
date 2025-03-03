@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Player;
 using Player.Mouse;
 using Player.Tool;
 using Player.Tool.Object;
@@ -33,6 +34,7 @@ namespace Robot.Tool
         public string GetName();
         public string GetModeName();
         public RobotToolObject GetToolObject();
+        public void Preview(Vector2Int cellPosition);
     }
 
     public interface IDestructiveTool
@@ -48,7 +50,7 @@ namespace Robot.Tool
         where TData : RobotToolData 
         where TObject : RobotToolObject
     {
-        protected RobotToolInstance(TData toolData, TObject robotObject, RobotStatLoadOutCollection statLoadOutCollection)
+        protected RobotToolInstance(TData toolData, TObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript)
         {
             this.toolData = toolData;
             this.robotObject = robotObject;
@@ -57,6 +59,7 @@ namespace Robot.Tool
         protected TData toolData;
         protected TObject robotObject;
         protected RobotStatLoadOutCollection statLoadOutCollection;
+        protected PlayerScript playerScript;
         
         public Sprite GetSprite()
         {
@@ -79,6 +82,7 @@ namespace Robot.Tool
         {
             return robotObject;
         }
+        public abstract void Preview(Vector2Int cellPosition);
     }
 
     public abstract class RobotToolData

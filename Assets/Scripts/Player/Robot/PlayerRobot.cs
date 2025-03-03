@@ -801,6 +801,7 @@ namespace Player {
         }
         private void InitializeTools()
         {
+            PlayerScript playerScript = GetComponent<PlayerScript>();
             ItemRobotToolData itemRobotToolData = robotData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
             RobotTools = new List<IRobotToolInstance>();
@@ -811,7 +812,7 @@ namespace Player {
                 var loadOut = RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(type);
                 if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
                 
-                RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data,loadOut));
+                RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data,loadOut,playerScript));
             }
         }
 

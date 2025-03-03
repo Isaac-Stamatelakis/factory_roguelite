@@ -30,7 +30,7 @@ namespace Robot.Tool.Instances
     public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
     {
         private LineRenderer lineRenderer;
-        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
+        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
          
         }
@@ -104,7 +104,7 @@ namespace Robot.Tool.Instances
                     if (!drop && !DevMode.Instance.instantBreak)
                     {
                         List<ItemSlot> itemDrops = ItemSlotUtils.GetTileItemDrop(tileItem);
-                        PlayerManager.Instance.GetPlayer().PlayerInventory.GiveItems(itemDrops);
+                        playerScript.PlayerInventory.GiveItems(itemDrops);
                     }
                     TryVeinMine(worldTileGridMap, tileItem, drop, mousePosition, veinMinePower, drillPower);
                     
@@ -112,7 +112,7 @@ namespace Robot.Tool.Instances
                 return;
             }
 
-            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+            PlayerInventory playerInventory = playerScript.PlayerInventory;
             for (int x = -multiBreak; x <= multiBreak; x++)
             {
                 for (int y = -multiBreak; y <= multiBreak; y++)
@@ -134,15 +134,18 @@ namespace Robot.Tool.Instances
         {
             if (veinMinePower <= 1) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower);
-            int? broken = veinMineEvent?.Execute(cellPosition, veinMinePower);
+            BlockVeinMineEvent blockVeinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower) as BlockVeinMineEvent;
+            int? broken = blockVeinMineEvent?.Execute(cellPosition, veinMinePower);
             if (broken < 1) return false;
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             if (!drop)
             {
-                List<ItemSlot> itemDrops = veinMineEvent?.GetCollectedItems();
-                PlayerManager.Instance.GetPlayer().PlayerInventory.GiveItems(itemDrops);
+                List<ItemSlot> itemDrops = blockVeinMineEvent?.GetCollectedItems();
+                playerScript.PlayerInventory.GiveItems(itemDrops);
             }
+            
 
+            
             return true;
         }
 
@@ -183,7 +186,12 @@ namespace Robot.Tool.Instances
         {
             return toolData?.Layer.ToString();
         }
-        
+
+        public override void Preview(Vector2Int cellPosition)
+        {
+            
+        }
+
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
             Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;

@@ -13,7 +13,7 @@ namespace Robot.Upgrades.Instances.VeinMine
         {
             this.initialConduit = initialConduit;
         }
-
+        
         protected override void InitialExpand(Vector2Int initial)
         {
             foreach (Vector2Int direction in directions)
