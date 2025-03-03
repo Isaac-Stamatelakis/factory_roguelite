@@ -36,8 +36,6 @@ namespace TileEntity.Instances.CompactMachines {
         public string Hash => compactMachineData.Hash;
         public bool IsActive => compactMachineData.Active;
         private CompactMachineData compactMachineData;
-        private ulong defaultEnergyZero = 0; // This is a workaround for returning a null ref 
-
         private Dictionary<ConduitType, IConduitInteractable> inputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
         private Dictionary<ConduitType, IConduitInteractable> outputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -62,6 +60,26 @@ namespace TileEntity.Instances.CompactMachines {
             path.Add(GetCellPosition());
             bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
             return new CompactMachineTeleportKey(path,locked);
+        }
+
+        public IChunkSystem GetCompactMachineSystem()
+        {
+            CompactMachineTeleportKey key = GetTeleportKey();
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager)
+            {
+                return null;
+            }
+            return compactMachineDimManager.GetCompactMachineDimController().GetSystem(key.Path);
+        }
+
+        public void SaveSystem()
+        {
+            CompactMachineTeleportKey key = GetTeleportKey();
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager)
+            {
+                return;
+            }
+            compactMachineDimManager.GetCompactMachineDimController().SaveTree(key.Path);
         }
         public ConduitPortLayout GetConduitPortLayout()
         {
@@ -119,17 +137,8 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void PlaceInitializeWithHash(string newHash)
         {
-            compactMachineData.Active = true;
-            bool hashNull = newHash == null;
-            if (hashNull || !CompactMachineUtils.HashExists(newHash))
-            {
-                compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
-                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
-            }
-            else
-            {
-                compactMachineData.Hash = newHash;
-            }
+            compactMachineData = new CompactMachineData(true, newHash);
+            
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
@@ -142,16 +151,16 @@ namespace TileEntity.Instances.CompactMachines {
                 Debug.LogError("Tried to load compact machine with null key");
                 return;
             }
-            if (!dimController.HasSystem(thisKey)) {
-                if (hashNull)
-                {
-                    dimController.AddNewSystem(thisKey,this, null);
-                }
-                else
-                {
-                    dimController.AddNewSystem(thisKey,this, compactMachineData.Hash);
-                }
+
+            if (dimController.HasSystem(thisKey)) return;
+            
+            dimController.AddNewSystem(thisKey, this, newHash, true);
+            if (newHash == null || !CompactMachineUtils.HashExists(newHash) || DevMode.Instance.noPlaceCost)
+            {
+                compactMachineData.Hash = CompactMachineUtils.GenerateHash();
+                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
+            Debug.Log(compactMachineData.Hash);
         }
 
         public int GetSubSystems()
@@ -192,7 +201,7 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineTeleportKey key = GetTeleportKey();
             if (active)
             {
-                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash,false);
             }
             else
             {
@@ -203,26 +212,28 @@ namespace TileEntity.Instances.CompactMachines {
         public bool AddPort(CompactMachinePortType portType, ConduitType conduitType, IConduitInteractable interactable)
         {
             var map = GetConduitMap(portType);
-            bool invalid = map.TryAdd(conduitType, interactable);
-            if (invalid)
+            if (map.TryAdd(conduitType, interactable))
             {
-                map[conduitType] = null;
+                return true;
             }
-            return invalid;
+            map[conduitType] = null;
+            return false;
         }
 
-        public void RemovePort(CompactMachinePortType portType, ConduitType conduitType)
+        public void RemovePort(CompactMachinePortType portType, ConduitType conduitType, Vector2Int portPosition)
         {
             var map = GetConduitMap(portType);
-            if (map.Remove(conduitType)) return;
+            if (!map.Remove(conduitType))
+            {
+                return;
+            }
             // If is not removed then there must be multiple of the port within the system.
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 return;
             }
 
             CompactMachineTeleportKey key = GetTeleportKey();
-            key.Path.RemoveAt(key.Path.Count - 1);
-            compactMachineDimManager.GetCompactMachineDimController().ReSyncConduitPorts(key.Path,portType,conduitType);
+            compactMachineDimManager.GetCompactMachineDimController().ReSyncConduitPorts(key.Path,portType,conduitType, portPosition);
         }
 
         private Dictionary<ConduitType, IConduitInteractable> GetConduitMap(CompactMachinePortType portType)
@@ -292,11 +303,16 @@ namespace TileEntity.Instances.CompactMachines {
             return ((IEnergyConduitInteractable)interactable)?.InsertEnergy(energy, portPosition) ?? 0;
         }
 
-        public ref ulong GetEnergy(Vector2Int portPosition)
+        public ulong GetEnergy(Vector2Int portPosition)
         {
             IConduitInteractable interactable = inputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
-            if (interactable is null) return ref defaultEnergyZero;
-            return ref ((IEnergyConduitInteractable)interactable).GetEnergy(portPosition);
+            return ((IEnergyConduitInteractable)interactable)?.GetEnergy(portPosition) ?? 0;
+        }
+
+        public void SetEnergy(ulong energy, Vector2Int portPosition)
+        {
+            IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
+            ((IEnergyConduitInteractable)interactable)?.SetEnergy(energy, portPosition);
         }
     }
 }

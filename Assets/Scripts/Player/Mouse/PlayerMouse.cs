@@ -48,6 +48,7 @@ namespace PlayerModule.Mouse {
         private Camera mainCamera;
         private EventSystem eventSystem;
         private ToolClickHandlerCollection toolClickHandlerCollection = new ToolClickHandlerCollection();
+        private ToolPreviewController previewController = new ToolPreviewController();
         [SerializeField] private TileHighlighter tileHighlighter;
         [SerializeField] private LineRenderer t1;
         [SerializeField] private LineRenderer t2;
@@ -127,6 +128,7 @@ namespace PlayerModule.Mouse {
             };
             
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            previewController.Preview(playerInventory.CurrentTool,mousePosition);
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)
             {
@@ -217,7 +219,6 @@ namespace PlayerModule.Mouse {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
-            
         }
 
         private ConduitType? GetPortClickType()
@@ -378,6 +379,42 @@ namespace PlayerModule.Mouse {
                     playerInventory.IterateSelectedTile(-1);
                 }
             }
+        }
+
+        public void UpdateOnToolChange()
+        {
+            ClearToolPreview();
+        }
+
+        public void ClearToolPreview()
+        {
+            previewController.ResetRecord();
+        }
+    }
+
+    internal class ToolPreviewController
+    {
+        private Vector2 lastMousePosition;
+        private Vector2Int lastTilePosition;
+        
+        public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
+        {
+            if (robotToolInstance == null) return;
+       
+            if (mousePosition == lastMousePosition) return;
+            Vector2Int tilePosition = Global.getCellPositionFromWorld(mousePosition);
+            if (lastTilePosition == tilePosition) return;
+            
+            lastMousePosition = mousePosition;
+            lastTilePosition = tilePosition;
+            robotToolInstance.Preview(tilePosition);
+        }
+        
+
+        public void ResetRecord()
+        {
+            lastMousePosition = Vector2.negativeInfinity;
+            lastTilePosition = Vector2Int.one * int.MaxValue;
         }
     }
 }

@@ -3,6 +3,7 @@ using Item.Slot;
 using Items;
 using TileMaps;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Robot.Upgrades.Instances.VeinMine
 {
@@ -10,6 +11,7 @@ namespace Robot.Upgrades.Instances.VeinMine
     {
         public int Execute(Vector2Int initial, int veinMinePower);
         public List<ItemSlot> GetCollectedItems();
+        public HashSet<Vector2Int> Preview(Vector2Int initial, int veinMinePower);
     }
 
     public class VeinMineItemCollector
@@ -27,7 +29,7 @@ namespace Robot.Upgrades.Instances.VeinMine
             Vector2Int.up,
             Vector2Int.down,
         };
-
+        
         protected VeinMineItemCollector veinMineItemCollector;
         protected VeinMineEvent(T hitableTileMap, bool dropItems)
         {
@@ -83,7 +85,6 @@ namespace Robot.Upgrades.Instances.VeinMine
                         ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
                         ItemSlotUtils.AppendToInventory(veinMineItemCollector.ItemSlots, itemSlot, Global.MAX_SIZE);
                     }
-                    
                 }
                 
                 hitableTileMap.BreakAndDropTile(current,drop);
@@ -91,6 +92,32 @@ namespace Robot.Upgrades.Instances.VeinMine
             
             return true;
         }
+
+        public HashSet<Vector2Int> Preview(Vector2Int initial, int veinMinePower)
+        {
+            int safe = 0;
+            InitialExpand(initial);
+            HashSet<Vector2Int> broken = new HashSet<Vector2Int>();
+            broken.Add(initial);
+            int breaks = 0;
+            while (breaks < veinMinePower && queue.Count > 0)
+            {
+                if (safe > 1000)
+                {
+                    Debug.Log("INF LOOP");
+                    break;
+                }
+
+                Vector2Int current = queue.Dequeue();
+                if (!broken.Add(current)) continue;
+                breaks++;
+                safe++;
+                if (!hitableTileMap.hasTile(current)) continue;
+                Expand(current);
+            }
+            return broken;
+        }
+        
         
 
         protected void Expand(Vector2Int current)

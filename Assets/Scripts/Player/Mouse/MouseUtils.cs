@@ -37,12 +37,12 @@ namespace Player.Mouse
         /// <param name="mousePosition"></param>
         /// <param name="power"></param>
         /// <returns>True if broken false if not</returns>
-        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power)
+        public static bool HitTileLayer(TileMapLayer tileMapLayer, Vector2 mousePosition, bool drop, int power, bool precise)
         {
             if (tileMapLayer.raycastable())
             {
                 int layer = tileMapLayer.toRaycastLayers();
-                return RaycastHitBlock(mousePosition,layer,power,drop);
+                return RaycastHitBlock(mousePosition,layer,power,drop,precise);
             }
             
             foreach (TileMapType tileMapType in tileMapLayer.getTileMapTypes()) {
@@ -65,14 +65,12 @@ namespace Player.Mouse
         /// <param name="layer">Unity layer for raycast</param>
         /// <returns>True if damages tilemap, false otherwise</returns>
         ///
-        private static bool RaycastHitBlock(Vector2 position, int layer, int power, bool drop) {
-            RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
-            if (ReferenceEquals(hit.collider, null)) return false;
-            GameObject container = hit.collider.gameObject;
-            IHitableTileMap hitableTileMap = container.GetComponent<IHitableTileMap>();
-            if (hitableTileMap == null) {
-                return false;
-            }
+        private static bool RaycastHitBlock(Vector2 position, int layer, int power, bool drop, bool precise)
+        {
+
+            IHitableTileMap hitableTileMap = GetHitableTileMap(position, precise,layer);
+            if (hitableTileMap == null) return false;
+            
             if (hitableTileMap is WorldTileGridMap tileGridMap) {
                 Vector2Int cellPosition = Global.getCellPositionFromWorld(position);
                 ITileEntityInstance tileEntity = tileGridMap.getTileEntityAtPosition(cellPosition);
@@ -94,7 +92,22 @@ namespace Player.Mouse
             }
             return hitableTileMap.HitTile(position, drop);
         }
-        
+
+        private static IHitableTileMap GetHitableTileMap(Vector2 position, bool precise, int layer)
+        {
+            if (precise)
+            {
+                RaycastHit2D hit = Physics2D.Raycast(position, Vector2.zero, Mathf.Infinity, layer);
+                return hit.collider?.gameObject.GetComponent<IHitableTileMap>();
+            }
+            else
+            {
+                Vector2 tileCenter = TileHelper.getRealTileCenter(position);
+                RaycastHit2D hit = Physics2D.BoxCast(tileCenter, Vector2.one * (Global.TILE_SIZE-0.00f), 0, Vector2.zero,Mathf.Infinity, layer);
+                return hit.collider?.gameObject.GetComponent<IHitableTileMap>();
+            }
+            
+        }
         /// <summary>
         /// Shoots a ray at position with layer and returns object if hits
         /// </summary>

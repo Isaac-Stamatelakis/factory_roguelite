@@ -35,6 +35,11 @@ namespace TileEntity.Instances.CompactMachine
             Accumulate(costDict, path, structurePath);
         }
 
+        public static string GetPositionPath(string path, Vector2Int cellPosition)
+        {
+            return Path.Combine(path, $"{cellPosition.x},{cellPosition.y}");
+        }
+
         private void Accumulate(Dictionary<string, uint> idAmountDict, string path, string structureName)
         {
             string contentPath = Path.Combine(path, CompactMachineUtils.CONTENT_PATH);
@@ -56,7 +61,7 @@ namespace TileEntity.Instances.CompactMachine
                             if (tileItem?.tileEntity is not CompactMachines.CompactMachine compactMachine) continue;
                             string newStructurePath = compactMachine.StructurePath;
                             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x, y);
-                            string newPath = Path.Combine(path, $"{cellPosition.x},{cellPosition.y}"); // Should probably generalize this
+                            string newPath = GetPositionPath(path,cellPosition);
                             Accumulate(idAmountDict, newPath, newStructurePath);
                         }
                     }

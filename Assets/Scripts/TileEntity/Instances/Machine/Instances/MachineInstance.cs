@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
         IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
-        IPlaceInitializable
+        IPlaceInitializable, IBluePrintPlaceInitializedTileEntity
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
         protected TRecipe currentRecipe;

@@ -22,7 +22,9 @@ using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles;
+using Tiles.Indicators;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 
 namespace Robot.Tool.Instances
@@ -30,7 +32,7 @@ namespace Robot.Tool.Instances
     public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
     {
         private LineRenderer lineRenderer;
-        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
+        public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
          
         }
@@ -73,19 +75,8 @@ namespace Robot.Tool.Instances
             }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            WorldTileGridMap worldTileGridMap = null;
-            switch (toolData.Layer)
-            {
-                case TileMapLayer.Base:
-                    worldTileGridMap = closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap;
-                    break;
-                case TileMapLayer.Background:
-                    worldTileGridMap = closedChunkSystem.GetTileMap(TileMapType.Background) as WorldTileGridMap;
-                    break;
-                default:
-                    break;
-            }
-
+            WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
+            
             bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Item_Magnet) == 0;
             
             if (!worldTileGridMap) return;
@@ -98,13 +89,13 @@ namespace Robot.Tool.Instances
             if (multiBreak == 0)
             {
                 TileItem tileItem = worldTileGridMap.getTileItem(mousePosition);
-                bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
+                bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
                 if (broken)
                 {
                     if (!drop && !DevMode.Instance.instantBreak)
                     {
                         List<ItemSlot> itemDrops = ItemSlotUtils.GetTileItemDrop(tileItem);
-                        PlayerManager.Instance.GetPlayer().PlayerInventory.GiveItems(itemDrops);
+                        playerScript.PlayerInventory.GiveItems(itemDrops);
                     }
                     TryVeinMine(worldTileGridMap, tileItem, drop, mousePosition, veinMinePower, drillPower);
                     
@@ -112,37 +103,59 @@ namespace Robot.Tool.Instances
                 return;
             }
 
-            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
+            PlayerInventory playerInventory = playerScript.PlayerInventory;
+            bool anyBroken = false;
             for (int x = -multiBreak; x <= multiBreak; x++)
             {
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
                     TileItem tileItem = worldTileGridMap.getTileItem(position);
-                    bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
+                    bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),false);
+                    if (broken) anyBroken = true;
                     if (broken && !drop)
                     {
                         playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(tileItem));
                     }
                 }
             }
-            
-            
+
+            if (anyBroken)
+            {
+                playerScript.PlayerMouse.UpdateOnToolChange();
+            }
+        }
+
+        private WorldTileGridMap GetWorldTileGridMap(ClosedChunkSystem closedChunkSystem)
+        {
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                    return closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap;
+                case TileMapLayer.Background:
+                    return closedChunkSystem.GetTileMap(TileMapType.Background) as WorldTileGridMap;
+                
+            }
+
+            return null;
         }
 
         private bool TryVeinMine(WorldTileGridMap worldTileGridMap, TileItem initialItem, bool drop, Vector2 mousePosition, int veinMinePower, int drillPower)
         {
             if (veinMinePower <= 1) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
-            IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower);
-            int? broken = veinMineEvent?.Execute(cellPosition, veinMinePower);
+            BlockVeinMineEvent blockVeinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower) as BlockVeinMineEvent;
+            int? broken = blockVeinMineEvent?.Execute(cellPosition, veinMinePower);
             if (broken < 1) return false;
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             if (!drop)
             {
-                List<ItemSlot> itemDrops = veinMineEvent?.GetCollectedItems();
-                PlayerManager.Instance.GetPlayer().PlayerInventory.GiveItems(itemDrops);
+                List<ItemSlot> itemDrops = blockVeinMineEvent?.GetCollectedItems();
+                playerScript.PlayerInventory.GiveItems(itemDrops);
             }
+            playerScript.TileViewers.TileBreakHighlighter.Clear();
 
+            
             return true;
         }
 
@@ -183,7 +196,76 @@ namespace Robot.Tool.Instances
         {
             return toolData?.Layer.ToString();
         }
-        
+
+        public override void Preview(Vector2Int cellPosition)
+        {
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                    PreviewBaseLayer(cellPosition);
+                    break;
+                case TileMapLayer.Background: // TODO
+                    break;
+            }
+        }
+
+        private void PreviewBaseLayer(Vector2Int cellPosition)
+        {
+            int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
+            float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
+            int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
+            
+            
+            int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
+            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
+            if (outlineDict == null)
+            {
+                tileBreakHighlighter.Clear();
+                return;
+            }
+            
+            tileBreakHighlighter.Display(outlineDict);
+        }
+
+        private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)
+        {
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
+            IOutlineTileGridMap outlineTileGridMap = worldTileGridMap as IOutlineTileGridMap;
+            if (outlineTileGridMap == null) return null;
+            
+            if (multiBreak == 0)
+            {
+                if (veinMinePower < 2) return null;
+                TileItem tileItem = worldTileGridMap.getTileItem(cellPosition);
+          
+                if (!tileItem) return null;
+         
+                IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, false, tileItem, drillPower);
+                HashSet<Vector2Int> brokenPositions = veinMineEvent.Preview(cellPosition, veinMinePower);
+                if (brokenPositions.Count == 1) return null;
+                Dictionary<Vector2Int, OutlineTileMapCellData> veinMineTiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
+                foreach (Vector2Int position in brokenPositions)
+                {
+                    veinMineTiles[position] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
+                }
+                return veinMineTiles;
+            }
+            
+            Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
+            for (int x = -multiBreak; x <= multiBreak; x++)
+            {
+                for (int y = -multiBreak; y <= multiBreak; y++)
+                {
+                    Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
+                    tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(breakPosition.x, breakPosition.y, 0));
+                }
+            }
+
+            return tiles;
+        }
+
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
             Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;

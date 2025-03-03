@@ -9,7 +9,7 @@ namespace Robot.Upgrades.Instances.VeinMine
         {
            
         }
-
+        
         protected override void InitialExpand(Vector2Int initial)
         {
             Expand(initial);

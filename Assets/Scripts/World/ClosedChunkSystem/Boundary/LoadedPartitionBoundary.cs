@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,9 +12,10 @@ namespace Chunks.Systems {
     {
         private Tilemap mTileMap;
         [SerializeField] private TileBase tile;
-        List<Vector3Int> directions;
-        private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>();
-        public void Start() {
+        private List<Vector3Int> directions;
+        private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>(512);
+        public void Initialize()
+        {
             mTileMap = gameObject.AddComponent<Tilemap>();
             if (Global.ShowSystemParameter) {
                 gameObject.AddComponent<TilemapRenderer>();
@@ -31,38 +33,37 @@ namespace Chunks.Systems {
                 Vector3Int.up
             };
         }
-
-        public void partitionLoaded(Vector2Int position) {
+        public void PartitionLoaded(Vector2Int position) {
             Vector3Int vec3 = (Vector3Int) position;
             mTileMap.SetTile(vec3,null);
             partitions.Add(vec3);
             foreach (Vector3Int direction in directions) {
-                onLoadCheck(vec3 + direction);
+                OnLoadCheck(vec3 + direction);
             }
         }
 
-        private void onLoadCheck(Vector3Int position) {
+        private void OnLoadCheck(Vector3Int position) {
             bool partitionLoaded = partitions.Contains(position);
             if (!partitionLoaded) {
                mTileMap.SetTile(position,tile); 
             }
         }
 
-        public void partitionUnloaded(Vector2Int position) {
+        public void PartitionUnloaded(Vector2Int position) {
             Vector3Int vec3 = (Vector3Int) position;
-            if (hasAdjacentPartition(vec3)) {
+            if (HasAdjacentPartition(vec3)) {
                 mTileMap.SetTile(vec3,tile);
             } 
             if (partitions.Contains(vec3)) {
                 partitions.Remove(vec3);
                 foreach (Vector3Int direction in directions) {
-                    onUnloadCheck(vec3 + direction);
+                    OnUnloadCheck(vec3 + direction);
                 }
             }
             
             
         }
-        private bool hasAdjacentPartition(Vector3Int position) {
+        private bool HasAdjacentPartition(Vector3Int position) {
             foreach (Vector3Int direction in directions) {
                 bool hasPartition = partitions.Contains(position+direction);
                 if (hasPartition) {
@@ -72,13 +73,13 @@ namespace Chunks.Systems {
             return false;
 
         }
-        private void onUnloadCheck(Vector3Int position) {
-            if (!hasAdjacentPartition(position)) {
+        private void OnUnloadCheck(Vector3Int position) {
+            if (!HasAdjacentPartition(position)) {
                 mTileMap.SetTile(position,null); 
             }
         }
 
-        public void reset() {
+        public void Reset() {
             partitions.Clear();
             mTileMap.ClearAllTiles();
         }

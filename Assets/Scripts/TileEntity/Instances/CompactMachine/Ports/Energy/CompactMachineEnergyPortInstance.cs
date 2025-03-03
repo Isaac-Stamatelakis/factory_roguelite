@@ -39,7 +39,7 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void OnBreak()
         {
-            compactMachineInstance?.RemovePort(tileEntityObject.PortType,GetConduitType());
+            compactMachineInstance?.RemovePort(tileEntityObject.PortType,GetConduitType(),GetCellPosition());
         }
 
         public ConduitPortLayout GetConduitPortLayout()
@@ -49,14 +49,19 @@ namespace TileEntity.Instances.CompactMachines {
     }
     public class CompactMachineEnergyPortInstance : CompactMachinePortInstance<CompactMachineEnergyPort>, ISerializableTileEntity, IEnergyConduitInteractable
     {
-        private ulong energy;
+        public ulong Energy;
         public CompactMachineEnergyPortInstance(CompactMachineEnergyPort tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
         
-        public ref ulong GetEnergy(Vector2Int portPosition)
+        public ulong GetEnergy(Vector2Int portPosition)
         {
-            return ref energy;
+            return Energy;
+        }
+
+        public void SetEnergy(ulong energy, Vector2Int portPosition)
+        {
+            Energy = energy;
         }
         
         /// <summary>
@@ -64,16 +69,16 @@ namespace TileEntity.Instances.CompactMachines {
         /// </summary>
         public ulong InsertEnergy(ulong insertEnergy, Vector2Int portPosition)
         {
-            if (this.energy > 0) {
+            if (this.Energy != 0) {
                 return 0;
             }   
-            this.energy = insertEnergy;
+            this.Energy = insertEnergy;
             return insertEnergy;
         }
 
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(energy);
+            return JsonConvert.SerializeObject(Energy);
         }
         
         public override ConduitType GetConduitType()
@@ -86,7 +91,7 @@ namespace TileEntity.Instances.CompactMachines {
             if (data == null) {
                 return;
             }
-            energy = JsonConvert.DeserializeObject<uint>(data);
+            Energy = JsonConvert.DeserializeObject<uint>(data);
         }
     }
 

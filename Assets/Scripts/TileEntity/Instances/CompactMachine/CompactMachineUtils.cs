@@ -40,43 +40,6 @@ namespace TileEntity.Instances.CompactMachines {
         }
         
 
-        /// </summary>
-        /// Maps a port inside a compact machine to its port on the compact machine tile entity
-        /// <summary>
-        public static Vector2Int GetPortPositionInLayout(Vector2Int relativePortPosition, ConduitPortLayout layout, ConduitType type) {
-            List<TileEntityPortData> possiblePorts = null;
-            switch (type) {
-                case ConduitType.Item:
-                    possiblePorts = layout.itemPorts;
-                    break;
-                case ConduitType.Energy:
-                    possiblePorts = layout.energyPorts;
-                    break;
-                case ConduitType.Fluid:
-                    possiblePorts = layout.fluidPorts;
-                    break;
-                case ConduitType.Signal:
-                    possiblePorts = layout.signalPorts;
-                    break;
-            }
-            float smallestDistance = float.PositiveInfinity;
-            TileEntityPortData closestPortData = null;
-            foreach (TileEntityPortData port in possiblePorts) {
-                // maps portData position to the center of its relative chunk (eg (1,1) -> (36,36))
-                Vector2 positionInSideCompactMachine =  (port.position + Vector2.one/2f) * (Global.CHUNK_SIZE); 
-                float dist = Vector2.Distance(positionInSideCompactMachine,relativePortPosition);
-                if (dist < smallestDistance) {
-                    smallestDistance = dist;
-                    closestPortData = port;
-                }
-            }
-            if (closestPortData == null) {
-                Debug.LogError("Could not find portData to map compact machine to");
-                return Vector2Int.zero;
-            }
-            return closestPortData.position;
-        }
-
         public static void InitalizeCompactMachineSystem(CompactMachineInstance compactMachine, List<Vector2Int> path) {
             string savePath = Path.Combine(GetPositionFolderPath(path),CONTENT_PATH);
             Directory.CreateDirectory(savePath);
@@ -277,6 +240,12 @@ namespace TileEntity.Instances.CompactMachines {
             byte[] metaDataBinary = WorldLoadUtils.CompressString(metaDataJson);
             string metaDataPath = Path.Combine(path, META_DATA_PATH);
             File.WriteAllBytes(metaDataPath, metaDataBinary);
+        }
+        
+        internal static void SaveMetaDataJsonFromHash(CompactMachineMetaData metaData, string hash)
+        {
+            string hashPath = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
+            SaveMetaDataJson(metaData, hashPath);
         }
         public static void InitializeCompactMachineFolder()
         {

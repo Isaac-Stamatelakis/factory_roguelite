@@ -10,12 +10,14 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using PlayerModule.IO;
+using PlayerModule.Mouse;
 using Robot.Upgrades;
 using Robot.Upgrades.LoadOut;
 using RobotModule;
 using TileMaps.Previewer;
 using Tiles;
 using Tiles.Highlight;
+using Tiles.Indicators;
 using UI.QuestBook;
 using UI.RingSelector;
 using UnityEngine;
@@ -28,6 +30,7 @@ namespace Player
         private PlayerInventory playerInventory;
         private PlayerRobot playerRobot;
         private PlayerIO playerIO;
+        private PlayerMouse playerMouse;
         [SerializeField] private ConduitPlacementOptions conduitPlacementOptions;
         [SerializeField] private PlayerTilePlacementOptions tilePlacementOptions;
         [SerializeField] private ConduitViewOptions conduitViewOptions;
@@ -45,6 +48,7 @@ namespace Player
         public PlayerUIPrefabs Prefabs => prefabs;
         public PlayerUIContainer PlayerUIContainer => playerUIContainer;
         public TileViewerCollection TileViewers => tileViewers;
+        public PlayerMouse PlayerMouse => playerMouse;
         
         public void Start()
         {
@@ -52,6 +56,7 @@ namespace Player
             playerInventory = GetComponent<PlayerInventory>();
             playerRobot = GetComponent<PlayerRobot>();
             playerIO = GetComponent<PlayerIO>();
+            playerMouse = GetComponent<PlayerMouse>();
         }
         
         public void Initialize()
@@ -82,6 +87,7 @@ namespace Player
         public TilePlacePreviewer TilePlacePreviewer;
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
+        public TileBreakHighlighter TileBreakHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
         public void SetPlacePreviewerState(bool state)
         {

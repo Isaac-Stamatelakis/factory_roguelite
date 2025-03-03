@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 using TileMaps.Type;
 using Conduits.Systems;
@@ -19,11 +20,29 @@ using TileEntity;
 using Items;
 using UnityEngine.AddressableAssets;
 using Dimensions;
+using JetBrains.Annotations;
 using Player;
 using Player.Controls;
 using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {
+    public class InvalidSystemException : Exception {
+        public InvalidSystemException()
+        {
+        }
+
+        protected InvalidSystemException([NotNull] SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        public InvalidSystemException(string message) : base(message)
+        {
+        }
+
+        public InvalidSystemException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
     public class ConduitTileClosedChunkSystem : ClosedChunkSystem
     {
         private List<SoftLoadedConduitTileChunk> unloadedChunks;
@@ -46,6 +65,10 @@ namespace Chunks.Systems {
         }
         
         public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, PlayerScript playerScript) {
+            if (coveredArea == null)
+            {
+                throw new InvalidSystemException($"Tried to initialize closed chunk system with '{inactiveClosedChunkSystem.Chunks.Count}' chunks");
+            }
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
             TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.LitMaterial);
             TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
@@ -109,6 +132,7 @@ namespace Chunks.Systems {
 
         public void OnDestroy()
         {
+            if (conduitSystemManagersDict == null) return;
             foreach (var conduitSystemManager in conduitSystemManagersDict.Values)
             {
                 conduitSystemManager.SetTileMap(null);

@@ -121,6 +121,9 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
                 }
                 tempCostDict[itemSlot.itemObject.id] = cost;
             }
+
+            metaData.Instances++;
+            CompactMachineUtils.SaveMetaDataJsonFromHash(metaData,bluePrinterInstance.BluePrintInventory.CurrentHash);
         }
 
         private bool CanOutput(ItemSlot outputSlot, string hash, string inputID)

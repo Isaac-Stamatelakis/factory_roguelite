@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using Player;
 using Player.Inventory;
 using Player.Tool;
+using PlayerModule.Mouse;
 using Robot;
 using Robot.Tool;
 using TileEntity;
@@ -24,10 +25,12 @@ namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
         public const int COLUMNS = 10;
-        [SerializeField] private PlayerRobot playerRobot;
+        
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
         private PlayerPickUp playerPickUp;
+        private PlayerRobot playerRobot;
+        private PlayerMouse playerMouse;
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private static int entityLayer;
         private int selectedSlot = 0;
@@ -49,6 +52,8 @@ namespace PlayerModule {
         {
             entityLayer = 1 << LayerMask.NameToLayer("Entity");
             playerPickUp = GetComponentInChildren<PlayerPickUp>();
+            playerRobot = GetComponent<PlayerRobot>();
+            playerMouse = GetComponent<PlayerMouse>();
         }
 
         public void Initialize(string json) {
@@ -102,6 +107,7 @@ namespace PlayerModule {
         public void ChangeSelectedTool(int index)
         {
             selectedTool = index;
+            playerMouse.UpdateOnToolChange();
             playerToolListUI.SetOffset(selectedTool);
         }
         

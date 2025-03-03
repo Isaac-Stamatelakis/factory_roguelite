@@ -28,7 +28,7 @@ namespace Robot.Tool.Instances
 {
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool
     {
-        public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut) : base(toolData, robotObject, loadOut)
+        public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
          
         }
@@ -64,7 +64,6 @@ namespace Robot.Tool.Instances
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             
             IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
             Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
@@ -129,6 +128,11 @@ namespace Robot.Tool.Instances
         public override string GetModeName()
         {
             return toolData?.Mode.ToString();
+        }
+
+        public override void Preview(Vector2Int cellPosition)
+        {
+            
         }
     }
 
