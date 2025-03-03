@@ -12,7 +12,6 @@ namespace Entities {
         private const int BLINK_RATE = 4;
         private const float BLINK_THRESHOLD = 10;
         private const float LIFE_SPAN = 300;
-        private const float MIN_MERGE_TIME = 1f;
         private const float MAX_FALL_SPEED = 10f;
         private bool firedDelayedCast = false;
         private SpriteRenderer spriteRenderer;
@@ -23,6 +22,8 @@ namespace Entities {
         private bool touchingBoundary = false;
         
         public float LifeTime {get{return lifeTime;}}
+
+        private const int CAST_RATE = 1;
 
         public override void initalize()
         {
@@ -74,6 +75,17 @@ namespace Entities {
                 perservedSpeed = rb.velocity.y;
             }
             IterateLifeTime();
+            if ((int)lifeTime % CAST_RATE == 0)
+            {
+                RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
+                foreach (RaycastHit2D leftHit in leftHits) {
+                    if (leftHit.collider.gameObject.Equals(gameObject)) continue;
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
+                    if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
+                    ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
+                    MergeItemEntities(leftEntity);
+                }
+            }
             ClampFallSpeed();
 
         }
@@ -106,16 +118,6 @@ namespace Entities {
             }
         }
         
-        public void OnTriggerEnter2D(Collider2D other)
-        {
-            if (other.gameObject.tag == "ItemEntity")
-            {
-                ItemEntity itemEntity = other.gameObject.GetComponentInParent<ItemEntity>();
-                TryMergeItemEntities(itemEntity);
-            }
-
-            
-        }
 
         public void OnCollisionEnter2D(Collision2D other)
         {
@@ -137,17 +139,6 @@ namespace Entities {
         }
         
 
-        private void TryMergeItemEntities(ItemEntity other)
-        {
-            if (lifeTime < MIN_MERGE_TIME)
-            {
-                StartCoroutine(DelayMergeCast(MIN_MERGE_TIME - lifeTime));
-                return;
-            }
-
-            MergeItemEntities(other);
-        }
-
         private void MergeItemEntities(ItemEntity other)
         {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
@@ -159,22 +150,7 @@ namespace Entities {
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) Destroy(other.gameObject);
         }
 
-        private IEnumerator DelayMergeCast(float delay)
-        {
-            if (firedDelayedCast) yield break;
-            firedDelayedCast = true;
-            yield return new WaitForSeconds(delay + 0.05f);
-            
-            RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
-            foreach (RaycastHit2D leftHit in leftHits) {
-                if (leftHit.collider.gameObject.Equals(gameObject)) continue;
-                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
-                if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
-                ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
-                MergeItemEntities(leftEntity);
-                
-            }
-        }
+        
 
         public static void SpawnFromData(Vector2 position, string data, Transform container)
         {

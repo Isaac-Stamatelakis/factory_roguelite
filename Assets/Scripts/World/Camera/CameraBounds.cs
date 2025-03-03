@@ -102,12 +102,12 @@ public class CameraBounds : MonoBehaviour
         } else {
             position.x = 0;
         }
-        bool outBottom = playerTransform.position.y - height/2 - yOffset < bounds.Y.LowerBound;
-        bool outTop = playerTransform.position.y + height/2 + yOffset > bounds.Y.UpperBound;
-        if (outTop) {
+        bool outTop = playerTransform.position.y - height/2 + yOffset < bounds.Y.LowerBound;
+        bool outBottom = playerTransform.position.y + height/2 + yOffset > bounds.Y.UpperBound;
+        if (outBottom) {
             position.y = bounds.Y.UpperBound-height/2 - playerTransform.position.y - yOffset;
-        } else if (outBottom) {
-            position.y = bounds.Y.LowerBound+height/2 - playerTransform.position.y + yOffset;
+        } else if (outTop) {
+            position.y = bounds.Y.LowerBound+height/2 - playerTransform.position.y - yOffset;
         } else {
             position.y = 0;
         }
