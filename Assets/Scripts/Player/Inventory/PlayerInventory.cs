@@ -107,6 +107,7 @@ namespace PlayerModule {
         public void ChangeSelectedTool(int index)
         {
             selectedTool = index;
+            playerMouse.UpdateOnToolChange();
             playerToolListUI.SetOffset(selectedTool);
         }
         

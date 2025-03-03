@@ -55,6 +55,7 @@ namespace Robot.Tool
             this.toolData = toolData;
             this.robotObject = robotObject;
             this.statLoadOutCollection = statLoadOutCollection;
+            this.playerScript = playerScript;
         }
         protected TData toolData;
         protected TObject robotObject;

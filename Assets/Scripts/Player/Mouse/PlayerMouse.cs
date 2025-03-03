@@ -219,7 +219,6 @@ namespace PlayerModule.Mouse {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
-            
         }
 
         private ConduitType? GetPortClickType()
@@ -381,36 +380,41 @@ namespace PlayerModule.Mouse {
                 }
             }
         }
+
+        public void UpdateOnToolChange()
+        {
+            ClearToolPreview();
+        }
+
+        public void ClearToolPreview()
+        {
+            previewController.ResetRecord();
+        }
     }
 
     internal class ToolPreviewController
     {
         private Vector2 lastMousePosition;
         private Vector2Int lastTilePosition;
-        private IRobotToolInstance lastTool;
+        
         public void Preview(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
         {
             if (robotToolInstance == null) return;
-            if (!Refresh(robotToolInstance,mousePosition)) return;
-            lastTool = robotToolInstance;
-            robotToolInstance.Preview(lastTilePosition);
-        }
-
-        private bool Refresh(IRobotToolInstance robotToolInstance, Vector2 mousePosition)
-        {
-            if (mousePosition == lastMousePosition) return false;
-            lastMousePosition = mousePosition;
+       
+            if (mousePosition == lastMousePosition) return;
             Vector2Int tilePosition = Global.getCellPositionFromWorld(mousePosition);
-            if (lastTilePosition == tilePosition) return false;
+            if (lastTilePosition == tilePosition) return;
+            
+            lastMousePosition = mousePosition;
             lastTilePosition = tilePosition;
-            return !ReferenceEquals(lastTool,robotToolInstance);
+            robotToolInstance.Preview(tilePosition);
         }
+        
 
         public void ResetRecord()
         {
             lastMousePosition = Vector2.negativeInfinity;
             lastTilePosition = Vector2Int.one * int.MaxValue;
-            lastTool = null;
         }
     }
 }

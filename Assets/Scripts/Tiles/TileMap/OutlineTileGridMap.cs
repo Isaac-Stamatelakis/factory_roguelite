@@ -8,9 +8,22 @@ using Tiles;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps {
+    public struct OutlineTileMapCellData
+    {
+        public TileBase Tile;
+        public TileBase OutlineTile;
+        public Quaternion OutlineRotation;
+
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion outlineRotation)
+        {
+            Tile = tile;
+            OutlineTile = outlineTile;
+            OutlineRotation = outlineRotation;
+        }
+    }
     public interface IOutlineTileGridMap
     {
-        public (TileBase, TileBase) GetTileOutlinePair(Vector3Int position);
+        public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
     }
     public class OutlineWorldTileGridMap : WorldTileGridMap, IOutlineTileGridMap
     {
@@ -81,14 +94,14 @@ namespace TileMaps {
                 return;
             }
             Matrix4x4 transformMatrix = outlineTileMap.GetTransformMatrix(vec3);
-            transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation),
-                Vector3.one);
+            transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation), Vector3.one);
             outlineTileMap.SetTransformMatrix(vec3,transformMatrix);
         }
 
-        public (TileBase, TileBase) GetTileOutlinePair(Vector3Int position)
+        public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            return (tilemap.GetTile(position),outlineTileMap.GetTile(position));
+            Quaternion rotation = outlineTileMap.GetTransformMatrix(position).rotation;
+            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),rotation);
         }
     }
 }
