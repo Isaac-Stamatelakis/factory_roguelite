@@ -24,11 +24,14 @@ namespace Robot.Upgrades
         }
         public override void SetAmountText()
         {
-            
             ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(robotUpgradeNode.NodeData.Cost[index]);
-            uint requiredAmount = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode) * itemSlot.amount;
+            uint multiplier = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode);
+            itemSlot.amount *= multiplier;
+            uint requiredAmount = itemSlot.amount;
             if (robotUpgradeNode.IsCompleted())
             {
+                float newAmount = requiredAmount / robotUpgradeNode.NodeData.CostMultiplier;
+                requiredAmount = (uint)newAmount; // Divide by amount since otherwise it will show cost of next upgrade instead of last, should probably cahnge this latter
                 gottenAmount = requiredAmount;
             }
             mBottomText.color = gottenAmount >= requiredAmount ? Color.green : Color.red;
@@ -56,8 +59,8 @@ namespace Robot.Upgrades
             {
                 gottenAmount = ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
             }
-            
-            gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
+            uint multiplier = RobotUpgradeUtils.GetRequireAmountMultiplier(robotUpgradeNode);
+            gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount*multiplier);
             Display(itemSlot);
         }
 

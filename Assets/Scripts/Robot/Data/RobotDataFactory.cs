@@ -59,9 +59,7 @@ namespace RobotModule {
             
             
             ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData, newUpgradeData);
-            RobotItemData robotItemData = new RobotItemData(
-                defaultToolData, null, robotObject.BaseHealth, 0
-            );
+            RobotItemData robotItemData = new RobotItemData(defaultToolData, new List<RobotUpgradeData>(), robotObject.BaseHealth, 0);
             Dictionary<ItemTag,object> dict = new Dictionary<ItemTag, object>();
             dict[ItemTag.RobotData] = robotItemData;
             ItemTagCollection itemTagCollection = new ItemTagCollection(

@@ -89,13 +89,8 @@ namespace TileEntity.Instances.Robot.Upgrader
             mToolInventoryUI.OverrideClickAction(OnToolClick);
            
             toolClickDataList = new List<UpgradeDisplayData>();
-            robotItemData.ToolData.Upgrades ??= new List<List<RobotUpgradeData>>();
             for (var index = 0; index < toolInstances.Count; index++)
             {
-                if (index >= robotItemData.ToolData.Upgrades.Count)
-                {
-                    robotItemData.ToolData.Upgrades.Add(new List<RobotUpgradeData>());
-                }
                 var upgradeData = robotItemData.ToolData.Upgrades[index];
                 var tool = toolInstances[index];
                 toolClickDataList.Add(new UpgradeDisplayData(tool.GetToolObject().UpgradePath, upgradeData));
