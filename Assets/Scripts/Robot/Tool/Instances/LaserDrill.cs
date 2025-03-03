@@ -199,7 +199,6 @@ namespace Robot.Tool.Instances
 
         public override void Preview(Vector2Int cellPosition)
         {
-            Debug.Log(cellPosition);
             switch (toolData.Layer)
             {
                 case TileMapLayer.Base:
@@ -216,31 +215,44 @@ namespace Robot.Tool.Instances
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
-            WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
-            if (multiBreak == 0)
+            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            Dictionary<Vector2Int, OutlineTileMapCellData> outlineDict = GetOutlineCellData(cellPosition,drillPower,multiBreak,veinMinePower);
+            if (outlineDict == null)
             {
-                /*
-                TileItem tileItem = worldTileGridMap.getTileItem(mousePosition);
-                bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier));
-                if (broken)
-                {
-                    if (!drop && !DevMode.Instance.instantBreak)
-                    {
-                        List<ItemSlot> itemDrops = ItemSlotUtils.GetTileItemDrop(tileItem);
-                        playerScript.PlayerInventory.GiveItems(itemDrops);
-                    }
-                    TryVeinMine(worldTileGridMap, tileItem, drop, mousePosition, veinMinePower, drillPower);
-                    
-                }
-                */
+                tileBreakHighlighter.Clear();
                 return;
             }
             
-            Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
+            tileBreakHighlighter.Display(outlineDict);
+        }
+
+        private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)
+        {
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
             IOutlineTileGridMap outlineTileGridMap = worldTileGridMap as IOutlineTileGridMap;
-            if (outlineTileGridMap == null) return;
+            if (outlineTileGridMap == null) return null;
+            
+            if (multiBreak == 0)
+            {
+                if (veinMinePower < 2) return null;
+                TileItem tileItem = worldTileGridMap.getTileItem(cellPosition);
+          
+                if (!tileItem) return null;
+         
+                IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, false, tileItem, drillPower);
+                HashSet<Vector2Int> brokenPositions = veinMineEvent.Preview(cellPosition, veinMinePower);
+                Dictionary<Vector2Int, OutlineTileMapCellData> veinMineTiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
+                foreach (Vector2Int position in brokenPositions)
+                {
+                    veinMineTiles[position] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(position.x, position.y,0));
+                }
+                return veinMineTiles;
+            }
+            
+            Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
             for (int x = -multiBreak; x <= multiBreak; x++)
             {
                 for (int y = -multiBreak; y <= multiBreak; y++)
@@ -249,8 +261,8 @@ namespace Robot.Tool.Instances
                     tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(breakPosition.x, breakPosition.y, 0));
                 }
             }
-            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
-            tileBreakHighlighter.Display(tiles);
+
+            return tiles;
         }
 
         private void UpdateLineRenderer(Vector2 mousePosition)
