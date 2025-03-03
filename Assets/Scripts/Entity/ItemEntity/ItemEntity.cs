@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -18,6 +19,8 @@ namespace Entities {
         private Rigidbody2D rb;
         [SerializeField] public ItemSlot itemSlot;
         [SerializeField] protected float lifeTime = 0f;
+        private float perservedSpeed = 0;
+        private bool touchingBoundary = false;
         
         public float LifeTime {get{return lifeTime;}}
 
@@ -66,6 +69,10 @@ namespace Entities {
 
         public virtual void FixedUpdate()
         {
+            if (!touchingBoundary)
+            {
+                perservedSpeed = rb.velocity.y;
+            }
             IterateLifeTime();
             ClampFallSpeed();
 
@@ -76,7 +83,7 @@ namespace Entities {
             SerializedItemEntityData serializedItemEntityData = new SerializedItemEntityData(
                 ItemSlotFactory.seralizeItemSlot(itemSlot),
                 rb.velocity.x,
-                rb.velocity.y
+                touchingBoundary ? perservedSpeed : rb.velocity.y
             );
             return new SeralizedEntityData(
                 type: EntityType.Item,
@@ -101,12 +108,35 @@ namespace Entities {
         
         public void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.gameObject.tag != "ItemEntity") return;
-        
-            ItemEntity itemEntity = other.gameObject.GetComponentInParent<ItemEntity>();
-            TryMergeItemEntities(itemEntity);
+            if (other.gameObject.tag == "ItemEntity")
+            {
+                ItemEntity itemEntity = other.gameObject.GetComponentInParent<ItemEntity>();
+                TryMergeItemEntities(itemEntity);
+            }
+
+            
+        }
+
+        public void OnCollisionEnter2D(Collision2D other)
+        {
+            if (other.gameObject.tag == "PartitionBoundary")
+            {
+                touchingBoundary = true;
+            }
+        }
+
+        public void OnCollisionExit2D(Collision2D other)
+        {
+            if (other.gameObject.tag == "PartitionBoundary")
+            {
+                var vector2 = rb.velocity;
+                vector2.y = perservedSpeed;
+                rb.velocity = vector2;
+                touchingBoundary = false;
+            }
         }
         
+
         private void TryMergeItemEntities(ItemEntity other)
         {
             if (lifeTime < MIN_MERGE_TIME)

@@ -160,7 +160,6 @@ namespace TileEntity.Instances.CompactMachines {
                 compactMachineData.Hash = CompactMachineUtils.GenerateHash();
                 CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
-            Debug.Log(compactMachineData.Hash);
         }
 
         public int GetSubSystems()
