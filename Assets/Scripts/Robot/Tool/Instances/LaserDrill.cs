@@ -112,9 +112,9 @@ namespace Robot.Tool.Instances
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
                     TileItem tileItem = worldTileGridMap.getTileItem(position);
                     bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),false);
+                    if (broken) anyBroken = true;
                     if (broken && !drop)
                     {
-                        anyBroken = true;
                         playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(tileItem));
                     }
                 }
@@ -244,6 +244,7 @@ namespace Robot.Tool.Instances
          
                 IVeinMineEvent veinMineEvent = GetVeinMineEvent(worldTileGridMap, false, tileItem, drillPower);
                 HashSet<Vector2Int> brokenPositions = veinMineEvent.Preview(cellPosition, veinMinePower);
+                if (brokenPositions.Count == 1) return null;
                 Dictionary<Vector2Int, OutlineTileMapCellData> veinMineTiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
                 foreach (Vector2Int position in brokenPositions)
                 {

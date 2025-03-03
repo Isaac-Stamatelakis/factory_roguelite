@@ -65,11 +65,11 @@ namespace TileEntity.Instances.CompactMachine.UI
         private void OnUnLock(CompactMachineMetaData metaData, CompactMachineInstance compactMachine, Action onHashChange)
         {
             string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
-            if (!File.Exists(hashPath)) return;
+            if (!Directory.Exists(hashPath)) return;
             if (metaData.Instances <= 1) // If instances less than one no need to store content data at hash
             {
                 string contentPath = Path.Combine(hashPath, CompactMachineUtils.CONTENT_PATH);
-                if (!File.Exists(contentPath)) return;
+                if (!Directory.Exists(contentPath)) return;
                 Directory.Delete(contentPath, true);
                 return;
             }

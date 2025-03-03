@@ -186,29 +186,38 @@ namespace Dimensions {
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)
         {
-            switch (controller)
+            try
             {
-                case ISingleSystemController singleSystemController:
+                switch (controller)
                 {
-                    var system = singleSystemController.GetActiveSystem();
-                    if (!system)
+                    case ISingleSystemController singleSystemController:
                     {
-                        system = singleSystemController.ActivateSystem(playerScript);
+                        var system = singleSystemController.GetActiveSystem();
+                        if (!system)
+                        {
+                            system = singleSystemController.ActivateSystem(playerScript);
+                        }
+                        return system;
                     }
-                    return system;
-                }
-                case IMultipleSystemController multipleSystemController:
-                {
-                    var system = multipleSystemController.GetActiveSystem(key);
-                    if (!system)
+                    case IMultipleSystemController multipleSystemController:
                     {
-                        system = multipleSystemController.ActivateSystem(key, playerScript);
+                        var system = multipleSystemController.GetActiveSystem(key);
+                        if (!system)
+                        {
+                            system = multipleSystemController.ActivateSystem(key, playerScript);
+                        }
+                        return system;
                     }
-                    return system;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
+            catch (InvalidSystemException invalidSystemException)
+            {
+                Debug.LogError(invalidSystemException.Message);
+                return null;
+            }
+            
         }
         public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
             DimController controller = GetDimController(dim);

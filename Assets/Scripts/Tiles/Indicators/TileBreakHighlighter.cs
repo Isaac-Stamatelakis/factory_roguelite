@@ -18,15 +18,30 @@ namespace Tiles.Indicators
             {
                 TileBase tile = outlineData.Tile;
                 TileBase outline = outlineData.OutlineTile;
-                if (!tile || !outline) continue;
+                if (!tile) continue;
                 
                 Vector3Int tilePosition = new Vector3Int(position.x, position.y, 0);
                 mTilemap.SetTile(tilePosition,tile);
+                if (!outline)
+                {
+                    Debug.Log("HI");
+                    mOutlineTilemap.SetTile(tilePosition,tile);
+                    Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
+                    matrix4X4.SetTRS(Vector3.zero,outlineData.OutlineRotation,1.1f * Vector3.one);
+                    mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
+                }
+                else
+                {
+                    mOutlineTilemap.SetTile(tilePosition,outline);
+                    Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
+                    matrix4X4.SetTRS(Vector3.zero,outlineData.OutlineRotation,Vector3.one);
+                    mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
+                }
                 
-                mOutlineTilemap.SetTile(tilePosition,outline);
-                Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
-                matrix4X4.SetTRS(Vector3.zero,outlineData.OutlineRotation,Vector3.one);
-                mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
+                
+                
+                
+                
             }
         }
 
