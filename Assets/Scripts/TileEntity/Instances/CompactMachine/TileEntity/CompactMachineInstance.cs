@@ -61,6 +61,26 @@ namespace TileEntity.Instances.CompactMachines {
             bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
             return new CompactMachineTeleportKey(path,locked);
         }
+
+        public IChunkSystem GetCompactMachineSystem()
+        {
+            CompactMachineTeleportKey key = GetTeleportKey();
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager)
+            {
+                return null;
+            }
+            return compactMachineDimManager.GetCompactMachineDimController().GetSystem(key.Path);
+        }
+
+        public void SaveSystem()
+        {
+            CompactMachineTeleportKey key = GetTeleportKey();
+            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager)
+            {
+                return;
+            }
+            compactMachineDimManager.GetCompactMachineDimController().SaveTree(key.Path);
+        }
         public ConduitPortLayout GetConduitPortLayout()
         {
             return TileEntityObject.ConduitPortLayout;
@@ -117,17 +137,8 @@ namespace TileEntity.Instances.CompactMachines {
 
         public void PlaceInitializeWithHash(string newHash)
         {
-            compactMachineData.Active = true;
-            bool hashNull = newHash == null;
-            if (hashNull || !CompactMachineUtils.HashExists(newHash))
-            {
-                compactMachineData = new CompactMachineData(true, CompactMachineUtils.GenerateHash());
-                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
-            }
-            else
-            {
-                compactMachineData.Hash = newHash;
-            }
+            compactMachineData = new CompactMachineData(true, newHash);
+            
             if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager) {
                 Debug.LogError("Tried to create compact machine in invalid dimension");
                 return;
@@ -140,16 +151,16 @@ namespace TileEntity.Instances.CompactMachines {
                 Debug.LogError("Tried to load compact machine with null key");
                 return;
             }
-            if (!dimController.HasSystem(thisKey)) {
-                if (hashNull)
-                {
-                    dimController.AddNewSystem(thisKey,this, null);
-                }
-                else
-                {
-                    dimController.AddNewSystem(thisKey,this, compactMachineData.Hash);
-                }
+
+            if (dimController.HasSystem(thisKey)) return;
+            
+            dimController.AddNewSystem(thisKey, this, newHash, true);
+            if (newHash == null || !CompactMachineUtils.HashExists(newHash) || DevMode.Instance.noPlaceCost)
+            {
+                compactMachineData.Hash = CompactMachineUtils.GenerateHash();
+                CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
+            Debug.Log(compactMachineData.Hash);
         }
 
         public int GetSubSystems()
@@ -190,7 +201,7 @@ namespace TileEntity.Instances.CompactMachines {
             CompactMachineTeleportKey key = GetTeleportKey();
             if (active)
             {
-                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash);
+                compactMachineDimManager.GetCompactMachineDimController().AddNewSystem(key, this, compactMachineData.Hash,false);
             }
             else
             {

@@ -132,6 +132,7 @@ namespace Chunks.Systems {
 
         public void OnDestroy()
         {
+            if (conduitSystemManagersDict == null) return;
             foreach (var conduitSystemManager in conduitSystemManagersDict.Values)
             {
                 conduitSystemManager.SetTileMap(null);

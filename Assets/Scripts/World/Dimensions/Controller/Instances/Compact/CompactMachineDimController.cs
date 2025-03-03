@@ -119,6 +119,12 @@ namespace Dimensions {
             
         }
 
+
+
+        public void SaveTree(List<Vector2Int> path)
+        {
+            SaveTree(systemTree.GetTree(path));
+        }
         private void SaveTree(CompactMachineTree compactMachineTree)
         {
             if (compactMachineTree?.System == null) return;
@@ -195,7 +201,7 @@ namespace Dimensions {
         /// Null path means that 
         /// </summary>
         
-        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine, string hash) {
+        public void AddNewSystem(CompactMachineTeleportKey key, CompactMachineInstance compactMachine, string hash, bool blueprint) {
             List<Vector2Int> systemPath = key.Path;
             List<Vector2Int> parentPath = new List<Vector2Int>();
             for (int i = 0; i < systemPath.Count-1; i++) {
@@ -203,7 +209,6 @@ namespace Dimensions {
             }
             Vector2Int placePosition = systemPath.Last();
             CompactMachineTree parentTree = systemTree.GetTree(parentPath);
-            bool blueprinted = true; // temp
             
             if (CompactMachineUtils.HashExists(hash))
             {
@@ -222,7 +227,7 @@ namespace Dimensions {
             systems.Add(newSystem);
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
 
-            LoadCompactMachineSystem(newTree, path, blueprinted);
+            LoadCompactMachineSystem(newTree, path, blueprint);
            
         }
 
@@ -305,8 +310,15 @@ namespace Dimensions {
                     }
                 }
             }
-            
         }
+
+        public IChunkSystem GetSystem(List<Vector2Int> path)
+        {
+            CompactMachineTree node = systemTree.GetTree(path);
+            return node.System;
+        }
+        
+        
 
         private class CompactMachineTree {
             public SoftLoadedClosedChunkSystem System;

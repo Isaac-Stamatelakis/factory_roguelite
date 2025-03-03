@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using Chunks;
+using Chunks.Systems;
 using Dimensions;
 using TileEntity.Instances.CompactMachines;
 using TMPro;
@@ -30,35 +32,34 @@ namespace TileEntity.Instances.CompactMachine.UI
                 mStatusReasonText.text = "Reason: Parent Locked";
                 SetLockText(true);
                 SetActiveText(compactMachine.IsActive);
+                return;
             }
-            else
+            mStatusText.text = "Editable";
+            mStatusReasonText.gameObject.SetActive(false);
+            SetLockText(this.metaData.Locked);
+            mLockButton.onClick.AddListener(() =>
             {
-                mStatusText.text = "Editable";
-                mStatusReasonText.gameObject.SetActive(false);
+                this.metaData.Locked = !this.metaData.Locked;
+                if (!this.metaData.Locked)
+                {
+                    OnUnLock(metaData, compactMachine, onHashChange);
+                }
+                else
+                {
+                    compactMachine.SaveSystem();
+                    string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+                    string dimPath = CompactMachineUtils.GetPositionFolderPath(compactMachine.GetTeleportKey().Path);
+                    GlobalHelper.CopyDirectory(dimPath, hashPath);
+                }
                 SetLockText(this.metaData.Locked);
-                mLockButton.onClick.AddListener(() =>
-                {
-                    this.metaData.Locked = !this.metaData.Locked;
-                    if (!this.metaData.Locked)
-                    {
-                        OnUnLock(metaData, compactMachine, onHashChange);
-                    }
-                    else
-                    {
-                        string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
-                        string dimPath = CompactMachineUtils.GetPositionFolderPath(compactMachine.GetTeleportKey().Path);
-                        GlobalHelper.CopyDirectory(dimPath, hashPath);
-                    }
-                    SetLockText(this.metaData.Locked);
-                    onStatusChange.Invoke();
-                });
-                mActivateButton.onClick.AddListener(() =>
-                {
-                    compactMachine.SetActive(!compactMachine.IsActive);
-                    SetActiveText(compactMachine.IsActive);
-                    onStatusChange.Invoke();
-                });
-            }
+                onStatusChange.Invoke();
+            });
+            mActivateButton.onClick.AddListener(() =>
+            {
+                compactMachine.SetActive(!compactMachine.IsActive);
+                SetActiveText(compactMachine.IsActive);
+                onStatusChange.Invoke();
+            });
             
         }
 
@@ -66,13 +67,18 @@ namespace TileEntity.Instances.CompactMachine.UI
         {
             string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
             if (!Directory.Exists(hashPath)) return;
+            Debug.Log(metaData.Instances);
             if (metaData.Instances <= 1) // If instances less than one no need to store content data at hash
             {
-                string contentPath = Path.Combine(hashPath, CompactMachineUtils.CONTENT_PATH);
-                if (!Directory.Exists(contentPath)) return;
-                Directory.Delete(contentPath, true);
+                string[] directories = Directory.GetDirectories(hashPath);
+                foreach (string directory in directories)
+                {
+                    Directory.Delete(directory, true);
+                }
+                
                 return;
             }
+            Debug.Log("Instance reduced");
             // If a compact machine is blue printed and unlocked, must create a hash instance for it.
             this.metaData.Instances--;
             CompactMachineUtils.SaveMetaDataJson(this.metaData,hashPath);
