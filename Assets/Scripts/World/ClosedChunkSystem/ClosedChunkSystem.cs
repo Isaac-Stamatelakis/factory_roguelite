@@ -115,13 +115,12 @@ namespace Chunks.Systems {
             return tileGridMaps.GetValueOrDefault(tileMapType);
         }
 
-        public void InitalizeMiscObjects(DimensionObjects dimensionObjects) {
-            this.loadedPartitionBoundary = dimensionObjects.loadedPartitionBoundary;
-            dimensionObjects.loadedPartitionBoundary.transform.SetParent(transform,false);
-            loadedPartitionBoundary.reset();
-
-            this.breakIndicator = dimensionObjects.tileBreakIndicator;
-            dimensionObjects.tileBreakIndicator.transform.SetParent(transform,false);
+        public void InitalizeMiscObjects(DimensionObjects dimensionObjects)
+        {
+            this.loadedPartitionBoundary = Instantiate(dimensionObjects.loadedPartitionBoundary, transform, false);
+            loadedPartitionBoundary.Initialize();
+            
+            this.breakIndicator = Instantiate(dimensionObjects.tileBreakIndicator, transform, false);
         }
         
         public void InitalizeObject(DimController dimController, IntervalVector coveredArea, int dim) {
@@ -281,7 +280,7 @@ namespace Chunks.Systems {
         }
 
         public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
-            loadedPartitionBoundary.partitionLoaded(chunkPartition.GetRealPosition());
+            loadedPartitionBoundary.PartitionLoaded(chunkPartition.GetRealPosition());
             yield return chunkPartition.Load(tileGridMaps,direction);
             chunkPartition.SetTileLoaded(true);
         }
@@ -300,7 +299,7 @@ namespace Chunks.Systems {
         
         public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.UnloadEntities();
-            loadedPartitionBoundary.partitionUnloaded(chunkPartition.GetRealPosition());
+            loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
             breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
             chunkPartition.SetTileLoaded(false);
