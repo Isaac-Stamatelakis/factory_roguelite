@@ -21,7 +21,7 @@ namespace UI.QuestBook {
         public void init(List<int> nodeConnections, QuestBookNode node) {
             this.node = node;
             this.nodeConnections = nodeConnections;
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.NodeData.ImageSeralizedItemSlot?.id);
             mImage.sprite = itemObject?.getSprite();
             nameText.text = node.Content.Title;
             idText.text = "#" + node.Id.ToString();

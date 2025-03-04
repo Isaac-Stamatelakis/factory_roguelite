@@ -4,31 +4,36 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.QuestBook {
-    public class CheckMarkTaskUI : QuestBookTaskUI<CheckMarkQuestTask>
+    public class CheckMarkQuestData : QuestBookTaskData
+    {
+        
+    }
+    public class CheckMarkTaskUI : MonoBehaviour
     {
         [SerializeField] private Button button;
         [SerializeField] private Image buttonImage;
         [SerializeField] private Sprite[] checkMarkSprites;
-        private CheckMarkQuestTask checkMarkQuestTask;
-        private QuestBookTaskPageUI questBookPageUI;
-        public override void init(CheckMarkQuestTask checkMarkQuestTask, QuestBookTaskPageUI questBookUI) {
-            this.checkMarkQuestTask = checkMarkQuestTask;
-            button.onClick.AddListener(CheckClick);
-            questBookPageUI = questBookUI;
-            SetImage();
-        }
-
+        private QuestBookTaskData taskData;
+        private QuestBookTaskPageUI questBookUI;
         private void CheckClick()
         {
-            if (checkMarkQuestTask.Clicked && !QuestBookUtils.EditMode) return;
-            checkMarkQuestTask.Clicked = !checkMarkQuestTask.Clicked;   
-            questBookPageUI.OnTaskStatusChanged();
+            if (taskData.Complete && !QuestBookUtils.EditMode) return;
+            taskData.Complete = true; 
+            questBookUI.OnTaskStatusChanged();
             SetImage();
         }
 
         private void SetImage() {
-            int index = checkMarkQuestTask.Clicked ? 1 : 0;
+            int index = taskData.Complete ? 1 : 0;
             buttonImage.sprite = checkMarkSprites[index];
+        }
+        
+        public void Display(QuestBookTaskPageUI questBookUI, QuestBookTaskData taskData)
+        {
+            button.onClick.AddListener(CheckClick);
+            this.questBookUI = questBookUI;
+            this.taskData = taskData;
+            SetImage();
         }
     }
 }

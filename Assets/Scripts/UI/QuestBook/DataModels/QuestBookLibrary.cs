@@ -117,18 +117,18 @@ namespace UI.QuestBook {
             );
         }
 
-        public static QuestBookLibrary Deseralize(string json) {
+        public static QuestBookLibrary Deserialize(string json) {
             SerializedQuestBookLibrary serializedQuestBookLibrary = JsonConvert.DeserializeObject<SerializedQuestBookLibrary>(json);
             List<QuestBook> questBooks = new List<QuestBook>();
             foreach (SerializedQuestBook serializedQuestBook in serializedQuestBookLibrary.books) {
-                questBooks.Add(DeseralizeBook(serializedQuestBook));
+                questBooks.Add(DeserializeBook(serializedQuestBook));
             }
             return new QuestBookLibrary(
                 questBooks
             );
         }
 
-        private static QuestBook DeseralizeBook(SerializedQuestBook serializedQuestBook) {
+        private static QuestBook DeserializeBook(SerializedQuestBook serializedQuestBook) {
             List<QuestBookPage> pages = new List<QuestBookPage>();
             foreach (SerializedQuestBookPage page in serializedQuestBook.pages) {
                 pages.Add(DeseralizePage(page));
@@ -201,46 +201,30 @@ namespace UI.QuestBook {
                 this.nodes = nodes;
             }
         }
+        
+        private class SerializedQuestBookNode
+        {
+            public QuestBookNodeData QuestBookNodeData;
+            public SerializedQuestBookTaskData SerializedQuestBookTaskData;
 
-        private class SerializedQuestBookNode {
-            public List<int> connections;
-            public string serializedItemImage;
-            public float x;
-            public float y;
-            public int id;
-            public SerializedQuestBookContent content;
-            public bool requireAllPrerequisites;
-
-            public SerializedQuestBookNode(float x, float y, string serializedItemImage, SerializedQuestBookContent content, List<int> connections, int id, bool requireAllPrerequisites) {
-                this.x = x;
-                this.y = y;
-                this.serializedItemImage = serializedItemImage;
-                this.connections = connections;
-                this.content = content;
-                this.id = id;
-                this.requireAllPrerequisites = requireAllPrerequisites;
+            public SerializedQuestBookNode(QuestBookNodeData questBookNodeData, SerializedQuestBookTaskData serializedQuestBookTaskData) {
+                this.QuestBookNodeData = questBookNodeData;
+                this.SerializedQuestBookTaskData = serializedQuestBookTaskData;
+                
             }
         }
 
-        private class SerializedQuestBookContent {
-            public string task;
-            public string description;
-            public string title;
-            public int numberOfRewards;
-            public QuestBookItemRewards ItemRewards;
-            public QuestBookCommandRewards CommandRewards;
-            public QuestBookNodeSize Size;
-            public SerializedQuestBookContent(string task, string description, string title,
-                QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards, QuestBookNodeSize size) {
-                this.task = task;
-                this.description = description;
-                this.title = title;
-                this.ItemRewards = itemRewards;
-                this.CommandRewards = commandRewards;
-                this.Size = size;
+        private class SerializedQuestBookTaskData
+        {
+            public QuestTaskType QuestTaskType;
+            public string TaskData;
+
+            public SerializedQuestBookTaskData(QuestTaskType questTaskType, string taskData)
+            {
+                QuestTaskType = questTaskType;
+                TaskData = taskData;
             }
         }
-    
     }
 
 }

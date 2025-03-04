@@ -6,50 +6,63 @@ using Newtonsoft.Json;
 using UI.NodeNetwork;
 
 namespace UI.QuestBook {
-    public class QuestBookNode : INode
+    public class QuestBookNodeData
     {
         public List<int> Prerequisites;
         public SerializedItemSlot ImageSeralizedItemSlot;
         public float X;
         public float Y;
+        public bool RequireAllPrerequisites;
         public int Id;
         public QuestBookNodeContent Content;
-        public bool RequireAllPrerequisites;
+    }
 
-        public QuestBookNode(Vector2 position, SerializedItemSlot serializedItemSlot, QuestBookNodeContent content, List<int> prerequisites, int id, bool requireAllPrerequisites) {
-            this.X = position.x;
-            this.Y = position.y;
-            this.ImageSeralizedItemSlot = serializedItemSlot;
-            this.Prerequisites = prerequisites;
-            this.Content = content;
-            this.Id = id;
-            this.RequireAllPrerequisites = requireAllPrerequisites;
+    public interface ICompletionCheckQuest
+    {
+        public bool CheckCompletion();
+    }
+    
+    public abstract class QuestBookTaskData
+    {
+        public bool Complete;
+    }
+    public class QuestBookNode : INode
+    {
+        public QuestBookNodeData NodeData;
+        public QuestBookTaskData TaskData;
+
+        [JsonIgnore] public QuestBookNodeContent Content => NodeData.Content;
+        [JsonIgnore] public int Id => NodeData.Id;
+        
+        public QuestBookNode(QuestBookNodeData nodeData, QuestBookTaskData taskData) {
+            this.NodeData = nodeData;
+            this.TaskData = taskData;
         }
 
         public Vector3 GetPosition()
         {
-            return new Vector3(X,Y,0);
+            return new Vector3(NodeData.X,NodeData.Y,0);
         }
 
         public void SetPosition(Vector3 pos)
         {
-            X = pos.x;
-            Y = pos.y;
+            NodeData.X = pos.x;
+            NodeData.Y = pos.y;
         }
 
         public int GetId()
         {
-            return Id;
+            return NodeData.Id;
         }
 
         public List<int> GetPrerequisites()
         {
-            return Prerequisites;
+            return NodeData.Prerequisites;
         }
 
         public bool IsCompleted()
         {
-            return Content?.Task?.IsComplete() ?? false;
+            return TaskData?.Complete ?? false;
         }
     }
 }

@@ -6,23 +6,14 @@ using TMPro;
 using UnityEngine.Serialization;
 
 namespace UI.QuestBook {
-    public class ItemQuestTaskUI : QuestBookTaskUI<ItemQuestTask>
+    public class ItemQuestTaskUI : MonoBehaviour
     {
         [SerializeField] private VerticalLayoutGroup mItemList;
         [FormerlySerializedAs("addButton")] [SerializeField] private Button mAddButton;
         [SerializeField] private ItemQuestItemElement itemQuestItemPrefab;
         public QuestBookTaskPageUI QuestBookTaskPageUI;
         private ItemQuestTask task;
-        public override void init(ItemQuestTask task, QuestBookTaskPageUI questBookTaskPageUI)
-        {
-            this.QuestBookTaskPageUI = questBookTaskPageUI;
-            this.task = task;
-            
-            mAddButton.onClick.AddListener(AddItem);
-            mAddButton.gameObject.SetActive(QuestBookUtils.EditMode);
-            Display();
-        }
-
+        private ItemQuestTaskData taskData;
         public void Display() {
             for (int i = 0; i < mItemList.transform.childCount; i++) {
                 GameObject.Destroy(mItemList.transform.GetChild(i).gameObject);
@@ -40,8 +31,17 @@ namespace UI.QuestBook {
 
         private void AddItem() {
             task.Items.Add(new SerializedItemSlot("stone",1,null));
-            task.GottenAmounts.Add(0);
-            task.SetCompletion(false);
+            Display();
+        }
+
+        public void Display(QuestBookTaskPageUI questBookUI, ItemQuestTask contentData, ItemQuestTaskData taskData)
+        {
+            this.QuestBookTaskPageUI = questBookUI;
+            this.task = contentData;
+            this.taskData = taskData;
+            
+            mAddButton.onClick.AddListener(AddItem);
+            mAddButton.gameObject.SetActive(QuestBookUtils.EditMode);
             Display();
         }
     }

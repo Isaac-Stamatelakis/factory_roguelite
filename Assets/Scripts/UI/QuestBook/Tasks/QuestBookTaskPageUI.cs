@@ -27,7 +27,10 @@ namespace UI.QuestBook {
         [SerializeField] private Button mEditSizeButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
         [SerializeField] private Image mSelectTaskDownArrowImage;
-        public QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
+        public QuestBookNodeContent Content
+        {
+            get => node.Content;
+        }
         private QuestBookPageUI questBookPageUI;
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
@@ -94,18 +97,18 @@ namespace UI.QuestBook {
                 }); 
                 mEditImageButton.onClick.AddListener(() => {
                     SerializedItemSlotEditorUI serializedItemSlotEditor = AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    if (node.ImageSeralizedItemSlot == null)
+                    if (node.NodeData.ImageSeralizedItemSlot == null)
                     {
-                        node.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
+                        node.NodeData.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
                     }
 
                     void Callback(SerializedItemSlot itemSlot) // Experimenting with inline function definitions
                     {
-                        node.ImageSeralizedItemSlot = itemSlot;
+                        node.NodeData.ImageSeralizedItemSlot = itemSlot;
                         questBookPageUI.Display();
                     }
 
-                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,
+                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.NodeData.ImageSeralizedItemSlot},0,null,
                         gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 
@@ -133,10 +136,10 @@ namespace UI.QuestBook {
         }
         private void CheckTask()
         {
-            var task = Content.Task;
+            if (node.TaskData == null) return;
             if (!QuestBookUtils.EditMode)
             {
-                if (task is ICompletionCheckQuest completionCheckQuest)
+                if (node.TaskData is ICompletionCheckQuest completionCheckQuest)
                 {
                     bool updated = completionCheckQuest.CheckCompletion();
                     if (updated)
@@ -147,7 +150,7 @@ namespace UI.QuestBook {
             }
             else
             {
-                task.SetCompletion(!task.IsComplete());
+                node.TaskData.Complete = !node.TaskData.Complete;
             }
             
 
@@ -157,13 +160,13 @@ namespace UI.QuestBook {
         private void UpdateSubmissionButton()
         {
             
-            var task = Content.Task;
-            if (task is not ICompletionCheckQuest)
+            if (node.TaskData is not ICompletionCheckQuest)
             {
                 mCheckSubmissionButton.gameObject.SetActive(false);
                 return;
             }
-            var complete = task.IsComplete();
+
+            var complete = node.TaskData.Complete;
             mCheckSubmissionButton.interactable = !complete || QuestBookUtils.EditMode;
             mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
                 complete ? "Quest Completed" : "Check Submission";

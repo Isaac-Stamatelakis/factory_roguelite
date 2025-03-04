@@ -13,7 +13,6 @@ namespace Entities {
         private const float BLINK_THRESHOLD = 10;
         private const float LIFE_SPAN = 300;
         private const float MAX_FALL_SPEED = 10f;
-        private bool firedDelayedCast = false;
         private SpriteRenderer spriteRenderer;
         private Rigidbody2D rb;
         [SerializeField] public ItemSlot itemSlot;

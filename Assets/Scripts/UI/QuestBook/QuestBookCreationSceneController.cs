@@ -23,7 +23,7 @@ namespace UI.QuestBook {
             }
             try
             {
-                library = QuestBookLibraryFactory.Deseralize(json);
+                library = QuestBookLibraryFactory.Deserialize(json);
             } catch (Exception e)  {
                 Debug.LogError(e);
                 library = null;

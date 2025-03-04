@@ -4,27 +4,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace UI.QuestBook {
-    public abstract class QuestBookTaskUI<Task> : MonoBehaviour where Task : QuestBookTask
+    public abstract class QuestBookTaskUI<TTaskContentData, TTaskData> : MonoBehaviour where TTaskContentData : QuestBookTask where TTaskData : QuestBookTaskData
     {
-        public abstract void init(Task task, QuestBookTaskPageUI taskPageUI);
+        public abstract void Display(QuestBookTaskPageUI questBookUI, TTaskContentData contentData, TTaskData taskData);
     }
 
     public static class QuestBookTaskUIFactory {
-        public static GameObject getContent(QuestBookTask task, QuestBookTaskPageUI taskPageUI) {
+        public static GameObject getContent(QuestBookTask task, QuestBookTaskData taskData, QuestBookTaskPageUI taskPageUI) {
             QuestTaskType taskType = task.GetTaskType();
             UIAssetManager assetManager = taskPageUI.QuestBookPageUI.QuestBookUI.AssetManager;
             switch (taskType) {
                 case QuestTaskType.Item:
                     ItemQuestTaskUI itemQuestTaskUI = assetManager.cloneElement<ItemQuestTaskUI>("ITEM_TASK");
-                    itemQuestTaskUI.init((ItemQuestTask)task,taskPageUI);
+                    itemQuestTaskUI.Display(taskPageUI,(ItemQuestTask)task,(ItemQuestTaskData)taskData);
                     return itemQuestTaskUI.gameObject;
                 case QuestTaskType.Checkmark:
                     CheckMarkTaskUI checkMarkTaskUI = assetManager.cloneElement<CheckMarkTaskUI>("CHECKMARK_TASK");
-                    checkMarkTaskUI.init((CheckMarkQuestTask)task,taskPageUI);
+                    checkMarkTaskUI.Display(taskPageUI,taskData);
                     return checkMarkTaskUI.gameObject;
                 case QuestTaskType.Dimension:
                     VisitDimensionTaskUI visitDimensionTaskUI = assetManager.cloneElement<VisitDimensionTaskUI>("DIM_TASK");
-                    visitDimensionTaskUI.init((VisitDimensionQuestTask)task,taskPageUI);
+                    visitDimensionTaskUI.Display(taskPageUI,(VisitDimensionQuestTask)task,taskData);
                     return visitDimensionTaskUI.gameObject;
             }
             return null;

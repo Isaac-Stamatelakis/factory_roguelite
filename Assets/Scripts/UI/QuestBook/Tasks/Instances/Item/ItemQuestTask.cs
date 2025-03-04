@@ -5,53 +5,19 @@ using PlayerModule;
 using UnityEngine;
 
 namespace UI.QuestBook {
-    public class ItemQuestTask : QuestBookTask, ICompletionCheckQuest
+    public class ItemQuestTask : QuestBookTask
     {
-        private List<SerializedItemSlot> items;
-        private List<uint> gottenAmounts;
-
-        public List<SerializedItemSlot> Items { get => items; set => items = value; }
-        public List<uint> GottenAmounts { get => gottenAmounts; set => gottenAmounts = value; }
-
-        public override bool IsComplete()
-        {
-            for (int i = 0; i < gottenAmounts.Count; i++) {
-                if (gottenAmounts[i] < items[i].amount) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        public ItemQuestTask() {
-            this.items = new List<SerializedItemSlot>();
-            this.gottenAmounts = new List<uint>();
-        }
-
+        public List<SerializedItemSlot> Items;
         public override QuestTaskType GetTaskType()
         {
             return QuestTaskType.Item;
         }
+    }
 
-        public override void SetCompletion(bool state)
-        {
-            while (gottenAmounts.Count > items.Count) {
-                gottenAmounts.RemoveAt(gottenAmounts.Count-1);
-            }
-            while (gottenAmounts.Count < items.Count) {
-                gottenAmounts.Add(0);
-            }
-            
-            for (int i = 0; i < items.Count; i++) {
-                if (state)
-                {
-                    gottenAmounts[i] = items[i].amount;
-                }
-                else
-                {
-                    gottenAmounts[i] = 0;
-                }
-            }
-        }
+    public class ItemQuestTaskData : QuestBookTaskData
+    {
+        public List<SerializedItemSlot> Items;
+       /*
         
         public bool CheckCompletion()
         {
@@ -65,9 +31,10 @@ namespace UI.QuestBook {
                 uint amount = ItemSlotUtils.AmountOf(itemSlot, playerInventory.Inventory);
                 if (amount > gottenAmounts[i]) gottenAmounts[i] = amount;
             }
-
             return complete != IsComplete(); // Return true if value is changed
         }
+        */
+        
     }
 }
 

@@ -49,7 +49,7 @@ namespace UI.QuestBook {
             Dictionary<int, QuestBookNode> idNodeMap = questBookPageUI.Library.IdNodeMap;
 
             // DisplayNewElement nodes in connections first so they are easier to remove
-            foreach (int id in node.Prerequisites) {
+            foreach (int id in node.GetPrerequisites()) {
                 if (nodeMatchSearch(idNodeMap[id],currentSearch)) {
                     displayConnection(id);
                     displayed.Add(id);
@@ -83,7 +83,7 @@ namespace UI.QuestBook {
 
         private void displayConnection(int id) {
             ConnectionElementUI connectionElementUI = GameObject.Instantiate(connectionElementUIPrefab);
-            connectionElementUI.init(node.Prerequisites,questBookPageUI.Library.GetNode(id));
+            connectionElementUI.init(node.GetPrerequisites(),questBookPageUI.Library.GetNode(id));
             connectionElementUI.transform.SetParent(connectionList.transform,false);
         }
     }

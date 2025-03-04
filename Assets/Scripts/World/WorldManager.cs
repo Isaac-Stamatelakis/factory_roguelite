@@ -62,7 +62,7 @@ namespace WorldModule {
 
         public void SetQuestBookFromJson(string json)
         {
-            questBookLibrary = QuestBookLibraryFactory.Deseralize(json);
+            questBookLibrary = QuestBookLibraryFactory.Deserialize(json);
             QuestBookUIManager.Instance.Initialize(questBookLibrary);
         }
 
