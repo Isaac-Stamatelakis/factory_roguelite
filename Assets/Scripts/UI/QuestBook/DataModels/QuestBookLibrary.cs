@@ -1,11 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
 using UI.QuestBook.Tasks;
+using WorldModule;
 
 namespace UI.QuestBook {
+    public class InvalidQuestBookException : Exception
+    {
+        public InvalidQuestBookException(string message) : base(message)
+        {
+        }
+    }
+    public enum QuestBookTitleSpritePath
+    {
+        Stars = 0,
+        
+    }
     /// <summary>
     /// A collection of quest books
     /// </summary>
@@ -60,91 +73,127 @@ namespace UI.QuestBook {
     }
     
     public static class QuestBookLibraryFactory {
-        public static string Serialize(QuestBookLibrary library)
+        
+        private const string QUEST_BOOK_DATA_FILE = "quest_book_data.bin";
+
+        public static void InitializeQuestBookData()
         {
-            if (library == null) return null;
-            List<SerializedQuestBook> serializedBooks = new List<SerializedQuestBook>();
-            foreach (QuestBook questBook in library.QuestBooks) {
-                serializedBooks.Add(ConvertQuestBook(questBook));
-            }
-            SerializedQuestBookLibrary serializedQuestBookLibrary = new SerializedQuestBookLibrary(serializedBooks);
-            return JsonConvert.SerializeObject(serializedQuestBookLibrary);
-        }
-        
-        private static SerializedQuestBook ConvertQuestBook(QuestBook questBook) {
-            List<SerializedQuestBookPage> pages = new List<SerializedQuestBookPage>();
-            foreach (QuestBookPage page in questBook.Pages) {
-                pages.Add(ConvertQuestBookPage(page));
-            }
-            return new SerializedQuestBook(
-                pages,
-                questBook.Title,
-                questBook.SpritePath
-            );
+            /*
+            List<QuestBookData> books = new List<QuestBookData>{
+                new QuestBook(
+                    new List<QuestBookPage>{
+                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
+                    },
+                    "A Dummies Guide to Portal Creation",
+                    "Sprites/QuestBook/bg5"
+                ),
+                new QuestBook(
+                    new List<QuestBookPage>{
+                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
+                    },
+                    "Navigating Advanced Technology",
+                    "Sprites/QuestBook/bg6"
+                ),
+                new QuestBook(
+                    new List<QuestBookPage>{
+                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
+                    },
+                    "Alien Artifact Research Notes",
+                    "Sprites/QuestBook/cb1"
+                ),
+                new QuestBook(
+                    new List<QuestBookPage>{
+                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
+                    },
+                    "Home Improvement",
+                    "Sprites/QuestBook/cb1"
+                )
+
+            */
         }
 
-        private static SerializedQuestBookPage ConvertQuestBookPage(QuestBookPage page) {
-            List<SerializedQuestBookNode> nodes = new List<SerializedQuestBookNode>();
-            foreach (QuestBookNode node in page.Nodes) {
-                nodes.Add(ConvertQuestBookNode(node));
-            }
-            return new SerializedQuestBookPage(
-                page.Title,
-                nodes
-            );
-        }
-
-        private static SerializedQuestBookNode ConvertQuestBookNode(QuestBookNode questBookNode) {
+        private static SerializedQuestBookNode SerializeNodeData(QuestBookNodeData questBookNodeData) {
             return new SerializedQuestBookNode(
-                questBookNode.NodeData,
-                SerializeTask(questBookNode.Content.Task)
+                questBookNodeData,
+                SerializeTask(questBookNodeData.Content.Task)
             );
         }
 
         
-
-        public static QuestBookLibrary Deserialize(string json) {
-            SerializedQuestBookLibrary serializedQuestBookLibrary = JsonConvert.DeserializeObject<SerializedQuestBookLibrary>(json);
-            List<QuestBook> questBooks = new List<QuestBook>();
-            foreach (SerializedQuestBook serializedQuestBook in serializedQuestBookLibrary.books) {
-                questBooks.Add(DeserializeBook(serializedQuestBook));
+        private static QuestBookData GetQuestBookData(string questBookDirectory) {
+            string questBookDataPath = Path.Combine(questBookDirectory, QUEST_BOOK_DATA_FILE);
+            if (!File.Exists(questBookDataPath))
+            {
+                return GetDefaultQuestBookData();
             }
-            return new QuestBookLibrary(
-                questBooks
-            );
+
+            try
+            {
+                byte[] bytes = File.ReadAllBytes(questBookDataPath);
+                string json = WorldLoadUtils.DecompressString(bytes);
+                return JsonConvert.DeserializeObject<QuestBookData>(json);
+            }
+            catch (JsonSerializationException e)
+            {
+                Debug.LogError(e.Message);
+                return GetDefaultQuestBookData();
+            }
         }
 
-        private static QuestBook DeserializeBook(SerializedQuestBook serializedQuestBook) {
-            List<QuestBookPage> pages = new List<QuestBookPage>();
-            foreach (SerializedQuestBookPage page in serializedQuestBook.pages) {
-                pages.Add(DeserializePage(page));
+        public static List<QuestBookNodeData> GetQuestBookPageNodeData(string questBookDirectory, string questBookPageID)
+        {
+            string pagePath = Path.Combine(questBookDirectory, questBookPageID);
+            if (!File.Exists(pagePath))
+            {
+                throw new InvalidQuestBookException($"Could not find quest book page node ata at {pagePath}");
             }
-            return new QuestBook(
-                pages,
-                serializedQuestBook.title,
-                serializedQuestBook.spritePath
-            );
+
+            try
+            {
+                byte[] bytes = File.ReadAllBytes(pagePath);
+                string json = WorldLoadUtils.DecompressString(bytes);
+                List<SerializedQuestBookNode> serializedQuestBookNodes = JsonConvert.DeserializeObject<List<SerializedQuestBookNode>>(json);
+                List<QuestBookNodeData> questBookNodeDataList = new List<QuestBookNodeData>();
+                foreach (var serializedQuestBookNode in serializedQuestBookNodes)
+                {
+                    QuestBookNodeData nodeData = DeserializeNode(serializedQuestBookNode);
+                    if (nodeData == null) continue;
+                    questBookNodeDataList.Add(nodeData);
+                }
+                return questBookNodeDataList;
+            }
+            catch (JsonSerializationException e)
+            {
+                throw new InvalidQuestBookException(e.Message);
+            }
         }
 
-        private static QuestBookPage DeserializePage(SerializedQuestBookPage page) {
-            List<QuestBookNode> nodes = new List<QuestBookNode>();
-            foreach (SerializedQuestBookNode node in page.nodes) {
-                nodes.Add(DeserializeNode(node));
+        public static void SerializedQuestBookNodeData(string questBookDirectory, string questBookPageID, List<QuestBookNodeData> questBookNodeDataList)
+        {
+            List<SerializedQuestBookNode> serializedQuestBookNodes = new List<SerializedQuestBookNode>();
+            foreach (QuestBookNodeData questBookNodeData in questBookNodeDataList)
+            {
+                SerializedQuestBookNode serializedQuestBookNode = SerializeNodeData(questBookNodeData);
+                if (serializedQuestBookNode == null) continue;
+                serializedQuestBookNodes.Add(serializedQuestBookNode);
             }
-            return new QuestBookPage(
-                page.title,
-                nodes
-            );
+            string json = JsonConvert.SerializeObject(serializedQuestBookNodes);
+            byte[] bytes = WorldLoadUtils.CompressString(json);
+            string savePath = Path.Combine(questBookDirectory, questBookPageID);
+            File.WriteAllBytes(savePath, bytes);
         }
+        
 
-        private static QuestBookNode DeserializeNode(SerializedQuestBookNode node)
+        private static QuestBookData GetDefaultQuestBookData()
+        {
+            return new QuestBookData("New Quest Book", QuestBookTitleSpritePath.Stars, 0, new List<QuestBookPageData>());
+        }
+        
+        private static QuestBookNodeData DeserializeNode(SerializedQuestBookNode node)
         {
             QuestBookNodeData nodeData = node.QuestBookNodeData;
             nodeData.Content.Task = DeserializeTask(node.SerializedQuestBookTaskData);
-            return new QuestBookNode(
-                nodeData,
-                null
-            );
+            return nodeData;
         }
         
         
@@ -168,24 +217,32 @@ namespace UI.QuestBook {
 
         }
 
-
-        private class SerializedQuestBookLibrary {
-            public List<SerializedQuestBook> books;
-            public SerializedQuestBookLibrary(List<SerializedQuestBook> books) {
-                this.books = books;
+        
+        private class QuestBookData {
+            public string Title;
+            public QuestBookTitleSpritePath SpritePath;
+            public int IDCounter;
+            public List<QuestBookPageData> PageDataList;
+            public QuestBookData(string title, QuestBookTitleSpritePath spritePath,int idCounter, List<QuestBookPageData> pageDataList) {
+                this.Title = title;
+                this.SpritePath = spritePath;
+                this.IDCounter = idCounter;
+                this.PageDataList = pageDataList;
             }
         }
 
-        private class SerializedQuestBook {
-            public List<SerializedQuestBookPage> pages;
-            public string title;
-            public string spritePath;
-            public SerializedQuestBook(List<SerializedQuestBookPage> pages, string title, string spritePath) {
-                this.title = title;
-                this.pages = pages;
-                this.spritePath = spritePath;
+        private class QuestBookPageData
+        {
+            public string Title;
+            public string Id;
+
+            public QuestBookPageData(string title, string id)
+            {
+                Title = title;
+                Id = id;
             }
         }
+        
 
         private class SerializedQuestBookPage {
             public string title;

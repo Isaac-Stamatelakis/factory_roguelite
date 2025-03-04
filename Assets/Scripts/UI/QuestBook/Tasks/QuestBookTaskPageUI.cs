@@ -51,7 +51,7 @@ namespace UI.QuestBook {
                 SetTaskContent();
             }
             
-            mQuestBookRewardUI.Initialize(node.Content,this);
+            mQuestBookRewardUI.Initialize(node,this);
             
             mTitleField.interactable = QuestBookUtils.EditMode;
             mDescriptionField.interactable = QuestBookUtils.EditMode;
@@ -178,7 +178,7 @@ namespace UI.QuestBook {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
+            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, node.TaskData, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }
 

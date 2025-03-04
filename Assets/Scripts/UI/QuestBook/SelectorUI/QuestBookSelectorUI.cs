@@ -26,6 +26,13 @@ namespace UI.QuestBook {
         private int BooksPerPage = 3;
 
         private int page = 0;
+
+        public void Initialize(string path)
+        {
+            AssetManager.load();
+            leftButton.onClick.AddListener(LeftButtonClick);
+            rightButton.onClick.AddListener(RightButtonClick);
+        }
         public void Initialize(QuestBookLibrary library) {
             if (!ItemRegistry.IsLoaded) {
                 StartCoroutine(ItemRegistry.LoadItems());

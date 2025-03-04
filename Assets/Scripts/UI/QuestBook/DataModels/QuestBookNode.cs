@@ -4,6 +4,7 @@ using Item.Slot;
 using UnityEngine;
 using Newtonsoft.Json;
 using UI.NodeNetwork;
+using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
     public class QuestBookNodeData
@@ -15,6 +16,18 @@ namespace UI.QuestBook {
         public bool RequireAllPrerequisites;
         public int Id;
         public QuestBookNodeContent Content;
+        public QuestBookNodeSize Size;
+
+        public QuestBookNodeData(List<int> prerequisites, SerializedItemSlot imageSeralizedItemSlot, float x, float y, bool requireAllPrerequisites, int id, QuestBookNodeSize size, QuestBookNodeContent content)
+        {
+            Prerequisites = prerequisites;
+            ImageSeralizedItemSlot = imageSeralizedItemSlot;
+            X = x;
+            Y = y;
+            RequireAllPrerequisites = requireAllPrerequisites;
+            Id = id;
+            Content = content;
+        }
     }
 
     public interface ICompletionCheckQuest
@@ -22,9 +35,22 @@ namespace UI.QuestBook {
         public bool CheckCompletion();
     }
     
-    public abstract class QuestBookTaskData
+    public class QuestBookTaskData
     {
         public bool Complete;
+        public QuestBookRewardClaimStatus RewardStatus;
+
+        public QuestBookTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus)
+        {
+            Complete = complete;
+            RewardStatus = rewardStatus;
+        }
+    }
+
+    public class QuestBookRewardClaimStatus
+    {
+        public bool ItemsClaimed;
+        public bool CommandsClaimed;
     }
     public class QuestBookNode : INode
     {

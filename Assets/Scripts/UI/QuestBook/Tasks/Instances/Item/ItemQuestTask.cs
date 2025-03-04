@@ -15,26 +15,12 @@ namespace UI.QuestBook {
     }
 
     public class ItemQuestTaskData : QuestBookTaskData
-    {
+    { 
         public List<SerializedItemSlot> Items;
-       /*
-        
-        public bool CheckCompletion()
+        public ItemQuestTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus, List<SerializedItemSlot> items) : base(complete, rewardStatus)
         {
-            bool complete = IsComplete();
-            PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
-            
-            for (var i = 0; i < items.Count; i++)
-            {
-                var serializedItemSlot = items[i];
-                ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(serializedItemSlot);
-                uint amount = ItemSlotUtils.AmountOf(itemSlot, playerInventory.Inventory);
-                if (amount > gottenAmounts[i]) gottenAmounts[i] = amount;
-            }
-            return complete != IsComplete(); // Return true if value is changed
+           Items = items;
         }
-        */
-        
     }
 }
 

@@ -4,10 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.QuestBook {
-    public class CheckMarkQuestData : QuestBookTaskData
-    {
-        
-    }
     public class CheckMarkTaskUI : MonoBehaviour
     {
         [SerializeField] private Button button;

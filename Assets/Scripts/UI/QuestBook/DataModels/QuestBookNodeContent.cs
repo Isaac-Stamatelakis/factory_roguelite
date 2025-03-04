@@ -7,20 +7,18 @@ using UnityEngine;
 namespace UI.QuestBook {
     public class QuestBookNodeContent
     {
-        public QuestBookNodeSize Size;
         [JsonIgnore] public QuestBookTask Task;
         public string Description;
         public string Title;
         private List<SerializedItemSlot> rewards;
         public QuestBookItemRewards ItemRewards;
         public QuestBookCommandRewards CommandRewards;
-        public QuestBookNodeContent(QuestBookTask task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards, QuestBookNodeSize size) {
+        public QuestBookNodeContent(QuestBookTask task, string description, string title, QuestBookItemRewards itemRewards, QuestBookCommandRewards commandRewards) {
             this.Task = task;
             this.Description = description;
             this.Title = title;
             this.ItemRewards = itemRewards;
             this.CommandRewards = commandRewards;
-            this.Size = size;
         }
         
     }
@@ -39,18 +37,7 @@ namespace UI.QuestBook {
 
     public class QuestBookReward
     {
-        public bool Claimed;
-
-        public bool TryClaim()
-        {
-            if (!Claimed) return Claimed;
-            if (QuestBookUtils.EditMode)
-            {
-                Claimed = false;
-            }
-
-            return Claimed;
-        }
+        
     }
 
     

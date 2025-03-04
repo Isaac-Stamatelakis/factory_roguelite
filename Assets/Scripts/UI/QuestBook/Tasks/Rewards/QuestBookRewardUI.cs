@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Item.Slot;
+using Player;
 using PlayerModule;
 using TMPro;
 using UI.Chat;
@@ -34,17 +35,16 @@ namespace UI.QuestBook.Tasks.Rewards
         private RewardPage currentPage = RewardPage.Items;
         private QuestBookTaskPageUI parentUI;
         public QuestBookTaskPageUI ParentUI => parentUI;
-        private QuestBookNodeContent content;
+        private QuestBookNode questBookNode;
         [HideInInspector] public int SelectedRewardIndex = -1;
 
-        public void Initialize(QuestBookNodeContent content, QuestBookTaskPageUI parentUI)
+        public void Initialize(QuestBookNode questBookNode, QuestBookTaskPageUI parentUI)
         {
             mLeftButton.onClick.RemoveAllListeners();
             mRightButton.onClick.RemoveAllListeners();
             mAddButton.onClick.RemoveAllListeners();
             mClaimButton.onClick.RemoveAllListeners();
             
-            this.content = content;
             this.parentUI = parentUI;
             
             mAddButton.onClick.AddListener(AddButtonPress);
@@ -54,10 +54,10 @@ namespace UI.QuestBook.Tasks.Rewards
             {
                 mAddButton.gameObject.SetActive(false);
                 mToggle.gameObject.SetActive(false);
-                if (content.ItemRewards.Rewards.Count > 0)
+                if (questBookNode.Content.ItemRewards.Rewards.Count > 0)
                 {
                     currentPage = RewardPage.Items;
-                } else if (content.CommandRewards.CommandRewards.Count > 0)
+                } else if (questBookNode.Content.CommandRewards.CommandRewards.Count > 0)
                 {
                     currentPage = RewardPage.Commands;
                 }
@@ -81,8 +81,8 @@ namespace UI.QuestBook.Tasks.Rewards
 
         private int GetPages()
         {
-            bool itemActive = content.ItemRewards.Rewards.Count > 0;
-            bool commandActive = content.CommandRewards.CommandRewards.Count > 0;
+            bool itemActive = questBookNode.Content.ItemRewards.Rewards.Count > 0;
+            bool commandActive = questBookNode.Content.CommandRewards.CommandRewards.Count > 0;
 
             int activeCount = 0; // This is overkill formatted this way in case I ever add more reward types
             if (itemActive) activeCount++;
@@ -122,7 +122,7 @@ namespace UI.QuestBook.Tasks.Rewards
             {
                 case RewardPage.Items:
                     mToggle.gameObject.SetActive(QuestBookUtils.EditMode);
-                    QuestBookItemRewards questBookItemRewards = content.ItemRewards;
+                    QuestBookItemRewards questBookItemRewards = questBookNode.Content.ItemRewards;
                     mToggle.onValueChanged.RemoveAllListeners();
                     mToggle.isOn = questBookItemRewards.LimitOne;
                     mToggle.onValueChanged.AddListener((state) =>
@@ -130,7 +130,7 @@ namespace UI.QuestBook.Tasks.Rewards
                         switch (currentPage)
                         {
                             case RewardPage.Items:
-                                this.content.ItemRewards.LimitOne = state;
+                                this.questBookNode.Content.ItemRewards.LimitOne = state;
                                 Display();
                                 break;
                             case RewardPage.Commands:
@@ -156,7 +156,7 @@ namespace UI.QuestBook.Tasks.Rewards
                 case RewardPage.Commands:
                     mToggle.gameObject.SetActive(false);
                     mTitle.text = "Special Rewards";
-                    QuestBookCommandRewards commandRewards = content.CommandRewards;
+                    QuestBookCommandRewards commandRewards = questBookNode.Content.CommandRewards;
                     for (int i = 0; i < commandRewards.CommandRewards.Count; i++) {
                         CommandRewardListElement commandRewardListElement = GameObject.Instantiate(commandRewardListElementPrefab, mElementContainer.transform, false);
                         commandRewardListElement.Initialize(this,commandRewards,i);
@@ -172,9 +172,9 @@ namespace UI.QuestBook.Tasks.Rewards
             switch (currentPage)
             {
                 case RewardPage.Items:
-                    return content.ItemRewards.Claimed;
+                    return questBookNode.TaskData.RewardStatus.ItemsClaimed;
                 case RewardPage.Commands:
-                    return content.CommandRewards.Claimed;
+                    return questBookNode.TaskData.RewardStatus.CommandsClaimed;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -182,7 +182,7 @@ namespace UI.QuestBook.Tasks.Rewards
         public void UpdateClaimButtonImage()
         {
             bool rewardClaimed = RewardClaimed();
-            bool canClaim = !rewardClaimed && content.Task.IsComplete();
+            bool canClaim = !rewardClaimed && questBookNode.TaskData.Complete;
             mClaimButton.GetComponent<Image>().color = canClaim ? Color.green : Color.gray;
             int pages = GetPages();
             TextMeshProUGUI claimTextUI = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -196,36 +196,34 @@ namespace UI.QuestBook.Tasks.Rewards
                 claimTextUI.text = rewardClaimed ? "Claimed" : "Claim";
             }
             
-            
             mClaimButton.interactable = canClaim || QuestBookUtils.EditMode;
-            
         }
 
         public void ClaimPress()
         {
-            if (!content.Task.IsComplete()) return;
+            if (!questBookNode.TaskData.Complete) return;
 
             bool cheatMode = QuestBookUtils.EditMode;
             
             switch (currentPage)
             {
                 case RewardPage.Items:
-                    var itemRewards = content.ItemRewards;
-
-                    if (!itemRewards.TryClaim()) break;
+                    if (questBookNode.TaskData.RewardStatus.ItemsClaimed) break;
                     
-                    itemRewards.Claimed = GiveItemRewards(itemRewards);
-                    
+                    questBookNode.TaskData.RewardStatus.ItemsClaimed = true;
                     break;
                 case RewardPage.Commands:
-                    if (!content.CommandRewards.TryClaim()) break;
+                    if (!cheatMode && questBookNode.TaskData.RewardStatus.CommandsClaimed) break;
 
-                    foreach (var commandReward in content.CommandRewards.CommandRewards)
+                    if (!questBookNode.TaskData.RewardStatus.CommandsClaimed)
                     {
-                        TextChatUI.Instance.ExecuteCommand(commandReward.Command, printErrors: false);
+                        foreach (var commandReward in questBookNode.Content.CommandRewards.CommandRewards)
+                        {
+                            TextChatUI.Instance.ExecuteCommand(commandReward.Command, printErrors: false);
+                        }
                     }
-
-                    content.CommandRewards.Claimed = !content.CommandRewards.Claimed; // Allows edit mode to reverse
+                    
+                    questBookNode.TaskData.RewardStatus.CommandsClaimed = !questBookNode.TaskData.RewardStatus.CommandsClaimed; // Allows edit mode to reverse
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -264,10 +262,10 @@ namespace UI.QuestBook.Tasks.Rewards
             switch (currentPage)
             {
                 case RewardPage.Items:
-                    content.ItemRewards.Rewards.Add(new SerializedItemSlot("stone",1,null));
+                    questBookNode.Content.ItemRewards.Rewards.Add(new SerializedItemSlot("stone",1,null));
                     break;
                 case RewardPage.Commands:
-                    content.CommandRewards.CommandRewards.Add(new QuestBookCommandReward("Empty Description", "/help"));
+                    questBookNode.Content.CommandRewards.CommandRewards.Add(new QuestBookCommandReward("Empty Description", "/help"));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -277,7 +275,7 @@ namespace UI.QuestBook.Tasks.Rewards
         
         public void SelectReward(int index)
         {
-            if (content.ItemRewards.Claimed) return;
+            if (questBookNode.TaskData.RewardStatus.ItemsClaimed) return;
             if (SelectedRewardIndex >= 0)
             {
                 HighlightItem(SelectedRewardIndex); // Deselect highlighted
@@ -297,7 +295,7 @@ namespace UI.QuestBook.Tasks.Rewards
         public void DisplayCommandRewardEditor(int index)
         {
             QuestCommandEditorUI editorUI = Instantiate(questCommandEditorUIPrefab, parentUI.transform, false);
-            editorUI.Initialize(content.CommandRewards,this,index);
+            editorUI.Initialize(questBookNode.Content.CommandRewards,this,index);
             
         }
     }

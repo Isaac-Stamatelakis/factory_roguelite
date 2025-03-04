@@ -62,8 +62,8 @@ namespace WorldModule {
 
         public void SetQuestBookFromJson(string json)
         {
-            questBookLibrary = QuestBookLibraryFactory.Deserialize(json);
-            QuestBookUIManager.Instance.Initialize(questBookLibrary);
+            //questBookLibrary = QuestBookLibraryFactory.Deserialize(json);
+            //QuestBookUIManager.Instance.Initialize(questBookLibrary);
         }
 
         public void InitializeQuestBook()
@@ -84,9 +84,9 @@ namespace WorldModule {
 
         public void SaveQuestBook()
         {
-            string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
-            if (json == null) return;
-            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Questbook,json);
+            //string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
+            //if (json == null) return;
+            //WorldLoadUtils.SaveWorldFileJson(WorldFileType.Questbook,json);
         }
 
         public void UnlockGameStage(GameStageObject gameStageObject)

@@ -30,7 +30,7 @@ namespace UI.QuestBook {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
             nodeObject.Initialize(node,this);
             RectTransform nodeRectTransform = (RectTransform)nodeObject.transform;
-            nodeRectTransform.sizeDelta = GetNodeVectorSize(node.Content.Size);
+            nodeRectTransform.sizeDelta = GetNodeVectorSize(node.NodeData.Size);
             nodeObject.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
             return nodeObject;
         }
@@ -72,21 +72,27 @@ namespace UI.QuestBook {
 
         public override void PlaceNewNode(Vector2 position)
         {
-            SerializedItemSlot slot = new SerializedItemSlot("stone", 1, null);
-            QuestBookNode node = new QuestBookNode(
-                position,
-                slot,
-                new QuestBookNodeContent(
-                    new CheckMarkQuestTask(),
-                    "Empty Description",
-                    "New Task",
-                    new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
-                    new QuestBookCommandRewards(new List<QuestBookCommandReward>()),
-                    QuestBookNodeSize.Regular
-                ),
+            SerializedItemSlot defaultItemImage = new SerializedItemSlot("stone", 1, null);
+            QuestBookNodeContent defaultContent = new QuestBookNodeContent(
+                new CheckMarkQuestTask(),
+                "Empty Description",
+                "New Task",
+                new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
+                new QuestBookCommandRewards(new List<QuestBookCommandReward>())
+            );
+            QuestBookNodeData defaultNodeData = new QuestBookNodeData(
                 new List<int>(),
+                defaultItemImage,
+                position.x,
+                position.y,
+                true,
                 library.GetSmallestNewID(),
-                true
+                QuestBookNodeSize.Regular,
+                defaultContent
+            );
+            QuestBookNode node = new QuestBookNode(
+                defaultNodeData,
+                null
             );
             nodeNetwork.Nodes.Add(node);
             library.AddNode(node);
