@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -95,27 +96,12 @@ namespace UI.QuestBook {
 
         private static SerializedQuestBookNode ConvertQuestBookNode(QuestBookNode questBookNode) {
             return new SerializedQuestBookNode(
-                questBookNode.X,
-                questBookNode.Y,
-                JsonConvert.SerializeObject(questBookNode.ImageSeralizedItemSlot),
-                ConvertQuestBookNodeContent(questBookNode.Content),
-                questBookNode.Prerequisites,
-                questBookNode.Id,
-                questBookNode.RequireAllPrerequisites
+                questBookNode.NodeData,
+                SerializeTask(questBookNode.Content.Task)
             );
         }
 
-        private static SerializedQuestBookContent ConvertQuestBookNodeContent(QuestBookNodeContent content) {
-            string seralizedTask = QuestTaskFactory.serialize(content.Task);
-            return new SerializedQuestBookContent(
-                seralizedTask,
-                content.Description,
-                content.Title,
-                content.ItemRewards,
-                content.CommandRewards,
-                content.Size
-            );
-        }
+        
 
         public static QuestBookLibrary Deserialize(string json) {
             SerializedQuestBookLibrary serializedQuestBookLibrary = JsonConvert.DeserializeObject<SerializedQuestBookLibrary>(json);
@@ -131,7 +117,7 @@ namespace UI.QuestBook {
         private static QuestBook DeserializeBook(SerializedQuestBook serializedQuestBook) {
             List<QuestBookPage> pages = new List<QuestBookPage>();
             foreach (SerializedQuestBookPage page in serializedQuestBook.pages) {
-                pages.Add(DeseralizePage(page));
+                pages.Add(DeserializePage(page));
             }
             return new QuestBook(
                 pages,
@@ -140,10 +126,10 @@ namespace UI.QuestBook {
             );
         }
 
-        private static QuestBookPage DeseralizePage(SerializedQuestBookPage page) {
+        private static QuestBookPage DeserializePage(SerializedQuestBookPage page) {
             List<QuestBookNode> nodes = new List<QuestBookNode>();
             foreach (SerializedQuestBookNode node in page.nodes) {
-                nodes.Add(DeseralizeNode(node));
+                nodes.Add(DeserializeNode(node));
             }
             return new QuestBookPage(
                 page.title,
@@ -151,27 +137,35 @@ namespace UI.QuestBook {
             );
         }
 
-        private static QuestBookNode DeseralizeNode(SerializedQuestBookNode node) {
+        private static QuestBookNode DeserializeNode(SerializedQuestBookNode node)
+        {
+            QuestBookNodeData nodeData = node.QuestBookNodeData;
+            nodeData.Content.Task = DeserializeTask(node.SerializedQuestBookTaskData);
             return new QuestBookNode(
-                new Vector2(node.x,node.y),
-                JsonConvert.DeserializeObject<SerializedItemSlot>(node.serializedItemImage),
-                DeseralizeContent(node.content),
-                node.connections,
-                node.id,
-                node.requireAllPrerequisites
+                nodeData,
+                null
             );
         }
+        
+        
+        private static QuestBookTask DeserializeTask(SerializedQuestBookTaskData serializedQuestBookTaskData) {
+            switch (serializedQuestBookTaskData.QuestTaskType) {
+                case QuestTaskType.Item:
+                    return JsonConvert.DeserializeObject<ItemQuestTask>(serializedQuestBookTaskData.TaskData);
+                case QuestTaskType.Checkmark:
+                    return JsonConvert.DeserializeObject<CheckMarkQuestTask>(serializedQuestBookTaskData.TaskData);
+                case QuestTaskType.Dimension:
+                    return JsonConvert.DeserializeObject<VisitDimensionQuestTask>(serializedQuestBookTaskData.TaskData);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(serializedQuestBookTaskData));
+            }
+        }
 
-        private static QuestBookNodeContent DeseralizeContent(SerializedQuestBookContent content) {
-            QuestBookTask task = QuestTaskFactory.deseralize(content.task);
-            return new QuestBookNodeContent(
-                task,
-                content.description,
-                content.title,
-                content.ItemRewards,
-                content.CommandRewards,
-                content.Size
-            );
+        private static SerializedQuestBookTaskData SerializeTask(QuestBookTask questBookTask)
+        {
+            QuestTaskType taskType = questBookTask.GetTaskType();
+            return new SerializedQuestBookTaskData(taskType, JsonConvert.SerializeObject(questBookTask));
+
         }
 
 
@@ -213,7 +207,6 @@ namespace UI.QuestBook {
                 
             }
         }
-
         private class SerializedQuestBookTaskData
         {
             public QuestTaskType QuestTaskType;
@@ -226,6 +219,8 @@ namespace UI.QuestBook {
             }
         }
     }
+    
+    
 
 }
 
