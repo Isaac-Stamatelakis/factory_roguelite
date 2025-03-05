@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DevTools;
@@ -15,18 +16,21 @@ namespace UI.QuestBook {
         public QuestBookTaskPageUI QuestBookTaskPageUI;
         private ItemQuestTask task;
         private QuestBookTaskData taskData;
+        private List<ItemQuestItemElement> itemUIElements = new List<ItemQuestItemElement>();
         public void Display() {
             for (int i = 0; i < mItemList.transform.childCount; i++) {
                 GameObject.Destroy(mItemList.transform.GetChild(i).gameObject);
             }
+            itemUIElements.Clear();
             for (int i = 0; i < task?.Items?.Count; i++) {
                 ItemQuestItemElement itemQuestItemElement = GameObject.Instantiate(itemQuestItemPrefab, mItemList.transform, false);
                 itemQuestItemElement.Initialize(
                     task,
                     i,
                     this,
-                    QuestBookTaskPageUI.QuestBookPageUI
+                    taskData
                 );
+                itemUIElements.Add(itemQuestItemElement);
             }
         }
 
@@ -44,6 +48,24 @@ namespace UI.QuestBook {
             mAddButton.onClick.AddListener(AddItem);
             mAddButton.gameObject.SetActive(DevToolUtils.OnDevToolScene);
             Display();
+        }
+
+        public void FixedUpdate()
+        {
+            if (taskData == null || taskData.Complete) return;
+            bool allComplete = true;
+            foreach (ItemQuestItemElement itemUIElement in itemUIElements)
+            {
+                itemUIElement.reload();
+                if (!itemUIElement.Complete)
+                {
+                    allComplete = false;
+                }
+            }
+
+            if (!allComplete) return;
+            taskData.Complete = true;
+            QuestBookTaskPageUI.RefreshRewardUI();
         }
     }
 }

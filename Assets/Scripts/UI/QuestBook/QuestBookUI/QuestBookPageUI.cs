@@ -16,12 +16,20 @@ namespace UI.QuestBook {
         private QuestBookPageData questBookPageData;
         private string questBookPath;
         public string QuestBookPath {get => questBookPath;}
+        private string playerDataPath;
 
-        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, QuestBookUI questBookUI, string questBookPath)
+        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, QuestBookUI questBookUI, string questBookPath, string playerDataPath)
         {
-            if (this.NodeNetwork != null && DevToolUtils.OnDevToolScene)
+            if (this.nodeNetwork != null)
             {
-                SavePageData();
+                if (DevToolUtils.OnDevToolScene)
+                {
+                    SavePageData();
+                }
+                else
+                {
+                    SavePlayerData();
+                }
             }
             CurrentSelected = null;
             this.questBookUI = questBookUI;
@@ -32,6 +40,7 @@ namespace UI.QuestBook {
             this.questBookPath = questBookPath;
             bool editMode = DevToolUtils.OnDevToolScene;
             editController.gameObject.SetActive(editMode);
+            this.playerDataPath = playerDataPath;
             if (editMode)
             {
                 editController.Initialize(this);
@@ -136,6 +145,17 @@ namespace UI.QuestBook {
                 questBookNodeDataList.Add(node.NodeData);
             }
             QuestBookLibraryFactory.SerializedQuestBookNodeData(questBookPath,questBookPageData.Id,questBookNodeDataList);
+        }
+
+        private void SavePlayerData()
+        {
+            if (nodeNetwork == null) return;
+            List<QuestBookTaskData> questBookNodeDataList = new List<QuestBookTaskData>();
+            foreach (QuestBookNode node in NodeNetwork.Nodes)
+            {
+                questBookNodeDataList.Add(node.TaskData);
+            }
+            GlobalHelper.SerializeCompressedJson(questBookNodeDataList,playerDataPath);
         }
     }
 }

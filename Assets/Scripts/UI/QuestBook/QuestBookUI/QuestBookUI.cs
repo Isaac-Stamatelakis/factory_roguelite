@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using WorldModule;
 
 namespace UI.QuestBook {
 
@@ -36,6 +37,7 @@ namespace UI.QuestBook {
             this.libraryPath = libraryPath;
             this.questBookData = questBookData;
             this.questBookPath = Path.Combine(libraryPath, questBookId);
+            this.questBookId = questBookId;
             AssetManager.load();
             
             if (SceneManager.GetActiveScene().name != DevToolUtils.SCENE_NAME) {
@@ -90,14 +92,33 @@ namespace UI.QuestBook {
         private void DisplayPage(QuestBookPageData page)
         {
             List<QuestBookNodeData> questBookNodeData = QuestBookLibraryFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
-            QuestBookPage questBookPage = QuestBookLibraryFactory.GetQuestBookPage(questBookNodeData, new List<QuestBookTaskData>());
-            pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath);
+            List<QuestBookTaskData> taskDataList;
+            string playerPageDataPath = null;
+            if (DevToolUtils.OnDevToolScene)
+            {
+                taskDataList = new List<QuestBookTaskData>();
+            }
+            else
+            {
+                string questBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
+                playerPageDataPath = Path.Combine(questBookPath, page.Id) + ".bin";
+                taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(playerPageDataPath);
+            }
+            QuestBookPage questBookPage = QuestBookLibraryFactory.GetQuestBookPage(questBookNodeData, taskDataList);
+            pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath,playerPageDataPath);
         }
         
         public void OnDestroy()
         {
-            if (!DevToolUtils.OnDevToolScene) return;
-            GlobalHelper.SerializeCompressedJson(questBookData,Path.Combine(questBookPath,QuestBookUtils.QUESTBOOK_DATA_PATH));
+            if (DevToolUtils.OnDevToolScene)
+            {
+                GlobalHelper.SerializeCompressedJson(questBookData,Path.Combine(questBookPath,QuestBookUtils.QUESTBOOK_DATA_PATH));
+            }
+            else
+            {
+                
+            }
+            
         }
     }
     

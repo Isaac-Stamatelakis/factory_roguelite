@@ -23,7 +23,6 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("titleField")] [SerializeField] private TMP_InputField mTitleField;
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
-        [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
         [SerializeField] private Button mEditSizeButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
@@ -124,58 +123,18 @@ namespace UI.QuestBook {
                     editSizeUI.transform.SetParent(canvas.transform,false);
                 });
             }
-
-            UpdateSubmissionButton();
-            mCheckSubmissionButton.onClick.AddListener(CheckTask);
-            
         }
 
+        public void RefreshRewardUI()
+        {
+            mQuestBookRewardUI.Display();
+        }
         public void OnTaskStatusChanged()
         {
             SetTaskContent();
-            UpdateSubmissionButton();
             questBookPageUI.DisplayLines();
             mQuestBookRewardUI.UpdateClaimButtonImage();
         }
-        private void CheckTask()
-        {
-            if (node.TaskData == null) return;
-            if (!QuestBookUtils.EditMode)
-            {
-                if (node.TaskData is ICompletionCheckQuest completionCheckQuest)
-                {
-                    bool updated = completionCheckQuest.CheckCompletion();
-                    if (updated)
-                    {
-                        OnTaskStatusChanged();
-                    }
-                }
-            }
-            else
-            {
-                node.TaskData.Complete = !node.TaskData.Complete;
-            }
-            
-
-            UpdateSubmissionButton();
-        }
-
-        private void UpdateSubmissionButton()
-        {
-            
-            if (node.TaskData is not ICompletionCheckQuest)
-            {
-                mCheckSubmissionButton.gameObject.SetActive(false);
-                return;
-            }
-
-            var complete = node.TaskData.Complete;
-            mCheckSubmissionButton.interactable = !complete || QuestBookUtils.EditMode;
-            mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
-                complete ? "Quest Completed" : "Check Submission";
-            mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;
-        }
-        
         
         private void SetTaskContent() {
             for (int i = 0; i < mTaskContainer.childCount; i++) {

@@ -229,6 +229,7 @@ namespace UI.QuestBook.Tasks.Rewards
                     if (questBookNode.TaskData.RewardStatus.ItemsClaimed) break;
                     
                     questBookNode.TaskData.RewardStatus.ItemsClaimed = true;
+                    GiveItemRewards(questBookNode.Content.ItemRewards);
                     break;
                 case RewardPage.Commands:
                     if (!cheatMode && questBookNode.TaskData.RewardStatus.CommandsClaimed) break;
