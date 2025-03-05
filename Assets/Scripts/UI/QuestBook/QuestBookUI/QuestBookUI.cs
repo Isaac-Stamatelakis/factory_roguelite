@@ -6,6 +6,8 @@ using DevTools;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data;
+using UI.QuestBook.Data.Node;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using WorldModule;
@@ -50,7 +52,7 @@ namespace UI.QuestBook {
                         ids.Add(data.Id);
                     }
                     string id = GlobalHelper.GenerateHash(ids);
-                    QuestBookLibraryFactory.SerializedQuestBookNodeData(Path.Combine(libraryPath,questBookId),id,new List<QuestBookNodeData>());
+                    QuestBookFactory.SerializedQuestBookNodeData(Path.Combine(libraryPath,questBookId),id,new List<QuestBookNodeData>());
                     
                     questBookData.PageDataList.Add(new QuestBookPageData("New Page", id));
                     LoadPageChapters();
@@ -91,7 +93,7 @@ namespace UI.QuestBook {
 
         private void DisplayPage(QuestBookPageData page)
         {
-            List<QuestBookNodeData> questBookNodeData = QuestBookLibraryFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
+            List<QuestBookNodeData> questBookNodeData = QuestBookFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
             List<QuestBookTaskData> taskDataList;
             string playerPageDataPath = null;
             if (DevToolUtils.OnDevToolScene)
@@ -104,7 +106,7 @@ namespace UI.QuestBook {
                 playerPageDataPath = Path.Combine(questBookPath, page.Id) + ".bin";
                 taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(playerPageDataPath);
             }
-            QuestBookPage questBookPage = QuestBookLibraryFactory.GetQuestBookPage(questBookNodeData, taskDataList);
+            QuestBookPage questBookPage = QuestBookFactory.GetQuestBookPage(questBookNodeData, taskDataList);
             pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath,playerPageDataPath);
         }
         

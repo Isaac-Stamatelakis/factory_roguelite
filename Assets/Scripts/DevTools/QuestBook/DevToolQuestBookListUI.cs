@@ -4,6 +4,7 @@ using DevTools.Upgrades;
 using Newtonsoft.Json;
 using UI;
 using UI.QuestBook;
+using UI.QuestBook.Data;
 using UnityEngine;
 
 namespace DevTools.QuestBook
@@ -28,13 +29,13 @@ namespace DevTools.QuestBook
             }
             Directory.CreateDirectory(path);
             string libDataPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
-            QuestBookLibraryData questBookLibraryData = QuestBookLibraryFactory.GetDefaultLibraryData();
+            QuestBookLibraryData questBookLibraryData = QuestBookFactory.GetDefaultLibraryData();
             GlobalHelper.SerializeCompressedJson(questBookLibraryData, libDataPath);
             foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
             {
                 string questBookPath = Path.Combine(path, selectorData.Id);
                 Directory.CreateDirectory(questBookPath);
-                QuestBookData questBookData = QuestBookLibraryFactory.GetDefaultQuestBookData();
+                QuestBookData questBookData = QuestBookFactory.GetDefaultQuestBookData();
                 string questBookDataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
                 GlobalHelper.SerializeCompressedJson(questBookData, questBookDataPath);
             }

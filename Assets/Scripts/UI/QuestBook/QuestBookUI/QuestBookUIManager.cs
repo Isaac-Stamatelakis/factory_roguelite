@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using DevTools;
 using PlayerModule.KeyPress;
+using UI.QuestBook.Data;
 using UnityEngine;
 
 namespace UI.QuestBook

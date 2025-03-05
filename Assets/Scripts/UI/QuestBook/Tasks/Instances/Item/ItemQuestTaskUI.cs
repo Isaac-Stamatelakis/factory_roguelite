@@ -5,6 +5,7 @@ using DevTools;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data.Node;
 using UnityEngine.Serialization;
 
 namespace UI.QuestBook {

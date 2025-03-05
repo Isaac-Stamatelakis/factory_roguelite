@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using UI.NodeNetwork;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class QuestBookPage : INodeNetwork<QuestBookNode>

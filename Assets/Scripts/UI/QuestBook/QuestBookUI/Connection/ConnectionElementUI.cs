@@ -7,6 +7,7 @@ using TMPro;
 using Items;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class ConnectionElementUI : MonoBehaviour, IPointerClickHandler

@@ -1,84 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using Newtonsoft.Json;
-using TileEntity.Instances.CompactMachines;
-using UI.QuestBook.Tasks;
+using UI.QuestBook.Data.Node;
 using WorldModule;
 
-namespace UI.QuestBook {
-    public class InvalidQuestBookException : Exception
-    {
-        public InvalidQuestBookException(string message) : base(message)
-        {
-        }
-    }
-    public enum QuestBookTitleSpritePath
-    {
-        Stars = 0,
-        BluePlanet = 1,
-        PurplePlanet = 2,
-        Teleporter = 3
-    }
-    /// <summary>
-    /// A collection of quest books
-    /// </summary>
-    public class QuestBookLibrary
-    {
-        public List<QuestBook> QuestBooks;
-        [JsonIgnore] public Dictionary<int, QuestBookNode> IdNodeMap { get => idNodeMap;}
-        [JsonIgnore] private Dictionary<int, QuestBookNode> idNodeMap;
-        
-        public QuestBookLibrary(List<QuestBook> books) {
-            this.QuestBooks = books;
-            InitializeIdNodeMap();
-        }
-        public void InitializeIdNodeMap() {
-            idNodeMap = new Dictionary<int, QuestBookNode>();
-            foreach (QuestBook questBook in QuestBooks) {
-                foreach (QuestBookPage page in questBook.Pages) {
-                    foreach (QuestBookNode node in page.Nodes) {
-                        if (idNodeMap.TryGetValue(node.Id, out var value)) {
-                            Debug.LogWarning("Nodes " + node.Content.Title + " and " + value.Content.Title+ " have duplicate id:" + node.Id);
-                            continue;
-                        }
-                        idNodeMap[node.Id] = node;
-                    }
-                }
-            }
-        }
-
-        public int GetSmallestNewID() {
-            int smallestNewID = 0;
-            while (idNodeMap.ContainsKey(smallestNewID)) {
-                smallestNewID++;
-            }
-            return smallestNewID;
-        }
-
-        public void AddNode(QuestBookNode node) {
-            idNodeMap[node.Id] = node;
-        }
-
-        public QuestBookNode GetNode(int id) {
-            if (idNodeMap.ContainsKey(id)) {
-                return idNodeMap[id];
-            }
-            return null;
-        }
-        public void RemoveNode(QuestBookNode node) {
-            if (idNodeMap.ContainsKey(node.Id)) {
-                idNodeMap.Remove(node.Id);
-            }
-        }
-    }
-    
-    public static class QuestBookLibraryFactory {
-        
-        private const string QUEST_BOOK_DATA_FILE = "quest_book_data.bin";
-        
+namespace UI.QuestBook.Data {
+    public static class QuestBookFactory {
         public static QuestBookLibraryData GetDefaultLibraryData()
         {
 
@@ -95,28 +23,7 @@ namespace UI.QuestBook {
                 SerializeTask(questBookNodeData.Content.Task)
             );
         }
-
         
-        public static QuestBookData GetQuestBookData(string questBookDirectory) {
-            string questBookDataPath = Path.Combine(questBookDirectory, QUEST_BOOK_DATA_FILE);
-            if (!File.Exists(questBookDataPath))
-            {
-                return GetDefaultQuestBookData();
-            }
-
-            try
-            {
-                byte[] bytes = File.ReadAllBytes(questBookDataPath);
-                string json = WorldLoadUtils.DecompressString(bytes);
-                return JsonConvert.DeserializeObject<QuestBookData>(json);
-            }
-            catch (JsonSerializationException e)
-            {
-                Debug.LogError(e.Message);
-                return GetDefaultQuestBookData();
-            }
-        }
-
         public static List<QuestBookNodeData> GetQuestBookPageNodeData(string questBookDirectory, string questBookPageID)
         {
             string pagePath = Path.Combine(questBookDirectory, questBookPageID) + ".bin";
@@ -222,21 +129,10 @@ namespace UI.QuestBook {
 
         }
         
-
-        private class SerializedQuestBookPage {
-            public string title;
-            public List<SerializedQuestBookNode> nodes;
-            public SerializedQuestBookPage(string title, List<SerializedQuestBookNode> nodes) {
-                this.title = title;
-                this.nodes = nodes;
-            }
-        }
-        
         private class SerializedQuestBookNode
         {
             public QuestBookNodeData QuestBookNodeData;
             public SerializedQuestBookTaskData SerializedQuestBookTaskData;
-
             public SerializedQuestBookNode(QuestBookNodeData questBookNodeData, SerializedQuestBookTaskData serializedQuestBookTaskData) {
                 this.QuestBookNodeData = questBookNodeData;
                 this.SerializedQuestBookTaskData = serializedQuestBookTaskData;
@@ -255,55 +151,5 @@ namespace UI.QuestBook {
             }
         }
     }
-    
-    public class QuestBookLibraryData
-    {
-        public List<QuestBookSelectorData> QuestBookDataList;
-
-        public QuestBookLibraryData(List<QuestBookSelectorData> questBookDataList)
-        {
-            QuestBookDataList = questBookDataList;
-        }
-
-        public object Path { get; set; }
-    }
-
-    public class QuestBookSelectorData
-    {
-        public string Title;
-        public QuestBookTitleSpritePath SpritePath;
-        public string Id;
-
-        public QuestBookSelectorData(string title, QuestBookTitleSpritePath spritePath, string id)
-        {
-            Title = title;
-            SpritePath = spritePath;
-            Id = id;
-        }
-    }
-    
-    public class QuestBookData {
-        public int IDCounter;
-        public List<QuestBookPageData> PageDataList;
-        public QuestBookData(int idCounter, List<QuestBookPageData> pageDataList) {
-            this.IDCounter = idCounter;
-            this.PageDataList = pageDataList;
-        }
-    }
-    
-    public class QuestBookPageData
-    {
-        public string Title;
-        public string Id;
-
-        public QuestBookPageData(string title, string id)
-        {
-            Title = title;
-            Id = id;
-        }
-    }
-    
-    
-
 }
 

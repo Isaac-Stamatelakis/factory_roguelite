@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class EditConnectionsPageUI : MonoBehaviour

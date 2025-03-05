@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data;
 
 namespace UI.QuestBook {
     public class EditQuestPagePopup : MonoBehaviour

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UI.QuestBook.Data.Node;
 using UnityEngine;
 using UnityEngine.UI;
 

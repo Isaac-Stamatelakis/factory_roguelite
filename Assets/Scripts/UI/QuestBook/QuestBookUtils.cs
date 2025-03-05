@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DevTools;
+using UI.QuestBook.Data;
+using UI.QuestBook.Data.Node;
 using UnityEngine;
 
 namespace UI.QuestBook {
@@ -97,7 +99,7 @@ namespace UI.QuestBook {
                     {
                         questBookNodeDataDict[taskData.Id] = taskData;
                     }
-                    List<QuestBookNodeData> questBookNodeDataList = QuestBookLibraryFactory.GetQuestBookPageNodeData(questBookFolderPath, pageId);
+                    List<QuestBookNodeData> questBookNodeDataList = QuestBookFactory.GetQuestBookPageNodeData(questBookFolderPath, pageId);
                     if (questBookNodeDataList == null) continue;
 
                     HashSet<int> validNodes = new HashSet<int>();

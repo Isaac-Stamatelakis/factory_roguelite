@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using DevTools;
 using UnityEngine;
 using UI.NodeNetwork;
+using UI.QuestBook.Data;
+using UI.QuestBook.Data.Node;
+using UI.QuestBook.Data.Rewards;
 using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
@@ -144,7 +147,7 @@ namespace UI.QuestBook {
             {
                 questBookNodeDataList.Add(node.NodeData);
             }
-            QuestBookLibraryFactory.SerializedQuestBookNodeData(questBookPath,questBookPageData.Id,questBookNodeDataList);
+            QuestBookFactory.SerializedQuestBookNodeData(questBookPath,questBookPageData.Id,questBookNodeDataList);
         }
 
         private void SavePlayerData()

@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using DevTools;
 using Newtonsoft.Json;
+using UI.QuestBook.Data.Node;
 using UI.QuestBook.Tasks;
 using UI.QuestBook.Tasks.Rewards;
 using UnityEngine.Serialization;

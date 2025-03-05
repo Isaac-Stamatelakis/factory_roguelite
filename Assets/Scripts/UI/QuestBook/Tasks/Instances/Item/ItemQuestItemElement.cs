@@ -9,6 +9,7 @@ using Items;
 using UnityEngine.EventSystems;
 using UI;
 using Items.Inventory;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler

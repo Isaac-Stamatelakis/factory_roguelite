@@ -6,6 +6,8 @@ using Player;
 using PlayerModule;
 using TMPro;
 using UI.Chat;
+using UI.QuestBook.Data.Node;
+using UI.QuestBook.Data.Rewards;
 using UI.QuestBook.Tasks.Rewards.Command;
 using UnityEngine;
 using UnityEngine.Rendering;

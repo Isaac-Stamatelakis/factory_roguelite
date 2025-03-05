@@ -7,7 +7,8 @@ using UnityEngine.UI;
 using Items;
 using UnityEngine.EventSystems;
 using UI;
-using UI.NodeNetwork; 
+using UI.NodeNetwork;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>

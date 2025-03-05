@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UI.QuestBook.Data;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;

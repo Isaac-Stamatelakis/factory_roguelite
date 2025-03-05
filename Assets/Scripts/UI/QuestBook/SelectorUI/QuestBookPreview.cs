@@ -5,6 +5,7 @@ using DevTools;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 

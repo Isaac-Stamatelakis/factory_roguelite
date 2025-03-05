@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Items;
+using UI.QuestBook.Data;
 using UnityEngine.SceneManagement;
 
 namespace UI.QuestBook {
@@ -66,7 +67,7 @@ namespace UI.QuestBook {
             QuestBookSelectorData selectorData = new QuestBookSelectorData("New Quest Book", QuestBookTitleSpritePath.Stars, id);
             string questBookPath = Path.Combine(path, id);
             Directory.CreateDirectory(questBookPath);
-            QuestBookData questBookData = QuestBookLibraryFactory.GetDefaultQuestBookData();
+            QuestBookData questBookData = QuestBookFactory.GetDefaultQuestBookData();
             string dataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
             GlobalHelper.SerializeCompressedJson(questBookData,dataPath);
 
