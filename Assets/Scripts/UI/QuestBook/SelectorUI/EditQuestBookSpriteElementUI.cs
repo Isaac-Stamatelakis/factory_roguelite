@@ -10,15 +10,15 @@ namespace UI.QuestBook {
         [SerializeField] private Image image;
         [SerializeField] private Image panel;
 
-        private string path;
-        private QuestBook questBook;
+        private QuestBookTitleSpritePath bookTitleSpritePath;
+        private QuestBookSelectorData questBookData;
         private EditQuestBookUI editQuestBookUI;
-        private bool Selected {get => questBook.SpritePath == path;}
+        private bool Selected {get => questBookData.SpritePath == bookTitleSpritePath;}
 
-        public void init(QuestBook questBook, EditQuestBookUI editQuestBookUI, Sprite sprite, string path) {
+        public void init(QuestBookSelectorData questBookData, EditQuestBookUI editQuestBookUI, Sprite sprite, QuestBookTitleSpritePath bookTitleSpritePath) {
             this.image.sprite = sprite;
-            this.questBook = questBook;
-            this.path = path;
+            this.questBookData = questBookData;
+            this.bookTitleSpritePath = bookTitleSpritePath;
             this.editQuestBookUI = editQuestBookUI; 
             setPanelColor();
         }
@@ -30,7 +30,7 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 if (!Selected) {
-                    questBook.SpritePath = path;
+                    questBookData.SpritePath = bookTitleSpritePath;
                     editQuestBookUI.loadSpritePanelColors();
                 } 
             }

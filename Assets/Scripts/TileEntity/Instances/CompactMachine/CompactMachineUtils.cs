@@ -111,24 +111,16 @@ namespace TileEntity.Instances.CompactMachines {
             );
         }
 
-        /// <summary>
-        /// Generates a random hash to be used for a compact machine
-        /// </summary>
-        /// <returns></returns>
         public static string GenerateHash()
         {
+            
+        
             const int ATTEMPTS = 64;
             for (int i = 0; i < ATTEMPTS; i++)
             {
-                byte[] hash = new byte[8]; 
-                using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(hash);
-                }
-
-                string hashString = BitConverter.ToString(hash).Replace("-","");
+                string hashString = GlobalHelper.GenerateHash();
                 if (!HashExists(hashString)) return hashString;
-                Debug.Log($"Hash collision '{hash}'");
+                Debug.Log($"Hash collision '{hashString}'");
             }
             // Has to fail 64 attempts of finding a hash which doesn't exist in a 2^64 search space. 
             // Assuming a very 65536 compact machines, the odds of this are astromonically low.

@@ -57,10 +57,13 @@ namespace UI.QuestBook {
         }
 
         private void BackButtonPress() {
+            // TODO
+            /*
             QuestBookSelectorUI selectorUI = AssetManager.cloneElement<QuestBookSelectorUI>("TITLE");
             selectorUI.transform.SetParent(transform.parent,false);
             selectorUI.Initialize(library);
             GameObject.Destroy(gameObject);
+            */
         }
         
         public void DisplayPageIndex(int index) {

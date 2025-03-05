@@ -17,10 +17,12 @@ namespace UI.QuestBook
 
         public void Initialize(QuestBookLibrary library)
         {
+            /* // TODO
             GlobalHelper.deleteAllChildren(transform);
             QuestBookSelectorUI selectorUI = Instantiate(selectorPrefab, transform, false);
             selectorUI.Initialize(library);
             selectorUI.gameObject.SetActive(false);
+            */
         }
         void Update()
         {

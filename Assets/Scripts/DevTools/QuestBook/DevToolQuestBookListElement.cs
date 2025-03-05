@@ -22,6 +22,7 @@ namespace DevTools.Upgrades
         {
             mPathText.text = Path.GetFileName(path).Replace(".bin","");
             this.onClick = onClick;
+            this.path = path;
         }
 
         public void OnPointerClick(PointerEventData eventData)

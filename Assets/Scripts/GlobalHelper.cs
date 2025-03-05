@@ -2,8 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
+using WorldModule;
 
 public static class GlobalHelper 
 {
@@ -98,5 +102,35 @@ public static class GlobalHelper
             string newTargetDir = Path.Combine(targetDir, subDir.Name);
             CopyDirectory(subDir.FullName, newTargetDir);
         }
+    }
+    
+    /// <summary>
+    /// Generates a random hash
+    /// </summary>
+    /// <returns></returns>
+    public static string GenerateHash()
+    {
+        byte[] hash = new byte[8]; 
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(hash);
+        }
+
+        return BitConverter.ToString(hash).Replace("-","");
+    }
+
+    public static void SerializeCompressedJson<T>(T classInstance, string path)
+    {
+        string json = JsonConvert.SerializeObject(classInstance);
+        byte[] bytes = WorldLoadUtils.CompressString(json);
+        File.WriteAllBytes(path, bytes);
+    }
+
+    public static T DeserializeCompressedJson<T>(string path)
+    {
+        if (!File.Exists(path)) return default(T);
+        byte[] bytes = File.ReadAllBytes(path);
+        string json = WorldLoadUtils.DecompressString(bytes);
+        return JsonConvert.DeserializeObject<T>(json);
     }
 }

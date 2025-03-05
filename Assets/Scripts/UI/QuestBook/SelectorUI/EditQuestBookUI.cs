@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -19,18 +20,18 @@ namespace UI.QuestBook {
         [SerializeField] private TextMeshProUGUI confirmDeleteHint;
         [SerializeField] private EditQuestBookSpriteElementUI editQuestBookSpriteElementUIPrefab;
         private EditQuestBookSpriteElementUI[] listElements;
-        private QuestBook questBook {get => library.QuestBooks[index];}
+        private QuestBookSelectorData questBookSelectorData {get => library.QuestBookDataList[index];}
         private int index;
         private float deletionFailTime = 1f;
-        private QuestBookLibrary library;
+        private QuestBookLibraryData library;
         private QuestBookSelectorUI selectorUI;
 
-        public void init(QuestBookSelectorUI selectorUI, QuestBookLibrary library, int index) {
+        public void Initialize(QuestBookSelectorUI selectorUI, QuestBookLibraryData library, int index, string libraryPath) {
             this.index = index;
             this.library = library;
             this.selectorUI = selectorUI;
 
-            editTitle.text = questBook.Title;
+            editTitle.text = questBookSelectorData.Title;
 
 
             displaySprites();
@@ -38,24 +39,24 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             leftButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index-1,library.QuestBooks.Count);
-                QuestBook swap = library.QuestBooks[index];
-                library.QuestBooks[index] = library.QuestBooks[newIndex];
-                library.QuestBooks[newIndex] = swap;
+                int newIndex = Global.modInt(index-1,library.QuestBookDataList.Count);
+                (library.QuestBookDataList[index], library.QuestBookDataList[newIndex]) = (library.QuestBookDataList[newIndex], library.QuestBookDataList[index]);
                 index = newIndex;
                 selectorUI.Display();
             });
             rightButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index+1,library.QuestBooks.Count);
-                QuestBook swap = library.QuestBooks[index];
-                library.QuestBooks[index] = library.QuestBooks[newIndex];
-                library.QuestBooks[newIndex] = swap;
+                int newIndex = Global.modInt(index+1,library.QuestBookDataList.Count);
+                (library.QuestBookDataList[index], library.QuestBookDataList[newIndex]) = (library.QuestBookDataList[newIndex], library.QuestBookDataList[index]);
                 index = newIndex;
                 selectorUI.Display();
             });
             deleteButton.onClick.AddListener(() => {
-                if (confirmDelete.text == questBook.Title) {
-                    library.QuestBooks.RemoveAt(index);
+                if (confirmDelete.text == questBookSelectorData.Title)
+                {
+                    var toRemove = questBookSelectorData;
+                    library.QuestBookDataList.RemoveAt(index);
+                    string questBookPath = Path.Combine(libraryPath, toRemove.Id);
+                    Directory.Delete(questBookPath, true);
                     selectorUI.Display();
                     GameObject.Destroy(gameObject);
                     return;
@@ -63,7 +64,7 @@ namespace UI.QuestBook {
                 deletionFailTime = 0f;
             });
             editTitle.onValueChanged.AddListener((string value) => {
-                questBook.Title = value;
+                questBookSelectorData.Title = value;
                 selectorUI.Display();
             });
         }
@@ -87,7 +88,7 @@ namespace UI.QuestBook {
                 SpriteKey spriteKey = spriteKeys[i];
                 EditQuestBookSpriteElementUI spriteElement = GameObject.Instantiate(editQuestBookSpriteElementUIPrefab);
                 spriteElement.transform.SetParent(spriteList.transform);
-                spriteElement.init(questBook,this,spriteKey.Sprite,spriteKey.Key);
+                spriteElement.init(questBookSelectorData,this,spriteKey.Sprite,spriteKey.Key);
                 listElements[i] = spriteElement;
             }
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
+using TileEntity.Instances.CompactMachines;
 using UI.QuestBook.Tasks;
 using WorldModule;
 
@@ -17,7 +18,9 @@ namespace UI.QuestBook {
     public enum QuestBookTitleSpritePath
     {
         Stars = 0,
-        
+        BluePlanet = 1,
+        PurplePlanet = 2,
+        Teleporter = 3
     }
     /// <summary>
     /// A collection of quest books
@@ -75,41 +78,15 @@ namespace UI.QuestBook {
     public static class QuestBookLibraryFactory {
         
         private const string QUEST_BOOK_DATA_FILE = "quest_book_data.bin";
-
-        public static void InitializeQuestBookData()
+        
+        public static QuestBookLibraryData GetDefaultLibraryData()
         {
-            /*
-            List<QuestBookData> books = new List<QuestBookData>{
-                new QuestBook(
-                    new List<QuestBookPage>{
-                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
-                    },
-                    "A Dummies Guide to Portal Creation",
-                    "Sprites/QuestBook/bg5"
-                ),
-                new QuestBook(
-                    new List<QuestBookPage>{
-                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
-                    },
-                    "Navigating Advanced Technology",
-                    "Sprites/QuestBook/bg6"
-                ),
-                new QuestBook(
-                    new List<QuestBookPage>{
-                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
-                    },
-                    "Alien Artifact Research Notes",
-                    "Sprites/QuestBook/cb1"
-                ),
-                new QuestBook(
-                    new List<QuestBookPage>{
-                        new QuestBookPage("Chapter0", new List<QuestBookNode>())
-                    },
-                    "Home Improvement",
-                    "Sprites/QuestBook/cb1"
-                )
 
-            */
+            List<QuestBookSelectorData> questBookSelectorDataList = new List<QuestBookSelectorData>
+            {
+                new QuestBookSelectorData("A Dummies Guide to Portal Creation", QuestBookTitleSpritePath.Stars, GlobalHelper.GenerateHash())
+            };
+            return new QuestBookLibraryData(questBookSelectorDataList);
         }
 
         private static SerializedQuestBookNode SerializeNodeData(QuestBookNodeData questBookNodeData) {
@@ -184,9 +161,9 @@ namespace UI.QuestBook {
         }
         
 
-        private static QuestBookData GetDefaultQuestBookData()
+        public static QuestBookData GetDefaultQuestBookData()
         {
-            return new QuestBookData("New Quest Book", QuestBookTitleSpritePath.Stars, 0, new List<QuestBookPageData>());
+            return new QuestBookData(0, new List<QuestBookPageData>());
         }
         
         private static QuestBookNodeData DeserializeNode(SerializedQuestBookNode node)
@@ -215,32 +192,6 @@ namespace UI.QuestBook {
             QuestTaskType taskType = questBookTask.GetTaskType();
             return new SerializedQuestBookTaskData(taskType, JsonConvert.SerializeObject(questBookTask));
 
-        }
-
-        
-        private class QuestBookData {
-            public string Title;
-            public QuestBookTitleSpritePath SpritePath;
-            public int IDCounter;
-            public List<QuestBookPageData> PageDataList;
-            public QuestBookData(string title, QuestBookTitleSpritePath spritePath,int idCounter, List<QuestBookPageData> pageDataList) {
-                this.Title = title;
-                this.SpritePath = spritePath;
-                this.IDCounter = idCounter;
-                this.PageDataList = pageDataList;
-            }
-        }
-
-        private class QuestBookPageData
-        {
-            public string Title;
-            public string Id;
-
-            public QuestBookPageData(string title, string id)
-            {
-                Title = title;
-                Id = id;
-            }
         }
         
 
@@ -274,6 +225,53 @@ namespace UI.QuestBook {
                 QuestTaskType = questTaskType;
                 TaskData = taskData;
             }
+        }
+    }
+    
+    public class QuestBookLibraryData
+    {
+        public List<QuestBookSelectorData> QuestBookDataList;
+
+        public QuestBookLibraryData(List<QuestBookSelectorData> questBookDataList)
+        {
+            QuestBookDataList = questBookDataList;
+        }
+
+        public object Path { get; set; }
+    }
+
+    public class QuestBookSelectorData
+    {
+        public string Title;
+        public QuestBookTitleSpritePath SpritePath;
+        public string Id;
+
+        public QuestBookSelectorData(string title, QuestBookTitleSpritePath spritePath, string id)
+        {
+            Title = title;
+            SpritePath = spritePath;
+            Id = id;
+        }
+    }
+    
+    public class QuestBookData {
+        public int IDCounter;
+        public List<QuestBookPageData> PageDataList;
+        public QuestBookData(int idCounter, List<QuestBookPageData> pageDataList) {
+            this.IDCounter = idCounter;
+            this.PageDataList = pageDataList;
+        }
+    }
+    
+    public class QuestBookPageData
+    {
+        public string Title;
+        public string Id;
+
+        public QuestBookPageData(string title, string id)
+        {
+            Title = title;
+            Id = id;
         }
     }
     

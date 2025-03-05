@@ -1,6 +1,7 @@
 using System.IO;
 using DevTools.Structures;
 using DevTools.Upgrades;
+using Newtonsoft.Json;
 using UI;
 using UI.QuestBook;
 using UnityEngine;
@@ -11,9 +12,33 @@ namespace DevTools.QuestBook
     {
         [SerializeField] private DevToolQuestBookListElement mListElementPrefab;
         [SerializeField] private QuestBookSelectorUI questBookSelectorUIPrefab;
+        [SerializeField] private DevToolNewQuestBookPopUp devToolNewQuestBookPopUpPrefab;
         protected override void OnAddButtonClick()
         {
-            // No Add
+            DevToolNewQuestBookPopUp popUp = Instantiate(devToolNewQuestBookPopUpPrefab,transform,false);
+            popUp.Initialize(AddNewQuestBookLibrary);
+        }
+
+        private void AddNewQuestBookLibrary(string libName)
+        {
+            string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook),libName);
+            if (Directory.Exists(path) && libName != QuestBookUtils.MAIN_QUEST_BOOK_NAME)
+            {
+                Directory.Delete(path, true);
+            }
+            Directory.CreateDirectory(path);
+            string libDataPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
+            QuestBookLibraryData questBookLibraryData = QuestBookLibraryFactory.GetDefaultLibraryData();
+            GlobalHelper.SerializeCompressedJson(questBookLibraryData, libDataPath);
+            foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
+            {
+                string questBookPath = Path.Combine(path, selectorData.Id);
+                Directory.CreateDirectory(questBookPath);
+                QuestBookData questBookData = QuestBookLibraryFactory.GetDefaultQuestBookData();
+                string questBookDataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
+                GlobalHelper.SerializeCompressedJson(questBookData, questBookDataPath);
+            }
+            DisplayList();
         }
 
         public override void DisplayList()
@@ -33,7 +58,14 @@ namespace DevTools.QuestBook
         private void OnPathSelect(string path)
         {
             QuestBookSelectorUI questBookSelectorUI = Instantiate(questBookSelectorUIPrefab);
-            questBookSelectorUI.Initialize(path);
+            string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
+            QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);
+            if (questBookLibraryData == null)
+            {
+                Debug.LogError($"Invalid lib data at path '{libPath}'");
+                return;
+            }
+            questBookSelectorUI.Initialize(questBookLibraryData,path);
             CanvasController.Instance.DisplayObject(questBookSelectorUI.gameObject);
         }
     }
