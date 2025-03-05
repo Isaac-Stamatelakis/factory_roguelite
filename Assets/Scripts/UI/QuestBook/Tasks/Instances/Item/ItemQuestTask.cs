@@ -12,6 +12,11 @@ namespace UI.QuestBook {
         {
             return QuestTaskType.Item;
         }
+
+        public ItemQuestTask(List<SerializedItemSlot> items)
+        {
+            Items = items;
+        }
     }
 
     public class ItemQuestTaskData : ExtraTaskData

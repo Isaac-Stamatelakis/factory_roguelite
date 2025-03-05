@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -19,7 +20,7 @@ namespace UI.QuestBook {
             for (int i = 0; i < mItemList.transform.childCount; i++) {
                 GameObject.Destroy(mItemList.transform.GetChild(i).gameObject);
             }
-            for (int i = 0; i < task.Items.Count; i++) {
+            for (int i = 0; i < task?.Items?.Count; i++) {
                 ItemQuestItemElement itemQuestItemElement = GameObject.Instantiate(itemQuestItemPrefab, mItemList.transform, false);
                 itemQuestItemElement.Initialize(
                     task,
@@ -43,7 +44,7 @@ namespace UI.QuestBook {
             this.taskData = taskData;
             
             mAddButton.onClick.AddListener(AddItem);
-            mAddButton.gameObject.SetActive(QuestBookUtils.EditMode);
+            mAddButton.gameObject.SetActive(DevToolUtils.OnDevToolScene);
             Display();
         }
     }

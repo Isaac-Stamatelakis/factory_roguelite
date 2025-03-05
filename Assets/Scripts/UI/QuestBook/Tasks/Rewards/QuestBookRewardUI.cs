@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DevTools;
 using Item.Slot;
 using Player;
 using PlayerModule;
@@ -51,7 +52,7 @@ namespace UI.QuestBook.Tasks.Rewards
             mAddButton.onClick.AddListener(AddButtonPress);
             mClaimButton.onClick.AddListener(ClaimPress);
 
-            if (!QuestBookUtils.EditMode)
+            if (!DevToolUtils.OnDevToolScene)
             {
                 mAddButton.gameObject.SetActive(false);
                 mToggle.gameObject.SetActive(false);
@@ -93,7 +94,7 @@ namespace UI.QuestBook.Tasks.Rewards
 
         private void DisplayArrows()
         {
-            if (QuestBookUtils.EditMode)
+            if (DevToolUtils.OnDevToolScene)
             {
                 mLeftButton.gameObject.SetActive(true);
                 mRightButton.gameObject.SetActive(true);
@@ -122,7 +123,7 @@ namespace UI.QuestBook.Tasks.Rewards
             switch (currentPage)
             {
                 case RewardPage.Items:
-                    mToggle.gameObject.SetActive(QuestBookUtils.EditMode);
+                    mToggle.gameObject.SetActive(DevToolUtils.OnDevToolScene);
                     QuestBookItemRewards questBookItemRewards = questBookNode.Content.ItemRewards;
                     mToggle.onValueChanged.RemoveAllListeners();
                     mToggle.isOn = questBookItemRewards.LimitOne;
@@ -197,14 +198,14 @@ namespace UI.QuestBook.Tasks.Rewards
                 claimTextUI.text = rewardClaimed ? "Claimed" : "Claim";
             }
             
-            mClaimButton.interactable = canClaim || QuestBookUtils.EditMode;
+            mClaimButton.interactable = canClaim || DevToolUtils.OnDevToolScene;
         }
 
         public void ClaimPress()
         {
             if (!questBookNode.TaskData.Complete) return;
 
-            bool cheatMode = QuestBookUtils.EditMode;
+            bool cheatMode = DevToolUtils.OnDevToolScene;
             
             switch (currentPage)
             {

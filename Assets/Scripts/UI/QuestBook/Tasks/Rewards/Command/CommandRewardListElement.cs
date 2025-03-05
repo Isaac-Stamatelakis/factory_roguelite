@@ -1,3 +1,4 @@
+using DevTools;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace UI.QuestBook.Tasks.Rewards.Command
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (!DevToolUtils.OnDevToolScene) return;
             parentUi.DisplayCommandRewardEditor(index);
         }
     }

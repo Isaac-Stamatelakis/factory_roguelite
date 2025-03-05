@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using Item.Slot;
 using UnityEngine;
 using TMPro;
@@ -32,7 +33,7 @@ namespace UI.QuestBook {
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookUtils.EditMode) {
+                if (DevToolUtils.OnDevToolScene) {
                     NavigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
@@ -53,11 +54,7 @@ namespace UI.QuestBook {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             mItemName.text = itemSlot.itemObject.name;
             
-            if (!ReferenceEquals(PlayerManager.Instance, null))
-            {
-                gottenAmount = ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
-            }
-            
+            gottenAmount = DevToolUtils.OnDevToolScene ? itemSlot.amount : ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
             gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
             Display(itemSlot);
         }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +24,7 @@ namespace UI.QuestBook {
         {
             switch (eventData.button)
             {
-                case PointerEventData.InputButton.Left when QuestBookUtils.EditMode:
+                case PointerEventData.InputButton.Left when DevToolUtils.OnDevToolScene:
                 {
                     QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");

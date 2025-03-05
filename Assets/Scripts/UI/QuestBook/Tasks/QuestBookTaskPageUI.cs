@@ -51,11 +51,12 @@ namespace UI.QuestBook {
             } else {
                 SetTaskContent();
             }
-            
+
+            bool editMode = DevToolUtils.OnDevToolScene;
             mQuestBookRewardUI.Initialize(node,this);
             
-            mTitleField.interactable = QuestBookUtils.EditMode;
-            mDescriptionField.interactable = QuestBookUtils.EditMode;
+            mTitleField.interactable = editMode;
+            mDescriptionField.interactable = editMode;
             
             mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
             
@@ -80,7 +81,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             
-            if (DevToolUtils.OnDevToolScene)
+            if (!editMode)
             {
                 mChangeTaskDropDown.interactable = false;
                 mEditImageButton.gameObject.SetActive(false);
@@ -90,6 +91,7 @@ namespace UI.QuestBook {
             }
             else
             {
+                mChangeTaskDropDown.interactable = true;
                 mEditButton.onClick.AddListener(() => {
                     EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
                     connectionsPageUI.Initialize(node,questBookPageUI,questBookPath);
@@ -183,8 +185,9 @@ namespace UI.QuestBook {
             questContent.transform.SetParent(mTaskContainer,false);
         }
 
-        private void DropDownValueChanged(int value) {
-            QuestTaskType selectedTaskType = (QuestTaskType)Enum.Parse(typeof(QuestTaskType), mChangeTaskDropDown.options[value].text);
+        private void DropDownValueChanged(int value)
+        {
+            QuestTaskType selectedTaskType = (QuestTaskType)value;
             if (Content.Task != null && Content.Task.GetTaskType() == selectedTaskType) {
                 return;
             }
@@ -193,7 +196,7 @@ namespace UI.QuestBook {
                     Content.Task = new CheckMarkQuestTask();
                     break;
                 case QuestTaskType.Item:
-                    Content.Task = new ItemQuestTask();
+                    Content.Task = new ItemQuestTask(new List<SerializedItemSlot>());
                     break;
                 case QuestTaskType.Dimension:
                     Content.Task = new VisitDimensionQuestTask();
