@@ -15,7 +15,6 @@ namespace UI.QuestBook {
         public QuestBookTaskPageUI QuestBookTaskPageUI;
         private ItemQuestTask task;
         private QuestBookTaskData taskData;
-        private ItemQuestTaskData itemQuestTaskData;
         public void Display() {
             for (int i = 0; i < mItemList.transform.childCount; i++) {
                 GameObject.Destroy(mItemList.transform.GetChild(i).gameObject);
@@ -36,11 +35,10 @@ namespace UI.QuestBook {
             Display();
         }
 
-        public void Display(QuestBookTaskPageUI questBookUI, ItemQuestTask contentData, QuestBookTaskData taskData, ItemQuestTaskData itemQuestTaskData)
+        public void Display(QuestBookTaskPageUI questBookUI, ItemQuestTask contentData, QuestBookTaskData taskData)
         {
             this.QuestBookTaskPageUI = questBookUI;
             this.task = contentData;
-            this.itemQuestTaskData = itemQuestTaskData;
             this.taskData = taskData;
             
             mAddButton.onClick.AddListener(AddItem);

@@ -107,7 +107,7 @@ namespace UI.QuestBook {
             );
             QuestBookNode node = new QuestBookNode(
                 defaultNodeData,
-                new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),defaultNodeData.Id,null)
+                new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),defaultNodeData.Id)
             );
             questBookData.IDCounter++;
             nodeNetwork.Nodes.Add(node);

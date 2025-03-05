@@ -40,20 +40,15 @@ namespace UI.QuestBook {
         public bool Complete;
         public int Id;
         public QuestBookRewardClaimStatus RewardStatus;
-        public ExtraTaskData ExtraTaskData;
-        public QuestBookTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus, int id, ExtraTaskData extraTaskData)
+        public QuestBookTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus, int id)
         {
             Complete = complete;
             RewardStatus = rewardStatus;
-            ExtraTaskData = extraTaskData;
             Id = id;
         }
     }
 
-    public class ExtraTaskData
-    {
-        
-    }
+    
 
     public class QuestBookRewardClaimStatus
     {

@@ -16,7 +16,7 @@ namespace UI.QuestBook {
             switch (taskType) {
                 case QuestTaskType.Item:
                     ItemQuestTaskUI itemQuestTaskUI = assetManager.cloneElement<ItemQuestTaskUI>("ITEM_TASK");
-                    itemQuestTaskUI.Display(taskPageUI,(ItemQuestTask)task,taskData,taskData.ExtraTaskData as ItemQuestTaskData);
+                    itemQuestTaskUI.Display(taskPageUI,(ItemQuestTask)task,taskData);
                     return itemQuestTaskUI.gameObject;
                 case QuestTaskType.Checkmark:
                     CheckMarkTaskUI checkMarkTaskUI = assetManager.cloneElement<CheckMarkTaskUI>("CHECKMARK_TASK");

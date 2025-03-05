@@ -144,6 +144,7 @@ namespace UI.QuestBook {
                 throw new InvalidQuestBookException(e.Message);
             }
         }
+        
 
         public static QuestBookPage GetQuestBookPage(List<QuestBookNodeData> nodeDataList, List<QuestBookTaskData> taskDataList)
         {
@@ -162,7 +163,7 @@ namespace UI.QuestBook {
                 QuestBookTaskData questBookTask = idNodeDataDictionary.GetValueOrDefault(questBookNodeData.Id);
                 if (questBookTask == null)
                 {
-                    questBookTask = new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),questBookNodeData.Id,null);
+                    questBookTask = new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),questBookNodeData.Id);
                 }
                 QuestBookNode questBookNode = new QuestBookNode(questBookNodeData,questBookTask);
                 questBookNodes.Add(questBookNode);

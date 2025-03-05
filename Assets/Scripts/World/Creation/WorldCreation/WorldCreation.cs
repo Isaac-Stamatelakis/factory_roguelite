@@ -40,7 +40,7 @@ namespace WorldModule {
             CompactMachineUtils.InitializeCompactMachineFolder();
             
             InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
-            InitializeQuestBook(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Questbook));
+            InitializeQuestBook(path);
 
             string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
             Directory.CreateDirectory(dimensionFolderPath);
@@ -64,9 +64,8 @@ namespace WorldModule {
 
         public static void InitializeQuestBook(string path)
         {
-            string defaultJson = File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH);
-            byte[] compressed = WorldLoadUtils.CompressString(defaultJson);
-            File.WriteAllBytes(path, compressed);
+            string folderPath = Path.Combine(path, QuestBookUtils.WORLD_QUEST_FOLDER_PATH);
+            Directory.CreateDirectory(folderPath);
         }
 
         private static void InitPlayerData(string path) {

@@ -28,6 +28,7 @@ namespace UI.QuestBook {
         private string libraryPath;
         private string questBookPath;
         private string questBookId;
+        private int currentIndex = -1;
         
         public void Initialize(QuestBookData questBookData, string libraryPath, string questBookId) {
             this.backButton.onClick.AddListener(BackButtonPress);
@@ -77,10 +78,12 @@ namespace UI.QuestBook {
             
         }
         
-        public void DisplayPageIndex(int index) {
-            if (index < 0 || index >= questBookData.PageDataList.Count) {
+        public void DisplayPageIndex(int index)
+        {
+            if (index < 0 || index >= questBookData.PageDataList.Count || currentIndex == index) {
                 return;
             }
+            currentIndex = index;
             DisplayPage(questBookData.PageDataList[index]);
         }
 
