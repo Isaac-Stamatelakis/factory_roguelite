@@ -32,6 +32,7 @@ namespace UI.QuestBook.Tasks.Rewards
         [SerializeField] private RewardListElement rewardListElementPrefab;
         [SerializeField] private CommandRewardListElement commandRewardListElementPrefab;
         [SerializeField] private TextMeshProUGUI textPrefab;
+        [SerializeField] private HorizontalLayoutGroup mHorizontalLayoutGroupPrefab;
         
         private RewardPage currentPage = RewardPage.Items;
         private QuestBookTaskPageUI parentUI;
@@ -150,10 +151,25 @@ namespace UI.QuestBook.Tasks.Rewards
                         mTitle.text = "Item Rewards";
                     }
                     questBookItemRewards.Rewards ??= new List<SerializedItemSlot>();
-                    for (int i = 0; i < questBookItemRewards.Rewards.Count; i++) {
-                        RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab, mElementContainer.transform, false);
-                        rewardListElement.Initialize(questBookItemRewards.Rewards,i,this);
+                    const int ELEMENTS_PER_ROW = 2;
+                    int rows = (questBookItemRewards.Rewards.Count+1) / ELEMENTS_PER_ROW;
+                    for (int row = 0; row < rows; row++)
+                    {
+                        HorizontalLayoutGroup horizontalLayoutGroup = GameObject.Instantiate(mHorizontalLayoutGroupPrefab,mElementContainer.transform,false);
+                        for (int i = 0; i < ELEMENTS_PER_ROW; i++)
+                        {
+                            int idx = i + row * ELEMENTS_PER_ROW;
+                            RewardListElement rewardListElement = GameObject.Instantiate(rewardListElementPrefab, horizontalLayoutGroup.transform, false);
+                            if (idx >= questBookItemRewards.Rewards.Count)
+                            {
+                                rewardListElement.Display(null);
+                                rewardListElement.Hide();
+                                break;
+                            }
+                            rewardListElement.Initialize(questBookItemRewards.Rewards,idx,this);
+                        }
                     }
+                    
                     break;
                 case RewardPage.Commands:
                     mToggle.gameObject.SetActive(false);
