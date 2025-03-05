@@ -18,6 +18,7 @@ namespace UI.QuestBook {
 
         public static void VerifyIntegrityOfQuestBookData(string questBookLibraryPath, string playerQuestBookDataPathRoot)
         {
+            return;
             QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(Path.Combine(questBookLibraryPath,LIBRARY_DATA_PATH));
             Dictionary<string, QuestBookSelectorData> idSelectorDataDict = new Dictionary<string, QuestBookSelectorData>();
             foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
@@ -28,7 +29,7 @@ namespace UI.QuestBook {
             
             foreach (string playerQuestFolder in playerQuestFolders)
             {
-                string directoryName = Path.GetDirectoryName(playerQuestFolder);
+                string directoryName = Path.GetFileName(playerQuestFolder);
                 Debug.Log(directoryName);
                 /*
                 if (!idSelectorDataDict.ContainsKey(directoryName))
@@ -55,24 +56,25 @@ namespace UI.QuestBook {
                 string[] pageFiles = Directory.GetFiles(playerQuestBookDataPath);
                 foreach (string pageFile in pageFiles)
                 {
+                    Debug.Log(pageFile);
                     string fileName = Path.GetFileName(pageFile).Replace(".bin","");
                     if (!idPageDataDictionary.ContainsKey(pageFile))
                     {
-                        File.Delete(fileName);
+                        //File.Delete(fileName);
                     }
                 }
 
                 foreach (var (pageId, pageData) in idPageDataDictionary)
                 {
-                    string pageFillPath = Path.Combine(playerQuestBookDataPath, pageId) + ".bin";
+                    string pageFilePath = Path.Combine(playerQuestBookDataPath, pageId) + ".bin";
                     List<QuestBookTaskData> taskDataList;
-                    if (!pageFiles.Contains(pageFillPath))
+                    if (!pageFiles.Contains(pageFilePath))
                     {
                         taskDataList = new List<QuestBookTaskData>();
                     }
                     else
                     {
-                        taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(pageFillPath);
+                        taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(pageFilePath);
                     }
     
                     Dictionary<int, QuestBookTaskData> questBookNodeDataDict = new Dictionary<int, QuestBookTaskData>();
@@ -102,7 +104,8 @@ namespace UI.QuestBook {
                             taskDataList.RemoveAt(index);
                         }
                     }
-                    GlobalHelper.SerializeCompressedJson(taskDataList, pageFillPath);
+                    Debug.Log(pageFilePath);
+                    //GlobalHelper.SerializeCompressedJson(taskDataList, pageFillPath);
                 }
             }
             
