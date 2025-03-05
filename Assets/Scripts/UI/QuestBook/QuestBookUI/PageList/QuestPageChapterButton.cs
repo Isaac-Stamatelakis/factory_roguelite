@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UI.QuestBook {
@@ -12,12 +14,14 @@ namespace UI.QuestBook {
         [SerializeField] private EditQuestPagePopup editQuestPagePopupPrefab;
         private int index;
         private QuestBookUI questBookUI;
-        private QuestBookPage page;
         private LongClickHandler  holdClickInstance;
-        public void init(QuestBookUI questBookUI, QuestBookPage page, int index) {
+        private QuestBookData questBookData;
+        private string path;
+        public void Initialize(QuestBookUI questBookUI, QuestBookPageData page, QuestBookData questBookData, int index, string questBookPath) {
             this.index = index;
-            this.page = page;
+            this.path = questBookPath;
             this.questBookUI = questBookUI;
+            this.questBookData = questBookData;
             text.text = page.Title;
             holdClickInstance = new LongClickHandler (this);
             
@@ -31,11 +35,11 @@ namespace UI.QuestBook {
         }
         public void longClick()
         {
-            if (!QuestBookUtils.EditMode) {
+            if (SceneManager.GetActiveScene().name != DevToolUtils.SCENE_NAME) {
                 return;
             }
             EditQuestPagePopup editQuestPagePopup = GameObject.Instantiate(editQuestPagePopupPrefab);
-            editQuestPagePopup.init(index,questBookUI.QuestBook.Pages,questBookUI);
+            editQuestPagePopup.init(index,questBookData,questBookUI,path);
             editQuestPagePopup.transform.SetParent(questBookUI.transform,false);
         }
 
@@ -43,8 +47,6 @@ namespace UI.QuestBook {
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
                 questBookUI.DisplayPageIndex(index);
-            } else if (eventData.button == PointerEventData.InputButton.Right) {
-                handleRightClick();
             }
         }
 
@@ -57,13 +59,7 @@ namespace UI.QuestBook {
         {
             holdClickInstance.release();
         }
-
-        private void handleRightClick() {
-            if (!QuestBookUtils.EditMode) {
-                return;
-            } 
-
-        }
+        
     }
 }
 

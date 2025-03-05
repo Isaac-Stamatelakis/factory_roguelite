@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using UnityEngine;
 using UI.NodeNetwork;
 using UI.QuestBook.Tasks;
@@ -9,20 +10,26 @@ namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage>
     {
         [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
-        private QuestBookLibrary library;
-        public QuestBookLibrary Library {get => library;}
-        private QuestBook questBook;
-        public QuestBook QuestBook {get => questBook;}
         private QuestBookUI questBookUI;
         public QuestBookUI QuestBookUI {get => questBookUI;}
-        public void Initialize(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI)
+        private QuestBookData questBookData;
+        private string questBookPath;
+        public string QuestBookPath {get => questBookPath;}
+        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookUI questBookUI, string questBookPath)
         {
             CurrentSelected = null;
-            this.NodeNetwork = questBookPage;
-            this.questBook = questBook;
-            this.library = questBookLibrary;
             this.questBookUI = questBookUI;
-            editController.gameObject.SetActive(QuestBookUtils.EditMode);
+            this.NodeNetwork = questBookPage;
+            this.questBookData = questBookData;
+            this.questBookUI = questBookUI;
+            bool editMode = DevToolUtils.OnDevToolScene;
+            editController.gameObject.SetActive(editMode);
+            if (editMode)
+            {
+                editController.Initialize(this);
+            }
+            
+            Display();
         }
         
         protected override INodeUI GenerateNode(QuestBookNode node)
@@ -47,7 +54,7 @@ namespace UI.QuestBook {
 
         public override QuestBookNode LookUpNode(int id)
         {
-            return library.IdNodeMap.GetValueOrDefault(id);
+            return NodeNetwork.IdNodeDict.GetValueOrDefault(id);
         }
         
 
@@ -86,7 +93,7 @@ namespace UI.QuestBook {
                 position.x,
                 position.y,
                 true,
-                library.GetSmallestNewID(),
+                questBookData.IDCounter,
                 QuestBookNodeSize.Regular,
                 defaultContent
             );
@@ -94,8 +101,9 @@ namespace UI.QuestBook {
                 defaultNodeData,
                 null
             );
+            questBookData.IDCounter++;
             nodeNetwork.Nodes.Add(node);
-            library.AddNode(node);
+            nodeNetwork.IdNodeDict[node.Id] = node;
         }
 
         public override GameObject GenerateNewNodeObject()

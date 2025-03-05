@@ -97,7 +97,7 @@ namespace UI.QuestBook {
         }
 
         
-        private static QuestBookData GetQuestBookData(string questBookDirectory) {
+        public static QuestBookData GetQuestBookData(string questBookDirectory) {
             string questBookDataPath = Path.Combine(questBookDirectory, QUEST_BOOK_DATA_FILE);
             if (!File.Exists(questBookDataPath))
             {
@@ -119,7 +119,7 @@ namespace UI.QuestBook {
 
         public static List<QuestBookNodeData> GetQuestBookPageNodeData(string questBookDirectory, string questBookPageID)
         {
-            string pagePath = Path.Combine(questBookDirectory, questBookPageID);
+            string pagePath = Path.Combine(questBookDirectory, questBookPageID) + ".bin";
             if (!File.Exists(pagePath))
             {
                 throw new InvalidQuestBookException($"Could not find quest book page node ata at {pagePath}");
@@ -145,6 +145,32 @@ namespace UI.QuestBook {
             }
         }
 
+        public static QuestBookPage GetQuestBookPage(List<QuestBookNodeData> nodeDataList, List<QuestBookTaskData> taskDataList)
+        {
+            Dictionary<int, QuestBookTaskData> idNodeDataDictionary = new Dictionary<int, QuestBookTaskData>();
+            
+            
+            foreach (QuestBookTaskData taskData in taskDataList)
+            {
+                idNodeDataDictionary[taskData.Id] = taskData;
+            }
+            
+            List<QuestBookNode> questBookNodes = new List<QuestBookNode>();
+            Dictionary<int,QuestBookNode> idNodeDictionary = new Dictionary<int, QuestBookNode>();
+            foreach (QuestBookNodeData questBookNodeData in nodeDataList)
+            {
+                QuestBookTaskData questBookTask = idNodeDataDictionary.GetValueOrDefault(questBookNodeData.Id);
+                if (questBookTask == null)
+                {
+                    questBookTask = new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),questBookNodeData.Id,null);
+                }
+                QuestBookNode questBookNode = new QuestBookNode(questBookNodeData,questBookTask);
+                questBookNodes.Add(questBookNode);
+                idNodeDictionary[questBookNodeData.Id] = questBookNode;
+            }
+            return new QuestBookPage(questBookNodes,idNodeDictionary);
+        }
+
         public static void SerializedQuestBookNodeData(string questBookDirectory, string questBookPageID, List<QuestBookNodeData> questBookNodeDataList)
         {
             List<SerializedQuestBookNode> serializedQuestBookNodes = new List<SerializedQuestBookNode>();
@@ -157,6 +183,7 @@ namespace UI.QuestBook {
             string json = JsonConvert.SerializeObject(serializedQuestBookNodes);
             byte[] bytes = WorldLoadUtils.CompressString(json);
             string savePath = Path.Combine(questBookDirectory, questBookPageID);
+            savePath += ".bin";
             File.WriteAllBytes(savePath, bytes);
         }
         

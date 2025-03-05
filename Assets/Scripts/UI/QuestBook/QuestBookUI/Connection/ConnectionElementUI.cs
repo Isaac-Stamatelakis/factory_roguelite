@@ -15,13 +15,13 @@ namespace UI.QuestBook {
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI idText;
         [SerializeField] private Image panel;
-        private QuestBookNode node;
+        private QuestBookNodeData node;
         private List<int> nodeConnections;
         
-        public void init(List<int> nodeConnections, QuestBookNode node) {
+        public void Initialize(List<int> nodeConnections, QuestBookNodeData node) {
             this.node = node;
             this.nodeConnections = nodeConnections;
-            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.NodeData.ImageSeralizedItemSlot?.id);
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);
             mImage.sprite = itemObject?.getSprite();
             nameText.text = node.Content.Title;
             idText.text = "#" + node.Id.ToString();

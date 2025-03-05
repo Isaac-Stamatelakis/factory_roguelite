@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using System.Threading.Tasks;
+using DevTools;
 using Newtonsoft.Json;
 using UI.QuestBook.Tasks;
 using UI.QuestBook.Tasks.Rewards;
@@ -35,7 +36,7 @@ namespace UI.QuestBook {
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
         
-        public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI) {
+        public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI, string questBookPath) {
             this.node = node;
             this.mTitleField.text = Content.Title;
             this.mDescriptionField.text = Content.Description;
@@ -79,7 +80,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             
-            if (!QuestBookUtils.EditMode)
+            if (DevToolUtils.OnDevToolScene)
             {
                 mChangeTaskDropDown.interactable = false;
                 mEditImageButton.gameObject.SetActive(false);
@@ -91,7 +92,7 @@ namespace UI.QuestBook {
             {
                 mEditButton.onClick.AddListener(() => {
                     EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
-                    connectionsPageUI.init(node,questBookPageUI);
+                    connectionsPageUI.Initialize(node,questBookPageUI,questBookPath);
                     Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
                     connectionsPageUI.transform.SetParent(canvas.transform,false);
                 }); 
@@ -178,7 +179,7 @@ namespace UI.QuestBook {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, node.TaskData, this);
+            GameObject questContent = QuestBookTaskUIFactory.GetContent(Content.Task, node.TaskData, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }
 

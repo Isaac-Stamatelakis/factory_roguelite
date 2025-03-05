@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using DevTools;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,11 +45,13 @@ namespace UI.QuestBook {
         }
 
         private void NavigatePress() {
-            // TODO
-            //GameObject.Destroy(questBookSelectorUI.gameObject);
-            //QuestBookUI questBookUI = questBookSelectorUI.AssetManager.cloneElement<QuestBookUI>("QUEST_BOOK");
-            //questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
-            //questBookUI.Initialize(questBook,library,questBookSelectorUI.gameObject);
+            Destroy(questBookSelectorUI.gameObject);
+            QuestBookUI questBookUI = questBookSelectorUI.AssetManager.cloneElement<QuestBookUI>("QUEST_BOOK");
+            questBookUI.transform.SetParent(questBookSelectorUI.transform.parent,false);
+            string questBookPath = Path.Combine(libraryPath, questBookSelectorData.Id);
+            string questBookDataPath = Path.Combine(questBookPath, QuestBookUtils.QUESTBOOK_DATA_PATH);
+            QuestBookData questBookData = GlobalHelper.DeserializeCompressedJson<QuestBookData>(questBookDataPath);
+            questBookUI.Initialize(questBookData,libraryPath,questBookSelectorData.Id);
         }
     }
 }

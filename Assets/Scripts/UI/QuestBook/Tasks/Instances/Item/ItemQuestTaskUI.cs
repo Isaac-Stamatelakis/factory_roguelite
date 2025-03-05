@@ -13,7 +13,8 @@ namespace UI.QuestBook {
         [SerializeField] private ItemQuestItemElement itemQuestItemPrefab;
         public QuestBookTaskPageUI QuestBookTaskPageUI;
         private ItemQuestTask task;
-        private ItemQuestTaskData taskData;
+        private QuestBookTaskData taskData;
+        private ItemQuestTaskData itemQuestTaskData;
         public void Display() {
             for (int i = 0; i < mItemList.transform.childCount; i++) {
                 GameObject.Destroy(mItemList.transform.GetChild(i).gameObject);
@@ -34,10 +35,11 @@ namespace UI.QuestBook {
             Display();
         }
 
-        public void Display(QuestBookTaskPageUI questBookUI, ItemQuestTask contentData, ItemQuestTaskData taskData)
+        public void Display(QuestBookTaskPageUI questBookUI, ItemQuestTask contentData, QuestBookTaskData taskData, ItemQuestTaskData itemQuestTaskData)
         {
             this.QuestBookTaskPageUI = questBookUI;
             this.task = contentData;
+            this.itemQuestTaskData = itemQuestTaskData;
             this.taskData = taskData;
             
             mAddButton.onClick.AddListener(AddItem);

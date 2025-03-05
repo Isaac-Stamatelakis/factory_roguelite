@@ -14,10 +14,10 @@ namespace UI.QuestBook {
         }
     }
 
-    public class ItemQuestTaskData : QuestBookTaskData
+    public class ItemQuestTaskData : ExtraTaskData
     { 
         public List<SerializedItemSlot> Items;
-        public ItemQuestTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus, List<SerializedItemSlot> items) : base(complete, rewardStatus)
+        public ItemQuestTaskData(List<SerializedItemSlot> items)
         {
            Items = items;
         }

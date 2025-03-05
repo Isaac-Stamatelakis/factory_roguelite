@@ -118,6 +118,29 @@ public static class GlobalHelper
 
         return BitConverter.ToString(hash).Replace("-","");
     }
+    
+    public static string GenerateHash(List<string> ids)
+    {
+        const int ATTEMPTS = 64;
+        for (int i = 0; i < ATTEMPTS; i++)
+        {
+            string hash = GenerateHash();
+            bool found = false;
+            foreach (string id in ids)
+            {
+                if (id == hash)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return hash;
+        }
+
+        return null;
+
+    }
 
     public static void SerializeCompressedJson<T>(T classInstance, string path)
     {

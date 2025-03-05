@@ -7,12 +7,12 @@ using UI.NodeNetwork;
 namespace UI.QuestBook {
     public class QuestBookPage : INodeNetwork<QuestBookNode>
     {
-        public string Title;
         public List<QuestBookNode> Nodes;
+        public Dictionary<int, QuestBookNode> IdNodeDict;
 
-        public QuestBookPage(string title, List<QuestBookNode> nodes) {
-            this.Title = title;
+        public QuestBookPage(List<QuestBookNode> nodes, Dictionary<int, QuestBookNode> idNodeDict) {
             this.Nodes = nodes;
+            this.IdNodeDict = idNodeDict;
         }
 
         public List<QuestBookNode> GetNodes()

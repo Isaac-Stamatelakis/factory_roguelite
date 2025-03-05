@@ -10,13 +10,13 @@ namespace UI.QuestBook {
     }
 
     public static class QuestBookTaskUIFactory {
-        public static GameObject getContent(QuestBookTask task, QuestBookTaskData taskData, QuestBookTaskPageUI taskPageUI) {
+        public static GameObject GetContent(QuestBookTask task, QuestBookTaskData taskData, QuestBookTaskPageUI taskPageUI) {
             QuestTaskType taskType = task.GetTaskType();
             UIAssetManager assetManager = taskPageUI.QuestBookPageUI.QuestBookUI.AssetManager;
             switch (taskType) {
                 case QuestTaskType.Item:
                     ItemQuestTaskUI itemQuestTaskUI = assetManager.cloneElement<ItemQuestTaskUI>("ITEM_TASK");
-                    itemQuestTaskUI.Display(taskPageUI,(ItemQuestTask)task,(ItemQuestTaskData)taskData);
+                    itemQuestTaskUI.Display(taskPageUI,(ItemQuestTask)task,taskData,taskData.ExtraTaskData as ItemQuestTaskData);
                     return itemQuestTaskUI.gameObject;
                 case QuestTaskType.Checkmark:
                     CheckMarkTaskUI checkMarkTaskUI = assetManager.cloneElement<CheckMarkTaskUI>("CHECKMARK_TASK");

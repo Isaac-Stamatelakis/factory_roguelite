@@ -38,13 +38,21 @@ namespace UI.QuestBook {
     public class QuestBookTaskData
     {
         public bool Complete;
+        public int Id;
         public QuestBookRewardClaimStatus RewardStatus;
-
-        public QuestBookTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus)
+        public ExtraTaskData ExtraTaskData;
+        public QuestBookTaskData(bool complete, QuestBookRewardClaimStatus rewardStatus, int id, ExtraTaskData extraTaskData)
         {
             Complete = complete;
             RewardStatus = rewardStatus;
+            ExtraTaskData = extraTaskData;
+            Id = id;
         }
+    }
+
+    public class ExtraTaskData
+    {
+        
     }
 
     public class QuestBookRewardClaimStatus
