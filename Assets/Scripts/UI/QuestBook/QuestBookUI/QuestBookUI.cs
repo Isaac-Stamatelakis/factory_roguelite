@@ -88,8 +88,7 @@ namespace UI.QuestBook {
         {
             List<QuestBookNodeData> questBookNodeData = QuestBookLibraryFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
             QuestBookPage questBookPage = QuestBookLibraryFactory.GetQuestBookPage(questBookNodeData, new List<QuestBookTaskData>());
-            pageUI.Initialize(questBookPage,questBookData,this,questBookPath);
-            pageUI.Display();
+            pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath);
         }
         
         public void OnDestroy()

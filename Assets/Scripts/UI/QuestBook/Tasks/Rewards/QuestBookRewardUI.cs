@@ -44,7 +44,8 @@ namespace UI.QuestBook.Tasks.Rewards
             mRightButton.onClick.RemoveAllListeners();
             mAddButton.onClick.RemoveAllListeners();
             mClaimButton.onClick.RemoveAllListeners();
-            
+
+            this.questBookNode = questBookNode;
             this.parentUI = parentUI;
             
             mAddButton.onClick.AddListener(AddButtonPress);
