@@ -16,9 +16,24 @@ namespace UI.QuestBook {
         private static bool editMode = false;
         public const bool SHOW_ALL_COMPLETED = false;
 
+        private struct QuestBookVerifyInfo
+        {
+            public int QuestFoldersAdded;
+            public int QuestFoldersDeleted;
+            public int PagesAdded;
+            public int PagesDeleted;
+            public int TasksDeleted;
+            public int TasksAdded;
+            public override string ToString()
+            {
+                return $"Player Quest Book Data Verified: " +
+                       $"QuestBooks: +{QuestFoldersAdded} & -{QuestFoldersDeleted}, " +
+                       $"Pages: +{PagesAdded} & -{PagesDeleted}, " +
+                       $"Tasks: +{TasksAdded} & -{TasksDeleted}.";
+            }
+        }
         public static void VerifyIntegrityOfQuestBookData(string questBookLibraryPath, string playerQuestBookDataPathRoot)
         {
-            return;
             QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(Path.Combine(questBookLibraryPath,LIBRARY_DATA_PATH));
             Dictionary<string, QuestBookSelectorData> idSelectorDataDict = new Dictionary<string, QuestBookSelectorData>();
             foreach (QuestBookSelectorData selectorData in questBookLibraryData.QuestBookDataList)
@@ -26,17 +41,16 @@ namespace UI.QuestBook {
                 idSelectorDataDict[selectorData.Id] = selectorData;
             }
             string[] playerQuestFolders = Directory.GetDirectories(playerQuestBookDataPathRoot);
-            
+            QuestBookVerifyInfo questBookVerifyInfo = new QuestBookVerifyInfo();
             foreach (string playerQuestFolder in playerQuestFolders)
             {
                 string directoryName = Path.GetFileName(playerQuestFolder);
-                Debug.Log(directoryName);
-                /*
+                
                 if (!idSelectorDataDict.ContainsKey(directoryName))
                 {
                     Directory.Delete(playerQuestFolder, true);
+                    questBookVerifyInfo.QuestFoldersDeleted++;
                 }
-                */
             }
 
             foreach (var (questBookId, selectorData) in idSelectorDataDict)
@@ -46,6 +60,7 @@ namespace UI.QuestBook {
                 if (!playerQuestFolders.Contains(playerQuestBookDataPath))
                 {
                     Directory.CreateDirectory(playerQuestBookDataPath);
+                    questBookVerifyInfo.QuestFoldersAdded++;
                 }
                 QuestBookData questBookData = GlobalHelper.DeserializeCompressedJson<QuestBookData>(Path.Combine(questBookFolderPath,QUESTBOOK_DATA_PATH));
                 Dictionary<string, QuestBookPageData> idPageDataDictionary = new Dictionary<string, QuestBookPageData>();
@@ -56,11 +71,11 @@ namespace UI.QuestBook {
                 string[] pageFiles = Directory.GetFiles(playerQuestBookDataPath);
                 foreach (string pageFile in pageFiles)
                 {
-                    Debug.Log(pageFile);
                     string fileName = Path.GetFileName(pageFile).Replace(".bin","");
-                    if (!idPageDataDictionary.ContainsKey(pageFile))
+                    if (!idPageDataDictionary.ContainsKey(fileName))
                     {
-                        //File.Delete(fileName);
+                        File.Delete(pageFile);
+                        questBookVerifyInfo.PagesDeleted++;
                     }
                 }
 
@@ -92,6 +107,7 @@ namespace UI.QuestBook {
                         if (!questBookNodeDataDict.ContainsKey(questBookNodeData.Id))
                         {
                             taskDataList.Add( new QuestBookTaskData(false, new QuestBookRewardClaimStatus(), questBookNodeData.Id));
+                            questBookVerifyInfo.TasksAdded++;
                         }
                         validNodes.Add(questBookNodeData.Id);
                     }
@@ -102,15 +118,18 @@ namespace UI.QuestBook {
                         if (!validNodes.Contains(taskData.Id))
                         {
                             taskDataList.RemoveAt(index);
+                            questBookVerifyInfo.TasksDeleted++;
                         }
                     }
-                    Debug.Log(pageFilePath);
-                    //GlobalHelper.SerializeCompressedJson(taskDataList, pageFillPath);
+
+                    if (!File.Exists(pageFilePath))
+                    {
+                        questBookVerifyInfo.PagesAdded++;
+                    }
+                    GlobalHelper.SerializeCompressedJson(taskDataList, pageFilePath);
                 }
             }
-            
-            
-            
+            Debug.Log(questBookVerifyInfo.ToString());
         }
     }
 }
