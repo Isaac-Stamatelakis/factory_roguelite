@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using DevTools;
 using PlayerModule.KeyPress;
+using UI.QuestBook.Data;
 using UnityEngine;
 
 namespace UI.QuestBook
@@ -7,21 +11,24 @@ namespace UI.QuestBook
     public class QuestBookUIManager : MonoBehaviour
     {
         [SerializeField] private QuestBookSelectorUI selectorPrefab;
-        private static QuestBookUIManager instance;
-        public static QuestBookUIManager Instance => instance;
-
-        public void Awake()
-        {
-            instance = this;
-        }
-
-        public void Initialize(QuestBookLibrary library)
+        public void Start()
         {
             GlobalHelper.deleteAllChildren(transform);
+            string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), QuestBookUtils.MAIN_QUEST_BOOK_NAME);
+            string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
+            QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);
+            if (questBookLibraryData == null)
+            {
+                Debug.LogError($"Invalid lib data at path '{libPath}'");
+                return;
+            }
+            
             QuestBookSelectorUI selectorUI = Instantiate(selectorPrefab, transform, false);
-            selectorUI.Initialize(library);
+            selectorUI.Initialize(questBookLibraryData,path);
             selectorUI.gameObject.SetActive(false);
         }
+
+       
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.L) && !PlayerKeyPressUtils.BlockKeyInput && transform.childCount > 0)

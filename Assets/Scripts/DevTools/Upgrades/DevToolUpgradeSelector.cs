@@ -27,7 +27,6 @@ namespace DevTools.Upgrades
                 DevToolUpgradeInfo info = new DevToolUpgradeInfo(file);
                 DevToolUpgradeListElement devToolUpgradeListElement = Instantiate(upgradeListElementPrefab,mList.transform);
                 devToolUpgradeListElement.Display(this,info);
-                
             }
         }
     }

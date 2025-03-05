@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 namespace DevTools {
     public enum DevTool
@@ -14,6 +15,7 @@ namespace DevTools {
     public static class DevToolUtils
     {
         public const string SCENE_NAME = "DevTools";
+        public static bool OnDevToolScene => SceneManager.GetSceneByName(SCENE_NAME).isLoaded;
         public static string GetDevToolPath(DevTool devTool) {
             string devPath = Path.Combine(Application.streamingAssetsPath,devTool.ToString());
             if (!Directory.Exists(devPath)) {
@@ -21,6 +23,7 @@ namespace DevTools {
             }
             return devPath;
         }
+        
     }
 }
 

@@ -7,6 +7,7 @@ using TMPro;
 using Items;
 using UnityEngine.EventSystems;
 using Items.Inventory;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class ConnectionElementUI : MonoBehaviour, IPointerClickHandler
@@ -15,10 +16,10 @@ namespace UI.QuestBook {
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI idText;
         [SerializeField] private Image panel;
-        private QuestBookNode node;
+        private QuestBookNodeData node;
         private List<int> nodeConnections;
         
-        public void init(List<int> nodeConnections, QuestBookNode node) {
+        public void Initialize(List<int> nodeConnections, QuestBookNodeData node) {
             this.node = node;
             this.nodeConnections = nodeConnections;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.ImageSeralizedItemSlot?.id);

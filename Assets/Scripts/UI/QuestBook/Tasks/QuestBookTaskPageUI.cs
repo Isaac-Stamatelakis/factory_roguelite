@@ -5,7 +5,9 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using System.Threading.Tasks;
+using DevTools;
 using Newtonsoft.Json;
+using UI.QuestBook.Data.Node;
 using UI.QuestBook.Tasks;
 using UI.QuestBook.Tasks.Rewards;
 using UnityEngine.Serialization;
@@ -22,17 +24,19 @@ namespace UI.QuestBook {
         [FormerlySerializedAs("titleField")] [SerializeField] private TMP_InputField mTitleField;
         [FormerlySerializedAs("descriptionField")] [SerializeField] private TMP_InputField mDescriptionField;
         [FormerlySerializedAs("changeTaskDropDown")] [SerializeField] private TMP_Dropdown mChangeTaskDropDown;
-        [SerializeField] private Button mCheckSubmissionButton;
         [SerializeField] private Button mEditImageButton;
         [SerializeField] private Button mEditSizeButton;
         [SerializeField] private QuestBookRewardUI mQuestBookRewardUI;
         [SerializeField] private Image mSelectTaskDownArrowImage;
-        public QuestBookNodeContent Content {get => node.Content; set => node.Content = value;}
+        public QuestBookNodeContent Content
+        {
+            get => node.Content;
+        }
         private QuestBookPageUI questBookPageUI;
         private QuestBookNode node;
         public QuestBookPageUI QuestBookPageUI { get => questBookPageUI; set => questBookPageUI = value; }
         
-        public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI) {
+        public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI, string questBookPath) {
             this.node = node;
             this.mTitleField.text = Content.Title;
             this.mDescriptionField.text = Content.Description;
@@ -47,11 +51,12 @@ namespace UI.QuestBook {
             } else {
                 SetTaskContent();
             }
+
+            bool editMode = DevToolUtils.OnDevToolScene;
+            mQuestBookRewardUI.Initialize(node,this);
             
-            mQuestBookRewardUI.Initialize(node.Content,this);
-            
-            mTitleField.interactable = QuestBookUtils.EditMode;
-            mDescriptionField.interactable = QuestBookUtils.EditMode;
+            mTitleField.interactable = editMode;
+            mDescriptionField.interactable = editMode;
             
             mChangeTaskDropDown.value = (int) node.Content.Task.GetTaskType();
             
@@ -76,7 +81,7 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             
-            if (!QuestBookUtils.EditMode)
+            if (!editMode)
             {
                 mChangeTaskDropDown.interactable = false;
                 mEditImageButton.gameObject.SetActive(false);
@@ -86,26 +91,27 @@ namespace UI.QuestBook {
             }
             else
             {
+                mChangeTaskDropDown.interactable = true;
                 mEditButton.onClick.AddListener(() => {
                     EditConnectionsPageUI connectionsPageUI = AssetManager.cloneElement<EditConnectionsPageUI>("NODE_EDITOR");
-                    connectionsPageUI.init(node,questBookPageUI);
+                    connectionsPageUI.Initialize(node,questBookPageUI,questBookPath);
                     Canvas canvas = GameObject.FindAnyObjectByType<Canvas>();
                     connectionsPageUI.transform.SetParent(canvas.transform,false);
                 }); 
                 mEditImageButton.onClick.AddListener(() => {
                     SerializedItemSlotEditorUI serializedItemSlotEditor = AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
-                    if (node.ImageSeralizedItemSlot == null)
+                    if (node.NodeData.ImageSeralizedItemSlot == null)
                     {
-                        node.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
+                        node.NodeData.ImageSeralizedItemSlot = new SerializedItemSlot("stone",1,null);
                     }
 
                     void Callback(SerializedItemSlot itemSlot) // Experimenting with inline function definitions
                     {
-                        node.ImageSeralizedItemSlot = itemSlot;
+                        node.NodeData.ImageSeralizedItemSlot = itemSlot;
                         questBookPageUI.Display();
                     }
 
-                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.ImageSeralizedItemSlot},0,null,
+                    serializedItemSlotEditor.Init(new List<SerializedItemSlot>{node.NodeData.ImageSeralizedItemSlot},0,null,
                         gameObject,displayAmount:false,displayTags:false,displayArrows:false, displayTrash:false, callback: Callback);
                     serializedItemSlotEditor.transform.SetParent(transform,false);
                 }); 
@@ -118,69 +124,30 @@ namespace UI.QuestBook {
                     editSizeUI.transform.SetParent(canvas.transform,false);
                 });
             }
-
-            UpdateSubmissionButton();
-            mCheckSubmissionButton.onClick.AddListener(CheckTask);
-            
         }
 
+        public void RefreshRewardUI()
+        {
+            mQuestBookRewardUI.Display();
+        }
         public void OnTaskStatusChanged()
         {
             SetTaskContent();
-            UpdateSubmissionButton();
             questBookPageUI.DisplayLines();
             mQuestBookRewardUI.UpdateClaimButtonImage();
         }
-        private void CheckTask()
-        {
-            var task = Content.Task;
-            if (!QuestBookUtils.EditMode)
-            {
-                if (task is ICompletionCheckQuest completionCheckQuest)
-                {
-                    bool updated = completionCheckQuest.CheckCompletion();
-                    if (updated)
-                    {
-                        OnTaskStatusChanged();
-                    }
-                }
-            }
-            else
-            {
-                task.SetCompletion(!task.IsComplete());
-            }
-            
-
-            UpdateSubmissionButton();
-        }
-
-        private void UpdateSubmissionButton()
-        {
-            
-            var task = Content.Task;
-            if (task is not ICompletionCheckQuest)
-            {
-                mCheckSubmissionButton.gameObject.SetActive(false);
-                return;
-            }
-            var complete = task.IsComplete();
-            mCheckSubmissionButton.interactable = !complete || QuestBookUtils.EditMode;
-            mCheckSubmissionButton.GetComponentInChildren<TextMeshProUGUI>().text =
-                complete ? "Quest Completed" : "Check Submission";
-            mCheckSubmissionButton.GetComponent<Image>().color = complete ? Color.green : Color.blue;
-        }
-        
         
         private void SetTaskContent() {
             for (int i = 0; i < mTaskContainer.childCount; i++) {
                 GameObject.Destroy(mTaskContainer.GetChild(i).gameObject);
             }
-            GameObject questContent = QuestBookTaskUIFactory.getContent(Content.Task, this);
+            GameObject questContent = QuestBookTaskUIFactory.GetContent(Content.Task, node.TaskData, this);
             questContent.transform.SetParent(mTaskContainer,false);
         }
 
-        private void DropDownValueChanged(int value) {
-            QuestTaskType selectedTaskType = (QuestTaskType)Enum.Parse(typeof(QuestTaskType), mChangeTaskDropDown.options[value].text);
+        private void DropDownValueChanged(int value)
+        {
+            QuestTaskType selectedTaskType = (QuestTaskType)value;
             if (Content.Task != null && Content.Task.GetTaskType() == selectedTaskType) {
                 return;
             }
@@ -189,7 +156,7 @@ namespace UI.QuestBook {
                     Content.Task = new CheckMarkQuestTask();
                     break;
                 case QuestTaskType.Item:
-                    Content.Task = new ItemQuestTask();
+                    Content.Task = new ItemQuestTask(new List<SerializedItemSlot>());
                     break;
                 case QuestTaskType.Dimension:
                     Content.Task = new VisitDimensionQuestTask();

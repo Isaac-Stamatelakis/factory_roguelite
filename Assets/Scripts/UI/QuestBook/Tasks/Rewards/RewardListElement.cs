@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using Item.Slot;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +24,7 @@ namespace UI.QuestBook {
         {
             switch (eventData.button)
             {
-                case PointerEventData.InputButton.Left when QuestBookUtils.EditMode:
+                case PointerEventData.InputButton.Left when DevToolUtils.OnDevToolScene:
                 {
                     QuestBookTaskPageUI taskPageUI = questBookRewardUI.ParentUI;
                     SerializedItemSlotEditorUI serializedItemSlotEditorUI = taskPageUI.AssetManager.cloneElement<SerializedItemSlotEditorUI>("ITEM_EDITOR");
@@ -57,6 +58,15 @@ namespace UI.QuestBook {
             reload();
         }
 
+        public void Hide()
+        {
+            mNameText.text = null;
+            // Hides image without messing with the sizing in layout group
+            var color = GetComponent<Image>().color;
+            color.a = 0;
+            GetComponent<Image>().color = color;
+        }
+
         
         public void reload()
         {
@@ -64,6 +74,7 @@ namespace UI.QuestBook {
             mNameText.text = itemSlot?.itemObject?.name;
             Display(itemSlot);
         }
+        
 
         public void reloadAll()
         {

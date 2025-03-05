@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
@@ -11,15 +12,17 @@ namespace Entities {
         private const int BLINK_RATE = 4;
         private const float BLINK_THRESHOLD = 10;
         private const float LIFE_SPAN = 300;
-        private const float MIN_MERGE_TIME = 1f;
         private const float MAX_FALL_SPEED = 10f;
-        private bool firedDelayedCast = false;
         private SpriteRenderer spriteRenderer;
         private Rigidbody2D rb;
         [SerializeField] public ItemSlot itemSlot;
         [SerializeField] protected float lifeTime = 0f;
+        private float perservedSpeed = 0;
+        private bool touchingBoundary = false;
         
         public float LifeTime {get{return lifeTime;}}
+
+        private const int CAST_RATE = 1;
 
         public override void initalize()
         {
@@ -66,7 +69,22 @@ namespace Entities {
 
         public virtual void FixedUpdate()
         {
+            if (!touchingBoundary)
+            {
+                perservedSpeed = rb.velocity.y;
+            }
             IterateLifeTime();
+            if ((int)lifeTime % CAST_RATE == 0)
+            {
+                RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
+                foreach (RaycastHit2D leftHit in leftHits) {
+                    if (leftHit.collider.gameObject.Equals(gameObject)) continue;
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
+                    if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
+                    ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
+                    MergeItemEntities(leftEntity);
+                }
+            }
             ClampFallSpeed();
 
         }
@@ -76,7 +94,7 @@ namespace Entities {
             SerializedItemEntityData serializedItemEntityData = new SerializedItemEntityData(
                 ItemSlotFactory.seralizeItemSlot(itemSlot),
                 rb.velocity.x,
-                rb.velocity.y
+                touchingBoundary ? perservedSpeed : rb.velocity.y
             );
             return new SeralizedEntityData(
                 type: EntityType.Item,
@@ -99,24 +117,26 @@ namespace Entities {
             }
         }
         
-        public void OnTriggerEnter2D(Collider2D other)
-        {
-            if (other.gameObject.tag != "ItemEntity") return;
-        
-            ItemEntity itemEntity = other.gameObject.GetComponentInParent<ItemEntity>();
-            TryMergeItemEntities(itemEntity);
-        }
-        
-        private void TryMergeItemEntities(ItemEntity other)
-        {
-            if (lifeTime < MIN_MERGE_TIME)
-            {
-                StartCoroutine(DelayMergeCast(MIN_MERGE_TIME - lifeTime));
-                return;
-            }
 
-            MergeItemEntities(other);
+        public void OnCollisionEnter2D(Collision2D other)
+        {
+            if (other.gameObject.tag == "PartitionBoundary")
+            {
+                touchingBoundary = true;
+            }
         }
+
+        public void OnCollisionExit2D(Collision2D other)
+        {
+            if (other.gameObject.tag == "PartitionBoundary")
+            {
+                var vector2 = rb.velocity;
+                vector2.y = perservedSpeed;
+                rb.velocity = vector2;
+                touchingBoundary = false;
+            }
+        }
+        
 
         private void MergeItemEntities(ItemEntity other)
         {
@@ -129,22 +149,7 @@ namespace Entities {
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) Destroy(other.gameObject);
         }
 
-        private IEnumerator DelayMergeCast(float delay)
-        {
-            if (firedDelayedCast) yield break;
-            firedDelayedCast = true;
-            yield return new WaitForSeconds(delay + 0.05f);
-            
-            RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
-            foreach (RaycastHit2D leftHit in leftHits) {
-                if (leftHit.collider.gameObject.Equals(gameObject)) continue;
-                if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
-                if (leftHit.collider.gameObject.tag != "ItemEntity") continue;
-                ItemEntity leftEntity = leftHit.collider.gameObject.GetComponent<ItemEntity>();
-                MergeItemEntities(leftEntity);
-                
-            }
-        }
+        
 
         public static void SpawnFromData(Vector2 position, string data, Transform container)
         {

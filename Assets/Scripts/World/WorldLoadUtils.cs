@@ -25,12 +25,10 @@ namespace WorldModule {
         public static bool UsePersistentPath = true;
         
         public const string DEFAULT_WORLD_FOLDER = "worlds"; 
-        public const string PLAYER_DATA_FILE = "player_data.json";
+        public const string PLAYER_DATA_FILE = "player_data.bin";
         public const string DIMENSION_FOLDER_PATH = "Dimensions";
         public const string DIM_FOLDER_PREFIX = "dim";
-        public const string META_DATA_PATH = "meta.json";
-        public const string QUESTBOOK_PATH = "questbook.json";
-        public const string STRUCTURE_META_PATH = "structure_meta.json";
+        public const string META_DATA_PATH = "meta.bin";
         public const string BACKUP_FOLDER_PATH = "Backups";
         public const string CURRENT_FOLDER_PATH = "Main";
 
@@ -69,8 +67,6 @@ namespace WorldModule {
             {
                 WorldFileType.DimensionFolder => DIMENSION_FOLDER_PATH,
                 WorldFileType.Player => PLAYER_DATA_FILE,
-                WorldFileType.Questbook => QUESTBOOK_PATH,
-                WorldFileType.StructureMeta => STRUCTURE_META_PATH,
                 _ => throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null)
             };
         }
@@ -138,6 +134,12 @@ namespace WorldModule {
             string metaDataPath = GetMetaDataPath(worldName);
             if (!File.Exists(metaDataPath))
             {
+                if (META_DATA_PATH.EndsWith(".json"))
+                {
+                    string oldPath = metaDataPath;
+                    metaDataPath = metaDataPath.Replace(".json", ".bin");
+                    File.Delete(oldPath);
+                }
                 WorldCreation.InitializeMetaData(metaDataPath);
             }
 

@@ -34,11 +34,12 @@ namespace Items {
         private ItemRegistry() {
             items = new Dictionary<string, ItemObject>();
         }
+        
 
         public static bool IsLoaded => instance!=null;
 
         public static IEnumerator LoadItems() {
-            if (instance != null) {
+            if (instance != null && items.Count > 0) {
                 yield break;
             }
             instance = new ItemRegistry();

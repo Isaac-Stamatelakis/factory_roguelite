@@ -24,7 +24,6 @@ namespace WorldModule {
         private string worldName;
         private WorldMetaData metaData;
         private HashSet<string> unlockedGameStages = new HashSet<string>();
-        private QuestBookLibrary questBookLibrary;
         public WorldType WorldLoadType = WorldType.Default;
         private WorldManager() {
             worldName = "world0"; // Default
@@ -59,19 +58,12 @@ namespace WorldModule {
                 unlockedGameStages.Add(gameStageId);
             }
         }
-
-        public void SetQuestBookFromJson(string json)
-        {
-            questBookLibrary = QuestBookLibraryFactory.Deseralize(json);
-            QuestBookUIManager.Instance.Initialize(questBookLibrary);
-        }
-
+        
         public void InitializeQuestBook()
         {
-            string questBookJson = WorldLoadUtils.GetWorldFileJson(WorldFileType.Questbook);
-            SetQuestBookFromJson(questBookJson);
-            
-            
+            string mainLibPath = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), QuestBookUtils.MAIN_QUEST_BOOK_NAME);
+            string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(worldName), QuestBookUtils.WORLD_QUEST_FOLDER_PATH);
+            QuestBookUtils.VerifyIntegrityOfQuestBookData(mainLibPath,playerQuestBookPath);
             
         }
 
@@ -81,13 +73,7 @@ namespace WorldModule {
             metaData.UnlockedGameStages = unlockedGameStages.ToList();
             WorldLoadUtils.WriteMetaData(worldName, metaData);
         }
-
-        public void SaveQuestBook()
-        {
-            string json = QuestBookLibraryFactory.Serialize(questBookLibrary);
-            if (json == null) return;
-            WorldLoadUtils.SaveWorldFileJson(WorldFileType.Questbook,json);
-        }
+        
 
         public void UnlockGameStage(GameStageObject gameStageObject)
         {

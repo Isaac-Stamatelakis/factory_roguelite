@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UI.QuestBook.Data.Node;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,10 +24,10 @@ namespace UI.QuestBook.Tasks
                 options.Add(new TMPro.TMP_Dropdown.OptionData($"{questBookNodeSize}"));
             }
             mSizeDropDownMenu.AddOptions(options);
-            mSizeDropDownMenu.value = (int)questBookNode.Content.Size;
+            mSizeDropDownMenu.value = (int)questBookNode.NodeData.Size;
             mSizeDropDownMenu.onValueChanged.AddListener((value) =>
             {
-                questBookNode.Content.Size = (QuestBookNodeSize)value;
+                questBookNode.NodeData.Size = (QuestBookNodeSize)value;
                 pageUI.QuestBookPageUI.Display();
             });
             mBackButton.onClick.AddListener(() =>

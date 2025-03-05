@@ -179,7 +179,6 @@ namespace Dimensions {
             if (WorldLoadUtils.UsePersistentPath)
             {
                 WorldManager.getInstance().SaveMetaData();
-                WorldManager.getInstance().SaveQuestBook();
                 WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
             }
         }

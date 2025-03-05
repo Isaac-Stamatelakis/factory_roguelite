@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using Item.Slot;
 using UnityEngine;
 using TMPro;
@@ -8,31 +9,34 @@ using Items;
 using UnityEngine.EventSystems;
 using UI;
 using Items.Inventory;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class ItemQuestItemElement : ItemSlotUI, IItemListReloadable, IPointerClickHandler
     {
         [SerializeField] private TextMeshProUGUI mItemName;
-        private QuestBookPageUI questBookUI;
         private ItemQuestTask itemQuestTask;
         private uint gottenAmount;
         private SerializedItemSlot ItemSlot {get => itemQuestTask.Items[index];}
         private ItemQuestTaskUI taskUI;
         private int index;
+        private bool complete = false;
+        public bool Complete => complete;
+        private QuestBookTaskData questBookTaskData;
         
 
-        public void Initialize(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookPageUI questBookUI) {
+        public void Initialize(ItemQuestTask itemQuestTask, int index, ItemQuestTaskUI taskUI, QuestBookTaskData questBookTaskData) {
             this.itemQuestTask = itemQuestTask;
-            this.questBookUI = questBookUI;
             this.taskUI = taskUI;
             this.index = index;
+            this.questBookTaskData = questBookTaskData;
             reload();
         }
         
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (QuestBookUtils.EditMode) {
+                if (DevToolUtils.OnDevToolScene) {
                     NavigateToEditMode();
                 }
             } else if (eventData.button == PointerEventData.InputButton.Right) {
@@ -53,21 +57,17 @@ namespace UI.QuestBook {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             mItemName.text = itemSlot.itemObject.name;
             
-            if (!ReferenceEquals(PlayerManager.Instance, null))
-            {
-                gottenAmount = ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
-            }
-            
+            gottenAmount = DevToolUtils.OnDevToolScene || questBookTaskData.Complete ? itemSlot.amount : ItemSlotUtils.AmountOf(itemSlot, PlayerManager.Instance.GetPlayer().PlayerInventory.Inventory);
             gottenAmount = GlobalHelper.Clamp(gottenAmount,0,itemSlot.amount);
+            complete = gottenAmount >= itemSlot.amount;
             Display(itemSlot);
         }
 
         public override void SetAmountText()
         {
-            ItemSlot itemSlot = ItemSlotFactory.deseralizeItemSlot(ItemSlot);
-            mBottomText.color = gottenAmount >= itemSlot.amount ? Color.green : Color.red;
+            mBottomText.color = complete ? Color.green : Color.red;
             mBottomText.text = ItemDisplayUtils.FormatAmountText(gottenAmount,oneInvisible:false) + "/" +
-                              ItemDisplayUtils.FormatAmountText(itemSlot.amount,oneInvisible:false);
+                              ItemDisplayUtils.FormatAmountText(ItemSlot?.amount ?? 0,oneInvisible:false);
         }
 
         public void reloadAll()

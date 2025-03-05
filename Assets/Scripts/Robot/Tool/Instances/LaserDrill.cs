@@ -231,13 +231,15 @@ namespace Robot.Tool.Instances
         private Dictionary<Vector2Int, OutlineTileMapCellData> GetOutlineCellData(Vector2Int cellPosition, int drillPower, int multiBreak, int veinMinePower)
         {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
-            IOutlineTileGridMap outlineTileGridMap = worldTileGridMap as IOutlineTileGridMap;
-            if (outlineTileGridMap == null) return null;
+            
+            
             
             if (multiBreak == 0)
             {
                 if (veinMinePower < 2) return null;
+                WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
+                IOutlineTileGridMap outlineTileGridMap = worldTileGridMap as IOutlineTileGridMap;
+                if (outlineTileGridMap == null) return null;
                 TileItem tileItem = worldTileGridMap.getTileItem(cellPosition);
           
                 if (!tileItem) return null;
@@ -253,13 +255,34 @@ namespace Robot.Tool.Instances
                 return veinMineTiles;
             }
             
+            List<IWorldTileMap> worldTileGridMaps = new List<IWorldTileMap>
+            {
+                closedChunkSystem.GetTileMap(TileMapType.Block),
+                closedChunkSystem.GetTileMap(TileMapType.Object)
+            };
+
+            
             Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
             for (int x = -multiBreak; x <= multiBreak; x++)
             {
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
-                    tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(breakPosition.x, breakPosition.y, 0));
+                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    {
+                        if (!tileGridMap.hasTile(breakPosition)) continue;
+                        
+                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
+                        {
+                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(breakPosition.x, breakPosition.y, 0));
+                        }
+                        else
+                        {
+                            tiles[breakPosition] = new OutlineTileMapCellData(tileGridMap.GetTilemap().GetTile(new Vector3Int(breakPosition.x, breakPosition.y, 0)),null,Quaternion.identity);
+                        }
+                         
+                    }
+                    
                 }
             }
 

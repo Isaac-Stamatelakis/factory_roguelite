@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using UI.QuestBook.Data.Rewards;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -24,10 +24,9 @@ namespace Tiles.Indicators
                 mTilemap.SetTile(tilePosition,tile);
                 if (!outline)
                 {
-                    Debug.Log("HI");
                     mOutlineTilemap.SetTile(tilePosition,tile);
-                    Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
-                    matrix4X4.SetTRS(Vector3.zero,outlineData.OutlineRotation,1.1f * Vector3.one);
+                    Matrix4x4 matrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
+                    matrix4X4.SetTRS(matrix4X4.GetPosition(),matrix4X4.rotation,1.1f * Vector3.one);
                     mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
                 }
                 else

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DevTools.QuestBook;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -22,7 +23,7 @@ namespace DevTools {
         }
 
         [SerializeField] private StructureDevControllerUI structureDevControllerUIPrefab;
-        [SerializeField] private QuestBookCreationSceneController questBookCreationSceneControllerPrefab;
+        [SerializeField] private DevToolQuestBookListUI questBookListUIPrefab;
         [SerializeField] private DevToolUpgradeSelector upgradeSelectorUIPrefab;
         private static DevToolPage page = DevToolPage.Title;
         
@@ -78,8 +79,10 @@ namespace DevTools {
                 page = DevToolPage.Upgrade;
                 Display();
             });
-            questButton.onClick.AddListener(() => {
-                QuestBookCreationSceneController questBookCreationSceneController = Instantiate(questBookCreationSceneControllerPrefab);
+            questButton.onClick.AddListener(() =>
+            {
+                page = DevToolPage.QuestBook;
+                Display();
             });
             Display();
             StartCoroutine(ItemRegistry.LoadItems());
@@ -92,8 +95,13 @@ namespace DevTools {
             switch (page)
             {
                 case DevToolPage.Title:
-                case DevToolPage.QuestBook:
                     SetTitleText("Developer Tools");
+                    break;
+                case DevToolPage.QuestBook:
+                    SetTitleText("Quest Book Libraries");
+                    DevToolQuestBookListUI questBookListUI = GameObject.Instantiate(questBookListUIPrefab);
+                    questBookListUI.Initialize();
+                    DisplayObject(questBookListUI.gameObject);
                     break;
                 case DevToolPage.Structure:
                     SetTitleText("Structure Generator");

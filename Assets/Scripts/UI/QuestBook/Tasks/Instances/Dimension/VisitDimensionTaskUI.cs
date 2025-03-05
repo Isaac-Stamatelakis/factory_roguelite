@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data.Node;
 using WorldModule.Caves;
 
 namespace UI.QuestBook {
-    public class VisitDimensionTaskUI : QuestBookTaskUI<VisitDimensionQuestTask>
+    public class VisitDimensionTaskUI : MonoBehaviour
     {
         [SerializeField] private Image image;
         [SerializeField] private TextMeshProUGUI dimensionTitle;
         [SerializeField] private TextMeshProUGUI statusText;
-        public override void init(VisitDimensionQuestTask task, QuestBookTaskPageUI questBookUI)
+        public void Display(QuestBookTaskPageUI questBookTaskPageUI, VisitDimensionQuestTask task, QuestBookTaskData taskData)
         {
-            if (task.Visited) {
+            if (taskData.Complete) {
                 statusText.text = "Visited";
                 statusText.color = Color.green;
             } else {
@@ -21,13 +22,6 @@ namespace UI.QuestBook {
                 statusText.color = Color.red;
             }
             string caveId = task.CaveId;
-            /*
-            Cave cave = CaveRegistry.getCave(caveId);
-            if (cave == null) {
-                return;
-            }
-            */
-            //dimensionTitle.text = cave.name;
         }
     }
 }

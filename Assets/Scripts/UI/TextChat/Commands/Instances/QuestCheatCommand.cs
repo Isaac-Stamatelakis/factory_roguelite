@@ -51,18 +51,10 @@ namespace UI.Chat {
                 throw new ChatParseException($"'{parameters[1]}' is not --force");
             }
             
-            WorldManager.getInstance().SetQuestBookFromJson(GetJson(stage));
+            
             chatUI.SendChatMessage($"<color=green>Set quest book to stage '{stage}'</color>");
         }
-
-        private string GetJson(string stage)
-        {
-            return stage switch
-            {
-                "0" => File.ReadAllText(QuestBookUtils.DEFAULT_QUEST_BOOK_PATH),
-                _ => throw new ChatParseException($"unknown stage 'stage'")
-            };
-        }
+        
 
         public override string getDescription()
         {

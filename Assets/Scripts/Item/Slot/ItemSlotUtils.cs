@@ -301,12 +301,13 @@ namespace Item.Slot
             if (!tileItem) return new List<ItemSlot>();
             List<ItemSlot> dropItems = new List<ItemSlot>();
             var dropOptions = tileItem.tileOptions.dropOptions;
-            if (dropOptions.Count == 0) {
+            int count = dropOptions?.Count ?? 0;
+            if (count == 0) {
                 dropItems.Add(new ItemSlot(tileItem,1,null));
                 return dropItems;
             }
 
-            if (dropOptions.Count == 1) // Optimization for common case
+            if (count == 1) // Optimization for common case
             {
                 DropOption dropOption = dropOptions[0];
                 if (dropOption.lowerAmount == dropOption.upperAmount)

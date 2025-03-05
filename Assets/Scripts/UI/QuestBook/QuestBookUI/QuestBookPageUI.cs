@@ -1,28 +1,55 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DevTools;
 using UnityEngine;
 using UI.NodeNetwork;
+using UI.QuestBook.Data;
+using UI.QuestBook.Data.Node;
+using UI.QuestBook.Data.Rewards;
 using UI.QuestBook.Tasks;
 
 namespace UI.QuestBook {
     public class QuestBookPageUI : NodeNetworkUI<QuestBookNode, QuestBookPage>
     {
         [SerializeField] private QuestBookNodeObject questBookNodeObjectPrefab;
-        private QuestBookLibrary library;
-        public QuestBookLibrary Library {get => library;}
-        private QuestBook questBook;
-        public QuestBook QuestBook {get => questBook;}
         private QuestBookUI questBookUI;
         public QuestBookUI QuestBookUI {get => questBookUI;}
-        public void Initialize(QuestBookPage questBookPage, QuestBook questBook, QuestBookLibrary questBookLibrary, QuestBookUI questBookUI)
+        private QuestBookData questBookData;
+        private QuestBookPageData questBookPageData;
+        private string questBookPath;
+        public string QuestBookPath {get => questBookPath;}
+        private string playerDataPath;
+
+        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, QuestBookUI questBookUI, string questBookPath, string playerDataPath)
         {
+            if (this.nodeNetwork != null)
+            {
+                if (DevToolUtils.OnDevToolScene)
+                {
+                    SavePageData();
+                }
+                else
+                {
+                    SavePlayerData();
+                }
+            }
             CurrentSelected = null;
-            this.NodeNetwork = questBookPage;
-            this.questBook = questBook;
-            this.library = questBookLibrary;
             this.questBookUI = questBookUI;
-            editController.gameObject.SetActive(QuestBookUtils.EditMode);
+            this.NodeNetwork = questBookPage;
+            this.questBookData = questBookData;
+            this.questBookUI = questBookUI;
+            this.questBookPageData = questBookPageData;
+            this.questBookPath = questBookPath;
+            bool editMode = DevToolUtils.OnDevToolScene;
+            editController.gameObject.SetActive(editMode);
+            this.playerDataPath = playerDataPath;
+            if (editMode)
+            {
+                editController.Initialize(this);
+            }
+            
+            Display();
         }
         
         protected override INodeUI GenerateNode(QuestBookNode node)
@@ -30,7 +57,7 @@ namespace UI.QuestBook {
             QuestBookNodeObject nodeObject = GameObject.Instantiate(questBookNodeObjectPrefab);
             nodeObject.Initialize(node,this);
             RectTransform nodeRectTransform = (RectTransform)nodeObject.transform;
-            nodeRectTransform.sizeDelta = GetNodeVectorSize(node.Content.Size);
+            nodeRectTransform.sizeDelta = GetNodeVectorSize(node.NodeData.Size);
             nodeObject.transform.SetParent(nodeContainer,false); // Even though rider suggests changing this, it is wrong to
             return nodeObject;
         }
@@ -47,7 +74,7 @@ namespace UI.QuestBook {
 
         public override QuestBookNode LookUpNode(int id)
         {
-            return library.IdNodeMap.GetValueOrDefault(id);
+            return NodeNetwork.IdNodeDict.GetValueOrDefault(id);
         }
         
 
@@ -72,29 +99,66 @@ namespace UI.QuestBook {
 
         public override void PlaceNewNode(Vector2 position)
         {
-            SerializedItemSlot slot = new SerializedItemSlot("stone", 1, null);
-            QuestBookNode node = new QuestBookNode(
-                position,
-                slot,
-                new QuestBookNodeContent(
-                    new CheckMarkQuestTask(),
-                    "Empty Description",
-                    "New Task",
-                    new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
-                    new QuestBookCommandRewards(new List<QuestBookCommandReward>()),
-                    QuestBookNodeSize.Regular
-                ),
-                new List<int>(),
-                library.GetSmallestNewID(),
-                true
+            SerializedItemSlot defaultItemImage = new SerializedItemSlot("stone", 1, null);
+            QuestBookNodeContent defaultContent = new QuestBookNodeContent(
+                new CheckMarkQuestTask(),
+                "Empty Description",
+                "New Task",
+                new QuestBookItemRewards(new List<SerializedItemSlot>(), false),
+                new QuestBookCommandRewards(new List<QuestBookCommandReward>())
             );
+            QuestBookNodeData defaultNodeData = new QuestBookNodeData(
+                new List<int>(),
+                defaultItemImage,
+                position.x,
+                position.y,
+                true,
+                questBookData.IDCounter,
+                QuestBookNodeSize.Regular,
+                defaultContent
+            );
+            QuestBookNode node = new QuestBookNode(
+                defaultNodeData,
+                new QuestBookTaskData(false,new QuestBookRewardClaimStatus(),defaultNodeData.Id)
+            );
+            questBookData.IDCounter++;
             nodeNetwork.Nodes.Add(node);
-            library.AddNode(node);
+            nodeNetwork.IdNodeDict[node.Id] = node;
         }
 
         public override GameObject GenerateNewNodeObject()
         {
             return GameObject.Instantiate(questBookNodeObjectPrefab).gameObject;
+        }
+
+        public void OnDestroy()
+        {
+            if (DevToolUtils.OnDevToolScene)
+            {
+                SavePageData();
+            }
+        }
+
+        private void SavePageData()
+        {
+            if (nodeNetwork == null) return;
+            List<QuestBookNodeData> questBookNodeDataList = new List<QuestBookNodeData>();
+            foreach (QuestBookNode node in NodeNetwork.Nodes)
+            {
+                questBookNodeDataList.Add(node.NodeData);
+            }
+            QuestBookFactory.SerializedQuestBookNodeData(questBookPath,questBookPageData.Id,questBookNodeDataList);
+        }
+
+        private void SavePlayerData()
+        {
+            if (nodeNetwork == null) return;
+            List<QuestBookTaskData> questBookNodeDataList = new List<QuestBookTaskData>();
+            foreach (QuestBookNode node in NodeNetwork.Nodes)
+            {
+                questBookNodeDataList.Add(node.TaskData);
+            }
+            GlobalHelper.SerializeCompressedJson(questBookNodeDataList,playerDataPath);
         }
     }
 }

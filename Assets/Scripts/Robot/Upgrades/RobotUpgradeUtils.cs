@@ -124,7 +124,6 @@ namespace Robot.Upgrades
                 upgradeNodeDict[node.GetId()] = node;
             }
 
-
             HashSet<int> upgradeDataListIds = new HashSet<int>();
 
             for (var index = 0; index < upgradeDataList.Count; index++)
@@ -136,6 +135,7 @@ namespace Robot.Upgrades
                     upgradeDataList.RemoveAt(index); // Remove nodes that no longer exist
                     continue;
                 }
+                
 
                 upgradeDataListIds.Add(node.GetId());
                 node.InstanceData = upgradeData;
@@ -145,7 +145,7 @@ namespace Robot.Upgrades
             foreach (var (id, node) in upgradeNodeDict)
             {
                 if (upgradeDataListIds.Contains(id)) continue;
-                upgradeDataList.Add(new RobotUpgradeData(id,0));
+                upgradeDataList.Add(node.InstanceData);
             }
 
             return robotUpgradeNodeNetwork;

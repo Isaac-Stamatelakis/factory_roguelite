@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.QuestBook.Data;
 
 namespace UI.QuestBook {
     public class EditQuestPagePopup : MonoBehaviour
@@ -14,21 +16,23 @@ namespace UI.QuestBook {
         [SerializeField] private Button backButton;
         [SerializeField] private TMP_InputField inputField;
         private float timeSinceLastDeletePress = 1f;
-        
-        private List<QuestBookPage> pages;
+        private List<QuestBookPageData> pages;
+        private QuestBookData questBookData;
         private QuestBookUI questBookUI;
         private int index;
-        public void init(int index, List<QuestBookPage> pages, QuestBookUI questBookUI) {
+        private string path;
+        public void init(int index, QuestBookData questBookData, QuestBookUI questBookUI, string questBookPagePath) {
             this.index = index;
-            this.pages = pages;
+            this.path = questBookPagePath;
             this.questBookUI = questBookUI;
-            QuestBookPage page = pages[index];
+            pages = questBookData.PageDataList;
+            QuestBookPageData page = pages[index];
             inputField.text = page.Title;
             inputField.onValueChanged.AddListener((string value) => {page.Title = value;questBookUI.LoadPageChapters();});
-            upButton.onClick.AddListener(moveUp);
-            downButton.onClick.AddListener(moveDown);
-            backButton.onClick.AddListener(backButtonPress);
-            deleteButton.onClick.AddListener(deleteButtonPress);
+            upButton.onClick.AddListener(MoveUp);
+            downButton.onClick.AddListener(MoveDown);
+            backButton.onClick.AddListener(BackButtonPress);
+            deleteButton.onClick.AddListener(DeleteButtonPress);
         }
 
         public void Update() {
@@ -42,31 +46,31 @@ namespace UI.QuestBook {
             
         }
 
-        private void backButtonPress() {
+        private void BackButtonPress() {
             GameObject.Destroy(gameObject);
         }
-        private void moveUp() {
+        private void MoveUp() {
             int newIndex = Global.modInt(index-1,pages.Count);
-            QuestBookPage swap = pages[index];
-            pages[index] = pages[newIndex];
-            pages[newIndex] = swap;
+            (pages[index], pages[newIndex]) = (pages[newIndex], pages[index]);
             index = newIndex;
             questBookUI.LoadPageChapters();
         }
 
-        private void moveDown() {
+        private void MoveDown() {
             int newIndex = Global.modInt(index+1,pages.Count);
-            QuestBookPage swap = pages[index];
-            pages[index] = pages[newIndex];
-            pages[newIndex] = swap;
+            (pages[index], pages[newIndex]) = (pages[newIndex], pages[index]);
             index = newIndex;
             questBookUI.LoadPageChapters();
         }
 
-        private void deleteButtonPress() {
+        private void DeleteButtonPress() {
             
             if (timeSinceLastDeletePress <= 1f) {
                 pages.RemoveAt(index);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
                 questBookUI.LoadPageChapters();
                 GameObject.Destroy(gameObject);
             }

@@ -7,7 +7,8 @@ using UnityEngine.UI;
 using Items;
 using UnityEngine.EventSystems;
 using UI;
-using UI.NodeNetwork; 
+using UI.NodeNetwork;
+using UI.QuestBook.Data.Node;
 
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
@@ -17,7 +18,7 @@ namespace UI.QuestBook {
         public override void Initialize(QuestBookNode node, QuestBookPageUI nodeNetwork)
         {
             base.Initialize(node, nodeNetwork);
-            itemObject = ItemRegistry.GetInstance().GetItemObject(node?.ImageSeralizedItemSlot?.id);
+            itemObject = ItemRegistry.GetInstance().GetItemObject(node?.NodeData.ImageSeralizedItemSlot?.id);
             DisplayImage();
         }
 
@@ -40,7 +41,7 @@ namespace UI.QuestBook {
         {
             UIAssetManager assetManager = nodeNetwork.QuestBookUI.AssetManager;
             QuestBookTaskPageUI pageUI = assetManager.cloneElement<QuestBookTaskPageUI>("TASK_PAGE");
-            pageUI.Initialize(node,nodeNetwork);
+            pageUI.Initialize(node,nodeNetwork,nodeNetwork.QuestBookPath);
             pageUI.transform.SetParent(nodeNetwork.QuestBookUI.transform,false);
         }
     }

@@ -36,7 +36,6 @@ namespace PlayerModule.IO {
                 PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData),
                 JsonConvert.SerializeObject(playerRobot.RobotUpgradeLoadOut)
             );
-            
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }

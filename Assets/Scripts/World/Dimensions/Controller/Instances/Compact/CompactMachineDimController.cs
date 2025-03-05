@@ -179,7 +179,6 @@ namespace Dimensions {
         }
         public int GetSubSystems(CompactMachineTeleportKey key)
         {
-            int count = 0;
             CompactMachineTree tree = systemTree.GetTree(key.Path);
             return GetSubSystems(tree);
         }

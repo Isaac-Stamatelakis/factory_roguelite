@@ -192,6 +192,7 @@ namespace Robot.Upgrades
             robotUpgradeNode.InstanceData.Amount += amount;
             networkUI.Display();
             DisplayItemIcon();
+            DisplayItemCost();
         }
 
         public void OnUpgradeClick()

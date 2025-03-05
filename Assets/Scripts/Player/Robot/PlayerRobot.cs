@@ -727,7 +727,7 @@ namespace Player {
             Vector2Int cellPosition = Global.getCellPositionFromWorld(tileCenter);
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             
-            return partition.GetTileItem(positionInPartition, TileMapLayer.Base);
+            return partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
         }
         private TileMovementType GetMovementTypeAtWorldPosition(Vector2 position)
         {
