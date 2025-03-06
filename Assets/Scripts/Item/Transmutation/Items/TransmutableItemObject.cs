@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using Item.Slot;
 using UnityEngine;
 
@@ -46,6 +47,11 @@ namespace Items.Transmutable {
         {
             var sprites = getSprites();
             return sprites?.Length > 1 ? ItemDisplayType.Animated : ItemDisplayType.Single;
+        }
+
+        public override GameStageObject GetGameStageObject()
+        {
+            return material?.gameStageObject;
         }
     }
 }

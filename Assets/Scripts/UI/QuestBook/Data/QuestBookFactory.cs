@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using UI.QuestBook.Data.Node;
+using UnityEngine;
 using WorldModule;
 
 namespace UI.QuestBook.Data {
@@ -64,7 +65,6 @@ namespace UI.QuestBook.Data {
             }
             
             List<QuestBookNode> questBookNodes = new List<QuestBookNode>();
-            Dictionary<int,QuestBookNode> idNodeDictionary = new Dictionary<int, QuestBookNode>();
             foreach (QuestBookNodeData questBookNodeData in nodeDataList)
             {
                 QuestBookTaskData questBookTask = idNodeDataDictionary.GetValueOrDefault(questBookNodeData.Id);
@@ -74,9 +74,8 @@ namespace UI.QuestBook.Data {
                 }
                 QuestBookNode questBookNode = new QuestBookNode(questBookNodeData,questBookTask);
                 questBookNodes.Add(questBookNode);
-                idNodeDictionary[questBookNodeData.Id] = questBookNode;
             }
-            return new QuestBookPage(questBookNodes,idNodeDictionary);
+            return new QuestBookPage(questBookNodes);
         }
 
         public static void SerializedQuestBookNodeData(string questBookDirectory, string questBookPageID, List<QuestBookNodeData> questBookNodeDataList)

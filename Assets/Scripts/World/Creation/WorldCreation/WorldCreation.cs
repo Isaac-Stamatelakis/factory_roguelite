@@ -41,6 +41,7 @@ namespace WorldModule {
             
             InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
             InitializeQuestBook(mainPath);
+            InititalizeGameStages(WorldLoadUtils.GetWorldComponentPath(WorldFileType.GameStage));
 
             string dimensionFolderPath = WorldLoadUtils.GetWorldComponentPath(WorldFileType.DimensionFolder);
             Directory.CreateDirectory(dimensionFolderPath);
@@ -52,14 +53,19 @@ namespace WorldModule {
 
         public static void InitializeMetaData(string path)
         {
-            WorldMetaData worldMetaData =
-            new WorldMetaData(DateTime.Now, DateTime.Now, new List<string>
-            {
-                "0"
-            });
+            WorldMetaData worldMetaData = new WorldMetaData(DateTime.Now, DateTime.Now, false);
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
             byte[] compressed = WorldLoadUtils.CompressString(json);
             File.WriteAllBytes(path, compressed);
+        }
+
+        public static void InititalizeGameStages(string path)
+        {
+            HashSet<string> stages = new HashSet<string>
+            {
+                "0"
+            };
+            GlobalHelper.SerializeCompressedJson(stages,path);
         }
 
         public static void InitializeQuestBook(string mainPath)

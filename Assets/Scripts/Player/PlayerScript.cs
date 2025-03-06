@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Chunks.Systems;
 using Conduit.View;
 using Conduits;
 using Conduits.PortViewer;
 using Conduits.Systems;
+using Item.GameStage;
 using Item.Slot;
+using Newtonsoft.Json;
 using Player.Controls;
 using Player.UI;
 using PlayerModule;
@@ -21,6 +24,7 @@ using Tiles.Indicators;
 using UI.QuestBook;
 using UI.RingSelector;
 using UnityEngine;
+using WorldModule;
 
 namespace Player
 {
@@ -37,6 +41,8 @@ namespace Player
         [SerializeField] private PlayerUIPrefabs prefabs;
         [SerializeField] private PlayerUIContainer playerUIContainer;
         [SerializeField] private TileViewerCollection tileViewers;
+        private PlayerGameStageCollection gameStageCollection;
+        public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
@@ -61,6 +67,7 @@ namespace Player
         
         public void Initialize()
         {
+            InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
             playerInventory.Initialize(playerData.sInventoryData);
             
@@ -75,6 +82,18 @@ namespace Player
             ControlUtils.LoadBindings();
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
+        }
+
+        private void InitializeStages()
+        {
+            string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.GameStage);
+            if (!File.Exists(path))
+            {
+                WorldCreation.InititalizeGameStages(path);
+            }
+
+            HashSet<string> gameStages = GlobalHelper.DeserializeCompressedJson<HashSet<string>>(path);
+            gameStageCollection = new PlayerGameStageCollection(gameStages);
         }
 
         
@@ -179,6 +198,23 @@ namespace Player
         {
             Rotation = rotation;
             State = state;
+        }
+    }
+
+    public class PlayerGameStageCollection
+    {
+        public HashSet<string> UnlockedStages;
+        public bool HasStage(string stage)
+        {
+            return UnlockedStages.Contains(stage);
+        }
+        public bool HasStage(GameStageObject stage)
+        {
+            return UnlockedStages.Contains(stage?.GetGameStageId());
+        }
+        public PlayerGameStageCollection(HashSet<string> unlockedStages)
+        {
+            UnlockedStages = unlockedStages;
         }
     }
 }

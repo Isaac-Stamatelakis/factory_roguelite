@@ -60,12 +60,13 @@ namespace Dimensions {
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");
             
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.ShowAll();
-            
             WorldManager worldManager = WorldManager.getInstance();
+            string worldName = worldManager.GetWorldName();
             if (!TryExecuteInitialLoad(worldManager.InitializeMetaData, null, "MetaData")) yield break;
-            if (!TryExecuteInitialLoad(worldManager.InitializeQuestBook,null, "QuestBook")) yield break;
+            if (!TryExecuteInitialLoad(() =>
+                {
+                    WorldLoadUtils.InitializeQuestBook(worldName);
+                },null, "QuestBook")) yield break;
             
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             if (!TryExecuteInitialLoad(playerScript.Initialize,null, "Player")) yield break;
@@ -76,6 +77,9 @@ namespace Dimensions {
             SetPlayerSystem(playerScript, 0, Vector2Int.zero);
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
+            
+            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            catalogueControllers.ShowAll();
      
         }
         

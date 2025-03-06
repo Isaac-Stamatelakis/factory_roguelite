@@ -32,6 +32,7 @@ namespace UI.QuestBook {
         private string questBookPath;
         private string questBookId;
         private int currentIndex = -1;
+        private Dictionary<int, QuestBookNode> idNodeDictionary;
         
         public void Initialize(QuestBookData questBookData, string libraryPath, string questBookId) {
             this.backButton.onClick.AddListener(BackButtonPress);
@@ -58,8 +59,34 @@ namespace UI.QuestBook {
                     LoadPageChapters();
                 });
             }
+            InitializeNodeDictionary();
             LoadPageChapters();
             DisplayPageIndex(0);
+        }
+
+        private void InitializeNodeDictionary()
+        {
+            idNodeDictionary = new Dictionary<int, QuestBookNode>();
+            foreach (var questBookPageData in questBookData.PageDataList)
+            {
+                UnOrderedPageData unOrderedPageData = GetNodesFromQuestBookPageData(questBookPageData);
+                foreach (QuestBookNodeData questBookNodeData in unOrderedPageData.QuestBookNodeDataList)
+                {
+                    idNodeDictionary[questBookNodeData.Id] = new QuestBookNode(questBookNodeData, null);
+                }
+
+                foreach (QuestBookTaskData questBookTaskData in unOrderedPageData.TaskDataList)
+                {
+                    if (!idNodeDictionary.TryGetValue(questBookTaskData.Id, out var value)) continue;
+                    value.TaskData = questBookTaskData;
+                }
+
+                foreach (var (id, questBookNodeData) in idNodeDictionary)
+                {
+                    questBookNodeData.TaskData ??= new QuestBookTaskData(false, new QuestBookRewardClaimStatus(), id);
+                }
+            }
+            pageUI.SetIdDictionary(idNodeDictionary);
         }
 
         public void LoadPageChapters() {
@@ -93,21 +120,32 @@ namespace UI.QuestBook {
 
         private void DisplayPage(QuestBookPageData page)
         {
-            List<QuestBookNodeData> questBookNodeData = QuestBookFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
-            List<QuestBookTaskData> taskDataList;
-            string playerPageDataPath = null;
+            UnOrderedPageData unOrderedPageData = GetNodesFromQuestBookPageData(page);
+            QuestBookPage questBookPage = QuestBookFactory.GetQuestBookPage(unOrderedPageData.QuestBookNodeDataList, unOrderedPageData.TaskDataList);
+            foreach (QuestBookNode questBookNode in questBookPage.Nodes)
+            {
+                idNodeDictionary[questBookNode.Id] = questBookNode;
+            }
+            pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath,unOrderedPageData.PlayerPageDataPath);
+        }
+
+        private UnOrderedPageData GetNodesFromQuestBookPageData(QuestBookPageData page)
+        {
+            UnOrderedPageData unOrderedPageData = new UnOrderedPageData();
+            unOrderedPageData.QuestBookNodeDataList = QuestBookFactory.GetQuestBookPageNodeData(questBookPath, page.Id);
             if (DevToolUtils.OnDevToolScene)
             {
-                taskDataList = new List<QuestBookTaskData>();
+                unOrderedPageData.TaskDataList = new List<QuestBookTaskData>();
             }
             else
             {
-                string questBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
-                playerPageDataPath = Path.Combine(questBookPath, page.Id) + ".bin";
-                taskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(playerPageDataPath);
+                string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(WorldManager.getInstance().GetWorldName()), QuestBookUtils.WORLD_QUEST_FOLDER_PATH, questBookId);
+                string playerPageDataPath = Path.Combine(playerQuestBookPath, page.Id) + ".bin";
+                unOrderedPageData.TaskDataList = GlobalHelper.DeserializeCompressedJson<List<QuestBookTaskData>>(playerPageDataPath);
+                unOrderedPageData.PlayerPageDataPath = playerPageDataPath;
             }
-            QuestBookPage questBookPage = QuestBookFactory.GetQuestBookPage(questBookNodeData, taskDataList);
-            pageUI.Initialize(questBookPage,questBookData,page, this,questBookPath,playerPageDataPath);
+
+            return unOrderedPageData;
         }
         
         public void OnDestroy()
@@ -116,11 +154,13 @@ namespace UI.QuestBook {
             {
                 GlobalHelper.SerializeCompressedJson(questBookData,Path.Combine(questBookPath,QuestBookUtils.QUESTBOOK_DATA_PATH));
             }
-            else
-            {
-                
-            }
-            
+        }
+
+        private struct UnOrderedPageData
+        {
+            public List<QuestBookNodeData> QuestBookNodeDataList;
+            public List<QuestBookTaskData> TaskDataList;
+            public string PlayerPageDataPath;
         }
     }
     

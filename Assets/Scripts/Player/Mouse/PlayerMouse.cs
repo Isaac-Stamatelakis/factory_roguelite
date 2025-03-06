@@ -29,6 +29,7 @@ using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
+using Robot.Upgrades;
 using Tiles.Highlight;
 using UI;
 using UI.ToolTip;
@@ -75,7 +76,6 @@ namespace PlayerModule.Mouse {
             {
                 if (eventSystem.IsPointerOverGameObject())
                 {
-
                     if (scroll)
                     {
                         MouseScrollUIUpdate(mousePosition);
@@ -85,7 +85,6 @@ namespace PlayerModule.Mouse {
             }
 
             if (eventSystem.IsPointerOverGameObject()) return;
-            
             
             if (!leftClick)
             {
@@ -97,8 +96,9 @@ namespace PlayerModule.Mouse {
                 toolClickHandlerCollection.Terminate(MouseButtonKey.Right);
             }
             
-            
             if (!leftClick && !rightClick) return;
+            
+            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
@@ -121,13 +121,19 @@ namespace PlayerModule.Mouse {
             if (!closedChunkSystem) {
                 return;
             }
+            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts))
+            {
+                tileHighlighter.Hide();
+                return;
+            }
             List<IWorldTileMap> tilemaps = new List<IWorldTileMap>
             {
                 closedChunkSystem.GetTileMap(TileMapType.Object),
                 closedChunkSystem.GetTileMap(TileMapType.Block),
             };
             
-            Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+           
             previewController.Preview(playerInventory.CurrentTool,mousePosition);
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)

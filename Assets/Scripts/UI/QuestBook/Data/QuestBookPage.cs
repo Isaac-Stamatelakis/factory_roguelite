@@ -9,11 +9,9 @@ namespace UI.QuestBook {
     public class QuestBookPage : INodeNetwork<QuestBookNode>
     {
         public List<QuestBookNode> Nodes;
-        public Dictionary<int, QuestBookNode> IdNodeDict;
 
-        public QuestBookPage(List<QuestBookNode> nodes, Dictionary<int, QuestBookNode> idNodeDict) {
+        public QuestBookPage(List<QuestBookNode> nodes) {
             this.Nodes = nodes;
-            this.IdNodeDict = idNodeDict;
         }
 
         public List<QuestBookNode> GetNodes()

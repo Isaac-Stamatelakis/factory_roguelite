@@ -4,6 +4,7 @@ using Item.Burnables;
 using Item.GameStage;
 using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Transmutation.Info;
+using Player;
 using Recipe.Viewer;
 using UI.Catalogue.InfoViewer.Indicator;
 using UnityEngine;
@@ -33,10 +34,13 @@ namespace UI.Catalogue.InfoViewer
         private CatalogueInfoUI displayedElementUI;
         private int currentElementIndex;
         private int currentPageIndex;
+        private PlayerGameStageCollection gameStageCollection;
+        public PlayerGameStageCollection GameStageCollection => gameStageCollection;
 
-        public void Initialize(List<CatalogueElementData> elements)
+        public void Initialize(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
         {
             CatalogueElements = elements;
+            this.gameStageCollection = playerGameStageCollection;
             elementIndicator.Initialize(this);
             DisplayCurrentElement();
             elementNavigator.Initialize(
@@ -77,7 +81,7 @@ namespace UI.Catalogue.InfoViewer
             
             CatalogueElementData catalogueElementData = CatalogueElements[currentElementIndex];
             displayedElementUI = InstantiateElementUI(catalogueElementData.Type);
-            displayedElementUI.Display(CatalogueElements[currentElementIndex].CatalogueElement);
+            displayedElementUI.Display(CatalogueElements[currentElementIndex].CatalogueElement, gameStageCollection);
             elementIndicator.DisplayNodes();
             elementNavigator.SetText(catalogueElementData.CatalogueElement.GetName());
             currentPageIndex = 0;

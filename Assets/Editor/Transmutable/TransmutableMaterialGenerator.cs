@@ -106,7 +106,6 @@ public class TransmutableItemGenerator : EditorWindow
 
         CreateNew(material, materialItemsPath, stateItemDict, out var materialStates);
         RemovedUnusedStates(stateItemDict, materialStates);
-        ValidateItems(material, stateItemDict);
 
     }
 
@@ -142,15 +141,7 @@ public class TransmutableItemGenerator : EditorWindow
             AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(transmutableItemObject));
         }
     }
-
-    private void ValidateItems(TransmutableItemMaterial material, Dictionary<TransmutableItemState, TransmutableItemObject> stateItemDict)
-    {
-        foreach (var (state, transmutableItemObject) in stateItemDict)
-        {
-            transmutableItemObject.gameStage = material.gameStageObject;
-            AssetDatabase.SaveAssetIfDirty(transmutableItemObject);
-        }
-    }
+    
 
     private string GetStateAssetPath(string materialItemsPath, string itemName)
     {

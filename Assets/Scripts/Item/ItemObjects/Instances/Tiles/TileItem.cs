@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileEntity;
@@ -50,6 +51,7 @@ public static class TileTypeExtension {
 [CreateAssetMenu(fileName ="I~New Tile Item",menuName="Item/Instances/Tile")]
 public class TileItem : ItemObject, IPlacableItem
 {
+    public GameStageObject gameStage;
     public TileType tileType;
     public TileBase tile;
     public TileBase outline;
@@ -69,6 +71,11 @@ public class TileItem : ItemObject, IPlacableItem
             return ItemDisplayType.Single;
         }
         return null;
+    }
+
+    public override GameStageObject GetGameStageObject()
+    {
+        return gameStage;
     }
 
     public override Sprite getSprite()

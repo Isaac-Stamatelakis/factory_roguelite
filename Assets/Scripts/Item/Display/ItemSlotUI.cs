@@ -143,7 +143,6 @@ namespace Items {
         {
             if (ReferenceEquals(mTopText, null))
             {
-                Debug.LogWarning($"Attempted to set top text on ItemSlotUI '{name}' which does not contain a top text element.");
                 return;
             }
             mTopText.text = topText;

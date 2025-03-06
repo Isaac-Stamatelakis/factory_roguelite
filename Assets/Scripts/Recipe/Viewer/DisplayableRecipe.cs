@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using Item.Burnables;
+using Item.GameStage;
 using Item.Slot;
 using Items;
 using Items.Tags;
+using Items.Transmutable;
+using Player;
 using Recipe.Data;
 using Recipe.Objects;
 using Recipe.Processor;
@@ -21,13 +25,15 @@ namespace Recipe.Viewer
             ProcessorInstance = processorInstance;
         }
     }
-    public abstract class DisplayableRecipe
+    public abstract class DisplayableRecipe : IGameStageItemDisplay
     {
         public RecipeData RecipeData;
         protected DisplayableRecipe(RecipeData recipeData)
         {
             RecipeData = recipeData;
         }
+
+        public abstract bool FilterStage(PlayerGameStageCollection gameStageCollection);
     }
 
     public class ChanceItemSlot : ItemSlot
@@ -52,8 +58,22 @@ namespace Recipe.Viewer
             FluidInputs = fluidInputs;
             FluidOutputs = fluidOutputs;
         }
-    }
 
+        public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
+        {
+            foreach (ChanceItemSlot chanceItemSlot in SolidOutputs)
+            {
+                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+            }
+            foreach (ChanceItemSlot chanceItemSlot in FluidOutputs)
+            {
+                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+            }
+
+            return false;
+        }
+    }
+    
     public class TransmutationDisplayableRecipe : DisplayableRecipe
     {
         public List<ItemSlot> Inputs;
@@ -67,6 +87,11 @@ namespace Recipe.Viewer
             Outputs = outputs;
             InputState = inputState;
             OutputState = outputState;
+        }
+
+        public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
+        {
+            return true;
         }
     }
 }

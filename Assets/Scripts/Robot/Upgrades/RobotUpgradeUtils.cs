@@ -16,6 +16,7 @@ namespace Robot.Upgrades
     public static class RobotUpgradeUtils
     {
         public const int TILES_PER_VEIN_MINE_UPGRADE = 4;
+        public const int BASE_REACH = 5;
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
         {
             if (!upgradePath.EndsWith(".bin"))
@@ -61,6 +62,14 @@ namespace Robot.Upgrades
                 Debug.LogWarning($"Error deserializing stat loadout '{e.Message}'");
                 return null;
             }
+        }
+
+        public static bool CanReach(Vector2 position, Vector2 mousePosition, RobotStatLoadOutCollection selfLoadOuts)
+        {
+            float distanceFromPlayer = Vector2.Distance(mousePosition, position);
+            if (distanceFromPlayer <= RobotUpgradeUtils.BASE_REACH) return true;
+            float bonusReach = RobotUpgradeUtils.GetContinuousValue(selfLoadOuts, (int)RobotUpgrade.Reach);
+            return (distanceFromPlayer > RobotUpgradeUtils.BASE_REACH + bonusReach);
         }
         public static RobotUpgradeLoadOut VerifyIntegrityOfLoadOut(RobotUpgradeLoadOut loadOut, RobotItemData robotItemData)
         {

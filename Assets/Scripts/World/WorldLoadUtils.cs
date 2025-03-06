@@ -5,7 +5,9 @@ using UnityEngine;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using DevTools;
 using Newtonsoft.Json;
+using UI.QuestBook;
 using World.Serialization;
 
 
@@ -14,8 +16,7 @@ namespace WorldModule {
     {
         DimensionFolder,
         Player,
-        Questbook,
-        StructureMeta
+        GameStage
     }
     
     
@@ -26,6 +27,7 @@ namespace WorldModule {
         
         public const string DEFAULT_WORLD_FOLDER = "worlds"; 
         public const string PLAYER_DATA_FILE = "player_data.bin";
+        public const string GAME_STAGE_FILE = "stage_data.bin";
         public const string DIMENSION_FOLDER_PATH = "Dimensions";
         public const string DIM_FOLDER_PREFIX = "dim";
         public const string META_DATA_PATH = "meta.bin";
@@ -67,6 +69,7 @@ namespace WorldModule {
             {
                 WorldFileType.DimensionFolder => DIMENSION_FOLDER_PATH,
                 WorldFileType.Player => PLAYER_DATA_FILE,
+                WorldFileType.GameStage => GAME_STAGE_FILE,
                 _ => throw new ArgumentOutOfRangeException(nameof(worldFileType), worldFileType, null)
             };
         }
@@ -201,6 +204,13 @@ namespace WorldModule {
         }
         public static bool pathExists(string path) {
             return Directory.Exists(path) || File.Exists(path);
+        }
+        
+        public static void InitializeQuestBook(string worldName)
+        {
+            string mainLibPath = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), QuestBookUtils.MAIN_QUEST_BOOK_NAME);
+            string playerQuestBookPath = Path.Combine(WorldLoadUtils.GetMainPath(worldName), QuestBookUtils.WORLD_QUEST_FOLDER_PATH);
+            QuestBookUtils.VerifyIntegrityOfQuestBookData(mainLibPath,playerQuestBookPath);
         }
     }
 }
