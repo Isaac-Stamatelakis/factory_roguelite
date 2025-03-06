@@ -69,12 +69,12 @@ namespace Item.Burnables
 
         public GameStageObject GetGameStage()
         {
-            return ItemSlot?.itemObject?.gameStage;
+            return ItemSlot?.itemObject?.GetGameStageObject();
         }
 
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
-            return gameStageCollection.HasStage(ItemSlot?.itemObject?.gameStage.GetGameStageId());
+            return gameStageCollection.HasStage(ItemSlot?.itemObject?.GetGameStageObject());
         }
     }
     

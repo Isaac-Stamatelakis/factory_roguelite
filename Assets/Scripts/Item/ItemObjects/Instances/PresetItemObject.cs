@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using UnityEngine;
 using Items.Tags;
 
 namespace Items {
     public abstract class PresetItemObject : ItemObject
     {
-
         [SerializeField] [HideInInspector] protected Sprite[] sprites;
+        public GameStageObject GameStageObject;
         #if UNITY_EDITOR
         public Sprite[] Sprites {get => sprites; set => sprites = value;}
         #endif
@@ -29,6 +30,11 @@ namespace Items {
         public override Sprite[] getSprites()
         {
             return sprites;
+        }
+
+        public override GameStageObject GetGameStageObject()
+        {
+            return GameStageObject;
         }
     }
 }

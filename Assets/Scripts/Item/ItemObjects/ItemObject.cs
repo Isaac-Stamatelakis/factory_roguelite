@@ -14,8 +14,6 @@ namespace Items {
     public abstract class ItemObject : ScriptableObject {
         [Header("Unique identifier for this item")]
         public string id;
-
-        public GameStageObject gameStage;
         
         [SerializeField] public List<ItemTag> ApplyableTags;
 
@@ -35,5 +33,6 @@ namespace Items {
         public abstract Sprite[] getSprites();
         public abstract Sprite getSprite();
         public abstract ItemDisplayType? getDisplayType();
+        public abstract GameStageObject GetGameStageObject();
     }
 }

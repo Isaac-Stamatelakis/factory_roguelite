@@ -99,7 +99,7 @@ namespace Items {
             
             foreach (ItemObject itemObject in items.Values)
             {
-                if (!playerScript.GameStageCollection.HasStage(itemObject.gameStage)) continue;
+                if (!playerScript.GameStageCollection.HasStage(itemObject.GetGameStageObject())) continue;
                 knownItems.Add(itemObject);
             }
 
@@ -240,10 +240,9 @@ namespace Items {
                 if (i >= limit) {
                     break;
                 }
-
                 if (!itemObject.name.ToLower().Contains(search.ToLower())) continue;
                 
-                if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !playerScript.GameStageCollection.HasStage(itemObject.gameStage))) continue;
+                if (enforceGameStages && !playerScript.GameStageCollection.HasStage(itemObject?.GetGameStageObject())) continue;
                 queried.Add(new ItemSlot(itemObject,1,null));
                 i ++;
             }

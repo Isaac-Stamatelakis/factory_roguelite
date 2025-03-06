@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TileMaps.Type;
@@ -41,6 +42,7 @@ namespace Items {
 
     public abstract class ConduitItem : ItemObject, IPlacableItem
     {
+        public GameStageObject GameStageObject;
         public ConduitStateTile Tile;
         public override Sprite[] getSprites()
         {
@@ -60,6 +62,11 @@ namespace Items {
         public override Sprite getSprite()
         {
             return ((Tile)Tile?.GetDefaultTile())?.sprite;
+        }
+
+        public override GameStageObject GetGameStageObject()
+        {
+            return GameStageObject;
         }
     }
 }

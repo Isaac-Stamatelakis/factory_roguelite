@@ -31,6 +31,14 @@ namespace UI.Chat {
                         playerScript.GameStageCollection.UnlockedStages.Remove(stage);
                     }
                     break;
+                case "print":
+                    string message = "Unlocked Stages: ";
+                    foreach (string unlockedStage in playerScript.GameStageCollection.UnlockedStages)
+                    {
+                        message += $"'{unlockedStage}' ";
+                    }
+                    chatUI.SendChatMessage(message);
+                    break;
                 case "enable":
                     DevMode.Instance.EnableGameStages = true;
                     break;
@@ -52,7 +60,7 @@ namespace UI.Chat {
         {
             return paramIndex switch
             {
-                0 => new List<string>() { "add", "remove" },
+                0 => new List<string>() { "add", "remove", "print", "enable" , "disable" },
                 1 => new List<string>() { "'STAGENAME' (case sensitive)" },
                 _ => new List<string>() { }
             };

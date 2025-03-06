@@ -63,11 +63,11 @@ namespace Recipe.Viewer
         {
             foreach (ChanceItemSlot chanceItemSlot in SolidOutputs)
             {
-                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.gameStage)) return true;
+                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
             }
             foreach (ChanceItemSlot chanceItemSlot in FluidOutputs)
             {
-                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.gameStage)) return true;
+                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
             }
 
             return false;

@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Item.GameStage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Items {
     public class FluidTileItem : ItemObject
     {
+        public GameStageObject GameStageObject;
         public override Sprite[] getSprites()
         {
             if (tiles.Length < 0) {
@@ -35,6 +37,11 @@ namespace Items {
         public override ItemDisplayType? getDisplayType()
         {
             return ItemDisplayType.Single;
+        }
+
+        public override GameStageObject GetGameStageObject()
+        {
+            return GameStageObject;
         }
 
         public override Sprite getSprite()

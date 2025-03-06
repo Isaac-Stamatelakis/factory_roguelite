@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Chunks.Systems;
 using Conduit.View;
 using Conduits;
@@ -7,6 +8,7 @@ using Conduits.PortViewer;
 using Conduits.Systems;
 using Item.GameStage;
 using Item.Slot;
+using Newtonsoft.Json;
 using Player.Controls;
 using Player.UI;
 using PlayerModule;
@@ -22,6 +24,7 @@ using Tiles.Indicators;
 using UI.QuestBook;
 using UI.RingSelector;
 using UnityEngine;
+using WorldModule;
 
 namespace Player
 {
@@ -64,6 +67,7 @@ namespace Player
         
         public void Initialize()
         {
+            InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
             playerInventory.Initialize(playerData.sInventoryData);
             
@@ -78,6 +82,18 @@ namespace Player
             ControlUtils.LoadBindings();
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
+        }
+
+        private void InitializeStages()
+        {
+            string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.GameStage);
+            if (!File.Exists(path))
+            {
+                WorldCreation.InititalizeGameStages(path);
+            }
+
+            HashSet<string> gameStages = GlobalHelper.DeserializeCompressedJson<HashSet<string>>(path);
+            gameStageCollection = new PlayerGameStageCollection(gameStages);
         }
 
         
