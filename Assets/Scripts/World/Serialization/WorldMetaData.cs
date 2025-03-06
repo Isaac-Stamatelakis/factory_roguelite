@@ -7,13 +7,12 @@ namespace World.Serialization
     {
         public DateTime CreationDate;
         public DateTime LastAccessDate;
-        public List<string> UnlockedGameStages;
-
-        public WorldMetaData(DateTime creationDate, DateTime lastAccessDate, List<string> unlockedGameStages)
+        public bool CheatsEnabled;
+        public WorldMetaData(DateTime creationDate, DateTime lastAccessDate, bool cheatsEnabled)
         {
             CreationDate = creationDate;
             LastAccessDate = lastAccessDate;
-            UnlockedGameStages = unlockedGameStages;
+            CheatsEnabled = cheatsEnabled;
         }
     }
 }

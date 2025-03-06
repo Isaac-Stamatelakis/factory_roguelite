@@ -27,9 +27,9 @@ namespace Item.ItemObjects.Instances.Tiles.Chisel
             mTitleText.text = $"{chiselDisplayData.CollectionName} Chisel Tiles";
 
             List<ItemSlot> slots = new List<ItemSlot>();
-            foreach (ChiselTileItem itemObject in chiselDisplayData.ChiselTiles)
+            foreach (ChiselItemDisplay chiselItemDisplay in chiselDisplayData.ChiselTiles)
             {
-                slots.Add(new ItemSlot(itemObject,1,null));
+                slots.Add(new ItemSlot(chiselItemDisplay.ChiselTileItem,1,null));
             }
             mInventoryUI.DisplayInventory(slots);
             mInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);

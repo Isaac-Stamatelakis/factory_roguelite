@@ -5,6 +5,7 @@ using Conduit.View;
 using Conduits;
 using Conduits.PortViewer;
 using Conduits.Systems;
+using Item.GameStage;
 using Item.Slot;
 using Player.Controls;
 using Player.UI;
@@ -190,6 +191,10 @@ namespace Player
         public bool HasStage(string stage)
         {
             return UnlockedStages.Contains(stage);
+        }
+        public bool HasStage(GameStageObject stage)
+        {
+            return UnlockedStages.Contains(stage?.GetGameStageId());
         }
         public PlayerGameStageCollection(HashSet<string> unlockedStages)
         {

@@ -89,6 +89,12 @@ namespace Recipe.Viewer
             CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData},gameStageCollection);
             
         }
+
+        public bool Filter(PlayerGameStageCollection gameStageCollection)
+        {
+            CatalogueInfoUtils.FilterList(Pages,gameStageCollection);
+            return Pages.Count > 0;
+        }
     }
     
 }

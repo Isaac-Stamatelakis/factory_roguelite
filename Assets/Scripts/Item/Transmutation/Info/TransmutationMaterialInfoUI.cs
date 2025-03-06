@@ -91,6 +91,11 @@ namespace Item.Transmutation.Info
             // Do nothing for now. Maybe show all materials ?
         }
 
+        public bool Filter(PlayerGameStageCollection gameStageCollection)
+        {
+            return gameStageCollection.HasStage(Material?.gameStageObject);
+        }
+
         public Color GetColor()
         {
             return Material.color;

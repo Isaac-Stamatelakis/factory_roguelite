@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Player;
 using PlayerModule;
 using WorldModule;
 
@@ -15,7 +16,7 @@ namespace UI.Chat {
         public override void execute()
         {
             string mode = parameters[0].ToLower();
-            
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             switch (mode)
             {
                 case "add":
@@ -23,11 +24,11 @@ namespace UI.Chat {
                     string stage = parameters[1];
                     if (mode == "add")
                     {
-                        WorldManager.getInstance().UnlockGameStage(stage);
+                        playerScript.GameStageCollection.UnlockedStages.Add(stage);
                     }
                     else
                     {
-                        WorldManager.getInstance().RemoveGameStage(stage);
+                        playerScript.GameStageCollection.UnlockedStages.Remove(stage);
                     }
                     break;
                 case "enable":

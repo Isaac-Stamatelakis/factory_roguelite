@@ -62,10 +62,13 @@ namespace Dimensions {
             
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.ShowAll();
-            
             WorldManager worldManager = WorldManager.getInstance();
+            string worldName = worldManager.GetWorldName();
             if (!TryExecuteInitialLoad(worldManager.InitializeMetaData, null, "MetaData")) yield break;
-            if (!TryExecuteInitialLoad(worldManager.InitializeQuestBook,null, "QuestBook")) yield break;
+            if (!TryExecuteInitialLoad(() =>
+                {
+                    WorldLoadUtils.InitializeQuestBook(worldName);
+                },null, "QuestBook")) yield break;
             
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             if (!TryExecuteInitialLoad(playerScript.Initialize,null, "Player")) yield break;

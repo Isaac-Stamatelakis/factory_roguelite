@@ -81,17 +81,21 @@ namespace UI.Catalogue.InfoViewer
             for (var index = elements.Count-1; index >= 0; index--)
             {
                 var catalogueElementData = elements[index];
-                if (catalogueElementData.CatalogueElement is not IStageRestrictedCatalogueElement
-                    stageRestrictedCatalogueElement)
-                {
-                    continue;
-                }
-
-                stageRestrictedCatalogueElement.Filter(playerGameStageCollection);
+                catalogueElementData.CatalogueElement.Filter(playerGameStageCollection);
                 if (catalogueElementData.CatalogueElement.GetPageCount() == 0)
                 {
                     elements.RemoveAt(index);
                 }
+            }
+        }
+
+        public static void FilterList<T>(List<T> elements, PlayerGameStageCollection gameStageCollection) where T : IGameStageItemDisplay
+        {
+            for (int j = 0; j < elements.Count; j++)
+            {
+                var element = elements[j];
+                if (element.FilterStage(gameStageCollection)) continue;
+                elements.RemoveAt(j);
             }
         }
     }

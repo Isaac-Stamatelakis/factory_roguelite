@@ -19,6 +19,7 @@ using Dimensions;
 using Item.GameStage;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Item.Slot;
+using Player;
 using Recipe.Objects;
 using Recipe.Processor;
 using TileEntity.Instances.WorkBenchs;
@@ -94,11 +95,11 @@ namespace Items {
         {
             if (!DevMode.Instance.EnableGameStages) return GetAllItems();
             List<ItemObject> knownItems = new List<ItemObject>();
-            WorldManager worldManager = WorldManager.getInstance();
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             
             foreach (ItemObject itemObject in items.Values)
             {
-                if (!worldManager.HasGameStage(itemObject.gameStage)) continue;
+                if (!playerScript.GameStageCollection.HasStage(itemObject.gameStage)) continue;
                 knownItems.Add(itemObject);
             }
 
@@ -234,7 +235,7 @@ namespace Items {
             List<ItemSlot> queried = new List<ItemSlot>();
             int i = 0;
             bool enforceGameStages = DevMode.Instance.EnableGameStages;
-            WorldManager worldManager = WorldManager.getInstance();
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             foreach (ItemObject itemObject in items.Values) {
                 if (i >= limit) {
                     break;
@@ -242,7 +243,7 @@ namespace Items {
 
                 if (!itemObject.name.ToLower().Contains(search.ToLower())) continue;
                 
-                if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !worldManager.HasGameStage(itemObject.gameStage))) continue;
+                if (enforceGameStages && (ReferenceEquals(itemObject.gameStage,null) || !playerScript.GameStageCollection.HasStage(itemObject.gameStage))) continue;
                 queried.Add(new ItemSlot(itemObject,1,null));
                 i ++;
             }

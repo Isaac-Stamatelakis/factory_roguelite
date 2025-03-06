@@ -1,13 +1,10 @@
 using System.Collections.Generic;
+using Item.Burnables;
 using Player;
 using UnityEngine;
 
 namespace UI.Catalogue.InfoViewer
 {
-    public interface IStageRestrictedCatalogueElement
-    {
-        public void Filter(PlayerGameStageCollection gameStageCollection);
-    }
     public interface ICatalogueElement
     {
         public abstract string GetName();
@@ -15,6 +12,7 @@ namespace UI.Catalogue.InfoViewer
         public string GetPageIndicatorString(int pageIndex);
         public int GetPageCount();
         public void DisplayAllElements(PlayerGameStageCollection gameStageCollection);
+        public bool Filter(PlayerGameStageCollection gameStageCollection);
     }
 
     public interface IColorableCatalogueElement

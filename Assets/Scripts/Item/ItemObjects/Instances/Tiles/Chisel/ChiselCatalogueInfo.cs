@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Item.Burnables;
+using Item.GameStage;
 using Item.ItemObjects.Instances.Tile.Chisel;
 using Items;
 using Player;
@@ -7,7 +9,7 @@ using UnityEngine;
 
 namespace Item.ItemObjects.Instances.Tiles.Chisel
 {
-    public class ChiselCatalogueInfo : ICatalogueElement, IStageRestrictedCatalogueElement
+    public class ChiselCatalogueInfo : ICatalogueElement
     {
         public List<ChiselDisplayData> DisplayDataList;
 
@@ -55,34 +57,44 @@ namespace Item.ItemObjects.Instances.Tiles.Chisel
             CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData},gameStageCollection);
         }
 
-        public void Filter(PlayerGameStageCollection gameStageCollection)
+        public bool Filter(PlayerGameStageCollection gameStageCollection)
         {
             for (int i = DisplayDataList.Count - 1; i >= 0; i--)
             {
                 ChiselDisplayData chiselDisplayData = DisplayDataList[i];
-                for (int j = 0; j < chiselDisplayData.ChiselTiles.Count; j++)
-                {
-                    ChiselTileItem chiselTileItem = chiselDisplayData.ChiselTiles[j];
-                    if (gameStageCollection.HasStage(chiselTileItem.gameStage.GetGameStageId())) continue;
-                    chiselDisplayData.ChiselTiles.RemoveAt(j);
-                }
+                CatalogueInfoUtils.FilterList(chiselDisplayData.ChiselTiles,gameStageCollection);
                 if (chiselDisplayData.ChiselTiles.Count > 0) continue;
                 DisplayDataList.RemoveAt(i);
             }
+
+            return DisplayDataList.Count > 0;
         }
     }
 
+    public class ChiselItemDisplay : IGameStageItemDisplay
+    {
+        public ChiselTileItem ChiselTileItem;
+        public ChiselItemDisplay(ChiselTileItem chiselTileItem)
+        {
+            ChiselTileItem = chiselTileItem;
+        }
+
+        public bool FilterStage(PlayerGameStageCollection gameStageCollection)
+        {
+            return gameStageCollection.HasStage(ChiselTileItem?.gameStage);
+        }
+    }
     public class ChiselDisplayData
     {
-        public List<ChiselTileItem> ChiselTiles;
+        public List<ChiselItemDisplay> ChiselTiles;
         public string CollectionName;
         public ChiselDisplayData(ChiselCollectionObject chiselCollectionObject)
         {
-            ChiselTiles = new List<ChiselTileItem>();
+            ChiselTiles = new List<ChiselItemDisplay>();
             CollectionName = chiselCollectionObject.name;
             foreach (ChiselTileItem chiselTileItem in chiselCollectionObject.ChiselTiles)
             {
-                ChiselTiles.Add(chiselTileItem);
+                ChiselTiles.Add(new ChiselItemDisplay(chiselTileItem));
             }
             
         }
