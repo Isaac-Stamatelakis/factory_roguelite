@@ -80,6 +80,7 @@ namespace Robot.Upgrades.Info.Instances
             {
                 (int)RobotUpgrade.Speed,
                 (int)RobotUpgrade.JumpHeight,
+                (int)RobotUpgrade.Reach
             };
         }
 
