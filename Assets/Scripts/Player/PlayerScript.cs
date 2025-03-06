@@ -37,6 +37,8 @@ namespace Player
         [SerializeField] private PlayerUIPrefabs prefabs;
         [SerializeField] private PlayerUIContainer playerUIContainer;
         [SerializeField] private TileViewerCollection tileViewers;
+        private PlayerGameStageCollection gameStageCollection;
+        public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
         public PlayerRobot PlayerRobot => playerRobot;
         public PlayerIO PlayerIO => playerIO;
@@ -179,6 +181,19 @@ namespace Player
         {
             Rotation = rotation;
             State = state;
+        }
+    }
+
+    public class PlayerGameStageCollection
+    {
+        public HashSet<string> UnlockedStages;
+        public bool HasStage(string stage)
+        {
+            return UnlockedStages.Contains(stage);
+        }
+        public PlayerGameStageCollection(HashSet<string> unlockedStages)
+        {
+            UnlockedStages = unlockedStages;
         }
     }
 }

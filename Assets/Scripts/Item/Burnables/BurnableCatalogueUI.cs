@@ -4,6 +4,7 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Transmutable;
+using Player;
 using Recipe;
 using Recipe.Collection;
 using TMPro;
@@ -18,7 +19,7 @@ namespace Item.Burnables
         [SerializeField] private TextMeshProUGUI mBurnTimeText;
         [SerializeField] private InventoryUI mItemSlotInventoryUI;
         private BurnableInfo burnableInfo;
-        public override void Display(ICatalogueElement element)
+        public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
             burnableInfo = (BurnableInfo)element;
             DisplayPage(0);
@@ -86,7 +87,7 @@ namespace Item.Burnables
             return BurnableItems.Count;
         }
 
-        public void DisplayAllElements()
+        public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)
         {
             BurnableItemRegistry burnableItemRegistry = RecipeRegistry.BurnableItemRegistry;
             List<BurnableDisplay> toDisplay = new List<BurnableDisplay>();
@@ -94,7 +95,7 @@ namespace Item.Burnables
             toDisplay.AddRange(burnableItemRegistry.GetAllMaterialsToDisplay());
             BurnableInfo burnableInfo = new BurnableInfo(toDisplay);
             CatalogueElementData catalogueElementData = new CatalogueElementData(burnableInfo, CatalogueInfoDisplayType.Burnable);
-            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData});
+            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData},gameStageCollection);
         }
 
         public BurnableInfo(List<BurnableDisplay> burnableItems)

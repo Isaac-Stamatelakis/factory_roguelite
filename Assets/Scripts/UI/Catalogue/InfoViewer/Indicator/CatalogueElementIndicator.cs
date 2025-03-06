@@ -30,7 +30,7 @@ namespace UI.Catalogue.InfoViewer.Indicator
             for (int i = 0; i < nodes.Length; i++)
             {
                 int displayOffset = i - nodes.Length / 2;
-                nodes[i].Display(infoViewerParent.GetAdjacentDisplayElement(displayOffset),displayOffset, OnNodeClick);
+                nodes[i].Display(infoViewerParent.GetAdjacentDisplayElement(displayOffset), displayOffset, OnNodeClick, infoViewerParent.GameStageCollection);
             }
         }
     }

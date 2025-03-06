@@ -5,6 +5,7 @@ using Item.ItemObjects.Instances.Tiles.Chisel;
 using Item.Slot;
 using Item.Transmutation.Info;
 using Items.Transmutable;
+using Player;
 using Recipe;
 using Recipe.Viewer;
 using UnityEngine;
@@ -21,7 +22,7 @@ namespace UI.Catalogue.InfoViewer
             TryAddTransmutationDisplay(itemSlot, elements);
             TryAddChiselDisplay(itemSlot,elements);
             
-            DisplayCatalogue(elements);
+            DisplayCatalogue(elements,PlayerManager.Instance.GetPlayer().GameStageCollection); // Gross singleton 
 
         }
 
@@ -32,7 +33,7 @@ namespace UI.Catalogue.InfoViewer
             TryAddBurnDisplay(itemSlot,elements);
             TryAddChiselDisplay(itemSlot,elements);
             
-            DisplayCatalogue(elements);
+            DisplayCatalogue(elements,PlayerManager.Instance.GetPlayer().GameStageCollection);
         }
 
         private static void TryAddTransmutationDisplay(ItemSlot itemSlot, List<CatalogueElementData> elements)
@@ -62,8 +63,9 @@ namespace UI.Catalogue.InfoViewer
             elements.Add(new CatalogueElementData(burnableInfo,CatalogueInfoDisplayType.Burnable));
         }
 
-        public static void DisplayCatalogue(List<CatalogueElementData> elements)
+        public static void DisplayCatalogue(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
         {
+            FilterCatalogueUnStagedElements(elements,playerGameStageCollection);
             if (elements.Count == 0) return;
             MainCanvasController mainCanvasController = MainCanvasController.TInstance;
             if (mainCanvasController.TopHasComponent<CatalogueInfoViewer>())
@@ -71,7 +73,26 @@ namespace UI.Catalogue.InfoViewer
                 mainCanvasController.PopStack();
             }
             CatalogueInfoViewer catalogueInfoViewer = mainCanvasController.DisplayUIElement<CatalogueInfoViewer>(MainSceneUIElement.CatalogueInfo);
-            catalogueInfoViewer.Initialize(elements);
+            catalogueInfoViewer.Initialize(elements,playerGameStageCollection);
+        }
+
+        public static void FilterCatalogueUnStagedElements(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
+        {
+            for (var index = elements.Count-1; index >= 0; index--)
+            {
+                var catalogueElementData = elements[index];
+                if (catalogueElementData.CatalogueElement is not IStageRestrictedCatalogueElement
+                    stageRestrictedCatalogueElement)
+                {
+                    continue;
+                }
+
+                stageRestrictedCatalogueElement.Filter(playerGameStageCollection);
+                if (catalogueElementData.CatalogueElement.GetPageCount() == 0)
+                {
+                    elements.RemoveAt(index);
+                }
+            }
         }
     }
 }

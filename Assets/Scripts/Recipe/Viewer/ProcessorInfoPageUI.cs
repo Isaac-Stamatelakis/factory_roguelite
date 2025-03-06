@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Player;
 using Recipe.Processor;
 using UI.Catalogue.InfoViewer;
 using Unity.VisualScripting;
@@ -13,7 +14,7 @@ namespace Recipe.Viewer
         private IRecipeProcessorUI recipeProcessorUI;
         private RecipeRequirementUI recipeCostUI;
         
-        public override void Display(ICatalogueElement element)
+        public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
             recipeProcessorDisplayInfo = (RecipeProcessorDisplayInfo)element;
             GameObject recipePrefab = recipeProcessorDisplayInfo.RecipeProcessorInstance.RecipeProcessorObject.UIPrefab;
@@ -80,12 +81,12 @@ namespace Recipe.Viewer
             return Pages.Count;
         }
 
-        public void DisplayAllElements()
+        public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)
         {
             List<DisplayableRecipe> recipes = RecipeProcessorInstance.GetAllRecipesToDisplay();
             RecipeProcessorDisplayInfo recipeProcessorDisplayInfo = new RecipeProcessorDisplayInfo(RecipeProcessorInstance, recipes);
             CatalogueElementData catalogueElementData = new CatalogueElementData(recipeProcessorDisplayInfo, CatalogueInfoDisplayType.Recipe);
-            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData});
+            CatalogueInfoUtils.DisplayCatalogue(new List<CatalogueElementData>{catalogueElementData},gameStageCollection);
             
         }
     }

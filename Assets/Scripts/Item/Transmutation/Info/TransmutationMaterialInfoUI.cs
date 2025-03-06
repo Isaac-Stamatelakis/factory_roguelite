@@ -1,6 +1,7 @@
 using System;
 using Items;
 using Items.Transmutable;
+using Player;
 using UI.Catalogue.InfoViewer;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace Item.Transmutation.Info
         private GameObject currentPage;
         [SerializeField] private TransmutationMaterialPageUI infoPagePrefab;
         private TransmutationMaterialInfo materialInfo;
-        public override void Display(ICatalogueElement element)
+        public override void Display(ICatalogueElement element, PlayerGameStageCollection gameStages)
         {
             materialInfo = (TransmutationMaterialInfo)element;
             DisplayPage(0);
@@ -85,7 +86,7 @@ namespace Item.Transmutation.Info
             return 3;
         }
 
-        public void DisplayAllElements()
+        public void DisplayAllElements(PlayerGameStageCollection gameStageCollection)
         {
             // Do nothing for now. Maybe show all materials ?
         }
