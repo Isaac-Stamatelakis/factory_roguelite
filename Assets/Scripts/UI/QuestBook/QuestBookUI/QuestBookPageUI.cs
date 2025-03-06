@@ -20,8 +20,16 @@ namespace UI.QuestBook {
         private string questBookPath;
         public string QuestBookPath {get => questBookPath;}
         private string playerDataPath;
+        private Dictionary<int, QuestBookNode> idNodeDictionary = new Dictionary<int, QuestBookNode>();
 
-        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, QuestBookUI questBookUI, string questBookPath, string playerDataPath)
+        public Dictionary<int, QuestBookNode> IdNodeDictionary => idNodeDictionary;
+
+        public void SetIdDictionary(Dictionary<int, QuestBookNode> idNodeDictionary)
+        {
+            this.idNodeDictionary = idNodeDictionary;
+        }
+        public void Initialize(QuestBookPage questBookPage, QuestBookData questBookData, QuestBookPageData questBookPageData, 
+            QuestBookUI questBookUI, string questBookPath, string playerDataPath)
         {
             if (this.nodeNetwork != null)
             {
@@ -74,7 +82,7 @@ namespace UI.QuestBook {
 
         public override QuestBookNode LookUpNode(int id)
         {
-            return NodeNetwork.IdNodeDict.GetValueOrDefault(id);
+            return idNodeDictionary.GetValueOrDefault(id);
         }
         
 
@@ -123,7 +131,7 @@ namespace UI.QuestBook {
             );
             questBookData.IDCounter++;
             nodeNetwork.Nodes.Add(node);
-            nodeNetwork.IdNodeDict[node.Id] = node;
+            idNodeDictionary[node.Id] = node;
         }
 
         public override GameObject GenerateNewNodeObject()
@@ -152,7 +160,7 @@ namespace UI.QuestBook {
 
         private void SavePlayerData()
         {
-            if (nodeNetwork == null) return;
+            if (nodeNetwork == null || playerDataPath == null) return;
             List<QuestBookTaskData> questBookNodeDataList = new List<QuestBookTaskData>();
             foreach (QuestBookNode node in NodeNetwork.Nodes)
             {

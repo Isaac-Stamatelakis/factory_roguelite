@@ -18,7 +18,6 @@ namespace UI.QuestBook {
         private QuestBookPageUI questBookPageUI;
         private HashSet<int> displayed;
         private string currentSearch;
-        private Dictionary<int, QuestBookNodeData> idNodeDataDict = new Dictionary<int, QuestBookNodeData>();
         
         public void Initialize(QuestBookNode node, QuestBookPageUI questBookPageUI, string questBookPath) {
             this.node = node;
@@ -34,7 +33,7 @@ namespace UI.QuestBook {
 
             scrollView.onValueChanged.AddListener((Vector2 value) => {
                 Vector2 contentSize = scrollView.content.sizeDelta;
-                if (value.y <= 100/contentSize.y && displayed.Count < idNodeDataDict.Count) {
+                if (value.y <= 100/contentSize.y && displayed.Count < questBookPageUI.IdNodeDictionary.Count) {
                     DisplayNonPreRequisites(1);
                 }
             });
@@ -51,7 +50,7 @@ namespace UI.QuestBook {
 
             // DisplayNewElement nodes in connections first so they are easier to remove
             foreach (int id in node.GetPrerequisites()) {
-                if (nodeMatchSearch(idNodeDataDict[id],currentSearch)) {
+                if (nodeMatchSearch(questBookPageUI.IdNodeDictionary[id].NodeData,currentSearch)) {
                     DisplayConnection(id);
                     displayed.Add(id);
                 }
@@ -61,14 +60,14 @@ namespace UI.QuestBook {
 
         private void DisplayNonPreRequisites(int amount) {
             int i = 0;
-            foreach (int id in idNodeDataDict.Keys) {
+            foreach (int id in questBookPageUI.IdNodeDictionary.Keys) {
                 if (i >= amount) {
                     break;
                 }
                 if (displayed.Contains(id)) {
                     continue;
                 }
-                if (!nodeMatchSearch(idNodeDataDict[id],currentSearch)) {
+                if (!nodeMatchSearch(questBookPageUI.IdNodeDictionary[id].NodeData,currentSearch)) {
                     continue;
                 }
                 DisplayConnection(id);
@@ -83,7 +82,7 @@ namespace UI.QuestBook {
 
         private void DisplayConnection(int id) {
             ConnectionElementUI connectionElementUI = GameObject.Instantiate(connectionElementUIPrefab);
-            connectionElementUI.Initialize(node.GetPrerequisites(),idNodeDataDict.GetValueOrDefault(id));
+            connectionElementUI.Initialize(node.GetPrerequisites(),questBookPageUI.IdNodeDictionary.GetValueOrDefault(id).NodeData);
             connectionElementUI.transform.SetParent(connectionList.transform,false);
         }
     }
