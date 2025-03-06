@@ -160,11 +160,21 @@ namespace Player {
             if (DevMode.Instance.flight)
             {
                 if (PlayerKeyPressUtils.BlockKeyInput) return;
-                FlightMovementUpdate(transform);
+                CreativeFlightMovementUpdate(transform);
                 return;
             }
+            
+            float flight = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Flight);
 
-            StandardMoveUpdate();
+            if (flight > 0)
+            {
+                FlightMoveUpdate();
+            }
+            else
+            {
+                StandardMoveUpdate();
+            }
+            
         }
 
         private IEnumerator RecallCoroutine()
@@ -208,6 +218,60 @@ namespace Player {
             return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) ||
                    CollisionStateActive(CollisionState.OnSlope);
         }
+
+        private void FlightMoveUpdate()
+        {
+            rb.gravityScale = 0;
+            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
+            if (blockInput)
+            {
+                rb.velocity = Vector2.zero;
+                return;
+            }
+            bool leftInput = Input.GetKey(KeyCode.A);
+            bool rightInput = Input.GetKey(KeyCode.D);
+            bool upInput = Input.GetKey(KeyCode.W);
+            bool downInput = Input.GetKey(KeyCode.S);
+             
+            Vector2 velocity = rb.velocity;
+            const float BASE_SPEED = 5;
+            float speed = BASE_SPEED + RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+            if (leftInput == rightInput)
+            {
+                velocity.x = 0;
+            }
+            else
+            {
+                if (leftInput)
+                {
+                    velocity.x = -speed;
+                    spriteRenderer.flipX = true;
+                }
+                else
+                {
+                    velocity.x = speed;
+                    spriteRenderer.flipX = false;
+                }
+            }
+            if (upInput == downInput)
+            {
+                velocity.y = 0;
+            }
+            else
+            {
+                if (upInput)
+                {
+                    velocity.y = speed;
+                }
+                else
+                {
+                    velocity.y = -speed;
+                }
+            }
+            rb.velocity = velocity;
+            
+        }
+
         private void StandardMoveUpdate()
         {
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
@@ -274,6 +338,11 @@ namespace Player {
                 {
                     rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
+                    if (Input.GetKey(KeyCode.S)) 
+                    {
+                        jumpEvent.IterateTime();
+                        rb.gravityScale *= 1.5f;
+                    }
                 }
                 else
                 {
@@ -285,7 +354,8 @@ namespace Player {
                 }
                 return;
             }
-            
+
+            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * 1.5f : defaultGravityScale;
             
             if (rocketBoots != null && rocketBoots.Active)
             {
@@ -624,7 +694,7 @@ namespace Player {
             rb.bodyType = DevMode.Instance.flight ? RigidbodyType2D.Static : RigidbodyType2D.Dynamic;
         }
 
-        private void FlightMovementUpdate(Transform playerTransform)
+        private void CreativeFlightMovementUpdate(Transform playerTransform)
         {
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;

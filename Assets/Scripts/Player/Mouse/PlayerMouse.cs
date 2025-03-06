@@ -85,8 +85,6 @@ namespace PlayerModule.Mouse {
             }
 
             if (eventSystem.IsPointerOverGameObject()) return;
-
-            
             
             if (!leftClick)
             {
@@ -100,7 +98,7 @@ namespace PlayerModule.Mouse {
             
             if (!leftClick && !rightClick) return;
             
-            if (!RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
+            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
@@ -124,7 +122,7 @@ namespace PlayerModule.Mouse {
                 return;
             }
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            if (!RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts))
+            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts))
             {
                 tileHighlighter.Hide();
                 return;
