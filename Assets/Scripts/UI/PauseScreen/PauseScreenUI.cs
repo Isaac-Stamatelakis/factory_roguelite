@@ -49,20 +49,25 @@ namespace UI.PauseScreen
             });
             controlButton.onClick.AddListener(() =>
             {
-                uiAssetManager.DisplayObject("CONTROLS");
+                Display("CONTROLS");
             });
             statisticsButton.onClick.AddListener(() =>
             {
-                uiAssetManager.DisplayObject("CONTROLS");
+                Display("CONTROLS");
             });
             videoSettingButton.onClick.AddListener(() =>
             {
-                uiAssetManager.DisplayObject("VIDEO");
+                Display("VIDEO");
             });
             audioSettingButton.onClick.AddListener(() =>
             {
-                uiAssetManager.DisplayObject("CONTROLS");
+                Display("AUDIO");
             });
+        }
+
+        private void Display(string key)
+        {
+            uiAssetManager.DisplayObject(key,priority:1);
         }
 
         public void OnDestroy()

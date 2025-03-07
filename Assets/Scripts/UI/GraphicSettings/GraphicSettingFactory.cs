@@ -15,7 +15,7 @@ namespace UI.GraphicSettings
                 case GraphicSetting.AntiAliasing:
                     return new AntiAliasingManager();
                 case GraphicSetting.Particles:
-                    break;
+                    return new ParticleSettingManager();
                 case GraphicSetting.FullScreen:
                     return new FullScreenManager();
                 case GraphicSetting.Resolution:
