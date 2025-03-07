@@ -57,7 +57,7 @@ namespace UI.PauseScreen
             });
             videoSettingButton.onClick.AddListener(() =>
             {
-                uiAssetManager.DisplayObject("CONTROLS");
+                uiAssetManager.DisplayObject("VIDEO");
             });
             audioSettingButton.onClick.AddListener(() =>
             {

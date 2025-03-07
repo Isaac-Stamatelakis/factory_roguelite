@@ -77,6 +77,16 @@ public static class GlobalHelper
         return options;
     }
     
+    public static List<TMP_Dropdown.OptionData> StringListToDropDown(List<string> strings)
+    {
+        List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+        foreach (string stringVal in strings)
+        {
+            options.Add(new TMP_Dropdown.OptionData(stringVal));
+        }
+        return options;
+    }
+    
     public static void CopyDirectory(string sourceDir, string targetDir)
     {
         DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
