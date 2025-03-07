@@ -26,6 +26,12 @@ namespace UI {
             GameObject uiObject = cloneGameObject(key);
             CanvasController.Instance.DisplayObject(uiObject);
         }
+        
+        public void DisplayObject(string key, int priority)
+        {
+            GameObject uiObject = cloneGameObject(key);
+            CanvasController.Instance.DisplayObject(uiObject,priority:priority);
+        }
     }
 
     
