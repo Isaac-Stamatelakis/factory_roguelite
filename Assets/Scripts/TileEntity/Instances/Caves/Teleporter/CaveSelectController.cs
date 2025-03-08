@@ -11,6 +11,7 @@ using WorldModule;
 using System.IO;
 using Player;
 using UI.Chat;
+using UI.Statistics;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Debug = UnityEngine.Debug;
@@ -152,6 +153,7 @@ namespace TileEntity.Instances {
             
             Debug.Log("Teleporting to " + currentCave.name);
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Caves_Explored]++;
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
             caveController.setCurrentCave(caveInstance);

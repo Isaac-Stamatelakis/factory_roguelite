@@ -119,6 +119,7 @@ namespace Fluids {
         }
         public void FixedUpdate()
         {
+#pragma warning disable 0162
             ticks++;
             if (!tickFluidUpdates.Remove(ticks, out var positions)) return;
             return;

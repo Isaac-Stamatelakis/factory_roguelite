@@ -23,7 +23,6 @@ namespace UI.GraphicSettings
                 default:
                     return null;
             }
-            return null;
         }
     }
 }

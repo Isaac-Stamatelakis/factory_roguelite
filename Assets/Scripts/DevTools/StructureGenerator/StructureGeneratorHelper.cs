@@ -14,6 +14,7 @@ using System.Linq;
 using Item.Slot;
 using Items;
 using Newtonsoft.Json;
+using UI.Statistics;
 using UnityEngine.AddressableAssets;
 
 #if UNITY_EDITOR 
@@ -85,7 +86,8 @@ namespace DevTools.Structures {
                 y: 0,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData),
-                sRobotLoadOut: null
+                sRobotLoadOut: null,
+                playerStatistics: new PlayerStatisticCollection()
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
