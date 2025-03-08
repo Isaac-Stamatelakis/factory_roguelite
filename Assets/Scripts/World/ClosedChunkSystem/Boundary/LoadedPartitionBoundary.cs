@@ -16,10 +16,12 @@ namespace Chunks.Systems {
         private HashSet<Vector3Int> partitions = new HashSet<Vector3Int>(512);
         public void Initialize()
         {
+#pragma warning disable 0162 
             mTileMap = gameObject.AddComponent<Tilemap>();
             if (Global.ShowSystemParameter) {
                 gameObject.AddComponent<TilemapRenderer>();
             }
+#pragma warning restore 0162 
             gameObject.layer = LayerMask.NameToLayer("Block");
             TilemapCollider2D tilemapCollider2D = gameObject.AddComponent<TilemapCollider2D>();
             tilemapCollider2D.maximumTileChangeCount = 10000000;

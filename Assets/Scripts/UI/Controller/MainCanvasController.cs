@@ -33,7 +33,7 @@ namespace UI
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject));
+                DisplayObject(Instantiate(pauseScreenUIPrefab.gameObject),priority:1);
             }
         }
 

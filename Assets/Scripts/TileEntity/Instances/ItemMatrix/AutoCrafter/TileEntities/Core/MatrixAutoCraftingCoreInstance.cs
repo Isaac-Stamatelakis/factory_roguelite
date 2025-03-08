@@ -24,6 +24,7 @@ namespace TileEntity.Instances.Matrix {
 
         public void AssembleMultiBlock()
         {
+#pragma warning disable 0162 
             return; // TODO Fix this
             if (matrixConduitSystem != null) {
                 matrixConduitSystem.removeAutoCrafter(this);
@@ -74,7 +75,7 @@ namespace TileEntity.Instances.Matrix {
             }
             
         }
-
+#pragma warning restore 0162 
         public List<Vector2Int> GetConnectedPositions()
         {
             // TOOD

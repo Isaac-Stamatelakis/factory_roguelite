@@ -23,6 +23,7 @@ using Tiles.Highlight;
 using Tiles.Indicators;
 using UI.QuestBook;
 using UI.RingSelector;
+using UI.Statistics;
 using UnityEngine;
 using WorldModule;
 
@@ -55,6 +56,9 @@ namespace Player
         public PlayerUIContainer PlayerUIContainer => playerUIContainer;
         public TileViewerCollection TileViewers => tileViewers;
         public PlayerMouse PlayerMouse => playerMouse;
+        private PlayerStatisticCollection playerStatisticCollection;
+        public PlayerStatisticCollection PlayerStatisticCollection => playerStatisticCollection;
+        private Vector2 lastPosition;
         
         public void Start()
         {
@@ -69,6 +73,7 @@ namespace Player
         {
             InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
+            playerStatisticCollection = playerData.playerStatistics;
             playerInventory.Initialize(playerData.sInventoryData);
             
             ItemSlot playerRobotItem = ItemSlotFactory.DeserializeSlot(playerData.playerRobot);
@@ -96,7 +101,14 @@ namespace Player
             gameStageCollection = new PlayerGameStageCollection(gameStages);
         }
 
-        
+        public void FixedUpdate()
+        {
+            if (playerStatisticCollection == null) return;
+            playerStatisticCollection.ContinuousValues[PlayerStatistic.Play_Time] += Time.fixedDeltaTime;
+            float distance = Vector2.Distance(transform.position, lastPosition);
+            playerStatisticCollection.ContinuousValues[PlayerStatistic.Distance_Traveled] += distance;
+            lastPosition = transform.position;
+        }
     }
 
     [System.Serializable]

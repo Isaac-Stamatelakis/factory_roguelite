@@ -20,6 +20,7 @@ using TileEntity;
 using TileEntity.Instances.CompactMachines;
 using Tiles;
 using UI.QuestBook;
+using UI.Statistics;
 using World.Serialization;
 using Object = UnityEngine.Object;
 
@@ -80,7 +81,8 @@ namespace WorldModule {
                 y: 0,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
-                sRobotLoadOut: null
+                sRobotLoadOut: null,
+                playerStatistics: new PlayerStatisticCollection()
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             byte[] compressed = WorldLoadUtils.CompressString(json);

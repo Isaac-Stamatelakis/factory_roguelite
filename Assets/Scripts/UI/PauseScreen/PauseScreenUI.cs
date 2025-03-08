@@ -53,7 +53,7 @@ namespace UI.PauseScreen
             });
             statisticsButton.onClick.AddListener(() =>
             {
-                Display("CONTROLS");
+                Display("STATS");
             });
             videoSettingButton.onClick.AddListener(() =>
             {
