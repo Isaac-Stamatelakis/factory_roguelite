@@ -17,7 +17,9 @@ using System.Security.Cryptography;
 using DevTools.Structures;
 using Item.Slot;
 using Newtonsoft.Json;
+using Player;
 using TileEntity.Instances.CompactMachine;
+using UI.Statistics;
 
 namespace TileEntity.Instances.CompactMachines {
     public static class CompactMachineUtils 
@@ -103,8 +105,16 @@ namespace TileEntity.Instances.CompactMachines {
                 : compactMachine.Teleporter.GetCellPosition() + Vector2Int.one;
             
             DimensionManager dimensionManager = DimensionManager.Instance;
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations_Into_Compact_Machines]++;
+            int depth = key.Path.Count;
+            int currentFarthestDepth = playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Largest_Compact_Machine_Depth];
+            if (depth > currentFarthestDepth)
+            {
+                playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Largest_Compact_Machine_Depth] = depth;
+            }
             dimensionManager.SetPlayerSystem(
-                PlayerManager.Instance.GetPlayer(),
+                playerScript,
                 1,
                 teleportPosition,
                 key:key

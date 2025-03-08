@@ -28,6 +28,7 @@ using TileMaps.Layer;
 using TileMaps.Place;
 using Tiles;
 using UI;
+using UI.Statistics;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
@@ -83,6 +84,7 @@ namespace Player {
         private int bonusJumps;
         private bool recalling;
         private RocketBoots rocketBoots;
+        private PlayerScript playerScript;
         
         [SerializeField] private DirectionalMovementStats MovementStats;
         [SerializeField] private JumpMovementStats JumpStats;
@@ -97,6 +99,7 @@ namespace Player {
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
+            playerScript = GetComponent<PlayerScript>();
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             platformLayer = 1 << LayerMask.NameToLayer("Platform");
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
@@ -203,6 +206,7 @@ namespace Player {
                 bool teleported = playerTeleportEvent.TryTeleport();
                 if (teleported)
                 {
+                    playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
                     fallTime = 0;
                 }
             }
@@ -236,7 +240,10 @@ namespace Player {
             Vector2 velocity = rb.velocity;
             const float BASE_SPEED = 5;
             float speed = BASE_SPEED + RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-            if (leftInput == rightInput)
+            bool horizontalMovement = leftInput != rightInput;
+            bool verticalMovement = upInput != downInput;
+            
+            if (!horizontalMovement)
             {
                 velocity.x = 0;
             }
@@ -253,7 +260,7 @@ namespace Player {
                     spriteRenderer.flipX = false;
                 }
             }
-            if (upInput == downInput)
+            if (!verticalMovement)
             {
                 velocity.y = 0;
             }
@@ -568,6 +575,11 @@ namespace Player {
             {
                 coyoteFrames = JumpStats.coyoteFrames;
             }
+            else if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
+            {
+                playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
+            }
+            
             
 
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;

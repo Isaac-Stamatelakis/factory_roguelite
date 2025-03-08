@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Item.GrabbedItem;
 using Item.Slot;
@@ -25,6 +26,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
                 ItemSlot creativeSlot = creativeChestInstance.ItemSlot;
                 if (ItemSlotUtils.IsItemSlotNull(creativeSlot)) return;
                 GrabbedItemProperties.Instance.SetItemSlot(new ItemSlot(creativeSlot.itemObject,Global.MAX_SIZE,creativeSlot.tags));
+                creativeSlot.amount = UInt32.MaxValue;
                 return;
             }
             creativeChestInstance.ItemSlot = new ItemSlot(grabbedItemSlot.itemObject, uint.MaxValue, grabbedItemSlot.tags);
