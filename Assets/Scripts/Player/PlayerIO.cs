@@ -51,7 +51,6 @@ namespace PlayerModule.IO {
                 playerScript.PlayerStatisticCollection
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            Debug.Log(json);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
         }
     }
