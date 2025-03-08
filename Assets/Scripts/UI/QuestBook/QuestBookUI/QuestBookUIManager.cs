@@ -11,10 +11,10 @@ namespace UI.QuestBook
     public class QuestBookUIManager : MonoBehaviour
     {
         [SerializeField] private QuestBookSelectorUI selectorPrefab;
-        public void Start()
+        public void Initialize(string questBookName)
         {
             GlobalHelper.deleteAllChildren(transform);
-            string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), QuestBookUtils.MAIN_QUEST_BOOK_NAME);
+            string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), questBookName);
             string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
             QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);
             if (questBookLibraryData == null)

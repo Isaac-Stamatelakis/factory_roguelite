@@ -25,6 +25,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using World.BackUp;
+using World.Serialization;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -62,7 +63,7 @@ namespace Dimensions {
             
             WorldManager worldManager = WorldManager.getInstance();
             string worldName = worldManager.GetWorldName();
-            if (!TryExecuteInitialLoad(worldManager.InitializeMetaData, null, "MetaData")) yield break;
+            
             if (!TryExecuteInitialLoad(() =>
                 {
                     WorldLoadUtils.InitializeQuestBook(worldName);
@@ -70,8 +71,10 @@ namespace Dimensions {
             
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             if (!TryExecuteInitialLoad(playerScript.Initialize,null, "Player")) yield break;
-            
-            
+            if (!TryExecuteInitialLoad(() =>
+                {
+                    InitializeMetaData(worldManager, playerScript);
+                } , null, "MetaData")) yield break;
             if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
             
             SetPlayerSystem(playerScript, 0, Vector2Int.zero);
@@ -80,7 +83,14 @@ namespace Dimensions {
             
             ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
             catalogueControllers.ShowAll();
-     
+        }
+
+        private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)
+        {
+            WorldMetaData metaData = worldManager.GetMetaData();
+            playerScript.Cheats = metaData.CheatsEnabled;
+            QuestBookUIManager questBookUIManager = GameObject.FindObjectOfType<QuestBookUIManager>();
+            questBookUIManager.Initialize(metaData.QuestBook);
         }
         
 #pragma warning disable 0162

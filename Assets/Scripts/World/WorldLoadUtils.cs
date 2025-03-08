@@ -143,7 +143,7 @@ namespace WorldModule {
                     metaDataPath = metaDataPath.Replace(".json", ".bin");
                     File.Delete(oldPath);
                 }
-                WorldCreation.InitializeMetaData(metaDataPath);
+                WorldCreation.InitializeMetaData(metaDataPath,new WorldCreationData(worldName,null,false,QuestBookUtils.MAIN_QUEST_BOOK_NAME));
             }
 
             byte[] compressed = File.ReadAllBytes(metaDataPath);

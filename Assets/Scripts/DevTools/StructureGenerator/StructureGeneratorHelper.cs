@@ -153,7 +153,6 @@ namespace DevTools.Structures {
                     }
                 }
             }
-            //Debug.Log($"Structure generator found {areas.Count} structures");
 
             List<StructureVariant> variants = new List<StructureVariant>();
             foreach (List<Vector2Int> area in areas) {

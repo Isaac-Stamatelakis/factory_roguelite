@@ -29,19 +29,26 @@ namespace UI.TitleScreen.Select
 
         public void DisplayData(WorldDisplayData worldDisplayData)
         {
-            if (worldDisplayData.Corrupted)
+            const string CREATION_PREFIX = "Created:";
+            const string LAST_PLAYED_PREFIX = "Last Played:";
+            if (worldDisplayData.Corrupted || worldDisplayData.CreateTime == null)
             {
-                createDateText.text = "?";
-                lastAccessDateText.text = "?";
+                createDateText.text = $"{CREATION_PREFIX}?";
             }
             else
             {
-                createDateText.text = worldDisplayData.CreateTime.Value.ToString("MM/dd/yyyy HH:mm");
-                lastAccessDateText.text = worldDisplayData.LastAccessTime.Value.ToString("MM/dd/yyyy HH:mm");
+                createDateText.text = $"{CREATION_PREFIX}{worldDisplayData.CreateTime.Value:MM/dd/yyyy}";
             }
-            nameText.text = worldDisplayData.Name;
-            
-            
+
+            if (worldDisplayData.Corrupted || worldDisplayData.LastAccessTime == null)
+            {
+                lastAccessDateText.text = $"{LAST_PLAYED_PREFIX}?";
+            }
+            else
+            {
+                lastAccessDateText.text = $"{LAST_PLAYED_PREFIX}{worldDisplayData.LastAccessTime.Value:MM/dd/yyyy HH:mm}";
+            }
+            nameText.text = worldDisplayData.Name.Replace("_"," ");
         }
 
         public void SetHighlight(Color? color)

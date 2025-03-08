@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using Player;
 using PlayerModule.KeyPress;
 
 namespace UI.Chat {
@@ -252,6 +253,13 @@ namespace UI.Chat {
             ChatCommand chatCommand = ChatCommandFactory.getCommand(commandToken,this);
             if (chatCommand == null) {
                 if (printErrors) SendChatMessage("<color=red>" + $"Unknown command: '{command}'" + "</color>");
+                return;
+            }
+
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            if (!playerScript.Cheats || Global.FORCE_ENABLE_CHEATS)
+            {
+                SendChatMessage("<color=red>" + $"You do not have permission to execute command '{command}'" + "</color>");
                 return;
             }
             try
