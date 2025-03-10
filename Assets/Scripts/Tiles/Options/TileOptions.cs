@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Items;
 using TileEntity;
+using UnityEngine.Tilemaps;
 
 namespace Tiles {
     /// <summary>
@@ -44,7 +45,15 @@ namespace Tiles {
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;
-    } 
+        public TileOverlay Overlay;
+    }
+
+    [System.Serializable]
+    public class TileOverlay
+    {
+        public TileBase Tile;
+        public Color Color;
+    }
     [System.Serializable]
     public class DropOption {
         public ItemObject itemObject;

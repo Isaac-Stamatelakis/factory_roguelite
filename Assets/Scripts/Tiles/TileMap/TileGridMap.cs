@@ -40,7 +40,19 @@ namespace TileMaps {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
     public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
-    {   
+    {
+        private Tilemap overlayTileMap;
+        public override void Initialize(TileMapType type)
+        {
+            base.Initialize(type);
+            GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
+            overlayTileMapObject.transform.SetParent(transform,false);
+            overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
+            overlayTileMapObject.AddComponent<TilemapRenderer>();
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+
+        }
+
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             SpawnItemEntity(new ItemSlot(itemObject,amount,null), hitTilePosition);
         }
@@ -63,15 +75,6 @@ namespace TileMaps {
                 realYPosition += 0.25f;
             }
             ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
-        }
-
-        public TileOptions getOptionsAtPosition(Vector2Int realTilePosition) {
-            if (realTilePosition == new Vector2Int(-2147483647,-2147483647)) {
-                return null;
-            }
-            IChunkPartition partition = GetPartitionAtPosition(realTilePosition);
-            Vector2Int tilePositionInPartition = base.GetTilePositionInPartition(realTilePosition);
-            return partition.GetTileItem(tilePositionInPartition,TileMapLayer.Base).tileOptions;
         }
         
         protected override Vector2Int GetHitTilePosition(Vector2 position)
@@ -128,13 +131,16 @@ namespace TileMaps {
                 return;
             }
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
-            ITileEntityInstance tileEntity = getTileEntityAtPosition(position);
+            ITileEntityInstance tileEntity = GetTileEntityAtPosition(position);
             if (tileEntity != null) {
                 TileMapLayer layer = type.toLayer();
                 partition.BreakTileEntity(layer,tilePositionInPartition);
-                deleteTileEntityFromConduit(position);
+                DeleteTileEntityFromConduit(position);
             }
-            tilemap.SetTile(new Vector3Int(position.x,position.y,0), null);
+            Vector3Int vector = new Vector3Int(position.x,position.y,0);
+            tilemap.SetTile(vector, null);
+            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
+            
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
             CallListeners(position);
@@ -173,7 +179,7 @@ namespace TileMaps {
             return true;
         }
 
-        public ITileEntityInstance getTileEntityAtPosition(Vector2Int position) {
+        public ITileEntityInstance GetTileEntityAtPosition(Vector2Int position) {
             IChunkPartition partition = GetPartitionAtPosition(position);
             if (partition == null) {
                 return null;
@@ -181,13 +187,13 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
             return partition.GetTileEntity(tilePositionInPartition);
         }
-        protected void deleteTileEntityFromConduit(Vector2Int position) {
+        protected void DeleteTileEntityFromConduit(Vector2Int position) {
             if (base.closedChunkSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem) {
                 conduitTileClosedChunkSystem.TileEntityDeleteUpdate(position);
             }
         }
 
-        protected bool hitHardness(Vector2Int cellPosition) {
+        protected bool HitHardness(Vector2Int cellPosition) {
             TileItem tileItem = getTileItem(cellPosition);
             if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.hitable) return false;
         
@@ -205,6 +211,13 @@ namespace TileMaps {
                 closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
             }
             return broken;
+        }
+
+        protected override void RemoveTile(int x, int y)
+        {
+            base.RemoveTile(x, y);
+            Vector3Int vector = new Vector3Int(x,y,0);
+            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
         }
 
         private bool CanShowBreakIndiciator(TileBase tileBase, IChunkPartition partition, Vector2Int positionInPartition)
@@ -245,26 +258,43 @@ namespace TileMaps {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
-            if (!tileItem.tileOptions.rotatable) 
+            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
+            bool rotatable = tileItem.tileOptions.rotatable;
+            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
+            if (overlayTile)
             {
-                tilemap.SetTile(new Vector3Int(x,y,0),tileBase);
+                if (rotatable)
+                {
+                    PlaceTile.RotateTileInMap(overlayTileMap, overlayTile, vector3Int, baseTileData.rotation,baseTileData.mirror);
+                }
+                else
+                {
+                    overlayTileMap.SetTile(vector3Int, overlayTile);
+                }
+                overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
+                overlayTileMap.SetColor(vector3Int,tileItem.tileOptions.Overlay.Color);
+            }
+            if (!rotatable) 
+            {
+                tilemap.SetTile(vector3Int,tileBase);
                 return;
             }
             
             if (tileBase is IStateRotationTile stateRotationTile) {
                 tilemap.SetTile(
-                    new Vector3Int(x,y,0), 
+                    vector3Int, 
                     stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
                 );
                 return;
             }
-            PlaceTile.RotateTileInMap(tilemap, tileBase, new Vector3Int(x, y, 0), baseTileData.rotation,baseTileData.mirror);
+            PlaceTile.RotateTileInMap(tilemap, tileBase, vector3Int, baseTileData.rotation,baseTileData.mirror);
         }
+        
         
         
         public override bool HitTile(Vector2 position, bool dropItem) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
-            if (!hitHardness(hitTilePosition)) return false;
+            if (!HitHardness(hitTilePosition)) return false;
             return BreakAndDropTile(hitTilePosition, dropItem);
         }
 
@@ -300,7 +330,7 @@ namespace TileMaps {
             return tileItem;
         }
         
-        public TileItem getTileItem(Vector2 worldPosition)
+        public TileItem GetTileItem(Vector2 worldPosition)
         {
             Vector2Int cellPosition = (Vector2Int)tilemap.WorldToCell(worldPosition);
             IChunkPartition partition = GetPartitionAtPosition(cellPosition);

@@ -83,20 +83,19 @@ public class TileItem : ItemObject, IPlacableItem
         return GetDefaultSprite(tile);
     }
 
-    private static Sprite GetDefaultSprite(TileBase tileBase)
+    public static Sprite GetDefaultSprite(TileBase tileBase)
     {
         return tileBase switch
         {
-            StandardTile standardTile => standardTile.sprite,
+            Tile tile => tile.sprite,
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites[0],
             RuleTile ruleTile => ruleTile.m_DefaultSprite,
-            RandomTile randomTile => randomTile.sprite,
             IStateTile stateTile => GetDefaultSprite(stateTile.GetDefaultTile()),
             _ => null
         };
     }
 
-    private static Sprite[] GetDefaultSprites(TileBase tileBase)
+    public static Sprite[] GetDefaultSprites(TileBase tileBase)
     {
         return tileBase switch
         {

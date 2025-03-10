@@ -150,7 +150,7 @@ namespace PlayerModule.Mouse {
             if (tilemap is not WorldTileGridMap worldTileGridMap) return false;
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
-            ITileEntityInstance tileEntityInstance = worldTileGridMap.getTileEntityAtPosition((Vector2Int)cellPosition);
+            ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
             
             tileHighlighter.Highlight(position, tilemap.GetTilemap());

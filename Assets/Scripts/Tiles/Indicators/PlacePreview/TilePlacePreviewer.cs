@@ -22,6 +22,7 @@ namespace TileMaps.Previewer {
         private TilePlacementRecord placementRecord;
         private Tilemap tilemap;
         private Tilemap unhighlightedTileMap;
+        private Tilemap tileOverlayMap;
         private DevMode devMode;
         private Color placableColor = new Color(111f/255f,180f/255f,248f/255f);
         private Color nonPlacableColor = new Color(255f/255f,153f/255f,153/255f);
@@ -42,6 +43,15 @@ namespace TileMaps.Previewer {
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
             unhighlightedContainer.AddComponent<TilemapRenderer>();
             unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
+            
+            GameObject tileOverlayContainer = new GameObject();
+            tileOverlayContainer.transform.SetParent(transform,false);
+            tileOverlayContainer.name = "Overlay map";
+            tileOverlayMap = tileOverlayContainer.AddComponent<Tilemap>();
+            tileOverlayContainer.AddComponent<TilemapRenderer>();
+            tileOverlayContainer.transform.localPosition = new Vector3(0, 0, -1f);
+            
+            
         }
 
         public void Initialize(PlayerScript playerScript)
@@ -90,7 +100,7 @@ namespace TileMaps.Previewer {
             }
             else
             {
-                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject, tileBase, placePosition, position);
+                placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject as TileItem, tileBase, placePosition, position);
             }
 
             tilemap.color = GetPlaceColor(position, itemObject);
@@ -114,7 +124,7 @@ namespace TileMaps.Previewer {
             }
         }
 
-        private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, ItemObject itemObject, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
+        private SingleTilePlacementRecord PreviewStandardTile(PlayerTilePlacementOptions tilePlacementOptions, TileItem tileItem, TileBase itemTileBase, Vector3Int placePosition, Vector2 position)
         {
             int state = tilePlacementOptions.State;
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
@@ -128,8 +138,26 @@ namespace TileMaps.Previewer {
                 tileBase = itemTileBase;
             }
 
-            SingleTilePlacementRecord record =  new SingleTilePlacementRecord(itemObject.id, placePosition,tilemap);
-            if (itemObject is TileItem tileItem && !tileItem.tileOptions.rotatable)
+            SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
+            bool rotatable = tileItem.tileOptions.rotatable;
+            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
+            if (overlayTile)
+            {
+                if (rotatable)
+                {
+                    PlaceTile.RotateTileInMap(tileOverlayMap, overlayTile, placePosition,tilePlacementOptions.Rotation,false);
+                }
+                else
+                {
+                    tileOverlayMap.SetTile(placePosition,overlayTile);
+                }
+                tileOverlayMap.color = tileItem.tileOptions.Overlay.Color;
+            }
+            else
+            {
+                tileOverlayMap.color = Color.white;
+            }
+            if (!rotatable)
             {
                 tilemap.SetTile(placePosition,tileBase);
                 return record;
@@ -150,8 +178,7 @@ namespace TileMaps.Previewer {
             {
                 PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition,rotation,false);
             }
-
-
+            
             return record;
         }
         

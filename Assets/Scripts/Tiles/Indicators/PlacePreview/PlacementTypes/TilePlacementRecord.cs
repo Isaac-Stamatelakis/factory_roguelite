@@ -28,15 +28,17 @@ namespace TileMaps.Previewer
     internal class SingleTilePlacementRecord : TilePlacementRecord
     {
         private readonly Vector3Int placePosition;
-        
-        public SingleTilePlacementRecord(string id, Vector3Int placePosition, Tilemap tilemap) : base(id,tilemap)
+        private readonly Tilemap overlayTilemap;
+        public SingleTilePlacementRecord(string id, Vector3Int placePosition, Tilemap tilemap, Tilemap overlayMap) : base(id,tilemap)
         {
             this.placePosition = placePosition;
+            this.overlayTilemap = overlayMap;
         }
 
         protected override void DoClear()
         {
             tilemap.SetTile(placePosition, null);
+            overlayTilemap.SetTile(placePosition, null);
         }
 
         public override bool RecordMatch(Vector3Int position, string id)

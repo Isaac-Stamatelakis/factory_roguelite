@@ -9,6 +9,7 @@ using TMPro;
 using Items.Inventory;
 using Items.Tags;
 using Items.Transmutable;
+using Unity.VisualScripting;
 using UnityEngine.Serialization;
 
 namespace Items {
@@ -41,11 +42,11 @@ namespace Items {
             Color = color;
         }
     }
-    
     public class ItemSlotUI : MonoBehaviour
     {
         public ItemState ItemState = ItemState.Solid;
         public Image Panel;
+        
         public Image ItemImage;
         [FormerlySerializedAs("AmountText")] public TextMeshProUGUI mBottomText;
         public TextMeshProUGUI mTopText;
@@ -56,6 +57,7 @@ namespace Items {
         
         private int counter;
         private ItemSlot displayedSlot;
+        private List<Image> overLayImages = new();
         
         public void FixedUpdate() {
             if (currentDisplayList == null || Paused)
@@ -87,9 +89,15 @@ namespace Items {
                 return;
             }
             
-            ItemDisplay display = currentDisplayList.GetItemToDisplay(counter);
-            ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
-            ItemImage.color = display.Color;
+            
+            DisplayItem(currentDisplayList,ItemImage);
+        }
+
+        private void DisplayItem(ItemDisplayList itemDisplayList, Image image)
+        {
+            ItemDisplay display = itemDisplayList.GetItemToDisplay(counter);
+            ItemDisplayUtils.SetImageItemSprite(image, display.Sprite);
+            image.color = display.Color;
         }
 
         public void SetPanelColor(Color color)
@@ -126,12 +134,39 @@ namespace Items {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
 
+            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.Overlay.Tile)
+            {
+                Sprite tileSprite = TileItem.GetDefaultSprite(tileItem.tileOptions.Overlay.Tile);
+                AddOverlay(tileSprite, tileItem.tileOptions.Overlay.Color,$"TileOverlay");
+            }
+
+            for (var index = 0; index < itemSlot.itemObject.SpriteOverlays.Length; index++)
+            {
+                var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
+                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}");
+            }
+
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
             counter = 0;
             RefreshDisplay();
             ItemImage.gameObject.SetActive(true);
             
             DisplayTagVisuals(itemSlot);
+        }
+
+        private void AddOverlay(Sprite sprite, Color color, string overlayName)
+        {
+            GameObject overlayObject = new GameObject(overlayName);
+            Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
+            overlayImage.sprite = sprite;
+            overlayImage.color = color;
+            RectTransform rectTransform = (RectTransform)overlayObject.transform;
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.sizeDelta = Vector2.zero;
+
+            overLayImages.Add(overlayImage);
+            overlayObject.transform.SetParent(ItemImage.transform, false);
         }
         
         public void Display(ItemSlot itemSlot, string topText)
@@ -167,6 +202,11 @@ namespace Items {
             currentDisplayList = null;
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
+            foreach (Image image in overLayImages)
+            {
+                Destroy(image.gameObject);
+            }
+            overLayImages.Clear();
         }
         
 
