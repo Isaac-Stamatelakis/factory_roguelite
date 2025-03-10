@@ -177,7 +177,7 @@ namespace Items {
             foreach (var keyValuePair in itemSlot.tags.Dict) {
                 ItemTag itemTag = keyValuePair.Key;
                 object data = keyValuePair.Value;
-                GameObject visualElement = itemTag.getVisualElement(itemSlot,data);
+                GameObject visualElement = itemTag.GetUITagElement(itemSlot,data);
                 if (ReferenceEquals(visualElement,null)) continue;
                 
                 bool inFront = itemTag.getVisualLayer();

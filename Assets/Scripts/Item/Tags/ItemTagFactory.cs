@@ -22,7 +22,7 @@ namespace Items.Tags{
             }
             Dictionary<int, string> seralized = new Dictionary<int, string>();
             foreach (ItemTag tag in tagData.Dict.Keys) {
-                seralized[(int) tag] = tag.serialize(tagData);
+                seralized[(int) tag] = tag.Serialize(tagData);
             }
             return Newtonsoft.Json.JsonConvert.SerializeObject(seralized);
         }
@@ -35,7 +35,7 @@ namespace Items.Tags{
             Dictionary<ItemTag, object> dict = new Dictionary<ItemTag, object>();
             foreach (KeyValuePair<int,string> kvp in seralized) {
                 ItemTag tag = (ItemTag) kvp.Key;
-                dict[tag] = tag.deseralize(seralized[kvp.Key]);
+                dict[tag] = tag.Deserialize(seralized[kvp.Key]);
             }
             return new ItemTagCollection(dict);
      
@@ -90,7 +90,7 @@ namespace Items.Tags{
                 if (!second.Dict.ContainsKey(tag)) {
                     return false;
                 }
-                if (!tag.isEquivalent(first.Dict[tag],second.Dict[tag])) {
+                if (!tag.IsEquivalent(first.Dict[tag],second.Dict[tag])) {
                     return false;
                 }
             }
