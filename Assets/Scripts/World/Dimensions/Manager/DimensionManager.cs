@@ -18,18 +18,27 @@ using RecipeModule;
 using PlayerModule;
 using Recipe;
 using TileEntity;
+using TileMaps;
 using UI;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using World.BackUp;
 using World.Serialization;
+using WorldModule.Caves;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Dimensions {
+    public enum DimensionType
+    {
+        Cave = -1,
+        BaseDim = 0,
+        CompactMachines = 1,
+    }
     public interface ICompactMachineDimManager {
         public CompactMachineDimController GetCompactMachineDimController();
     }
@@ -232,10 +241,11 @@ namespace Dimensions {
             }
             
         }
-        public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null) {
+        public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
             DimController controller = GetDimController(dim);
-            ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
+            dimensionOptions ??= GetDimensionOptions(dim);
             
+            ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             if (!newSystem) {
                 Debug.LogError("Could not switch player system");
                 return;
@@ -280,12 +290,69 @@ namespace Dimensions {
             
             CanvasController.Instance.ClearStack();
             
+            player.SetParticles(dimensionOptions.ParticleOptions);
+            Light2D light2D = GameObject.FindWithTag("GlobalLight").GetComponent<Light2D>();
+            light2D.intensity = dimensionOptions.LightIntensity;
+            light2D.color = dimensionOptions.LightColor;
+            
+            OutlineWorldTileGridMap[] outlineTileGridMaps = FindObjectsOfType<OutlineWorldTileGridMap>();
+            foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
+                outlineTileGridMap.setView(false,dimensionOptions.OutlineColor);
+            }
+            
             newSystem.InstantCacheChunksNearPlayer();
             newSystem.PlayerPartitionUpdate();
         }
         
-        
-
         public abstract DimController GetDimController(int dim);
+
+        private DimensionOptions GetDimensionOptions(int dim)
+        {
+            DimensionType dimensionType = (DimensionType)dim;
+            switch (dimensionType)
+            {
+                case DimensionType.Cave: // This is probably not required for cave
+                case DimensionType.BaseDim:
+                    return new DimensionOptions(Color.white, Color.black, 0.05f, null);
+                case DimensionType.CompactMachines:
+                    return new DimensionOptions(Color.white, Color.black, 0.05f, null);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    public class DimensionOptions
+    {
+        public Color LightColor;
+        public Color OutlineColor;
+        public float LightIntensity;
+        public ParticleOptions ParticleOptions;
+
+        public DimensionOptions(Color lightColor, Color outlineColor, float lightIntensity, ParticleOptions particleOptions)
+        {
+            LightColor = lightColor;
+            OutlineColor = outlineColor;
+            LightIntensity = lightIntensity;
+            ParticleOptions = particleOptions;
+        }
+
+        public DimensionOptions(CaveOptions caveOptions)
+        {
+            LightColor = caveOptions.LightColor;
+            OutlineColor = caveOptions.OutlineColor;
+            LightIntensity = caveOptions.LightIntensity;
+            ParticleOptions = new ParticleOptions(caveOptions.ParticleColor);
+        }
+    }
+
+    public class ParticleOptions
+    {
+        public Color ParticleColor;
+
+        public ParticleOptions(Color particleColor)
+        {
+            ParticleColor = particleColor;
+        }
     }
 }

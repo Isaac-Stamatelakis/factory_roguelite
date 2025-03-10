@@ -22,11 +22,21 @@ namespace WorldModule.Caves {
         public AssetReference entityDistributor;
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
-
+        public CaveOptions CaveOptions;
+        
         public string GetId()
         {
             return name.Replace(" ", "_");
         }
+    }
+
+    [System.Serializable]
+    public class CaveOptions
+    {
+        public Color LightColor = new Color(1, 1, 1, 1);
+        [Range(0, 2)] public float LightIntensity = 0.05f; 
+        public Color OutlineColor = new Color(1, 1, 1, 1);
+        public Color ParticleColor;
     }
 
     public class CaveInstance: IGeneratedArea {
@@ -40,7 +50,7 @@ namespace WorldModule.Caves {
             this.caveElements = caveElements;
         }
 
-        public SeralizedWorldData generate(int seed) {
+        public SeralizedWorldData Generate(int seed) {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             double total = 0;

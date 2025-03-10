@@ -13,6 +13,7 @@ using Player;
 using UI.Chat;
 using UI.Statistics;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Debug = UnityEngine.Debug;
 
@@ -135,7 +136,7 @@ namespace TileEntity.Instances {
                 Directory.Delete(path, true);
             }
             WorldLoadUtils.createDimFolder(-1);
-            SeralizedWorldData worldTileData = caveInstance.generate(UnityEngine.Random.Range(int.MinValue,int.MaxValue));
+            SeralizedWorldData worldTileData = caveInstance.Generate(UnityEngine.Random.Range(int.MinValue,int.MaxValue));
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             WorldGenerationFactory.SaveToJson(
@@ -157,9 +158,13 @@ namespace TileEntity.Instances {
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
             caveController.setCurrentCave(caveInstance);
-            
-            DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition);
-            
+
+            CaveOptions caveOptions = caveInstance.Cave.CaveOptions;
+
+            DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
+            DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition,dimensionOptions: dimensionOptions);
+    
+            //light2D.color = caveInstance
             TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }

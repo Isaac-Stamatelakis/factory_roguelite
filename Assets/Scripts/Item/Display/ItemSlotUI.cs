@@ -134,13 +134,13 @@ namespace Items {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
 
-            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.Overlay.Tile)
+            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions?.Overlay.Tile)
             {
                 Sprite tileSprite = TileItem.GetDefaultSprite(tileItem.tileOptions.Overlay.Tile);
                 AddOverlay(tileSprite, tileItem.tileOptions.Overlay.Color,$"TileOverlay");
             }
 
-            for (var index = 0; index < itemSlot.itemObject.SpriteOverlays.Length; index++)
+            for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
                 AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}");

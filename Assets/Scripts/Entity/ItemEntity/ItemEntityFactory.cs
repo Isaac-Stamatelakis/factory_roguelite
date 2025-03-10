@@ -58,6 +58,7 @@ namespace Entities {
             spriteRenderer.sprite = sprite;
             spriteRenderer.color = color;
             overlayContainer.transform.SetParent(itemEntity.transform,false);
+            overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
         }
 
         private static void SpawnTagObjects(ItemEntity itemEntity, ItemSlot itemSlot)

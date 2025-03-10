@@ -260,7 +260,7 @@ namespace TileMaps {
             } 
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
-            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
+            TileBase overlayTile = tileItem.tileOptions?.Overlay.Tile;
             if (overlayTile)
             {
                 if (rotatable)
