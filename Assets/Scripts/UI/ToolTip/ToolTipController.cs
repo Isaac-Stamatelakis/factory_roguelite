@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -35,42 +36,16 @@ namespace UI.ToolTip {
 
             if (itemSlot.tags?.Dict != null)
             {
-                text = AddTagText(text, itemSlot.tags.Dict);
+                string totalTagText = "\n";
+                foreach (var (itemTag, data) in itemSlot.tags.Dict)
+                {
+                    string tagText = itemTag.GetTagText(data);
+                    if (String.IsNullOrEmpty(tagText)) continue;
+                    totalTagText += tagText;
+                }
+                if (totalTagText.Length > 1) text += totalTagText;
             }
             ShowToolTip(position, text);
-        }
-
-        private static string AddTagText(string text, Dictionary<ItemTag, object> tags)
-        {
-            if (tags.TryGetValue(ItemTag.CaveData, out var caveData))
-            {
-                text += $"\nData: <b>{caveData}</b>";
-            }
-
-            if (tags.TryGetValue(ItemTag.FluidContainer, out var fluidData))
-            {
-                ItemSlot fluidItem = fluidData as ItemSlot;
-                if (!ItemSlotUtils.IsItemSlotNull(fluidItem))
-                {
-                    text += $"\nStoring {ItemDisplayUtils.FormatAmountText(fluidItem.amount,false,ItemState.Fluid)} of {fluidItem.itemObject.name} ";
-                }
-            }
-            
-            if (tags.TryGetValue(ItemTag.CompactMachine, out var compactMachineData))
-            {
-                DisplayCompactMachineToolTip(compactMachineData, ref text);
-            }
-            return text;
-        }
-
-        private static void DisplayCompactMachineToolTip(object compactMachineData, ref string text)
-        {
-            string hash = compactMachineData as string;
-            if (hash == null) return;
-            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), hash);
-            CompactMachineMetaData metaData = CompactMachineUtils.GetMetaData(path);
-            if (metaData == null) return;
-            text += $"\nName: '{metaData.Name}'\nID: '{hash}'";
         }
         
         public void ShowToolTip(Vector2 position, string text) {

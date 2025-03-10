@@ -1,3 +1,4 @@
+using Items;
 using UnityEngine;
 
 namespace Item.Tags.ItemTagManagers
@@ -11,23 +12,19 @@ namespace Item.Tags.ItemTagManagers
         public string Serialize(object obj);
         public object Deserialize(string data);
     }
-
-    public interface IItemTagViewable
-    {
-        public ItemTagVisualLayer GetLayer();
-    }
+    
     public interface IToolTipTagViewable
     {
         public string GetToolTip(object obj);
     }
     
-    public interface IItemTagUIViewable : IItemTagViewable {
-        public GameObject GetUITagObject(object obj);
+    public interface IItemTagUIViewable {
+        public GameObject GetUITagObject(object obj, ItemObject containerObject);
     }
 
-    public interface IItemTagWorldViewable : IItemTagViewable
+    public interface IItemTagWorldViewable 
     {
-        public GameObject GetWorldTagObject(object obj);
+        public GameObject GetWorldTagObject(object obj, ItemObject containerObject);
     }
 
     public interface IItemTagReferencedType

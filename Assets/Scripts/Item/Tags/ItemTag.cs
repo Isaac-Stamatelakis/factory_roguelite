@@ -65,13 +65,25 @@ namespace Items.Tags {
             }
             #endif
             if (manager is not IItemTagUIViewable tagUIViewable) return null;
-            return tagUIViewable.GetUITagObject(tagData);
+            return tagUIViewable.GetUITagObject(tagData, itemSlot?.itemObject);
+        }
+        
+        public static GameObject GetWorldTagElement(this ItemTag tag, ItemSlot itemSlot, object tagData) {
+            #if UNITY_EDITOR
+            if (!itemTagManagerDict.TryGetValue(tag, out ItemTagManager manager))
+            {
+                Debug.LogWarning($"ItemTagManager not implemented for {tag}");
+                return null;
+            }
+            #endif
+            if (manager is not IItemTagWorldViewable tagWorldViewable) return null;
+            return tagWorldViewable.GetWorldTagObject(tagData, itemSlot?.itemObject);
         }
 
-        public static bool getVisualLayer(this ItemTag tag) {
+        public static ItemTagVisualLayer GetVisualLayer(this ItemTag tag) {
             return tag switch {
-                ItemTag.EncodedRecipe => true,
-                _ => false
+                ItemTag.EncodedRecipe => ItemTagVisualLayer.Front,
+                _ => ItemTagVisualLayer.Back
             };
         }
         
@@ -86,7 +98,7 @@ namespace Items.Tags {
             }
             #endif
             
-            return manager.Serialize(data);
+            return manager.Deserialize(data);
         }
         
         public static object CopyTagData(this ItemTag tag, object tagData)
@@ -125,6 +137,22 @@ namespace Items.Tags {
             if (manager is not IItemTagStackable itemTagStackable) return false;
             return itemTagStackable.AreStackable(first, second);
         }
-        
+
+        public static string GetTagText(this ItemTag tag, object tagData)
+        {
+            #if UNITY_EDITOR
+            if (!itemTagManagerDict.TryGetValue(tag, out ItemTagManager manager))
+            {
+                Debug.LogWarning($"ItemTagManager not implemented for {tag}");
+                return null;
+            }
+            #endif
+            if (manager is IToolTipTagViewable tagViewable)
+            {
+                return tagViewable.GetToolTip(tagData);
+            }
+            return string.Empty;
+        }
+
     }
 }

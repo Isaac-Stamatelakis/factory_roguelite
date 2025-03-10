@@ -11,7 +11,7 @@ namespace Items {
     }
 
     public class ItemTagKey {
-        public ItemTagCollection itemTagCollection;
+        public readonly ItemTagCollection itemTagCollection;
         public ItemTagKey(ItemTagCollection itemTagCollection) {
             this.itemTagCollection = itemTagCollection;
         }
@@ -30,14 +30,14 @@ namespace Items {
             if (itemTagKey.itemTagCollection == null) {
                 return false;
             }
-            return itemTagKey.itemTagCollection.Equals(itemTagCollection);
+            return ItemTagFactory.TagsEqual(itemTagKey.itemTagCollection,itemTagCollection);
         }
 
         public override int GetHashCode()
         {
             unchecked {
                 int hash = 17;
-                if (itemTagCollection == null || itemTagCollection.Dict == null) {
+                if (itemTagCollection?.Dict == null) {
                     return hash;    
                 }
                 foreach (var kvp in itemTagCollection.Dict.OrderBy(kvp => kvp.Key.GetHashCode()))

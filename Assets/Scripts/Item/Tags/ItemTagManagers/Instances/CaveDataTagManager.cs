@@ -10,7 +10,7 @@ using TileEntity.Instances.Matrix;
 
 namespace Item.Tags.ItemTagManagers.Instances
 {
-    public class CaveDataTagManager : ItemTagManager
+    public class CaveDataTagManager : ItemTagManager, IToolTipTagViewable
     {
         public override string Serialize(object obj)
         {
@@ -22,5 +22,9 @@ namespace Item.Tags.ItemTagManagers.Instances
             return data;
         }
 
+        public string GetToolTip(object obj)
+        {
+            return $"Data: <b>{obj}</b>";
+        }
     }
 }

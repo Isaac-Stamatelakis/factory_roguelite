@@ -7,6 +7,7 @@ namespace Items.Tags.FluidContainers {
     {
         public uint GetStorage();
         public Vector2Int GetFluidSpriteSize();
+        public Vector2 GetWorldFluidSpriteScale();
     }
 }
 

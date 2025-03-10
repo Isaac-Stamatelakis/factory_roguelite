@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
+using Item.Tags.ItemTagManagers;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -179,9 +180,9 @@ namespace Items {
                 object data = keyValuePair.Value;
                 GameObject visualElement = itemTag.GetUITagElement(itemSlot,data);
                 if (ReferenceEquals(visualElement,null)) continue;
-                
-                bool inFront = itemTag.getVisualLayer();
-                visualElement.transform.SetParent(inFront ? TagFrontContainer : TagBehindContainer, false);
+
+                ItemTagVisualLayer visualLayer = itemTag.GetVisualLayer();
+                visualElement.transform.SetParent(visualLayer == ItemTagVisualLayer.Front ? TagFrontContainer : TagBehindContainer, false);
             }
         }
         

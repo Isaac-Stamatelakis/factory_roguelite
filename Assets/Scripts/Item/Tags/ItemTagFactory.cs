@@ -73,24 +73,25 @@ namespace Items.Tags{
             return new ItemTagCollection(tagsDict);
         }
 
-        public static bool tagsEqual(ItemTagCollection first, ItemTagCollection second) {
+        public static bool TagsEqual(ItemTagCollection first, ItemTagCollection second) {
             if (first == null && second == null) {
                 return true;
             }
-            if (first == null || first.Dict == null) {
+            if (first?.Dict == null) {
                 return false;
             }
-            if (second== null || second.Dict == null) {
+            if (second?.Dict == null) {
                 return false;
             }
             if (first.Dict.Count != second.Dict.Count) {
                 return false;
             }
+         
             foreach (ItemTag tag in first.Dict.Keys) {
-                if (!second.Dict.ContainsKey(tag)) {
+                if (!second.Dict.TryGetValue(tag, value: out var value)) {
                     return false;
                 }
-                if (!tag.IsEquivalent(first.Dict[tag],second.Dict[tag])) {
+                if (!tag.IsEquivalent(first.Dict[tag],value)) {
                     return false;
                 }
             }

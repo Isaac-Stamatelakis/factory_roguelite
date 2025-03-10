@@ -18,8 +18,17 @@ namespace Conduits.Ports {
 
             return !whitelist;
         }
-        
-        
+
+        public ItemFilter()
+        {
+            
+        }
+
+        public ItemFilter(List<string> ids, bool whitelist)
+        {
+            this.ids = ids;
+            this.whitelist = whitelist;
+        }
     }
 
     

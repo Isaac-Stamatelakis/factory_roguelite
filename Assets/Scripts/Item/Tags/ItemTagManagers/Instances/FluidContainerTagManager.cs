@@ -21,19 +21,33 @@ namespace Item.Tags.ItemTagManagers.Instances
             return ItemSlotFactory.DeserializeSlot(data);
         }
 
-        public GameObject GetWorldTagObject(object obj)
+        public GameObject GetWorldTagObject(object obj, ItemObject containerObject)
         {
-            // TODO
-            return null;
+            if (obj is not ItemSlot fluidItem) {
+                return null;
+            }
+            if (containerObject is not IFluidContainerData fluidContainer) {
+                return null;
+            }
+            
+            GameObject fluidGameObject = new GameObject();
+            
+            fluidGameObject.name = fluidItem.itemObject.name;
+            SpriteRenderer spriteRenderer = fluidGameObject.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = fluidItem.itemObject.getSprite();
+            
+            Vector2 scale = fluidContainer.GetWorldFluidSpriteScale();
+            fluidGameObject.transform.localScale = scale;
+            return fluidGameObject;
         }
 
-        public GameObject GetUITagObject(object obj)
+        public GameObject GetUITagObject(object obj, ItemObject containerObject)
         {
             if (obj is not ItemSlot fluidItem) {
                 return null;
             }
             
-            if (fluidItem.itemObject is not IFluidContainerData fluidContainer) {
+            if (containerObject is not IFluidContainerData fluidContainer) {
                 return null;
             }  
             Vector2Int spriteSize = fluidContainer.GetFluidSpriteSize();
@@ -56,12 +70,8 @@ namespace Item.Tags.ItemTagManagers.Instances
 
         public object CreateDeepCopy(object obj)
         {
+            Debug.Log("Created Deep Copy");
             return obj is not ItemSlot fluidItem ? null : new ItemSlot(fluidItem.itemObject, fluidItem.amount, null);
-        }
-
-        public ItemTagVisualLayer GetLayer()
-        {
-            return ItemTagVisualLayer.Back;
         }
 
         public bool AreStackable(object first, object second)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Item.Slot;
+using Items;
 using Items.Tags;
 using TileEntity.Instances.CompactMachine;
 using TileEntity.Instances.CompactMachines;
@@ -27,7 +28,7 @@ namespace Item.Tags.ItemTagManagers.Instances
             return ItemTagVisualLayer.Front;
         }
 
-        public GameObject GetUITagObject(object obj)
+        public GameObject GetUITagObject(object obj, ItemObject containerObject)
         {
             if (obj is not EncodedRecipe encodedRecipe) {
                 return null;
