@@ -9,6 +9,7 @@ using TMPro;
 using Items.Inventory;
 using Items.Tags;
 using Items.Transmutable;
+using Unity.VisualScripting;
 using UnityEngine.Serialization;
 
 namespace Items {
@@ -41,11 +42,11 @@ namespace Items {
             Color = color;
         }
     }
-    
     public class ItemSlotUI : MonoBehaviour
     {
         public ItemState ItemState = ItemState.Solid;
         public Image Panel;
+        
         public Image ItemImage;
         [FormerlySerializedAs("AmountText")] public TextMeshProUGUI mBottomText;
         public TextMeshProUGUI mTopText;
@@ -56,6 +57,7 @@ namespace Items {
         
         private int counter;
         private ItemSlot displayedSlot;
+        private List<Image> overLayImages = new();
         
         public void FixedUpdate() {
             if (currentDisplayList == null || Paused)
@@ -87,9 +89,15 @@ namespace Items {
                 return;
             }
             
-            ItemDisplay display = currentDisplayList.GetItemToDisplay(counter);
-            ItemDisplayUtils.SetImageItemSprite(ItemImage, display.Sprite);
-            ItemImage.color = display.Color;
+            
+            DisplayItem(currentDisplayList,ItemImage);
+        }
+
+        private void DisplayItem(ItemDisplayList itemDisplayList, Image image)
+        {
+            ItemDisplay display = itemDisplayList.GetItemToDisplay(counter);
+            ItemDisplayUtils.SetImageItemSprite(image, display.Sprite);
+            image.color = display.Color;
         }
 
         public void SetPanelColor(Color color)
@@ -124,6 +132,20 @@ namespace Items {
             for (int i = 0; i < toDisplay.Length; i++)
             {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
+            }
+
+            foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+            {
+                GameObject overlayObject = new GameObject();
+                Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
+                overlayImage.sprite = spriteOverlay.Sprite;
+                overlayImage.color = spriteOverlay.Color;
+                
+                RectTransform rectTransform = (RectTransform) overlayObject.transform;
+                rectTransform.sizeDelta = ((RectTransform)ItemImage.transform).sizeDelta;
+                
+                overLayImages.Add(overlayImage);
+                overlayObject.transform.SetParent(transform,false);
             }
 
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
@@ -167,6 +189,11 @@ namespace Items {
             currentDisplayList = null;
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
+            foreach (Image image in overLayImages)
+            {
+                Destroy(image.gameObject);
+            }
+            overLayImages.Clear();
         }
         
 

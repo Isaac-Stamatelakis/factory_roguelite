@@ -16,7 +16,7 @@ namespace Items {
         public string id;
         
         [SerializeField] public List<ItemTag> ApplyableTags;
-
+        public SpriteOverlay[] SpriteOverlays;
         public bool CanApplyTag(ItemTag tag)
         {
             return ApplyableTags.Contains(tag);
@@ -34,5 +34,12 @@ namespace Items {
         public abstract Sprite getSprite();
         public abstract ItemDisplayType? getDisplayType();
         public abstract GameStageObject GetGameStageObject();
+    }
+
+    [System.Serializable]
+    public class SpriteOverlay
+    {
+        public Color Color = Color.white;
+        public Sprite Sprite;
     }
 }

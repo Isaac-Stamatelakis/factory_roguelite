@@ -255,9 +255,15 @@ namespace UI.Chat {
                 if (printErrors) SendChatMessage("<color=red>" + $"Unknown command: '{command}'" + "</color>");
                 return;
             }
-
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-            if (!playerScript.Cheats || Global.FORCE_ENABLE_CHEATS)
+            // ReSharper disable once RedundantAssignment
+            bool cheats = playerScript.Cheats;
+            #if UNITY_EDITOR
+            cheats = true;
+            #endif
+            
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (!cheats)
             {
                 SendChatMessage("<color=red>" + $"You do not have permission to execute command '{command}'" + "</color>");
                 return;
