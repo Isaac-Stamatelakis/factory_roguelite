@@ -134,18 +134,20 @@ namespace Items {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
 
-            foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+            for (var index = 0; index < itemSlot.itemObject.SpriteOverlays.Length; index++)
             {
-                GameObject overlayObject = new GameObject();
+                var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
+                GameObject overlayObject = new GameObject($"SpriteOverlay{index}");
                 Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
                 overlayImage.sprite = spriteOverlay.Sprite;
                 overlayImage.color = spriteOverlay.Color;
-                
-                RectTransform rectTransform = (RectTransform) overlayObject.transform;
-                rectTransform.sizeDelta = ((RectTransform)ItemImage.transform).sizeDelta;
-                
+                RectTransform rectTransform = (RectTransform)overlayObject.transform;
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+                rectTransform.sizeDelta = Vector2.zero;
+
                 overLayImages.Add(overlayImage);
-                overlayObject.transform.SetParent(transform,false);
+                overlayObject.transform.SetParent(ItemImage.transform, false);
             }
 
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);

@@ -88,7 +88,7 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             if (multiBreak == 0)
             {
-                TileItem tileItem = worldTileGridMap.getTileItem(mousePosition);
+                TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
                 bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
                 if (broken)
                 {
@@ -110,7 +110,7 @@ namespace Robot.Tool.Instances
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
-                    TileItem tileItem = worldTileGridMap.getTileItem(position);
+                    TileItem tileItem = worldTileGridMap.GetTileItem(position);
                     bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),false);
                     if (broken) anyBroken = true;
                     if (broken && !drop)

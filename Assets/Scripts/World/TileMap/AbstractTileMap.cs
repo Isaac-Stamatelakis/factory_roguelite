@@ -55,7 +55,7 @@ namespace TileMaps {
         public TileMapType Type => type;
         protected Tilemap tilemap;
         public Tilemap mTileMap {get{return tilemap;}}
-        protected TilemapRenderer tilemapRenderer;
+        
         protected TilemapCollider2D tilemapCollider;
         protected HashSet<Vector2Int> partitions = new HashSet<Vector2Int>();
         protected ClosedChunkSystem closedChunkSystem;
@@ -68,7 +68,7 @@ namespace TileMaps {
             tilemap = gameObject.AddComponent<Tilemap>();
             baseZValue = transform.position.z;
             
-            tilemapRenderer = gameObject.AddComponent<TilemapRenderer>();
+            gameObject.AddComponent<TilemapRenderer>();
             if (type.hasCollider()) {
                 tilemapCollider = gameObject.AddComponent<TilemapCollider2D>();
                 // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
