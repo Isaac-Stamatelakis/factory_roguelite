@@ -134,20 +134,16 @@ namespace Items {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
 
+            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.Overlay.Tile)
+            {
+                Sprite tileSprite = TileItem.GetDefaultSprite(tileItem.tileOptions.Overlay.Tile);
+                AddOverlay(tileSprite, tileItem.tileOptions.Overlay.Color,$"TileOverlay");
+            }
+
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
-                GameObject overlayObject = new GameObject($"SpriteOverlay{index}");
-                Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
-                overlayImage.sprite = spriteOverlay.Sprite;
-                overlayImage.color = spriteOverlay.Color;
-                RectTransform rectTransform = (RectTransform)overlayObject.transform;
-                rectTransform.anchorMin = Vector2.zero;
-                rectTransform.anchorMax = Vector2.one;
-                rectTransform.sizeDelta = Vector2.zero;
-
-                overLayImages.Add(overlayImage);
-                overlayObject.transform.SetParent(ItemImage.transform, false);
+                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}");
             }
 
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
@@ -156,6 +152,21 @@ namespace Items {
             ItemImage.gameObject.SetActive(true);
             
             DisplayTagVisuals(itemSlot);
+        }
+
+        private void AddOverlay(Sprite sprite, Color color, string overlayName)
+        {
+            GameObject overlayObject = new GameObject(overlayName);
+            Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
+            overlayImage.sprite = sprite;
+            overlayImage.color = color;
+            RectTransform rectTransform = (RectTransform)overlayObject.transform;
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.sizeDelta = Vector2.zero;
+
+            overLayImages.Add(overlayImage);
+            overlayObject.transform.SetParent(ItemImage.transform, false);
         }
         
         public void Display(ItemSlot itemSlot, string topText)

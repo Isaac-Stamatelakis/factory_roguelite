@@ -6,6 +6,7 @@ using Item.Tags.ItemTagManagers;
 using UnityEngine;
 using Items;
 using Items.Tags;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 namespace Entities {
@@ -27,6 +28,20 @@ namespace Entities {
             {
                 SpawnTagObjects(itemEntity, itemSlot);
             }
+
+            if (itemSlot.itemObject is TileItem tileItem)
+            {
+                TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
+                if (overlayTile)
+                {
+                    AddOverlaySprite(itemEntity,TileItem.GetDefaultSprite(overlayTile),tileItem.tileOptions.Overlay.Color);
+                }
+            }
+
+            foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+            {
+                AddOverlaySprite(itemEntity,spriteOverlay.Sprite,spriteOverlay.Color);
+            }
             if (initialVelocity != null)
             {
                 Rigidbody2D rb = itemEntity.GetComponent<Rigidbody2D>();
@@ -34,6 +49,15 @@ namespace Entities {
             }
         
             return tileItemEntity;
+        }
+
+        private static void AddOverlaySprite(ItemEntity itemEntity, Sprite sprite, Color color)
+        {
+            GameObject overlayContainer = new GameObject("SpriteOverlay");
+            SpriteRenderer spriteRenderer = overlayContainer.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = sprite;
+            spriteRenderer.color = color;
+            overlayContainer.transform.SetParent(itemEntity.transform,false);
         }
 
         private static void SpawnTagObjects(ItemEntity itemEntity, ItemSlot itemSlot)

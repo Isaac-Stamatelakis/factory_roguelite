@@ -51,8 +51,7 @@ namespace Tiles {
     [System.Serializable]
     public class TileOverlay
     {
-        public bool Enable = false;
-        public TileBase TileBase;
+        public TileBase Tile;
         public Color Color;
     }
     [System.Serializable]

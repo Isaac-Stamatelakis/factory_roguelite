@@ -49,7 +49,8 @@ namespace TileMaps {
             overlayTileMapObject.transform.SetParent(transform,false);
             overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+
         }
 
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
@@ -259,15 +260,16 @@ namespace TileMaps {
             } 
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             bool rotatable = tileItem.tileOptions.rotatable;
-            if (tileItem.tileOptions.Overlay.Enable)
+            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
+            if (overlayTile)
             {
                 if (rotatable)
                 {
-                    PlaceTile.RotateTileInMap(overlayTileMap, tileItem.tileOptions.Overlay.TileBase, vector3Int, baseTileData.rotation,baseTileData.mirror);
+                    PlaceTile.RotateTileInMap(overlayTileMap, overlayTile, vector3Int, baseTileData.rotation,baseTileData.mirror);
                 }
                 else
                 {
-                    overlayTileMap.SetTile(vector3Int, tileItem.tileOptions.Overlay.TileBase);
+                    overlayTileMap.SetTile(vector3Int, overlayTile);
                 }
                 overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
                 overlayTileMap.SetColor(vector3Int,tileItem.tileOptions.Overlay.Color);
