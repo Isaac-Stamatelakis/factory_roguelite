@@ -27,7 +27,7 @@ namespace Item.Inventory.ClickHandlers.Instances
                 
                 if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
                 if ((!inventoryUI.ValidateInput(grabbedSlot))) return;
-                ItemSlot newSlot = new ItemSlot(grabbedSlot.itemObject, 1, grabbedSlot.tags);
+                ItemSlot newSlot = ItemSlotFactory.Splice(grabbedSlot,1);
                 inventoryUI.SetItem(index,newSlot);
                 grabbedItemProperties.SetDeIterateSlot(null);
                 grabbedSlot.amount--;
@@ -35,8 +35,8 @@ namespace Item.Inventory.ClickHandlers.Instances
             }
             if (ItemSlotUtils.IsItemSlotNull(grabbedSlot))
             {
+                ItemSlot newSlot = ItemSlotFactory.Splice(inventorySlot,1);
                 inventorySlot.amount--;
-                ItemSlot newSlot = new ItemSlot(inventorySlot.itemObject, 1, inventorySlot.tags);
                 grabbedItemProperties.SetItemSlot(newSlot);
                 grabbedItemProperties.SetDeIterateSlot(this);
                 inventoryUI.CallListeners(index);

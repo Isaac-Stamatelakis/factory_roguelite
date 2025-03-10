@@ -70,7 +70,6 @@ namespace Item.Tags.ItemTagManagers.Instances
 
         public object CreateDeepCopy(object obj)
         {
-            Debug.Log("Created Deep Copy");
             return obj is not ItemSlot fluidItem ? null : new ItemSlot(fluidItem.itemObject, fluidItem.amount, null);
         }
 

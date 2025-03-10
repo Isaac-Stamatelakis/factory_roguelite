@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
@@ -14,7 +15,7 @@ using UnityEditor.Experimental;
 
 namespace Item.Tags.ItemTagManagers.Instances
 {
-    public class ItemFilterTagManager : ItemTagManager, IItemTagReferencedType
+    public class ItemFilterTagManager : ItemTagManager, IItemTagReferencedType, IItemTagStackable
     {
         public override string Serialize(object obj)
         {
@@ -36,6 +37,19 @@ namespace Item.Tags.ItemTagManagers.Instances
             }
 
             return new ItemFilter(idCopy,itemFilter.whitelist);
+        }
+
+        public bool AreStackable(object first, object second)
+        {
+            if (first is not ItemFilter firstFilter) return false;
+            if (second is not ItemFilter secondFilter) return false;
+            if (firstFilter.ids.Count != secondFilter.ids.Count) return false;
+            if (firstFilter.whitelist != secondFilter.whitelist) return false;
+            for (int i = 0; i < firstFilter.ids.Count; i++)
+            {
+                if (!String.Equals(firstFilter.ids[i], secondFilter.ids[i])) return false;
+            }
+            return true;
         }
     }
 }
