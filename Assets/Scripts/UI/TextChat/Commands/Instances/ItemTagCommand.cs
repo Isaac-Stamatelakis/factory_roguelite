@@ -46,7 +46,7 @@ namespace UI.Chat {
             
             foreach (var (tag, tagData) in itemSlot.tags.Dict)
             {
-                string sData = tag.serialize(itemSlot.tags);
+                string sData = tag.Serialize(itemSlot.tags);
                 textChatUI.SendChatMessage($"{tag} : {sData}");
             }
         }
@@ -64,7 +64,7 @@ namespace UI.Chat {
 
             try
             {
-                var dataObject = tag.deseralize(data);
+                var dataObject = tag.Deserialize(data);
                 if (dataObject == null) throw new ChatParseException("Invalid tag data");
                 selected.tags.Dict[tag] = dataObject;
             }

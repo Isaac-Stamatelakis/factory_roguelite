@@ -8,6 +8,7 @@ using TileEntity.Instances.CompactMachines;
 
 public static class Global
 {
+    public const bool FORCE_ENABLE_CHEATS = false;
     public const float TILE_SIZE = 0.5f;
     private const float PIXELS_PER_BLOCK = 16;
     public const int PARTITIONS_PER_CHUNK = 6;

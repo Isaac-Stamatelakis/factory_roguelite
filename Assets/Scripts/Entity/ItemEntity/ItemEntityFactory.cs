@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
+using Item.Tags.ItemTagManagers;
 using UnityEngine;
 using Items;
+using Items.Tags;
+using Random = UnityEngine.Random;
 
 namespace Entities {
     public static class ItemEntityFactory
@@ -19,6 +23,10 @@ namespace Entities {
             itemEntity.transform.parent = entityContainer;
             itemEntity.tag = "ItemEntity";
             itemEntity.initalize();
+            if (itemSlot.tags?.Dict != null)
+            {
+                SpawnTagObjects(itemEntity, itemSlot);
+            }
             if (initialVelocity != null)
             {
                 Rigidbody2D rb = itemEntity.GetComponent<Rigidbody2D>();
@@ -26,6 +34,28 @@ namespace Entities {
             }
         
             return tileItemEntity;
+        }
+
+        private static void SpawnTagObjects(ItemEntity itemEntity, ItemSlot itemSlot)
+        {
+            foreach (var (tag, data) in itemSlot.tags.Dict)
+            {
+                GameObject gameObject = tag.GetWorldTagElement(itemSlot,data);
+                if (!gameObject) continue;
+                ItemTagVisualLayer visualLayer = tag.GetVisualLayer();
+                gameObject.transform.SetParent(itemEntity.transform,false);
+                switch (visualLayer)
+                {
+                    case ItemTagVisualLayer.Front:
+                        gameObject.transform.SetAsFirstSibling();
+                        break;
+                    case ItemTagVisualLayer.Back:
+                        gameObject.transform.SetAsLastSibling();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
         }
 
         public static GameObject SpawnItemEntityWithRandomVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer)

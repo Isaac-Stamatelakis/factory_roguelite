@@ -10,10 +10,16 @@ namespace Items.Tags.FluidContainers {
     {
         [Header("Set size so fluid fits in container\nLeave at 0,0 for no sprite")]
         [SerializeField] public Vector2Int fluidSizeInSprite;
-
+        [Header("Scale of Fluid Sprite in Item Entity Sprite Renderer")]
+        public Vector2 WorldScale;
         public Vector2Int GetFluidSpriteSize()
         {
             return fluidSizeInSprite;
+        }
+
+        public Vector2 GetWorldFluidSpriteScale()
+        {
+            return WorldScale;
         }
 
         public uint GetStorage()

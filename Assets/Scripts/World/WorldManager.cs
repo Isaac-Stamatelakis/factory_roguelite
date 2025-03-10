@@ -22,7 +22,6 @@ namespace WorldModule {
         }
         private static WorldManager instance;
         private string worldName;
-        private WorldMetaData metaData;
         public WorldType WorldLoadType = WorldType.Default;
         private WorldManager() {
             worldName = "world0"; // Default
@@ -42,18 +41,31 @@ namespace WorldModule {
             
         }
 
-        public void InitializeMetaData()
+        public WorldMetaData GetMetaData()
         {
             string metaDataPath = WorldLoadUtils.GetMetaDataPath(worldName);
             if (!File.Exists(metaDataPath))
             {
-                WorldCreation.InitializeMetaData(metaDataPath);
+                WorldCreation.InitializeMetaData(metaDataPath,new WorldCreationData(worldName,null,false,QuestBookUtils.MAIN_QUEST_BOOK_NAME));
+                return WorldLoadUtils.GetWorldMetaData(worldName);
             }
-            metaData = WorldLoadUtils.GetWorldMetaData(worldName);
+            WorldMetaData worldMetaData = WorldLoadUtils.GetWorldMetaData(worldName);
+            bool error = false;
+            if (worldMetaData.QuestBook == null)
+            {
+                worldMetaData.QuestBook = QuestBookUtils.MAIN_QUEST_BOOK_NAME;
+                error = true;
+            }
+            if (error)
+            {
+                WorldLoadUtils.WriteMetaData(worldName, worldMetaData);
+            }
+            return worldMetaData;
         }
 
         public void SaveMetaData()
         {
+            WorldMetaData metaData = WorldLoadUtils.GetWorldMetaData(worldName);
             metaData.LastAccessDate = DateTime.Now;
             WorldLoadUtils.WriteMetaData(worldName, metaData);
         }

@@ -184,7 +184,7 @@ namespace Item.Slot
             if (first.itemObject.id != second.itemObject.id) {
                 return false;
             }
-            if (!ItemTagFactory.tagsEqual(first.tags,second.tags)) {
+            if (!ItemTagFactory.TagsEqual(first.tags,second.tags)) {
                 return false;
             }
             return true;

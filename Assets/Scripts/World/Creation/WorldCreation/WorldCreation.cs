@@ -25,11 +25,29 @@ using World.Serialization;
 using Object = UnityEngine.Object;
 
 namespace WorldModule {
+    public struct WorldCreationData
+    {
+        public string WorldName;
+        public string StructureName;
+        public bool EnableCheats;
+        public string QuestBook;
+
+        public WorldCreationData(string worldName, string structureName, bool enableCheats, string questBook)
+        {
+            WorldName = worldName;
+            StructureName = structureName;
+            EnableCheats = enableCheats;
+            QuestBook = questBook;
+        }
+    }
+    
     public static class WorldCreation
     {
-        public static IEnumerator CreateWorld(string name) {
+        public const bool ENABLE_PRESETS = true;
+        public const string DIM_0_STRUCTURE_NAME = "Dim0";
+        public static IEnumerator CreateWorld(WorldCreationData worldCreationData) {
             yield return ItemRegistry.LoadItems();
-            WorldManager.getInstance().SetWorldName(name);
+            WorldManager.getInstance().SetWorldName(worldCreationData.WorldName);
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Directory.CreateDirectory(path);
             Debug.Log("World Folder Created at " + path);
@@ -40,7 +58,7 @@ namespace WorldModule {
 
             CompactMachineUtils.InitializeCompactMachineFolder();
             
-            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(name));
+            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(worldCreationData.WorldName),worldCreationData);
             InitializeQuestBook(mainPath);
             InititalizeGameStages(WorldLoadUtils.GetWorldComponentPath(WorldFileType.GameStage));
 
@@ -48,13 +66,13 @@ namespace WorldModule {
             Directory.CreateDirectory(dimensionFolderPath);
             Debug.Log("Dimension Folder Created at " + path);
             InitPlayerData(WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player));
-            yield return InitDim0();
+            yield return InitDim0(worldCreationData.StructureName);
             WorldLoadUtils.createDimFolder(1);
         }
 
-        public static void InitializeMetaData(string path)
+        public static void InitializeMetaData(string path, WorldCreationData worldCreationData)
         {
-            WorldMetaData worldMetaData = new WorldMetaData(DateTime.Now, DateTime.Now, false);
+            WorldMetaData worldMetaData = new WorldMetaData(DateTime.Now, DateTime.Now, worldCreationData.EnableCheats, worldCreationData.QuestBook);
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
             byte[] compressed = WorldLoadUtils.CompressString(json);
             File.WriteAllBytes(path, compressed);
@@ -102,14 +120,14 @@ namespace WorldModule {
         }
 
         
-        public static IEnumerator InitDim0() {
+        public static IEnumerator InitDim0(string structureName) {
             if (WorldLoadUtils.DimExists(0)) {
                 Debug.LogError("Attempted to Initialize dim 0 when already exists");
                 yield break;
             }
             WorldLoadUtils.createDimFolder(0);
             
-            Structure structure = StructureGeneratorHelper.LoadStructure("Dim0");
+            Structure structure = StructureGeneratorHelper.LoadStructure(structureName);
             IntervalVector dim0Bounds = GetDim0Bounds();
             
             WorldGenerationFactory.SaveToJson(structure.variants[0].Data,dim0Bounds.getSize(),0,WorldLoadUtils.GetDimPath(0));

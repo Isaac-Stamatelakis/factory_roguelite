@@ -1,37 +1,39 @@
+using System;
 using System.Collections.Generic;
 
 namespace UI.QuestBook
 {
     public class QuestBookCache
     {
-        private Queue<string> cacheQueue = new Queue<string>();
-        private const int MAX_CACHE_SIZE = 3;
-        public static bool IsTask(string cacheData, QuestTaskType type)
+        private struct QuestCacheData
         {
-            return cacheData.StartsWith(type.ToString().ToUpper());
-        }
+            public QuestTaskType QuestTaskType;
+            public string CacheData;
 
-        public static string CacheTask(string data, QuestTaskType type)
-        {
-            return type.ToString().ToUpper() + data;
+            public QuestCacheData(QuestTaskType questTaskType, string cacheData)
+            {
+                QuestTaskType = questTaskType;
+                CacheData = cacheData;
+            }
         }
+        private List<QuestCacheData> cacheList = new List<QuestCacheData>();
+        private const int MAX_CACHE_SIZE = 3;
         
         public void CacheQuestData(string data, QuestTaskType questTaskType)
         {
-            cacheQueue.Enqueue(CacheTask(data, questTaskType));
-            if (cacheQueue.Count >= MAX_CACHE_SIZE) cacheQueue.Dequeue();
-            
+            cacheList.Insert(0,new QuestCacheData(questTaskType, data));
+            if (cacheList.Count >= MAX_CACHE_SIZE) cacheList.RemoveAt(cacheList.Count - 1);
         }
 
-        public bool MatchString(QuestTaskType questTaskType, string data)
+        public bool QueueSatisfiedCache(QuestTaskType questTaskType, Func<string, bool>  success)
         {
-            foreach (string cacheKey in cacheQueue)
+            foreach (QuestCacheData cacheData in cacheList)
             {
-                if (!IsTask(cacheKey, questTaskType)) continue;
-                if (cacheKey.Contains(data)) return true;
+                if (cacheData.QuestTaskType != questTaskType) continue;
+                if (success.Invoke(cacheData.CacheData)) return true;
             }
-
             return false;
         }
+       
     }
 }

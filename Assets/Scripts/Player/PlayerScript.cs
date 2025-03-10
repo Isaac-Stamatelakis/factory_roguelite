@@ -59,6 +59,7 @@ namespace Player
         private PlayerStatisticCollection playerStatisticCollection;
         public PlayerStatisticCollection PlayerStatisticCollection => playerStatisticCollection;
         private Vector2 lastPosition;
+        public bool Cheats;
         
         public void Start()
         {

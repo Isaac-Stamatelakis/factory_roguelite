@@ -76,7 +76,7 @@ public static class ItemSlotFactory
         Dictionary<ItemTag, object> tagCopy = new Dictionary<ItemTag, object>();
         
         foreach (KeyValuePair<ItemTag,object> kvp in itemSlot.tags.Dict) {
-            tagCopy[kvp.Key] = kvp.Key.copyData(kvp.Value);
+            tagCopy[kvp.Key] = kvp.Key.CopyTagData(kvp.Value);
         }
         ItemTagCollection itemTagCollection = new ItemTagCollection(tagCopy);
         return new ItemSlot(itemSlot.itemObject,itemSlot.amount,itemTagCollection);

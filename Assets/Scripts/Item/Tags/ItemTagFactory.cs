@@ -22,7 +22,7 @@ namespace Items.Tags{
             }
             Dictionary<int, string> seralized = new Dictionary<int, string>();
             foreach (ItemTag tag in tagData.Dict.Keys) {
-                seralized[(int) tag] = tag.serialize(tagData);
+                seralized[(int) tag] = tag.Serialize(tagData);
             }
             return Newtonsoft.Json.JsonConvert.SerializeObject(seralized);
         }
@@ -35,7 +35,7 @@ namespace Items.Tags{
             Dictionary<ItemTag, object> dict = new Dictionary<ItemTag, object>();
             foreach (KeyValuePair<int,string> kvp in seralized) {
                 ItemTag tag = (ItemTag) kvp.Key;
-                dict[tag] = tag.deseralize(seralized[kvp.Key]);
+                dict[tag] = tag.Deserialize(seralized[kvp.Key]);
             }
             return new ItemTagCollection(dict);
      
@@ -73,24 +73,25 @@ namespace Items.Tags{
             return new ItemTagCollection(tagsDict);
         }
 
-        public static bool tagsEqual(ItemTagCollection first, ItemTagCollection second) {
+        public static bool TagsEqual(ItemTagCollection first, ItemTagCollection second) {
             if (first == null && second == null) {
                 return true;
             }
-            if (first == null || first.Dict == null) {
+            if (first?.Dict == null) {
                 return false;
             }
-            if (second== null || second.Dict == null) {
+            if (second?.Dict == null) {
                 return false;
             }
             if (first.Dict.Count != second.Dict.Count) {
                 return false;
             }
+         
             foreach (ItemTag tag in first.Dict.Keys) {
-                if (!second.Dict.ContainsKey(tag)) {
+                if (!second.Dict.TryGetValue(tag, value: out var value)) {
                     return false;
                 }
-                if (!tag.isEquivalent(first.Dict[tag],second.Dict[tag])) {
+                if (!tag.IsEquivalent(first.Dict[tag],value)) {
                     return false;
                 }
             }
