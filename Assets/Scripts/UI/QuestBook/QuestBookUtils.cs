@@ -42,6 +42,12 @@ namespace UI.QuestBook {
             {
                 idSelectorDataDict[selectorData.Id] = selectorData;
             }
+
+            if (!Directory.Exists(playerQuestBookDataPathRoot))
+            {
+                Directory.CreateDirectory(playerQuestBookDataPathRoot);
+            }
+            
             string[] playerQuestFolders = Directory.GetDirectories(playerQuestBookDataPathRoot);
             QuestBookVerifyInfo questBookVerifyInfo = new QuestBookVerifyInfo();
             foreach (string playerQuestFolder in playerQuestFolders)

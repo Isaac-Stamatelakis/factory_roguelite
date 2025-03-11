@@ -93,8 +93,17 @@ namespace WorldModule {
             Directory.CreateDirectory(folderPath);
         }
 
-        private static void InitPlayerData(string path) {
-            PlayerData playerData = new PlayerData(
+        private static void InitPlayerData(string path)
+        {
+            PlayerData playerData = GetDefaultPlayerData();
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
+            byte[] compressed = WorldLoadUtils.CompressString(json);
+            File.WriteAllBytes(path, compressed);
+        }
+
+        public static PlayerData GetDefaultPlayerData()
+        {
+            return new PlayerData(
                 x: 0,
                 y: 0,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
@@ -102,9 +111,6 @@ namespace WorldModule {
                 sRobotLoadOut: null,
                 playerStatistics: new PlayerStatisticCollection()
             );
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
-            byte[] compressed = WorldLoadUtils.CompressString(json);
-            File.WriteAllBytes(path, compressed);
         }
 
         public static void DeleteWorld(string name)

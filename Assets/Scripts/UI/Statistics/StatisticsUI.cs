@@ -53,7 +53,6 @@ namespace UI.Statistics
     {
         public Dictionary<PlayerStatistic, int> DiscreteValues;
         public Dictionary<PlayerStatistic, float> ContinuousValues;
-
         public PlayerStatisticCollection()
         {
             DiscreteValues = new Dictionary<PlayerStatistic, int>();

@@ -78,6 +78,8 @@ namespace Player
         {
             InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
+            PlayerIO.VerifyIntegrityOfPlayerData(playerData);
+            
             playerStatisticCollection = playerData.playerStatistics;
             playerInventory.Initialize(playerData.sInventoryData);
             

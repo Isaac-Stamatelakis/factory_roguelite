@@ -24,6 +24,7 @@ public class DevMode : MonoBehaviour
     public bool EnableGameStages = true;
     public float FlightSpeed = 5f;
     public bool NoReachLimit;
+    public bool LightOn = true;
 
 
 }

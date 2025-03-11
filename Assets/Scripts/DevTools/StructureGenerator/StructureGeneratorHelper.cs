@@ -31,6 +31,7 @@ namespace DevTools.Structures {
     {
         public const string PAREMETER_ID = "structure_parameter";
         public const string FILL_ID = "structure_fill";
+        public const string EXPAND_ID = "structure_expand";
         public static string GetStructurePath(string structureName) {
             string folderPath = GetFolderPath();
             return Path.Combine(folderPath,structureName);
@@ -79,6 +80,8 @@ namespace DevTools.Structures {
             playerInventoryData.Inventory[0] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(PAREMETER_ID),
                 Global.MAX_SIZE, null);
             playerInventoryData.Inventory[1] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(FILL_ID),
+                Global.MAX_SIZE, null);
+            playerInventoryData.Inventory[2] = new ItemSlot(ItemRegistry.GetInstance().GetItemObject(EXPAND_ID),
                 Global.MAX_SIZE, null);
             
             PlayerData playerData = new PlayerData(

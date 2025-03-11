@@ -22,13 +22,17 @@ namespace PlayerModule.IO {
         //[SerializeField] public PlayerData playerData;
        
         public PlayerData Deserialize() {
+            string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
+            if (!File.Exists(path))
+            {
+                return WorldCreation.GetDefaultPlayerData();
+            }
             string json = WorldLoadUtils.GetWorldFileJson(WorldFileType.Player);
             PlayerData playerData = JsonConvert.DeserializeObject<PlayerData>(json);
-            VerifyIntegrityOfPlayerData(playerData);
             return playerData;
         }
 
-        private void VerifyIntegrityOfPlayerData(PlayerData playerData)
+        public static void VerifyIntegrityOfPlayerData(PlayerData playerData)
         {
             const int OUT_BOUNDS_POSITION = 512;
             if (Mathf.Abs(playerData.x) > OUT_BOUNDS_POSITION) playerData.x = 0;
