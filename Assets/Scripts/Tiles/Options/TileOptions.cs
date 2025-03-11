@@ -47,8 +47,15 @@ namespace Tiles {
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;
         public TileOverlay Overlay;
+        public TileParticleOptions ParticleGradient;
     }
-    
+
+    [System.Serializable]
+    public class TileParticleOptions
+    {
+        public Color FirstGradientColor;
+        public Color SecondGradientColor;
+    }
     [System.Serializable]
     public class DropOption {
         public ItemObject itemObject;

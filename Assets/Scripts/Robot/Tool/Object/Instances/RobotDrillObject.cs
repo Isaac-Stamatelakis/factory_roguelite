@@ -9,5 +9,6 @@ namespace Player.Tool.Object
         public Sprite BaseLayerSprite;
         public Sprite BackgroundLayerSprite;
         public LineRenderer LineRendererPrefab;
+        public ParticleSystem ParticleEmitterPrefab;
     }
 }

@@ -25,6 +25,7 @@ using Tiles;
 using Tiles.Indicators;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = Unity.Mathematics.Random;
 
 
 namespace Robot.Tool.Instances
@@ -32,9 +33,10 @@ namespace Robot.Tool.Instances
     public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
     {
         private LineRenderer lineRenderer;
+        private ParticleSystem particleSystem;
         public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
-         
+            particleSystem = GameObject.Instantiate(robotObject.ParticleEmitterPrefab, playerScript.transform);
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -60,35 +62,45 @@ namespace Robot.Tool.Instances
         public override void TerminateClickHold()
         {
             GameObject.Destroy(lineRenderer.gameObject);
-            
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
             UpdateLineRenderer(mousePosition);
+            particleSystem.transform.position = mousePosition;
 
             if (toolData.Layer == TileMapLayer.Base)
             {
                 bool hit = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
-                if (!hit) return;
+                if (!hit)
+                {
+                    particleSystem.Stop();
+                    return;
+                }
             }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
             
+            if (!worldTileGridMap) return;
             bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Item_Magnet) == 0;
             
-            if (!worldTileGridMap) return;
             
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
             int veinMinePower = RobotUpgradeUtils.GetVeinMinePower(veinMineUpgrades);
             
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
+            TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
+            
+            particleSystem.Play();
+
+            ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+            particleSystemMain.startColor = GetParticleSystemColor(tileItem);
+            
             if (multiBreak == 0)
             {
-                TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
                 bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
                 if (broken)
                 {
@@ -110,12 +122,12 @@ namespace Robot.Tool.Instances
                 for (int y = -multiBreak; y <= multiBreak; y++)
                 {
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
-                    TileItem tileItem = worldTileGridMap.GetTileItem(position);
+                    TileItem multiHitTileItem = worldTileGridMap.GetTileItem(position);
                     bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),false);
                     if (broken) anyBroken = true;
                     if (broken && !drop)
                     {
-                        playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(tileItem));
+                        playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(multiHitTileItem));
                     }
                 }
             }
@@ -124,6 +136,30 @@ namespace Robot.Tool.Instances
             {
                 playerScript.PlayerMouse.UpdateOnToolChange();
             }
+        }
+
+        private Color GetParticleSystemColor(TileItem tileItem)
+        {
+            TileParticleOptions gradient = tileItem.tileOptions.ParticleGradient;
+
+            if (gradient == null) return Color.white;
+            int source = UnityEngine.Random.Range(0, 2);
+            const int OVERLAY_SOURCE = 0;
+            const int GRADIENT_SOURCE = 1;
+            switch (source)
+            {
+                case OVERLAY_SOURCE:
+                    if (tileItem.tileOptions.Overlay)
+                    {
+                        return tileItem.tileOptions.Overlay.GetColor();
+                    }
+                    break;
+                case GRADIENT_SOURCE:
+                    float ran = UnityEngine.Random.Range(0f, 1f);
+                    Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
+                    return color;
+            }
+            return Color.white;
         }
 
         private WorldTileGridMap GetWorldTileGridMap(ClosedChunkSystem closedChunkSystem)
