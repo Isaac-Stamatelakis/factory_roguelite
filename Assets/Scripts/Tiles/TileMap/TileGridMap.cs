@@ -19,6 +19,7 @@ using Player;
 using Robot.Tool.Instances;
 using Robot.Upgrades;
 using TileEntity.MultiBlock;
+using Tiles.Options.Overlay;
 
 namespace TileMaps {
     public interface ITileGridMap {
@@ -254,40 +255,37 @@ namespace TileMaps {
             if (partition == null) return; // Might need this?
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
+            bool rotatable = tileItem.tileOptions.rotatable;
+            SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
             
+            var tileOverlay = tileItem.tileOptions?.Overlay;
+
+            if (!tileOverlay) return;
+            var overlayTile = tileOverlay.GetTile();
+            SetTileItemTile(overlayTileMap, overlayTile, vector3Int, rotatable, baseTileData);
+            overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
+            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
+        }
+
+        private void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
+        {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
-            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
-            bool rotatable = tileItem.tileOptions.rotatable;
-            TileBase overlayTile = tileItem.tileOptions?.Overlay.Tile;
-            if (overlayTile)
-            {
-                if (rotatable)
-                {
-                    PlaceTile.RotateTileInMap(overlayTileMap, overlayTile, vector3Int, baseTileData.rotation,baseTileData.mirror);
-                }
-                else
-                {
-                    overlayTileMap.SetTile(vector3Int, overlayTile);
-                }
-                overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-                overlayTileMap.SetColor(vector3Int,tileItem.tileOptions.Overlay.Color);
-            }
             if (!rotatable) 
             {
-                tilemap.SetTile(vector3Int,tileBase);
+                placementTilemap.SetTile(position,tileBase);
                 return;
             }
-            
             if (tileBase is IStateRotationTile stateRotationTile) {
-                tilemap.SetTile(
-                    vector3Int, 
+                placementTilemap.SetTile(
+                    position, 
                     stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
                 );
                 return;
             }
-            PlaceTile.RotateTileInMap(tilemap, tileBase, vector3Int, baseTileData.rotation,baseTileData.mirror);
+            PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
         
         

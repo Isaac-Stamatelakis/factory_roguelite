@@ -140,18 +140,18 @@ namespace TileMaps.Previewer {
 
             SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
             bool rotatable = tileItem.tileOptions.rotatable;
-            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
-            if (overlayTile)
+            var tileOverlay = tileItem.tileOptions.Overlay;
+            if (tileOverlay)
             {
                 if (rotatable)
                 {
-                    PlaceTile.RotateTileInMap(tileOverlayMap, overlayTile, placePosition,tilePlacementOptions.Rotation,false);
+                    PlaceTile.RotateTileInMap(tileOverlayMap, tileOverlay.GetDisplayTile(), placePosition,tilePlacementOptions.Rotation,false);
                 }
                 else
                 {
-                    tileOverlayMap.SetTile(placePosition,overlayTile);
+                    tileOverlayMap.SetTile(placePosition,tileOverlay.GetDisplayTile());
                 }
-                tileOverlayMap.color = tileItem.tileOptions.Overlay.Color;
+                tileOverlayMap.color = tileOverlay.GetColor();
             }
             else
             {
