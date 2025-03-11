@@ -39,7 +39,7 @@ namespace TileMaps {
     {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
         private Tilemap overlayTileMap;
         public override void Initialize(TileMapType type)
@@ -143,7 +143,6 @@ namespace TileMaps {
             
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
-            CallListeners(position);
             if (tileEntity is IMultiBlockTileEntity multiBlockTileEntity)
             {
                 List<IMultiBlockTileAggregate> aggregates = TileEntityUtils.BFSTileEntityComponent<IMultiBlockTileAggregate>(tileEntity,TileType.Block);
@@ -175,6 +174,7 @@ namespace TileMaps {
                 TileItem tileItem = getTileItem(position);
                 DropItem(tileItem, position);
             }
+            CallListeners(position);
             BreakTile(position);
             return true;
         }
@@ -402,6 +402,71 @@ namespace TileMaps {
             baseTileData.state = newState;
  
             SetTile(position.x,position.y,tileItem);
+        }
+
+        /// <summary>
+        /// TileUpdate check if placement position restrictions are still satisfied.
+        /// Note: Currently there is a "bug" where this doesn't work for large tiles (EG 32x16). Not sure if its worth
+        /// implementing or not. Because of the way tiles are placed it still works for doors and that's all that really matters.
+        /// </summary>
+        /// <param name="position"></param>
+        public void TileUpdate(Vector2Int position)
+        {
+            List<(Vector2Int,Direction)> directions = new List<(Vector2Int,Direction)>
+            {
+                (Vector2Int.left,Direction.Right),
+                (Vector2Int.right,Direction.Left),
+                (Vector2Int.down,Direction.Up),
+                (Vector2Int.up,Direction.Down),
+            };
+            
+            foreach (var (vectorDirection, adjDirection) in directions)
+            {
+                Vector2Int adjacentPosition = vectorDirection + position;
+                TileItem tileItem = getTileItem(position+vectorDirection);
+                if (!tileItem) continue;
+                TilePlacementOptions placementOptions = tileItem.tileOptions?.placementRequirements;
+                
+                if (placementOptions == null || !placementOptions.BreakWhenBroken) continue;
+                
+                IChunkPartition partition = GetPartitionAtPosition(adjacentPosition);
+                if (partition == null) continue;
+                Vector2Int positionInPartition = GetTilePositionInPartition(adjacentPosition);
+                BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                int state = baseTileData.state;
+                if (tileItem.tile is IDirectionStateTile directionStateTile)
+                {
+                    Direction? direction = directionStateTile.GetDirection(state);
+                    if (direction == null || direction.Value != adjDirection) continue;
+                    if (!UpdateDirectionalStateTile(direction.Value,placementOptions)) continue;
+                    BreakAndDropTile(adjacentPosition,true);
+                    continue;
+                }
+                
+                if (placementOptions.Above && adjDirection == Direction.Down)
+                {
+                    BreakAndDropTile(adjacentPosition,true);
+                } else if (placementOptions.Below && adjDirection == Direction.Up)
+                {
+                    BreakAndDropTile(adjacentPosition,true);
+                }
+            }
+        }
+
+        private bool UpdateDirectionalStateTile(Direction direction, TilePlacementOptions tilePlacementOptions)
+        {
+            switch (direction)
+            {
+                case Direction.Left:
+                case Direction.Right:
+                    return tilePlacementOptions.Side;
+                case Direction.Down:
+                    return tilePlacementOptions.Below;
+                case Direction.Up:
+                    return tilePlacementOptions.Above;
+                default:
+                    return false;
+            }
         }
     }
 }

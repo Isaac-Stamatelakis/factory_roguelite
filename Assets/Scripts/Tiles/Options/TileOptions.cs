@@ -18,6 +18,7 @@ namespace Tiles {
     [System.Serializable]
     public class TilePlacementOptions
     {
+        public bool BreakWhenBroken = false;
         public bool AtleastOne = true;
         public bool Below = false;
         public bool Above = false;
@@ -39,7 +40,6 @@ namespace Tiles {
     public class TileOptions {
         public bool hitable = true;
         public bool rotatable = false;
-        public bool hasStates = false;
         public int hardness = 8;
         public Tier requiredToolTier;
         public TileMovementType movementModifier  = TileMovementType.None;

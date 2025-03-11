@@ -51,7 +51,9 @@ namespace Chunks.Systems {
             }
             InitTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
-            
+            tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
+            tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Block]);
+
         }
 
         public static void LoadConduitSystemMaps(Transform systemTransform, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
