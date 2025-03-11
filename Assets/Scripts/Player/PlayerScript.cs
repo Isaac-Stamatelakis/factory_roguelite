@@ -6,6 +6,7 @@ using Conduit.View;
 using Conduits;
 using Conduits.PortViewer;
 using Conduits.Systems;
+using Dimensions;
 using Item.GameStage;
 using Item.Slot;
 using Newtonsoft.Json;
@@ -25,6 +26,7 @@ using UI.QuestBook;
 using UI.RingSelector;
 using UI.Statistics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using WorldModule;
 
 namespace Player
@@ -42,6 +44,7 @@ namespace Player
         [SerializeField] private PlayerUIPrefabs prefabs;
         [SerializeField] private PlayerUIContainer playerUIContainer;
         [SerializeField] private TileViewerCollection tileViewers;
+        [SerializeField] private ParticleSystem particles;
         private PlayerGameStageCollection gameStageCollection;
         public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
@@ -60,6 +63,7 @@ namespace Player
         public PlayerStatisticCollection PlayerStatisticCollection => playerStatisticCollection;
         private Vector2 lastPosition;
         public bool Cheats;
+        
         
         public void Start()
         {
@@ -109,6 +113,16 @@ namespace Player
             float distance = Vector2.Distance(transform.position, lastPosition);
             playerStatisticCollection.ContinuousValues[PlayerStatistic.Distance_Traveled] += distance;
             lastPosition = transform.position;
+        }
+
+        public void SetParticles(ParticleOptions particleOptions)
+        {
+            bool optionsNull = particleOptions == null;
+            particles.gameObject.SetActive(optionsNull);
+            if (optionsNull) return;
+
+            var main = particles.main;
+            main.startColor = particleOptions.ParticleColor; // This doesn't do anything
         }
     }
 

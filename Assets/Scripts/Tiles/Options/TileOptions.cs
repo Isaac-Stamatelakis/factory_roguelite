@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Items;
 using TileEntity;
+using Tiles.Options.Overlay;
 using UnityEngine.Tilemaps;
 
 namespace Tiles {
@@ -18,6 +19,7 @@ namespace Tiles {
     [System.Serializable]
     public class TilePlacementOptions
     {
+        public bool BreakWhenBroken = false;
         public bool AtleastOne = true;
         public bool Below = false;
         public bool Above = false;
@@ -39,20 +41,20 @@ namespace Tiles {
     public class TileOptions {
         public bool hitable = true;
         public bool rotatable = false;
-        public bool hasStates = false;
         public int hardness = 8;
         public Tier requiredToolTier;
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;
         public TileOverlay Overlay;
+        public TileParticleOptions ParticleGradient;
     }
 
     [System.Serializable]
-    public class TileOverlay
+    public class TileParticleOptions
     {
-        public TileBase Tile;
-        public Color Color;
+        public Color FirstGradientColor;
+        public Color SecondGradientColor;
     }
     [System.Serializable]
     public class DropOption {

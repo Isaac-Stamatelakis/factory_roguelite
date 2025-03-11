@@ -294,7 +294,7 @@ namespace Fluids {
             dualData.fill[positionInPartition.x, positionInPartition.y] = partitionData.fill[positionInPartition.x, positionInPartition.y];
         }
 
-        public void tileUpdate(Vector2Int position)
+        public void TileUpdate(Vector2Int position)
         {
             AddFluidUpdate(position+Vector2Int.up);
             AddFluidUpdate(position+Vector2Int.left);

@@ -19,6 +19,7 @@ using Player;
 using Robot.Tool.Instances;
 using Robot.Upgrades;
 using TileEntity.MultiBlock;
+using Tiles.Options.Overlay;
 
 namespace TileMaps {
     public interface ITileGridMap {
@@ -39,7 +40,7 @@ namespace TileMaps {
     {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap
+    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
         private Tilemap overlayTileMap;
         public override void Initialize(TileMapType type)
@@ -143,7 +144,6 @@ namespace TileMaps {
             
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
-            CallListeners(position);
             if (tileEntity is IMultiBlockTileEntity multiBlockTileEntity)
             {
                 List<IMultiBlockTileAggregate> aggregates = TileEntityUtils.BFSTileEntityComponent<IMultiBlockTileAggregate>(tileEntity,TileType.Block);
@@ -175,6 +175,7 @@ namespace TileMaps {
                 TileItem tileItem = getTileItem(position);
                 DropItem(tileItem, position);
             }
+            CallListeners(position);
             BreakTile(position);
             return true;
         }
@@ -254,40 +255,37 @@ namespace TileMaps {
             if (partition == null) return; // Might need this?
             Vector2Int positionInPartition = GetTilePositionInPartition(position);
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
+            bool rotatable = tileItem.tileOptions.rotatable;
+            SetTileItemTile(tilemap, tileBase, vector3Int, rotatable, baseTileData);
             
+            var tileOverlay = tileItem.tileOptions?.Overlay;
+
+            if (!tileOverlay) return;
+            var overlayTile = tileOverlay.GetTile();
+            SetTileItemTile(overlayTileMap, overlayTile, vector3Int, rotatable, baseTileData);
+            overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
+            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
+        }
+
+        private void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
+        {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
             } 
-            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
-            bool rotatable = tileItem.tileOptions.rotatable;
-            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
-            if (overlayTile)
-            {
-                if (rotatable)
-                {
-                    PlaceTile.RotateTileInMap(overlayTileMap, overlayTile, vector3Int, baseTileData.rotation,baseTileData.mirror);
-                }
-                else
-                {
-                    overlayTileMap.SetTile(vector3Int, overlayTile);
-                }
-                overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-                overlayTileMap.SetColor(vector3Int,tileItem.tileOptions.Overlay.Color);
-            }
             if (!rotatable) 
             {
-                tilemap.SetTile(vector3Int,tileBase);
+                placementTilemap.SetTile(position,tileBase);
                 return;
             }
-            
             if (tileBase is IStateRotationTile stateRotationTile) {
-                tilemap.SetTile(
-                    vector3Int, 
+                placementTilemap.SetTile(
+                    position, 
                     stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
                 );
                 return;
             }
-            PlaceTile.RotateTileInMap(tilemap, tileBase, vector3Int, baseTileData.rotation,baseTileData.mirror);
+            PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
         
         
@@ -402,6 +400,71 @@ namespace TileMaps {
             baseTileData.state = newState;
  
             SetTile(position.x,position.y,tileItem);
+        }
+
+        /// <summary>
+        /// TileUpdate check if placement position restrictions are still satisfied.
+        /// Note: Currently there is a "bug" where this doesn't work for large tiles (EG 32x16). Not sure if its worth
+        /// implementing or not. Because of the way tiles are placed it still works for doors and that's all that really matters.
+        /// </summary>
+        /// <param name="position"></param>
+        public void TileUpdate(Vector2Int position)
+        {
+            List<(Vector2Int,Direction)> directions = new List<(Vector2Int,Direction)>
+            {
+                (Vector2Int.left,Direction.Right),
+                (Vector2Int.right,Direction.Left),
+                (Vector2Int.down,Direction.Up),
+                (Vector2Int.up,Direction.Down),
+            };
+            
+            foreach (var (vectorDirection, adjDirection) in directions)
+            {
+                Vector2Int adjacentPosition = vectorDirection + position;
+                TileItem tileItem = getTileItem(position+vectorDirection);
+                if (!tileItem) continue;
+                TilePlacementOptions placementOptions = tileItem.tileOptions?.placementRequirements;
+                
+                if (placementOptions == null || !placementOptions.BreakWhenBroken) continue;
+                
+                IChunkPartition partition = GetPartitionAtPosition(adjacentPosition);
+                if (partition == null) continue;
+                Vector2Int positionInPartition = GetTilePositionInPartition(adjacentPosition);
+                BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                int state = baseTileData.state;
+                if (tileItem.tile is IDirectionStateTile directionStateTile)
+                {
+                    Direction? direction = directionStateTile.GetDirection(state);
+                    if (direction == null || direction.Value != adjDirection) continue;
+                    if (!UpdateDirectionalStateTile(direction.Value,placementOptions)) continue;
+                    BreakAndDropTile(adjacentPosition,true);
+                    continue;
+                }
+                
+                if (placementOptions.Above && adjDirection == Direction.Down)
+                {
+                    BreakAndDropTile(adjacentPosition,true);
+                } else if (placementOptions.Below && adjDirection == Direction.Up)
+                {
+                    BreakAndDropTile(adjacentPosition,true);
+                }
+            }
+        }
+
+        private bool UpdateDirectionalStateTile(Direction direction, TilePlacementOptions tilePlacementOptions)
+        {
+            switch (direction)
+            {
+                case Direction.Left:
+                case Direction.Right:
+                    return tilePlacementOptions.Side;
+                case Direction.Down:
+                    return tilePlacementOptions.Below;
+                case Direction.Up:
+                    return tilePlacementOptions.Above;
+                default:
+                    return false;
+            }
         }
     }
 }

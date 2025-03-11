@@ -130,41 +130,38 @@ namespace TileMaps.Previewer {
             if (itemTileBase is IMousePositionStateTile restrictedTile) {
                 state = restrictedTile.GetStateAtPosition(position);
             }
-
-            TileBase tileBase;
-            if (itemTileBase is IStateTile stateTile) {
-                tileBase = stateTile.getTileAtState(state);
-            } else {
-                tileBase = itemTileBase;
-            }
-
-            SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
+            
             bool rotatable = tileItem.tileOptions.rotatable;
-            TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
-            if (overlayTile)
+            DisplayTilePreview(tilemap,itemTileBase,state,placePosition,position,rotatable,tilePlacementOptions);
+            SingleTilePlacementRecord record =  new SingleTilePlacementRecord(tileItem.id, placePosition,tilemap,tileOverlayMap);
+            
+            var tileOverlay = tileItem.tileOptions.Overlay;
+            if (tileOverlay)
             {
-                if (rotatable)
-                {
-                    PlaceTile.RotateTileInMap(tileOverlayMap, overlayTile, placePosition,tilePlacementOptions.Rotation,false);
-                }
-                else
-                {
-                    tileOverlayMap.SetTile(placePosition,overlayTile);
-                }
-                tileOverlayMap.color = tileItem.tileOptions.Overlay.Color;
+                DisplayTilePreview(tileOverlayMap,tileOverlay.GetTile(),state,placePosition,position,rotatable,tilePlacementOptions);
+                tileOverlayMap.color = tileOverlay.GetColor();
             }
             else
             {
                 tileOverlayMap.color = Color.white;
             }
+            
+            return record;
+        }
+
+        private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
+        {
+            if (tileBase is IStateTile stateTile) {
+                tileBase = stateTile.getTileAtState(autoState);
+            }
             if (!rotatable)
             {
-                tilemap.SetTile(placePosition,tileBase);
-                return record;
+                placementTilemap.SetTile(placePosition,tileBase);
+                return;
             }
             
             int rotation = tilePlacementOptions.Rotation;
-            if (itemTileBase is HammerTile)
+            if (tileBase is HammerTile)
             {
                 int hammerRotation = MousePositionUtils.CalculateHammerTileRotation(position,tilePlacementOptions.State);
                 if (hammerRotation > 0) rotation = hammerRotation;
@@ -172,14 +169,12 @@ namespace TileMaps.Previewer {
 
             if (tileBase is IStateRotationTile stateRotationTile)
             {
-                tilemap.SetTile(placePosition,stateRotationTile.getTile(rotation,false));
+                placementTilemap.SetTile(placePosition,stateRotationTile.getTile(rotation,false));
             }
             else
             {
-                PlaceTile.RotateTileInMap(tilemap, tileBase, placePosition,rotation,false);
+                PlaceTile.RotateTileInMap(placementTilemap, tileBase, placePosition,rotation,false);
             }
-            
-            return record;
         }
         
         

@@ -46,7 +46,7 @@ namespace TileMaps {
     
 
     public interface ITileMapListener {
-        void tileUpdate(Vector2Int position);
+        void TileUpdate(Vector2Int position);
     }
     
     public abstract class AbstractIWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
@@ -116,13 +116,14 @@ namespace TileMaps {
             Vector2Int vect = new Vector2Int(x,y);
             Vector2Int tilePosition = GetTilePositionInPartition(vect);
             IChunkPartition partition = GetPartitionAtPosition(vect);
+            CallListeners(vect);
             WriteTile(partition, tilePosition, item);
             SetTile(x, y, (TItem) item);
         }
 
         public void CallListeners(Vector2Int position) {
             foreach (ITileMapListener listener in listeners) {
-                listener.tileUpdate(position);
+                listener.TileUpdate(position);
             }
         }
 
@@ -143,7 +144,6 @@ namespace TileMaps {
         public void placeItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
             Vector2Int cellPosition = partitionPosition*Global.CHUNK_PARTITION_SIZE + tilePartitionPosition;
-            CallListeners(cellPosition);
             SetTile(cellPosition.x, cellPosition.y, (TItem) item);
         }
         public void placeTileAtLocation(Vector2Int position, TileBase tileBase) {

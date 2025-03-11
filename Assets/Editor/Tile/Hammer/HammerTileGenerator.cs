@@ -132,7 +132,6 @@ namespace HammerTileEditor
             TileItem tileItem = ItemEditorFactory.GeneratedTileItem(tileName, hammerTile, TileType.Block, createFolder: false);
 #pragma warning restore CS0618 // Type or member is obsolete
             tileItem.tileOptions.rotatable = true;
-            tileItem.tileOptions.hasStates = true;
             EditorUtility.SetDirty(tileItem);
             
             return tileItem;

@@ -31,17 +31,21 @@ namespace Entities {
 
             if (itemSlot.itemObject is TileItem tileItem)
             {
-                TileBase overlayTile = tileItem.tileOptions.Overlay.Tile;
-                if (overlayTile)
+                var tileOverlay = tileItem.tileOptions.Overlay;
+                if (tileOverlay)
                 {
-                    AddOverlaySprite(itemEntity,TileItem.GetDefaultSprite(overlayTile),tileItem.tileOptions.Overlay.Color);
+                    AddOverlaySprite(itemEntity,TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor());
                 }
             }
 
-            foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+            if (itemSlot.itemObject.SpriteOverlays != null)
             {
-                AddOverlaySprite(itemEntity,spriteOverlay.Sprite,spriteOverlay.Color);
+                foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+                {
+                    AddOverlaySprite(itemEntity,spriteOverlay.Sprite,spriteOverlay.Color);
+                }
             }
+            
             if (initialVelocity != null)
             {
                 Rigidbody2D rb = itemEntity.GetComponent<Rigidbody2D>();
@@ -58,6 +62,7 @@ namespace Entities {
             spriteRenderer.sprite = sprite;
             spriteRenderer.color = color;
             overlayContainer.transform.SetParent(itemEntity.transform,false);
+            overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
         }
 
         private static void SpawnTagObjects(ItemEntity itemEntity, ItemSlot itemSlot)

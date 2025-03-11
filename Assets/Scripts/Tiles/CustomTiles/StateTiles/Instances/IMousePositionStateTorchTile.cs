@@ -9,9 +9,14 @@ namespace Tiles {
     public interface INoDelayPreviewTile {
     
     }
+
+    public interface IDirectionStateTile
+    {
+        public Direction? GetDirection(int state);
+    }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile, INoDelayPreviewTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile, INoDelayPreviewTile, IDirectionStateTile
     {
         public string id;
         public Tile onBlock;
@@ -93,6 +98,17 @@ namespace Tiles {
         public int getStateAmount()
         {
             return 4;
+        }
+
+        public Direction? GetDirection(int state)
+        {
+            return state switch
+            {
+                0 => Direction.Down,
+                1 => Direction.Left,
+                2 => Direction.Right,
+                _ => null
+            };
         }
     }
 }
