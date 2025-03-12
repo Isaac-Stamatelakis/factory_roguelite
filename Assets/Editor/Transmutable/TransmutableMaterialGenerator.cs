@@ -49,7 +49,15 @@ public class TransmutableItemGenerator : EditorWindow
         GUI.enabled = true;
         if (GUILayout.Button("Update Ore Items"))
         {
-            UpdateOres();
+            UpdateOres(false);
+        }
+        
+        GUI.enabled = false;
+        GUILayout.TextArea("For all existing materials, deletes and re-generates ores.");
+        GUI.enabled = true;
+        if (GUILayout.Button("Re-Build Ore Items"))
+        {
+            UpdateOres(true);
         }
         
     }
@@ -123,7 +131,6 @@ public class TransmutableItemGenerator : EditorWindow
             stateItemDict[transmutableItemObject.getState()] = transmutableItemObject;
         }
         
-
         CreateNew(material, materialItemsPath, stateItemDict, out var materialStates);
         RemovedUnusedStates(stateItemDict, materialStates);
 
@@ -168,34 +175,32 @@ public class TransmutableItemGenerator : EditorWindow
         return Path.Combine(materialItemsPath, itemName + ".asset");
     }
 
-    private void UpdateOres()
+    private void UpdateOres(bool reset)
     {
+        // It works :)
+        void OnOreLoadUpdate(AsyncOperationHandle<IList<TransmutableItemMaterial>> handle)
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
+                StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
+                GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
+                Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
+                foreach (var asset in handle.Result)
+                {
+                    GenerateOreItems(asset, outlineWrapper, stoneTileCollection, oreGameStage,reset);
+                }
+                AssetDatabase.Refresh();
+            }
+            else
+            {
+                Debug.LogError("Failed to load assets.");
+            }
+        }
         Addressables.LoadAssetsAsync<TransmutableItemMaterial>("transmutable_material",null).Completed += OnOreLoadUpdate;
     }
-    
-    private void OnOreLoadUpdate(AsyncOperationHandle<IList<TransmutableItemMaterial>> handle)
-    {
-        if (handle.Status == AsyncOperationStatus.Succeeded)
-        {
-            TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
-            StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
-            GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
-            Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
-            foreach (var asset in handle.Result)
-            {
-                Debug.Log(asset.name);
-                GenerateOreItems(asset, outlineWrapper, stoneTileCollection, oreGameStage);
-                break;
-            }
-            AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.LogError("Failed to load assets.");
-        }
-    }
 
-    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage)
+    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
     {
         string transmutableItemFolder = GetMaterialItemPath(material);
         string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
@@ -207,6 +212,11 @@ public class TransmutableItemGenerator : EditorWindow
         if (!oreItem) return;
         
         string oreFolderPath = Path.Combine(materialItemsPath, ORE_PATH);
+        if (reset && Directory.Exists(oreFolderPath))
+        {
+            Directory.Delete(oreFolderPath, true);
+            AssetDatabase.Refresh();
+        }
         if (!Directory.Exists(oreFolderPath))
         {
             Debug.Log($"Created ore folder for {material.name}");
@@ -225,10 +235,9 @@ public class TransmutableItemGenerator : EditorWindow
             string savePath = overlayPath + ".asset";
             Debug.Log(savePath);
             AssetDatabase.CreateAsset(tileOverlay, savePath);
-            AssetDatabase.Refresh();
-            tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
+            AssetDatabase.SaveAssets();
+            tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(savePath);
         }
-        
         string[] guids = AssetDatabase.FindAssets("", new[] { oreFolderPath });
         
         HashSet<string> existingOres = new HashSet<string>();

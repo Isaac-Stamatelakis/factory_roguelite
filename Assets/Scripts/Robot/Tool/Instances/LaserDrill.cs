@@ -228,9 +228,7 @@ namespace Robot.Tool.Instances
                 hitting = false;
                 return false;
             }
-            Debug.Log(hitting);
-           
-           
+            
             if (toolData.Layer == TileMapLayer.Base)
             {
                 if (particleSystem.isStopped && hitting)
