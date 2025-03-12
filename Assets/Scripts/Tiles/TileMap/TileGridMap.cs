@@ -377,7 +377,7 @@ namespace TileMaps {
             {
                 return;
             }
-            
+            PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
             ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
