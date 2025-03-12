@@ -12,9 +12,8 @@ namespace WorldModule.Caves {
     public class CaveEntityDistributor : ScriptableObject, ICaveDistributor
     {
         public List<EntityDistribution> entities;
-        public void distribute(SeralizedWorldData seralizedWorldData, int width, int height, Vector2Int bottomLeftCorner)
+        public void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner)
         {
-            //Dictionary<string,Vector2Int> sizeDict = EntityRegistry.getInstance().getAllSizes();
             Dictionary<string,Vector2Int> sizeDict = new Dictionary<string, Vector2Int>();
             foreach (EntityDistribution entityDistribution in entities) {
                 int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
@@ -30,7 +29,7 @@ namespace WorldModule.Caves {
                         int ranY = Random.Range(0,height-entitySize.y);
                         for (int x = 0; x < entitySize.x; x++) {
                             for (int y = 0; y < entitySize.y; y++) {
-                                if (seralizedWorldData.baseData.ids[x+ranX,y+ranY] != null) {
+                                if (worldData.baseData.ids[x+ranX,y+ranY] != null) {
                                     spawnAttempts--;
                                     continue;
                                 }
@@ -38,7 +37,7 @@ namespace WorldModule.Caves {
                         }
                         string mobData = JsonConvert.SerializeObject(new SerializedMobData(entityDistribution.entityId,null));
                         Vector2 spawnPosition = ((new Vector2(ranX,ranY))+bottomLeftCorner)/2f;
-                        seralizedWorldData.entityData.Add(
+                        worldData.entityData.Add(
                             new SeralizedEntityData(
                                 type: EntityType.Mob,
                                 position: spawnPosition,

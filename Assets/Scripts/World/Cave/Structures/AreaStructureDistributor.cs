@@ -19,7 +19,7 @@ namespace WorldModule.Caves {
     {
         public List<PresetStructure> constantStructures;
         [FormerlySerializedAs("structures")] public List<StructureFrequency> randomStructures;
-        public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
+        public override void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
 
             foreach (PresetStructure presetStructure in constantStructures)
@@ -28,7 +28,7 @@ namespace WorldModule.Caves {
                 int index = UnityEngine.Random.Range(0, structure.variants.Count);
                 StructureVariant variant = structure.variants[index];
                 Vector2Int normalizedPlacementPosition = new Vector2Int(width,height)/2 + presetStructure.location - variant.Size / 2 - new Vector2Int(Global.CHUNK_SIZE,Global.CHUNK_SIZE)/2;
-                AreaStructureDistributorUtils.PlaceStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
+                AreaStructureDistributorUtils.PlaceStructure(worldData,normalizedPlacementPosition, variant.Data, variant.Size);
             }
             foreach (StructureFrequency structureFrequency in randomStructures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
@@ -40,7 +40,7 @@ namespace WorldModule.Caves {
                 {
                     int index = UnityEngine.Random.Range(0, variants.Count);
                     StructureVariant variant = variants[index];
-                    TryPlaceStructure(worldTileData,placedStructures,variant,width,height,index);
+                    TryPlaceStructure(worldData,placedStructures,variant,width,height,index);
                     
                     amount--;
                 }

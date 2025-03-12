@@ -5,5 +5,5 @@ using UnityEngine;
 
 public interface ICaveDistributor
 {
-    public void distribute(SeralizedWorldData seralizedWorldData,int width, int height, Vector2Int bottomLeftCorner);
+    public void Distribute(SeralizedWorldData worldData,int width, int height, Vector2Int bottomLeftCorner);
 }

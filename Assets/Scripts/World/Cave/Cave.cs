@@ -5,6 +5,7 @@ using UnityEngine;
 using Misc.Audio;
 using TileEntity;
 using UnityEngine.AddressableAssets;
+using World.Cave.DecorationDistributor;
 using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
@@ -22,6 +23,8 @@ namespace WorldModule.Caves {
         public AssetReference entityDistributor;
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
+        public List<CaveDecoration> CaveDecorations;
+        
         public CaveOptions CaveOptions;
         
         public string GetId()
@@ -38,6 +41,7 @@ namespace WorldModule.Caves {
         public Color OutlineColor = new Color(1, 1, 1, 1);
         public Color ParticleColor;
     }
+    
 
     public class CaveInstance: IGeneratedArea {
         private Cave cave;
@@ -66,23 +70,26 @@ namespace WorldModule.Caves {
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.CHUNK_SIZE;
             stopwatch.Restart();
             foreach (CaveTileGenerator generator in caveElements.TileGenerators) {
-                generator.distribute(worldTileData,size.x,size.y,bottomLeft);
+                generator.Distribute(worldTileData,size.x,size.y,bottomLeft);
             }
             double tileDistributionTime = stopwatch.Elapsed.TotalSeconds;
             total += tileDistributionTime;
             double entityDistributionTime = 0;
             if (!ReferenceEquals(caveElements.StructureDistributor, null))
             {
-                caveElements.StructureDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+                caveElements.StructureDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             }
             if (!ReferenceEquals(caveElements.EntityDistributor,null)) {
                 stopwatch.Restart();
-                caveElements.EntityDistributor.distribute(worldTileData,size.x,size.y,bottomLeft);
+                caveElements.EntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
                 entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
                 total += entityDistributionTime;
             }
             
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
+            CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(cave.CaveDecorations);
+            caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            
             MusicTrackController.Instance.setSong(caveElements.Songs);
             stopwatch.Stop();
             Debug.Log($"Cave generated completed in {total:F2} seconds. Model Generation of {caveElements.GenerationModel.GetType().Name} Time: {modelTime:F2} seconds." +
