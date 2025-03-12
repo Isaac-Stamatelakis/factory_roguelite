@@ -465,7 +465,7 @@ namespace TileMaps.Place {
             if (ignorePlaceBreakable) return true;
             WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
             TileItem tile = tileGridMap?.GetTileItem(position);
-            if (!tile) return false;
+            if (!tile) return true; // Return true here since only 16x16 tiles should ever be placebreakable. 
             return !tile.tileOptions.placeBreakable;
         }
 
