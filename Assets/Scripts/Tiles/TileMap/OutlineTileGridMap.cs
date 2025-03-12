@@ -100,7 +100,9 @@ namespace TileMaps {
 
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            Quaternion rotation = outlineTileMap.GetTransformMatrix(position).rotation;
+            Quaternion rotation = outlineTileMap.GetTile(position) 
+                ? outlineTileMap.GetTransformMatrix(position).rotation
+                : tilemap.GetTransformMatrix(position).rotation;
             return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),rotation);
         }
     }

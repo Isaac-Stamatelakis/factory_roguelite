@@ -141,15 +141,13 @@ namespace TileMaps.Place {
             FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPlaceLocation,Global.getSpriteSize(tileItem.getSprite()),rotation);
             if (exclusion == null)
             {
-                if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base)) return false;
+                if (TileWithinIntervalAreaRange(intervalVector,TileMapLayer.Base, tileItem.tileOptions.placeBreakable)) return false;
             }
             else
             {
-                if (TileWithinIntervalAreaRangeExclusion(intervalVector, exclusion, TileMapLayer.Base)) return false;
+                if (TileWithinIntervalAreaRangeExclusion(intervalVector, exclusion, TileMapLayer.Base,tileItem.tileOptions.placeBreakable)) return false;
             }
             
-            
-
             if (DevMode.Instance.noPlaceLimit) return true;
             
     
@@ -275,7 +273,7 @@ namespace TileMaps.Place {
 
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             int rotation = placementData?.Rotation ?? 0;
-
+            
             if (tileItem.tile is HammerTile)
             {
                 int hammerTileRotation = MousePositionUtils.CalculateHammerTileRotation(worldPosition,placementData?.State??0);
@@ -285,7 +283,8 @@ namespace TileMaps.Place {
             BaseTileData baseTileData = new BaseTileData(rotation, state, false);
             partition.SetBaseTileData(positionInPartition, baseTileData);
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
-            
+
+            ClearTilesOnPlace(tileItem, worldPosition, baseTileData.rotation);
             iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             
             if (!ReferenceEquals(tileItem.tileEntity, null))
@@ -299,6 +298,26 @@ namespace TileMaps.Place {
             }
             TileHelper.tilePlaceTileEntityUpdate(placePosition, tileItem,tileGridMap);
             
+        }
+
+        public static void ClearTilesOnPlace(TileItem tileItem, Vector2 worldPosition, int rotation)
+        {
+            int layers = TileMapLayer.Base.toRaycastLayers();
+            FloatIntervalVector intervalVector = TileHelper.getRealCoveredArea(worldPosition,Global.getSpriteSize(tileItem.getSprite()),rotation);
+            for (float x = intervalVector.X.LowerBound; x <= intervalVector.X.UpperBound; x += 0.5f)
+            {
+                for (float y = intervalVector.Y.LowerBound; y <= intervalVector.Y.UpperBound; y += 0.5f)
+                {
+                    Vector2 centered = TileHelper.getRealTileCenter(new Vector2(x, y));
+                    var collider = Physics2D.BoxCast(centered, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
+                    if (ReferenceEquals(collider,null)) continue;
+                    Vector2Int cellPosition = Global.getCellPositionFromWorld(centered);
+                    WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
+                    TileItem tile = tileGridMap?.getTileItem(cellPosition);
+                    if (!tile || !tile.tileOptions.placeBreakable) continue;
+                    tileGridMap.BreakAndDropTile(cellPosition, true);
+                }
+            }
         }
 
         private static string GetPlacementData(TileEntityObject tileEntity, ItemTagCollection itemTagCollection)
@@ -439,10 +458,15 @@ namespace TileMaps.Place {
         /// <summary>
         /// raycasts a given position in a 0.5f, 0.5f box.
         /// </summary>
-        public static bool raycastTileInBox(Vector2 position, int layers)
+        public static bool raycastTileInBox(Vector2 position, int layers, bool ignorePlaceBreakable = false)
         {
-            return !ReferenceEquals(
-                Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider, null);
+            var collider = Physics2D.BoxCast(position, new Vector2(0.48f, 0.48f), 0f, Vector2.zero, Mathf.Infinity, layers).collider;
+            if (ReferenceEquals(collider,null)) return false;
+            if (ignorePlaceBreakable) return true;
+            WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
+            TileItem tile = tileGridMap?.GetTileItem(position);
+            if (!tile) return false;
+            return !tile.tileOptions.placeBreakable;
         }
 
         public static bool raycastTileInLine(Direction direction, Vector2 position, int layers) {
@@ -466,10 +490,11 @@ namespace TileMaps.Place {
         /**
         returns true if there is a tile within the range, inclusive
         **/
-        private static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layers) {
+        private static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layers,
+            bool ignorePlaceBreakable = false) {
             for (float x = minX; x <= maxX; x += 1/2f) {
                 for (float y = minY; y <= maxY; y += 1/2f) {
-                    if (raycastTileInBox(new Vector2(x,y), layers)) {
+                    if (raycastTileInBox(new Vector2(x,y), layers,ignorePlaceBreakable)) {
                         return true;
                     }
                 }
@@ -511,17 +536,17 @@ namespace TileMaps.Place {
                 backgroundTileWithinRange(minX,maxX,maxY+BLOCK_SIZE,maxY+BLOCK_SIZE,worldTileMap));
         }
 
-        private static bool TileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer) {
+        private static bool TileWithinIntervalAreaRange(FloatIntervalVector floatIntervalVector, TileMapLayer layer,
+            bool placeBreakable) {
             return tileWithinRange(
                 floatIntervalVector.X.LowerBound,
                 floatIntervalVector.X.UpperBound,
                 floatIntervalVector.Y.LowerBound,
                 floatIntervalVector.Y.UpperBound,
-                layer.toRaycastLayers()
-            );
+                layer.toRaycastLayers(), placeBreakable);
         }
         
-        private static bool TileWithinIntervalAreaRangeExclusion(FloatIntervalVector floatIntervalVector, FloatIntervalVector exclusion, TileMapLayer layer) {
+        private static bool TileWithinIntervalAreaRangeExclusion(FloatIntervalVector floatIntervalVector, FloatIntervalVector exclusion, TileMapLayer layer, bool ignorePlaceBreakable = false) {
             float minX = floatIntervalVector.X.LowerBound;
             float maxX = floatIntervalVector.X.UpperBound;
             float minY = floatIntervalVector.Y.LowerBound;
@@ -530,7 +555,7 @@ namespace TileMaps.Place {
             for (float x = minX; x <= maxX; x += 1/2f) {
                 for (float y = minY; y <= maxY; y += 1/2f) {
                     if (x >= exclusion.X.LowerBound && x <= exclusion.X.UpperBound && y >= exclusion.Y.LowerBound && y <= exclusion.Y.UpperBound) continue;
-                    if (raycastTileInBox(new Vector2(x,y), layer.toRaycastLayers())) {
+                    if (raycastTileInBox(new Vector2(x,y), layer.toRaycastLayers(),ignorePlaceBreakable)) {
                         return true;
                     }
                 }

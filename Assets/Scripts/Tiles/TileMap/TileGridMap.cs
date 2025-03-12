@@ -59,10 +59,10 @@ namespace TileMaps {
         }
         
         protected void SpawnItemEntity(ItemSlot itemSlot, Vector2Int hitTilePosition) {
-            ILoadedChunk chunk = GetChunk(hitTilePosition);  
+            ILoadedChunk chunk = GetChunk(hitTilePosition);
 
-            float realXPosition = transform.position.x+ hitTilePosition.x/2f+0.25f;
-            float realYPosition = transform.position.y+ hitTilePosition.y/2f+0.25f;
+            float realXPosition = transform.position.x + hitTilePosition.x / 2f;
+            float realYPosition = transform.position.y + hitTilePosition.y / 2f;
             Sprite[] itemSprites = itemSlot.itemObject.getSprites();
             if (itemSprites.Length == 0) {
                 Debug.LogError("Tried to spawn item with no sprite");
@@ -377,7 +377,7 @@ namespace TileMaps {
             {
                 return;
             }
-            
+            PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
             ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);

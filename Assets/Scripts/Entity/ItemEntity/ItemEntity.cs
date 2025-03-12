@@ -41,6 +41,9 @@ namespace Entities {
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
                 spriteRenderer.color = transmutableItemObject.getMaterial().color;
+            } else if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.TileColor)
+            {
+                spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
             }
             transform.localScale = new Vector3(0.5f, 0.5f,1f);
             boxCollider.size = spriteRenderer.sprite.bounds.size;

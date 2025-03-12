@@ -9,39 +9,86 @@ using System;
 using Random = UnityEngine.Random;
 
 namespace WorldModule.Caves {
-    [CreateAssetMenu(fileName ="New Area Tile Distributor",menuName="Generation/Tile Distributor")]
-    public class AreaTileDistributor : CaveTileGenerator
+    [System.Serializable]
+    public class TileDistributionData
     {
-        public List<TileDistribution> tileDistributions;
+        [Range(0,1)] public float Fill;
+        public bool WriteAll;
+        public int MinSize;
+        public int MaxSize;
+        public TilePlacementMode TilePlacementMode;
+        public bool FillHoles = true;
+    }
 
-        /// <summary>
-        /// Calculates the number of veins by converting a float to int, then has a chance to add an additional vein equal fNumberOfVeins % 1 
-        /// </summary>
-        /// <example>5.8 -> 5 + 80% chance to add an additional vein</example>
-        /// <param name="fNumberOfVeins"></param>
-        private int CalculateNumberOfVeins(float fNumberOfVeins)
+    public interface IDistributorTileAggregator
+    {
+        public string GetTileId(string currentId);
+    }
+
+    public class FrequencyTileAggregator : IDistributorTileAggregator
+    {
+        public FrequencyTileAggregator(List<TileDistributionFrequency> tiles)
         {
+            this.tiles = tiles;
+        }
+
+        private List<TileDistributionFrequency> tiles;
+        public string GetTileId(string currentId)
+        {
+            return RandomFrequencyListUtils.getRandomFromList(tiles).tileItem.id;
+        }
+    }
+    [System.Serializable]
+    public class TileDistribution
+    {
+        public TileDistribution(IDistributorTileAggregator distributorTileAggregator, TileDistributionData tileDistributionData)
+        {
+            TileAggregator = distributorTileAggregator;
+            TileDistributionData = tileDistributionData;
+        }
+
+        public TileDistributionData TileDistributionData;
+        private float chanceToFileTile;
+        public IDistributorTileAggregator TileAggregator;
+        
+        public int CalculateNumberOfVeins(int size)
+        {
+            chanceToFileTile = TileDistributionData.Fill/(((float)TileDistributionData.MinSize+TileDistributionData.MaxSize)/2);
+            float fNumberOfVeins = size * chanceToFileTile;
             int numberOfVeins = (int)fNumberOfVeins;
             float dif = fNumberOfVeins - numberOfVeins;
             float ran = Random.Range(0, 1f);
             if (ran >= dif) numberOfVeins++; // Randomly increases the veins 
             return numberOfVeins;
         }
-        public override void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
+
+        public int GetTilesToPlace()
+        {
+            return UnityEngine.Random.Range(TileDistributionData.MinSize, TileDistributionData.MaxSize+1);
+        }
+        
+    }
+    
+    public class AreaTileDistributor : ICaveDistributor
+    {
+        private List<TileDistribution> tileDistributions;
+        private string baseID;
+
+        public AreaTileDistributor(List<TileDistribution> tileDistributions, string baseID)
+        {
+            this.tileDistributions = tileDistributions;
+            this.baseID = baseID;
+        }
+
+        public void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
             SerializedBaseTileData baseData = worldData.baseData;
-            string baseID = null;
-            foreach (string id in baseData.ids)
-            {
-                if (id == null) continue;
-                baseID = id;
-                break;
-            }
-            Debug.Log("Base ID loaded as " + baseID);
+         
             string[,] ids = baseData.ids;
-            foreach (TileDistribution tileDistribution in tileDistributions) {
-                float chanceToFileTile = tileDistribution.density/(((float)tileDistribution.minimumSize+tileDistribution.maximumSize)/2);
-                float fNumberOfVeins = chanceToFileTile * width * height;
-                int numberOfVeins = CalculateNumberOfVeins(fNumberOfVeins);
+            int size = width * height;
+            foreach (TileDistribution tileDistribution in tileDistributions)
+            {
+                TileDistributionData tileDistributionData = tileDistribution.TileDistributionData;
+                int numberOfVeins = tileDistribution.CalculateNumberOfVeins(size);
                 while (numberOfVeins > 0) {
                     numberOfVeins--;
                     int x = UnityEngine.Random.Range(0,width);
@@ -50,44 +97,26 @@ namespace WorldModule.Caves {
                     if (id == null) { // don't fill into empty space
                         continue;
                     }
-                    if (!tileDistribution.writeAll && id != baseID) {
+                    if (!tileDistributionData.WriteAll && id != baseID) {
                         continue;
                     } 
-                    checkPlacementRestrictions(tileDistribution,new Vector2Int(x,y) + bottomLeftCorner);
-                    int tilesToPlace = UnityEngine.Random.Range(tileDistribution.minimumSize,tileDistribution.maximumSize+1);
-                    switch (tileDistribution.placementMode) {
+                   
+                    int tilesToPlace = tileDistribution.GetTilesToPlace();
+                    switch (tileDistributionData.TilePlacementMode) {
                         case TilePlacementMode.BreadthFirstSearch:
-                            BFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                            BfsTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids);
                             break;
                         case TilePlacementMode.DepthFirstSearch:
-                            DFSTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids, baseID);
+                            DfsTile(tileDistribution, ref tilesToPlace, x, y, width, height, ids);
                             break;
                     }
                 }  
             }
         }
-
-        private bool checkPlacementRestrictions(TileDistribution tileDistribution, Vector2Int position) {
-            switch (tileDistribution.restriction) {
-                case TilePlacementRestriction.None:
-                    return true;
-                case TilePlacementRestriction.Vertical:
-                    return position.y > tileDistribution.minHeight && position.y < tileDistribution.maxHeight;
-                case TilePlacementRestriction.Horizontal:
-                    return position.x > tileDistribution.minWidth && position.x < tileDistribution.maxWidth;
-                case TilePlacementRestriction.Rectangle:
-                    return 
-                        position.y > tileDistribution.minHeight && position.y < tileDistribution.maxHeight &&
-                        position.x > tileDistribution.minWidth && position.x < tileDistribution.maxWidth;
-                case TilePlacementRestriction.Circle:
-                    float polarCoordinate = Mathf.Sqrt(position.y * position.y + position.x * position.x); 
-                    return polarCoordinate > tileDistribution.minRadius && polarCoordinate < tileDistribution.maxRadius;
-            }
-            return false;
-        }
-        protected void DFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids, string baseID) {
+        
+        protected void DfsTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids) {
             List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
-            
+            TileDistributionData tileDistributionData = tileDistribution.TileDistributionData;
             while (directionsToCheck.Count > 0) {
                 int index = UnityEngine.Random.Range(0,directionsToCheck.Count);
                 Direction direction = directionsToCheck[index];
@@ -123,28 +152,21 @@ namespace WorldModule.Caves {
                 if (id == null) {
                     continue;
                 }
-                if (!tileDistribution.writeAll && id != baseID) {
+                if (!tileDistributionData.WriteAll && id != baseID) {
                     continue;
                 }
-                TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList<TileDistributionFrequency>(tileDistribution.tiles);
-                string searchId = tileDistributionElement.tileItem.id;
-                if (searchId == null) {
-                    Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
-                    continue;
-                }
-                if (id == searchId) { // Prevent placing in same id
-                    continue;
-                }
+                
+                ids[searchX, searchY] = tileDistribution.TileAggregator.GetTileId(ids[searchX, searchY]);
                 tilesToPlace--;
                 if (tilesToPlace <= 0) {
                     return;
                 }
-                ids[searchX,searchY] = searchId;
-                
-                DFSTile(tileDistribution, ref tilesToPlace,searchX,searchY,width,height,ids,baseID);
+                DfsTile(tileDistribution, ref tilesToPlace,searchX,searchY,width,height,ids);
             }
         }
-        protected void BFSTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids, string baseID) {
+        protected void BfsTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids)
+        {
+            TileDistributionData tileDistributionData = tileDistribution.TileDistributionData;
             Queue<(int x, int y)> queue = new Queue<(int x, int y)>(); // Isaac 2025: not sure why the fuck I used (int x, int y) but whatever
             HashSet<(int x, int y)> visited = new HashSet<(int x, int y)>();
             
@@ -190,27 +212,22 @@ namespace WorldModule.Caves {
                     }
                     string id = ids[searchX,searchY];
                     if (id == null) continue;
-                    if (id == baseID || tileDistribution.writeAll) {
+                    if (id == baseID || tileDistributionData.WriteAll) {
                         queue.Enqueue((searchX, searchY));
                         visited.Add((searchX,searchY));
                         tilesToPlace--;
                         if (tilesToPlace < 0) {
                             break;
                         }
-                        TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList<TileDistributionFrequency>(tileDistribution.tiles);
-                        string searchId = tileDistributionElement.tileItem?.id;
-                        if (searchId == null) {
-                            Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
-                            return;
-                        }
-                        ids[searchX,searchY] = searchId;
+                        ids[searchX, searchY] = tileDistribution.TileAggregator.GetTileId(ids[searchX, searchY]);
                     }
                     if (directionsToExplore <= 0) {
                         break;
                     }
                 }
             }
-            
+
+            if (!tileDistributionData.FillHoles) return;
             HashSet<(int x, int y)> holes = new HashSet<(int x, int y)>();
             
             foreach ((int visX,int visY) in visited)
@@ -224,13 +241,7 @@ namespace WorldModule.Caves {
 
             foreach ((int visX, int visY) in holes)
             {
-                TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList<TileDistributionFrequency>(tileDistribution.tiles);
-                string searchId = tileDistributionElement.tileItem?.id;
-                if (searchId == null) {
-                    Debug.LogWarning("Skipped placing tile in tile distributor for " + name);
-                    return;
-                }
-                ids[visX,visY] = searchId;
+                ids[visX, visY] = tileDistribution.TileAggregator.GetTileId(ids[visX, visY]);
             }
         }
 

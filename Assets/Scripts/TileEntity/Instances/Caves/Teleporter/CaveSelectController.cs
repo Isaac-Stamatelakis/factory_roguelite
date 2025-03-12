@@ -15,6 +15,9 @@ using UI.Statistics;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using World.Cave.TileDistributor;
+using World.Cave.TileDistributor.Ore;
+using World.Cave.TileDistributor.Standard;
 using Debug = UnityEngine.Debug;
 
 namespace TileEntity.Instances {
@@ -77,14 +80,7 @@ namespace TileEntity.Instances {
                 handles["Structure"] = Addressables.LoadAssetAsync<Object>(cave.structureDistributor);
             }
             
-
-            List<AsyncOperationHandle<Object>> tileDistributorHandles = new List<AsyncOperationHandle<Object>>();
-            foreach (AssetReference assetReference in cave.tileGenerators) {
-                if (assetReference.RuntimeKeyIsValid()) {
-                    tileDistributorHandles.Add(assetReference.LoadAssetAsync<Object>());
-                }
-                
-            }
+            
 
             List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
             foreach (AssetReference assetReference in cave.songs) {
@@ -98,9 +94,6 @@ namespace TileEntity.Instances {
                 yield return kvp.Value;
             }
             
-            foreach (var handle in tileDistributorHandles) {
-                yield return handle;
-            }
             foreach (var handle in songHandles) {
                 yield return handle;
             }
@@ -113,16 +106,45 @@ namespace TileEntity.Instances {
             
             caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(handles["Model"]);
             caveElements.Songs = AddressableUtils.validateHandles<AudioClip>(songHandles);
-            caveElements.TileGenerators = AddressableUtils.validateHandles<CaveTileGenerator>(tileDistributorHandles);
+
+            if (cave.TileDistributorObject)
+            {
+                List<TileDistribution> tileDistributions = new List<TileDistribution>();
+                foreach (StandardTileDistrubtion distributorObjectData in cave.TileDistributorObject.TileDistributions)
+                {
+                    if (distributorObjectData == null) continue;
+                    List<TileDistributionFrequency> tileDistributionFrequencies = new List<TileDistributionFrequency>();
+                    foreach (TileDistributionFrequency frequency in distributorObjectData.Tiles)
+                    {
+                        if (frequency.frequency == 0 || frequency.tileItem?.id == null) continue;
+                        tileDistributionFrequencies.Add(frequency);
+                    }
+                    FrequencyTileAggregator frequencyTileAggregator = new FrequencyTileAggregator(tileDistributionFrequencies);
+                    tileDistributions.Add(new TileDistribution(frequencyTileAggregator, distributorObjectData.TileDistributionData));
+                }
+            
+                caveElements.TileDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
+            }
+
+            if (cave.OreDistributionObject)
+            {
+                List<TileDistribution> tileDistributions = new List<TileDistribution>();
+                foreach (OreDistribution oreDistribution in cave.OreDistributionObject.OreDistributions)
+                {
+                    OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material);
+                    tileDistributions.Add(new TileDistribution(oreTileAggregator,oreDistribution.TileDistributionData));
+
+                }
+                caveElements.OreDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
+            }
+            
 
             CaveInstance caveInstance = new CaveInstance(cave,caveElements);
             caveCallback(caveInstance);
             foreach (var kvp in handles) {
                 Addressables.Release(kvp.Value);
             }
-            foreach (var handle in tileDistributorHandles) {
-                Addressables.Release(handle);
-            }
+            
             foreach (var handle in songHandles) {
                 Addressables.Release(handle);
             }
@@ -163,8 +185,7 @@ namespace TileEntity.Instances {
 
             DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
             DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition,dimensionOptions: dimensionOptions);
-    
-            //light2D.color = caveInstance
+            
             TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }
