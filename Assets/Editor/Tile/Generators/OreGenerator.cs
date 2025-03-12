@@ -8,7 +8,7 @@ using System.IO;
 using Items.Transmutable;
 using Tiles;
 
-public class TileGeneratorWindow : EditorWindow
+public class OreTileGeneratorWindow : EditorWindow
 {
     private const string DEFAULT_TEMPLATE_PATH = "Assets/Sprites/TransmutableSprites/ore_template-Sheet.png";
     private const int PIXELS_PER_TILE = 16;
@@ -22,7 +22,7 @@ public class TileGeneratorWindow : EditorWindow
     [MenuItem("Tools/Item Constructors/Tile/Ore")]
     public static void ShowWindow()
     {
-        TileGeneratorWindow window = (TileGeneratorWindow)EditorWindow.GetWindow(typeof(TileGeneratorWindow));
+        OreTileGeneratorWindow window = (OreTileGeneratorWindow)EditorWindow.GetWindow(typeof(OreTileGeneratorWindow));
         window.titleContent = new GUIContent("Tile Generator");
     }
 

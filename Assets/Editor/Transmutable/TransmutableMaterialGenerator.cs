@@ -8,15 +8,22 @@ using Items;
 using System;
 using Item.Slot;
 using NUnit.Framework;
+using Tiles;
+using Tiles.Options.Overlay;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.VersionControl;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using World.Cave.Collections;
 
 public class TransmutableItemGenerator : EditorWindow
 {
+    private const string OUTLINE_WRAPPER_PATH = "";
+    private const string STONE_COLLECTION_PATH = "";
     private const string GEN_PATH = "Items";
+    private const string ORE_PATH = "Ores";
+    private const string ORE_OVERLAY_NAME = "Overlay";
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
@@ -34,6 +41,13 @@ public class TransmutableItemGenerator : EditorWindow
         if (GUILayout.Button("Update Material Items"))
         {
             UpdateExisting();
+        }
+        GUI.enabled = false;
+        GUILayout.TextArea("For all existing materials, generates ores for all existing stones and removes ores derived from stones which now longer exist.");
+        GUI.enabled = true;
+        if (GUILayout.Button("Update Ore Items"))
+        {
+            UpdateOres();
         }
         
     }
@@ -60,8 +74,8 @@ public class TransmutableItemGenerator : EditorWindow
             Debug.LogError("Failed to load assets.");
         }
     }
-    
-    private void GenerateMaterialItems(TransmutableItemMaterial material)
+
+    private string GetMaterialItemPath(TransmutableItemMaterial material)
     {
         string assetPath = AssetDatabase.GetAssetPath(material);
         
@@ -69,6 +83,11 @@ public class TransmutableItemGenerator : EditorWindow
         
         string transmutableItemFolder = Path.GetDirectoryName(materialFolder);
         Assert.AreEqual("Assets\\Objects\\Items\\TransmutableItems", transmutableItemFolder);
+        return transmutableItemFolder;
+    }
+    private void GenerateMaterialItems(TransmutableItemMaterial material)
+    {
+        string transmutableItemFolder = GetMaterialItemPath(material);
         TransmutableMaterialOptions options = material.MaterialOptions;
         if (options == null)
         {
@@ -77,7 +96,6 @@ public class TransmutableItemGenerator : EditorWindow
         string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
         if (!Directory.Exists(instancePath))
         {
-            
             AssetDatabase.CreateFolder(transmutableItemFolder, GEN_PATH);
         }
         string materialItemsPath = Path.Combine(instancePath, material.name);
@@ -148,6 +166,128 @@ public class TransmutableItemGenerator : EditorWindow
         return Path.Combine(materialItemsPath, itemName + ".asset");
     }
 
+    private void UpdateOres()
+    {
+        Addressables.LoadAssetsAsync<TransmutableItemMaterial>("transmutable_material",null).Completed += OnOreLoadUpdate;
+    }
+    
+    private void OnOreLoadUpdate(AsyncOperationHandle<IList<TransmutableItemMaterial>> handle)
+    {
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
+            StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
+            Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
+            foreach (var asset in handle.Result)
+            {
+                GenerateOreItems(asset, outlineWrapper, stoneTileCollection);
+            }
+            AssetDatabase.Refresh();
+        }
+        else
+        {
+            Debug.LogError("Failed to load assets.");
+        }
+    }
+
+    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection)
+    {
+        string transmutableItemFolder = GetMaterialItemPath(material);
+        string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
+        if (!Directory.Exists(instancePath)) return;
+        string materialItemsPath = Path.Combine(instancePath, material.name);
+        if (!Directory.Exists(materialItemsPath)) return;
+
+        TransmutableItemObject oreItem = GetOreItem(material, materialItemsPath);
+        if (!oreItem) return;
+        
+        string oreFolderPath = Path.Combine(instancePath, ORE_PATH);
+        if (!Directory.Exists(oreFolderPath))
+        {
+            Debug.Log($"Created ore folder for {material.name}");
+            AssetDatabase.CreateFolder(materialItemsPath, material.name);
+        }
+
+
+        string overlayPath = Path.Combine(oreFolderPath, ORE_OVERLAY_NAME);
+        TransmutableTileOverlay tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
+        if (!tileOverlay)
+        {
+            tileOverlay = CreateInstance<TransmutableTileOverlay>();
+            tileOverlay.ItemMaterial = material;
+            tileOverlay.name = ORE_OVERLAY_NAME;
+            tileOverlay.OverlayWrapper = outlineWrapper;
+            string savePath = overlayPath + ".asset";
+            AssetDatabase.CreateAsset(tileOverlay, savePath);
+            AssetDatabase.Refresh();
+            tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
+        }
+        
+        string[] guids = AssetDatabase.FindAssets("", new[] { oreFolderPath });
+        
+        HashSet<string> existingStones = new HashSet<string>();
+        
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            TileItem tileItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
+            if (ReferenceEquals(tileItem, null)) continue;
+            string id = tileItem.id;
+            string stoneId = id.Replace("_ore_", "").Replace(material.name.ToLower(), "");
+            existingStones.Add(stoneId);
+        }
+        
+        HashSet<string> stoneIds = new HashSet<string>();
+
+        foreach (TileItem tileItem in stoneTileCollection.Tiles)
+        {
+            if (!tileItem) continue;
+            string id = tileItem.id;
+            if (id == null) continue;
+            stoneIds.Add(id);
+            if (existingStones.Contains(id)) continue;
+            TileItem oreTile = CreateInstance<TileItem>();
+            oreTile.tile = tileItem.tile;
+            oreTile.outline = tileItem.outline;
+            oreTile.gameStage = material.gameStageObject;
+            oreTile.tileOptions.hardness = tileItem.tileOptions.hardness;
+            oreTile.tileOptions.rotatable = tileItem.tileOptions.rotatable;
+            oreTile.tileOptions.movementModifier = tileItem.tileOptions.movementModifier;
+            oreTile.tileOptions.requiredToolTier = tileItem.tileOptions.requiredToolTier;
+            oreTile.tileOptions.ParticleGradient = tileItem.tileOptions.ParticleGradient;
+            oreTile.tileOptions.Overlay = tileOverlay;
+            oreTile.id = TransmutableItemUtils.GetOreId(id, material);
+            oreTile.name = $"{tileItem.name} {material.name} Ore";
+            DropOption dropOption = new DropOption
+            {
+                itemObject = oreItem,
+                weight = 1,
+                lowerAmount = 1,
+                upperAmount = 1
+            };
+            oreTile.tileOptions.dropOptions = new List<DropOption>
+            {
+                dropOption
+            };
+            string savePath = Path.Combine(oreFolderPath, oreTile.name + ".asset");
+            AssetDatabase.CreateAsset(oreTile, savePath);
+        }
+    }
+
+    private TransmutableItemObject GetOreItem(TransmutableItemMaterial material, string materialItemsPath)
+    {
+        string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
+        
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            TransmutableItemObject transmutableItemObject = AssetDatabase.LoadAssetAtPath<TransmutableItemObject>(path);
+            if (ReferenceEquals(transmutableItemObject, null)) continue;
+            if (transmutableItemObject.getState() == TransmutableItemState.Ore) return transmutableItemObject;
+        }
+
+        return null;
+    }
 }
 
 

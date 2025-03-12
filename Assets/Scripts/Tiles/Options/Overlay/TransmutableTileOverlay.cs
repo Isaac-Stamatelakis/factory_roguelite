@@ -7,16 +7,16 @@ namespace Tiles.Options.Overlay
     [CreateAssetMenu(fileName ="I~New RobotObject Item",menuName="Tile/Overlay/Transmutable")]
     public class TransmutableTileOverlay : TileOverlay
     {
-        public TileBase TileBase;
+        public TileWrapperObject OverlayWrapper;
         public TransmutableItemMaterial ItemMaterial;
         public override TileBase GetDisplayTile()
         {
-            return TileBase;
+            return OverlayWrapper?.TileBase;
         }
 
         public override TileBase GetTile()
         {
-            return TileBase;
+            return OverlayWrapper?.TileBase;
         }
 
         public override Color GetColor()

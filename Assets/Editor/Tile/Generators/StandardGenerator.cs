@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
 
-public class OreTileGeneratorWindow : EditorWindow {
+public class Standard1TileGeneratorWindow : EditorWindow {
     private Sprite sprite;
     private TileType tileType;
     private TileColliderType colliderType;
@@ -14,7 +14,7 @@ public class OreTileGeneratorWindow : EditorWindow {
     [MenuItem("Tools/Item Constructors/Tile/Standard")]
     public static void ShowWindow()
     {
-        OreTileGeneratorWindow window = (OreTileGeneratorWindow)EditorWindow.GetWindow(typeof(OreTileGeneratorWindow));
+        Standard1TileGeneratorWindow window = (Standard1TileGeneratorWindow)EditorWindow.GetWindow(typeof(Standard1TileGeneratorWindow));
         window.titleContent = new GUIContent("Tile Generator");
     }
 
