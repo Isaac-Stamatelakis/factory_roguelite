@@ -8,6 +8,7 @@ using WorldModule.Caves;
 using WorldModule;
 using Misc;
 using DevTools.Structures;
+using TileEntity.Instances.Creative.CreativeChest;
 using UnityEngine.Serialization;
 using Random = System.Random;
 
@@ -18,7 +19,7 @@ namespace WorldModule.Caves {
     {
         public List<PresetStructure> constantStructures;
         [FormerlySerializedAs("structures")] public List<StructureFrequency> randomStructures;
-        public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
+        public override void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
             Dictionary<Vector2Int,StructureVariant> placedStructures = new Dictionary<Vector2Int,StructureVariant>();
 
             foreach (PresetStructure presetStructure in constantStructures)
@@ -27,7 +28,7 @@ namespace WorldModule.Caves {
                 int index = UnityEngine.Random.Range(0, structure.variants.Count);
                 StructureVariant variant = structure.variants[index];
                 Vector2Int normalizedPlacementPosition = new Vector2Int(width,height)/2 + presetStructure.location - variant.Size / 2 - new Vector2Int(Global.CHUNK_SIZE,Global.CHUNK_SIZE)/2;
-                AreaStructureDistributorUtils.PlaceStructure(worldTileData,normalizedPlacementPosition, variant.Data, variant.Size);
+                AreaStructureDistributorUtils.PlaceStructure(worldData,normalizedPlacementPosition, variant.Data, variant.Size);
             }
             foreach (StructureFrequency structureFrequency in randomStructures) {
                 int amount = StatUtils.getAmount(structureFrequency.mean,structureFrequency.standardDeviation);
@@ -39,7 +40,7 @@ namespace WorldModule.Caves {
                 {
                     int index = UnityEngine.Random.Range(0, variants.Count);
                     StructureVariant variant = variants[index];
-                    TryPlaceStructure(worldTileData,placedStructures,variant,width,height,index);
+                    TryPlaceStructure(worldData,placedStructures,variant,width,height,index);
                     
                     amount--;
                 }
@@ -147,16 +148,111 @@ namespace WorldModule.Caves {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.MapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector,true);
+                        WorldGenerationFactory.MapWorldTileConduitData(worldTileConduitData,variantData,position+vector,vector);
+                    }
+                }
+                for (int x = 0; x < structureSize.x; x++) {
+                    for (int y = 0; y < structureSize.y; y++) {
+                        Vector2Int vector = new Vector2Int(x,y);
+                        PlaceStructureId(worldTileConduitData,variantData,position+vector,vector);
                     }
                 }
             } else {
                 for (int x = 0; x < structureSize.x; x++) {
                     for (int y = 0; y < structureSize.y; y++) {
                         Vector2Int vector = new Vector2Int(x,y);
-                        WorldGenerationFactory.MapWorldTileData(caveData,variantData,position+vector,vector,true);
+                        WorldGenerationFactory.MapWorldTileData(caveData,variantData,position+vector,vector);
                     }
                 }
+                for (int x = 0; x < structureSize.x; x++) {
+                    for (int y = 0; y < structureSize.y; y++) {
+                        Vector2Int vector = new Vector2Int(x,y);
+                        PlaceStructureId(caveData,variantData,position+vector,vector);
+                    }
+                }
+            }
+        }
+        
+        private static void PlaceStructureId(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) 
+        {
+            string fromBaseId = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
+            if (fromBaseId == StructureGeneratorHelper.EXPAND_ID)
+            {
+                ExpandStructureId(copyTo,copyFrom,positionTo,positionFrom);
+            }
+        }
+
+        private static void ExpandStructureId(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom)
+        {
+            StructureExpandData expandData;
+            try
+            {
+                expandData = JsonConvert.DeserializeObject<StructureExpandData>(copyFrom.baseData.sTileEntityOptions[positionFrom.x, positionFrom.y]);
+            }
+            catch (JsonSerializationException)
+            {
+                return;
+            }
+            
+            bool left = copyFrom.baseData.ids[positionFrom.x - 1, positionFrom.y] == null;
+            bool right = copyFrom.baseData.ids[positionFrom.x + 1, positionFrom.y] == null;
+            bool down = copyFrom.baseData.ids[positionFrom.x, positionFrom.y - 1] == null;
+            bool up = copyFrom.baseData.ids[positionFrom.x, positionFrom.y + 1] == null;
+            
+            int yIter = 0;
+            int xIter = 0;
+            if (left && !right && down && up)
+            {
+                xIter = -1;
+            } else if (!left && right && down && up)
+            {
+                xIter = 1;
+            } else if (left && right && down && !up)
+            {
+                yIter = -1;
+            } else if (left && right && !down && up)
+            {
+                yIter = 1;
+            } else if (left)
+            {
+                yIter = 1;
+            } else if (right)
+            {
+                yIter = -1;
+            } else if (down)
+            {
+                yIter = -1;
+            } else if (up)
+            {
+                yIter = 1;
+            }
+            Debug.Log(xIter + "," + yIter);
+            
+            if (xIter == 0 && yIter == 0)
+            {
+                copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = null;
+                copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = null;
+                copyTo.baseData.ids[positionTo.x, positionTo.y] = null;
+                return;
+            }
+            
+            string expandId = expandData.Id;
+            Vector2Int change = new Vector2Int(xIter, yIter);
+            int maxX = copyTo.baseData.ids.GetLength(0);
+            int maxY = copyTo.baseData.ids.GetLength(1);
+            int iterations = 0;
+            
+            while (iterations < expandData.MaxSize)
+            {
+                copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = null;
+                copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = null;
+                copyTo.baseData.ids[positionTo.x, positionTo.y] = expandId;
+                positionTo += change;
+                positionFrom += change;
+                if (positionTo.x < 0 || positionTo.y < 0 || positionTo.x >= maxX || positionTo.y >= maxY) break;
+                if (iterations > 0 && copyTo.baseData.ids[positionTo.x, positionTo.y] != null) break;
+                iterations++;
+                
             }
         }
     }

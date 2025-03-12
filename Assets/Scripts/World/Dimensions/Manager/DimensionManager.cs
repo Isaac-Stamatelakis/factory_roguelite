@@ -289,10 +289,15 @@ namespace Dimensions {
             player.transform.position = playerPosition;
             
             CanvasController.Instance.ClearStack();
+
             
             player.SetParticles(dimensionOptions.ParticleOptions);
             Light2D light2D = GameObject.FindWithTag("GlobalLight").GetComponent<Light2D>();
             light2D.intensity = dimensionOptions.LightIntensity;
+            if (DevMode.Instance.LightOn && light2D.intensity < 1)
+            {
+                light2D.intensity = 1;
+            }
             light2D.color = dimensionOptions.LightColor;
             
             OutlineWorldTileGridMap[] outlineTileGridMaps = FindObjectsOfType<OutlineWorldTileGridMap>();

@@ -102,8 +102,12 @@ namespace TileMaps.Previewer {
             {
                 placementRecord = PreviewStandardTile(playerScript.TilePlacementOptions, itemObject as TileItem, tileBase, placePosition, position);
             }
-
+            
             tilemap.color = GetPlaceColor(position, itemObject);
+            if (itemObject is TileItem tileItem && tileItem.tileOptions?.TileColor)
+            {
+                tilemap.color *= tileItem.tileOptions.TileColor.GetColor();
+            }
             
         }
 

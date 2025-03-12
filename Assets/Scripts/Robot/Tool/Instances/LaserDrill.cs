@@ -78,14 +78,15 @@ namespace Robot.Tool.Instances
                     particleSystem.Stop();
                     return;
                 }
+                particleSystem.Play();
             }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
             
             if (!worldTileGridMap) return;
-            bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Item_Magnet) == 0;
             
+            bool drop = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Item_Magnet) == 0;
             
             int drillPower = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier);
             float veinMineUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)RobotDrillUpgrade.VeinMine);
@@ -94,10 +95,14 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
             
-            particleSystem.Play();
-
-            ParticleSystem.MainModule particleSystemMain = particleSystem.main;
-            particleSystemMain.startColor = GetParticleSystemColor(tileItem);
+            
+            
+            Color? particleColor = GetParticleSystemColor(tileItem);
+            if (particleColor.HasValue)
+            {
+                ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+                particleSystemMain.startColor = particleColor.Value;
+            }
             
             if (multiBreak == 0)
             {
@@ -138,11 +143,12 @@ namespace Robot.Tool.Instances
             }
         }
 
-        private Color GetParticleSystemColor(TileItem tileItem)
+        private Color? GetParticleSystemColor(TileItem tileItem)
         {
-            TileParticleOptions gradient = tileItem.tileOptions.ParticleGradient;
+            if (!tileItem) return null;
+            TileParticleOptions gradient = tileItem.tileOptions?.ParticleGradient;
 
-            if (gradient == null) return Color.white;
+            if (gradient == null) return null;
             int source = UnityEngine.Random.Range(0, 2);
             const int OVERLAY_SOURCE = 0;
             const int GRADIENT_SOURCE = 1;
@@ -159,7 +165,7 @@ namespace Robot.Tool.Instances
                     Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
                     return color;
             }
-            return Color.white;
+            return null;
         }
 
         private WorldTileGridMap GetWorldTileGridMap(ClosedChunkSystem closedChunkSystem)

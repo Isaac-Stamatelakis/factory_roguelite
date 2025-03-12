@@ -7,6 +7,8 @@ using Entities;
 using Chunks.Partitions;
 using Chunks;
 using DevTools.Structures;
+using Newtonsoft.Json;
+using TileEntity.Instances.Creative.CreativeChest;
 using Tiles;
 using WorldModule.Caves;
 
@@ -98,8 +100,8 @@ namespace WorldModule {
             );
         }
 
-        public static void MapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom, bool cullStructureIds = false) {
-            MapWorldTileData(copyTo,copyFrom,positionTo,positionFrom, cullStructureIds);
+        public static void MapWorldTileConduitData(WorldTileConduitData copyTo, WorldTileConduitData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
+            MapWorldTileData(copyTo,copyFrom,positionTo,positionFrom);
             copyTo.itemConduitData.ids[positionTo.x,positionTo.y] = copyFrom.itemConduitData.ids[positionFrom.x,positionFrom.y];
             copyTo.itemConduitData.conduitOptions[positionTo.x,positionTo.y] = copyFrom.itemConduitData.conduitOptions[positionFrom.x,positionFrom.y];
 
@@ -117,21 +119,21 @@ namespace WorldModule {
             
         }
 
-        public static void MapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom, bool cullStructureIds = false) {
+        public static void MapWorldTileData(SeralizedWorldData copyTo, SeralizedWorldData copyFrom, Vector2Int positionTo, Vector2Int positionFrom) {
             string fromBaseId = copyFrom.baseData.ids[positionFrom.x,positionFrom.y];
-            if (!cullStructureIds || fromBaseId != StructureGeneratorHelper.FILL_ID)
+            if (fromBaseId != StructureGeneratorHelper.FILL_ID)
             {
                 copyTo.baseData.sTileEntityOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileEntityOptions[positionFrom.x,positionFrom.y];
                 copyTo.baseData.sTileOptions[positionTo.x,positionTo.y] = copyFrom.baseData.sTileOptions[positionFrom.x,positionFrom.y];
                 copyTo.baseData.ids[positionTo.x, positionTo.y] = fromBaseId;
             }
-            
-            
+           
             copyTo.backgroundData.ids[positionTo.x,positionTo.y] = copyFrom.backgroundData.ids[positionFrom.x,positionFrom.y];
 
             copyTo.fluidData.ids[positionTo.x,positionTo.y] = copyFrom.fluidData.ids[positionFrom.x,positionFrom.y];
             copyTo.fluidData.fill[positionTo.x,positionTo.y] = copyFrom.fluidData.fill[positionFrom.x,positionFrom.y];
         }
+        
 
         private static IChunkPartitionData ConvertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkX-minX);
@@ -145,14 +147,11 @@ namespace WorldModule {
                     entityData.x < xStart + Global.CHUNK_PARTITION_SIZE && 
                     entityData.y < yStart + Global.CHUNK_PARTITION_SIZE
                 ) {
-                    Debug.Log($"{entityData.x},{entityData.y}");
                     entityDataList.Add(entityData);
                     
                 }
             }
-            if (entityDataList.Count > 0) {
-                Debug.Log(entityDataList.Count);
-            }
+            
             SerializedBaseTileData baseData = new SerializedBaseTileData();
             baseData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
             baseData.sTileOptions = new BaseTileData[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];

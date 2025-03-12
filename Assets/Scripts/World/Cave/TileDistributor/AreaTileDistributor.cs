@@ -27,8 +27,8 @@ namespace WorldModule.Caves {
             if (ran >= dif) numberOfVeins++; // Randomly increases the veins 
             return numberOfVeins;
         }
-        public override void distribute(SeralizedWorldData worldTileData, int width, int height, Vector2Int bottomLeftCorner) {
-            SerializedBaseTileData baseData = worldTileData.baseData;
+        public override void Distribute(SeralizedWorldData worldData, int width, int height, Vector2Int bottomLeftCorner) {
+            SerializedBaseTileData baseData = worldData.baseData;
             string baseID = null;
             foreach (string id in baseData.ids)
             {
