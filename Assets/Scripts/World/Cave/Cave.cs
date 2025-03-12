@@ -7,6 +7,7 @@ using TileEntity;
 using UnityEngine.AddressableAssets;
 using World.Cave.DecorationDistributor;
 using World.Cave.TileDistributor;
+using World.Cave.TileDistributor.Ore;
 using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
@@ -21,6 +22,7 @@ namespace WorldModule.Caves {
         public string Description {get => description;}
         public AssetReference generationModel;
         public TileDistributorObject TileDistributorObject;
+        public OreDistributionObject OreDistributionObject;
         public AssetReference entityDistributor;
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
@@ -86,6 +88,8 @@ namespace WorldModule.Caves {
                 total += entityDistributionTime;
             }
             
+            caveElements.OreDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
             CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(cave.CaveDecorations);
             caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
@@ -112,6 +116,7 @@ namespace WorldModule.Caves {
         public CaveEntityDistributor EntityDistributor;
         public List<AudioClip> Songs;
         public AreaStructureDistributor StructureDistributor;
+        public AreaTileDistributor OreDistributor;
     }
 
     

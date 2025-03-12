@@ -34,6 +34,7 @@ namespace Robot.Tool.Instances
     {
         private LineRenderer lineRenderer;
         private ParticleSystem particleSystem;
+        private bool hitting;
         public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
             particleSystem = GameObject.Instantiate(robotObject.ParticleEmitterPrefab, playerScript.transform);
@@ -72,13 +73,17 @@ namespace Robot.Tool.Instances
 
             if (toolData.Layer == TileMapLayer.Base)
             {
-                bool hit = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
-                if (!hit)
+                hitting = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
+                if (!hitting)
                 {
-                    particleSystem.Stop();
                     return;
                 }
-                particleSystem.Play();
+                
+            }
+            else
+            {
+                // This works I think ?
+                hitting = true;
             }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
@@ -218,7 +223,34 @@ namespace Robot.Tool.Instances
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            if (mouseButtonKey != MouseButtonKey.Left) return false;
+            if (mouseButtonKey != MouseButtonKey.Left)
+            {
+                hitting = false;
+                return false;
+            }
+            Debug.Log(hitting);
+           
+           
+            if (toolData.Layer == TileMapLayer.Base)
+            {
+                if (particleSystem.isStopped && hitting)
+                {
+                    particleSystem.Play();
+                }
+
+                if (particleSystem.isPlaying && !hitting)
+                {
+                    particleSystem.Stop();
+                }
+            }
+            else
+            {
+                if (particleSystem.isPlaying)
+                {
+                    particleSystem.Stop();
+                }
+            }
+            
             bool pass = time >= toolData.HitRate;
             if (!pass)
             {

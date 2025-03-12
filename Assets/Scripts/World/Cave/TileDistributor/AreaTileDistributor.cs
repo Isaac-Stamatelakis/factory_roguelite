@@ -17,19 +17,39 @@ namespace WorldModule.Caves {
         public int MinSize;
         public int MaxSize;
         public TilePlacementMode TilePlacementMode;
+        public bool FillHoles = true;
+    }
+
+    public interface IDistributorTileAggregator
+    {
+        public string GetTileId(string currentId);
+    }
+
+    public class FrequencyTileAggregator : IDistributorTileAggregator
+    {
+        public FrequencyTileAggregator(List<TileDistributionFrequency> tiles)
+        {
+            this.tiles = tiles;
+        }
+
+        private List<TileDistributionFrequency> tiles;
+        public string GetTileId(string currentId)
+        {
+            return RandomFrequencyListUtils.getRandomFromList(tiles).tileItem.id;
+        }
     }
     [System.Serializable]
     public class TileDistribution
     {
-        public TileDistribution(List<TileDistributionFrequency> tiles, TileDistributionData tileDistributionData)
+        public TileDistribution(IDistributorTileAggregator distributorTileAggregator, TileDistributionData tileDistributionData)
         {
-            Tiles = tiles;
+            TileAggregator = distributorTileAggregator;
             TileDistributionData = tileDistributionData;
         }
 
         public TileDistributionData TileDistributionData;
         private float chanceToFileTile;
-        public List<TileDistributionFrequency> Tiles;
+        public IDistributorTileAggregator TileAggregator;
         
         public int CalculateNumberOfVeins(int size)
         {
@@ -80,7 +100,7 @@ namespace WorldModule.Caves {
                     if (!tileDistributionData.WriteAll && id != baseID) {
                         continue;
                     } 
-                    //checkPlacementRestrictions(tileDistribution,new Vector2Int(x,y) + bottomLeftCorner); TODO fix this
+                   
                     int tilesToPlace = tileDistribution.GetTilesToPlace();
                     switch (tileDistributionData.TilePlacementMode) {
                         case TilePlacementMode.BreadthFirstSearch:
@@ -93,25 +113,7 @@ namespace WorldModule.Caves {
                 }  
             }
         }
-
-        private static bool checkPlacementRestrictions(SerializableTileDistribution serializableTileDistribution, Vector2Int position) {
-            switch (serializableTileDistribution.restriction) {
-                case TilePlacementRestriction.None:
-                    return true;
-                case TilePlacementRestriction.Vertical:
-                    return position.y > serializableTileDistribution.minHeight && position.y < serializableTileDistribution.maxHeight;
-                case TilePlacementRestriction.Horizontal:
-                    return position.x > serializableTileDistribution.minWidth && position.x < serializableTileDistribution.maxWidth;
-                case TilePlacementRestriction.Rectangle:
-                    return 
-                        position.y > serializableTileDistribution.minHeight && position.y < serializableTileDistribution.maxHeight &&
-                        position.x > serializableTileDistribution.minWidth && position.x < serializableTileDistribution.maxWidth;
-                case TilePlacementRestriction.Circle:
-                    float polarCoordinate = Mathf.Sqrt(position.y * position.y + position.x * position.x); 
-                    return polarCoordinate > serializableTileDistribution.minRadius && polarCoordinate < serializableTileDistribution.maxRadius;
-            }
-            return false;
-        }
+        
         protected void DfsTile(TileDistribution tileDistribution, ref int tilesToPlace, int x, int y, int width, int height, string[,] ids) {
             List<Direction> directionsToCheck = new List<Direction>(Enum.GetValues(typeof(Direction)).Cast<Direction>());
             TileDistributionData tileDistributionData = tileDistribution.TileDistributionData;
@@ -153,9 +155,8 @@ namespace WorldModule.Caves {
                 if (!tileDistributionData.WriteAll && id != baseID) {
                     continue;
                 }
-                TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList(tileDistribution.Tiles);
-               
-                ids[searchX,searchY] = tileDistributionElement.tileItem.id;;
+                
+                ids[searchX, searchY] = tileDistribution.TileAggregator.GetTileId(ids[searchX, searchY]);
                 tilesToPlace--;
                 if (tilesToPlace <= 0) {
                     return;
@@ -218,15 +219,15 @@ namespace WorldModule.Caves {
                         if (tilesToPlace < 0) {
                             break;
                         }
-                        TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList(tileDistribution.Tiles);
-                        ids[searchX,searchY] = tileDistributionElement.tileItem.id;
+                        ids[searchX, searchY] = tileDistribution.TileAggregator.GetTileId(ids[searchX, searchY]);
                     }
                     if (directionsToExplore <= 0) {
                         break;
                     }
                 }
             }
-            
+
+            if (!tileDistributionData.FillHoles) return;
             HashSet<(int x, int y)> holes = new HashSet<(int x, int y)>();
             
             foreach ((int visX,int visY) in visited)
@@ -240,8 +241,7 @@ namespace WorldModule.Caves {
 
             foreach ((int visX, int visY) in holes)
             {
-                TileDistributionFrequency tileDistributionElement = RandomFrequencyListUtils.getRandomFromList(tileDistribution.Tiles);
-                ids[visX,visY] = tileDistributionElement.tileItem.id;
+                ids[visX, visY] = tileDistribution.TileAggregator.GetTileId(ids[visX, visY]);
             }
         }
 

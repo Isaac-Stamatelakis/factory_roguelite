@@ -115,5 +115,10 @@ namespace Items.Transmutable
         {
             return char.IsDigit(c) || c == '*';
         }
+
+        public static string GetOreId(string baseId, TransmutableItemMaterial material)
+        {
+            return baseId + "_ore_" + material.name.ToLower();
+        }
     }
 }
