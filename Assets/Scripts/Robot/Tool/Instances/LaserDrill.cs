@@ -304,8 +304,6 @@ namespace Robot.Tool.Instances
         {
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             
-            
-            
             if (multiBreak == 0)
             {
                 if (veinMinePower < 2) return null;
@@ -343,14 +341,15 @@ namespace Robot.Tool.Instances
                     foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
                     {
                         if (!tileGridMap.hasTile(breakPosition)) continue;
-                        
+                        Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
                         if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
                         {
-                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(new Vector3Int(breakPosition.x, breakPosition.y, 0));
+                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
                         }
                         else
                         {
-                            tiles[breakPosition] = new OutlineTileMapCellData(tileGridMap.GetTilemap().GetTile(new Vector3Int(breakPosition.x, breakPosition.y, 0)),null,Quaternion.identity);
+                            Tilemap tilemap = tileGridMap.GetTilemap();
+                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,tilemap.GetTransformMatrix(vector3Int).rotation);
                         }
                          
                     }
