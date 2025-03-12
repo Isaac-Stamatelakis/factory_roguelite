@@ -43,6 +43,7 @@ namespace Tiles {
         public bool hitable = true;
         public bool rotatable = false;
         public int hardness = 8;
+        public bool placeBreakable = false;
         public Tier requiredToolTier;
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
