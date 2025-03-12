@@ -6,6 +6,7 @@ using System.IO;
 using Items.Transmutable;
 using Items;
 using System;
+using Item.GameStage;
 using Item.Slot;
 using NUnit.Framework;
 using Tiles;
@@ -19,11 +20,12 @@ using World.Cave.Collections;
 
 public class TransmutableItemGenerator : EditorWindow
 {
-    private const string OUTLINE_WRAPPER_PATH = "";
-    private const string STONE_COLLECTION_PATH = "";
+    private const string OUTLINE_WRAPPER_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/OutlineWrapper.asset";
+    private const string STONE_COLLECTION_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/StoneCollection.asset";
+    private const string GAMESTAGE_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/ORE.asset";
     private const string GEN_PATH = "Items";
     private const string ORE_PATH = "Ores";
-    private const string ORE_OVERLAY_NAME = "Overlay";
+    private const string ORE_OVERLAY_NAME = "_Overlay";
     [MenuItem("Tools/Item Constructors/Transmutable Materials")]
     public static void ShowWindow()
     {
@@ -177,10 +179,13 @@ public class TransmutableItemGenerator : EditorWindow
         {
             TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
             StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
+            GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
             Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
             foreach (var asset in handle.Result)
             {
-                GenerateOreItems(asset, outlineWrapper, stoneTileCollection);
+                Debug.Log(asset.name);
+                GenerateOreItems(asset, outlineWrapper, stoneTileCollection, oreGameStage);
+                break;
             }
             AssetDatabase.Refresh();
         }
@@ -190,7 +195,7 @@ public class TransmutableItemGenerator : EditorWindow
         }
     }
 
-    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection)
+    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage)
     {
         string transmutableItemFolder = GetMaterialItemPath(material);
         string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
@@ -198,18 +203,18 @@ public class TransmutableItemGenerator : EditorWindow
         string materialItemsPath = Path.Combine(instancePath, material.name);
         if (!Directory.Exists(materialItemsPath)) return;
 
-        TransmutableItemObject oreItem = GetOreItem(material, materialItemsPath);
+        TransmutableItemObject oreItem = GetOreItem(materialItemsPath);
         if (!oreItem) return;
         
-        string oreFolderPath = Path.Combine(instancePath, ORE_PATH);
+        string oreFolderPath = Path.Combine(materialItemsPath, ORE_PATH);
         if (!Directory.Exists(oreFolderPath))
         {
             Debug.Log($"Created ore folder for {material.name}");
-            AssetDatabase.CreateFolder(materialItemsPath, material.name);
+            AssetDatabase.CreateFolder(materialItemsPath, ORE_PATH);
         }
 
 
-        string overlayPath = Path.Combine(oreFolderPath, ORE_OVERLAY_NAME);
+        string overlayPath = Path.Combine(oreFolderPath, ORE_OVERLAY_NAME + ".asset");
         TransmutableTileOverlay tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
         if (!tileOverlay)
         {
@@ -218,6 +223,7 @@ public class TransmutableItemGenerator : EditorWindow
             tileOverlay.name = ORE_OVERLAY_NAME;
             tileOverlay.OverlayWrapper = outlineWrapper;
             string savePath = overlayPath + ".asset";
+            Debug.Log(savePath);
             AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.Refresh();
             tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(overlayPath);
@@ -225,7 +231,7 @@ public class TransmutableItemGenerator : EditorWindow
         
         string[] guids = AssetDatabase.FindAssets("", new[] { oreFolderPath });
         
-        HashSet<string> existingStones = new HashSet<string>();
+        HashSet<string> existingOres = new HashSet<string>();
         
         foreach (string guid in guids)
         {
@@ -234,28 +240,34 @@ public class TransmutableItemGenerator : EditorWindow
             if (ReferenceEquals(tileItem, null)) continue;
             string id = tileItem.id;
             string stoneId = id.Replace("_ore_", "").Replace(material.name.ToLower(), "");
-            existingStones.Add(stoneId);
+            existingOres.Add(stoneId);
         }
         
         HashSet<string> stoneIds = new HashSet<string>();
 
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        var group = settings.FindGroup("Items");
+        
         foreach (TileItem tileItem in stoneTileCollection.Tiles)
         {
             if (!tileItem) continue;
             string id = tileItem.id;
             if (id == null) continue;
             stoneIds.Add(id);
-            if (existingStones.Contains(id)) continue;
+            if (existingOres.Contains(id)) continue;
             TileItem oreTile = CreateInstance<TileItem>();
             oreTile.tile = tileItem.tile;
             oreTile.outline = tileItem.outline;
-            oreTile.gameStage = material.gameStageObject;
-            oreTile.tileOptions.hardness = tileItem.tileOptions.hardness;
-            oreTile.tileOptions.rotatable = tileItem.tileOptions.rotatable;
-            oreTile.tileOptions.movementModifier = tileItem.tileOptions.movementModifier;
-            oreTile.tileOptions.requiredToolTier = tileItem.tileOptions.requiredToolTier;
-            oreTile.tileOptions.ParticleGradient = tileItem.tileOptions.ParticleGradient;
-            oreTile.tileOptions.Overlay = tileOverlay;
+            oreTile.gameStage = oreGameStage;
+            oreTile.tileOptions = new TileOptions
+            {
+                hardness = tileItem.tileOptions.hardness,
+                rotatable = tileItem.tileOptions.rotatable,
+                movementModifier = tileItem.tileOptions.movementModifier,
+                requiredToolTier = tileItem.tileOptions.requiredToolTier,
+                ParticleGradient = tileItem.tileOptions.ParticleGradient,
+                Overlay = tileOverlay
+            };
             oreTile.id = TransmutableItemUtils.GetOreId(id, material);
             oreTile.name = $"{tileItem.name} {material.name} Ore";
             DropOption dropOption = new DropOption
@@ -271,10 +283,30 @@ public class TransmutableItemGenerator : EditorWindow
             };
             string savePath = Path.Combine(oreFolderPath, oreTile.name + ".asset");
             AssetDatabase.CreateAsset(oreTile, savePath);
+            AssetDatabase.SaveAssets();
+            
+            var entry = settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(savePath), group);
+            entry.labels.Add("item");
+            entry.SetAddress(oreTile.name);
+            
         }
+
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            TileItem tileItem = AssetDatabase.LoadAssetAtPath<TileItem>(path);
+            if (ReferenceEquals(tileItem, null)) continue;
+            string id = tileItem.id;
+            string stoneId = id.Replace("_ore_", "").Replace(material.name.ToLower(), "");
+            if (stoneIds.Contains(stoneId)) continue;
+            AssetDatabase.DeleteAsset(path);
+        }
+        
+        EditorUtility.SetDirty(settings);
+        AssetDatabase.SaveAssets();
     }
 
-    private TransmutableItemObject GetOreItem(TransmutableItemMaterial material, string materialItemsPath)
+    private TransmutableItemObject GetOreItem(string materialItemsPath)
     {
         string[] guids = AssetDatabase.FindAssets("", new[] { materialItemsPath });
         
