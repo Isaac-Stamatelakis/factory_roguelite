@@ -129,24 +129,34 @@ namespace Items {
             
             var toDisplay = new ItemDisplay[sprites.Length];
             Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
-            for (int i = 0; i < toDisplay.Length; i++)
+            
+            if (itemSlot.itemObject is TileItem tileItem)
             {
-                toDisplay[i] = new ItemDisplay(sprites[i], color);
-            }
+                if (tileItem.tileOptions?.Overlay)
+                {
+                    var overlay = tileItem.tileOptions.Overlay;
+                    Sprite tileSprite = TileItem.GetDefaultSprite(overlay.GetDisplayTile());
+                    AddOverlay(tileSprite, overlay.GetColor(),$"TileOverlay");
+                }
 
-            if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions?.Overlay)
-            {
-                var overlay = tileItem.tileOptions.Overlay;
-                Sprite tileSprite = TileItem.GetDefaultSprite(overlay.GetDisplayTile());
-                AddOverlay(tileSprite, overlay.GetColor(),$"TileOverlay");
+                if (tileItem.tileOptions?.TileColor)
+                {
+                    color = tileItem.tileOptions.TileColor.GetColor();
+                }
             }
-
+            
+            
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
                 AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}");
             }
 
+            for (int i = 0; i < toDisplay.Length; i++)
+            {
+                toDisplay[i] = new ItemDisplay(sprites[i], color);
+            }
+            
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
             counter = 0;
             RefreshDisplay();

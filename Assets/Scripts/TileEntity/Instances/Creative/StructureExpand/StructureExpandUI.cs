@@ -16,7 +16,6 @@ namespace TileEntity.Instances.Creative.CreativeChest
 
         [SerializeField] private Button mSelectSerializedItemUI;
         [SerializeField] private ItemSlotUI mItemSlotUI;
-        [SerializeField] private TMP_InputField mMinSizeField;
         [SerializeField] private TMP_InputField mMaxSizeField;
         [SerializeField] private Button mBackButton;
         [SerializeField] private SerializedItemSlotEditorUI serializedItemSlotEditorUIPrefab;
@@ -35,20 +34,8 @@ namespace TileEntity.Instances.Creative.CreativeChest
                 List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(tileEntityInstance.StructureExpandData.Id,1,null)};
                 serializedItemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
             });
-            mMinSizeField.text = tileEntityInstance.StructureExpandData.MinSize.ToString();
+           
             mMaxSizeField.text = tileEntityInstance.StructureExpandData.MaxSize.ToString();
-            
-            mMinSizeField.onValueChanged.AddListener((value) =>
-            {
-                try
-                {
-                    tileEntityInstance.StructureExpandData.MinSize = System.Convert.ToInt32(value);
-                }
-                catch (Exception e) when (e is FormatException or OverflowException)
-                {
-                    mMinSizeField.text = tileEntityInstance.StructureExpandData.MinSize.ToString();
-                }
-            });
             
             mMaxSizeField.onValueChanged.AddListener((value) =>
             {

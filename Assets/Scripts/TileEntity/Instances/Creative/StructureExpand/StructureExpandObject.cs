@@ -62,7 +62,6 @@ namespace TileEntity.Instances.Creative.CreativeChest
     internal class StructureExpandData
     {
         public string Id;
-        public int MinSize;
-        public int MaxSize;
+        public int MaxSize = 128;
     }
 }

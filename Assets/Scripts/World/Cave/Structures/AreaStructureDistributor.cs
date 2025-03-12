@@ -204,20 +204,29 @@ namespace WorldModule.Caves {
             if (left && !right && down && up)
             {
                 xIter = -1;
-            }
-
-            if (!left && right && down && up)
+            } else if (!left && right && down && up)
             {
                 xIter = 1;
-            }
-            if (left && right && down && !up)
+            } else if (left && right && down && !up)
             {
                 yIter = -1;
-            }
-            if (left && right && !down && up)
+            } else if (left && right && !down && up)
+            {
+                yIter = 1;
+            } else if (left)
+            {
+                yIter = 1;
+            } else if (right)
+            {
+                yIter = -1;
+            } else if (down)
+            {
+                yIter = -1;
+            } else if (up)
             {
                 yIter = 1;
             }
+            Debug.Log(xIter + "," + yIter);
             
             if (xIter == 0 && yIter == 0)
             {
