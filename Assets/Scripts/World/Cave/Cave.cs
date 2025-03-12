@@ -6,6 +6,7 @@ using Misc.Audio;
 using TileEntity;
 using UnityEngine.AddressableAssets;
 using World.Cave.DecorationDistributor;
+using World.Cave.TileDistributor;
 using Debug = UnityEngine.Debug;
 
 namespace WorldModule.Caves {
@@ -19,7 +20,7 @@ namespace WorldModule.Caves {
         [TextArea] [SerializeField] private string description;
         public string Description {get => description;}
         public AssetReference generationModel;
-        public AssetReference[] tileGenerators;
+        public TileDistributorObject TileDistributorObject;
         public AssetReference entityDistributor;
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
@@ -69,9 +70,8 @@ namespace WorldModule.Caves {
             IntervalVector coveredArea = getChunkCoveredArea();
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.CHUNK_SIZE;
             stopwatch.Restart();
-            foreach (CaveTileGenerator generator in caveElements.TileGenerators) {
-                generator.Distribute(worldTileData,size.x,size.y,bottomLeft);
-            }
+            caveElements.TileDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
+           
             double tileDistributionTime = stopwatch.Elapsed.TotalSeconds;
             total += tileDistributionTime;
             double entityDistributionTime = 0;
@@ -108,7 +108,7 @@ namespace WorldModule.Caves {
     [System.Serializable] 
     public struct CaveElements {
         public GenerationModel GenerationModel;
-        public List<CaveTileGenerator> TileGenerators;
+        public AreaTileDistributor TileDistributor;
         public CaveEntityDistributor EntityDistributor;
         public List<AudioClip> Songs;
         public AreaStructureDistributor StructureDistributor;

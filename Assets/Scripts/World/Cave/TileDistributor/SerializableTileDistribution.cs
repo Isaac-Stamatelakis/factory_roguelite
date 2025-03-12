@@ -11,7 +11,7 @@ namespace WorldModule.Caves {
         Circle
     }
     [System.Serializable]
-    public class TileDistribution {
+    public class SerializableTileDistribution {
         [Range(0,1)] public float density;
         
         public bool writeAll;

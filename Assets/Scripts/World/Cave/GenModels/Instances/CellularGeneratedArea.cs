@@ -39,6 +39,11 @@ namespace WorldModule.Caves {
             return GenerateWorld(grid);
         }
 
+        public override string GetBaseId()
+        {
+            return tileItem?.id;
+        }
+
         private int[][] GenerateNoiseField(Vector2Int size, int seed) {
             if (randomType == RandomType.Standard) {
                 return GetStandard(size);
