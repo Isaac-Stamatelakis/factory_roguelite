@@ -10,7 +10,7 @@ using TileEntity.Instances.Matrix;
 
 namespace Item.Tags.ItemTagManagers.Instances
 {
-    public class CaveDataTagManager : ItemTagManager, IToolTipTagViewable
+    public class CaveDataTagManager : ItemTagManager, IToolTipTagViewable, IItemTagStackable
     {
         public override string Serialize(object obj)
         {
@@ -25,6 +25,12 @@ namespace Item.Tags.ItemTagManagers.Instances
         public string GetToolTip(object obj)
         {
             return $"Data: <b>{obj}</b>";
+        }
+
+        public bool AreStackable(object first, object second)
+        {
+            if (first is not string firstStr || second is not string secondStr) return false;
+            return string.Equals(firstStr, secondStr);
         }
     }
 }

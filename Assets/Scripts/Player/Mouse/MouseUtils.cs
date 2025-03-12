@@ -103,7 +103,7 @@ namespace Player.Mouse
             else
             {
                 Vector2 tileCenter = TileHelper.getRealTileCenter(position);
-                RaycastHit2D hit = Physics2D.BoxCast(tileCenter, Vector2.one * (Global.TILE_SIZE-0.00f), 0, Vector2.zero,Mathf.Infinity, layer);
+                RaycastHit2D hit = Physics2D.BoxCast(tileCenter, Vector2.one * (Global.TILE_SIZE-0.02f), 0, Vector2.zero,Mathf.Infinity, layer);
                 return hit.collider?.gameObject.GetComponent<IHitableTileMap>();
             }
             

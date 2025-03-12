@@ -74,11 +74,7 @@ namespace Robot.Tool.Instances
             if (toolData.Layer == TileMapLayer.Base)
             {
                 hitting = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
-                if (!hitting)
-                {
-                    return;
-                }
-                
+                if (!hitting) return;
             }
             else
             {
@@ -133,7 +129,13 @@ namespace Robot.Tool.Instances
                 {
                     Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
                     TileItem multiHitTileItem = worldTileGridMap.GetTileItem(position);
-                    bool broken = MouseUtils.HitTileLayer(toolData.Layer, position, drop,RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),false);
+                    bool broken = MouseUtils.HitTileLayer(
+                        toolData.Layer, 
+                        position, 
+                        drop,
+                        RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier), 
+                        false
+                    );
                     if (broken) anyBroken = true;
                     if (broken && !drop)
                     {
@@ -362,7 +364,7 @@ namespace Robot.Tool.Instances
 
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
-            Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;
+            Vector2 dif =  mousePosition - (Vector2) lineRenderer.transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
         }
 

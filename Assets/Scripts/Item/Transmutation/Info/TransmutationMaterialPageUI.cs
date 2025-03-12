@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Item.Slot;
 using Items;
@@ -10,10 +11,10 @@ namespace Item.Transmutation.Info
 {
     public class TransmutationMaterialPageUI : MonoBehaviour, ITransmutationMaterialPageUI
     {
+        [SerializeField] private InventoryUI mDefaultStateInventory;
         [SerializeField] private TextMeshProUGUI mNameText;
         [SerializeField] private TextMeshProUGUI mTierText;
         [SerializeField] private TextMeshProUGUI mChemFormulaText;
-        [SerializeField] private ItemSlotUI mDefaultItemSlotUI;
         [SerializeField] private InventoryUI mStateInventory;
         
         public void Display(TransmutationMaterialInfo materialInfo)
@@ -26,7 +27,9 @@ namespace Item.Transmutation.Info
             TransmutableItemState defaultState = material.MaterialOptions.BaseState;
             ItemObject defaultStateItem = TransmutableItemUtils.GetMaterialItem(material, defaultState);
             ItemSlot defaultStateItemSlot = new ItemSlot(defaultStateItem,1,null);
-            mDefaultItemSlotUI.Display(defaultStateItemSlot);
+            mDefaultStateInventory.DisplayInventory(new List<ItemSlot>{defaultStateItemSlot},clear:false);
+            mDefaultStateInventory.SetInteractMode(InventoryInteractMode.Recipe);
+            
             List<ItemSlot> stateInventory = new List<ItemSlot>();
             foreach (var stateOptions in material.MaterialOptions.States)
             {

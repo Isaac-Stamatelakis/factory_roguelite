@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a7631c4fac08bae42ab8744948f32759
+guid: bd46121ae86b8a04ba66f0b469cbc54e
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,7 +117,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: happy_walking_full_0
+      name: happy_walking_full_little_flic_0
       rect:
         serializedVersion: 2
         x: 0
@@ -131,14 +131,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 55ec1a792cec0394bb6e1fc1fc02f5d8
-      internalID: 449991315
+      spriteID: cd9813531ecd0154b9642348db4fe0ef
+      internalID: 1061051767
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_1
+      name: happy_walking_full_little_flic_1
       rect:
         serializedVersion: 2
         x: 16
@@ -152,14 +152,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a50dc8075c98a7c44885a3e7daa569e9
-      internalID: -465801586
+      spriteID: 4319fd5c916d98e43b80787de7d44866
+      internalID: 1021628124
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_2
+      name: happy_walking_full_little_flic_2
       rect:
         serializedVersion: 2
         x: 32
@@ -173,14 +173,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ca41390afae73554881e4f1c100e87d7
-      internalID: -1242683534
+      spriteID: aeccaa3c06421fc47b70bbdfa2e63d71
+      internalID: -137570333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_3
+      name: happy_walking_full_little_flic_3
       rect:
         serializedVersion: 2
         x: 48
@@ -194,14 +194,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 208f212d97b4e09478cfed720a765d31
-      internalID: -714459488
+      spriteID: 4c3917c8ce496ea45a7dcc05fa480bd9
+      internalID: 163909590
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_4
+      name: happy_walking_full_little_flic_4
       rect:
         serializedVersion: 2
         x: 64
@@ -215,14 +215,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 13e9b064fd2aa62499baa06c1d13e050
-      internalID: 1840736150
+      spriteID: 46cb5f4ba2e30854a9bc49aed4378edf
+      internalID: 348539585
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_5
+      name: happy_walking_full_little_flic_5
       rect:
         serializedVersion: 2
         x: 80
@@ -236,14 +236,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ee6ebd07f4db3234cbd2878de10246f8
-      internalID: -1339862021
+      spriteID: e22dd162033daf74ba4222eb509b0c4b
+      internalID: 2047910724
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_6
+      name: happy_walking_full_little_flic_6
       rect:
         serializedVersion: 2
         x: 96
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 59102214001123441a66d3671bc42da2
-      internalID: -2010549379
+      spriteID: 9d460cc1bd744424a9d2b9d541ced9e4
+      internalID: -269446216
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_7
+      name: happy_walking_full_little_flic_7
       rect:
         serializedVersion: 2
         x: 112
@@ -278,14 +278,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 720975cfb2cea4443aa09e5ed413692d
-      internalID: 1623474906
+      spriteID: 2e98da5655fc19f46ba6835ac3f4f961
+      internalID: 1722386157
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_8
+      name: happy_walking_full_little_flic_8
       rect:
         serializedVersion: 2
         x: 128
@@ -299,14 +299,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fe05c49de2ec57f4c87fa41a3360445a
-      internalID: -1866923950
+      spriteID: f97420d6fc3a12e4f8eb318b6100329f
+      internalID: -505600943
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: happy_walking_full_9
+      name: happy_walking_full_little_flic_9
       rect:
         serializedVersion: 2
         x: 144
@@ -320,8 +320,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d88e73059c857d442a7bdb3b1ed3dafc
-      internalID: -1803936069
+      spriteID: 30c5c5d06fb1fe54e87e7f7149c6a553
+      internalID: -1763245853
       vertices: []
       indices: 
       edges: []
@@ -337,16 +337,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      happy_walking_full_0: 449991315
-      happy_walking_full_1: -465801586
-      happy_walking_full_2: -1242683534
-      happy_walking_full_3: -714459488
-      happy_walking_full_4: 1840736150
-      happy_walking_full_5: -1339862021
-      happy_walking_full_6: -2010549379
-      happy_walking_full_7: 1623474906
-      happy_walking_full_8: -1866923950
-      happy_walking_full_9: -1803936069
+      happy_walking_full_little_flic_0: 1061051767
+      happy_walking_full_little_flic_1: 1021628124
+      happy_walking_full_little_flic_2: -137570333
+      happy_walking_full_little_flic_3: 163909590
+      happy_walking_full_little_flic_4: 348539585
+      happy_walking_full_little_flic_5: 2047910724
+      happy_walking_full_little_flic_6: -269446216
+      happy_walking_full_little_flic_7: 1722386157
+      happy_walking_full_little_flic_8: -505600943
+      happy_walking_full_little_flic_9: -1763245853
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

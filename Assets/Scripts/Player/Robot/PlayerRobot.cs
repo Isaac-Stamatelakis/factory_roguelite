@@ -29,6 +29,7 @@ using TileMaps.Place;
 using Tiles;
 using UI;
 using UI.Statistics;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.EventSystems;
@@ -45,8 +46,10 @@ namespace Player {
     }
     public class PlayerRobot : MonoBehaviour
     {
+        private static readonly int Walk = Animator.StringToHash("IsWalking");
+
+
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
-        
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Rigidbody2D rb;
         [SerializeField] private Collider2D platformCollider;
@@ -54,6 +57,7 @@ namespace Player {
         private PolygonCollider2D polygonCollider;
         private bool climbing;
         private bool autoJumping;
+        private Animator animator;
         private HashSet<CollisionState> collisionStates = new HashSet<CollisionState>();
         [SerializeField] public ItemSlot robotItemSlot;
         private RobotObject currentRobot;
@@ -105,6 +109,21 @@ namespace Player {
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
+            animator = GetComponent<Animator>();
+            AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
+            foreach (AnimatorControllerLayer layer in animatorController.layers)
+            {
+                Debug.Log($"Layer: {layer.name}");
+
+                // Get the state machine for the layer
+                AnimatorStateMachine stateMachine = layer.stateMachine;
+
+                // Print all states in the state machine
+                foreach (ChildAnimatorState state in stateMachine.states)
+                {
+                    Debug.Log($"State: {state.state.name}");
+                }
+            }
         }
 
         public void Update()
@@ -162,6 +181,7 @@ namespace Player {
             }
             if (DevMode.Instance.flight)
             {
+                animator.SetBool(Walk,false);
                 if (PlayerKeyPressUtils.BlockKeyInput) return;
                 CreativeFlightMovementUpdate(transform);
                 return;
@@ -171,6 +191,7 @@ namespace Player {
 
             if (flight > 0)
             {
+                animator.SetBool(Walk,false);
                 FlightMoveUpdate();
             }
             else
@@ -287,9 +308,10 @@ namespace Player {
             bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
             bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
 
-            bool moveUpdate = movedLeft ^ movedRight; // xor
+            bool moveUpdate = movedLeft != movedRight; // xor
             if (!moveUpdate)
             {
+                animator.Play("Idle");
                 float dif = GetFriction();
                 
                 if (moveDirTime > 0)
@@ -303,6 +325,13 @@ namespace Player {
                     if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
+            else
+            {
+                animator.Play("Walk");
+            }
+
+
+            animator.SetBool(Walk,moveUpdate);
 
             const float MAX_MOVE_DIR = 1;
             

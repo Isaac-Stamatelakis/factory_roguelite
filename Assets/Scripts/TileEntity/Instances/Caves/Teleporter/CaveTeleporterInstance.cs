@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using Chunks;
+using Entities;
 using Item.Slot;
 using UI;
 using UnityEngine;
 
 namespace TileEntity.Instances {
-    public class CaveTeleporterInstance : TileEntityInstance<CaveTeleporter>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable
+    public class CaveTeleporterInstance : TileEntityInstance<CaveTeleporter>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity
     {
         public List<ItemSlot> CaveStorageDrives;
         private const int INVENTORY_SIZE = 10;
@@ -35,6 +36,16 @@ namespace TileEntity.Instances {
         public void PlaceInitialize()
         {
             CaveStorageDrives = ItemSlotFactory.createEmptyInventory(INVENTORY_SIZE);
+        }
+        
+        public void OnBreak()
+        {
+            if (chunk is not ILoadedChunk loadedChunk) return;
+            Vector2 position = GetWorldPosition();
+            foreach (ItemSlot itemSlot in CaveStorageDrives)
+            {
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+            }
         }
     }
 }
