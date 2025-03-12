@@ -27,7 +27,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             LoadItemSlot();
             mBackButton.onClick.AddListener(() =>
             {
-                GameObject.Destroy(gameObject);
+                CanvasController.Instance.PopStack();
             });
             mSelectSerializedItemUI.onClick.AddListener(() =>
             {
@@ -35,20 +35,18 @@ namespace TileEntity.Instances.Creative.CreativeChest
                 List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(tileEntityInstance.StructureExpandData.Id,1,null)};
                 serializedItemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
             });
+            mMinSizeField.text = tileEntityInstance.StructureExpandData.MinSize.ToString();
+            mMaxSizeField.text = tileEntityInstance.StructureExpandData.MaxSize.ToString();
             
             mMinSizeField.onValueChanged.AddListener((value) =>
             {
                 try
                 {
-                    tileEntityInstance.StructureExpandData.MinSize = System.Convert.ToInt16(value);
+                    tileEntityInstance.StructureExpandData.MinSize = System.Convert.ToInt32(value);
                 }
                 catch (Exception e) when (e is FormatException or OverflowException)
                 {
                     mMinSizeField.text = tileEntityInstance.StructureExpandData.MinSize.ToString();
-                }
-                if (tileEntityInstance.StructureExpandData.MinSize > tileEntityInstance.StructureExpandData.MaxSize)
-                {
-                    tileEntityInstance.StructureExpandData.MaxSize = tileEntityInstance.StructureExpandData.MinSize;
                 }
             });
             
@@ -56,17 +54,13 @@ namespace TileEntity.Instances.Creative.CreativeChest
             {
                 try
                 {
-                    tileEntityInstance.StructureExpandData.MaxSize = System.Convert.ToInt16(value);
+                    tileEntityInstance.StructureExpandData.MaxSize = System.Convert.ToInt32(value);
                 }
                 catch (Exception e) when (e is FormatException or OverflowException)
                 {
                     mMaxSizeField.text = tileEntityInstance.StructureExpandData.MaxSize.ToString();
                 }
-
-                if (tileEntityInstance.StructureExpandData.MaxSize < tileEntityInstance.StructureExpandData.MinSize)
-                {
-                    tileEntityInstance.StructureExpandData.MinSize = tileEntityInstance.StructureExpandData.MaxSize;
-                }
+               
             });
         }
         

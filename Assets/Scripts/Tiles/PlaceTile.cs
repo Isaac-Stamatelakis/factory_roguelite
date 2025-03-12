@@ -568,3 +568,11 @@ public enum Direction {
     Up,
     Center
 }
+
+public enum DirectionState
+{
+    Left = 1,
+    Right = 2,
+    Down = 4,
+    Up = 8,
+}
