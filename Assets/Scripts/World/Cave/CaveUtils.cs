@@ -7,9 +7,9 @@ using System.Linq;
 namespace WorldModule.Caves {
     
     public static class CaveUtils {
-        public static IEnumerable LoadCaveElements(Cave cave) {
-            var entityHandle = cave.entityDistributor.LoadAssetAsync<UnityEngine.Object>();
-            var generationModelHandle = cave.generationModel.LoadAssetAsync<UnityEngine.Object>();
+        public static IEnumerable LoadCaveElements(CaveObject caveObject) {
+            var entityHandle = caveObject.entityDistributor.LoadAssetAsync<UnityEngine.Object>();
+            var generationModelHandle = caveObject.generationModel.LoadAssetAsync<UnityEngine.Object>();
             
             yield return entityHandle;
             yield return generationModelHandle;

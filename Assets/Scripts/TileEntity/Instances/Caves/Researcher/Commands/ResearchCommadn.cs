@@ -67,8 +67,8 @@ namespace TileEntity.Instances.Caves.Researcher
         }
         private Tier GetCaveTier(string id)
         {
-            List<Cave> caves = caveProcessorUI.Caves;
-            foreach (Cave cave in caves)
+            List<CaveObject> caves = caveProcessorUI.Caves;
+            foreach (CaveObject cave in caves)
             {
                 if (cave.name.Equals(id)) return cave.tier;
             }

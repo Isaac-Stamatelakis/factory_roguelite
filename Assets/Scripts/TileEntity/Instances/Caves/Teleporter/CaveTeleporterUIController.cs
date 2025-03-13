@@ -20,11 +20,11 @@ namespace TileEntity.Instances {
         public VerticalLayoutGroup mButtonList;
         public TextMeshProUGUI mNoCaveText;
         public Button buttonPrefab;
-        private List<Cave> allCaves;
+        private List<CaveObject> allCaves;
         private CaveTeleporterInstance caveTeleporterInstance;
         
-        private void ButtonPress(Cave cave) {
-            caveSelectController.ShowCave(cave);
+        private void ButtonPress(CaveObject caveObject) {
+            caveSelectController.ShowCave(caveObject);
         }
 
         public void DisplayTileEntityInstance(CaveTeleporterInstance tileEntityInstance)
@@ -40,11 +40,11 @@ namespace TileEntity.Instances {
         }
 
         public IEnumerator LoadCaves() {
-            var handle = Addressables.LoadAssetsAsync<Cave>("cave",null);
+            var handle = Addressables.LoadAssetsAsync<CaveObject>("cave",null);
             yield return handle;
             var result = handle.Result;
-            allCaves = new List<Cave>();
-            foreach (Cave cave in result)
+            allCaves = new List<CaveObject>();
+            foreach (CaveObject cave in result)
             {
                 allCaves.Add(cave);
             }
@@ -60,7 +60,7 @@ namespace TileEntity.Instances {
             
             GlobalHelper.deleteAllChildren(mButtonList.transform);
             
-            foreach (Cave cave in allCaves) {
+            foreach (CaveObject cave in allCaves) {
                 if (!CaveDataInTeleporter(cave)) continue;
                 Button button = GameObject.Instantiate(buttonPrefab,mButtonList.transform,false);
                 button.GetComponentInChildren<TextMeshProUGUI>().text = cave.name;
@@ -70,20 +70,20 @@ namespace TileEntity.Instances {
             bool noCaves = mButtonList.transform.childCount == 0;
             mNoCaveText.gameObject.SetActive(noCaves);
 
-            if (!CaveDataInTeleporter(caveSelectController.CurrentCave) || noCaves)
+            if (!CaveDataInTeleporter(caveSelectController.CurrentCaveObject) || noCaves)
             {
                 caveSelectController.DisplayEmpty();
             }
         }
 
-        private bool CaveDataInTeleporter(Cave cave)
+        private bool CaveDataInTeleporter(CaveObject caveObject)
         {
-            if (ReferenceEquals(cave,null)) return false;
+            if (ReferenceEquals(caveObject,null)) return false;
             foreach (ItemSlot itemSlot in caveTeleporterInstance.CaveStorageDrives)
             {
                 if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
                 if (itemSlot.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out var value)) continue;
-                if ((string)value == cave.GetId()) return true;
+                if ((string)value == caveObject.GetId()) return true;
             }
 
             return false;

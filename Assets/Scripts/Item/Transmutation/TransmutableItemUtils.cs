@@ -10,14 +10,14 @@ namespace Items.Transmutable
 {
     public static class TransmutableItemUtils
     {
-        public static string GetStateId(TransmutableItemMaterial material, TransmutableStateOptions options)
+        public static string GetStateId(TransmutableItemMaterial material, TransmutableItemState state)
         {
-            return GetStateName(material,options).Replace(" ", "_").ToLower();
+            return GetStateName(material,state).Replace(" ", "_").ToLower();
         }
 
-        public static string GetStateName(TransmutableItemMaterial material, TransmutableStateOptions options)
+        public static string GetStateName(TransmutableItemMaterial material, TransmutableItemState state)
         {
-            string stateName = options.state.ToString();
+            string stateName = state.ToString();
             string[] split = stateName.Split("_");
             if (split.Length == 1)
             {
@@ -40,7 +40,7 @@ namespace Items.Transmutable
             }
 
             TransmutableStateOptions stateOption = material.GetOptionStateDict()[state];
-            string outputID = TransmutableItemUtils.GetStateId(material, stateOption);
+            string outputID = TransmutableItemUtils.GetStateId(material, stateOption.state);
             return ItemRegistry.GetInstance().GetTransmutableItemObject(outputID);
         }
         public static (ItemSlot,ItemSlot) Transmute(TransmutableItemMaterial material, TransmutableItemState inputState, TransmutableItemState outputState, float efficency = 1f)
