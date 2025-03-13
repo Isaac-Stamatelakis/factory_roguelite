@@ -141,9 +141,11 @@ namespace TileMaps {
             Vector3Int vector = new Vector3Int(position.x,position.y,0);
             tilemap.SetTile(vector, null);
             if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
+            TileItem tileItem = partition.GetTileItem(tilePositionInPartition, TileMapLayer.Base);
             
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
+            UpdateListeners(position, tileItem);
             if (tileEntity is IMultiBlockTileEntity multiBlockTileEntity)
             {
                 List<IMultiBlockTileAggregate> aggregates = TileEntityUtils.BFSTileEntityComponent<IMultiBlockTileAggregate>(tileEntity,TileType.Block);
@@ -159,6 +161,8 @@ namespace TileMaps {
                 if (aggregator == null) return;
                 TileEntityUtils.RefreshMultiBlock(aggregator);
             }
+            
+            
         }
 
         public override ItemObject GetItemObject(Vector2Int position)
@@ -168,16 +172,50 @@ namespace TileMaps {
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
-            if (!mTileMap.GetTile(new Vector3Int(position.x,position.y,0))) return false;
+            Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
+            if (!mTileMap.GetTile(vector3Int)) return false;
             
             if (dropItem) 
             {
                 TileItem tileItem = getTileItem(position);
                 DropItem(tileItem, position);
             }
-            CallListeners(position);
+            
             BreakTile(position);
             return true;
+        }
+
+        private void UpdateListeners(Vector2Int position, TileItem tileItem)
+        {
+            Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
+            if (spriteSize.x <= 1 && spriteSize.y <= 1)
+            {
+                CallListeners(position);
+            }
+            else
+            {
+                Debug.Log(position);
+                IChunkPartition partition = GetPartitionAtPosition(position);
+                if (partition != null)
+                {
+                    Vector2Int tilePositionInPartition = GetTilePositionInPartition(position);
+                    BaseTileData baseTileData = partition.GetBaseData(tilePositionInPartition);
+                    // Use interval vector because I have infrastructure for it.
+                    FloatIntervalVector coveredArea = TileHelper.getRealCoveredArea(mTileMap.CellToWorld(new Vector3Int(position.x,position.y,0)),spriteSize , baseTileData.rotation);
+                    
+                    // Now have to wrap back to ints
+                    Vector3Int min = mTileMap.WorldToCell(new Vector3(coveredArea.X.LowerBound,coveredArea.Y.LowerBound));
+                    Vector3Int max =  mTileMap.WorldToCell(new Vector3(coveredArea.X.UpperBound,coveredArea.Y.UpperBound));
+                    for (int x = min.x; x <= max.x; x++)
+                    {
+                        for (int y = min.y; y <= max.y; y++)
+                        {
+                            Debug.Log(new Vector3Int(x,y,0));
+                            CallListeners(new Vector2Int(x,y));
+                        }
+                    }
+                }
+            }
         }
 
         public ITileEntityInstance GetTileEntityAtPosition(Vector2Int position) {
@@ -431,6 +469,7 @@ namespace TileMaps {
             {
                 Vector2Int adjacentPosition = vectorDirection + position;
                 TileItem tileItem = getTileItem(position+vectorDirection);
+                Debug.Log(!tileItem);
                 if (!tileItem) continue;
                 TilePlacementOptions placementOptions = tileItem.tileOptions?.placementRequirements;
                 

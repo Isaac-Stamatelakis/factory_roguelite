@@ -53,6 +53,8 @@ namespace Chunks.Systems {
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
             tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Block]);
+            tileGridMaps[TileMapType.Object].addListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
+            tileGridMaps[TileMapType.Object].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
 
         }
 
