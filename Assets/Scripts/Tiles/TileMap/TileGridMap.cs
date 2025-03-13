@@ -415,6 +415,7 @@ namespace TileMaps {
             {
                 return;
             }
+            UpdateListeners(position,tileItem);
             PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
@@ -429,6 +430,7 @@ namespace TileMaps {
             baseTileData.rotation = newRotation;
             SetTile(position.x,position.y,tileItem);
             if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
+            UpdateListeners(position,tileItem);
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)
