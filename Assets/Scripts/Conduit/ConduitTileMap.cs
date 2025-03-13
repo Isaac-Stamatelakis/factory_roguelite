@@ -176,7 +176,7 @@ namespace TileMaps.Conduit {
             if (boundaryPixel < leftCorner || boundaryPixel > rightCorner) return 0;
             return pixel >= leftCorner + ORIGIN_WIDTH/2 ? 1 : -1;
         }
-        protected override Vector2Int GetHitTilePosition(Vector2 position)
+        public override Vector2Int GetHitTilePosition(Vector2 position)
         {
             Vector3Int cellPosition = mTileMap.WorldToCell(position);
             return new Vector2Int(cellPosition.x,cellPosition.y);

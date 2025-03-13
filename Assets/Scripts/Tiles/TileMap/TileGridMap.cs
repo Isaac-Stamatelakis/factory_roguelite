@@ -78,7 +78,7 @@ namespace TileMaps {
             ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
         }
         
-        protected override Vector2Int GetHitTilePosition(Vector2 position)
+        public override Vector2Int GetHitTilePosition(Vector2 position)
         {
             Vector2Int hitPosition = worldToTileMapPosition(position);
             int maxSearchWidth = 16;
@@ -194,7 +194,6 @@ namespace TileMaps {
             }
             else
             {
-                Debug.Log(position);
                 IChunkPartition partition = GetPartitionAtPosition(position);
                 if (partition != null)
                 {
@@ -210,7 +209,6 @@ namespace TileMaps {
                     {
                         for (int y = min.y; y <= max.y; y++)
                         {
-                            Debug.Log(new Vector3Int(x,y,0));
                             CallListeners(new Vector2Int(x,y));
                         }
                     }
@@ -415,7 +413,11 @@ namespace TileMaps {
             {
                 return;
             }
-            UpdateListeners(position,tileItem);
+
+            Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
+            bool updateOnRotate = spriteSize.x != spriteSize.y;
+            if (updateOnRotate) UpdateListeners(position,tileItem);
+            
             PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
             var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
@@ -430,7 +432,7 @@ namespace TileMaps {
             baseTileData.rotation = newRotation;
             SetTile(position.x,position.y,tileItem);
             if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
-            UpdateListeners(position,tileItem);
+            if (updateOnRotate) UpdateListeners(position,tileItem);
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)
@@ -471,10 +473,9 @@ namespace TileMaps {
             {
                 Vector2Int adjacentPosition = vectorDirection + position;
                 TileItem tileItem = getTileItem(position+vectorDirection);
-                Debug.Log(!tileItem);
                 if (!tileItem) continue;
-                TilePlacementOptions placementOptions = tileItem.tileOptions?.placementRequirements;
                 
+                TilePlacementOptions placementOptions = tileItem.tileOptions?.placementRequirements;
                 if (placementOptions == null || !placementOptions.BreakWhenBroken) continue;
                 
                 IChunkPartition partition = GetPartitionAtPosition(adjacentPosition);

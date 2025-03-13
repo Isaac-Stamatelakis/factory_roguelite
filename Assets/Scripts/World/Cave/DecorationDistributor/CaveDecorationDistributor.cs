@@ -74,8 +74,9 @@ namespace World.Cave.DecorationDistributor
             bool right = HasAdjacentTile(worldData, position + Vector2Int.right, width, height);
             if (left && right)
             {
-                int ran = UnityEngine.Random.Range(0, 2);
-                return ran == 0 ? Direction.Left : Direction.Right;
+                const float FACTOR = 0.1f;
+                float perlinValue = Mathf.PerlinNoise(position.x*FACTOR, position.y*FACTOR);
+                return perlinValue < 0.5f ? Direction.Left : Direction.Right;
             }
             if (left) return Direction.Left;
             if (right) return Direction.Right;

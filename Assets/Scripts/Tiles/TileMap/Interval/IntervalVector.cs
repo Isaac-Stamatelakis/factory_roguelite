@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,5 +40,29 @@ public class IntervalVector
     public static IntervalVector operator *(IntervalVector vector, int scalar)
     {
         return new IntervalVector(new Interval<int>(vector.X.LowerBound*scalar,vector.X.UpperBound*scalar),new Interval<int>(vector.Y.LowerBound*scalar,vector.Y.UpperBound*scalar));
+    }
+
+    public static void Iterate(IntervalVector intervalVector, Action<int, int> action)
+    {
+        for (int x = intervalVector.X.LowerBound; x <= intervalVector.X.UpperBound; x++)
+        {
+            for (int y = intervalVector.Y.LowerBound; y <= intervalVector.Y.UpperBound; y++)
+            {
+                action.Invoke(x,y);
+            }
+        }
+    }
+    
+    public static bool IterateCondition(IntervalVector intervalVector, Func<int, int, bool> action)
+    {
+        for (int x = intervalVector.X.LowerBound; x <= intervalVector.X.UpperBound; x++)
+        {
+            for (int y = intervalVector.Y.LowerBound; y <= intervalVector.Y.UpperBound; y++)
+            {
+                if (!action.Invoke(x, y)) return false;
+            }
+        }
+
+        return true;
     }
 }

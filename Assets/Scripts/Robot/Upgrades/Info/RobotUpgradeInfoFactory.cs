@@ -27,8 +27,9 @@ namespace Robot.Upgrades.Info
                     return new RobotDrillUpgradeInfo();
                 case RobotToolType.ConduitSlicers:
                     return new RobotConduitUpgradeInfo();
-                case RobotToolType.LaserGun:
                 case RobotToolType.Buildinator:
+                    return new BuildinatorUpgradeInfo();
+                case RobotToolType.LaserGun:
                     return null;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(robotUpgradeType), robotUpgradeType, null);

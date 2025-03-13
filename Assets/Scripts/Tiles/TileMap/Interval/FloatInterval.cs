@@ -17,4 +17,16 @@ public class FloatIntervalVector
     {
         return "X:[" + X.LowerBound + "," + X.UpperBound + "], Y:[" + Y.LowerBound + "," + Y.UpperBound + "]";
     }
+
+    public static IntervalVector ToIntervalVector(FloatIntervalVector floatIntervalVector)
+    {
+        return new IntervalVector(new Interval<int>((int)floatIntervalVector.X.LowerBound, (int)floatIntervalVector.X.UpperBound), new Interval<int>((int)floatIntervalVector.Y.LowerBound, (int)floatIntervalVector.Y.UpperBound));
+    }
+    public static IntervalVector ToCellIntervalVector(FloatIntervalVector floatIntervalVector)
+    {
+        Vector2Int lower = Global.getCellPositionFromWorld(new Vector2(floatIntervalVector.X.LowerBound,floatIntervalVector.y.UpperBound));
+        Vector2Int upper = Global.getCellPositionFromWorld(new Vector2(floatIntervalVector.X.UpperBound, floatIntervalVector.y.UpperBound));
+        return new IntervalVector(new Interval<int>(lower.x,upper.x), new Interval<int>(lower.y, upper.y));
+    }
 }
+

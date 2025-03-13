@@ -191,8 +191,13 @@ namespace TileMaps {
             return partition;
         }
 
-        protected abstract Vector2Int GetHitTilePosition(Vector2 position);
+        public abstract Vector2Int GetHitTilePosition(Vector2 position);
 
+        public Vector2Int GetHitTilePosition(Vector2Int position)
+        {
+            Vector2 worldPosition = tilemap.CellToWorld(new Vector3Int(position.x, position.y, 0));
+            return GetHitTilePosition(worldPosition);
+        }
         public Vector2Int worldToTileMapPosition(Vector2 position) {
             Vector3Int vect = tilemap.WorldToCell(position);
             return new Vector2Int(vect.x,vect.y);
