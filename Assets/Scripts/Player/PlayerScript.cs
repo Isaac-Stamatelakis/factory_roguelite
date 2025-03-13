@@ -120,11 +120,11 @@ namespace Player
         public void SetParticles(ParticleOptions particleOptions)
         {
             bool optionsNull = particleOptions == null;
-            particles.gameObject.SetActive(optionsNull);
+            particles.gameObject.SetActive(!optionsNull);
             if (optionsNull) return;
 
             var main = particles.main;
-            main.startColor = particleOptions.ParticleColor; // This doesn't do anything
+            main.startColor = particleOptions.ParticleColor;
         }
     }
 

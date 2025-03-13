@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Chunks;
 using Conduits.Ports;
+using Entities;
 using Item.Slot;
 using Items;
 using Items.Inventory;
@@ -11,7 +12,7 @@ using UI.QuestBook;
 using UnityEngine;
 
 namespace TileEntity.Instances.Caves.Researcher {
-    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity, IInventoryListener
+    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity, IInventoryListener, IBreakActionTileEntity
     {
         public List<ItemSlot> InputDrives;
         public List<ItemSlot> OutputDrives;
@@ -204,6 +205,20 @@ namespace TileEntity.Instances.Caves.Researcher {
         {
             return tileEntityObject.ConduitLayout;
         }
+        
+        public void OnBreak()
+        {
+            if (chunk is not ILoadedChunk loadedChunk) return;
+            Vector2 position = GetWorldPosition();
+            foreach (ItemSlot itemSlot in InputDrives)
+            {
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+            }
+            foreach (ItemSlot itemSlot in OutputDrives)
+            {
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+            }
+        }
 
         private class SerializedData
         {
@@ -227,10 +242,6 @@ namespace TileEntity.Instances.Caves.Researcher {
                 CopyCaveId = copyCaveId;
             }
         }
-
-        
-
-        
     }
     
     internal class CopyDriveProcess

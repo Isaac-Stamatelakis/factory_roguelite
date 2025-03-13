@@ -147,7 +147,7 @@ namespace Entities {
             
             ItemSlot hitObjectSlot = other.itemSlot;
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) return;
-            
+            if (!ItemSlotUtils.AreEqualNoNullCheck(hitObjectSlot, itemSlot)) return;
             ItemSlotUtils.InsertIntoSlot(itemSlot,hitObjectSlot,Global.MAX_SIZE);
             if (ItemSlotUtils.IsItemSlotNull(hitObjectSlot)) Destroy(other.gameObject);
         }

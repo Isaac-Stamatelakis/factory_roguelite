@@ -465,35 +465,118 @@ namespace TileMaps.Place {
             if (ignorePlaceBreakable) return true;
             WorldTileGridMap tileGridMap = collider.GetComponent<WorldTileGridMap>();
             TileItem tile = tileGridMap?.GetTileItem(position);
-            if (!tile) return false;
+            if (!tile) return true; // Return true here since only 16x16 tiles should ever be placebreakable. 
             return !tile.tileOptions.placeBreakable;
         }
 
         public static bool raycastTileInLine(Direction direction, Vector2 position, int layers) {
-            float width = 0.48f;
-            float directionDif = 0.24f;
+            float width = Global.TILE_SIZE-0.02f;
+            float directionDif = width/2f;
             float directionSize = width/8f; // Direciton size is about 2 pixels
-            switch (direction) {
+            Vector2Int iterator = Vector2Int.one;
+            const int SECTIONS = 3;
+            float sectionSize = width / SECTIONS;
+            Vector2 castSize = sectionSize * Vector2.one;
+            switch (direction)
+            {
                 case Direction.Left:
-                    return Physics2D.BoxCast(position+Vector2.left*directionDif,new Vector2(directionSize,width),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
                 case Direction.Right:
-                    return Physics2D.BoxCast(position+Vector2.right*directionDif,new Vector2(directionSize,width),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
-                case Direction.Up:
-                    return Physics2D.BoxCast(position+Vector2.up*directionDif,new Vector2(width,directionSize),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
+                    iterator.y = SECTIONS;
+                    castSize.x = directionSize;
+                    break;
                 case Direction.Down:
-                    return Physics2D.BoxCast(position+Vector2.down*directionDif,new Vector2(width,directionSize),0f,Vector2.zero,Mathf.Infinity,layers).collider != null;
-                
+                case Direction.Up:
+                    iterator.x = SECTIONS;
+                    castSize.y = directionSize;
+                    break;
             }
-            return false;
+            
+            Vector2 difVector = Vector2.zero;
+
+            switch (direction)
+            {
+                case Direction.Left:
+                    difVector = Vector2.left;
+                    break;
+                case Direction.Right:
+                    difVector = Vector2.right;
+                    break;
+                case Direction.Down:
+                    difVector = Vector2.down;
+                    break;
+                case Direction.Up:
+                    difVector = Vector2.up;
+                    break;
+            }
+
+            //position -= Vector2.one * width/2f; // Required to offset
+
+            for (int xi = 0; xi < iterator.x; xi++)
+            {
+                for (int yi = 0; yi < iterator.y; yi++)
+                {
+                    Vector2 adjPosition = position + sectionSize * new Vector2(xi, yi);
+                    if (!Physics2D.BoxCast(adjPosition + difVector * directionDif, castSize, 0f, Vector2.zero, Mathf.Infinity, layers).collider) return false;
+                }
+            }
+
+            return true;
         }
-        
+
+        private static bool PerimeterFiled(float x, float y, int layers, Direction direction)
+        {
+            Vector2 offset = Vector2.zero;
+            float offsetSize = Global.TILE_SIZE / 4f;
+            Vector2Int iterator = Vector2Int.one;
+            const int SECTIONS = 2;
+            switch (direction)
+            {
+                case Direction.Left:
+                    offset.x = -offsetSize;
+                    iterator.x = SECTIONS;
+                    x -= Global.TILE_SIZE;
+                    break;
+                case Direction.Right:
+                    offset.x = offsetSize;
+                    iterator.x = SECTIONS;
+                    x += Global.TILE_SIZE;
+                    break;
+                case Direction.Down:
+                    offset.y = -offsetSize;
+                    iterator.y = SECTIONS;
+                    y -= Global.TILE_SIZE;
+                    break;
+                case Direction.Up:
+                    offset.y = offsetSize;
+                    iterator.y = SECTIONS;
+                    y += Global.TILE_SIZE;
+                    break;
+                case Direction.Center:
+                    return false;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+            float castSize = Global.TILE_SIZE / SECTIONS;
+            Vector2 boxSize = (castSize - 0.01f) * Vector2.one;
+            Vector2 position = new Vector2(x,y);
+            for (int xi = 0; xi < iterator.x; ++xi) {
+                for (int yi = 0; yi < iterator.y; ++yi)
+                {
+                    Vector2 linePosition = position + castSize * new Vector2(xi,yi) + offset;
+                    Debug.Log(linePosition);
+                    var collider = Physics2D.BoxCast(linePosition,boxSize, 0f, Vector2.zero, Mathf.Infinity, layers).collider;
+                    if (ReferenceEquals(collider,null)) return false;
+                }
+            }
+            return true;
+        }
         /**
         returns true if there is a tile within the range, inclusive
         **/
         private static bool tileWithinRange(float minX, float maxX, float minY, float maxY, int layers,
             bool ignorePlaceBreakable = false) {
-            for (float x = minX; x <= maxX; x += 1/2f) {
-                for (float y = minY; y <= maxY; y += 1/2f) {
+            for (float x = minX; x <= maxX; x += Global.TILE_SIZE) {
+                for (float y = minY; y <= maxY; y += Global.TILE_SIZE) {
                     if (raycastTileInBox(new Vector2(x,y), layers,ignorePlaceBreakable)) {
                         return true;
                     }

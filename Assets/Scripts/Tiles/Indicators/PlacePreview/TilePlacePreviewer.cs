@@ -36,21 +36,24 @@ namespace TileMaps.Previewer {
         {
             mainCamera = Camera.main;
             tilemap = GetComponent<Tilemap>();
-            
+
+            Material mainMaterial = GetComponent<TilemapRenderer>().material;
             GameObject unhighlightedContainer = new GameObject();
             unhighlightedContainer.transform.SetParent(transform,false);
             unhighlightedContainer.name = "UnhighlightedTilemap";
             unhighlightedTileMap = unhighlightedContainer.AddComponent<Tilemap>();
-            unhighlightedContainer.AddComponent<TilemapRenderer>();
+            
+            TilemapRenderer unhighlightRenderer = unhighlightedContainer.AddComponent<TilemapRenderer>();
+            unhighlightRenderer.material = mainMaterial;
             unhighlightedContainer.transform.localPosition = new Vector3(0, 0, 2f);
             
             GameObject tileOverlayContainer = new GameObject();
             tileOverlayContainer.transform.SetParent(transform,false);
             tileOverlayContainer.name = "Overlay map";
             tileOverlayMap = tileOverlayContainer.AddComponent<Tilemap>();
-            tileOverlayContainer.AddComponent<TilemapRenderer>();
+            TilemapRenderer overlayRenderer = tileOverlayContainer.AddComponent<TilemapRenderer>();
+            overlayRenderer.material = mainMaterial;
             tileOverlayContainer.transform.localPosition = new Vector3(0, 0, -1f);
-            
             
         }
 

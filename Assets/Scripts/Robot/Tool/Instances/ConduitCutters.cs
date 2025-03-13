@@ -151,7 +151,7 @@ namespace Robot.Tool.Instances
 
         private void UpdateLineRenderer(Vector2 mousePosition)
         {
-            Vector2 dif =  mousePosition - (Vector2) PlayerManager.Instance.GetPlayer().transform.position;
+            Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
             
             Gradient gradient = lineRenderer.colorGradient;

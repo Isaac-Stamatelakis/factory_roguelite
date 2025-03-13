@@ -32,11 +32,13 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             for (int i = data.entityData.Count - 1; i >= 0; i--)
             {
                 if (!loaded) yield break;
+                if (i >= data.entityData.Count) yield break;
                 EntityUtils.spawnFromData(data.entityData[i],loadedChunk.getEntityContainer());
                 data.entityData.RemoveAt(i);
                 loads++;
                 if (loads >= ENTITY_LOAD_PER_UPDATE)
                 {
+                    if (!loaded) yield break;
                     yield return new WaitForFixedUpdate();
                 }
             }

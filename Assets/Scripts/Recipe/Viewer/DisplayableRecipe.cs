@@ -61,14 +61,22 @@ namespace Recipe.Viewer
 
         public override bool FilterStage(PlayerGameStageCollection gameStageCollection)
         {
-            foreach (ChanceItemSlot chanceItemSlot in SolidOutputs)
+            if (SolidOutputs != null)
             {
-                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+                foreach (ChanceItemSlot chanceItemSlot in SolidOutputs)
+                {
+                    if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+                }
             }
-            foreach (ChanceItemSlot chanceItemSlot in FluidOutputs)
+            
+            if (FluidOutputs != null)
             {
-                if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+                foreach (ChanceItemSlot chanceItemSlot in FluidOutputs)
+                {
+                    if (gameStageCollection.HasStage(chanceItemSlot?.itemObject?.GetGameStageObject())) return true;
+                }
             }
+            
 
             return false;
         }
