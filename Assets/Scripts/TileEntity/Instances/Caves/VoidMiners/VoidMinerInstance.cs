@@ -15,7 +15,7 @@ using World.Cave.Registry;
 using Random = System.Random;
 
 namespace TileEntity.Instances {
-    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity
+    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
@@ -57,7 +57,6 @@ namespace TileEntity.Instances {
                 OreOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.OreOutputs),
                 FluidOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.FluidOutputs),
             };
-            SetCaveTileCollectionFromDriveSlot();
         }
 
         public void PlaceInitialize()
@@ -93,16 +92,18 @@ namespace TileEntity.Instances {
             ItemEntityFactory.SpawnItemEntities(position, MinerData.OreOutputs, loadedChunk.getEntityContainer());
         }
 
-        public void SetCaveTileCollectionFromDriveSlot()
+        public void SetCaveTileCollectionFromDriveSlot(CaveRegistry caveRegistry)
         {
             ItemSlot itemSlot = MinerData.DriveSlot;
             if (itemSlot?.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out object caveData)) return;
             if (caveData is not string caveId) return;
             caveId = caveId.ToLower();
-            caveTileCollection = CaveRegistry.Instance.GetCaveTileCollection(caveId);
+            caveTileCollection = caveRegistry.GetCaveTileCollection(caveId);
             random = new Random();
             itemRegistry = ItemRegistry.GetInstance();
         }
+        
+        
         
         public void TickUpdate()
         {
@@ -158,6 +159,11 @@ namespace TileEntity.Instances {
         public ConduitPortLayout GetConduitPortLayout()
         {
             return tileEntityObject.ConduitPortLayout;
+        }
+
+        public void OnCaveRegistryLoaded(CaveRegistry caveRegistry)
+        {
+            SetCaveTileCollectionFromDriveSlot(caveRegistry);
         }
     }
     

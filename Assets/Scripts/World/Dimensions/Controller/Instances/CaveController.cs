@@ -50,6 +50,11 @@ namespace Dimensions {
             if (!activeSystem) return;
             activeSystem.Save();
         }
+
+        public SoftLoadedClosedChunkSystem GetInactiveSystem()
+        {
+            return null;
+        }
     }
 }
 

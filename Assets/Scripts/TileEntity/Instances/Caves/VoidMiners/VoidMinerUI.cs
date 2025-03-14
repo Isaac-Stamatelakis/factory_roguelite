@@ -61,7 +61,7 @@ namespace TileEntity.Instances.Caves.VoidMiners
         private void OnDriveSlotChange(int index)
         {
             voidMinerInstance.MinerData.DriveSlot = mDriveInventoryUI.GetItemSlot(index);
-            voidMinerInstance.SetCaveTileCollectionFromDriveSlot();
+            voidMinerInstance.SetCaveTileCollectionFromDriveSlot(CaveRegistry.Instance);
         }
 
         private void OnFilterSlotChange(int index)

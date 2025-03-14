@@ -76,6 +76,11 @@ namespace Dimensions {
             dim0System?.Save();
         }
 
+        public SoftLoadedClosedChunkSystem GetInactiveSystem()
+        {
+            return dim0System;
+        }
+
 
         public SoftLoadedClosedChunkSystem getSystem()
         {

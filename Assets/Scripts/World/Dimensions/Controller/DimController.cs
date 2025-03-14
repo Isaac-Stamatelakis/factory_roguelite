@@ -18,6 +18,7 @@ namespace Dimensions {
         public ClosedChunkSystem GetActiveSystem();
         public IEnumerator SaveSystemCoroutine();
         public void SaveSystem();
+        public SoftLoadedClosedChunkSystem GetInactiveSystem();
     }
     
     public abstract class DimController : MonoBehaviour
