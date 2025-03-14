@@ -29,8 +29,8 @@ namespace TileEntity.Instances.Caves.Researcher
         
         private CaveProcessorInstance caveProcessorInstance;
         public CaveProcessorInstance CaveProcessorInstance => caveProcessorInstance;
-        private List<Cave> caves;
-        public List<Cave> Caves => caves;
+        private List<CaveObject> caves;
+        public List<CaveObject> Caves => caves;
         
         private int previousMessageIndex;
         private List<string> recordedMessages = new List<string>();
@@ -79,11 +79,11 @@ namespace TileEntity.Instances.Caves.Researcher
 
         private IEnumerator LoadCaves()
         {
-            var handle = Addressables.LoadAssetsAsync<Cave>("cave",null);
+            var handle = Addressables.LoadAssetsAsync<CaveObject>("cave",null);
             yield return handle;
             var result = handle.Result;
-            caves = new List<Cave>();
-            foreach (Cave cave in result)
+            caves = new List<CaveObject>();
+            foreach (CaveObject cave in result)
             {
                 caves.Add(cave);
             }
@@ -92,7 +92,7 @@ namespace TileEntity.Instances.Caves.Researcher
         public List<string> GetCaveIds() {
             List<string> caveIds = new List<string>();
             if (caves == null) return caveIds;
-            foreach (Cave cave in caves)
+            foreach (CaveObject cave in caves)
             {
                 caveIds.Add(cave.GetId());
             }

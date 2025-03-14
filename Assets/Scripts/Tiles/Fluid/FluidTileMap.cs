@@ -81,7 +81,7 @@ namespace Fluids {
             }
         }
 
-        protected override Vector2Int GetHitTilePosition(Vector2 position)
+        public override Vector2Int GetHitTilePosition(Vector2 position)
         {
             return Global.getCellPositionFromWorld(position);
         }

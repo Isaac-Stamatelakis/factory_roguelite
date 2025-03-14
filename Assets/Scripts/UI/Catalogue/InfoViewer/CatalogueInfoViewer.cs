@@ -10,6 +10,7 @@ using UI.Catalogue.InfoViewer.Indicator;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using World.Cave.InfoUI;
 
 namespace UI.Catalogue.InfoViewer
 {
@@ -18,7 +19,8 @@ namespace UI.Catalogue.InfoViewer
         Recipe,
         TransmutableMaterial,
         Burnable,
-        Chisel
+        Chisel,
+        CaveTile
     }
     public class CatalogueInfoViewer : MonoBehaviour
     {
@@ -27,6 +29,7 @@ namespace UI.Catalogue.InfoViewer
         [SerializeField] private CatalogueNavigator pageNavigator;
         [SerializeField] private VerticalLayoutGroup contentList;
         [SerializeField] private ProcessorInfoPageUI processorUIPrefab;
+        [SerializeField] private CaveInfoUI caveInfoUIPrefab;
         [FormerlySerializedAs("materialInfoUI")] [SerializeField] private TransmutationMaterialInfoUI materialInfoUIPrefab;
         [SerializeField] private BurnableCatalogueUI burnableCatalogueUIPrefab;
         [SerializeField] private ChiselCatalogueInfoUI chiselCatalogueInfoUIPrefab;
@@ -106,6 +109,8 @@ namespace UI.Catalogue.InfoViewer
                     return burnableCatalogueUIPrefab;
                 case CatalogueInfoDisplayType.Chisel:
                     return chiselCatalogueInfoUIPrefab;
+                case CatalogueInfoDisplayType.CaveTile:
+                    return caveInfoUIPrefab;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }

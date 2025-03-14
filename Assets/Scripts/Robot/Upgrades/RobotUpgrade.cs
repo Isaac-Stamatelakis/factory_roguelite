@@ -50,7 +50,11 @@ namespace Robot.Upgrades {
         VeinMine = 0,
         Item_Magnet = 1,
     }
-    
+
+    internal enum BuildinatorUpgrade
+    {
+        MultiHit = 0,
+    }
     
     
     

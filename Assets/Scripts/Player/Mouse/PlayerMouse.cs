@@ -109,7 +109,7 @@ namespace PlayerModule.Mouse {
                 LeftClickUpdate(mousePosition,closedChunkSystem);
             }
             if (rightClick) {
-                RightClickUpdate(mousePosition);
+                RightClickUpdate(mousePosition,closedChunkSystem);
             }
             
         }
@@ -207,7 +207,7 @@ namespace PlayerModule.Mouse {
             leftClickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
 
         }
-        private void RightClickUpdate(Vector2 mousePosition)
+        private void RightClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
         {
             InventoryDisplayMode inventoryDisplayMode = playerInventory.Mode;
             switch (inventoryDisplayMode)
@@ -225,6 +225,8 @@ namespace PlayerModule.Mouse {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
+            var rightClickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, MouseButtonKey.Right, playerInventory.CurrentTool);
+            rightClickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
         }
 
         private ConduitType? GetPortClickType()

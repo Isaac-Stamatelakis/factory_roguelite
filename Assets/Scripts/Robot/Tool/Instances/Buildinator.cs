@@ -20,6 +20,7 @@ using TileMaps.Layer;
 using TileMaps.Place;
 using TileMaps.Type;
 using Tiles;
+using Tiles.Indicators;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -28,6 +29,7 @@ namespace Robot.Tool.Instances
 {
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool
     {
+        private RobotToolLaserManager laserManager;
         public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
          
@@ -49,60 +51,202 @@ namespace Robot.Tool.Instances
         }
 
 
-        public override void BeginClickHold(Vector2 mousePosition)
+        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            
-            
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
+            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
         }
 
         public override void TerminateClickHold()
         {
-            
-            
+            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            laserManager?.Terminate();
+            playerScript.GetComponent<PlayerMouse>().ClearToolPreview();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return; // TODO change this
+            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
             
-            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
-            Vector3Int cellPosition = iWorldTileMap.GetTilemap().WorldToCell(mousePosition);
+            if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
+
+            Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
+     
+            if (!PlaceTile.raycastTileInBox(origin, TileMapLayer.Base.toRaycastLayers())) return;
+            
+            Vector2Int vector2Int = Global.getCellPositionFromWorld(mousePosition);
+            Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
             int direction = mouseButtonKey == MouseButtonKey.Left ? -1 : 1;
             
             switch (toolData.Mode)
             {
                 case BuildinatorMode.Chisel:
-                    if (iWorldTileMap is not IChiselableTileMap chiselableTileMap) return;
-                    chiselableTileMap.IterateChiselTile((Vector2Int)cellPosition, direction);
+                    Chisel(cellPosition, direction);
                     break;
                 case BuildinatorMode.Rotator:
-                    Rotate(playerScript, mousePosition, cellPosition, direction);
+                    Rotate(cellPosition, direction);
                     break;
                 case BuildinatorMode.Hammer:
-                    if (iWorldTileMap is not IHammerTileMap stateTile) return;
-                    stateTile.IterateHammerTile((Vector2Int)cellPosition, direction);
+                    Hammer(cellPosition, direction);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void Rotate(PlayerScript playerScript, Vector2 worldPosition, Vector3Int cellPosition, int direction)
+        private Color GetLaserColor()
         {
-            Vector2Int cellPositionV2 = (Vector2Int)cellPosition;
+            switch (toolData.Mode)
+            {
+                case BuildinatorMode.Chisel:
+                    return new Color(1f, 151f / 255, 0f, 1f);
+                case BuildinatorMode.Rotator:
+                    return new Color(1f, 151f / 255, 0f, 1f);
+                case BuildinatorMode.Hammer:
+                    return new Color(1f, 151f / 255, 0f, 1f);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void Chisel(Vector3Int vector3Int, int direction)
+        {
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
+            if (iWorldTileMap is not IChiselableTileMap chiselableTileMap) return;
+            Vector2Int cellPosition = (Vector2Int)vector3Int;
+            int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
+            for (int x = -multiHits; x <= multiHits; x++)
+            {
+                for (int y = -multiHits; y <= multiHits; y++)
+                {
+                    chiselableTileMap.IterateChiselTile(cellPosition + new Vector2Int(x,y), direction);
+                }
+            }
+        }
+
+        private void Hammer(Vector3Int vector3Int, int direction)
+        {
+            IWorldTileMap iWorldTileMap = DimensionManager.Instance.GetPlayerSystem().GetTileMap(TileMapType.Block);
+            if (iWorldTileMap is not IHammerTileMap hammerTileMap) return;
+            Vector2Int cellPosition = (Vector2Int)vector3Int;
+            int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
+            for (int x = -multiHits; x <= multiHits; x++)
+            {
+                for (int y = -multiHits; y <= multiHits; y++)
+                {
+                    hammerTileMap.IterateHammerTile(cellPosition + new Vector2Int(x,y), direction);
+                }
+            }
+        }
+
+        private void Rotate(Vector3Int vector3Int, int direction)
+        {
+            Vector2Int position = (Vector2Int)vector3Int;
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             IChunkSystem chunkSystem = system;
-            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPositionV2);
-            if (partition == null) return;
+
+            int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
+            HashSet<Vector2Int> hitPositions = new HashSet<Vector2Int>();
+            List<WorldTileGridMap> worldTileGridMaps = new List<WorldTileGridMap>
+            {
+                system.GetTileMap(TileMapType.Block) as WorldTileGridMap,
+                system.GetTileMap(TileMapType.Object) as WorldTileGridMap
+            };
+            if (multiHits == 0) // No need for all the fancy stuff below when multi hits are zero
+            {
+                foreach (WorldTileGridMap worldTileGridMap in worldTileGridMaps)
+                {
+                    Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(position);
+                    if (!hitPositions.Add(tilePosition)) continue;
+                    var (partition, positionInPartition) =
+                        chunkSystem.GetPartitionAndPositionAtCellPosition(tilePosition);
+
+                    TileItem tileItem = partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
+
+                    if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) continue;
+
+                    BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                    worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+                    break; // Exit after first rotate
+                }
+
+                return;
+            }
             
-            TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
-            if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) return;
-            WorldTileGridMap worldTileMap = system.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
-            if (ReferenceEquals(worldTileMap, null)) return;
+            // Sort tiles by distance from the origin
+            List<Vector2Int> sortedTiles = new List<Vector2Int>();
+            for (int x = -multiHits; x <= multiHits; x++)
+            {
+                for (int y = -multiHits; y <= multiHits; y++)
+                {
+                    sortedTiles.Add(new Vector2Int(x, y));
+                }
+            }
+            sortedTiles.Sort((a, b) =>
+            {
+                int distanceA = Mathf.Abs(a.x) + Mathf.Abs(a.y);
+                int distanceB = Mathf.Abs(b.x) + Mathf.Abs(b.y);
+                return distanceA.CompareTo(distanceB);
+            });
+
+            // Because raycasts are not reliable for simultaenous tile rotations, must store a dict of tiles which have been confirmed as rotatable and then their covered area.
+            // If another tile intersects any areas in the rotatable areas, it is not rotated
+            Dictionary<Vector2Int, HashSet<Vector2Int>> tilesToRotate = new Dictionary<Vector2Int, HashSet<Vector2Int>>();
+            HashSet<Vector2Int> searchedTiles = new HashSet<Vector2Int>();
             
-            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            worldTileMap.IterateRotatableTile(cellPositionV2, direction, baseTileData);
+            foreach (Vector2Int sortedTilePosition in sortedTiles)
+            {
+                Vector2Int cellPosition = position + sortedTilePosition;
+                foreach (WorldTileGridMap worldTileGridMap in worldTileGridMaps)
+                {
+                    Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(cellPosition);
+                    if (!searchedTiles.Add(tilePosition)) continue;
+                    var (partition, positionInPartition) =
+                        chunkSystem.GetPartitionAndPositionAtCellPosition(tilePosition);
+
+                    TileItem tileItem = partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
+
+                    if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) continue;
+                    BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+                    int newRotation = Buildinator.CalculateNewRotation(baseTileData.rotation, direction);
+
+                    Vector2 worldPosition = worldTileGridMap.GetTilemap().CellToWorld((Vector3Int)tilePosition);
+
+                    FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.getSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+                    if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, system, newRotation, exclusion)) continue;
+
+                    FloatIntervalVector newArea = TileHelper.getRealCoveredArea(worldPosition, Global.getSpriteSize(tileItem.getSprite()), newRotation);
+                    IntervalVector intervalVector = FloatIntervalVector.ToCellIntervalVector(newArea);
+
+                    bool Condition(int xv, int yv)
+                    {
+                        Vector2Int vector = new Vector2Int(xv, yv);
+                        foreach (var (otherPosition, otherArea) in tilesToRotate)
+                        {
+                            if (otherArea.Contains(vector)) return false;
+                        }
+
+                        return true;
+                    }
+
+                    if (!IntervalVector.IterateCondition(intervalVector, Condition)) continue;
+
+                    tilesToRotate[tilePosition] = new HashSet<Vector2Int>();
+
+                    void AddToContained(int xv, int yv) // YAY functional programming!
+                    {
+                        tilesToRotate[tilePosition].Add(new Vector2Int(xv, yv));
+                    }
+                    
+                    IntervalVector.Iterate(intervalVector, AddToContained);
+                    worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+                    break;
+                }
+            }
+            playerScript.TileViewers.TileBreakHighlighter.Clear();
         }
+        
+        
 
         public static int CalculateNewRotation(int rotation, int direction)
         {
@@ -132,7 +276,51 @@ namespace Robot.Tool.Instances
 
         public override void Preview(Vector2Int cellPosition)
         {
+            int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
+            TileBreakHighlighter tileBreakHighlighter = playerScript.TileViewers.TileBreakHighlighter;
+            if (multiHits == 0)
+            {
+                tileBreakHighlighter.Clear();
+                return;
+            }
             
+            ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+            List<WorldTileGridMap> worldTileGridMaps = new List<WorldTileGridMap>
+            {
+                system.GetTileMap(TileMapType.Block) as WorldTileGridMap
+            };
+            
+            if (toolData.Mode == BuildinatorMode.Rotator)
+            {
+                worldTileGridMaps.Add(system.GetTileMap(TileMapType.Object) as WorldTileGridMap);
+            }
+            
+            Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();
+            for (int x = -multiHits; x <= multiHits; x++)
+            {
+                for (int y = -multiHits; y <= multiHits; y++)
+                {
+                    Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
+                    foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
+                    {
+                        if (!tileGridMap.hasTile(breakPosition)) continue;
+                        Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
+                        if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
+                        {
+                            tiles[breakPosition] = outlineTileGridMap.GetOutlineCellData(vector3Int);
+                        }
+                        else
+                        {
+                            Tilemap tilemap = tileGridMap.GetTilemap();
+                            Quaternion quaternion = tilemap.GetTransformMatrix(vector3Int).rotation;
+                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,quaternion,quaternion);
+                        }
+                        
+                    }
+                    
+                }
+            }
+            tileBreakHighlighter.Display(tiles);
         }
     }
 

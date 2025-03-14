@@ -15,7 +15,7 @@ namespace WorldModule.Caves {
 
     }
     [CreateAssetMenu(fileName ="New Cave",menuName="Generation/Cave")]
-    public class Cave : ScriptableObject, IGeneratedArea
+    public class CaveObject : ScriptableObject, IGeneratedArea
     {
         public Tier tier;
         [TextArea] [SerializeField] private string description;
@@ -47,13 +47,13 @@ namespace WorldModule.Caves {
     
 
     public class CaveInstance: IGeneratedArea {
-        private Cave cave;
-        public Cave Cave => cave;
+        private CaveObject caveObject;
+        public CaveObject CaveObject => caveObject;
         private CaveElements caveElements;
 
-        public CaveInstance(Cave cave, CaveElements caveElements)
+        public CaveInstance(CaveObject caveObject, CaveElements caveElements)
         {
-            this.cave = cave;
+            this.caveObject = caveObject;
             this.caveElements = caveElements;
         }
 
@@ -91,7 +91,7 @@ namespace WorldModule.Caves {
             caveElements.OreDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
-            CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(cave.CaveDecorations);
+            CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(caveObject.CaveDecorations);
             caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
             MusicTrackController.Instance.setSong(caveElements.Songs);

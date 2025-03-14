@@ -9,6 +9,8 @@ using Player;
 using Recipe;
 using Recipe.Viewer;
 using UnityEngine;
+using World.Cave.InfoUI;
+using World.Cave.Registry;
 using LinqUtility = Unity.VisualScripting.LinqUtility;
 
 namespace UI.Catalogue.InfoViewer
@@ -21,6 +23,7 @@ namespace UI.Catalogue.InfoViewer
             
             TryAddTransmutationDisplay(itemSlot, elements);
             TryAddChiselDisplay(itemSlot,elements);
+            TryAddCaveTileInfoDisplay(itemSlot, elements);
             
             DisplayCatalogue(elements,PlayerManager.Instance.GetPlayer().GameStageCollection); // Gross singleton 
 
@@ -63,6 +66,27 @@ namespace UI.Catalogue.InfoViewer
             elements.Add(new CatalogueElementData(burnableInfo,CatalogueInfoDisplayType.Burnable));
         }
 
+        private static void TryAddCaveTileInfoDisplay(ItemSlot itemSlot, List<CatalogueElementData> elements)
+        {
+            CaveRegistry caveRegistry = CaveRegistry.Instance;
+            if (!caveRegistry) return;
+            string itemId;
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                itemId = TransmutableItemUtils.GetStateId(transmutableItemObject.getMaterial(), TransmutableItemState.Ore);
+            }
+            else
+            {
+                itemId = itemSlot?.itemObject?.id;
+            }
+            
+            var caveTileInfoElements = caveRegistry.GetCavesWithItem(itemId);
+            foreach (CaveInfoCatalogueElement caveInfoCatalogueElement in caveTileInfoElements)
+            {
+                elements.Add(new CatalogueElementData(caveInfoCatalogueElement,CatalogueInfoDisplayType.CaveTile));
+            }
+        }
+
         public static void DisplayCatalogue(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
         {
             FilterCatalogueUnStagedElements(elements,playerGameStageCollection);
@@ -76,6 +100,7 @@ namespace UI.Catalogue.InfoViewer
             catalogueInfoViewer.Initialize(elements,playerGameStageCollection);
         }
 
+        
         public static void FilterCatalogueUnStagedElements(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
         {
             for (var index = elements.Count-1; index >= 0; index--)

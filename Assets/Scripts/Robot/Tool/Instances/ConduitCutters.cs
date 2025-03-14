@@ -20,8 +20,7 @@ namespace Robot.Tool.Instances
 {
     public class ConduitCutters : RobotToolInstance<ConduitCuttersData, RobotConduitCutterObject>, ISubModeRobotToolInstance, IDestructiveTool
     {
-        
-        private LineRenderer lineRenderer;
+        private RobotToolLaserManager laserManager;
         public ConduitCutters(ConduitCuttersData toolData, RobotConduitCutterObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
         }
@@ -39,22 +38,23 @@ namespace Robot.Tool.Instances
             };
         }
 
-        public override void BeginClickHold(Vector2 mousePosition)
+        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            lineRenderer = GameObject.Instantiate(robotObject.LineRendererPrefab,playerTransform);
-            UpdateLineRenderer(mousePosition);
+            if (mouseButtonKey == MouseButtonKey.Right) return;
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
+            laserManager.UpdateLineRenderer(mousePosition,GetConduitColor(toolData.Type));
         }
 
+        
         public override void TerminateClickHold()
         {
-            GameObject.Destroy(lineRenderer.gameObject);
+            laserManager?.Terminate();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            UpdateLineRenderer(mousePosition);
+            laserManager.UpdateLineRenderer(mousePosition,GetConduitColor(toolData.Type));
             switch (toolData.CutterMode)
             {
                 case ConduitCutterMode.Standard:
@@ -148,19 +148,7 @@ namespace Robot.Tool.Instances
             }
         }
 
-
-        private void UpdateLineRenderer(Vector2 mousePosition)
-        {
-            Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
-            lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
-            
-            Gradient gradient = lineRenderer.colorGradient;
-            GradientColorKey[] colorKeys = gradient.colorKeys;
-            colorKeys[1].color = GetConduitColor(toolData.Type);
-            gradient.colorKeys = colorKeys;
-            lineRenderer.colorGradient = gradient;
-            
-        }
+        
 
         private Color GetConduitColor(ConduitType conduitType)
         {

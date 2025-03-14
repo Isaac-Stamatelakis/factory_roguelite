@@ -13,12 +13,14 @@ namespace TileMaps {
         public TileBase Tile;
         public TileBase OutlineTile;
         public Quaternion OutlineRotation;
+        public Quaternion TileRotation;
 
-        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion outlineRotation)
+        public OutlineTileMapCellData(TileBase tile, TileBase outlineTile, Quaternion tileRotation, Quaternion outlineRotation)
         {
             Tile = tile;
             OutlineTile = outlineTile;
             OutlineRotation = outlineRotation;
+            TileRotation = tileRotation;
         }
     }
     public interface IOutlineTileGridMap
@@ -100,10 +102,7 @@ namespace TileMaps {
 
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position)
         {
-            Quaternion rotation = outlineTileMap.GetTile(position) 
-                ? outlineTileMap.GetTransformMatrix(position).rotation
-                : tilemap.GetTransformMatrix(position).rotation;
-            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),rotation);
+            return new OutlineTileMapCellData(tilemap.GetTile(position),outlineTileMap.GetTile(position),tilemap.GetTransformMatrix(position).rotation,outlineTileMap.GetTransformMatrix(position).rotation);
         }
     }
 }

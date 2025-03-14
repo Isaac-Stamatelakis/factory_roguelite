@@ -165,8 +165,9 @@ namespace TileEntity {
             
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
-            TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
-            tilemap.removeForSwitch(tileEntity.GetCellPosition());
+            Tilemap tilemap = loadedChunk.getTileMap(tileMapType).GetTilemap();
+            Vector3Int cellPosition = (Vector3Int)tileEntity.GetCellPosition();
+            tilemap.SetTile(cellPosition,null);
 
             // Switch to open/closed
             state += iterationAmount; 
@@ -175,8 +176,8 @@ namespace TileEntity {
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
-            newMap.placeTileAtLocation(tileEntity.GetCellPosition(),stateTile.getTileAtState(state));
+            Tilemap newMap = loadedChunk.getTileMap(newType).GetTilemap();
+            newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
         }
 
         public static void stateSwitch(ITileEntityInstance tileEntity, int state) {
@@ -201,13 +202,14 @@ namespace TileEntity {
             baseTileData.state = state;
             
             TileMapType tileMapType = switchType.getStateType(oldState);
-            TileMaps.IWorldTileMap tilemap = loadedChunk.getTileMap(tileMapType);
-            tilemap.removeForSwitch(tileEntity.GetCellPosition());
+            Tilemap tilemap = loadedChunk.getTileMap(tileMapType).GetTilemap();
+            Vector3Int cellPosition = (Vector3Int)tileEntity.GetCellPosition();
+            tilemap.SetTile(cellPosition,null);
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            TileMaps.IWorldTileMap newMap = loadedChunk.getTileMap(newType);
-            newMap.placeTileAtLocation(tileEntity.GetCellPosition(),stateTile.getTileAtState(state));
+            Tilemap newMap = loadedChunk.getTileMap(newType).GetTilemap();
+            newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
         }
 
         /// <summary>

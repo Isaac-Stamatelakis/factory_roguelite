@@ -144,8 +144,8 @@ public class TransmutableItemGenerator : EditorWindow
             materialStates.Add(stateOptions.state);
             if (stateItemDict.ContainsKey(stateOptions.state)) continue;
             
-            string id = TransmutableItemUtils.GetStateId(material, stateOptions);
-            string itemName = TransmutableItemUtils.GetStateName(material,stateOptions);
+            string id = TransmutableItemUtils.GetStateId(material, stateOptions.state);
+            string itemName = TransmutableItemUtils.GetStateName(material,stateOptions.state);
             string savePath = GetStateAssetPath(materialItemsPath, itemName);
             
             TransmutableItemObject transmutableItemObject = CreateInstance<TransmutableItemObject>();

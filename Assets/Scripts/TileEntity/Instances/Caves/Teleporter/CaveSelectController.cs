@@ -27,11 +27,11 @@ namespace TileEntity.Instances {
         public TextMeshProUGUI descriptionText;
         public Button teleportButton;
         public TextMeshProUGUI mNoSelectText;
-        private Cave currentCave;
-        public Cave CurrentCave => currentCave;
+        private CaveObject currentCaveObject;
+        public CaveObject CurrentCaveObject => currentCaveObject;
         private CaveInstance caveInstance;
         
-        public void ShowCave(Cave cave)
+        public void ShowCave(CaveObject caveObject)
         {
             teleportButton.interactable = true;
             mNoSelectText.gameObject.SetActive(false);
@@ -40,9 +40,9 @@ namespace TileEntity.Instances {
                 StartCoroutine(teleportButtonPress());
             });
             teleportButton.gameObject.SetActive(true);
-            currentCave = cave;
-            nameText.text = cave.name;
-            descriptionText.text = cave.Description;
+            currentCaveObject = caveObject;
+            nameText.text = caveObject.name;
+            descriptionText.text = caveObject.Description;
         }
 
         public void DisplayEmpty()
@@ -55,35 +55,35 @@ namespace TileEntity.Instances {
         
 
         private IEnumerator teleportButtonPress() {
-            if (currentCave == null) {
+            if (currentCaveObject == null) {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
             }
-            yield return StartCoroutine(loadCave(currentCave,GenerateAndTeleportToCave));
+            yield return StartCoroutine(loadCave(currentCaveObject,GenerateAndTeleportToCave));
         }
 
-        public static IEnumerator loadCave(Cave cave, CaveCallback caveCallback) {
+        public static IEnumerator loadCave(CaveObject caveObject, CaveCallback caveCallback) {
             CaveElements caveElements = new CaveElements();
             Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
-            if (cave.generationModel == null) {
-                Debug.LogError($"Cannot teleport to cave {cave.name}: does not have a generation model");
+            if (caveObject.generationModel == null) {
+                Debug.LogError($"Cannot teleport to cave {caveObject.name}: does not have a generation model");
                 yield break;
             }
 
-            handles["Model"] = cave.generationModel.LoadAssetAsync<Object>();
-            if (cave.entityDistributor.RuntimeKeyIsValid()) {
-                handles["Entity"] = Addressables.LoadAssetAsync<Object>(cave.entityDistributor);
+            handles["Model"] = caveObject.generationModel.LoadAssetAsync<Object>();
+            if (caveObject.entityDistributor.RuntimeKeyIsValid()) {
+                handles["Entity"] = Addressables.LoadAssetAsync<Object>(caveObject.entityDistributor);
             }
 
-            if (cave.generationModel.RuntimeKeyIsValid())
+            if (caveObject.generationModel.RuntimeKeyIsValid())
             {
-                handles["Structure"] = Addressables.LoadAssetAsync<Object>(cave.structureDistributor);
+                handles["Structure"] = Addressables.LoadAssetAsync<Object>(caveObject.structureDistributor);
             }
             
             
 
             List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
-            foreach (AssetReference assetReference in cave.songs) {
+            foreach (AssetReference assetReference in caveObject.songs) {
                 if (assetReference.RuntimeKeyIsValid()) {
                     songHandles.Add(assetReference.LoadAssetAsync<Object>());
                 }
@@ -107,10 +107,10 @@ namespace TileEntity.Instances {
             caveElements.GenerationModel = AddressableUtils.validateHandle<GenerationModel>(handles["Model"]);
             caveElements.Songs = AddressableUtils.validateHandles<AudioClip>(songHandles);
 
-            if (cave.TileDistributorObject)
+            if (caveObject.TileDistributorObject)
             {
                 List<TileDistribution> tileDistributions = new List<TileDistribution>();
-                foreach (StandardTileDistrubtion distributorObjectData in cave.TileDistributorObject.TileDistributions)
+                foreach (StandardTileDistrubtion distributorObjectData in caveObject.TileDistributorObject.TileDistributions)
                 {
                     if (distributorObjectData == null) continue;
                     List<TileDistributionFrequency> tileDistributionFrequencies = new List<TileDistributionFrequency>();
@@ -126,10 +126,10 @@ namespace TileEntity.Instances {
                 caveElements.TileDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
             }
 
-            if (cave.OreDistributionObject)
+            if (caveObject.OreDistributionObject)
             {
                 List<TileDistribution> tileDistributions = new List<TileDistribution>();
-                foreach (OreDistribution oreDistribution in cave.OreDistributionObject.OreDistributions)
+                foreach (OreDistribution oreDistribution in caveObject.OreDistributionObject.OreDistributions)
                 {
                     OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material);
                     tileDistributions.Add(new TileDistribution(oreTileAggregator,oreDistribution.TileDistributionData));
@@ -139,7 +139,7 @@ namespace TileEntity.Instances {
             }
             
 
-            CaveInstance caveInstance = new CaveInstance(cave,caveElements);
+            CaveInstance caveInstance = new CaveInstance(caveObject,caveElements);
             caveCallback(caveInstance);
             foreach (var kvp in handles) {
                 Addressables.Release(kvp.Value);
@@ -174,19 +174,19 @@ namespace TileEntity.Instances {
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
             
-            Debug.Log("Teleporting to " + currentCave.name);
+            Debug.Log("Teleporting to " + currentCaveObject.name);
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Caves_Explored]++;
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
             caveController.setCurrentCave(caveInstance);
 
-            CaveOptions caveOptions = caveInstance.Cave.CaveOptions;
+            CaveOptions caveOptions = caveInstance.CaveObject.CaveOptions;
 
             DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
             DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition,dimensionOptions: dimensionOptions);
             
-            TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.Cave.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
+            TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.CaveObject.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }
     }
 }

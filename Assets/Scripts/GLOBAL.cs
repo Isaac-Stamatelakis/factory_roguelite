@@ -20,7 +20,7 @@ public static class Global
     public const uint MAX_SIZE = 999;
     public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
     public const bool ShowSystemParameter = false;
-    private static Cave currentCave;
+    private static CaveObject currentCaveObject;
     public const int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
     public const string editorCreationPath = "EditorCreations";
     

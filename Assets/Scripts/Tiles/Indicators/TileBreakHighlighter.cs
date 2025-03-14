@@ -22,29 +22,17 @@ namespace Tiles.Indicators
                 
                 Vector3Int tilePosition = new Vector3Int(position.x, position.y, 0);
                 mTilemap.SetTile(tilePosition,tile);
-                if (!outline)
-                {
-                    mOutlineTilemap.SetTile(tilePosition,tile);
-                    Matrix4x4 matrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
-                    matrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,1.1f * Vector3.one);
-                    mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
-                    
-                    Matrix4x4 mainMatrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
-                    mainMatrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,Vector3.one);
-                    mTilemap.SetTransformMatrix(tilePosition,mainMatrix4X4);
-                }
-                else
-                {
-                    mOutlineTilemap.SetTile(tilePosition,outline);
-                    Matrix4x4 matrix4X4 = mOutlineTilemap.GetTransformMatrix(tilePosition);
-                    matrix4X4.SetTRS(Vector3.zero,outlineData.OutlineRotation,Vector3.one);
-                    mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
-                }
+                Matrix4x4 mainMatrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
+                mainMatrix4X4.SetTRS(mainMatrix4X4.GetPosition(),outlineData.TileRotation,Vector3.one);
+                mTilemap.SetTransformMatrix(tilePosition,mainMatrix4X4);
                 
-                
-                
-                
-                
+                float outlineScale = outline ? 1f : 1.1f;
+                TileBase outlineTile = outline ? outline : tile;
+                mOutlineTilemap.SetTile(tilePosition,outlineTile);
+                Matrix4x4 matrix4X4 = mTilemap.GetTransformMatrix(tilePosition);
+                matrix4X4.SetTRS(matrix4X4.GetPosition(),outlineData.OutlineRotation,outlineScale * Vector3.one);
+                mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
+               
             }
         }
 
