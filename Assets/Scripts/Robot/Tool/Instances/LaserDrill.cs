@@ -32,7 +32,7 @@ namespace Robot.Tool.Instances
 {
     public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
     {
-        private LineRenderer lineRenderer;
+        private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
         private bool hitting;
         public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
@@ -53,22 +53,24 @@ namespace Robot.Tool.Instances
             }
         }
 
-        public override void BeginClickHold(Vector2 mousePosition)
+        public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            Transform playerTransform = PlayerManager.Instance.GetPlayer().transform;
-            lineRenderer = GameObject.Instantiate(robotObject.LineRendererPrefab,playerTransform);
-            UpdateLineRenderer(mousePosition);
+            if (mouseButtonKey == MouseButtonKey.Right) return;
+            
+            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
+            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
         }
 
         public override void TerminateClickHold()
         {
-            GameObject.Destroy(lineRenderer.gameObject);
+            playerScript.TileViewers.TileBreakHighlighter.Clear();
+            laserManager?.Terminate();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            UpdateLineRenderer(mousePosition);
+            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
             particleSystem.transform.position = mousePosition;
 
             if (toolData.Layer == TileMapLayer.Base)
@@ -196,7 +198,7 @@ namespace Robot.Tool.Instances
             BlockVeinMineEvent blockVeinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower) as BlockVeinMineEvent;
             int? broken = blockVeinMineEvent?.Execute(cellPosition, veinMinePower);
             if (broken < 1) return false;
-            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+          
             if (!drop)
             {
                 List<ItemSlot> itemDrops = blockVeinMineEvent?.GetCollectedItems();
@@ -254,11 +256,23 @@ namespace Robot.Tool.Instances
             bool pass = time >= toolData.HitRate;
             if (!pass)
             {
-                UpdateLineRenderer(mousePosition);
+                laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
                 return false;
             }
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
+        }
+
+        private Color GetLaserColor()
+        {
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                    return new Color(145f / 255, 100f / 255, 1f, 1f);
+                case TileMapLayer.Background:
+                    return new Color(46f / 255, 29f / 255, 89f/255, 1f);
+            }
+            return Color.white;
         }
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
@@ -351,7 +365,7 @@ namespace Robot.Tool.Instances
                         else
                         {
                             Tilemap tilemap = tileGridMap.GetTilemap();
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,tilemap.GetTransformMatrix(vector3Int).rotation);
+                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,tilemap.GetTransformMatrix(vector3Int).rotation,tilemap.GetTransformMatrix(vector3Int).rotation);
                         }
                          
                     }
@@ -361,12 +375,7 @@ namespace Robot.Tool.Instances
 
             return tiles;
         }
-
-        private void UpdateLineRenderer(Vector2 mousePosition)
-        {
-            Vector2 dif =  mousePosition - (Vector2) lineRenderer.transform.position;
-            lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
-        }
+        
 
         public float GetSpeedMultiplier()
         {

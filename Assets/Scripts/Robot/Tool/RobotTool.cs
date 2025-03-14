@@ -68,7 +68,7 @@ namespace Robot.Tool
         }
         public abstract Sprite GetPrimaryModeSprite();
 
-        public abstract void BeginClickHold(Vector2 mousePosition);
+        public abstract void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract void TerminateClickHold();
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
