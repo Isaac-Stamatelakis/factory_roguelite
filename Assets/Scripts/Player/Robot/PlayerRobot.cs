@@ -419,7 +419,9 @@ namespace Player {
             {
                 return;
             }
-            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * 1.5f : defaultGravityScale;
+
+            const float BONUS_FALL_MODIFIER = 1.25f;
+            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)

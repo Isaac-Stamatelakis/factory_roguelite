@@ -12,6 +12,14 @@ using Random = UnityEngine.Random;
 namespace Entities {
     public static class ItemEntityFactory
     {
+        public static void SpawnItemEntities(Vector2 position, List<ItemSlot> itemSlots, Transform entityContainer,
+            Vector2? initialVelocity = null)
+        {
+            foreach (ItemSlot itemSlot in itemSlots)
+            {
+                SpawnItemEntity(position, itemSlot, entityContainer, initialVelocity);
+            }
+        }
         public static GameObject SpawnItemEntity(Vector2 position, ItemSlot itemSlot, Transform entityContainer, Vector2? initialVelocity = null) {
             if (ItemSlotUtils.IsItemSlotNull(itemSlot) || ReferenceEquals(itemSlot.itemObject.getSprite(),null)) {
                 return null;
