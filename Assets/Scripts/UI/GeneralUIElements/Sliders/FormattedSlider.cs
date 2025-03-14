@@ -18,7 +18,7 @@ namespace UI.GeneralUIElements.Sliders
         public void DisplayInteger(string title, int initial, int maxValue, Action<int> valueChangeCallback, IDiscreteUpgradeAmountFormatter amountFormatter)
         {
             mNameText.text = $"{title}:";
-            
+            mScrollBar.numberOfSteps = 0;
             mScrollBar.onValueChanged.RemoveAllListeners();
             mScrollBar.value = (float)initial/maxValue;
             SetIntValueText(initial,amountFormatter);
@@ -44,7 +44,7 @@ namespace UI.GeneralUIElements.Sliders
         }
         private int GetStep(float value, int maxSteps)
         {
-            return (int)((0.5d/(maxSteps-1) + value) * (maxSteps-1));
+            return (int)((0.5d/(maxSteps-1) + value) * (maxSteps));
         }
 
         private void SetAnchorStep(int step, int maxSteps)

@@ -147,8 +147,13 @@ namespace Player {
                 int rocketBootUpgrades = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.RocketBoots);
                 if (rocketBootUpgrades > 0)
                 {
+                    rocketBoots?.Terminate();
                     rocketBoots ??= new RocketBoots();
                     rocketBoots.FlightTime = 1+rocketBootUpgrades;
+                }
+                else
+                {
+                    rocketBoots = null;
                 }
                 
             }
@@ -390,11 +395,16 @@ namespace Player {
                 }
                 return;
             }
-
-            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * 1.5f : defaultGravityScale;
             
+            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             if (rocketBoots != null && rocketBoots.Active)
             {
+                if (blockInput)
+                {
+                    rocketBoots.Terminate();
+                    rocketBoots = null;
+                    return;
+                }
                 if (rocketBoots.Boost > 0)
                 {
                     rb.gravityScale = 0;
@@ -405,6 +415,11 @@ namespace Player {
                     rb.gravityScale = defaultGravityScale;
                 }
             }
+            if (blockInput)
+            {
+                return;
+            }
+            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * 1.5f : defaultGravityScale;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)
@@ -413,7 +428,6 @@ namespace Player {
             {
                 rb.gravityScale = defaultGravityScale;   
                 jumpEvent = null;
-
                 return;
             }
             if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
@@ -428,7 +442,8 @@ namespace Player {
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
-                bonusJumps--;
+                if (!IsOnGround() && coyoteFrames <= 0) bonusJumps--;
+                
                 fallTime = 0;
                 jumpEvent = new JumpEvent();
                 return;
@@ -444,7 +459,7 @@ namespace Player {
                 if (rocketBoots.Active)
                 {
                     rocketBoots.UpdateBoost(Input.GetKey(KeyCode.Space));
-                    if (rocketBoots.Boost <= 0 && rocketBoots.FlightTime < 0)
+                    if (rocketBoots.FlightTime < 0)
                     {
                         rocketBoots.Terminate();
                         rocketBoots = null;
