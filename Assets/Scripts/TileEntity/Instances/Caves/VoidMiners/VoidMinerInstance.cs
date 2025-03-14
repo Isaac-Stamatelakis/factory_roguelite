@@ -110,6 +110,8 @@ namespace TileEntity.Instances {
             if (caveTileCollection == null) return;
             float randomFloat = (float)random.NextDouble();
             string id = caveTileCollection.GetId(randomFloat);
+            if (!MinerData.ItemFilter?.Filter(id) ?? false) return;
+            
             ItemObject itemObject = itemRegistry.GetItemObject(id);
             if (!itemObject) return;
             List<ItemSlot> inputInventory;
