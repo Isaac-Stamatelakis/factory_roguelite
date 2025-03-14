@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Items;
 using Items.Transmutable;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using World.Cave.InfoUI;
 using WorldModule.Caves;
 
 namespace World.Cave.Registry
@@ -12,6 +14,7 @@ namespace World.Cave.Registry
     public class CaveRegistry : MonoBehaviour
     {
         private static CaveRegistry instance;
+        public static CaveRegistry Instance => instance;
         private Dictionary<string, CaveTileCollection> caveDataDict;
 
         public void Awake()
@@ -47,20 +50,13 @@ namespace World.Cave.Registry
                 CaveTileCollection caveTileCollection = CreateCaveTileCollection(caveObject,genModel.GetBaseId());
                 if (caveTileCollection == null) continue;
                 caveDataDict[id] = caveTileCollection;
-                
             }
-
             Addressables.Release(handle);
-            foreach (var (id, caveCollection) in caveDataDict)
-            {
-                Debug.Log($"{id} {caveCollection}");
-            }
-            
         }
 
         private CaveTileCollection CreateCaveTileCollection(CaveObject caveObject, string baseId)
         {
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance(); // This might be an issue
             List<float> odds = new List<float>();
             List<string> ids = new List<string>();
             List<string> tileIds = new List<string>();
@@ -123,6 +119,46 @@ namespace World.Cave.Registry
             }
             return new CaveTileCollection(cumulativeOdds, ids.ToArray(), baseId);
         }
+
+        public List<CaveInfoCatalogueElement> GetCavesWithItem(string id)
+        {
+            if (id == null) return new List<CaveInfoCatalogueElement>();
+            var caveElements = new List<CaveInfoCatalogueElement>();
+            foreach (var (caveId, caveTileCollection) in caveDataDict)
+            {
+                if (!caveTileCollection.HasItemId(id)) continue;
+                CaveTileInfoElement caveTileInfoElement = caveTileCollection.GetTileInfoElement(id);
+                string caveName = CaveUtils.NameFromId(caveId);
+                CaveInfoCatalogueElement caveInfoCatalogueElement = new CaveInfoCatalogueElement(
+                    caveName,
+                    caveTileCollection.BaseId,
+                    new List<CaveTileInfoElement>{caveTileInfoElement}
+                );
+                caveElements.Add(caveInfoCatalogueElement);
+            }
+            return caveElements;
+        }
+
+        public CaveInfoCatalogueElement GetCaveTileInfo(string caveId)
+        {
+            
+            var caveTileCollection =  caveDataDict.GetValueOrDefault(caveId);
+            if (caveTileCollection == null) return null;
+            string caveName = CaveUtils.NameFromId(caveId);
+            return new CaveInfoCatalogueElement(caveName,caveTileCollection.BaseId,caveTileCollection.GetTileInfoElements());
+        }
+
+        public List<CaveInfoCatalogueElement> GetInfoOfAllCaves()
+        {
+            List<CaveInfoCatalogueElement> caveInfoCatalogueElements = new List<CaveInfoCatalogueElement>();
+            foreach (string id in caveDataDict.Keys)
+            {
+                CaveInfoCatalogueElement caveInfoCatalogueElement = GetCaveTileInfo(id);
+                if (caveInfoCatalogueElement == null) continue;
+                caveInfoCatalogueElements.Add(caveInfoCatalogueElement);
+            }
+            return caveInfoCatalogueElements;
+        }
     }
 
     
@@ -138,12 +174,12 @@ namespace World.Cave.Registry
         private float[] cumulativeOdds;
         private string[] ids;
         private string baseId;
+        public string BaseId => baseId;
         
         public string GetId(float value)
         {
-            const int NOT_FOUND = -1;
             int index = BinarySearch(cumulativeOdds, value);
-            return index == NOT_FOUND ? baseId : ids[index];
+            return index < 0 || index >= cumulativeOdds.Length ? baseId : ids[index];
         }
         
         private static int BinarySearch(float[] cumulativeProbabilities, float value)
@@ -176,6 +212,74 @@ namespace World.Cave.Registry
                 result += $"{id}:{cumulativeOdd:F2} ";
             }
             return result;
+        }
+
+        public List<CaveTileInfoElement> GetTileInfoElements()
+        {
+            List<CaveTileInfoElement> elements = new List<CaveTileInfoElement>();
+            elements.Add(GetBaseIdInfo());
+            elements.Add(new CaveTileInfoElement
+            {
+                Chance = cumulativeOdds[0],
+                Id = ids[0]
+            });
+            for (int i = 1; i < cumulativeOdds.Length; i++)
+            {
+                float realOdd = cumulativeOdds[i] - cumulativeOdds[i - 1];
+                elements.Add(new CaveTileInfoElement
+                {
+                    Chance = realOdd,
+                    Id = ids[i]
+                });
+            }
+            
+            return elements;
+        }
+
+        private CaveTileInfoElement GetBaseIdInfo()
+        {
+            return new CaveTileInfoElement
+            {
+                Chance = 1-cumulativeOdds[^1],
+                Id = baseId
+            };
+        }
+
+        public bool HasItemId(string id)
+        {
+            return string.Equals(id,baseId) || ids.Contains(id);
+        }
+
+        public CaveTileInfoElement GetTileInfoElement(string id)
+        {
+            if (string.Equals(id, baseId))
+            {
+                return GetBaseIdInfo();
+            }
+            if (id == ids[0])
+            {
+                return new CaveTileInfoElement
+                {
+                    Chance = cumulativeOdds[0],
+                    Id = ids[0]
+                };
+            }
+            for (int i = 1; i < cumulativeOdds.Length; i++)
+            {
+                if (!string.Equals(id,ids[i])) continue;
+                
+                float realOdd = cumulativeOdds[i] - cumulativeOdds[i - 1];
+                return new CaveTileInfoElement
+                {
+                    Chance = realOdd,
+                    Id = ids[1]
+                };
+            }
+            return new CaveTileInfoElement
+            {
+                Chance = 0,
+                Id = null
+            };
         }
     }
 }

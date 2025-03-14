@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Globalization;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace WorldModule.Caves {
     
@@ -14,6 +16,16 @@ namespace WorldModule.Caves {
             yield return entityHandle;
             yield return generationModelHandle;
             
+        }
+
+        public static string IdFromName(string name)
+        {
+            return name.ToLower().Replace(" ", "_");
+        }
+
+        public static string NameFromId(string id)
+        {
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(id.Replace("_"," "));
         }
     
         
