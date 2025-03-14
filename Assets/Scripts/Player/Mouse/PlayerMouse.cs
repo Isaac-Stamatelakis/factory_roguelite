@@ -260,6 +260,7 @@ namespace PlayerModule.Mouse {
         private bool RightClickPort(Vector2 mousePosition) {
             ConduitType? conduitType = GetPortClickType();
             if (conduitType == null) return false;
+           
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem.Interactable) return true; // Return true in this case so click is cancelled out
             
@@ -271,9 +272,11 @@ namespace PlayerModule.Mouse {
             if (conduitSystemManager is not PortConduitSystemManager portConduitSystemManager) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
             IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
+       
             if (conduit == null) {
                 return false;
             }
+           
             IOConduitPortUI conduitPortUI = MainCanvasController.TInstance.DisplayUIElement<IOConduitPortUI>(MainSceneUIElement.IOPortViewer);
             IOConduitPort conduitPort = conduit.GetPort() as IOConduitPort;
             conduitPortUI.Display(conduitPort,conduit);

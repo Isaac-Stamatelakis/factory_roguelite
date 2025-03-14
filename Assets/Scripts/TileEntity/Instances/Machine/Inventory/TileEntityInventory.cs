@@ -127,6 +127,17 @@ namespace TileEntity {
             return amount;
         }
 
+        public static ulong InsertEnergy(ref ulong energy, ulong input, ulong maxEnergy)
+        {
+            ulong sum = energy+=input;
+            if (sum > maxEnergy) {
+                energy = maxEnergy;
+                return sum - maxEnergy;
+            }
+            energy = sum;
+            return input;
+        }
+
         public ulong GetEnergy(Vector2Int portPosition)
         {
             return Energy;

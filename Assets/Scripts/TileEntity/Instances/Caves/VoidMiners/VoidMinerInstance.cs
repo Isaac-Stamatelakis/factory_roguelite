@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Chunks;
@@ -15,7 +16,7 @@ using World.Cave.Registry;
 using Random = System.Random;
 
 namespace TileEntity.Instances {
-    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity
+    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyConduitInteractable
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
@@ -141,6 +142,7 @@ namespace TileEntity.Instances {
 
         internal class VoidMinerData
         {
+            public ulong Energy;
             public ItemSlot DriveSlot;
             public ItemFilter ItemFilter;
             public List<ItemSlot> StoneOutputs;
@@ -150,6 +152,7 @@ namespace TileEntity.Instances {
 
         private class SerializedVoidMinerData
         {
+            public ulong Energy;
             public string DriveData;
             public ItemFilter ItemFilter;
             public string StoneOutputs;
@@ -166,6 +169,43 @@ namespace TileEntity.Instances {
         public void OnCaveRegistryLoaded(CaveRegistry caveRegistry)
         {
             SetCaveTileCollectionFromDriveSlot(caveRegistry);
+        }
+
+        public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
+        {
+            switch (state)
+            {
+                case ItemState.Solid:
+                    if (portPosition.x == 0)
+                    {
+                        return ItemSlotUtils.ExtractFromInventory(MinerData.OreOutputs);
+                    }
+                    return ItemSlotUtils.ExtractFromInventory(MinerData.StoneOutputs);
+                case ItemState.Fluid:
+                    return ItemSlotUtils.ExtractFromInventory(MinerData.FluidOutputs);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
+        {
+            
+        }
+
+        public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
+        {
+            return MachineEnergyInventory.InsertEnergy(ref MinerData.Energy, energy, 16 * tileEntityObject.Tier.GetEnergyStorage());
+        }
+
+        public ulong GetEnergy(Vector2Int portPosition)
+        {
+            return 0;
+        }
+
+        public void SetEnergy(ulong energy, Vector2Int portPosition)
+        {
+            MinerData.Energy = energy;
         }
     }
     
