@@ -10,10 +10,15 @@ namespace Conduits.Ports {
         public bool whitelist = true;
         public bool Filter(ItemSlot itemSlot)
         {
+            return Filter(itemSlot?.itemObject?.id);
+        }
+        
+        public bool Filter(string itemId)
+        {
             if (ids == null) return true;
             foreach (string id in ids)
             {
-                if (itemSlot.itemObject.id == id) return whitelist;
+                if (itemId == id) return whitelist;
             }
 
             return !whitelist;

@@ -154,9 +154,8 @@ namespace Item.Slot
 
         public static ItemSlot ExtractFromInventory(List<ItemSlot> inventory) {
             foreach (ItemSlot itemSlot in inventory) {
-                if (itemSlot != null && itemSlot.itemObject != null) {
-                    return itemSlot;
-                }
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                return itemSlot;
             }
             return null;
         }
