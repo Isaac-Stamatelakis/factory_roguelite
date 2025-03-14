@@ -8,16 +8,18 @@ using Items;
 using Items.Tags;
 using LibNoise.Operator;
 using Newtonsoft.Json;
+using TileEntity.Instances.Caves.VoidMiners;
 using UI;
 using UnityEngine;
 using World.Cave.Registry;
+using Random = System.Random;
 
 namespace TileEntity.Instances {
-    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity
+    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
-        public CaveTileCollection CaveTileCollection;
+        private CaveTileCollection caveTileCollection;
         private System.Random random;
         private ItemRegistry itemRegistry;
         public VoidMinerInstance(VoidMinerObject tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -26,7 +28,9 @@ namespace TileEntity.Instances {
 
         public void OnRightClick()
         {
-            
+            VoidMinerUI voidMinerUI = GameObject.Instantiate(tileEntityObject.VoidMinerUI);
+            voidMinerUI.DisplayTileEntityInstance(this);
+            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(voidMinerUI.gameObject);
         }
 
         public string Serialize()
@@ -53,6 +57,7 @@ namespace TileEntity.Instances {
                 OreOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.OreOutputs),
                 FluidOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.FluidOutputs),
             };
+            SetCaveTileCollectionFromDriveSlot();
         }
 
         public void PlaceInitialize()
@@ -87,12 +92,23 @@ namespace TileEntity.Instances {
             ItemEntityFactory.SpawnItemEntities(position, MinerData.FluidOutputs, loadedChunk.getEntityContainer());
             ItemEntityFactory.SpawnItemEntities(position, MinerData.OreOutputs, loadedChunk.getEntityContainer());
         }
+
+        public void SetCaveTileCollectionFromDriveSlot()
+        {
+            ItemSlot itemSlot = MinerData.DriveSlot;
+            if (itemSlot?.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out object caveData)) return;
+            if (caveData is not string caveId) return;
+            caveId = caveId.ToLower();
+            caveTileCollection = CaveRegistry.Instance.GetCaveTileCollection(caveId);
+            random = new Random();
+            itemRegistry = ItemRegistry.GetInstance();
+        }
         
         public void TickUpdate()
         {
-            if (CaveTileCollection == null) return;
+            if (caveTileCollection == null) return;
             float randomFloat = (float)random.NextDouble();
-            string id = CaveTileCollection.GetId(randomFloat);
+            string id = caveTileCollection.GetId(randomFloat);
             ItemObject itemObject = itemRegistry.GetItemObject(id);
             if (!itemObject) return;
             List<ItemSlot> inputInventory;
@@ -138,7 +154,11 @@ namespace TileEntity.Instances {
             public string FluidOutputs;
         }
 
-        
+
+        public ConduitPortLayout GetConduitPortLayout()
+        {
+            return tileEntityObject.ConduitPortLayout;
+        }
     }
     
 }

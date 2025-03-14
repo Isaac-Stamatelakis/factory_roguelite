@@ -54,6 +54,10 @@ namespace World.Cave.Registry
             Addressables.Release(handle);
         }
 
+        public CaveTileCollection GetCaveTileCollection(string id)
+        {
+            return caveDataDict.GetValueOrDefault(id);
+        }
         private CaveTileCollection CreateCaveTileCollection(CaveObject caveObject, string baseId)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance(); // This might be an issue
