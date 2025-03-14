@@ -99,6 +99,31 @@ namespace Item.Slot
             toInsert.amount=0;
             return true;
         }
+        
+        public static bool InsertOneIdInventory(List<ItemSlot> contained, string id, uint maxSize, uint amount) {
+            if (contained == null) {
+                return false;
+            }
+          
+            int firstNullIndex = -1;
+            // First pass look for matches
+            for (int i = 0; i < contained.Count; i++) {
+                ItemSlot inputSlot = contained[i];
+                if (IsItemSlotNull(inputSlot))
+                {
+                    if (firstNullIndex < 0) firstNullIndex = i;
+                    continue;
+                }
+                if (inputSlot.amount >= maxSize || inputSlot.itemObject.id != id) continue;
+                inputSlot.amount++;
+                return true;
+            }
+
+            if (firstNullIndex < 0) return false;
+            ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
+            contained[firstNullIndex] = new ItemSlot(itemObject,1,null);
+            return true;
+        }
 
         public static void AppendToInventory(List<ItemSlot> to, ItemSlot toAppend, uint maxSize)
         {

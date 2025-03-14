@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Conduits.Ports;
 using RecipeModule;
+using World.Cave.Registry;
 
 
 namespace TileEntity {
@@ -56,6 +57,11 @@ namespace TileEntity {
     }
     public interface IMultiBlockTileEntity {
         public void AssembleMultiBlock();
+    }
+
+    public interface IOnCaveRegistryLoadActionTileEntity
+    {
+        public void OnCaveRegistryLoaded(CaveRegistry caveRegistry);
     }
 
     public interface IBluePrintModifiedTileEntity

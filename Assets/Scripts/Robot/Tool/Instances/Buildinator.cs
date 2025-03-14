@@ -71,8 +71,8 @@ namespace Robot.Tool.Instances
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
 
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
-     
-            if (!PlaceTile.raycastTileInBox(origin, TileMapLayer.Base.toRaycastLayers())) return;
+            
+            if (!PlaceTile.raycastTileInBox(origin, TileMapLayer.Base.toRaycastLayers(),true)) return;
             
             Vector2Int vector2Int = Global.getCellPositionFromWorld(mousePosition);
             Vector3Int cellPosition = new Vector3Int(vector2Int.x, vector2Int.y, 0);
@@ -158,15 +158,13 @@ namespace Robot.Tool.Instances
                 {
                     Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(position);
                     if (!hitPositions.Add(tilePosition)) continue;
-                    var (partition, positionInPartition) =
-                        chunkSystem.GetPartitionAndPositionAtCellPosition(tilePosition);
+                    var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(tilePosition);
 
                     TileItem tileItem = partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
-
+                
                     if (ReferenceEquals(tileItem, null) || !tileItem.tileOptions.rotatable) continue;
 
-                    BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-                    worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+                    RotateTile(tileItem, worldTileGridMap, tilePosition, partition, positionInPartition, direction);
                     break; // Exit after first rotate
                 }
 
@@ -239,13 +237,23 @@ namespace Robot.Tool.Instances
                     }
                     
                     IntervalVector.Iterate(intervalVector, AddToContained);
-                    worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+                    RotateTile(tileItem, worldTileGridMap, tilePosition, partition, positionInPartition, direction);
                     break;
                 }
             }
             playerScript.TileViewers.TileBreakHighlighter.Clear();
         }
-        
+
+        private void RotateTile(TileItem tileItem, WorldTileGridMap worldTileGridMap, Vector2Int tilePosition, IChunkPartition partition, Vector2Int positionInPartition, int direction)
+        {
+            if (tileItem.tileOptions.placeBreakable)
+            {
+                worldTileGridMap.BreakAndDropTile(tilePosition, true);
+                return;
+            }
+            BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
+            worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+        }
         
 
         public static int CalculateNewRotation(int rotation, int direction)

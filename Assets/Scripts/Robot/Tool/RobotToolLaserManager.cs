@@ -27,7 +27,9 @@ namespace Robot.Tool
 
         public void Terminate()
         {
+            if (!lineRenderer) return;
             GameObject.Destroy(lineRenderer.gameObject);
+            lineRenderer = null;
         }
     }
 }

@@ -13,6 +13,7 @@ using Chunks.IO;
 using Dimensions;
 using TileMaps.Layer;
 using Tiles;
+using World.Cave.Registry;
 
 namespace Chunks.Systems {
     public class SoftLoadedCompactMachineChunkSystem : SoftLoadedClosedChunkSystem, ICompactMachineClosedChunkSystem
@@ -258,6 +259,23 @@ namespace Chunks.Systems {
             }
 
             return null;
+        }
+
+        public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
+        {
+            foreach (SoftLoadedConduitTileChunk chunk in Chunks) {
+                foreach (IChunkPartition partition in chunk.Partitions) {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+                    {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                        {
+                            ITileEntityInstance tileEntityInstance = partition.GetTileEntity(new Vector2Int(x, y));
+                            if (tileEntityInstance is not IOnCaveRegistryLoadActionTileEntity caveRegistryLoadActionTileEntity) continue;
+                            caveRegistryLoadActionTileEntity.OnCaveRegistryLoaded(caveRegistry);
+                        }
+                    }
+                }
+            }
         }
     }
 }

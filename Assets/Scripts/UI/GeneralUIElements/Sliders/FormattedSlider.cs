@@ -25,9 +25,9 @@ namespace UI.GeneralUIElements.Sliders
             mScrollBar.onValueChanged.AddListener((value) =>
             {
                 // For some reason the max number of steps is 11 so have to hard code this
-                int intValue = (int)(value * maxValue);
-                valueChangeCallback(intValue);
+               
                 int step = GetStep(value, maxValue);
+                valueChangeCallback(step);
                 SetAnchorStep(step, maxValue);
                 SetIntValueText(step,amountFormatter);
             });

@@ -27,6 +27,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using World.BackUp;
+using World.Cave.Registry;
 using World.Serialization;
 using WorldModule.Caves;
 using Vector2 = UnityEngine.Vector2;
@@ -100,6 +101,25 @@ namespace Dimensions {
             playerScript.Cheats = metaData.CheatsEnabled;
             QuestBookUIManager questBookUIManager = GameObject.FindObjectOfType<QuestBookUIManager>();
             questBookUIManager.Initialize(metaData.QuestBook);
+        }
+
+        public void OnCaveRegistryLoad(CaveRegistry caveRegistry)
+        {
+            foreach (DimController controller in GetAllControllers())
+            {
+                if (controller is ISingleSystemController singleSystemController)
+                {
+                    SoftLoadedClosedChunkSystem system = singleSystemController.GetInactiveSystem();
+                    if (system == null) continue;
+                    system.SyncCaveRegistryTileEntities(caveRegistry);
+                } else if (controller is IMultipleSystemController multipleSystemController)
+                {
+                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    {
+                        system.SyncCaveRegistryTileEntities(caveRegistry);
+                    }
+                }
+            }
         }
         
 #pragma warning disable 0162

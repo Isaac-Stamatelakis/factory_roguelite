@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Dimensions;
 using Items;
 using Items.Transmutable;
 using UnityEngine;
@@ -52,8 +53,13 @@ namespace World.Cave.Registry
                 caveDataDict[id] = caveTileCollection;
             }
             Addressables.Release(handle);
+            DimensionManager.Instance.OnCaveRegistryLoad(this);
         }
 
+        public CaveTileCollection GetCaveTileCollection(string id)
+        {
+            return caveDataDict.GetValueOrDefault(id);
+        }
         private CaveTileCollection CreateCaveTileCollection(CaveObject caveObject, string baseId)
         {
             ItemRegistry itemRegistry = ItemRegistry.GetInstance(); // This might be an issue
