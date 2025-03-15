@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Player.Controls;
@@ -8,19 +9,31 @@ using UnityEngine;
 
 namespace UI
 {
+    public enum UIAudioClipType
+    {
+        Button
+    }
     public abstract class CanvasController : MonoBehaviour
     {
         [SerializeField] private GameObject mBlocker;
+        [SerializeField] private UIAudioElements uiAudioElements;
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
         private bool canTerminate;
+        private AudioSource audioSource;
         public void Awake()
         {
             instance = this;
+            audioSource = gameObject.AddComponent<AudioSource>();
         }
 
+        public void PlayAudioClip(UIAudioClipType audioClipType)
+        {
+            AudioClip clip = uiAudioElements.GetClip(audioClipType);
+            audioSource.PlayOneShot(clip);
+        }
         public abstract void EmptyListen();
         public abstract void ListenKeyPresses();
         
@@ -160,6 +173,23 @@ namespace UI
         public void DisplayOnParentCanvas(GameObject displayObject)
         {
             displayObject.transform.SetParent(transform.parent, false);
+        }
+
+        [System.Serializable]
+        private class UIAudioElements
+        {
+            public AudioClip ButtonClick;
+
+            public AudioClip GetClip(UIAudioClipType audioClipType)
+            {
+                switch (audioClipType)
+                {
+                    case UIAudioClipType.Button:
+                        return ButtonClick;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(audioClipType), audioClipType, null);
+                }
+            }
         }
     }
 
