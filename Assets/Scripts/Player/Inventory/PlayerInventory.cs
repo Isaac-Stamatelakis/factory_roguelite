@@ -14,6 +14,7 @@ using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
 using Player;
+using Player.Controls;
 using Player.Inventory;
 using Player.Tool;
 using PlayerModule.Mouse;
@@ -87,6 +88,11 @@ namespace PlayerModule {
             {
                 mode = InventoryDisplayMode.Inventory;
                 playerToolListUI.Highlight(false);
+            }
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapToolLoadOut))
+            {
+                int direction = Input.GetKey(KeyCode.LeftShift) ? -1 : 1;
+                playerRobot.RobotUpgradeLoadOut.ToolLoadOuts[CurrentToolType].IncrementCurrent(direction);
             }
         }
         

@@ -11,7 +11,7 @@ namespace Player.Controls.UI
     {
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
-        private string key;
+        private PlayerControl key;
         private List<KeyCode> selectableKeys;
         [FormerlySerializedAs("additionalListTime")] [FormerlySerializedAs("count")] public int listenUpdates;
         private List<KeyCode> cachedKeys;
@@ -82,7 +82,7 @@ namespace Player.Controls.UI
             string formatString = ControlUtils.KeyCodeListAsString(keyCodes);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(string key, ControlSettingUI controlSettingUI)
+        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)
         {
             this.controlSettingUI = controlSettingUI;
             this.key = key;

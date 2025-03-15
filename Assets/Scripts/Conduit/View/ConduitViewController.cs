@@ -65,7 +65,7 @@ namespace Conduit.View
 
         private void KeyPressListen()
         {
-            if (!ControlUtils.GetControlKeyDown(ControlConsts.CHANGE_CONDUIT_VIEW_MODE) || ReferenceEquals(chunkSystem, null)) return;
+            if (!ControlUtils.GetControlKeyDown(PlayerControl.ChangeConduitViewMode) || ReferenceEquals(chunkSystem, null)) return;
             DisplayRadialMenu();
         }
 

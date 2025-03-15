@@ -16,10 +16,10 @@ namespace Player.Controls
         }
         protected abstract List<ControlBinding> GetBindings();
 
-        public List<string> GetBindingKeys()
+        public List<PlayerControl> GetBindingKeys()
         {
             List<ControlBinding> bindings = GetBindings();
-            List<string> keys = new List<string>();
+            List<PlayerControl> keys = new List<PlayerControl>();
             foreach (ControlBinding binding in bindings)
             {
                 keys.Add(binding.Key);
@@ -28,7 +28,7 @@ namespace Player.Controls
             return keys;
         }
 
-        protected void SetKeyCode(string key, List<KeyCode> keyCodes, bool overrideValue)
+        protected void SetKeyCode(PlayerControl key, List<KeyCode> keyCodes, bool overrideValue)
         {
             string prefKey = ControlUtils.GetPrefKey(key);
             if (overrideValue || PlayerPrefs.GetInt(prefKey) == 0)
@@ -39,10 +39,10 @@ namespace Player.Controls
 
         protected struct ControlBinding
         {
-            public string Key;
+            public PlayerControl Key;
             public List<KeyCode> DefaultKeyCode;
 
-            public ControlBinding(string key, List<KeyCode> defaultKeyCode)
+            public ControlBinding(PlayerControl key, List<KeyCode> defaultKeyCode)
             {
                 Key = key;
                 DefaultKeyCode = defaultKeyCode;

@@ -15,7 +15,7 @@ namespace Player.Controls.UI
         [SerializeField] private TextMeshProUGUI headerPrefab;
         [SerializeField] private ControlUIElement controlUIElementPrefab;
         [SerializeField] private Button highlightConflicts;
-        private Dictionary<string, ControlUIElement> elementUIDict = new Dictionary<string, ControlUIElement>();
+        private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
         public void Start()
         {
             backButton.onClick.AddListener(() =>
@@ -34,8 +34,8 @@ namespace Player.Controls.UI
             {
                 TextMeshProUGUI header = Instantiate(headerPrefab, listTransform);
                 header.text = kvp.Key;
-                List<string> bindings = kvp.Value.GetBindingKeys();
-                foreach (string binding in bindings)
+                List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
+                foreach (PlayerControl binding in bindings)
                 {
                     ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
                     controlUIElement.Initalize(binding,this);
@@ -47,7 +47,7 @@ namespace Player.Controls.UI
         
         public void CheckConflicts()
         {
-            HashSet<string> conflicts = ControlUtils.GetConflictingBindings();
+            HashSet<PlayerControl> conflicts = ControlUtils.GetConflictingBindings();
             foreach (var kvp in elementUIDict)
             {
                 ControlUIElement controlUIElement = kvp.Value;

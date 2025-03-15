@@ -56,6 +56,12 @@ namespace Robot.Upgrades.LoadOut
         {
             return GetLoadOut(Current);
         }
+
+        public void IncrementCurrent(int amount)
+        {
+            Current += amount;
+            Current = (Current % LoadOuts.Count + LoadOuts.Count) % LoadOuts.Count;
+        }
     }
     
 }

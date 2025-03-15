@@ -18,7 +18,7 @@ namespace Player.Controls
     public static class ControlUtils
     {
         private static readonly string PREF_PREFIX = "CONTROL_";
-        private static Dictionary<string, KeyCode[]> controlDict;
+        private static Dictionary<PlayerControl, KeyCode[]> controlDict;
         private static HashSet<KeyCode> singleKeyCodes;
         private static int modifierCount = 0;
 
@@ -55,19 +55,19 @@ namespace Player.Controls
 
         public static void LoadBindings()
         {
-            controlDict = new Dictionary<string, KeyCode[]>();
+            controlDict = new Dictionary<PlayerControl, KeyCode[]>();
             singleKeyCodes = new HashSet<KeyCode>();
             var keyCountDict = new Dictionary<KeyCode, int>();
             var sections = GetKeyBindingSections();
             foreach (var (name, bindings) in sections)
             {
-                foreach (string binding in bindings.GetBindingKeys())
+                foreach (PlayerControl binding in bindings.GetBindingKeys())
                 {
                     KeyCode[] keyCodes = GetKeyCodes(binding).ToArray();
                     controlDict[binding] = keyCodes;
+                    if (keyCodes.Length == 0) continue;
                     KeyCode primary = keyCodes.Last();
                     keyCountDict.TryAdd(primary, 0);
-
                     keyCountDict[primary]++;
                 }
             }
@@ -78,14 +78,14 @@ namespace Player.Controls
             }
         }
 
-        public static HashSet<string> GetConflictingBindings()
+        public static HashSet<PlayerControl> GetConflictingBindings()
         {
             var sections = GetKeyBindingSections();
-            HashSet<string> conflicts = new HashSet<string>();
-            Dictionary<int,string> serializedKeyCodes = new Dictionary<int,string>();
+            HashSet<PlayerControl> conflicts = new HashSet<PlayerControl>();
+            Dictionary<int,PlayerControl> serializedKeyCodes = new Dictionary<int,PlayerControl>();
             foreach (var kvp in sections)
             {
-                List<string> sectionKeys = kvp.Value.GetBindingKeys();
+                List<PlayerControl> sectionKeys = kvp.Value.GetBindingKeys();
                 foreach (var key in sectionKeys)
                 {
                     int value = PlayerPrefs.GetInt(GetPrefKey(key));
@@ -132,9 +132,9 @@ namespace Player.Controls
             return resultString;
         }
         
-        public static List<KeyCode> GetKeyCodes(string key)
+        public static List<KeyCode> GetKeyCodes(PlayerControl playerControl)
         {
-            string prefKey = GetPrefKey(key);
+            string prefKey = GetPrefKey(playerControl);
             
             int value = PlayerPrefs.GetInt(prefKey);
             List<KeyCode> keyCodes = new List<KeyCode>();
@@ -147,9 +147,9 @@ namespace Player.Controls
             return keyCodes;
         }
 
-        public static void SetKeyValue(string key, List<KeyCode> keyCodes)
+        public static void SetKeyValue(PlayerControl playerControl, List<KeyCode> keyCodes)
         {
-            string prefKey = GetPrefKey(key);
+            string prefKey = GetPrefKey(playerControl);
             int sum = SerializeKeyCodes(keyCodes);
             PlayerPrefs.SetInt(prefKey, sum);
         }
@@ -170,21 +170,21 @@ namespace Player.Controls
             return result;
         }
 
-        public static string GetPrefKey(string name)
+        public static string GetPrefKey(PlayerControl playerControl)
         {
-            return PREF_PREFIX + name;
+            return PREF_PREFIX + playerControl.ToString().ToLower();
         }
 
-        public static KeyCode GetPrefKeyCode(string name)
+        public static KeyCode GetPrefKeyCode(PlayerControl playerControl)
         {
-            return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(name));
+            return (KeyCode) PlayerPrefs.GetInt(GetPrefKey(playerControl));
         }
 
-        public static bool GetControlKey(string name)
+        public static bool GetControlKey(PlayerControl playerControl)
         {
             if (controlDict == null) return false;
-            controlDict.TryGetValue(name, out KeyCode[] keycodes);
-            if (keycodes == null) return false;
+            controlDict.TryGetValue(playerControl, out KeyCode[] keycodes);
+            if (keycodes == null || keycodes.Length == 0) return false;
             if (keycodes.Length == 1)
             {
                 KeyCode keyCode = keycodes[0];
@@ -198,11 +198,11 @@ namespace Player.Controls
             return Input.GetKey(keycodes.Last());
         }
         
-        public static bool GetControlKeyDown(string name)
+        public static bool GetControlKeyDown(PlayerControl playerControl)
         {
             if (controlDict == null) return false;
-            controlDict.TryGetValue(name, out KeyCode[] keycodes);
-            if (keycodes == null) return false;
+            controlDict.TryGetValue(playerControl, out KeyCode[] keycodes);
+            if (keycodes == null || keycodes.Length == 0) return false;
             if (keycodes.Length == 1)
             {
                 KeyCode keyCode = keycodes[0];
@@ -215,9 +215,26 @@ namespace Player.Controls
             return Input.GetKeyDown(keycodes.Last());
         }
         
-        public static string FormatKeyText(string key)
+        public static string FormatKeyText(PlayerControl key)
         {
-            return key.Replace("_"," ").FirstCharacterToUpper();
+            return AddSpaces(key.ToString());
+        }
+
+        private static string AddSpaces(string text)
+        {
+            string result = string.Empty;
+            for (var i = 0; i < text.Length-1; i++)
+            {
+                var c = text[i];
+                result += c;
+                if (char.IsLower(text[i]) && char.IsUpper(text[i+1]))
+                {
+                    result += " ";
+                }
+            }
+
+            result += text[^1];
+            return result;
         }
         public static void SetDefault()
         {

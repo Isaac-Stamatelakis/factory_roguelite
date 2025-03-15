@@ -41,7 +41,7 @@ namespace UI
 
         public void Update()
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.HIDE_UI)))
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(PlayerControl.HideUI)))
             {
                 Canvas parentCanvas = GetComponentInParent<Canvas>();
                 parentCanvas.enabled = !parentCanvas.enabled;
