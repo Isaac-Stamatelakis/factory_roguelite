@@ -103,6 +103,7 @@ namespace Player.Controls
 
         public static int SerializeKeyCodes(List<KeyCode> keyCodes)
         {
+            if (keyCodes.Count == 0) return -1;
             var sortedBySize = keyCodes.OrderByDescending(key => (int)key).ToList();
             int sum = 0;
             int mult = 1;

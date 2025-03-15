@@ -78,6 +78,11 @@ namespace UI
             }
         }
 
+        public bool CanEscapePop()
+        {
+            return Input.GetKeyDown(KeyCode.Escape) && uiObjectStack.Count > 0 && uiObjectStack.Peek().termianteOnEscape;
+        }
+
         private IEnumerator DelayStartPopStack()
         {
             yield return null;
@@ -139,9 +144,9 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0, bool terminateOnEscape = true)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority,terminateOnEscape));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -201,8 +206,9 @@ namespace UI
         public bool hideParent;
         public Transform originalParent;
         public int priority;
+        public bool termianteOnEscape;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority, bool terminateOnEscape)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
@@ -210,6 +216,7 @@ namespace UI
             this.hideParent = hideParent;
             this.originalParent = originalParent;
             this.priority = priority;
+            this.termianteOnEscape = terminateOnEscape;
         }
     }
     

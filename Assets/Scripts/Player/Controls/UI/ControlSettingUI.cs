@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -16,6 +17,7 @@ namespace Player.Controls.UI
         [SerializeField] private ControlUIElement controlUIElementPrefab;
         [SerializeField] private Button highlightConflicts;
         private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
+        public bool ListeningToKey = false;
         public void Start()
         {
             backButton.onClick.AddListener(() =>
@@ -23,7 +25,11 @@ namespace Player.Controls.UI
                 CanvasController.Instance.PopStack();
                 ControlUtils.LoadBindings();
             });
-            restoreButton.onClick.AddListener(ControlUtils.SetDefault);
+            restoreButton.onClick.AddListener(() =>
+            {
+                ControlUtils.SetDefault();
+                Display();
+            });
             Display();
         }
         
@@ -52,6 +58,15 @@ namespace Player.Controls.UI
             {
                 ControlUIElement controlUIElement = kvp.Value;
                 controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
+            }
+        }
+
+        public void Update()
+        {
+            if (ListeningToKey) return;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CanvasController.Instance.PopStack();
             }
         }
     }
