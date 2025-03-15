@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.LoadOut;
 using UI.GeneralUIElements.Sliders;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,20 +35,75 @@ namespace Robot.Upgrades
         [SerializeField] private VerticalLayoutGroup mList;
         [SerializeField] private FormattedSlider mNumSliderPrefab;
         [SerializeField] private FormattedSlider mBoolSliderPrefab;
+        [SerializeField] private Transform presetList;
+        private Button[] presetSelectButtons;
+        private Color buttonColor;
+        private Color highlightButtonColor = Color.yellow;
+
+        private RobotStatLoadOutCollection robotStatLoadOutCollection;
+        private Dictionary<int, int> statUpgradeDict;
+        private RobotUpgradeInfo robotUpgradeInfo;
         
-        internal void Display(RobotStatLoadOut statLoadOut, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo)
+        
+        public void Initialize()
         {
+            presetSelectButtons = presetList.GetComponentsInChildren<Button>();
+            if (presetSelectButtons.Length == 0) return;
+            buttonColor = presetSelectButtons[0].GetComponent<Image>().color;
+            for (var i = 0; i < presetSelectButtons.Length; i++)
+            {
+                var button = presetSelectButtons[i];
+                var buttonIndex = i; // This is suggested by rider, think it prevents i from changing in each lambda
+                button.onClick.AddListener(() =>
+                {
+                    SelectPreset(buttonIndex);
+                });
+            }
+        }
+
+        private void SelectPreset(int index)
+        {
+            if (robotStatLoadOutCollection == null || robotStatLoadOutCollection.Current == index) return;
+            presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = buttonColor;
+            robotStatLoadOutCollection.Current = index;
+            presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = highlightButtonColor;
+            DisplayCurrentStatLoadOut();
+        }
+        
+
+        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo)
+        {
+            Initialize();
+            this.robotStatLoadOutCollection = statLoadOutCollection;
+            this.statUpgradeDict = statUpgradeDict;
+            this.robotUpgradeInfo = upgradeInfo;
+            presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = highlightButtonColor;
+            DisplayCurrentStatLoadOut();
+        }
+
+        private void DisplayCurrentStatLoadOut()
+        {
+            if (robotStatLoadOutCollection.GetCurrent() == null)
+            {
+                List<RobotStatLoadOut> robotStatLoadOuts = robotStatLoadOutCollection.LoadOuts;
+                while (robotStatLoadOuts.Count <= robotStatLoadOutCollection.Current)
+                {
+                    robotStatLoadOuts.Add(new RobotStatLoadOut(new Dictionary<int, float>(),new Dictionary<int, int>()));
+                }
+            }
+            RobotStatLoadOut statLoadOut = this.robotStatLoadOutCollection.GetCurrent();
+            robotUpgradeInfo.VerifyStatLoadOut(statLoadOut);
             GlobalHelper.deleteAllChildren(mList.transform);
-            List<int> upgrades = upgradeInfo.GetAllUpgrades();
-            List<int> constantUpgrades = upgradeInfo.GetConstantUpgrades();
+            List<int> upgrades = robotUpgradeInfo.GetAllUpgrades();
+            List<int> constantUpgrades = robotUpgradeInfo.GetConstantUpgrades();
             upgrades.Sort();
             foreach (int upgrade in upgrades)
             {
                 if (!statUpgradeDict.TryGetValue(upgrade, out var maxValue)) continue;
                 if (maxValue == 0) continue;
-                string title = upgradeInfo.GetTitle(upgrade);
+                string title = robotUpgradeInfo.GetTitle(upgrade);
                 bool isConstant = constantUpgrades.Contains(upgrade);
-                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant, upgradeInfo);
+                FormattedSlider slider = GetSlider(statLoadOut, title, upgrade, maxValue,isConstant, robotUpgradeInfo);
                 if (!slider)
                 {
                     continue;

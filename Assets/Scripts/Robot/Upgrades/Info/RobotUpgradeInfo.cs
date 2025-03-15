@@ -33,6 +33,8 @@ namespace Robot.Upgrades.Info
 
         public void VerifyStatLoadOut(RobotStatLoadOut robotStatLoadOut)
         {
+            robotStatLoadOut.DiscreteValues ??= new Dictionary<int, int>();
+            robotStatLoadOut.ContinuousValues ??= new Dictionary<int, float>();
             List<int> continuousUpgrades = GetContinuousUpgrades();
             foreach (int continuousUpgrade in continuousUpgrades)
             {

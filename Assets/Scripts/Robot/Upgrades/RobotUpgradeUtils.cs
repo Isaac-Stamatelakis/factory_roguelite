@@ -104,6 +104,7 @@ namespace Robot.Upgrades
             }
             return loadOut;
         }
+        
 
         private static RobotStatLoadOutCollection CreateNewLoadOutCollection(RobotUpgradeInfo robotUpgradeInfo)
         {
