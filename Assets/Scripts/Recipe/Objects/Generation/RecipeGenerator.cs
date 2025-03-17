@@ -9,15 +9,17 @@ namespace Recipe.Objects.Generation
     public class RecipeGenerator : ScriptableObject
     {
         public RecipeCollection RecipeCollection;
-        public RecipeType GenerationType;
-        
+        public RecipeObject Template;
+        public RecipeType RecipeType;
         public int Multiplier = 1;
         public List<int> InputAmounts;
         public List<int> OutputAmounts;
         public List<RecipeGenerationInputList> Inputs;
         public List<RecipeItemObjectList> Outputs;
 
-        
+        public List<ItemRecipeObject> GeneratedRecipes;
+
+
     }
     [System.Serializable]
     public class RecipeGenerationInputList
@@ -35,7 +37,6 @@ namespace Recipe.Objects.Generation
     public class RecipeGenerationInput
     {
         public RecipeGenerationInputMode Mode;
-        public uint Amount;
         public ItemObject ItemObject;
         public TransmutableItemMaterial Material;
         public TransmutableItemState ItemState;

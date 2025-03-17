@@ -85,7 +85,7 @@ public class TransmutableItemGenerator : EditorWindow
         }
     }
 
-    private string GetMaterialItemPath(TransmutableItemMaterial material)
+    private static string GetMaterialItemPath(TransmutableItemMaterial material)
     {
         string assetPath = AssetDatabase.GetAssetPath(material);
         
@@ -170,9 +170,22 @@ public class TransmutableItemGenerator : EditorWindow
     }
     
 
-    private string GetStateAssetPath(string materialItemsPath, string itemName)
+    private static string GetStateAssetPath(string materialItemsPath, string itemName)
     {
         return Path.Combine(materialItemsPath, itemName + ".asset");
+    }
+
+    public static ItemObject GetTransmutableItemObject(TransmutableItemMaterial material, TransmutableItemState state)
+    {
+        string transmutableItemFolder = GetMaterialItemPath(material);
+        string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
+        if (!Directory.Exists(instancePath))
+        {
+            AssetDatabase.CreateFolder(transmutableItemFolder, GEN_PATH);
+        }
+        string materialItemsPath = Path.Combine(instancePath, material.name);
+        string assetPath = GetStateAssetPath(materialItemsPath, state.ToString());
+        return AssetDatabase.LoadAssetAtPath<ItemObject>(assetPath);
     }
 
     private void UpdateOres(bool reset)

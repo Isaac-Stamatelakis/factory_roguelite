@@ -13,12 +13,14 @@ using WorldModule.Caves;
 public class RecipeGeneratorInputView : Editor
 {
     private SerializedProperty inputProperty;
-    private SerializedProperty recipeCollectionProperty;
     private SerializedProperty recipeTypeProperty;
+    private SerializedProperty recipeCollectionProperty;
+    private SerializedProperty recipeTemplateProperty;
     private SerializedProperty multiplierProperty;
     private SerializedProperty InputAmountProperty;
     private SerializedProperty OutputAmountProperty;
     private SerializedProperty OutputItemProperty;
+    private SerializedProperty GeneratedRecipes;
     
     private ReorderableList inputsList;
     private const float VERTICAL_SPACING = 2f;
@@ -26,11 +28,13 @@ public class RecipeGeneratorInputView : Editor
     {
         inputProperty = serializedObject.FindProperty("Inputs");
         recipeCollectionProperty = serializedObject.FindProperty("RecipeCollection");
-        recipeTypeProperty = serializedObject.FindProperty("GenerationType");
+        recipeTemplateProperty = serializedObject.FindProperty("Template");
+        recipeTypeProperty = serializedObject.FindProperty("RecipeType");
         multiplierProperty = serializedObject.FindProperty("Multiplier");
         InputAmountProperty = serializedObject.FindProperty("InputAmounts");
         OutputAmountProperty = serializedObject.FindProperty("OutputAmounts");
         OutputItemProperty = serializedObject.FindProperty("Outputs");
+        GeneratedRecipes = serializedObject.FindProperty("GeneratedRecipes");
         
         inputsList = new ReorderableList(serializedObject, inputProperty, true, true, true, true)
         {
@@ -54,7 +58,6 @@ public class RecipeGeneratorInputView : Editor
                     {
                         SerializedProperty nestedElement = inputsProperty.GetArrayElementAtIndex(nestedIndex);
                         SerializedProperty modeProperty = nestedElement.FindPropertyRelative("Mode");
-                        SerializedProperty amountProperty = nestedElement.FindPropertyRelative("Amount");
                         SerializedProperty itemObjectProperty = nestedElement.FindPropertyRelative("ItemObject");
                         SerializedProperty materialProperty = nestedElement.FindPropertyRelative("Material");
                         SerializedProperty itemStateProperty = nestedElement.FindPropertyRelative("ItemState");
@@ -67,9 +70,6 @@ public class RecipeGeneratorInputView : Editor
                         nestedRect.y += lineHeight + VERTICAL_SPACING;
                         EditorGUI.PropertyField(nestedRect, modeProperty);
                         
-                        nestedRect.y += lineHeight + VERTICAL_SPACING;
-                        
-                        EditorGUI.PropertyField(nestedRect, amountProperty);
                         nestedRect.y += lineHeight + VERTICAL_SPACING;
                         
                         RecipeGenerationInputMode mode = (RecipeGenerationInputMode)modeProperty.enumValueIndex;
@@ -118,7 +118,7 @@ public class RecipeGeneratorInputView : Editor
     {
         SerializedProperty modeProperty = nestedElementProperty.FindPropertyRelative("Mode");
         RecipeGenerationInputMode mode = (RecipeGenerationInputMode)modeProperty.enumValueIndex;
-        int fields = 3;
+        int fields = 2;
         if (mode == RecipeGenerationInputMode.Object)
         {
             fields++;
@@ -130,30 +130,36 @@ public class RecipeGeneratorInputView : Editor
     }
 
     public override void OnInspectorGUI() {
+        RecipeGenerator generator = (RecipeGenerator) target;
         serializedObject.Update();
         EditorGUILayout.LabelField("Generates All Recipes",EditorStyles.boldLabel);
-        GUILayout.Button("Generate");
+        if (GUILayout.Button("Generate"))
+        {
+            RecipeGeneratorUtils.GenerateRecipes(generator,true);
+        }
         GUILayout.Space(20);
         EditorGUILayout.PropertyField(recipeCollectionProperty);
         EditorGUILayout.PropertyField(recipeTypeProperty);
         RecipeType recipeType = (RecipeType)recipeTypeProperty.enumValueIndex;
-        if (recipeType is RecipeType.Machine or RecipeType.Generator)
+        if (recipeType is RecipeType.Machine or RecipeType.Generator or RecipeType.Passive)
         {
-            if (recipeType == RecipeType.Machine)
-            {
-                EditorGUILayout.LabelField("Energy Cost Multiplier",EditorStyles.boldLabel);
-            } else if (recipeType == RecipeType.Generator)
-            {
-                EditorGUILayout.LabelField("Energy Production Multiplier");
-            }
             EditorGUILayout.PropertyField(multiplierProperty);
+            EditorGUILayout.PropertyField(recipeTemplateProperty);
         }
         EditorGUILayout.PropertyField(InputAmountProperty);
         EditorGUILayout.PropertyField(OutputAmountProperty);
-        EditorGUILayout.PropertyField(OutputItemProperty);
-        inputsList.DoLayoutList();
-
         
+        inputsList.DoLayoutList();
+        
+        EditorGUILayout.PropertyField(OutputItemProperty);
+        
+        if (GUILayout.Button("Delete Recipes"))
+        {
+            RecipeGeneratorUtils.DeleteRecipes(generator);
+        }
+        GUI.enabled = false;
+        EditorGUILayout.PropertyField(GeneratedRecipes);
+        GUI.enabled = true;
         serializedObject.ApplyModifiedProperties();
     }
     
