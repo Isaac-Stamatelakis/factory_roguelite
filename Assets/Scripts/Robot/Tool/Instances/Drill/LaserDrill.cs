@@ -13,6 +13,7 @@ using Player.Tool;
 using Player.Tool.Object;
 using PlayerModule;
 using PlayerModule.Mouse;
+using Robot.Tool.Instances.Drill;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.Instances.VeinMine;
@@ -23,6 +24,7 @@ using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles;
 using Tiles.Indicators;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = Unity.Mathematics.Random;
@@ -34,6 +36,7 @@ namespace Robot.Tool.Instances
     {
         private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
+        private LaserDrillAudioController audioController;
         private bool hitting;
         public LaserDrill(LaserDrillData toolData, RobotDrillObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
@@ -59,12 +62,19 @@ namespace Robot.Tool.Instances
             
             laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
             laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
 
         public override void TerminateClickHold()
         {
             playerScript.TileViewers.TileBreakHighlighter.Clear();
             laserManager?.Terminate();
+            if (audioController)
+            {
+                GameObject.Destroy(audioController.gameObject);
+                audioController = null;
+            }
+            
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
@@ -98,7 +108,7 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
             
-            
+            audioController.PlayAudioClip(tileItem.tileOptions.AudioType);
             
             Color? particleColor = GetParticleSystemColor(tileItem);
             if (particleColor.HasValue)
@@ -118,7 +128,6 @@ namespace Robot.Tool.Instances
                         playerScript.PlayerInventory.GiveItems(itemDrops);
                     }
                     TryVeinMine(worldTileGridMap, tileItem, drop, mousePosition, veinMinePower, drillPower);
-                    
                 }
                 return;
             }

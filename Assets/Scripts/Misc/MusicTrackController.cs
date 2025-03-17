@@ -9,12 +9,14 @@ namespace Misc.Audio {
         [SerializeField] private List<AudioClip> songs;
         private int currentIndex;
         private AudioSource audioSource;
+        private AudioClip defaultSong;
 
         public static MusicTrackController Instance { get => instance;}
 
         public void Awake() {
             instance = this;
             audioSource = GetComponent<AudioSource>();
+            defaultSong = audioSource.clip;
         }
         public void FixedUpdate() {
             if (!audioSource.isPlaying) {
@@ -24,7 +26,7 @@ namespace Misc.Audio {
                 audioSource.Play();
             }
         }
-        public void setSong(List<AudioClip> songs) {
+        public void SetSong(List<AudioClip> songs) {
             if (songs.Count == 0) {
                 return;
             }
@@ -33,6 +35,14 @@ namespace Misc.Audio {
             audioSource.clip = songs[0];
             audioSource.Play();
             currentIndex = 0;
+        }
+
+        public void RestoreDefaultSong()
+        {
+            if (ReferenceEquals(audioSource.clip, defaultSong)) return;
+            audioSource.clip = defaultSong;
+            audioSource.Play();
+            
         }
     }
 }

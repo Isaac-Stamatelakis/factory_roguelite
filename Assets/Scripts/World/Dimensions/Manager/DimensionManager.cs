@@ -11,6 +11,7 @@ using System.IO;
 using System.Numerics;
 using Tiles;
 using Items;
+using Misc.Audio;
 using Newtonsoft.Json;
 using Player;
 using Player.Tool;
@@ -324,6 +325,11 @@ namespace Dimensions {
             foreach (OutlineWorldTileGridMap outlineTileGridMap in outlineTileGridMaps) {
                 outlineTileGridMap.setView(false,dimensionOptions.OutlineColor);
             }
+
+            if (dimensionOptions.DefaultSong)
+            {
+                MusicTrackController.Instance.RestoreDefaultSong();
+            }
             
             newSystem.InstantCacheChunksNearPlayer();
             newSystem.PlayerPartitionUpdate();
@@ -338,9 +344,9 @@ namespace Dimensions {
             {
                 case DimensionType.Cave: // This is probably not required for cave
                 case DimensionType.BaseDim:
-                    return new DimensionOptions(Color.white, Color.black, 0.05f, null);
+                    return new DimensionOptions(Color.white, Color.black, 0.05f, null,true);
                 case DimensionType.CompactMachines:
-                    return new DimensionOptions(Color.white, Color.black, 0.05f, null);
+                    return new DimensionOptions(Color.white, Color.black, 0.05f, null,true);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -353,13 +359,15 @@ namespace Dimensions {
         public Color OutlineColor;
         public float LightIntensity;
         public ParticleOptions ParticleOptions;
+        public bool DefaultSong;
 
-        public DimensionOptions(Color lightColor, Color outlineColor, float lightIntensity, ParticleOptions particleOptions)
+        public DimensionOptions(Color lightColor, Color outlineColor, float lightIntensity, ParticleOptions particleOptions, bool useDefaultSong)
         {
             LightColor = lightColor;
             OutlineColor = outlineColor;
             LightIntensity = lightIntensity;
             ParticleOptions = particleOptions;
+            DefaultSong = useDefaultSong;
         }
 
         public DimensionOptions(CaveOptions caveOptions)
@@ -368,6 +376,7 @@ namespace Dimensions {
             OutlineColor = caveOptions.OutlineColor;
             LightIntensity = caveOptions.LightIntensity;
             ParticleOptions = new ParticleOptions(caveOptions.ParticleColor);
+            DefaultSong = false;
         }
     }
 

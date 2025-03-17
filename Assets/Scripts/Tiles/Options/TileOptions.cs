@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Items;
+using Robot.Tool.Instances.Drill;
 using TileEntity;
 using Tiles.Options.Colors;
 using Tiles.Options.Overlay;
@@ -45,6 +46,7 @@ namespace Tiles {
         public int hardness = 8;
         public bool placeBreakable = false;
         public Tier requiredToolTier;
+        public TileAudioType AudioType;
         public TileMovementType movementModifier  = TileMovementType.None;
         public List<DropOption> dropOptions;
         public TilePlacementOptions placementRequirements;

@@ -94,7 +94,7 @@ namespace WorldModule.Caves {
             CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(caveObject.CaveDecorations);
             caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
-            MusicTrackController.Instance.setSong(caveElements.Songs);
+            MusicTrackController.Instance.SetSong(caveElements.Songs);
             stopwatch.Stop();
             Debug.Log($"Cave generated completed in {total:F2} seconds. Model Generation of {caveElements.GenerationModel.GetType().Name} Time: {modelTime:F2} seconds." +
                       $"Tile Distribution Time: {tileDistributionTime:F2} seconds. Entity Distribution Time: {entityDistributionTime:F2} seconds.");
