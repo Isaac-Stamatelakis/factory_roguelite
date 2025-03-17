@@ -67,7 +67,7 @@ namespace PlayerModule.KeyPress {
                 CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E});
             }
 
-            if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PLACMENT_MODE))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPlacementMode))
             {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
@@ -75,13 +75,13 @@ namespace PlayerModule.KeyPress {
                 playerScript.PlayerUIContainer.IndicatorManager.conduitPlacementModeIndicatorUI.Refresh();
             }
 
-            if (ControlUtils.GetControlKeyDown(ControlConsts.TERMINATE_CONDUIT_GROUP))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.TerminateConduitGroup))
             {
                 ConduitPlacementOptions conduitPlacementOptions = playerScript.ConduitPlacementOptions;
                 conduitPlacementOptions.ResetPlacementRecord();
             }
 
-            if (ControlUtils.GetControlKeyDown(ControlConsts.SWITCH_CONDUIT_PORT_VIEW))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPortView))
             {
                 ChangePortModePress();
             }

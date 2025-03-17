@@ -110,20 +110,6 @@ namespace Player {
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
-            AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
-            foreach (AnimatorControllerLayer layer in animatorController.layers)
-            {
-                Debug.Log($"Layer: {layer.name}");
-
-                // Get the state machine for the layer
-                AnimatorStateMachine stateMachine = layer.stateMachine;
-
-                // Print all states in the state machine
-                foreach (ChildAnimatorState state in stateMachine.states)
-                {
-                    Debug.Log($"State: {state.state.name}");
-                }
-            }
         }
 
         public void Update()
@@ -131,6 +117,17 @@ namespace Player {
             mPlayerRobotUI.Display(robotData,currentRobot);
             MoveUpdate();
             cameraBounds.UpdateCameraBounds();
+            MiscKeyListens();
+        }
+
+        private void MiscKeyListens()
+        {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapRobotLoadOut))
+            {
+                int direction = Input.GetKey(KeyCode.LeftShift) ? -1 : 1;
+                RobotUpgradeLoadOut.SelfLoadOuts.IncrementCurrent(direction);
+            }
         }
 
         public void AddCollisionState(CollisionState state)
@@ -179,7 +176,7 @@ namespace Player {
                     TeleportUpdate();
                 }
                 
-                if (!recalling && ControlUtils.GetControlKeyDown(ControlConsts.RECALL))
+                if (!recalling && ControlUtils.GetControlKeyDown(PlayerControl.Recall))
                 {
                     StartCoroutine(RecallCoroutine());
                 }
@@ -223,7 +220,7 @@ namespace Player {
                 playerTeleportEvent.IterateTime(Time.deltaTime);
                 if (playerTeleportEvent.Expired()) playerTeleportEvent = null;
             }
-            if (ControlUtils.GetControlKeyDown(ControlConsts.TELEPORT) && playerTeleportEvent == null)
+            if (ControlUtils.GetControlKeyDown(PlayerControl.Teleport) && playerTeleportEvent == null)
             {
                 Camera mainCamera = Camera.main;
                 if (!mainCamera) return;
@@ -258,10 +255,10 @@ namespace Player {
                 rb.velocity = Vector2.zero;
                 return;
             }
-            bool leftInput = Input.GetKey(KeyCode.A);
-            bool rightInput = Input.GetKey(KeyCode.D);
-            bool upInput = Input.GetKey(KeyCode.W);
-            bool downInput = Input.GetKey(KeyCode.S);
+            bool leftInput = ControlUtils.GetControlKey(PlayerControl.MoveLeft);
+            bool rightInput = ControlUtils.GetControlKey(PlayerControl.MoveRight);
+            bool upInput = ControlUtils.GetControlKey(PlayerControl.MoveUp);
+            bool downInput = ControlUtils.GetControlKey(PlayerControl.MoveDown);
              
             Vector2 velocity = rb.velocity;
             const float BASE_SPEED = 5;
@@ -310,12 +307,13 @@ namespace Player {
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
-            bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, KeyCode.A, KeyCode.LeftArrow);
-            bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, KeyCode.D, KeyCode.RightArrow);
+            bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, PlayerControl.MoveLeft);
+            bool movedRight = !CollisionStateActive(CollisionState.OnWallRight) && !blockInput && DirectionalMovementUpdate(Direction.Right, PlayerControl.MoveRight);
 
             bool moveUpdate = movedLeft != movedRight; // xor
             if (!moveUpdate)
             {
+                animator.speed = 1;
                 animator.Play("Idle");
                 float dif = GetFriction();
                 
@@ -332,6 +330,8 @@ namespace Player {
             }
             else
             {
+                const float ANIMATOR_SPEED_INCREASE = 0.25f;
+                animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
                 animator.Play("Walk");
             }
 
@@ -375,11 +375,11 @@ namespace Player {
                 {
                     rb.gravityScale = defaultGravityScale;
                     jumpEvent = null;
-                } else if (Input.GetKey(KeyCode.Space))
+                } else if (ControlUtils.GetControlKey(PlayerControl.Jump))
                 {
                     rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
-                    if (Input.GetKey(KeyCode.S)) 
+                    if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) 
                     {
                         jumpEvent.IterateTime();
                         rb.gravityScale *= 1.5f;
@@ -421,7 +421,7 @@ namespace Player {
             }
 
             const float BONUS_FALL_MODIFIER = 1.25f;
-            rb.gravityScale = Input.GetKey(KeyCode.S) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
+            rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)
@@ -432,13 +432,13 @@ namespace Player {
                 jumpEvent = null;
                 return;
             }
-            if (CollisionStateActive(CollisionState.OnPlatform) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.S))
+            if (CollisionStateActive(CollisionState.OnPlatform) && ControlUtils.GetControlKey(PlayerControl.Jump) && ControlUtils.GetControlKey(PlayerControl.MoveDown))
             {
                 ignorePlatformFrames = 3;
                 return;
             }
             
-            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && Input.GetKeyDown(KeyCode.Space))
+            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
             {
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
@@ -453,14 +453,14 @@ namespace Player {
             
             if (!IsOnGround() && rocketBoots != null)
             {
-                if (!rocketBoots.Active &&  Input.GetKeyDown(KeyCode.Space))
+                if (!rocketBoots.Active &&  ControlUtils.GetControlKeyDown(PlayerControl.Jump))
                 {
                     StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
                 }
 
                 if (rocketBoots.Active)
                 {
-                    rocketBoots.UpdateBoost(Input.GetKey(KeyCode.Space));
+                    rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
                     if (rocketBoots.FlightTime < 0)
                     {
                         rocketBoots.Terminate();
@@ -478,9 +478,9 @@ namespace Player {
             return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
 
-        private bool DirectionalMovementUpdate(Direction direction, KeyCode firstKeycode, KeyCode secondKeyCode)
+        private bool DirectionalMovementUpdate(Direction direction, PlayerControl playerControl)
         {
-            if (!Input.GetKey(firstKeycode) && !Input.GetKey(secondKeyCode)) return false;
+            if (!ControlUtils.GetControlKey(playerControl)) return false;
             switch (direction)
             {
                 case Direction.Left:
@@ -657,7 +657,7 @@ namespace Player {
 
             if (liveYUpdates > 0) return FREEZE_Z;
             
-            if (CollisionStateActive(CollisionState.OnSlope) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+            if (CollisionStateActive(CollisionState.OnSlope) && !ControlUtils.GetControlKey(PlayerControl.MoveLeft) && !ControlUtils.GetControlKey(PlayerControl.MoveRight))
             {
                 return FREEZE_Y;
             }
@@ -756,18 +756,18 @@ namespace Player {
         {
             Vector3 position = playerTransform.position;
             float movementSpeed = DevMode.Instance.FlightSpeed * Time.deltaTime;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+            if (ControlUtils.GetControlKey(PlayerControl.MoveLeft) || Input.GetKey(KeyCode.LeftArrow)) {
                 position.x -= movementSpeed;
                 spriteRenderer.flipX = true;
             }
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+            if (ControlUtils.GetControlKey(PlayerControl.MoveRight) || Input.GetKey(KeyCode.RightArrow)) {
                 position.x += movementSpeed;
                 spriteRenderer.flipX = false;
             }
-            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
+            if (ControlUtils.GetControlKey(PlayerControl.MoveUp) || Input.GetKey(KeyCode.UpArrow)) {
                 position.y += movementSpeed;
             }
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
+            if (ControlUtils.GetControlKey(PlayerControl.MoveDown) || Input.GetKey(KeyCode.DownArrow)) {
                 position.y -= movementSpeed;
             }
             playerTransform.position = position;
@@ -817,7 +817,7 @@ namespace Player {
             if (rb.bodyType == RigidbodyType2D.Static) {
                 return;
             }
-            bool climbKeyInput = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
+            bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
             if (climbing || !climbKeyInput || GetClimbable() == null) return;
             
             climbing = true;
@@ -875,7 +875,7 @@ namespace Player {
 
         private void HandleClimbing() {
             IClimableTileEntity climableTileEntity = GetClimbable();
-            bool exitKeyCode = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.Space);
+            bool exitKeyCode = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.Jump);
             if (climableTileEntity == null || exitKeyCode)
             {
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -885,9 +885,9 @@ namespace Player {
             }
             Vector2 velocity = rb.velocity;
             fallTime = 0;
-            if (Input.GetKey(KeyCode.W)) {
+            if (ControlUtils.GetControlKey(PlayerControl.MoveUp)) {
                 velocity.y = climableTileEntity.GetSpeed();
-            } else if (Input.GetKey(KeyCode.S)) {
+            } else if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) {
                 velocity.y = -climableTileEntity.GetSpeed();
             } else {
                 velocity.y = 0;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -14,8 +15,8 @@ namespace Player.Controls.UI
         [SerializeField] private Transform listTransform;
         [SerializeField] private TextMeshProUGUI headerPrefab;
         [SerializeField] private ControlUIElement controlUIElementPrefab;
-        [SerializeField] private Button highlightConflicts;
-        private Dictionary<string, ControlUIElement> elementUIDict = new Dictionary<string, ControlUIElement>();
+        private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
+        public bool ListeningToKey = false;
         public void Start()
         {
             backButton.onClick.AddListener(() =>
@@ -23,19 +24,24 @@ namespace Player.Controls.UI
                 CanvasController.Instance.PopStack();
                 ControlUtils.LoadBindings();
             });
-            restoreButton.onClick.AddListener(ControlUtils.SetDefault);
+            restoreButton.onClick.AddListener(() =>
+            {
+                ControlUtils.SetDefault();
+                Display();
+            });
             Display();
         }
         
         private void Display()
         {
+            GlobalHelper.deleteAllChildren(listTransform);
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
             {
                 TextMeshProUGUI header = Instantiate(headerPrefab, listTransform);
                 header.text = kvp.Key;
-                List<string> bindings = kvp.Value.GetBindingKeys();
-                foreach (string binding in bindings)
+                List<PlayerControl> bindings = kvp.Value.GetBindingKeys();
+                foreach (PlayerControl binding in bindings)
                 {
                     ControlUIElement controlUIElement = Instantiate(controlUIElementPrefab, listTransform);
                     controlUIElement.Initalize(binding,this);
@@ -47,11 +53,20 @@ namespace Player.Controls.UI
         
         public void CheckConflicts()
         {
-            HashSet<string> conflicts = ControlUtils.GetConflictingBindings();
+            HashSet<PlayerControl> conflicts = ControlUtils.GetConflictingBindings();
             foreach (var kvp in elementUIDict)
             {
                 ControlUIElement controlUIElement = kvp.Value;
                 controlUIElement.HighlightConflictState(conflicts.Contains(kvp.Key));
+            }
+        }
+
+        public void Update()
+        {
+            if (ListeningToKey) return;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CanvasController.Instance.PopStack();
             }
         }
     }

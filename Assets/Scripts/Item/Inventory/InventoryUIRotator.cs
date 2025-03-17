@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Item.Slot;
 using Items.Inventory;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Item.Inventory
 {
@@ -14,12 +15,14 @@ namespace Item.Inventory
         private int updateTime;
         private List<List<ItemSlot>> inventories;
         private int displaySize;
-        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true)
+        public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true, int initialIndex = 0)
         {
             this.inventories = inventories;
             this.displaySize = displaySize;
             this.updateTime = fixedUpdatesPerSwitch;
+            index = initialIndex;
             inventoryUI = GetComponent<InventoryUI>();
+            counter = 0;
             if (ReferenceEquals(inventoryUI, null))
             {
                 Debug.LogError("InventoryUIRotator must be placed on an inventory ui");

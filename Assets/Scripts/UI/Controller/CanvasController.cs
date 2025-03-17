@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Player.Controls;
@@ -8,19 +9,31 @@ using UnityEngine;
 
 namespace UI
 {
+    public enum UIAudioClipType
+    {
+        Button
+    }
     public abstract class CanvasController : MonoBehaviour
     {
         [SerializeField] private GameObject mBlocker;
+        [SerializeField] private UIAudioElements uiAudioElements;
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
         public bool IsActive => uiObjectStack.Count > 0;
         private bool canTerminate;
+        private AudioSource audioSource;
         public void Awake()
         {
             instance = this;
+            audioSource = gameObject.AddComponent<AudioSource>();
         }
 
+        public void PlayAudioClip(UIAudioClipType audioClipType)
+        {
+            AudioClip clip = uiAudioElements.GetClip(audioClipType);
+            audioSource.PlayOneShot(clip);
+        }
         public abstract void EmptyListen();
         public abstract void ListenKeyPresses();
         
@@ -28,7 +41,7 @@ namespace UI
 
         public void Update()
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.HIDE_UI)))
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(PlayerControl.HideUI)))
             {
                 Canvas parentCanvas = GetComponentInParent<Canvas>();
                 parentCanvas.enabled = !parentCanvas.enabled;
@@ -63,6 +76,11 @@ namespace UI
                     return;
                 }
             }
+        }
+
+        public bool CanEscapePop()
+        {
+            return Input.GetKeyDown(KeyCode.Escape) && uiObjectStack.Count > 0 && uiObjectStack.Peek().termianteOnEscape;
         }
 
         private IEnumerator DelayStartPopStack()
@@ -126,9 +144,9 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0, bool terminateOnEscape = true)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority,terminateOnEscape));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -161,6 +179,23 @@ namespace UI
         {
             displayObject.transform.SetParent(transform.parent, false);
         }
+
+        [System.Serializable]
+        private class UIAudioElements
+        {
+            public AudioClip ButtonClick;
+
+            public AudioClip GetClip(UIAudioClipType audioClipType)
+            {
+                switch (audioClipType)
+                {
+                    case UIAudioClipType.Button:
+                        return ButtonClick;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(audioClipType), audioClipType, null);
+                }
+            }
+        }
     }
 
     public class DisplayedUIInfo
@@ -171,8 +206,9 @@ namespace UI
         public bool hideParent;
         public Transform originalParent;
         public int priority;
+        public bool termianteOnEscape;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority, bool terminateOnEscape)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
@@ -180,6 +216,7 @@ namespace UI
             this.hideParent = hideParent;
             this.originalParent = originalParent;
             this.priority = priority;
+            this.termianteOnEscape = terminateOnEscape;
         }
     }
     

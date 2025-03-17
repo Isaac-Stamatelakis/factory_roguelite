@@ -40,6 +40,11 @@ namespace Recipe.Processor
                     switch (recipeObject)
                     {
                         case ItemRecipeObject itemRecipeObject:
+                            if (itemRecipeObject.Inputs == null || itemRecipeObject.Outputs == null)
+                            {
+                                Debug.LogWarning($"ItemRecipe {itemRecipeObject.name} has no inputs or outputs.");
+                                continue;
+                            }
                             PlaceRecipeIndex(itemRecipeObject.Inputs,tempInput,recipeIndex);
                             PlaceRecipeIndex(itemRecipeObject.Outputs,tempOutput,recipeIndex);
                             break;
@@ -69,6 +74,7 @@ namespace Recipe.Processor
         
         private void PlaceRecipeIndex<T>(List<T> slots, Dictionary<string, List<ushort>> dict, ushort recipeIndex) where T : EditorItemSlot
         {
+            if (slots == null) return;
             var includedIds = new HashSet<string>();
             foreach (var slot in slots)
             {

@@ -11,9 +11,9 @@ namespace Player.Controls.UI
     {
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private Button button;
-        private string key;
+        private PlayerControl key;
         private List<KeyCode> selectableKeys;
-        [FormerlySerializedAs("additionalListTime")] [FormerlySerializedAs("count")] public int listenUpdates;
+        public int listenUpdates;
         private List<KeyCode> cachedKeys;
         private ControlSettingUI controlSettingUI;
         public void Start()
@@ -24,6 +24,8 @@ namespace Player.Controls.UI
                 {
                     return;
                 }
+
+                controlSettingUI.ListeningToKey = true;
                 listenUpdates = 5;
                 cachedKeys = new List<KeyCode>();
                 selectableKeys = ControlUtils.GetAllSelectableKeys();
@@ -39,6 +41,7 @@ namespace Player.Controls.UI
             listenUpdates--;
             if (listenUpdates < 0)
             {
+                controlSettingUI.ListeningToKey = false;
                 selectableKeys = null;
                 ControlUtils.SetKeyValue(key,cachedKeys);
                 controlSettingUI.CheckConflicts();
@@ -59,11 +62,16 @@ namespace Player.Controls.UI
             {
                 return;
             }
-            List<KeyCode> pressedKeys = new List<KeyCode>();
 
             if (Input.GetKey(KeyCode.Escape))
             {
+                controlSettingUI.ListeningToKey = false;
+                ControlUtils.SetKeyValue(key,new List<KeyCode>());
+                controlSettingUI.CheckConflicts();
+                Display();
+                cachedKeys = null;
                 selectableKeys = null;
+                listenUpdates = 0;
                 return;
             }
             foreach (KeyCode keyCode in selectableKeys)
@@ -82,7 +90,7 @@ namespace Player.Controls.UI
             string formatString = ControlUtils.KeyCodeListAsString(keyCodes);
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
-        public void Initalize(string key, ControlSettingUI controlSettingUI)
+        public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)
         {
             this.controlSettingUI = controlSettingUI;
             this.key = key;

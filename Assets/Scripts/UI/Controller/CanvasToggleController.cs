@@ -8,7 +8,7 @@ namespace UI.Controller
         [SerializeField] private GameObject jei;
         void Update()
         {
-            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(ControlConsts.HIDE_JEI)))
+            if (Input.GetKeyDown(ControlUtils.GetPrefKeyCode(PlayerControl.HideJEI)))
             {
                 jei.gameObject.SetActive(!jei.activeInHierarchy);
             }

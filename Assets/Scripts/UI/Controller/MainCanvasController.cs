@@ -39,7 +39,7 @@ namespace UI
 
         public override void ListenKeyPresses()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (CanEscapePop())
             {
                 PopStack();
             }

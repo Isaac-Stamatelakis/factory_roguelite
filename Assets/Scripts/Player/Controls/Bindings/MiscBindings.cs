@@ -10,8 +10,8 @@ namespace Player.Controls.Bindings
         {
             return new List<ControlBinding>
             {
-                new (ControlConsts.HIDE_UI, new List<KeyCode>{KeyCode.F1}),
-                new (ControlConsts.HIDE_JEI, new List<KeyCode>{KeyCode.F2}),
+                new (PlayerControl.HideUI, new List<KeyCode>{KeyCode.F1}),
+                new (PlayerControl.HideJEI, new List<KeyCode>{KeyCode.F2}),
             };
         }
     }

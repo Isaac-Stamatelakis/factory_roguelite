@@ -8,6 +8,7 @@ using Player.Tool;
 using Robot.Tool;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
 using UI;
 using UnityEngine;
@@ -45,7 +46,7 @@ namespace Player.UI.Inventory
             {
                 UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(
                     playerRobot.CurrentRobot?.UpgradePath,
-                    playerRobot.RobotUpgradeLoadOut.SelfLoadOuts.GetCurrent(),
+                    playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,
                     playerRobot.RobotData.RobotUpgrades,
                     RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0)
                 );
@@ -59,9 +60,9 @@ namespace Player.UI.Inventory
                 string upgradePath = playerRobot.RobotTools[index].GetToolObject().UpgradePath;
                 List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
                 RobotToolType toolType = playerRobot.ToolTypes[index];
-                RobotStatLoadOut statLoadOut = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType)?.GetCurrent();
+                RobotStatLoadOutCollection statLoadOutCollection = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType);
                 RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
-                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOut, upgradeData, robotUpgradeInfo);
+                UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo);
                 DisplayData(upgradeDisplayData);
             });
         }
@@ -69,7 +70,7 @@ namespace Player.UI.Inventory
         private void DisplayData(UpgradeDisplayData upgradeDisplayData)
         {
             bool error = false;
-            if (upgradeDisplayData.StatLoadOut == null)
+            if (upgradeDisplayData.StatLoadOutCollection == null)
             {
                 error = true;
                 Debug.LogWarning("Tried to display null stat load out");
@@ -85,7 +86,7 @@ namespace Player.UI.Inventory
             if (error) return;
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
-            statSelectorUI.Display(upgradeDisplayData.StatLoadOut,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
+            statSelectorUI.Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
             CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
         }
         
@@ -93,14 +94,14 @@ namespace Player.UI.Inventory
         private struct UpgradeDisplayData
         {
             public string UpgradePath;
-            public RobotStatLoadOut StatLoadOut;
+            public RobotStatLoadOutCollection StatLoadOutCollection;
             public List<RobotUpgradeData> UpgradeData;
             public RobotUpgradeInfo RobotUpgradeInfo;
 
-            public UpgradeDisplayData(string upgradePath, RobotStatLoadOut statLoadOut, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo)
+            public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo)
             {
                 UpgradePath = upgradePath;
-                StatLoadOut = statLoadOut;
+                StatLoadOutCollection = statLoadOutCollection;
                 UpgradeData = upgradeData;
                 RobotUpgradeInfo = robotUpgradeInfo;
             }

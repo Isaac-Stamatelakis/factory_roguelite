@@ -20,6 +20,7 @@ namespace UI.PauseScreen
 
         public void Start()
         {
+            //Time.timeScale = 0f;
             uiAssetManager.load();
             resumeButton.onClick.AddListener(MainCanvasController.Instance.PopStack);
             WorldManager worldManager = WorldManager.getInstance();
@@ -49,25 +50,25 @@ namespace UI.PauseScreen
             });
             controlButton.onClick.AddListener(() =>
             {
-                Display("CONTROLS");
+                Display("CONTROLS",false);
             });
             statisticsButton.onClick.AddListener(() =>
             {
-                Display("STATS");
+                Display("STATS",true);
             });
             videoSettingButton.onClick.AddListener(() =>
             {
-                Display("VIDEO");
+                Display("VIDEO",true);
             });
             audioSettingButton.onClick.AddListener(() =>
             {
-                Display("AUDIO");
+                Display("AUDIO",true);
             });
         }
 
-        private void Display(string key)
+        private void Display(string key, bool termianteOnEscape)
         {
-            uiAssetManager.DisplayObject(key,priority:1);
+            uiAssetManager.DisplayObject(key,priority:1,terminateOnEscape:termianteOnEscape);
         }
 
         public void OnDestroy()

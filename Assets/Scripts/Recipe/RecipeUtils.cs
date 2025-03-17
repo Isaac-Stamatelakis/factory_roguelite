@@ -138,7 +138,7 @@ public static class RecipeUtils {
                 return;
             }
             ItemRecipeObject itemRecipeObject = recipeObject as ItemRecipeObject;
-            if (ReferenceEquals(itemRecipeObject, null))
+            if (!itemRecipeObject)
             {
                 Debug.LogWarning($"Null recipe in processor {recipeProcessor.name}");
                 return;
