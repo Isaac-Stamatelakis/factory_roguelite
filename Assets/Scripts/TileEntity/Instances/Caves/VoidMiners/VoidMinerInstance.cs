@@ -96,7 +96,11 @@ namespace TileEntity.Instances {
         public void SetCaveTileCollectionFromDriveSlot(CaveRegistry caveRegistry)
         {
             ItemSlot itemSlot = MinerData.DriveSlot;
-            if (itemSlot?.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out object caveData)) return;
+            if (itemSlot?.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.CaveData, out object caveData))
+            {
+                caveTileCollection = null;
+                return;
+            }
             if (caveData is not string caveId) return;
             caveId = caveId.ToLower();
             caveTileCollection = caveRegistry.GetCaveTileCollection(caveId);

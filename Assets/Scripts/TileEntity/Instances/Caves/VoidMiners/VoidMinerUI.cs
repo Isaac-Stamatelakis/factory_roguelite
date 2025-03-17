@@ -67,7 +67,13 @@ namespace TileEntity.Instances.Caves.VoidMiners
         private void OnFilterSlotChange(int index)
         {
             ItemSlot filterSlot = mFilterInventoryUI.GetItemSlot(index);
-            if (filterSlot?.tags?.Dict == null || !filterSlot.tags.Dict.TryGetValue(ItemTag.ItemFilter, out object filterData)) return;
+            if (filterSlot?.tags?.Dict == null ||
+                !filterSlot.tags.Dict.TryGetValue(ItemTag.ItemFilter, out object filterData))
+            {
+                voidMinerInstance.MinerData.ItemFilter = null;
+                return;
+            }
+
             ItemFilter filter = filterData as ItemFilter;
             if (filterData == null) return;
             voidMinerInstance.MinerData.ItemFilter = filter;

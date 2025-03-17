@@ -15,7 +15,6 @@ namespace Player.Controls.UI
         [SerializeField] private Transform listTransform;
         [SerializeField] private TextMeshProUGUI headerPrefab;
         [SerializeField] private ControlUIElement controlUIElementPrefab;
-        [SerializeField] private Button highlightConflicts;
         private Dictionary<PlayerControl, ControlUIElement> elementUIDict = new Dictionary<PlayerControl, ControlUIElement>();
         public bool ListeningToKey = false;
         public void Start()
@@ -35,6 +34,7 @@ namespace Player.Controls.UI
         
         private void Display()
         {
+            GlobalHelper.deleteAllChildren(listTransform);
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
             {
