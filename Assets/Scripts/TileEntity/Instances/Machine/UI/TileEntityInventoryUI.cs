@@ -57,25 +57,30 @@ namespace TileEntity.Instances.Machine.UI
                 {
                     outputs.Add(new List<ItemSlot>{outputSlot});
                 }
+                int randomIndex = UnityEngine.Random.Range(0, inputs.Count);
                 InitializeTransmutationSwitchUIRecipe(
                     solidInputUI, 
                     transmutationDisplayableRecipe.InputState == ItemState.Solid ? inputs : null, 
-                    layoutObject?.SolidInputs
+                    layoutObject?.SolidInputs,
+                    randomIndex
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     fluidInputUI, 
                     transmutationDisplayableRecipe.InputState == ItemState.Fluid ? inputs : null, 
-                    layoutObject?.FluidInputs
+                    layoutObject?.FluidInputs,
+                    randomIndex
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     solidOutputUI, 
                     transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
-                    layoutObject?.SolidOutputs
+                    layoutObject?.SolidOutputs,
+                    randomIndex
                 );
                 InitializeTransmutationSwitchUIRecipe(
                     fluidOutputUI, 
                     transmutationDisplayableRecipe.OutputState == ItemState.Solid ? outputs : null, 
-                    layoutObject?.FluidOutputs
+                    layoutObject?.FluidOutputs,
+                    randomIndex
                 );
                 
             }
@@ -122,6 +127,13 @@ namespace TileEntity.Instances.Machine.UI
             int size = SizeCheckInventoryUI(inventoryUI,items,inventoryOptions);
             if (size == 0) return;
             
+            InventoryUIRotator rotator = inventoryUI.GetComponent<InventoryUIRotator>();
+            bool rotatorExists = rotator;
+            if (rotatorExists)
+            {
+                GameObject.Destroy(rotator);
+            }
+            
             List<string> topNames = new List<string>();
             foreach (T item in items)
             {
@@ -139,7 +151,7 @@ namespace TileEntity.Instances.Machine.UI
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
 
-        private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions)
+        private void InitializeTransmutationSwitchUIRecipe(InventoryUI inventoryUI, List<List<ItemSlot>> inventories, MachineInventoryOptions inventoryOptions, int initialIndex)
         {
             if (inventories == null || inventories.Count == 0)
             {
@@ -154,7 +166,7 @@ namespace TileEntity.Instances.Machine.UI
             {
                 rotator = inventoryUI.AddComponent<InventoryUIRotator>();
             }
-            rotator.Initialize(inventories,size,100);
+            rotator.Initialize(inventories,size,50,initialIndex:initialIndex);
             inventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
         }
 

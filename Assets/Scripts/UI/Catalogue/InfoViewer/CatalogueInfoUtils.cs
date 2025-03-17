@@ -103,10 +103,12 @@ namespace UI.Catalogue.InfoViewer
         
         public static void FilterCatalogueUnStagedElements(List<CatalogueElementData> elements, PlayerGameStageCollection playerGameStageCollection)
         {
+            bool filter = DevMode.Instance.EnableGameStages;
             for (var index = elements.Count-1; index >= 0; index--)
             {
                 var catalogueElementData = elements[index];
-                catalogueElementData.CatalogueElement.Filter(playerGameStageCollection);
+                if (filter) catalogueElementData.CatalogueElement.Filter(playerGameStageCollection);
+                
                 if (catalogueElementData.CatalogueElement.GetPageCount() == 0)
                 {
                     elements.RemoveAt(index);

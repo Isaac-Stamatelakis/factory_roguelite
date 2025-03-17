@@ -110,20 +110,6 @@ namespace Player {
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
-            AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
-            foreach (AnimatorControllerLayer layer in animatorController.layers)
-            {
-                Debug.Log($"Layer: {layer.name}");
-
-                // Get the state machine for the layer
-                AnimatorStateMachine stateMachine = layer.stateMachine;
-
-                // Print all states in the state machine
-                foreach (ChildAnimatorState state in stateMachine.states)
-                {
-                    Debug.Log($"State: {state.state.name}");
-                }
-            }
         }
 
         public void Update()

@@ -48,35 +48,31 @@ public static class RecipeGeneratorUtils
         }
         int iterations = Mathf.Min(recipeGenerator.Inputs.Count, recipeGenerator.Outputs.Count);
         int currentMultiplier = 1;
+        while (recipeGenerator.GeneratedRecipes.Count < iterations)
+        {
+            recipeGenerator.GeneratedRecipes.Add(null);
+        }
         for (int i = 0; i < iterations; i++)
         {
             if (recipeGenerator.Multiplier > 0)
             {
                 currentMultiplier *= recipeGenerator.Multiplier;
             }
-
-            bool recipeExists = i < recipeGenerator.GeneratedRecipes.Count;
-            bool createNew = !recipeExists;
-            if (recipeExists)
+            
+            
+            bool currentValid = recipeGenerator.GeneratedRecipes[i] && CurrentValid(recipeGenerator.GeneratedRecipes[i],recipeGenerator.RecipeType);
+            if (!currentValid)
             {
-                bool currentValid = CurrentValid(recipeGenerator.GeneratedRecipes[i],recipeGenerator.RecipeType);
-                if (!currentValid && recipeGenerator.GeneratedRecipes[i])
-                {
-                    createNew = true;
-                    DeleteRecipe(recipeGenerator, recipeGenerator.GeneratedRecipes[i]);
-                    recipeGenerator.GeneratedRecipes.RemoveAt(i);
-                }
+                DeleteRecipe(recipeGenerator, recipeGenerator.GeneratedRecipes[i],log);
             }
             
-            ItemRecipeObject recipeObject = !createNew 
+            ItemRecipeObject recipeObject = currentValid 
                 ? recipeGenerator.GeneratedRecipes[i] 
                 : GenerateRecipe(recipeGenerator, i, log, generatedRecipePath + "/",currentMultiplier);;
             
             SetUpRecipe(recipeObject, recipeGenerator,i,log,currentMultiplier);
-            if (!createNew) continue;
-            recipeGenerator.RecipeCollection.Recipes.Add(recipeObject);
-            recipeGenerator.GeneratedRecipes.Add(recipeObject);
-
+            recipeGenerator.GeneratedRecipes[i] = recipeObject;
+            if (!currentValid) recipeGenerator.RecipeCollection.Recipes.Add(recipeObject);
         }
     }
 
@@ -104,16 +100,18 @@ public static class RecipeGeneratorUtils
     {
         foreach (var recipeObject in recipeGenerator.GeneratedRecipes)
         {
-            DeleteRecipe(recipeGenerator, recipeObject);
+            DeleteRecipe(recipeGenerator, recipeObject,false);
         }
 
         recipeGenerator.GeneratedRecipes.Clear();
     }
 
-    private static void DeleteRecipe(RecipeGenerator recipeGenerator, RecipeObject recipeObject)
+    private static void DeleteRecipe(RecipeGenerator recipeGenerator, RecipeObject recipeObject, bool log)
     {
         if (!recipeObject) return;
+        if (log) Debug.Log($"Deleted Recipe Generator recipe {recipeObject.name}");
         AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(recipeObject));
+        
         if (!recipeGenerator.RecipeCollection) return;
         int index = recipeGenerator.RecipeCollection.Recipes.IndexOf(recipeObject);
         if (index == -1) return;
