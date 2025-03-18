@@ -23,6 +23,8 @@ public static class Global
     private static CaveObject currentCaveObject;
     public const int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
     public const string editorCreationPath = "EditorCreations";
+    public const int PLAYER_LAYER = 8;
+    public const int BLOCK_LAYER = 512;
     
     public static GameObject findChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
