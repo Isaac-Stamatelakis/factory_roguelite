@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,8 @@ using Items;
 using Conduits.Ports;
 using Fluids;
 using Entities;
+using Entities.Mobs;
+using Newtonsoft.Json;
 using Player;
 
 namespace Chunks.Partitions {
@@ -27,13 +30,27 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             
             const int ENTITY_LOAD_PER_UPDATE = 5;
             if (parent is not ILoadedChunk loadedChunk) yield break;
-            
+            Transform entityContainer = loadedChunk.getEntityContainer();
             int loads = 0;
             for (int i = data.entityData.Count - 1; i >= 0; i--)
             {
                 if (!loaded) yield break;
                 if (i >= data.entityData.Count) yield break;
-                EntityUtils.spawnFromData(data.entityData[i],loadedChunk.getEntityContainer());
+                SeralizedEntityData entityData = data.entityData[i];
+                Vector2 entityPosition = new Vector2(entityData.x, entityData.y);
+                switch (entityData.type)
+                {
+                    case EntityType.Item:
+                        ItemEntity.SpawnFromData(entityPosition,entityData.data,entityContainer);
+                        break;
+                    case EntityType.Mob:
+                        SerializedMobEntityData mobEntityData = JsonConvert.DeserializeObject<SerializedMobEntityData>(entityData.data);
+                        Debug.Log(entityData.data);
+                        yield return EntityRegistry.Instance.SpawnEntityCoroutine(mobEntityData,entityPosition,entityContainer);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
                 data.entityData.RemoveAt(i);
                 loads++;
                 if (loads >= ENTITY_LOAD_PER_UPDATE)

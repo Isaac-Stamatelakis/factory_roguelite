@@ -9,11 +9,12 @@ namespace Entities.Mobs {
     public class MobEntity : Entity, ISerializableEntity
     {
         private string id;
-        public void deseralize(string id, Dictionary<string,string> componentData) {
+        public void Deseralize(string id, string data) {
             this.id = id;
-            if (componentData == null) {
+            if (data == null) {
                 return;
             }
+            /*
             foreach (KeyValuePair<string,string> kvp in componentData) {
                 Type type = Type.GetType(kvp.Key);
                 var component = GetComponent(type);
@@ -27,6 +28,7 @@ namespace Entities.Mobs {
                 }
                 serializableMobComponent.deseralize(kvp.Value);
             }
+            */
         }
 
         public override void initalize()
@@ -36,17 +38,11 @@ namespace Entities.Mobs {
 
         public SeralizedEntityData serialize() {
             ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
-            Dictionary<string, string> componentSerializedDict = serializableMobComponents.Length == 0 
-                ? null
-                : new Dictionary<string, string>();
-            foreach (ISerializableMobComponent component in serializableMobComponents) {
-                string typeName = component.GetType().FullName;
-                componentSerializedDict.Add(typeName,component.serialize());
-            }
-            SerializedMobData serializedMobData = new SerializedMobData(
-                id,
-                componentSerializedDict
-            );
+            
+            SerializedMobEntityData serializedMobData = new SerializedMobEntityData{
+                Id = id,
+                Data = null
+            };
             return new SeralizedEntityData(
                 type: EntityType.Mob,
                 position: transform.position,

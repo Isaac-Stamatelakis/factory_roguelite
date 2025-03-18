@@ -40,6 +40,9 @@ namespace TileEntity.Instances.Signal {
             if (active) {
                 Load();
             } else {
+                if (tileItem.tile is IStateTile stateTile) {
+                    TileEntityUtils.stateSwitch(this,0); // set off
+                }
                 Unload();
             }
         }
@@ -76,10 +79,6 @@ namespace TileEntity.Instances.Signal {
             {
                 GameObject.Destroy(lightObject);
                 lightObject = null;
-            }
-            
-            if (tileItem.tile is IStateTile stateTile) {
-                TileEntityUtils.stateSwitch(this,0); // set off
             }
         }
 
