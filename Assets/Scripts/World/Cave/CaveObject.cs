@@ -5,6 +5,7 @@ using UnityEngine;
 using Misc.Audio;
 using TileEntity;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Serialization;
 using World.Cave.DecorationDistributor;
 using World.Cave.TileDistributor;
 using World.Cave.TileDistributor.Ore;
@@ -81,9 +82,9 @@ namespace WorldModule.Caves {
             {
                 caveElements.StructureDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             }
-            if (!ReferenceEquals(caveElements.EntityDistributor,null)) {
+            if (caveElements.CaveEntityDistributor != null) {
                 stopwatch.Restart();
-                caveElements.EntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+                caveElements.CaveEntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
                 entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
                 total += entityDistributionTime;
             }
@@ -107,16 +108,14 @@ namespace WorldModule.Caves {
             return caveElements.GenerationModel.GetCoveredChunkArea();
         }
     }
-
-
-    [System.Serializable] 
+    
     public struct CaveElements {
         public GenerationModel GenerationModel;
         public AreaTileDistributor TileDistributor;
-        public CaveEntityDistributor EntityDistributor;
         public List<AudioClip> Songs;
         public AreaStructureDistributor StructureDistributor;
         public AreaTileDistributor OreDistributor;
+        public CaveEntityDistributor CaveEntityDistributor;
     }
 
     

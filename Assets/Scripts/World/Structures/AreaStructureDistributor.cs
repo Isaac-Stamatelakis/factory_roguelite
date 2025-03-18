@@ -226,7 +226,6 @@ namespace WorldModule.Caves {
             {
                 yIter = 1;
             }
-            Debug.Log(xIter + "," + yIter);
             
             if (xIter == 0 && yIter == 0)
             {

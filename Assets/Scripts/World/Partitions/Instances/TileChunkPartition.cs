@@ -44,8 +44,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         ItemEntity.SpawnFromData(entityPosition,entityData.data,entityContainer);
                         break;
                     case EntityType.Mob:
+                        if (entityData.data == null) break;
                         SerializedMobEntityData mobEntityData = JsonConvert.DeserializeObject<SerializedMobEntityData>(entityData.data);
-                        Debug.Log(entityData.data);
                         yield return EntityRegistry.Instance.SpawnEntityCoroutine(mobEntityData,entityPosition,entityContainer);
                         break;
                     default:

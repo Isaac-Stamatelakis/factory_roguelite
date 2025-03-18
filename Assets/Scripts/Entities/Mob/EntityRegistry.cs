@@ -83,6 +83,17 @@ namespace Entities.Mobs {
             }
         }
 
+        public Vector2Int? GetSizeOfEntity(string entityId)
+        {
+            if (!cache.TryGetValue(entityId, out GameObject prefab)) return null;
+            if (!prefab) return null;
+            SpriteRenderer spriteRenderer = prefab.GetComponent<SpriteRenderer>();
+            if (!spriteRenderer) return null;
+            Sprite sprite = spriteRenderer.sprite;
+            Vector2Int spriteSize = Global.getSpriteSize(sprite);
+            return spriteSize;
+        }
+
         private void Spawn(SerializedMobEntityData serializedEntityData, Vector2 position,Transform container) {
             GameObject entity = Object.Instantiate(cache[serializedEntityData.Id], container, false);
             MobEntity mobEntity = entity.GetComponent<MobEntity>();
@@ -94,45 +105,79 @@ namespace Entities.Mobs {
             entity.transform.position = position;
             mobEntity.initalize();
             mobEntity.Deseralize(serializedEntityData.Id, serializedEntityData.Data);
-            
         }
         
 
-        public void Reset() {
+        public void ClearCache() {
             cache.Clear();
+        }
+
+        public void ClearCache(List<string> idsToPreserve)
+        {
+            List<string> loadedIds = cache.Keys.ToList();
+            foreach (string id in loadedIds)
+            {
+                if (idsToPreserve.Contains(id)) continue;
+                cache.Remove(id);
+            }
+        }
+
+        public IEnumerator LoadEntitiesIntoMemory(List<string> ids)
+        {
+            List<string> idsBeingLoaded = new();
+            List<AsyncOperationHandle<GameObject>> handles = new List<AsyncOperationHandle<GameObject>>();
+            foreach (var id in ids)
+            {
+                if (!assetLocationMap.TryGetValue(id, out IResourceLocation location)) continue;
+                if (cache.ContainsKey(id)) continue;
+                var handle = StartEntityLoad(id, location);
+                handles.Add(handle);
+                idsBeingLoaded.Add(id);
+            }
+
+            for (var index = 0; index < handles.Count; index++)
+            {
+                var handle = handles[index];
+                yield return handle;
+                OnHandleComplete(idsBeingLoaded[index], handle);
+            }
+            Debug.Log($"Loaded {idsBeingLoaded.Count} Entities into memory");
         }
 
         private IEnumerator LoadEntityIntoMemory(string id)
         {
             if (!assetLocationMap.TryGetValue(id, out IResourceLocation location)) yield break;
+            var handle = StartEntityLoad(id, location);
+            yield return handle;
+            OnHandleComplete(id, handle);
+        }
+
+        private AsyncOperationHandle<GameObject> StartEntityLoad(string id, IResourceLocation location)
+        {
             var handle = Addressables.LoadAssetAsync<GameObject>(location);
             loadingHandleMap[id] = handle;
-            yield return handle;
+            return handle;
+        }
+
+        private void OnHandleComplete(string id, AsyncOperationHandle<GameObject> handle)
+        {
             loadingHandleMap.Remove(id);
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 GameObject prefab = handle.Result;
-                addToCache(id,prefab);
+                cache[id] = prefab;
             }
             else
             {
                 Debug.LogError($"Failed to load entity with ID: {id}");
             }
+            Addressables.Release(handle);
         }
         
         private IEnumerator LoadEntityThenSpawn(SerializedMobEntityData serializedEntityData, Vector2 position, Transform container)
         {
             yield return LoadEntityIntoMemory(serializedEntityData.Id);
             Spawn(serializedEntityData,position,container);
-        }
-
-        private void addToCache(string id, GameObject prefab) {
-            //Debug.Log($"{id} loaded into cache");
-            if (cache.ContainsKey(id)) {
-                Addressables.Release(prefab);
-                return;
-            }
-            cache[id] = prefab;
         }
     }
 }
