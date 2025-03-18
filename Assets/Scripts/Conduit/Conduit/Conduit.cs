@@ -50,7 +50,7 @@ namespace Conduits
 
         public string GetId()
         {
-            return conduitItem == null ? null : conduitItem.id;
+            return conduitItem?.id;
         }
 
         public void SetConduitSystem(IConduitSystem newConduitSystem)

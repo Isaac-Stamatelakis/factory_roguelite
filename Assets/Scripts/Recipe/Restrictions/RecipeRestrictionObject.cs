@@ -9,4 +9,10 @@ namespace Recipe.Objects.Restrictions
         CleanRoom = 2,
         Data = 3
     }
+
+    public enum BooleanRecipeRestriction
+    {
+        CleanRoom = 1,
+        GreenHouse = 2,
+    }
 }

@@ -108,7 +108,7 @@ namespace Robot.Tool.Instances
             int multiBreak = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.MultiBreak);
             TileItem tileItem = worldTileGridMap.GetTileItem(mousePosition);
             
-            audioController.PlayAudioClip(tileItem.tileOptions.AudioType);
+            audioController?.PlayAudioClip(tileItem?.tileOptions?.AudioType ?? TileAudioType.None);
             
             Color? particleColor = GetParticleSystemColor(tileItem);
             if (particleColor.HasValue)

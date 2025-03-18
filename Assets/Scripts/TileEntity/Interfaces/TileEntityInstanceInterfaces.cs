@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Conduits.Ports;
+using Recipe.Objects.Restrictions;
 using RecipeModule;
 using World.Cave.Registry;
 
@@ -84,6 +85,12 @@ namespace TileEntity {
 
     public interface ISoftLoadableTileEntity {
 
+    }
+
+    public interface IRecipeRestrictionTileEntity
+    {
+        public void AddPassRestriction(BooleanRecipeRestriction recipeRestriction);
+        public void RemoveRestriction(BooleanRecipeRestriction recipeRestriction);
     }
     
     
