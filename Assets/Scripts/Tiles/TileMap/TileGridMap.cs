@@ -75,7 +75,7 @@ namespace TileMaps {
             if (PlaceTile.mod(spriteSize.y,2) == 0) {
                 realYPosition += 0.25f;
             }
-            ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(new Vector3(realXPosition,realYPosition,0),itemSlot,chunk.GetEntityContainer());
         }
         
         public override Vector2Int GetHitTilePosition(Vector2 position)

@@ -78,7 +78,7 @@ namespace TileEntity.Instances {
             Vector2 position = GetWorldPosition();
             if (MinerData.DriveSlot != null)
             {
-                ItemEntityFactory.SpawnItemEntity(position, MinerData.DriveSlot, loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(position, MinerData.DriveSlot, loadedChunk.GetEntityContainer());
             }
 
             if (MinerData.ItemFilter != null)
@@ -86,11 +86,11 @@ namespace TileEntity.Instances {
                 ItemObject filterItem = ItemRegistry.GetInstance().GetItemObject(ItemTileEntityPort.FILTER_ID);
                 ItemSlot filterSlot = new ItemSlot(filterItem, 1, null);
                 ItemSlotUtils.AddTag(filterSlot,ItemTag.ItemFilter,MinerData.ItemFilter);
-                ItemEntityFactory.SpawnItemEntity(position, filterSlot, loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(position, filterSlot, loadedChunk.GetEntityContainer());
             }
-            ItemEntityFactory.SpawnItemEntities(position, MinerData.StoneOutputs, loadedChunk.getEntityContainer());
-            ItemEntityFactory.SpawnItemEntities(position, MinerData.FluidOutputs, loadedChunk.getEntityContainer());
-            ItemEntityFactory.SpawnItemEntities(position, MinerData.OreOutputs, loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntities(position, MinerData.StoneOutputs, loadedChunk.GetEntityContainer());
+            ItemEntityFactory.SpawnItemEntities(position, MinerData.FluidOutputs, loadedChunk.GetEntityContainer());
+            ItemEntityFactory.SpawnItemEntities(position, MinerData.OreOutputs, loadedChunk.GetEntityContainer());
         }
 
         public void SetCaveTileCollectionFromDriveSlot(CaveRegistry caveRegistry)

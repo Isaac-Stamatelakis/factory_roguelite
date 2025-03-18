@@ -111,7 +111,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         {
             if (fluidHeightMap == null || chunk is not ILoadedChunk loadedChunk || fluidSlot?.itemObject is not FluidTileItem fluidTileItem) return;
             
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
             uint remainingAmount = fluidSlot.amount;
             bool normalGravity = !fluidTileItem.fluidOptions.InvertedGravity;
@@ -174,7 +174,7 @@ namespace TileEntity.Instances.Storage.MultiBlockTank
         {
             if (chunk is not ILoadedChunk loadedChunk || fluidHeightMap == null) return;
             
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
             Tilemap tilemap = closedChunkSystem.GetTileEntityTileMap(TileEntityTileMapType.UnLitBack);
             for (int y = minY; y <= maxY; y++)
             {

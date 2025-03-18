@@ -17,12 +17,12 @@ namespace Entities.Mobs {
     public class SerializedMobEntityData
     {
         public string Id;
-        public string Data;
+        public float Health;
     }
     public class EntityRegistry : MonoBehaviour
     {
         private static Dictionary<string, IResourceLocation> assetLocationMap;
-        private Dictionary<string, GameObject> cache = new ();
+        private Dictionary<string, MobEntity> cache = new ();
         private Dictionary<string,  AsyncOperationHandle<GameObject>> loadingHandleMap = new ();
 
         private static EntityRegistry instance;
@@ -83,19 +83,13 @@ namespace Entities.Mobs {
             }
         }
 
-        public Vector2Int? GetSizeOfEntity(string entityId)
+        public MobEntity GetEntityPrefab(string entityId)
         {
-            if (!cache.TryGetValue(entityId, out GameObject prefab)) return null;
-            if (!prefab) return null;
-            SpriteRenderer spriteRenderer = prefab.GetComponent<SpriteRenderer>();
-            if (!spriteRenderer) return null;
-            Sprite sprite = spriteRenderer.sprite;
-            Vector2Int spriteSize = Global.getSpriteSize(sprite);
-            return spriteSize;
+            return cache.GetValueOrDefault(entityId);
         }
 
         private void Spawn(SerializedMobEntityData serializedEntityData, Vector2 position,Transform container) {
-            GameObject entity = Object.Instantiate(cache[serializedEntityData.Id], container, false);
+            MobEntity entity = Object.Instantiate(cache[serializedEntityData.Id], container, false);
             MobEntity mobEntity = entity.GetComponent<MobEntity>();
             if (!mobEntity) {
                 Debug.LogError("Tried to spawn mob with id '" + serializedEntityData.Id + "' which didn't have MobEntity Component");
@@ -104,7 +98,7 @@ namespace Entities.Mobs {
             }
             entity.transform.position = position;
             mobEntity.initalize();
-            mobEntity.Deseralize(serializedEntityData.Id, serializedEntityData.Data);
+            mobEntity.Deseralize(serializedEntityData);
         }
         
 
@@ -165,7 +159,7 @@ namespace Entities.Mobs {
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 GameObject prefab = handle.Result;
-                cache[id] = prefab;
+                cache[id] = prefab.GetComponent<MobEntity>();
             }
             else
             {

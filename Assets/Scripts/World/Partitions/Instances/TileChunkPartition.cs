@@ -30,7 +30,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             
             const int ENTITY_LOAD_PER_UPDATE = 5;
             if (parent is not ILoadedChunk loadedChunk) yield break;
-            Transform entityContainer = loadedChunk.getEntityContainer();
+            Transform entityContainer = loadedChunk.GetEntityContainer();
             int loads = 0;
             for (int i = data.entityData.Count - 1; i >= 0; i--)
             {
@@ -45,7 +45,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                         break;
                     case EntityType.Mob:
                         if (entityData.data == null) break;
-                        Debug.Log(entityData.x + "," + entityData.y);
                         SerializedMobEntityData mobEntityData = JsonConvert.DeserializeObject<SerializedMobEntityData>(entityData.data);
                         yield return EntityRegistry.Instance.SpawnEntityCoroutine(mobEntityData,entityPosition,entityContainer);
                         break;

@@ -69,7 +69,7 @@ namespace TileEntity {
         public TileEntityUIMode GetUIMode()
         {
             if (chunk is not ILoadedChunk loadedChunk) return TileEntityUIMode.Standard;
-            return loadedChunk.getSystem().Interactable ? TileEntityUIMode.Standard : TileEntityUIMode.Locked;
+            return loadedChunk.GetSystem().Interactable ? TileEntityUIMode.Standard : TileEntityUIMode.Locked;
         }
 
         public TileEntityObject GetTileEntity()

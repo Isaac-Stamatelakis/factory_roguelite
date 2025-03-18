@@ -138,7 +138,7 @@ namespace TileEntity {
                 ItemEntityFactory.SpawnItemEntityFromBreak(
                     worldPosition,
                     itemSlot,
-                    loadedChunk.getEntityContainer()
+                    loadedChunk.GetEntityContainer()
                 );
             }
         }
@@ -165,7 +165,7 @@ namespace TileEntity {
             
             // Remove from old tilemap
             TileMapType tileMapType = switchType.getStateType(state);
-            Tilemap tilemap = loadedChunk.getTileMap(tileMapType).GetTilemap();
+            Tilemap tilemap = loadedChunk.GetTileMap(tileMapType).GetTilemap();
             Vector3Int cellPosition = (Vector3Int)tileEntity.GetCellPosition();
             tilemap.SetTile(cellPosition,null);
 
@@ -176,7 +176,7 @@ namespace TileEntity {
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            Tilemap newMap = loadedChunk.getTileMap(newType).GetTilemap();
+            Tilemap newMap = loadedChunk.GetTileMap(newType).GetTilemap();
             newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
         }
 
@@ -202,13 +202,13 @@ namespace TileEntity {
             baseTileData.state = state;
             
             TileMapType tileMapType = switchType.getStateType(oldState);
-            Tilemap tilemap = loadedChunk.getTileMap(tileMapType).GetTilemap();
+            Tilemap tilemap = loadedChunk.GetTileMap(tileMapType).GetTilemap();
             Vector3Int cellPosition = (Vector3Int)tileEntity.GetCellPosition();
             tilemap.SetTile(cellPosition,null);
             
             // Set tile on new tilemap
             TileMapType newType = switchType.getStateType(state);
-            Tilemap newMap = loadedChunk.getTileMap(newType).GetTilemap();
+            Tilemap newMap = loadedChunk.GetTileMap(newType).GetTilemap();
             newMap.SetTile(cellPosition, stateTile.getTileAtState(state));
         }
 
@@ -223,7 +223,7 @@ namespace TileEntity {
             Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             IChunkPartition partition = null;
             if (chunk is ILoadedChunk loadedChunk) {
-                ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+                ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
                 ILoadedChunk adjacentChunk = closedChunkSystem.getChunk(chunkPosition);
                 if (adjacentChunk == null) {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");

@@ -80,7 +80,7 @@ namespace TileEntity.Instances.CompactMachines {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
             List<Vector2Int> parentPath = new List<Vector2Int>();
             if (closedChunkSystem is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
                 CompactMachineTeleportKey key = compactMachineClosedChunkSystem.GetCompactMachineKey();

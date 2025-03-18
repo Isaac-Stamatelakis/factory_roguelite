@@ -138,10 +138,9 @@ namespace WorldModule {
         private static IChunkPartitionData ConvertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkX-minX);
             int yStart = partitionY*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkY-minY);
-            Debug.Log(xStart + "," + yStart);
             float worldStartX = (partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * chunkX) * Global.TILE_SIZE;
             float worldStartY = (partitionY*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * chunkY) * Global.TILE_SIZE;
-            Debug.Log(worldStartX + "," + worldStartY);
+            
             List<SeralizedEntityData> entityDataList = new List<SeralizedEntityData>();
             for (var index = worldTileData.entityData.Count-1; index >= 0 ; index--)
             {

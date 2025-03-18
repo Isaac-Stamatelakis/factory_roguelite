@@ -43,7 +43,7 @@ namespace TileEntity.Instances.Matrix {
             MatrixDriverPixelContainer pixelContainer = GameObject.Instantiate(TileEntityObject.getAssetManager().getElement<MatrixDriverPixelContainer>("Pixels"));
             pixelContainer.name = "DrivePixels" + GetPositionInChunk();
             pixelContainer.transform.position = GetWorldPosition();
-            pixelContainer.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            pixelContainer.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             if (storageDrives == null) {
                 storageDrives = new List<ItemSlot>();
                 for (int i = 0; i < TileEntityObject.rows*TileEntityObject.columns; i++) {
@@ -123,7 +123,7 @@ namespace TileEntity.Instances.Matrix {
                 return;
             }
             foreach (ItemSlot itemSlot in storageDrives) {
-                ItemEntityFactory.SpawnItemEntity(GetWorldPosition(),itemSlot,loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(GetWorldPosition(),itemSlot,loadedChunk.GetEntityContainer());
             }
         }
 

@@ -6,29 +6,33 @@ using System;
 using Entities;
 
 namespace Entities.Mobs {
+    public enum MobSpawnCondition
+    {
+        OnGround,
+        InAir,
+        None
+    }
     public class MobEntity : Entity, ISerializableEntity
     {
+        public MobSpawnCondition MobSpawnCondition;
         private string id;
-        public void Deseralize(string id, string data) {
-            this.id = id;
-            if (data == null) {
-                return;
+        public float Health = 10;
+        public void Deseralize(SerializedMobEntityData entityData) {
+            this.id = entityData.Id;
+            if (entityData.Health > float.MinValue)
+            {
+                this.Health = entityData.Health;
             }
-            /*
-            foreach (KeyValuePair<string,string> kvp in componentData) {
-                Type type = Type.GetType(kvp.Key);
-                var component = GetComponent(type);
-                if (component == null) {
-                    Debug.LogError("Type '" + kvp.Key + "' could not be deserialized as not on gameObject");
-                    continue;
-                }
-                if (component is not ISerializableMobComponent serializableMobComponent) {
-                    Debug.LogError("Type '" + kvp.Key + "' could not be deserialized as not ISerializedMobComponent");
-                    continue;
-                }
-                serializableMobComponent.deseralize(kvp.Value);
+            
+        }
+
+        public void Damage(float amount)
+        {
+            Health -= amount;
+            if (Health <= 0)
+            {
+                GameObject.Destroy(gameObject);
             }
-            */
         }
 
         public override void initalize()
@@ -37,11 +41,9 @@ namespace Entities.Mobs {
         }
 
         public SeralizedEntityData serialize() {
-            ISerializableMobComponent[] serializableMobComponents = GetComponents<ISerializableMobComponent>();
-            
             SerializedMobEntityData serializedMobData = new SerializedMobEntityData{
                 Id = id,
-                Data = null
+                Health = Health
             };
             return new SeralizedEntityData(
                 type: EntityType.Mob,

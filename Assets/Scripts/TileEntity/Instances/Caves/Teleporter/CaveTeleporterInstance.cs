@@ -44,7 +44,7 @@ namespace TileEntity.Instances {
             Vector2 position = GetWorldPosition();
             foreach (ItemSlot itemSlot in CaveStorageDrives)
             {
-                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.GetEntityContainer());
             }
         }
     }

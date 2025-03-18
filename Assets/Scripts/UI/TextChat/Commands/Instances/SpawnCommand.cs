@@ -22,7 +22,7 @@ namespace UI.Chat {
             SerializedMobEntityData spawnEntityData = new SerializedMobEntityData
             {
                 Id = id,
-                Data = null
+                Health = float.MinValue
             };
             EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.EntityContainer);
             

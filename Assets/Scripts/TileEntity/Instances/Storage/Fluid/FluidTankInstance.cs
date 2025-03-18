@@ -41,7 +41,7 @@ namespace TileEntity.Instances.Storage {
             visualManager = fluid.AddComponent<FluidTankVisualManager>();
             visualManager.Initialize();
             fluid.name = "Fluid";
-            fluid.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            fluid.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             visualManager.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
         }
         

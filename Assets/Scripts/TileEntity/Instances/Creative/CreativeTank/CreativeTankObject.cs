@@ -72,7 +72,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             GameObject fluid = new GameObject();
             visualManager = fluid.AddComponent<FluidTankVisualManager>();
             fluid.name = "Fluid";
-            fluid.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            fluid.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             visualManager.Initialize();
             visualManager.UpdateVisual(ItemSlot,1f,GetWorldPosition());
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using Entities.Mobs;
 using Entities;
 using UnityEngine.AddressableAssets;
 using Newtonsoft.Json;
+using Random = UnityEngine.Random;
 
 namespace WorldModule.Caves {
     [CreateAssetMenu(fileName ="New Entity Distributor",menuName="Generation/Entity Distributor")]
@@ -28,30 +30,46 @@ namespace WorldModule.Caves {
             EntityRegistry entityRegistry = EntityRegistry.Instance;
             foreach (EntityDistribution entityDistribution in entities)
             {
-                Vector2Int? conditionalSize = entityRegistry.GetSizeOfEntity(entityDistribution.entityId);
-                if (!conditionalSize.HasValue)
+                MobEntity mobEntityPrefab = entityRegistry.GetEntityPrefab(entityDistribution.entityId);
+                bool error = false;
+                if (!mobEntityPrefab)
                 {
-                    Debug.LogWarning("Entity " + entityDistribution.entityId + " has size data");
+                    Debug.LogWarning("Entity " + entityDistribution.entityId + " is null");
+                    error = true;
+                }
+                SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
+                if (!spriteRenderer)
+                {
+                    Debug.LogWarning("Entity " + entityDistribution.entityId + " has no sprite renderer");
+                    error = true;
+                }
+                if (error)
+                {
                     continue;
                 }
-                Vector2Int entitySize = conditionalSize.Value;
-                int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
+                Sprite sprite = spriteRenderer.sprite;
+                Vector2Int spriteSize = Global.getSpriteSize(sprite);
                 
+                int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
+                MobSpawnCondition spawnCondition = mobEntityPrefab.MobSpawnCondition;
                 while (amount > 0) {
-                    int spawnAttempts = 25;
+                    int spawnAttempts = 1000;
                     while (spawnAttempts > 0) {
-                        int ranX = Random.Range(0,width-entitySize.x);
-                        int ranY = Random.Range(0,height-entitySize.y);
-                        for (int x = 0; x < entitySize.x; x++) {
-                            for (int y = 0; y < entitySize.y; y++)
-                            {
-                                if (worldData.baseData.ids[x + ranX, y + ranY] == null) continue;
-                                
-                                spawnAttempts--;
-                            }
+                        int ranX = Random.Range(0,width-spriteSize.x);
+                        int ranY = Random.Range(0,height-spriteSize.y);
+                        if (!CanPlaceEntity(worldData, spawnCondition, new Vector2Int(ranX, ranY), spriteSize))
+                        {
+                            spawnAttempts--;
+                            continue;
                         }
-                        string mobData = JsonConvert.SerializeObject(new SerializedMobData(entityDistribution.entityId,null));
-                        Vector2 spawnPosition = ((new Vector2(ranX,ranY))+bottomLeftCorner)/2f;
+
+                        SerializedMobEntityData mobEntityData = new SerializedMobEntityData
+                        {
+                            Id = entityDistribution.entityId,
+                            Health = mobEntityPrefab.Health
+                        };
+                        string mobData = JsonConvert.SerializeObject(mobEntityData);
+                        Vector2 spawnPosition = ((new Vector2(ranX,ranY+1))+bottomLeftCorner)/2f;
                         worldData.entityData.Add(
                             new SeralizedEntityData(
                                 type: EntityType.Mob,
@@ -59,11 +77,43 @@ namespace WorldModule.Caves {
                                 data: mobData
                             )
                         );
+                        break;
                     }
                     amount--;
                 }
                 
             }
+            Debug.Log($"Spawned {worldData.entityData.Count} Entities inside Cave");
+        }
+        
+
+        private bool CanPlaceEntity(SeralizedWorldData worldData, MobSpawnCondition mobSpawnCondition, Vector2Int tilePosition, Vector2Int spriteSize)
+        {
+            if (mobSpawnCondition == MobSpawnCondition.None) return true;
+            for (int x = 0; x < spriteSize.x; x++)
+            {
+                for (int y = 0; y < spriteSize.y; y++)
+                {
+                    Vector2Int position = new Vector2Int(tilePosition.x + x, tilePosition.y + y);
+                    if (worldData.baseData.ids[position.x, position.y] != null) return false;
+                }
+            }
+
+            if (mobSpawnCondition == MobSpawnCondition.InAir) return true;
+            return IsOnGround(worldData,tilePosition,spriteSize);
+
+        }
+
+        private bool IsOnGround(SeralizedWorldData worldData, Vector2Int tilePosition, Vector2Int spriteSize)
+        {
+            if (tilePosition.y < 1) return true;
+            for (int x = 0; x < spriteSize.x; x++)
+            {
+                Vector2Int position = new Vector2Int(tilePosition.x + x, tilePosition.y-1);
+                if (worldData.baseData.ids[position.x, position.y] == null) return false;
+            }
+
+            return true;
         }
     }
 }

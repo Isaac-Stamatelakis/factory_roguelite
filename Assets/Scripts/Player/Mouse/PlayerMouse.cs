@@ -300,7 +300,7 @@ namespace PlayerModule.Mouse {
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
-            if (!CanRightClickTileEntity(tileEntityInstance, chunk.getSystem())) return false;
+            if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return false;
             ((IRightClickableTileEntity)tileEntityInstance).OnRightClick();
             return true;
         }
@@ -359,7 +359,7 @@ namespace PlayerModule.Mouse {
             ItemEntityFactory.SpawnItemEntityWithVelocity(
                 new Vector2(transform.position.x,transform.position.y) + spriteCenter,
                 grabbedItemProperties.ItemSlot,
-                chunk.getEntityContainer(),
+                chunk.GetEntityContainer(),
                 CalculateItemVelocity(mousePosition)
             );
             grabbedItemProperties.SetItemSlot(null);
