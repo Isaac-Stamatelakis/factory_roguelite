@@ -8,7 +8,7 @@ namespace Entities.Mob.Movement
 {
     public class MobFlyChasePlayer : MonoBehaviour
     {
-        private Rigidbody2D rb;
+        private SpriteRenderer spriteRenderer;
         private Transform playerTransform;
         private bool seesPlayer;
         private int counter = 0;
@@ -17,13 +17,13 @@ namespace Entities.Mob.Movement
         public float ChangeRandomDirectionTime = 2f;
         public float WanderRange = 3f;
         private float timeSinceLastDirectionChange = 0;
-        private Vector2 randomDirection;
+        private Vector2 randomNearPosition;
 
         private static int PlayerLayer;
         private static int BlockLayer;
         public void Start()
         {
-            rb = GetComponent<Rigidbody2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
             playerTransform = PlayerManager.Instance.GetPlayer().transform;
             seesPlayer = CanSeePlayer();
             counter = UnityEngine.Random.Range(0, SEARCH_TIME);
@@ -51,32 +51,46 @@ namespace Entities.Mob.Movement
         private void ChasePlayer()
         {
             transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, ChaseSpeed * Time.deltaTime);
+            randomNearPosition = playerTransform.position;
+            spriteRenderer.flipX = playerTransform.position.x < transform.position.x;
         }
 
         private void WanderRandomly()
         {
-            timeSinceLastDirectionChange += Time.fixedTime;
+            timeSinceLastDirectionChange += Time.deltaTime;
             
             if (timeSinceLastDirectionChange >= ChangeRandomDirectionTime)
             {
-                randomDirection = GetRandomDirection();
+                randomNearPosition = GetRandomNearByPosition();
+                spriteRenderer.flipX = randomNearPosition.x < transform.position.x;
                 timeSinceLastDirectionChange = 0f;
             }
-            transform.position = Vector2.MoveTowards(transform.position, (Vector2)transform.position + randomDirection, ChaseSpeed /2f * Time.deltaTime);
+            
+            transform.position = Vector2.MoveTowards(transform.position, randomNearPosition, ChaseSpeed * Time.deltaTime);
         }
 
-        private Vector2 GetRandomDirection()
+        private Vector2 GetRandomNearByPosition()
         {
-            return new Vector2(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized * WanderRange;
+            return (Vector2)transform.position + WanderRange * UnityEngine.Random.insideUnitCircle;
         }
         private bool CanSeePlayer()
         {
             const int layer = Global.BLOCK_LAYER | Global.PLAYER_LAYER;
             Vector2 direction = (Vector2)(playerTransform.position - transform.position).normalized;
+            const int rayCount = 5;
             
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, 15, layer);
-          
-            return hit.collider && hit.collider.CompareTag("Player");
+            const float coneAngle = 18;
+            const float angleStep = coneAngle / (rayCount - 1);
+            const float halfConeAngle = coneAngle / 2;
+            
+            for (int i = 0; i < rayCount; i++)
+            {
+                float angle = -halfConeAngle + angleStep * i;
+                Vector3 rayDirection = Quaternion.Euler(0, angle, 0) * direction;
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 15, layer);
+                if (hit.collider && hit.collider.CompareTag("Player")) return true;
+            }
+            return false;
         }
     }
 }

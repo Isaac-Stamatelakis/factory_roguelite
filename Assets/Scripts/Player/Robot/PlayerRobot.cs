@@ -943,9 +943,18 @@ namespace Player {
         }
         private void InitializeTools()
         {
-            PlayerScript playerScript = GetComponent<PlayerScript>();
             ItemRobotToolData itemRobotToolData = robotData.ToolData;
             currentRobotToolObjects = RobotToolFactory.GetDictFromCollection(currentRobot.ToolCollection);
+
+            foreach (var (robotToolType, robotToolObject) in currentRobotToolObjects)
+            {
+                if (!itemRobotToolData.Types.Contains(robotToolType))
+                {
+                    itemRobotToolData.Types.Add(robotToolType);
+                    itemRobotToolData.Tools.Add(RobotToolFactory.GetDefault(robotToolType));
+                    RobotUpgradeLoadOut.ToolLoadOuts[robotToolType] = RobotUpgradeUtils.CreateNewLoadOutCollection(RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)robotToolType));
+                }
+            }
             RobotTools = new List<IRobotToolInstance>();
             for (int i = 0; i < itemRobotToolData.Tools.Count; i++)
             {

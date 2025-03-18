@@ -27,8 +27,7 @@ namespace Chunks.Systems {
                 TileMapType.Block,
                 TileMapType.Background,
                 TileMapType.Object,
-                TileMapType.Platform,
-                TileMapType.ColladableObject,
+                TileMapType.Platform
             };
         }
         public static List<TileMapType> getConduitTileTypes() {
