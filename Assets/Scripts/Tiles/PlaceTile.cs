@@ -401,6 +401,7 @@ namespace TileMaps.Place {
 
         private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
             Vector2Int tileMapPosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
+            if (raycastTileInBox(worldPosition, TileMapLayer.Base.toRaycastLayers(), true)) return false;
             return !iWorldTileMap.hasTile(tileMapPosition);
         }
 

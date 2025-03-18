@@ -209,18 +209,7 @@ namespace PlayerModule.Mouse {
         }
         private void RightClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
         {
-            InventoryDisplayMode inventoryDisplayMode = playerInventory.Mode;
-            switch (inventoryDisplayMode)
-            {
-                case InventoryDisplayMode.Inventory:
-                    if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
-                    break;
-                case InventoryDisplayMode.Tools:
-                    IRobotToolInstance currentTool = playerInventory.CurrentTool;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
             if (Input.GetMouseButtonDown(1)) {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
