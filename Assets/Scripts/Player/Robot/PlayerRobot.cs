@@ -47,7 +47,7 @@ namespace Player {
     public class PlayerRobot : MonoBehaviour
     {
         private static readonly int Walk = Animator.StringToHash("IsWalking");
-
+        private static readonly int Air = Animator.StringToHash("InAir");
 
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -313,8 +313,6 @@ namespace Player {
             bool moveUpdate = movedLeft != movedRight; // xor
             if (!moveUpdate)
             {
-                animator.speed = 1;
-                animator.Play("Idle");
                 float dif = GetFriction();
                 
                 if (moveDirTime > 0)
@@ -328,11 +326,20 @@ namespace Player {
                     if (moveDirTime > 0) moveDirTime = 0;
                 }
             }
-            else
+            
+            if (IsGrounded())
             {
-                const float ANIMATOR_SPEED_INCREASE = 0.25f;
-                animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                animator.Play("Walk");
+                if (!moveUpdate)
+                {
+                    animator.Play("Idle");
+                    animator.speed = 1;
+                }
+                else
+                {
+                    const float ANIMATOR_SPEED_INCREASE = 0.25f;
+                    animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                    animator.Play("Walk");
+                }
             }
 
 
@@ -617,14 +624,21 @@ namespace Player {
 
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
 
-            if (IsGrounded())
+            bool grounded = IsGrounded();
+            animator.SetBool(Air,!grounded);
+            if (grounded)
             {
                 coyoteFrames = JumpStats.coyoteFrames;
             }
-            else if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
+            else
             {
-                playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
+                animator.Play("Air");
+                if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
+                {
+                    playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
+                }
             }
+            
             
             
 

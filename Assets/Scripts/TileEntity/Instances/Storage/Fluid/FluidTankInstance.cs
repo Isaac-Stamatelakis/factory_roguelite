@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UI;
 using Items;
+using TileEntity.Instances.Storage.Fluid;
 
 
 namespace TileEntity.Instances.Storage {
@@ -16,7 +17,7 @@ namespace TileEntity.Instances.Storage {
         public uint FillAmount {get => itemSlot.amount;}
         public float FillRatio {get => ((float)FillAmount)/GetStorage();}
         public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
-        private SpriteRenderer visualElement;
+        private FluidTankVisualManager visualManager;
 
         public FluidTankInstance(FluidTank tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -37,29 +38,13 @@ namespace TileEntity.Instances.Storage {
                 return;   
             }
             GameObject fluid = new GameObject();
+            visualManager = fluid.AddComponent<FluidTankVisualManager>();
+            visualManager.Initialize();
             fluid.name = "Fluid";
             fluid.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
-            fluid.transform.position = GetWorldPosition();
-            visualElement = fluid.AddComponent<SpriteRenderer>();
-            updateVisual();
+            visualManager.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
         }
-
-        private void updateVisual() {
-            if (visualElement == null) {
-                return;
-            }
-            if (itemSlot == null || itemSlot.itemObject == null) {
-                visualElement.gameObject.SetActive(false);
-                return;
-            }
-            visualElement.gameObject.SetActive(true);
-            visualElement.sprite = itemSlot.itemObject.getSprite();
-            float height = FillRatio*0.5f;
-            visualElement.transform.localScale = new Vector3(0.5f,height,1);
-            Vector2 position = GetWorldPosition();
-            visualElement.transform.position = new Vector3(position.x,position.y-0.25f+height/2,1.5f);
-
-        }
+        
 
         public void OnRightClick()
         {
@@ -73,7 +58,9 @@ namespace TileEntity.Instances.Storage {
 
         public void Unload()
         {
-            GameObject.Destroy(visualElement.gameObject);
+            if (!visualManager) return;
+            GameObject.Destroy(visualManager?.gameObject);
+            visualManager = null;
         }
 
         public void Unserialize(string data)
@@ -83,7 +70,7 @@ namespace TileEntity.Instances.Storage {
         
         public ItemSlot ExtractItem(ItemState state, Vector2Int portPosition, ItemFilter filter)
         {
-            updateVisual();
+            visualManager?.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
             return itemSlot;
         }
 
@@ -98,7 +85,7 @@ namespace TileEntity.Instances.Storage {
                 return;
             }
             ItemSlotUtils.InsertIntoSlot(itemSlot,toInsert,GetStorage());
-            updateVisual();
+            visualManager?.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
         }
     }
 }

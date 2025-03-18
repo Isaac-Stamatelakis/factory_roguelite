@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Player;
+using Recipe.Objects.Restrictions;
 using Recipe.Processor;
+using Recipe.Restrictions;
 using UI.Catalogue.InfoViewer;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -44,9 +47,20 @@ namespace Recipe.Viewer
                 return;
             }
             if (!costUICreated) recipeCostUI = Instantiate(recipeCostUIPrefab, transform);
+            List<string> restrictions = GetRestrictionText(displayableRecipe);
             
-            
-            recipeCostUI.Display(costString);
+            recipeCostUI.Display(costString,restrictions);
+        }
+
+        private List<string> GetRestrictionText(DisplayableRecipe displayableRecipe)
+        {
+            RecipeRestriction recipeRestriction = displayableRecipe.RecipeData.Recipe.RecipeRestriction;
+            if (recipeRestriction == RecipeRestriction.None) return new List<string>();
+            List<string> restrictions = new List<string>();
+           
+            RecipeRestrictionInfo recipeRestrictionInfo = RecipeRestrictionInfoFactory.GetRecipeRestrictionInfo(recipeRestriction);
+            restrictions.Add(recipeRestrictionInfo.GetRestrictionText(displayableRecipe));
+            return restrictions;
         }
     }
 

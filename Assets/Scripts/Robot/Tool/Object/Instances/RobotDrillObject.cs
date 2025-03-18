@@ -1,3 +1,4 @@
+using Robot.Tool.Instances.Drill;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -10,5 +11,6 @@ namespace Player.Tool.Object
         public Sprite BackgroundLayerSprite;
         public LineRenderer LineRendererPrefab;
         public ParticleSystem ParticleEmitterPrefab;
+        public LaserDrillAudioController AudioControllerPrefab;
     }
 }

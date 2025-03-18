@@ -3,6 +3,7 @@ using Conduits.Ports;
 using Items.Inventory;
 using LibNoise.Operator;
 using Recipe.Data;
+using Recipe.Objects.Restrictions;
 using Recipe.Processor;
 using TileEntity;
 using TileEntity.Instances.Machine.UI;
@@ -14,11 +15,12 @@ namespace TileEntity.Instances.Machine.Instances
 {
     public abstract class MachineInstance<TMachine, TRecipe> : TileEntityInstance<TMachine>, ITickableTileEntity, 
         IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntityAggregator, ISignalConduitInteractable, IMachineInstance,
-        IPlaceInitializable, IBluePrintPlaceInitializedTileEntity
+        IPlaceInitializable, IBluePrintPlaceInitializedTileEntity, IRecipeRestrictionTileEntity
         where TMachine : MachineObject where TRecipe : ItemRecipe
     {
         protected TRecipe currentRecipe;
         public int Mode;
+        public int Restrictions;
         public MachineItemInventory Inventory;
         public MachineEnergyInventory EnergyInventory;
         
@@ -120,8 +122,8 @@ namespace TileEntity.Instances.Machine.Instances
         public int GetModeCount()
         {
             RecipeProcessor processor = tileEntityObject.RecipeProcessor;
-            if (processor == null) return 0;
-            return 0;
+            if (!processor) return 0;
+            return 0; // TODO
         }
 
         public void ResetRecipe()
@@ -133,6 +135,20 @@ namespace TileEntity.Instances.Machine.Instances
         public ConduitPortLayout GetConduitPortLayout()
         {
             return tileEntityObject.ConduitPortLayout;
+        }
+
+        public void AddPassRestriction(BooleanRecipeRestriction recipeRestriction)
+        {
+            bool passes = (Restrictions & (int) recipeRestriction) != 0;
+            if (passes) return;
+            Restrictions += (int)recipeRestriction;
+        }
+
+        public void RemoveRestriction(BooleanRecipeRestriction recipeRestriction)
+        {
+            bool passes = (Restrictions & (int) recipeRestriction) != 0;
+            if (!passes) return;
+            Restrictions -= (int)recipeRestriction;
         }
     }
 }
