@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Chunks;
 using Conduits.Systems;
 using Item.Slot;
+using Items;
 using Newtonsoft.Json;
 using Recipe;
 using Recipe.Collection;
@@ -18,6 +19,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
     [CreateAssetMenu(fileName = "New Machine", menuName = "Tile Entity/Machine/Burner")]
     public class BurnerMachine : MachineObject
     {
+        public ItemObject FuelRestriction;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new BurnerMachineInstance(this, tilePosition, tileItem, chunk);

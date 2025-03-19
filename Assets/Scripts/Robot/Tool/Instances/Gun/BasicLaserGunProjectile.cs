@@ -24,7 +24,6 @@ namespace Robot.Tool.Instances.Gun
 
         public void Update()
         {
-            
             transform.Translate(direction * (speed * Time.deltaTime), Space.World);
             lifeTime += Time.deltaTime;
             if (lifeTime > 2f) Destroy(gameObject);

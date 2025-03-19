@@ -53,6 +53,7 @@ namespace Items.Inventory {
         private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
         private Action<int> overrideClickAction;
+        private Func<ItemObject, bool> validateInputCallback; 
         
         public void Awake()
         {
@@ -292,10 +293,11 @@ namespace Items.Inventory {
 
         public bool ValidateInput(ItemSlot itemSlot)
         {
+            // Many different options for this :)
             if (InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return false;
             if (restrictedItemId != null && itemSlot.itemObject.id != restrictedItemId) return false;
-            
+            if (validateInputCallback != null && !validateInputCallback(itemSlot?.itemObject)) return false;
             if (restrictionMode == InventoryRestrictionMode.None) return true;
             
             switch (restrictionMode)
@@ -307,6 +309,11 @@ namespace Items.Inventory {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void SetInputRestrictionCallBack(Func<ItemObject, bool> callback)
+        {
+            validateInputCallback = callback;
         }
 
         private bool PassWhiteList(ItemSlot itemSlot)

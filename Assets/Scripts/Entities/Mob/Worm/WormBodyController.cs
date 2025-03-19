@@ -19,13 +19,15 @@ namespace Entities.Mob.Display
         public float MaxBonusSpeed;
         public float RunAwayDistance;
         public float Accerleration;
+        public float HeadDamage;
+        public float BodyDamage;
         [SerializeField] private Sprite headSprite;
         [SerializeField] private Sprite bodySprite;
         [SerializeField] private Sprite tailSprite;
         
         [SerializeField] private int length;
         [SerializeField] private float follow;
-        private float height;
+        
         private MovementMode movementMode;
 
         private Transform[] partTransforms;
@@ -41,7 +43,7 @@ namespace Entities.Mob.Display
         public void Start()
         {
             partTransforms = new Transform[length+2];
-            partTransforms[0] = CreatePart(headSprite,"Head");
+            partTransforms[0] = CreatePart(headSprite,"Head",HeadDamage);
             AssemblePart();
         }
 
@@ -80,27 +82,33 @@ namespace Entities.Mob.Display
             for (int i = 0; i < SPAWNS_PER_UPDATE; i++)
             {
                 int idx = i + startIdx;
-                partTransforms[idx] = CreatePart(bodySprite,$"Body{idx}");
+                partTransforms[idx] = CreatePart(bodySprite,$"Body{idx}",BodyDamage);
                 if (idx < length) continue;
-                partTransforms[length+1] =CreatePart(tailSprite,"Tail");
+                partTransforms[length+1] =CreatePart(tailSprite,"Tail",BodyDamage);
                 assembled = true;
                 break;
             }
         }
 
-        private Transform CreatePart(Sprite sprite, string partName)
+        private Transform CreatePart(Sprite sprite, string partName, float damage)
         {
             GameObject partObject = new GameObject(partName);
             partObject.AddComponent<WormBodyPart>();
             partObject.layer = gameObject.layer;
-            partObject.AddComponent<BoxCollider2D>();
+            BoxCollider2D partHealthCollider = partObject.AddComponent<BoxCollider2D>();
             partObject.transform.SetParent(transform,false);
             Vector3 spawnPosition = partObject.transform.position;
             spawnPosition.z = transform.childCount / 1024f;
             partObject.transform.position = spawnPosition;
             SpriteRenderer spriteRenderer = partObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;
-            height += spriteRenderer.bounds.size.y;
+            GameObject damageCollider = new GameObject("Damage");
+            damageCollider.transform.SetParent(partObject.transform,false);
+            BoxCollider2D boxCollider2D = damageCollider.AddComponent<BoxCollider2D>();
+            boxCollider2D.isTrigger = true;
+            boxCollider2D.size = partHealthCollider.size / 2f;
+            MobDamageTrigger mobDamageTrigger = damageCollider.AddComponent<MobDamageTrigger>();
+            mobDamageTrigger.Damage = damage;
             return partObject.transform;
         }
 

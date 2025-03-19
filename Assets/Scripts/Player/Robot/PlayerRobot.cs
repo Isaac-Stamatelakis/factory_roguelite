@@ -81,7 +81,6 @@ namespace Player {
         private const float TERMINAL_VELOCITY = 30f;
         private int liveYUpdates = 0;
         private int blockLayer;
-        private int platformLayer;
         private int baseCollidableLayer;
         private int ignorePlatformFrames;
         private int slipperyFrames;
@@ -107,7 +106,6 @@ namespace Player {
             rb = GetComponent<Rigidbody2D>();
             playerScript = GetComponent<PlayerScript>();
             blockLayer = 1 << LayerMask.NameToLayer("Block");
-            platformLayer = 1 << LayerMask.NameToLayer("Platform");
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
@@ -138,6 +136,9 @@ namespace Player {
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
                 liveYUpdates = 3;
+                var vector2 = rb.velocity;
+                vector2.y = 0;
+                rb.velocity = vector2;
                 if (bonusJumps <= 0)
                 {
                     bonusJumps = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetDiscreteValue((int)RobotUpgrade.BonusJump) ?? 0;
@@ -244,8 +245,7 @@ namespace Player {
 
         public bool IsGrounded()
         {
-            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) ||
-                   CollisionStateActive(CollisionState.OnSlope);
+            return CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnGround) || CollisionStateActive(CollisionState.OnSlope);
         }
 
         private void FlightMoveUpdate()
@@ -378,6 +378,7 @@ namespace Player {
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
+            if (climbing) return;
             if (jumpEvent != null)
             {
                 if (collisionStates.Contains(CollisionState.HeadContact))
@@ -617,8 +618,8 @@ namespace Player {
             CanStartClimbing();
            
             if (climbing) {
+                //RemoveCollisionState(CollisionState.OnGround);
                 HandleClimbing();
-                RemoveCollisionState(CollisionState.OnGround);
                 return;
             }
 
@@ -627,23 +628,21 @@ namespace Player {
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
 
             bool grounded = IsGrounded();
-            animator.SetBool(Air,!grounded);
+            animator.SetBool(Air,coyoteFrames < 0 && !grounded);
             if (grounded)
             {
                 coyoteFrames = JumpStats.coyoteFrames;
             }
             else
             {
-                animator.Play("Air");
+                if (coyoteFrames < 0) animator.Play("Air");
+                
                 if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
                 {
                     playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
                 }
             }
             
-            
-            
-
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
             if (currentTileMovementType == TileMovementType.Slippery)
             {
@@ -798,7 +797,8 @@ namespace Player {
         public bool Damage(float amount)
         {
             if (DevMode.Instance.noHit || iFrames > 0) return false;
-            iFrames = 5;
+            iFrames = 15;
+            liveYUpdates = 3;
             robotData.Health -= amount;
             if (robotData.Health > 0 || dead) return true;
             
