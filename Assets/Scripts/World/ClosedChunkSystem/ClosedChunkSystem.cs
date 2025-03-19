@@ -188,9 +188,9 @@ namespace Chunks.Systems {
                         continue;
                     }
 
-                    partitionsToUnload.AddRange(chunk.getLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange));
-                    partitionsToLoad.AddRange(chunk.getUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,0));
-                    partitionsToFarLoad.AddRange(chunk.getUnFarLoadedParititionsCloseTo(
+                    partitionsToUnload.AddRange(chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange));
+                    partitionsToLoad.AddRange(chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,0));
+                    partitionsToFarLoad.AddRange(chunk.GetUnFarLoadedParititionsCloseTo(
                         currentPlayerPartition,
                         CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
                     ));
@@ -224,7 +224,7 @@ namespace Chunks.Systems {
             Vector2Int playerPosition = GetPlayerChunk();
             List<ILoadedChunk> chunks = new List<ILoadedChunk>();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                if (chunk.inRange(playerPosition,Global.CHUNK_LOAD_RANGE,Global.CHUNK_LOAD_RANGE)) {
+                if (chunk.InRange(playerPosition,Global.CHUNK_LOAD_RANGE,Global.CHUNK_LOAD_RANGE)) {
                     chunks.Add(chunk);
                 }
             }
@@ -254,9 +254,9 @@ namespace Chunks.Systems {
             List<Chunk> chunksToUnload = new List<Chunk>();
             foreach (Chunk chunk in cachedChunks.Values)
             {
-                if (chunk.ScheduleForUnloading || chunk.isChunkLoaded() ||
-                    chunk.inRange(playerPosition, Global.CHUNK_LOAD_RANGE, Global.CHUNK_LOAD_RANGE) ||
-                    !chunk.partionsAreAllUnloaded()) continue;
+                if (chunk.ScheduleForUnloading || chunk.IsChunkLoaded() ||
+                    chunk.InRange(playerPosition, Global.CHUNK_LOAD_RANGE, Global.CHUNK_LOAD_RANGE) ||
+                    !chunk.PartionsAreAllUnloaded()) continue;
                 
                 chunk.ScheduleForUnloading = true;
                 chunksToUnload.Add(chunk);

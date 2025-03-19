@@ -106,7 +106,7 @@ namespace Robot.Upgrades
         }
         
 
-        private static RobotStatLoadOutCollection CreateNewLoadOutCollection(RobotUpgradeInfo robotUpgradeInfo)
+        internal static RobotStatLoadOutCollection CreateNewLoadOutCollection(RobotUpgradeInfo robotUpgradeInfo)
         {
             return new RobotStatLoadOutCollection(
                 0, 

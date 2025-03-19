@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Items {
     public static class LootTableUtils {
         public static List<ItemSlot> Open(LootTable lootTable) {
+            if (!lootTable) return new List<ItemSlot>();
             int amount = Random.Range(lootTable.MinItems,lootTable.MaxItems+1);
             return OpenWithAmount(lootTable,amount);
         }

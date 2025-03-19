@@ -31,7 +31,7 @@ namespace TileEntity.Instances {
             light.pointLightOuterRadius=TileEntityObject.radius;
             light.falloffIntensity=TileEntityObject.falloff;
             lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
-            lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            lightObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             
         }
 

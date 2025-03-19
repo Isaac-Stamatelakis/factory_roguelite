@@ -158,7 +158,7 @@ namespace PlayerModule {
             IChunk chunk = DimensionManager.Instance.GetPlayerSystem().getChunk(Global.getChunkFromWorld(transform.position));
             if (chunk is not ILoadedChunk loadedChunk) return;
             
-            ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.GetEntityContainer());
         }
 
         public void GiveItems(List<ItemSlot> itemSlots)

@@ -51,7 +51,7 @@ namespace TileEntity.Instances.CompactMachines {
                 return null;
             }
             List<Vector2Int> path = new List<Vector2Int>();
-            if (loadedChunk.getSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
+            if (loadedChunk.GetSystem() is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
                 CompactMachineTeleportKey key = compactMachineClosedChunkSystem.GetCompactMachineKey();
                 foreach (Vector2Int vector in key.Path) {
                     path.Add(vector);
@@ -117,7 +117,7 @@ namespace TileEntity.Instances.CompactMachines {
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(tileItem?.id);
             ItemSlot itemSlot = new ItemSlot(itemObject, 1, null);
             ItemSlotUtils.AddTag(itemSlot,ItemTag.CompactMachine,compactMachineData.Hash);
-            ItemEntityFactory.SpawnItemEntity(GetWorldPosition(), itemSlot, loadedChunk.getEntityContainer());
+            ItemEntityFactory.SpawnItemEntity(GetWorldPosition(), itemSlot, loadedChunk.GetEntityContainer());
 
             CompactMachineTeleportKey key = GetTeleportKey();
             compactMachineDimManager.GetCompactMachineDimController().RemoveCompactMachineSystem(key, compactMachineData.Hash);

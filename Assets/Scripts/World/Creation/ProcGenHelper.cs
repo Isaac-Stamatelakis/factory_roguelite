@@ -138,20 +138,25 @@ namespace WorldModule {
         private static IChunkPartitionData ConvertPartition(int chunkX, int chunkY, int minX, int minY, int partitionX, int partitionY, SeralizedWorldData worldTileData) {
             int xStart = partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkX-minX);
             int yStart = partitionY*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * (chunkY-minY);
-        
-            List<SeralizedEntityData> entityDataList = new List<SeralizedEntityData>(); 
-            foreach (SeralizedEntityData entityData in worldTileData.entityData) {
+            float worldStartX = (partitionX*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * chunkX) * Global.TILE_SIZE;
+            float worldStartY = (partitionY*Global.CHUNK_PARTITION_SIZE + Global.CHUNK_SIZE * chunkY) * Global.TILE_SIZE;
+            
+            List<SeralizedEntityData> entityDataList = new List<SeralizedEntityData>();
+            for (var index = worldTileData.entityData.Count-1; index >= 0 ; index--)
+            {
+                var entityData = worldTileData.entityData[index];
                 if (
-                    entityData.x >= xStart && 
-                    entityData.y >= yStart && 
-                    entityData.x < xStart + Global.CHUNK_PARTITION_SIZE && 
-                    entityData.y < yStart + Global.CHUNK_PARTITION_SIZE
-                ) {
+                    entityData.x >= worldStartX &&
+                    entityData.y >= worldStartY &&
+                    entityData.x < worldStartX + Global.CHUNK_PARTITION_SIZE * Global.TILE_SIZE &&
+                    entityData.y < worldStartY + Global.CHUNK_PARTITION_SIZE * Global.TILE_SIZE 
+                )
+                {
                     entityDataList.Add(entityData);
-                    
+                    worldTileData.entityData.RemoveAt(index);
                 }
             }
-            
+
             SerializedBaseTileData baseData = new SerializedBaseTileData();
             baseData.ids = new string[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
             baseData.sTileOptions = new BaseTileData[Global.CHUNK_PARTITION_SIZE,Global.CHUNK_PARTITION_SIZE];
@@ -178,7 +183,7 @@ namespace WorldModule {
                     fluidData.fill[tileX,tileY] = worldTileData.fluidData.fill[xIndex,yIndex];
                 }
             }
-            if (worldTileData is WorldTileConduitData partionConduitData) {
+            if (worldTileData is WorldTileConduitData) {
                 SeralizedChunkConduitData itemConduitData = new SeralizedChunkConduitData();
                 itemConduitData.ids = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];
                 itemConduitData.conduitOptions = new string[Global.CHUNK_PARTITION_SIZE, Global.CHUNK_PARTITION_SIZE];

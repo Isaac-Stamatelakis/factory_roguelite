@@ -36,6 +36,9 @@ namespace Robot.Tool
                     case BuildinatorObject:
                         dict[RobotToolType.Buildinator] = robotToolObject;
                         break;
+                    case RobotLaserGunObject:
+                        dict[RobotToolType.LaserGun] = robotToolObject;
+                        break;
                     default:
                         throw new ArgumentException();
                 }
@@ -54,6 +57,8 @@ namespace Robot.Tool
                     return new ConduitCutters(robotToolData as ConduitCuttersData, toolObject as RobotConduitCutterObject, loadOut, playerScript);
                 case RobotToolType.Buildinator:
                     return new Buildinator(robotToolData as BuildinatorData, toolObject as BuildinatorObject, loadOut, playerScript);
+                case RobotToolType.LaserGun:
+                    return new LaserGun(robotToolData as LaserGunData, toolObject as RobotLaserGunObject, loadOut, playerScript);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -68,6 +73,8 @@ namespace Robot.Tool
                     return new ConduitCuttersData();
                 case RobotToolType.Buildinator:
                     return new BuildinatorData(BuildinatorMode.Rotator);
+                case RobotToolType.LaserGun:
+                    return new LaserGunData();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(toolType), toolType, null);
             }
@@ -127,6 +134,8 @@ namespace Robot.Tool
                         return JsonConvert.DeserializeObject<ConduitCuttersData>(toolData);
                     case RobotToolType.Buildinator:
                         return JsonConvert.DeserializeObject<BuildinatorData>(toolData);
+                    case RobotToolType.LaserGun:
+                        return JsonConvert.DeserializeObject<LaserDrillData>(toolData);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }

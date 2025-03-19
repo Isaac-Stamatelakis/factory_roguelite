@@ -9,6 +9,7 @@ using Dimensions;
 using PlayerModule;
 using WorldModule;
 using System.IO;
+using Entities.Mobs;
 using Player;
 using UI.Chat;
 using UI.Statistics;
@@ -59,10 +60,10 @@ namespace TileEntity.Instances {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
             }
-            yield return StartCoroutine(loadCave(currentCaveObject,GenerateAndTeleportToCave));
+            yield return StartCoroutine(LoadCave(currentCaveObject,GenerateAndTeleportToCave));
         }
 
-        public static IEnumerator loadCave(CaveObject caveObject, CaveCallback caveCallback) {
+        public static IEnumerator LoadCave(CaveObject caveObject, CaveCallback caveCallback) {
             CaveElements caveElements = new CaveElements();
             Dictionary<string, AsyncOperationHandle<Object>> handles = new Dictionary<string, AsyncOperationHandle<Object>>();
             if (caveObject.generationModel == null) {
@@ -80,7 +81,6 @@ namespace TileEntity.Instances {
                 handles["Structure"] = Addressables.LoadAssetAsync<Object>(caveObject.structureDistributor);
             }
             
-            
 
             List<AsyncOperationHandle<Object>> songHandles = new List<AsyncOperationHandle<Object>>();
             foreach (AssetReference assetReference in caveObject.songs) {
@@ -97,8 +97,22 @@ namespace TileEntity.Instances {
             foreach (var handle in songHandles) {
                 yield return handle;
             }
-            if (handles.TryGetValue("Entity", out var entityHandle)) {
-                caveElements.EntityDistributor = AddressableUtils.validateHandle<CaveEntityDistributor>(entityHandle);
+            
+            EntityRegistry entityRegistry = EntityRegistry.Instance;
+            if (handles.TryGetValue("Entity", out var entityHandle) && entityHandle.Result is CaveEntityDistrubtionObject caveEntityDistrubtionObject)
+            {
+                List<EntityDistribution> entityDistributions = caveEntityDistrubtionObject.entities;
+                List<string> ids = new List<string>();
+                foreach (EntityDistribution entityDistribution in entityDistributions)
+                {
+                    ids.Add(entityDistribution.entityId);
+                }
+                entityRegistry.ClearCache(ids);
+                yield return entityRegistry.LoadEntitiesIntoMemory(ids);
+                caveElements.CaveEntityDistributor = new CaveEntityDistributor(entityDistributions);;
+            } else
+            {
+                entityRegistry.ClearCache();
             }
             if (handles.TryGetValue("Structure", out var structureHandle)) {
                 caveElements.StructureDistributor = AddressableUtils.validateHandle<AreaStructureDistributor>(structureHandle);
@@ -137,6 +151,7 @@ namespace TileEntity.Instances {
                 }
                 caveElements.OreDistributor = new AreaTileDistributor(tileDistributions,caveElements.GenerationModel.GetBaseId());
             }
+            
             
 
             CaveInstance caveInstance = new CaveInstance(caveObject,caveElements);

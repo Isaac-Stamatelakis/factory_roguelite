@@ -19,12 +19,19 @@ namespace UI.Chat {
             string id = parameters[0];
             int dim = DimensionManager.Instance.GetPlayerDimension();
             DimController dimController = DimensionManager.Instance.GetDimController(dim);
-            EntityRegistry.getInstance().spawnEntity(id,playerPosition,null,dimController.EntityContainer);
+            SerializedMobEntityData spawnEntityData = new SerializedMobEntityData
+            {
+                Id = id,
+                Health = float.MinValue
+            };
+            EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.EntityContainer);
+            
         }
 
         public List<string> getAutoFill(int paramIndex)
         {
-            return EntityUtils.getAllIds();
+            if (paramIndex > 0) return new List<string>();
+            return EntityRegistry.Instance.GetAllMobIds();
         }
 
         public override string getDescription()

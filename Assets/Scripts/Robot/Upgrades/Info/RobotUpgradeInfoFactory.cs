@@ -30,7 +30,7 @@ namespace Robot.Upgrades.Info
                 case RobotToolType.Buildinator:
                     return new BuildinatorUpgradeInfo();
                 case RobotToolType.LaserGun:
-                    return null;
+                    return new RobotLaserGunUpgradeInfo();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(robotUpgradeType), robotUpgradeType, null);
             }

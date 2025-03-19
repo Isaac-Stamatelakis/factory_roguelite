@@ -64,6 +64,12 @@ namespace Robot.Upgrades {
         Robot = 1,
         
     }
+
+    public enum LaserGunUpgrade
+    {
+        Beam,
+        Rocket
+    }
     
 
     

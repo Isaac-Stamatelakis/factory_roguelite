@@ -66,8 +66,10 @@ namespace Dimensions {
         {
             Coroutine itemLoad = StartCoroutine(ItemRegistry.LoadItems());
             Coroutine recipeLoad = StartCoroutine(RecipeRegistry.LoadRecipes());
+            Coroutine entityInitialize = StartCoroutine(EntityRegistry.Initialize());
             yield return itemLoad;
             yield return recipeLoad;
+            yield return entityInitialize;
             
             string path = WorldLoadUtils.GetCurrentWorldPath();
             Debug.Log($"Loading world from path {path}");

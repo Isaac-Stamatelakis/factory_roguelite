@@ -10,10 +10,11 @@ public interface IChunkPartitionData {
 [System.Serializable]
 public class SeralizedWorldData : IChunkPartitionData
 {
-    public List<SeralizedEntityData> entityData;
+    
     public SerializedBaseTileData baseData;
     public SerializedBackgroundTileData backgroundData;
     public SeralizedFluidTileData fluidData;
+    public List<SeralizedEntityData> entityData;
 
     public SeralizedWorldData(
         SerializedBaseTileData baseTileData, 

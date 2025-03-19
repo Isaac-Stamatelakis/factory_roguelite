@@ -15,22 +15,21 @@ using Newtonsoft.Json;
 
 namespace Chunks {
     public interface ILoadedChunk : IChunk {
-        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range, int yDownModifier);
-        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target, Vector2Int range);
-        public List<IChunkPartition> getUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range);
-        public bool partionsAreAllUnloaded();
+        public List<IChunkPartition> GetUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range, int yDownModifier);
+        public List<IChunkPartition> GetLoadedPartitionsFar(Vector2Int target, Vector2Int range);
+        public List<IChunkPartition> GetUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range);
+        public bool PartionsAreAllUnloaded();
         /// <summary>
         /// Deletes all chunk partitions
         /// </summary>
-        public void unload();
-        public float distanceFrom(Vector2Int target);
-        public bool inRange(Vector2Int target, int xRange, int yRange);
-        public bool isChunkLoaded();
-        public Transform getEntityContainer();
-        public Transform getTileEntityContainer();
-        public IWorldTileMap getTileMap(TileMapType type);
-        public ClosedChunkSystem getSystem();
-        public HashSet<string> getEntityIds();
+        public void Unload();
+        public float DistanceFrom(Vector2Int target);
+        public bool InRange(Vector2Int target, int xRange, int yRange);
+        public bool IsChunkLoaded();
+        public Transform GetEntityContainer();
+        public Transform GetTileEntityContainer();
+        public IWorldTileMap GetTileMap(TileMapType type);
+        public ClosedChunkSystem GetSystem();
         
     }
 
@@ -91,7 +90,7 @@ namespace Chunks {
         protected Vector2Int position; 
         protected int dim;
         protected Transform tileEntityContainer;
-        public float distanceFrom(Vector2Int target)
+        public float DistanceFrom(Vector2Int target)
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
         }
@@ -161,7 +160,7 @@ namespace Chunks {
             return closedChunkSystem;
         }
 
-        public virtual void unload()
+        public virtual void Unload()
         {
             ChunkIO.WriteChunk(this);
             GameObject.Destroy(gameObject);
@@ -173,7 +172,7 @@ namespace Chunks {
             return this.partitions;
         }
 
-        public List<IChunkPartition> getUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range, int yDownModifier)
+        public List<IChunkPartition> GetUnloadedPartitionsCloseTo(Vector2Int target, Vector2Int range, int yDownModifier)
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
@@ -195,7 +194,7 @@ namespace Chunks {
             return close;
         }
 
-        public List<IChunkPartition> getUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range)
+        public List<IChunkPartition> GetUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range)
         {
             List<IChunkPartition> close = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
@@ -207,17 +206,17 @@ namespace Chunks {
             return close;
         }
 
-        public bool inRange(Vector2Int target, int xRange, int yRange)
+        public bool InRange(Vector2Int target, int xRange, int yRange)
         {
             return Mathf.Abs(target.x-position.x) <= xRange && Mathf.Abs(target.y-position.y) <= yRange;
         }
 
-        public bool isChunkLoaded()
+        public bool IsChunkLoaded()
         {
             return this.chunkLoaded;
         }
 
-        public List<IChunkPartition> getLoadedPartitionsFar(Vector2Int target, Vector2Int range)
+        public List<IChunkPartition> GetLoadedPartitionsFar(Vector2Int target, Vector2Int range)
         {
             List<IChunkPartition> far = new List<IChunkPartition>();
             foreach (IChunkPartition partition in partitions) {
@@ -250,24 +249,24 @@ namespace Chunks {
             return this.dim;
         }
 
-        public Transform getEntityContainer()
+        public Transform GetEntityContainer()
         {
             
             return entityContainer;
         }
 
-        public Transform getTileEntityContainer()
+        public Transform GetTileEntityContainer()
         {
             return tileEntityContainer;
         }
 
-        public bool partionsAreAllUnloaded()
+        public bool PartionsAreAllUnloaded()
         {
             foreach (IChunkPartition partition in partitions) {
-                    if (partition.GetLoaded() || partition.GetScheduledForUnloading()) {
-                        return false;
-                    }
+                if (partition.GetLoaded() || partition.GetScheduledForUnloading()) {
+                    return false;
                 }
+            }
             return true;
         }
 
@@ -276,38 +275,14 @@ namespace Chunks {
             return this.partitions[position.x,position.y];
         }
 
-        public IWorldTileMap getTileMap(TileMapType type)
+        public IWorldTileMap GetTileMap(TileMapType type)
         {
             return closedChunkSystem.GetTileMap(type);
         }
 
-        public ClosedChunkSystem getSystem()
+        public ClosedChunkSystem GetSystem()
         {
             return closedChunkSystem;
-        }
-
-        public HashSet<string> getEntityIds()
-        {
-            HashSet<string> entityIds = new HashSet<string>();
-            foreach (IChunkPartition partition in partitions) {
-                IChunkPartitionData data = partition.GetData();
-                if (data is not SeralizedWorldData serializedTileData) {
-                    continue;
-                }
-                foreach (SeralizedEntityData seralizedEntityData in serializedTileData.entityData) {
-                    if (seralizedEntityData.type != EntityType.Mob) {
-                        continue;
-                    }
-                    try {
-                        SerializedMobData serializedMobData = Newtonsoft.Json.JsonConvert.DeserializeObject<SerializedMobData>(seralizedEntityData.data);
-                        entityIds.Add(serializedMobData.id);
-                    } catch (JsonSerializationException e) {
-                        Debug.LogError($"Chunk failed to get an id with data: {seralizedEntityData.data}\nerror: {e}");
-                    }
-                    
-                }
-            }
-            return entityIds;
         }
     }
 }

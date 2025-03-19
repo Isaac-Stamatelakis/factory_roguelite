@@ -212,11 +212,11 @@ namespace TileEntity.Instances.Caves.Researcher {
             Vector2 position = GetWorldPosition();
             foreach (ItemSlot itemSlot in InputDrives)
             {
-                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.GetEntityContainer());
             }
             foreach (ItemSlot itemSlot in OutputDrives)
             {
-                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntity(position, itemSlot, loadedChunk.GetEntityContainer());
             }
         }
 

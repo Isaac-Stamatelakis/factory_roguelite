@@ -343,7 +343,7 @@ namespace Conduits.Systems {
             List<ItemSlot> slots = itemDropConduitPort.GetDropItems();
             foreach (ItemSlot slot in slots)
             {
-                ItemEntityFactory.SpawnItemEntityWithRandomVelocity(worldPosition, slot, chunk.getEntityContainer());
+                ItemEntityFactory.SpawnItemEntityWithRandomVelocity(worldPosition, slot, chunk.GetEntityContainer());
             }
         }
 

@@ -61,7 +61,7 @@ namespace TileEntity.Instances.SimonSays {
             controllerObject.name = "SimonSaysController";
             coroutineController = controllerObject.AddComponent<SimonSaysCoroutineController>();
             coroutineController.init(this);
-            controllerObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            controllerObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             InitGame();
         }
 
@@ -151,7 +151,7 @@ namespace TileEntity.Instances.SimonSays {
             if (chunk is not ILoadedChunk loadedChunk) return;
                 
            
-            ClosedChunkSystem closedChunkSystem = loadedChunk.getSystem();
+            ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
             IWorldTileMap blockTileMap = closedChunkSystem.GetTileMap(TileMapType.Block);
             
             BreakStructure(blockTileMap,closedChunkSystem);

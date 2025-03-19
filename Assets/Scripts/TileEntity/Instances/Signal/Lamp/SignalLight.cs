@@ -40,6 +40,9 @@ namespace TileEntity.Instances.Signal {
             if (active) {
                 Load();
             } else {
+                if (tileItem.tile is IStateTile stateTile) {
+                    TileEntityUtils.stateSwitch(this,0); // set off
+                }
                 Unload();
             }
         }
@@ -64,7 +67,7 @@ namespace TileEntity.Instances.Signal {
             light.pointLightOuterRadius=TileEntityObject.radius;
             light.falloffIntensity=TileEntityObject.falloff;
             lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
-            lightObject.transform.SetParent(loadedChunk.getTileEntityContainer(),false);
+            lightObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             if (tileItem.tile is IStateTile stateTile) {
                 TileEntityUtils.stateSwitch(this,1); // set on
             }
@@ -76,10 +79,6 @@ namespace TileEntity.Instances.Signal {
             {
                 GameObject.Destroy(lightObject);
                 lightObject = null;
-            }
-            
-            if (tileItem.tile is IStateTile stateTile) {
-                TileEntityUtils.stateSwitch(this,0); // set off
             }
         }
 
