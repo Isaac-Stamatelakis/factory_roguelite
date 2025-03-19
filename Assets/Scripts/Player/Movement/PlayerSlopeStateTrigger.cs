@@ -20,6 +20,7 @@ namespace Player.Movement
         
         public void OnTriggerStay2D(Collider2D other)
         {
+            if (!other.CompareTag("Ground")) return;
             bool? onslope = OnSlope(other);
             bool cached = onslope == null;
             if (cached) return;

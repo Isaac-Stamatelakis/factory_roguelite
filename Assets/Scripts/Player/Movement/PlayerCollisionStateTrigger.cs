@@ -30,12 +30,14 @@ namespace Player.Movement
         }
         public void OnTriggerEnter2D(Collider2D other)
         {
+            if (!other.CompareTag("Ground")) return;
             playerRobot.AddCollisionState((CollisionState)CollisionState);
             
         }
 
         public void OnTriggerExit2D(Collider2D other)
         {
+            if (!other.CompareTag("Ground")) return;
             playerRobot.RemoveCollisionState((CollisionState)CollisionState);
             
         }

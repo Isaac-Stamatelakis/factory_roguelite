@@ -70,6 +70,7 @@ namespace Chunks.Systems {
         private static void InitTileMapContainer(TileMapType tileType, Transform parent, Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
             GameObject container = new GameObject();
             container.transform.SetParent(parent);
+            container.tag = "Ground";
             container.name = tileType.ToString();
             if (tileType.hasCollider()) {
                 container.layer = LayerMask.NameToLayer(tileType.ToString());

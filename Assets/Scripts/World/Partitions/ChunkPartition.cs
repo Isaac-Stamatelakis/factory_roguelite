@@ -9,6 +9,7 @@ using Tiles;
 using Items;
 using Conduits.Ports;
 using Entities;
+using Entities.Mobs;
 using Player;
 
 namespace Chunks.Partitions {
@@ -161,6 +162,8 @@ namespace Chunks.Partitions {
             data.entityData ??= new List<SeralizedEntityData>();
             foreach (RaycastHit2D hit in hits) {
                 Entity entity = hit.collider.gameObject.GetComponent<Entity>();
+                if (!entity) continue;
+                if (entity is MobEntity mobEntity && !mobEntity.RayCastUnLoadable) continue;
                 if (entity is ISerializableEntity serializableEntity) {
                     data.entityData.Add(serializableEntity.serialize());
                 }

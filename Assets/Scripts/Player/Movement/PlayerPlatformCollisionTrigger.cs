@@ -22,6 +22,7 @@ namespace Player.Movement
         
         public void OnTriggerStay2D(Collider2D other)
         {
+            if (!other.CompareTag("Ground")) return;
             if (OnPlatform(other))
             {
                 playerRobot.AddCollisionState(CollisionState.OnPlatform);
@@ -41,6 +42,7 @@ namespace Player.Movement
 
         public void OnTriggerExit2D(Collider2D other)
         {
+            if (!other.CompareTag("Ground")) return;
             playerRobot.RemoveCollisionState(CollisionState.OnPlatform);
             
         }

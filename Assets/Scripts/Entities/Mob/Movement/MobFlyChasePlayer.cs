@@ -88,7 +88,7 @@ namespace Entities.Mob.Movement
                 float angle = -halfConeAngle + angleStep * i;
                 Vector3 rayDirection = Quaternion.Euler(0, angle, 0) * direction;
                 RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 15, layer);
-                if (hit.collider && hit.collider.CompareTag("Player")) return true;
+                if (hit.collider && (hit.collider.CompareTag("Player") || hit.collider.CompareTag("PlayerComponent"))) return true;
             }
             return false;
         }

@@ -17,10 +17,12 @@ using PlayerModule;
 using PlayerModule.KeyPress;
 using Robot;
 using Robot.Tool;
+using Robot.Tool.Instances.Gun;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.Instances.RocketBoots;
 using Robot.Upgrades.LoadOut;
+using Robot.Upgrades.Network;
 using RobotModule;
 using TileEntity;
 using TileMaps;
@@ -793,14 +795,15 @@ namespace Player {
             if (robotData.Health > currentRobot.BaseHealth) robotData.Health = currentRobot.BaseHealth;
         }
 
-        public void Damage(float amount)
+        public bool Damage(float amount)
         {
-            if (DevMode.Instance.noHit || iFrames > 0) return;
-            
+            if (DevMode.Instance.noHit || iFrames > 0) return false;
+            iFrames = 5;
             robotData.Health -= amount;
-            if (robotData.Health > 0 || dead) return;
+            if (robotData.Health > 0 || dead) return true;
             
             Die();
+            return false;
         }
 
         public void Respawn()
@@ -952,14 +955,27 @@ namespace Player {
                 {
                     itemRobotToolData.Types.Add(robotToolType);
                     itemRobotToolData.Tools.Add(RobotToolFactory.GetDefault(robotToolType));
+                    itemRobotToolData.Upgrades.Add(new List<RobotUpgradeData>());
                     RobotUpgradeLoadOut.ToolLoadOuts[robotToolType] = RobotUpgradeUtils.CreateNewLoadOutCollection(RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)robotToolType));
                 }
             }
+
+            while (itemRobotToolData.Tools.Count < itemRobotToolData.Types.Count)
+            {
+                itemRobotToolData.Tools.Add(null);
+            }
+            while (itemRobotToolData.Upgrades.Count < itemRobotToolData.Types.Count)
+            {
+                itemRobotToolData.Upgrades.Add(new List<RobotUpgradeData>());
+            }
+            
             RobotTools = new List<IRobotToolInstance>();
             for (int i = 0; i < itemRobotToolData.Tools.Count; i++)
             {
                 var type = itemRobotToolData.Types[i];
+                itemRobotToolData.Tools[i] ??= RobotToolFactory.GetDefault(type);
                 var data = itemRobotToolData.Tools[i];
+                
                 var loadOut = RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(type);
                 if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
                 

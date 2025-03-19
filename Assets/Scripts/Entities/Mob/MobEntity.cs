@@ -17,6 +17,7 @@ namespace Entities.Mobs {
     {
         public MobSpawnCondition MobSpawnCondition;
         public bool TakesKnockback = true;
+        public bool RayCastUnLoadable = true;
         private string id;
         public float Health = 10;
         public void Deseralize(SerializedMobEntityData entityData) {
