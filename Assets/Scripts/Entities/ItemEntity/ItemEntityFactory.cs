@@ -123,10 +123,10 @@ namespace Entities {
             return tileItemEntity;
         }
 
-        public static void spawnLootTable(Vector2 position, LootTable lootTable, Transform entityContainer) {
+        public static void SpawnLootTable(Vector2 position, LootTable lootTable, Transform entityContainer) {
             List<ItemSlot> items = LootTableUtils.Open(lootTable);
             foreach (ItemSlot item in items) {
-                SpawnItemEntityFromBreak(position,item,entityContainer);
+                SpawnItemEntity(position,item,entityContainer);
             }
         }
     }

@@ -38,17 +38,14 @@ namespace WorldModule.Caves {
                     error = true;
                 }
                 SpriteRenderer spriteRenderer = mobEntityPrefab.GetComponent<SpriteRenderer>();
-                if (!spriteRenderer)
-                {
-                    Debug.LogWarning("Entity " + entityDistribution.entityId + " has no sprite renderer");
-                    error = true;
-                }
                 if (error)
                 {
                     continue;
                 }
-                Sprite sprite = spriteRenderer.sprite;
-                Vector2Int spriteSize = Global.getSpriteSize(sprite);
+                
+                Vector2Int spriteSize = spriteRenderer
+                    ? Global.getSpriteSize(spriteRenderer.sprite)
+                    : Vector2Int.one;
                 
                 int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
                 MobSpawnCondition spawnCondition = mobEntityPrefab.MobSpawnCondition;

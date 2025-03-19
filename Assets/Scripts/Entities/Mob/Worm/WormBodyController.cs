@@ -95,10 +95,9 @@ namespace Entities.Mob.Display
             partObject.layer = gameObject.layer;
             partObject.AddComponent<BoxCollider2D>();
             partObject.transform.SetParent(transform,false);
-            var vector3 = partObject.gameObject.transform.position;
-            vector3.y = -height;
-            vector3.z = transform.childCount / 128f;
-            partObject.gameObject.transform.position = vector3;
+            Vector3 spawnPosition = partObject.transform.position;
+            spawnPosition.z = transform.childCount / 1024f;
+            partObject.transform.position = spawnPosition;
             SpriteRenderer spriteRenderer = partObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;
             height += spriteRenderer.bounds.size.y;
