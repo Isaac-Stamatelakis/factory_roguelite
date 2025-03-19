@@ -170,6 +170,7 @@ namespace Entities.Mobs {
         
         private IEnumerator LoadEntityThenSpawn(SerializedMobEntityData serializedEntityData, Vector2 position, Transform container)
         {
+            if (!assetLocationMap.ContainsKey(serializedEntityData.Id)) yield break;
             yield return LoadEntityIntoMemory(serializedEntityData.Id);
             Spawn(serializedEntityData,position,container);
         }

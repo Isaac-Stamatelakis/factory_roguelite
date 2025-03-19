@@ -17,11 +17,18 @@ namespace Item.Inventory
         private int displaySize;
         public void Initialize(List<List<ItemSlot>> inventories, int displaySize, int fixedUpdatesPerSwitch, bool clear = true, int initialIndex = 0)
         {
+            inventoryUI = GetComponent<InventoryUI>();
+            if (inventories.Count == 0)
+            {
+                List<ItemSlot> emptyDisplay = ItemSlotFactory.createEmptyInventory(displaySize);
+                inventoryUI.DisplayInventory(emptyDisplay,displaySize,clear);
+                return;
+            }
             this.inventories = inventories;
             this.displaySize = displaySize;
             this.updateTime = fixedUpdatesPerSwitch;
             index = initialIndex;
-            inventoryUI = GetComponent<InventoryUI>();
+            
             counter = 0;
             if (ReferenceEquals(inventoryUI, null))
             {

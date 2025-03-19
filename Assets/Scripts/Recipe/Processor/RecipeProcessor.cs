@@ -4,7 +4,7 @@ using TileEntity.Instances.Machine;
 using UnityEngine;
 
 namespace Recipe.Processor {
-    [CreateAssetMenu(fileName = "New Recipe Processor", menuName = "Crafting/Processor/Standard")]
+    [CreateAssetMenu(fileName = "New Recipe Processor", menuName = "Crafting/Processor")]
     public class RecipeProcessor : ScriptableObject
     {
         public GameObject UIPrefab;
@@ -13,6 +13,7 @@ namespace Recipe.Processor {
         public List<ModeNameKVP> ModeNamesMap;
         public Sprite Sprite;
         public TileEntityLayoutObject LayoutObject;
+        public RecipeProcessorRestrictionObject ProcessorRestrictionObject;
     }
 
     

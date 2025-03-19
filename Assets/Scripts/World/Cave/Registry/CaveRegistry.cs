@@ -262,6 +262,7 @@ namespace World.Cave.Registry
             {
                 return GetBaseIdInfo();
             }
+            
             if (id == ids[0])
             {
                 return new CaveTileInfoElement
@@ -278,7 +279,7 @@ namespace World.Cave.Registry
                 return new CaveTileInfoElement
                 {
                     Chance = realOdd,
-                    Id = ids[1]
+                    Id = ids[i]
                 };
             }
             return new CaveTileInfoElement

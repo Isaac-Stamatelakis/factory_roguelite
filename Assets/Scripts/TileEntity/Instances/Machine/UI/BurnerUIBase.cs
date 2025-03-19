@@ -7,12 +7,16 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Recipe;
+using Recipe.Processor;
+using Recipe.Processor.Restrictions;
+using Recipe.Restrictions;
 using Recipe.Viewer;
 using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machines;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using ItemObject = Items.ItemObject;
 
 namespace TileEntity.Instances.Machine.UI
 {
@@ -31,26 +35,57 @@ namespace TileEntity.Instances.Machine.UI
             tileEntityInventoryUI.Display(tileEntityInstance.GetItemInventory().Content,tileEntityInstance.GetMachineLayout(),tileEntityInstance);
             burnerInventoryUI.DisplayInventory(tileEntityInstance.BurnerFuelInventory.BurnerSlots);
             burnerInventoryUI.AddListener(tileEntityInstance);
+
+            if (tileEntityInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
+
+            bool ValidateFunction(ItemObject itemObject)
+            {
+                if (!itemObject) return false;
+                foreach (ItemObject whiteListedFuel in fuelRestriction.WhiteListedFuels)
+                {
+                    if (whiteListedFuel?.id == itemObject.id) return true;
+                }
+                return false;
+            }
+            burnerInventoryUI.SetInputRestrictionCallBack(ValidateFunction);
         }
 
         public void DisplayRecipe(DisplayableRecipe recipe)
         {
             title.gameObject.SetActive(false);
             tileEntityInventoryUI.DisplayRecipe(recipe);
+            
+            burnerInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+            
             InventoryUIRotator burnerRotator = burnerInventoryUI.GetComponent<InventoryUIRotator>();
             if (ReferenceEquals(burnerRotator, null))
             {
                 burnerRotator = burnerInventoryUI.AddComponent<InventoryUIRotator>();
             }
-
-            List<ItemSlot> randomBurnables = RecipeRegistry.BurnableItemRegistry.GetRandomBurnableItems(); 
+            List<ItemSlot> burnables = GetDisplayBurnables(recipe);
             List<List<ItemSlot>> burnableInventories = new List<List<ItemSlot>>();
-            foreach (ItemSlot itemSlot in randomBurnables)
+            foreach (ItemSlot itemSlot in burnables)
             {
                 burnableInventories.Add(new List<ItemSlot> { itemSlot });
             }
             burnerRotator.Initialize(burnableInventories,1,100);
-            burnerInventoryUI.SetInteractMode(InventoryInteractMode.Recipe);
+            
+           
+        }
+
+        private List<ItemSlot> GetDisplayBurnables(DisplayableRecipe recipe)
+        {
+            RecipeProcessorRestrictionObject restrictionObject = recipe.RecipeData.ProcessorInstance.RecipeProcessorObject.ProcessorRestrictionObject;
+            if (restrictionObject is RecipeProcessorFuelRestriction fuelRestriction)
+            {
+                List<ItemSlot> restrictedSlots = new List<ItemSlot>();
+                foreach (ItemObject itemObject in fuelRestriction.WhiteListedFuels)
+                {
+                    restrictedSlots.Add(new ItemSlot(itemObject,1,null));
+                }
+                return restrictedSlots;
+            }
+            return RecipeRegistry.BurnableItemRegistry.GetRandomBurnableItems(); 
         }
 
         public void FixedUpdate()

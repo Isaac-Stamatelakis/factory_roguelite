@@ -641,9 +641,6 @@ namespace Player {
                 }
             }
             
-            
-            
-
             currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
             if (currentTileMovementType == TileMovementType.Slippery)
             {
@@ -798,7 +795,8 @@ namespace Player {
         public bool Damage(float amount)
         {
             if (DevMode.Instance.noHit || iFrames > 0) return false;
-            iFrames = 5;
+            iFrames = 15;
+            liveYUpdates = 3;
             robotData.Health -= amount;
             if (robotData.Health > 0 || dead) return true;
             
