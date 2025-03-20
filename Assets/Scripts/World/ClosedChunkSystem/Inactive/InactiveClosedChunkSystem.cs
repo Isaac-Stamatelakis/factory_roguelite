@@ -16,10 +16,10 @@ using Tiles;
 using World.Cave.Registry;
 
 namespace Chunks.Systems {
-    public class SoftLoadedCompactMachineChunkSystem : SoftLoadedClosedChunkSystem, ICompactMachineClosedChunkSystem
+    public class LoadedCompactMachineChunkSystem : LoadedClosedChunkSystem, ICompactMachineClosedChunkSystem
     {
         private CompactMachineInstance compactMachineInstance;
-        public SoftLoadedCompactMachineChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath) : base(unloadedChunks, savePath)
+        public LoadedCompactMachineChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) : base(unloadedChunks, savePath, dim)
         {
         }
 
@@ -38,15 +38,53 @@ namespace Chunks.Systems {
             return compactMachineInstance;
         }
     }
-    public class SoftLoadedClosedChunkSystem : IChunkSystem
+    
+    public class SoftLoadedClosedChunkSystem
+    {
+        public SoftLoadedClosedChunkSystem(List<ITickableTileEntity> tickableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
+        {
+            this.tickableTileEntities = tickableTileEntities;
+            this.TickableConduitSystems = tickableConduitSystems;
+            this.dim = dim;
+            this.savePath = savePath;
+        }
+        private List<ITickableTileEntity> tickableTileEntities;
+        private List<ITickableConduitSystem> TickableConduitSystems;
+        private int dim;
+        private string savePath;
+        public void TickUpdate()
+        {
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                tickableTileEntity.TickUpdate();
+            }
+            foreach (ITickableConduitSystem tickableConduitSystem in TickableConduitSystems)
+            {
+                tickableConduitSystem.TickUpdate();
+            }
+        }
+
+        public void Save()
+        {
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(dim, savePath);
+        }
+
+        public override string ToString()
+        {
+            return $"SoftLoadedClosedChunkSystem at path {savePath} has {tickableTileEntities.Count} TickableTileEntities & {TickableConduitSystems.Count} TickableConduitSystems";
+        }
+    }
+    public class LoadedClosedChunkSystem : IChunkSystem
     {
         private IntervalVector coveredArea;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
         private List<SoftLoadedConduitTileChunk> softLoadedChunks;
         private string savePath;
         public string SavePath => savePath;
-        public SoftLoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath) {
+        private int dim;
+        public LoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) {
             this.softLoadedChunks = unloadedChunks;
+            this.dim = dim;
             this.savePath = savePath;
             if (unloadedChunks.Count == 0) {
                 return;
@@ -82,10 +120,40 @@ namespace Chunks.Systems {
             }
         }
 
-        public void SoftLoad() {
+        public void LoadSystem() {
             SoftLoadTileEntities();
             AssembleMultiBlocks();
             InitConduitSystemManagers();
+        }
+
+        public SoftLoadedClosedChunkSystem ToSoftLoaded()
+        {
+            List<ITickableTileEntity> tickableTileEntities = new List<ITickableTileEntity>();
+            foreach (IChunk chunk in Chunks)
+            {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions())
+                {
+                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+                    {
+                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                        {
+                            ITileEntityInstance tileEntityInstance = partition.GetTileEntity(new Vector2Int(x, y));
+                            if (tileEntityInstance is ITickableTileEntity tickableTileEntity) tickableTileEntities.Add(tickableTileEntity);
+                        }
+                    }
+                }
+            }
+
+            List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();
+            foreach (IConduitSystemManager conduitSystemManager in ConduitSystemManagersDict.Values)
+            {
+                if (conduitSystemManager is ITickableConduitSystemManager tickableConduitSystemManager)
+                {
+                    var systems = tickableConduitSystemManager.GetTickableConduitSystems();
+                    tickableConduitSystems.AddRange(systems);
+                }
+            }
+            return new SoftLoadedClosedChunkSystem(tickableTileEntities,tickableConduitSystems,savePath,dim);
         }
         
         private void InitConduitSystemManagers() {
@@ -240,8 +308,8 @@ namespace Chunks.Systems {
 
         public void TickUpdate() {
             foreach (IConduitSystemManager manager in conduitSystemManagersDict.Values) {
-                if (manager is ITickableConduitSystem tickableConduitSystem) {
-                    tickableConduitSystem.tickUpdate();
+                if (manager is ITickableConduitSystemManager tickableConduitSystem) {
+                    tickableConduitSystem.TickUpdate();
                 }
             }
             foreach (SoftLoadedConduitTileChunk chunk in Chunks) {

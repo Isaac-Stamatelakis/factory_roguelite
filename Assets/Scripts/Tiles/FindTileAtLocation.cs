@@ -55,7 +55,7 @@ public static class FindTileAtLocation
         return null;
     }
 
-    public static Vector2Int? find(Vector2Int hitPosition, SoftLoadedClosedChunkSystem system) {
+    public static Vector2Int? find(Vector2Int hitPosition, LoadedClosedChunkSystem system) {
         int searchWidth = 1;
         Dictionary<Vector2Int,IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
         Dictionary<Vector2Int,IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();

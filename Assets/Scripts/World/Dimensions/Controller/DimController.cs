@@ -10,7 +10,7 @@ namespace Dimensions {
     public interface IMultipleSystemController {
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript);
         public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key);
-        public List<SoftLoadedClosedChunkSystem> GetAllInactiveSystems();
+        public List<LoadedClosedChunkSystem> GetAllInactiveSystems();
     }
 
     public interface ISingleSystemController {
@@ -18,7 +18,7 @@ namespace Dimensions {
         public ClosedChunkSystem GetActiveSystem();
         public IEnumerator SaveSystemCoroutine();
         public void SaveSystem();
-        public SoftLoadedClosedChunkSystem GetInactiveSystem();
+        public LoadedClosedChunkSystem GetInactiveSystem();
     }
     
     public abstract class DimController : MonoBehaviour

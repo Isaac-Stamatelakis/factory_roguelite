@@ -12,31 +12,26 @@ using TileEntity;
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
-        private SoftLoadedClosedChunkSystem dim0System;
+        private LoadedClosedChunkSystem dim0System;
         private ConduitTileClosedChunkSystem mainArea;
-        public override void Awake() {
-            base.Awake();
-        }
         
-
         public void FixedUpdate() {
-            if (ReferenceEquals(dim0System,null)) {
-                return;
-            }
-            dim0System.TickUpdate();
+            dim0System?.TickUpdate();
         }
 
-        public void SoftLoadSystem() {
+        public void LoadSystems() {
             string path = WorldLoadUtils.GetDimPath(0);
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
-            dim0System = new SoftLoadedClosedChunkSystem(unloadedChunks,path);
-            dim0System.SoftLoad();
+            dim0System = new LoadedClosedChunkSystem(unloadedChunks,path,0);
+            dim0System.LoadSystem();
+            SoftLoadedClosedChunkSystem softLoaded = dim0System.ToSoftLoaded();
+            Debug.Log(softLoaded);
             Debug.Log("Soft loaded Dim0System");
         }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
             if (dim0System == null) {
-                SoftLoadSystem();
+                LoadSystems();
             }
             GameObject closedChunkSystemObject = new GameObject();
             IntervalVector bounds = WorldCreation.GetDim0Bounds();
@@ -76,13 +71,13 @@ namespace Dimensions {
             dim0System?.Save();
         }
 
-        public SoftLoadedClosedChunkSystem GetInactiveSystem()
+        public LoadedClosedChunkSystem GetInactiveSystem()
         {
             return dim0System;
         }
 
 
-        public SoftLoadedClosedChunkSystem getSystem()
+        public LoadedClosedChunkSystem getSystem()
         {
             return dim0System;
         }

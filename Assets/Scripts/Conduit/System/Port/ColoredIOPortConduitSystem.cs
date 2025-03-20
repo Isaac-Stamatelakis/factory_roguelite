@@ -19,8 +19,8 @@ namespace Conduits.Systems {
         public bool IsActive();
     }
 
-    public interface IPortConduitSystem : IConduitSystem {
-        public void TickUpdate();
+    public interface IPortConduitSystem : IConduitSystem, ITickableConduitSystem {
+        
     }
 
     public enum PortConnectionType

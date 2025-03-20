@@ -29,14 +29,14 @@ namespace TileEntity.Instances.CompactMachines {
         public const string COMPACT_MACHINE_PATH = "CompactMachines";
         public const string META_DATA_PATH = "meta.bin";
         
-        public static SoftLoadedCompactMachineChunkSystem LoadSystemFromPath(CompactMachineInstance compactMachineInstance, List<Vector2Int> path) {
+        public static LoadedCompactMachineChunkSystem LoadSystemFromPath(CompactMachineInstance compactMachineInstance, List<Vector2Int> path) {
             string systemPath = Path.Combine(GetPositionFolderPath(path),CONTENT_PATH);
             return LoadSystemFromPath(compactMachineInstance, systemPath);
         }
         
-        public static SoftLoadedCompactMachineChunkSystem LoadSystemFromPath(CompactMachineInstance compactMachineInstance, string path) {
+        public static LoadedCompactMachineChunkSystem LoadSystemFromPath(CompactMachineInstance compactMachineInstance, string path) {
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(1,path);
-            SoftLoadedCompactMachineChunkSystem system = new SoftLoadedCompactMachineChunkSystem(chunks,path);
+            LoadedCompactMachineChunkSystem system = new LoadedCompactMachineChunkSystem(chunks,path,1);
             system.SetCompactMachine(compactMachineInstance,null);
             return system;
         }

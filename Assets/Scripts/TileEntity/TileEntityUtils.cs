@@ -231,8 +231,8 @@ namespace TileEntity {
                 }
                 partition = adjacentChunk.GetPartition(partitionPosition);
             } else if (chunk is ISoftLoadedChunk softLoadedChunk) {
-                SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = softLoadedChunk.getSystem();
-                SoftLoadedConduitTileChunk adjacentSoftLoadedChunk = softLoadedClosedChunkSystem.getChunk(chunkPosition);
+                LoadedClosedChunkSystem loadedClosedChunkSystem = softLoadedChunk.getSystem();
+                SoftLoadedConduitTileChunk adjacentSoftLoadedChunk = loadedClosedChunkSystem.getChunk(chunkPosition);
                 if (adjacentSoftLoadedChunk == null) {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;

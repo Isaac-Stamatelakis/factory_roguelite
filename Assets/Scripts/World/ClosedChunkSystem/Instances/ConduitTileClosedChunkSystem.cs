@@ -64,7 +64,7 @@ namespace Chunks.Systems {
             }
         }
         
-        public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, SoftLoadedClosedChunkSystem inactiveClosedChunkSystem, PlayerScript playerScript) {
+        public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, LoadedClosedChunkSystem inactiveClosedChunkSystem, PlayerScript playerScript) {
             if (coveredArea == null)
             {
                 throw new InvalidSystemException($"Tried to initialize closed chunk system with '{inactiveClosedChunkSystem.Chunks.Count}' chunks");

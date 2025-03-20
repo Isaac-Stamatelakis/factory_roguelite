@@ -112,12 +112,12 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    SoftLoadedClosedChunkSystem system = singleSystemController.GetInactiveSystem();
+                    LoadedClosedChunkSystem system = singleSystemController.GetInactiveSystem();
                     if (system == null) continue;
                     system.SyncCaveRegistryTileEntities(caveRegistry);
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (LoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
                     {
                         system.SyncCaveRegistryTileEntities(caveRegistry);
                     }
@@ -177,7 +177,7 @@ namespace Dimensions {
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (LoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
                     {
                         systems++;
                         yield return StartCoroutine(system?.SaveCoroutine());
@@ -214,19 +214,17 @@ namespace Dimensions {
                     singleSystemController.SaveSystem();
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (LoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
                     {
                         system.Save();
                     }
                 }
             }
 
+            if (!WorldLoadUtils.UsePersistentPath) return;
             
-            if (WorldLoadUtils.UsePersistentPath)
-            {
-                WorldManager.getInstance().SaveMetaData();
-                WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
-            }
+            WorldManager.getInstance().SaveMetaData();
+            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
         }
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)

@@ -45,8 +45,14 @@ namespace Conduits.Systems {
         public void SetTileMapVisibility(bool visible);
     }
 
-    public interface ITickableConduitSystem {
-        public void tickUpdate();
+    public interface ITickableConduitSystem
+    {
+        public void TickUpdate();
+    }
+
+    public interface ITickableConduitSystemManager {
+        public void TickUpdate();
+        public List<ITickableConduitSystem> GetTickableConduitSystems();
     }
     public abstract class ConduitSystemManager<TConduit, TSystem> : IConduitSystemManager where TConduit : IConduit where TSystem : IConduitSystem {
         protected List<TSystem> conduitSystems;

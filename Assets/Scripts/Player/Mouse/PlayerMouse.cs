@@ -258,7 +258,7 @@ namespace PlayerModule.Mouse {
             }
             
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType.Value);
-            if (conduitSystemManager is not PortConduitSystemManager portConduitSystemManager) return false;
+            if (conduitSystemManager is not PortConduitSystemManagerManager portConduitSystemManager) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
             IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
        

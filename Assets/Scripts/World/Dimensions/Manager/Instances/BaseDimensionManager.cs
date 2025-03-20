@@ -55,7 +55,7 @@ namespace Dimensions {
 
         public override void SoftLoadSystems()
         {
-            overworldDimController.SoftLoadSystem();
+            overworldDimController.LoadSystems();
             compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);
         }
         

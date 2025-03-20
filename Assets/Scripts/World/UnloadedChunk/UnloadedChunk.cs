@@ -7,7 +7,7 @@ using Chunks.Systems;
 namespace Chunks {
 
     public interface ISoftLoadedChunk {
-        public SoftLoadedClosedChunkSystem getSystem();
+        public LoadedClosedChunkSystem getSystem();
     }
     /// <summary>
     /// A lightweight version of a conduit tile chunk
@@ -19,19 +19,19 @@ namespace Chunks {
         private int dim;
         public Vector2Int Position { get => position; set => position = value; }
         public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
-        public SoftLoadedClosedChunkSystem System { get => system; set => system = value; }
-        private SoftLoadedClosedChunkSystem system;
+        public LoadedClosedChunkSystem System { get => system; set => system = value; }
+        private LoadedClosedChunkSystem system;
 
         public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, int dim) {
             this.position = chunkPosition;
             this.dim = dim;
-            generatePartitions(chunkPartitionDataList);
+            GeneratePartitions(chunkPartitionDataList);
         }
-        protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
+        protected void GeneratePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
             partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
             for (int x = 0; x < Global.PARTITIONS_PER_CHUNK; x ++) {
                 for (int y = 0; y < Global.PARTITIONS_PER_CHUNK; y ++) {
-                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
+                    partitions[x,y] = GeneratePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
                 }
             }
         }
@@ -40,14 +40,12 @@ namespace Chunks {
         /// <summary>
         /// Generates a partition
         /// </summary>
-        protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
-            if (data is SeralizedWorldData) {
-                if (data is WorldTileConduitData) {
-                    return new ConduitChunkPartition<WorldTileConduitData>((WorldTileConduitData) data,position,this);
-                }
-                return new TileChunkPartition<SeralizedWorldData>((SeralizedWorldData) data,position,this);
-            } else 
-            return null;
+        protected virtual IChunkPartition GeneratePartition(IChunkPartitionData data, Vector2Int position) {
+            if (data is not SeralizedWorldData worldData) return null;
+            if (worldData is WorldTileConduitData worldTileConduitData) {
+                return new ConduitChunkPartition<WorldTileConduitData>(worldTileConduitData,position,this);
+            }
+            return new TileChunkPartition<SeralizedWorldData>(worldData,position,this);
         }
 
         public Vector2Int GetPosition()
@@ -84,7 +82,7 @@ namespace Chunks {
             return system;
         }
 
-        public SoftLoadedClosedChunkSystem getSystem()
+        public LoadedClosedChunkSystem getSystem()
         {
             return system;   
         }
