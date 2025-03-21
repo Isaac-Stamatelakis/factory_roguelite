@@ -10,22 +10,20 @@ namespace Dimensions {
 
     public interface IMultipleSystemController {
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript);
-        public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key);
-        public List<ClosedChunkSystemAssembler> GetAllInactiveSystems();
+        public ClosedChunkSystem GetActiveSystem();
+        public List<IChunkSystem> GetAllSystems();
     }
 
     public interface ISingleSystemController {
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript);
         public ClosedChunkSystem GetActiveSystem();
-        public IEnumerator SaveSystemCoroutine();
-        public void SaveSystem();
         public IChunkSystem GetSystem();
-        public void DeactivateSystem();
     }
     
     public abstract class DimController : MonoBehaviour
     {
         private Transform entityContainer;
+        public abstract void TickUpdate();
         public Transform EntityContainer { get => entityContainer;}
         public bool BoundCamera = false;
 
@@ -41,6 +39,8 @@ namespace Dimensions {
         {
             GlobalHelper.deleteAllChildren(entityContainer);
         }
+        
+        public abstract void DeActivateSystem();
     }
 }
 

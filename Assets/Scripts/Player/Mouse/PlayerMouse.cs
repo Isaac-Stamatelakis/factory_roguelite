@@ -261,7 +261,6 @@ namespace PlayerModule.Mouse {
             if (conduitSystemManager is not PortConduitSystemManagerManager portConduitSystemManager) return false;
             Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
             IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
-       
             if (conduit == null) {
                 return false;
             }

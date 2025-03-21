@@ -76,6 +76,7 @@ namespace Chunks.Partitions {
         /// </summary>
         public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
         {
+            tickableTileEntities ??= new List<ITickableTileEntity>();
             loading = true;
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();
@@ -218,6 +219,23 @@ namespace Chunks.Partitions {
             if (tileEntities == null) return null;
             tileEntities.TryGetValue(positionInPartition, out ITileEntityInstance tileEntity);
             return tileEntity;
+        }
+
+        public List<TTileEntityType> GetTileEntitiesOfType<TTileEntityType>()
+        {
+            List<TTileEntityType> typedTileEntities = new List<TTileEntityType>();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    if (!tileEntities.TryGetValue(new Vector2Int(x, y), out ITileEntityInstance tileEntityInstance)) continue;
+                    if (tileEntityInstance is TTileEntityType tileEntity)
+                    {
+                        typedTileEntities.Add(tileEntity);
+                    }
+                }
+            }
+            return typedTileEntities;
         }
 
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);

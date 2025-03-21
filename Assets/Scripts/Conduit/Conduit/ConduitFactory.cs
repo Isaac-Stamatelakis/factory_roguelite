@@ -34,6 +34,10 @@ namespace Conduits {
             PortConduitData conduitData = JsonConvert.DeserializeObject<PortConduitData>(conduitOptionData);
             int state = conduitData.State % 16;
             IConduitPort port = ConduitPortFactory.Deserialize(conduitData.PortData,conduitType,conduitItem, tileEntity,cellPosition);
+            if (port == null && portType.HasValue)
+            {
+                port = ConduitPortFactory.CreateDefault(conduitType, portType.Value, tileEntity, conduitItem,cellPosition);
+            }
             return CreatePortConduit(conduitItem, cellPosition.x, cellPosition.y, state, tileEntity, port);
             
         }

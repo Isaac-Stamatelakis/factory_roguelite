@@ -11,34 +11,27 @@ using World.Serialization;
 
 namespace Dimensions {
     public enum Dimension {
-        OverWorld,
-        Cave,
-        CompactMachine
+        OverWorld = 0,
+        Cave = -1,
+        CompactMachine = 1,
     }
     public class BaseDimensionManager : DimensionManager, ICompactMachineDimManager
     {
         [SerializeField] public Dim0Controller overworldDimController;
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
+
         
-        public override DimController GetDimController(int dim) {
-            switch (dim) {
-                case 0:
+        public override DimController GetDimController(Dimension dimension) {
+            switch (dimension) {
+                case Dimension.OverWorld:
                     return overworldDimController;
-                case -1:
+                case Dimension.Cave:
                     return caveDimController;
-                case 1:
+                case Dimension.CompactMachine:
                     return compactMachineDimController;
             }
             return null;
-        }
-
-        public Dim0Controller getDim0Controller() {
-            return overworldDimController;
-        }
-
-        public CaveController getCaveController() {
-            return caveDimController;
         }
 
         public CompactMachineDimController GetCompactMachineDimController() {
@@ -55,6 +48,16 @@ namespace Dimensions {
             };
         }
 
+        protected override void TickUpdate()
+        {
+            if (activeSystem.Dim == (int)Dimension.Cave)
+            {
+                caveDimController.TickUpdate();
+            }
+            overworldDimController.TickUpdate();
+            compactMachineDimController.TickUpdate();
+        }
+
         public override void SoftLoadSystems()
         {
             string path = WorldLoadUtils.GetDimPath(0);
@@ -63,7 +66,7 @@ namespace Dimensions {
             dim0SystemAssembler.LoadSystem();
             SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = dim0SystemAssembler.ToSoftLoaded();
             overworldDimController.SetSoftLoadedSystem(softLoadedClosedChunkSystem);
-            //compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
+            compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
         }
         
     }

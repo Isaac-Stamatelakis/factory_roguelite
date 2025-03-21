@@ -193,13 +193,13 @@ namespace TileEntity.Instances {
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Caves_Explored]++;
             DimensionManager dimensionManager = DimensionManager.Instance;
-            CaveController caveController = (CaveController)dimensionManager.GetDimController(-1);
+            CaveController caveController = (CaveController)dimensionManager.GetDimController(Dimension.Cave);
             caveController.setCurrentCave(caveInstance);
 
             CaveOptions caveOptions = caveInstance.CaveObject.CaveOptions;
 
             DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
-            DimensionManager.Instance.SetPlayerSystem(playerScript, -1,spawnPosition,dimensionOptions: dimensionOptions);
+            DimensionManager.Instance.SetPlayerSystem(playerScript, Dimension.Cave,spawnPosition,dimensionOptions: dimensionOptions);
             
             TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.CaveObject.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }

@@ -41,17 +41,28 @@ namespace Chunks.Systems {
     
     public class SoftLoadedClosedChunkSystem : IChunkSystem
     {
-        public SoftLoadedClosedChunkSystem(List<ITickableTileEntity> tickableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
+        public SoftLoadedClosedChunkSystem(List<ISoftLoadableTileEntity> softLoadableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
         {
-            this.tickableTileEntities = tickableTileEntities;
+            this.tickableTileEntities = new List<ITickableTileEntity>();
+            foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
+            {
+                if (softLoadableTileEntity is ITickableTileEntity tickableTileEntity)
+                {
+                    tickableTileEntities.Add(tickableTileEntity);
+                }
+            }
+            this.softLoadableTileEntities = softLoadableTileEntities;
             this.TickableConduitSystems = tickableConduitSystems;
             this.dim = dim;
             this.savePath = savePath;
         }
+
+        private List<ISoftLoadableTileEntity> softLoadableTileEntities;
         private List<ITickableTileEntity> tickableTileEntities;
         private List<ITickableConduitSystem> TickableConduitSystems;
         private int dim;
         private string savePath;
+        public string SavePath => savePath;
         public void TickUpdate()
         {
             foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
@@ -82,6 +93,17 @@ namespace Chunks.Systems {
             }
         }
 
+        public Dictionary<Vector2Int, ISoftLoadableTileEntity> GetSoftLoadableTileEntities()
+        {
+            Dictionary<Vector2Int,ISoftLoadableTileEntity> tileEntities = new Dictionary<Vector2Int, ISoftLoadableTileEntity>();
+            foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
+            {
+                tileEntities[softLoadableTileEntity.GetCellPosition()] = softLoadableTileEntity;
+            }
+
+            return tileEntities;
+        }
+
         public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
         {
             foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
@@ -92,7 +114,7 @@ namespace Chunks.Systems {
                 }
             }
         }
-
+        
         private Dictionary<Vector2Int, ISerializableTileEntity> GetSerializableTileEntities()
         {
             Dictionary<Vector2Int, ISerializableTileEntity> tileEntities = new Dictionary<Vector2Int, ISerializableTileEntity>();
@@ -138,9 +160,9 @@ namespace Chunks.Systems {
         /// </summary>
         public void ClearActiveComponents()
         {
-            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
             {
-                tickableTileEntity.SetChunk(null);
+                softLoadableTileEntity.SetChunk(null);
             }
 
             for (var i = TickableConduitSystems.Count-1; i >=0; i--)
@@ -217,13 +239,36 @@ namespace Chunks.Systems {
             }
         }
 
-        public void LoadSystem() {
-            SoftLoadTileEntities();
+        public void LoadSystem(Dictionary<Vector2Int, ISoftLoadableTileEntity> loadedTileEntities = null) {
+            SoftLoadTileEntities(loadedTileEntities);
             AssembleMultiBlocks();
             InitConduitSystemManagers();
         }
 
         public SoftLoadedClosedChunkSystem ToSoftLoaded()
+        {
+            List<ISoftLoadableTileEntity> softLoadableTileEntities = new List<ISoftLoadableTileEntity>();
+            foreach (IChunk chunk in Chunks)
+            {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions())
+                {
+                    softLoadableTileEntities.AddRange(partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>());
+                }
+            }
+
+            List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();
+            foreach (IConduitSystemManager conduitSystemManager in ConduitSystemManagersDict.Values)
+            {
+                if (conduitSystemManager is ITickableConduitSystemManager tickableConduitSystemManager)
+                {
+                    var systems = tickableConduitSystemManager.GetTickableConduitSystems();
+                    tickableConduitSystems.AddRange(systems);
+                }
+            }
+            return new SoftLoadedClosedChunkSystem(softLoadableTileEntities,tickableConduitSystems,savePath,dim);
+        }
+
+        public List<ITickableTileEntity> GetTickableTileEntities()
         {
             List<ITickableTileEntity> tickableTileEntities = new List<ITickableTileEntity>();
             foreach (IChunk chunk in Chunks)
@@ -240,17 +285,7 @@ namespace Chunks.Systems {
                     }
                 }
             }
-
-            List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();
-            foreach (IConduitSystemManager conduitSystemManager in ConduitSystemManagersDict.Values)
-            {
-                if (conduitSystemManager is ITickableConduitSystemManager tickableConduitSystemManager)
-                {
-                    var systems = tickableConduitSystemManager.GetTickableConduitSystems();
-                    tickableConduitSystems.AddRange(systems);
-                }
-            }
-            return new SoftLoadedClosedChunkSystem(tickableTileEntities,tickableConduitSystems,savePath,dim);
+            return tickableTileEntities;
         }
         
         private void InitConduitSystemManagers() {
@@ -329,23 +364,29 @@ namespace Chunks.Systems {
             }
             return conduits;
         }
-        public Vector2Int GetBottomLeftCorner() {
-            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
-        }
+       
         protected Vector2Int GetSize() {
             int xSizeChunks = Mathf.Abs(coveredArea.X.UpperBound-coveredArea.X.LowerBound)+1;
             int ySizeChunks = Mathf.Abs(coveredArea.Y.UpperBound-coveredArea.Y.LowerBound)+1;
             return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
         }
         
-        private void SoftLoadTileEntities() {
+        private void SoftLoadTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> preloadedTileEntities) {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                         continue;
                     }
-                    conduitTileChunkPartition.SoftLoadTileEntities();
+
+                    if (preloadedTileEntities != null)
+                    {
+                        conduitTileChunkPartition.SyncPreLoadedTileEntities(preloadedTileEntities);
+                    }
+                    else
+                    {
+                        conduitTileChunkPartition.SoftLoadTileEntities();
+                    }
                 }
             }
         }

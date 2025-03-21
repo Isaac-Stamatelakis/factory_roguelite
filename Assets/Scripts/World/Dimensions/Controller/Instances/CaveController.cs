@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Chunks;
@@ -36,27 +37,21 @@ namespace Dimensions {
             return activeSystem;
         }
 
-        public IEnumerator SaveSystemCoroutine()
-        {
-            if (!activeSystem) yield break;
-            yield return activeSystem.SaveCoroutine();
-        }
-
-        public void SaveSystem()
-        {
-            if (!activeSystem) return;
-            activeSystem.Save();
-        }
-
         public IChunkSystem GetSystem()
         {
             return activeSystem;
         }
 
-        public void DeactivateSystem()
+        public override void DeActivateSystem()
         {
             if (!activeSystem) return;
             GameObject.Destroy(activeSystem.gameObject);
+            activeSystem = null;
+        }
+
+        public override void TickUpdate()
+        {
+            activeSystem?.TickUpdate();
         }
     }
 }

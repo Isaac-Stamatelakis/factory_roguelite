@@ -299,11 +299,7 @@ namespace Chunks.Systems {
             chunkPartition.SetTileLoaded(false);
             chunkPartition.SetFarLoaded(false);
         }
-
-        public void OnApplicationQuit() {
-            isQuitting = true;
-            Save();
-        }
+        
         public void OnDisable()
         {
             if (isQuitting) {
@@ -323,32 +319,10 @@ namespace Chunks.Systems {
             }
         }
 
-        public void TickUpdate()
-        {
-            foreach (ILoadedChunk chunk in cachedChunks.Values) {
-                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    partition.Tick();
-                }
-                
-            }
-        }
+        public abstract void TickUpdate();
 
 
-        public IEnumerator SaveCoroutine()
-        {
-            var delay = new WaitForFixedUpdate();
-            List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
-            foreach (Vector2Int chunkPosition in currentlyCachedChunks) {
-                if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
-                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
-                    if (partition.GetLoaded()) {
-                        partition.Save();
-                    }
-                }
-                ChunkIO.WriteChunk(chunk);
-                yield return delay;
-            }
-        }
+        public abstract IEnumerator SaveCoroutine();
 
         public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
         {

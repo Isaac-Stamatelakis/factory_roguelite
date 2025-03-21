@@ -39,7 +39,7 @@ namespace UI.Chat {
         {
             Transform player = PlayerManager.Instance.GetPlayer().transform;
             int dim = DimensionManager.Instance.GetPlayerDimension();
-            DimController dimController = DimensionManager.Instance.GetDimController(dim);
+            DimController dimController = DimensionManager.Instance.GetDimController((Dimension)dim);
             for (int i = 0; i < dimController.EntityContainer.childCount; i++)
             {
                 Transform child = dimController.EntityContainer.GetChild(i);

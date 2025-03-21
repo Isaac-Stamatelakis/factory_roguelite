@@ -67,7 +67,6 @@ namespace TileEntity.Instances.CompactMachine.UI
         {
             string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
             if (!Directory.Exists(hashPath)) return;
-            Debug.Log(metaData.Instances);
             if (metaData.Instances <= 1) // If instances less than one no need to store content data at hash
             {
                 string[] directories = Directory.GetDirectories(hashPath);

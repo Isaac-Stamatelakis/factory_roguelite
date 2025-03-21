@@ -89,9 +89,11 @@ namespace TileEntity.Instances.CompactMachines {
                 }   
             }
             CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath,compactMachine.IsParentLocked());
+            Dimension dimension = parentPath.Count == 0 ? Dimension.OverWorld : Dimension.CompactMachine;
+          
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
-                1,
+                dimension,
                 compactMachine.GetCellPosition(),
                 key:parentKey
             );
@@ -115,7 +117,7 @@ namespace TileEntity.Instances.CompactMachines {
             }
             dimensionManager.SetPlayerSystem(
                 playerScript,
-                1,
+                Dimension.CompactMachine,
                 teleportPosition,
                 key:key
             );
