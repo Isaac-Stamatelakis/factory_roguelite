@@ -287,7 +287,10 @@ namespace Dimensions {
             LoadCompactMachineSystem(assemblerTree,WorldLoadUtils.GetDimPath(1),false);
             systemTree = SoftLoadTree(assemblerTree);
             
-            //Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
+            // Remove dim0 data from tree
+            softLoadedClosedChunkSystems.Remove(systemTree.Data);
+            systemTree.Data = null;
+            Debug.Log($"Loaded {softLoadedClosedChunkSystems.Count} Compact Machine Systems");
         }
 
         public void ReSyncConduitPorts(List<Vector2Int> path, CompactMachinePortType portType, ConduitType conduitType, Vector2Int breakCellPosition)

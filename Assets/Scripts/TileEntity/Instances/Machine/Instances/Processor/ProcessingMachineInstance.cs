@@ -65,7 +65,7 @@ namespace TileEntity.Instances.Machines
                 // TODO draw energy from battery
             }
             if (ReferenceEquals(currentRecipe?.InputEnergy,null) || EnergyInventory.Energy == 0) return;
-
+            
             ulong energyToUse = EnergyInventory.Energy < currentRecipe.EnergyCostPerTick ? EnergyInventory.Energy : currentRecipe.EnergyCostPerTick;
             EnergyInventory.Energy -= energyToUse;
             currentRecipe.InputEnergy -= energyToUse;

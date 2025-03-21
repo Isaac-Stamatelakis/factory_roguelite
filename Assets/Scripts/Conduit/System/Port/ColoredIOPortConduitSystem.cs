@@ -53,6 +53,7 @@ namespace Conduits.Systems {
         }
         public override void Rebuild()
         {
+            Debug.Log("Rebuilt");
             coloredOutputPorts = new Dictionary<int, List<TTileEntityPort>>();
             coloredPriorityInputs = new Dictionary<int, List<TTileEntityPort>>();
             foreach (IPortConduit conduit in conduits) {

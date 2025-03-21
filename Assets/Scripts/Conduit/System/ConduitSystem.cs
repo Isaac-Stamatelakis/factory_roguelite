@@ -9,7 +9,7 @@ namespace Conduits.Systems {
         {
             this.id = id;
             this.manager = manager;
-            Conduits = new HashSet<TSystemConduit>();
+            conduits = new HashSet<TSystemConduit>();
         }
 
         protected HashSet<TSystemConduit> conduits;
@@ -19,7 +19,6 @@ namespace Conduits.Systems {
         protected HashSet<TSystemConduit> Conduits
         {
             get => conduits;
-            set => conduits = value;
         }
 
         public virtual void AddConduit(IConduit conduit)
