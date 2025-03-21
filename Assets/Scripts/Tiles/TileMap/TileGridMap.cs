@@ -419,7 +419,7 @@ namespace TileMaps {
             if (updateOnRotate) UpdateListeners(position,tileItem);
             
             PlaceTile.ClearTilesOnPlace(tileItem,worldPosition,newRotation);
-            var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
+            var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(position);
 
             ITileEntityInstance tileEntityInstance =  partition.GetTileEntity(positionInPartition);
             IConduitPortTileEntity portTileEntity = tileEntityInstance as IConduitPortTileEntity;

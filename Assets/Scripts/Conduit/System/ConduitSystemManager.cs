@@ -45,9 +45,10 @@ namespace Conduits.Systems {
         public void SetTileMapVisibility(bool visible);
     }
 
-    public interface ITickableConduitSystem
+    public interface ITickableConduitSystem : IConduitSystem
     {
         public void TickUpdate();
+        public bool IsEmpty();
     }
 
     public interface ITickableConduitSystemManager {
@@ -60,7 +61,7 @@ namespace Conduits.Systems {
         protected Dictionary<Vector2Int, TConduit> conduits;
         protected Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts;
         protected ConduitTileMap ConduitTileMap;
-        protected ConduitTileClosedChunkSystem chunkSystem;
+        protected ConduitTileClosedChunkSystem ChunkSystem;
 
         public ConduitType Type { get => type;}
         public Dictionary<ITileEntityInstance, List<TileEntityPortData>> tileEntityConduitPorts { get => chunkConduitPorts; set => chunkConduitPorts = value; }
@@ -79,7 +80,7 @@ namespace Conduits.Systems {
 
         public void SetSystem(ConduitTileClosedChunkSystem chunkSystem)
         {
-            this.chunkSystem = chunkSystem;
+            this.ChunkSystem = chunkSystem;
             foreach (TSystem system in conduitSystems)
             {
                 system.Rebuild();
@@ -94,7 +95,7 @@ namespace Conduits.Systems {
 
         public bool IsSystemLoaded()
         {
-            return !ReferenceEquals(chunkSystem, null);
+            return !ReferenceEquals(ChunkSystem, null);
         }
 
         public void SetTileMapVisibility(bool visible)
@@ -135,7 +136,7 @@ namespace Conduits.Systems {
                 }
                 OnTileEntityAdd(conduit,tileEntity,port);
             }
-            chunkSystem?.PortViewerController?.Refresh();
+            ChunkSystem?.PortViewerController?.Refresh();
         }
 
         public abstract void OnTileEntityAdd(TConduit conduit,ITileEntityInstance tileEntity, TileEntityPortData portData);
@@ -153,7 +154,7 @@ namespace Conduits.Systems {
                         OnTileEntityRemoved(conduit);
                     }
                     tileEntityConduitPorts.Remove(kvp.Key);
-                    chunkSystem?.PortViewerController?.Refresh();
+                    ChunkSystem?.PortViewerController?.Refresh();
                     return;
                 }
             }
@@ -252,7 +253,7 @@ namespace Conduits.Systems {
             updateSystemsOnPlace(conduit,x,y);
             if (conduit is IPortConduit portConduit && portConduit.GetPort()?.GetInteractable() != null)
             {
-                chunkSystem?.PortViewerController?.Refresh();
+                ChunkSystem?.PortViewerController?.Refresh();
             }
         }
 
@@ -319,7 +320,7 @@ namespace Conduits.Systems {
             {
                 conduits.Remove(position);
                 TryDropConduitPortItems(conduit);
-                chunkSystem?.PortViewerController?.Refresh();
+                ChunkSystem?.PortViewerController?.Refresh();
             }
             
             // Step 4, Regenerate systems by running BfsConduit on up, left, down, right, and rebuild connections
@@ -340,7 +341,7 @@ namespace Conduits.Systems {
         protected void TryDropConduitPortItems(IConduit conduit)
         {
             Vector2Int chunkPosition = Global.getChunkFromCell(conduit.GetPosition());
-            ILoadedChunk chunk = chunkSystem?.getChunk(chunkPosition);
+            ILoadedChunk chunk = ChunkSystem?.getChunk(chunkPosition);
             if (chunk == null) return;
             
             if (conduit is not IPortConduit portConduit || portConduit.GetPort() is not IItemDropConduitPort itemDropConduitPort) return;

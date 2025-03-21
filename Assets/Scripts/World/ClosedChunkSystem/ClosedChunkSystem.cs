@@ -19,6 +19,7 @@ using Player;
 using TileEntity;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
+using World.Cave.Registry;
 
 namespace Chunks.Systems {
     
@@ -29,7 +30,7 @@ namespace Chunks.Systems {
 
     
 
-    public abstract class ClosedChunkSystem : MonoBehaviour, IChunkSystem
+    public abstract class ClosedChunkSystem : MonoBehaviour, ILoadedChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
         protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
@@ -328,7 +329,17 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk);
             }
         }
-        
+
+        public void TickUpdate()
+        {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    partition.Tick();
+                }
+                
+            }
+        }
+
 
         public IEnumerator SaveCoroutine()
         {
@@ -344,6 +355,11 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk);
                 yield return delay;
             }
+        }
+
+        public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
+        {
+            throw new NotImplementedException();
         }
 
         protected Vector2Int GetSize() {

@@ -11,6 +11,7 @@ namespace TileEntity {
         protected T tileEntityObject;
         public T TileEntityObject => tileEntityObject;
         protected Vector2Int positionInChunk;
+        protected Vector2Int chunkPosition;
         protected TileItem tileItem; 
         protected IChunk chunk;
 
@@ -20,6 +21,7 @@ namespace TileEntity {
             this.positionInChunk = positionInChunk;
             this.tileItem = tileItem;
             this.chunk = chunk;
+            this.chunkPosition = this.chunk.GetPosition();
         }
 
         public Vector2Int GetPositionInChunk() {
@@ -31,7 +33,7 @@ namespace TileEntity {
             return new Vector2(cellPosition.x/2f+0.25f,cellPosition.y/2f+0.25f);
         }
         public Vector2Int GetCellPosition() {
-            return (positionInChunk + chunk.GetPosition() * Global.CHUNK_SIZE);
+            return (positionInChunk + chunkPosition * Global.CHUNK_SIZE);
         }
         public IChunkPartition GetPartition() {
             return chunk.GetPartition(GetPartitionPositionInChunk());
@@ -58,6 +60,10 @@ namespace TileEntity {
 
         public void SetChunk(IChunk chunk)
         {
+            if (chunk != null)
+            {
+                this.chunkPosition = chunk.GetPosition();
+            }
             this.chunk = chunk;
         }
 

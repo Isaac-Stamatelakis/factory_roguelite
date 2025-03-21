@@ -12,8 +12,7 @@ using TileEntity;
 namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
-        private LoadedClosedChunkSystem dim0System;
-        private ConduitTileClosedChunkSystem mainArea;
+        private IChunkSystem dim0System;
         
         public void FixedUpdate() {
             dim0System?.TickUpdate();
@@ -22,43 +21,55 @@ namespace Dimensions {
         public void LoadSystems() {
             string path = WorldLoadUtils.GetDimPath(0);
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
-            dim0System = new LoadedClosedChunkSystem(unloadedChunks,path,0);
-            dim0System.LoadSystem();
-            SoftLoadedClosedChunkSystem softLoaded = dim0System.ToSoftLoaded();
-            Debug.Log(softLoaded);
-            Debug.Log("Soft loaded Dim0System");
+            ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
+            closedChunkSystemAssembler.LoadSystem();
+            dim0System = closedChunkSystemAssembler.ToSoftLoaded();
+            Debug.Log("Assembled Dim0System");
         }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
             if (dim0System == null) {
                 LoadSystems();
             }
-            GameObject closedChunkSystemObject = new GameObject();
-            IntervalVector bounds = WorldCreation.GetDim0Bounds();
-            closedChunkSystemObject.name="Dim0System";
-            mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
-            mainArea.Initialize(
-                this,
-                coveredArea: bounds,
-                dim: 0,
-                dim0System,
-                playerScript
-            );
-            return mainArea;
-        }
-        public void deactivateSystem()
-        {
-            GameObject.Destroy(mainArea.gameObject);
-        }
 
-        public bool isActive()
+            if (dim0System is ClosedChunkSystem closedChunkSystem)
+            {
+                return closedChunkSystem;
+            }
+            if (dim0System is SoftLoadedClosedChunkSystem)
+            {
+                GameObject closedChunkSystemObject = new GameObject();
+                IntervalVector bounds = WorldCreation.GetDim0Bounds();
+                closedChunkSystemObject.name="Dim0System";
+                ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
+                string path = WorldLoadUtils.GetDimPath(0);
+                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
+                ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
+                closedChunkSystemAssembler.LoadSystem();
+                
+                mainArea.Initialize(
+                    this,
+                    coveredArea: bounds,
+                    dim: 0,
+                    closedChunkSystemAssembler,
+                    playerScript
+                );
+                return mainArea;
+            }
+            throw new System.Exception("Failed to activate dim0 system");
+        }
+        public void DeactivateSystem()
         {
-            return mainArea != null;
+            if (dim0System is ClosedChunkSystem closedChunkSystem)
+            {
+                GameObject.Destroy(closedChunkSystem.gameObject); 
+            }
+            
         }
         
         public ClosedChunkSystem GetActiveSystem()
         {
-            return mainArea;
+            return dim0System as ClosedChunkSystem;
         }
 
         public IEnumerator SaveSystemCoroutine()
@@ -70,14 +81,8 @@ namespace Dimensions {
         {
             dim0System?.Save();
         }
-
-        public LoadedClosedChunkSystem GetInactiveSystem()
-        {
-            return dim0System;
-        }
-
-
-        public LoadedClosedChunkSystem getSystem()
+        
+        public IChunkSystem GetSystem()
         {
             return dim0System;
         }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
+using Chunks.IO;
 using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
@@ -55,8 +57,12 @@ namespace Dimensions {
 
         public override void SoftLoadSystems()
         {
+            string path = WorldLoadUtils.GetDimPath(0);
+            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
+            ClosedChunkSystemAssembler dim0SystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
+            dim0SystemAssembler.LoadSystem();
             overworldDimController.LoadSystems();
-            compactMachineDimController.softLoadSystem(overworldDimController.getSystem(),overworldDimController);
+            compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
         }
         
     }

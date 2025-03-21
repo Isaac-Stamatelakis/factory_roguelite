@@ -16,10 +16,10 @@ using Tiles;
 using World.Cave.Registry;
 
 namespace Chunks.Systems {
-    public class LoadedCompactMachineChunkSystem : LoadedClosedChunkSystem, ICompactMachineClosedChunkSystem
+    public class CompactMachineChunkSystemAssembler : ClosedChunkSystemAssembler, ICompactMachineClosedChunkSystem
     {
         private CompactMachineInstance compactMachineInstance;
-        public LoadedCompactMachineChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) : base(unloadedChunks, savePath, dim)
+        public CompactMachineChunkSystemAssembler(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) : base(unloadedChunks, savePath, dim)
         {
         }
 
@@ -39,7 +39,7 @@ namespace Chunks.Systems {
         }
     }
     
-    public class SoftLoadedClosedChunkSystem
+    public class SoftLoadedClosedChunkSystem : IChunkSystem
     {
         public SoftLoadedClosedChunkSystem(List<ITickableTileEntity> tickableTileEntities, List<ITickableConduitSystem> tickableConduitSystems, string savePath, int dim)
         {
@@ -64,9 +64,106 @@ namespace Chunks.Systems {
             }
         }
 
+        /// <summary>
+        /// Similar to Save, this function 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator SaveCoroutine()
+        {
+            var tileEntities = GetSerializableTileEntities();
+            if (tileEntities.Count == 0) yield break;
+            WaitForFixedUpdate wait = new WaitForFixedUpdate();
+            List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(dim, savePath);
+            foreach (SoftLoadedConduitTileChunk chunk in chunks)
+            {
+                bool updated = SaveChunk(tileEntities, chunk);
+                if (!updated) continue;
+                yield return wait;
+            }
+        }
+
+        public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
+        {
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                if (tickableTileEntity is IOnCaveRegistryLoadActionTileEntity caveRegistryLoadActionTileEntity)
+                {
+                    caveRegistryLoadActionTileEntity.OnCaveRegistryLoaded(caveRegistry);
+                }
+            }
+        }
+
+        private Dictionary<Vector2Int, ISerializableTileEntity> GetSerializableTileEntities()
+        {
+            Dictionary<Vector2Int, ISerializableTileEntity> tileEntities = new Dictionary<Vector2Int, ISerializableTileEntity>();
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                if (tickableTileEntity is ISerializableTileEntity serializableTileEntity)
+                {
+                    tileEntities[tickableTileEntity.GetCellPosition()] = serializableTileEntity;
+                }
+            }
+            return tileEntities;
+        }
+
+        /// <summary>
+        /// Overwrites tile entity data in a chunk
+        /// </summary>
+        /// <param name="serializableTileEntities"></param>
+        /// <param name="softLoadedConduitTileChunk"></param>
+        /// <returns>True if anything is changed, false if no change</returns>
+        private bool SaveChunk(Dictionary<Vector2Int, ISerializableTileEntity> serializableTileEntities, SoftLoadedConduitTileChunk chunk)
+        {
+            bool updated = false;
+            foreach (IChunkPartition partition in chunk.Partitions)
+            {
+                var worldData = partition.GetData();
+                for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+                {
+                    for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                    {
+                        Vector2Int cellPosition = new Vector2Int(x, y) + partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE;
+                        if (!serializableTileEntities.TryGetValue(cellPosition,out ISerializableTileEntity serializableTileEntity)) continue;
+                        worldData.baseData.sTileEntityOptions[x, y] = serializableTileEntity.Serialize();
+                        updated = true;
+                    }
+                }
+            }
+            ChunkIO.WriteChunk(chunk,path:savePath,directory:true);
+            return updated;
+        }
+
+        /// <summary>
+        /// Sets tickable tile entity chunks to null and clears conduit system data
+        /// </summary>
+        public void ClearActiveComponents()
+        {
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                tickableTileEntity.SetChunk(null);
+            }
+
+            for (var i = TickableConduitSystems.Count-1; i >=0; i--)
+            {
+                var tickableConduitSystem = TickableConduitSystems[i];
+                if (tickableConduitSystem.IsEmpty())
+                {
+                    TickableConduitSystems.RemoveAt(i);
+                    continue;
+                }
+                tickableConduitSystem.ClearConduits();
+            }
+        }
+
         public void Save()
         {
+            var tileEntities = GetSerializableTileEntities();
+            if (tileEntities.Count == 0) return;
             List<SoftLoadedConduitTileChunk> chunks = ChunkIO.GetUnloadedChunks(dim, savePath);
+            foreach (SoftLoadedConduitTileChunk chunk in chunks)
+            {
+                SaveChunk(tileEntities, chunk);
+            }
         }
 
         public override string ToString()
@@ -74,7 +171,7 @@ namespace Chunks.Systems {
             return $"SoftLoadedClosedChunkSystem at path {savePath} has {tickableTileEntities.Count} TickableTileEntities & {TickableConduitSystems.Count} TickableConduitSystems";
         }
     }
-    public class LoadedClosedChunkSystem : IChunkSystem
+    public class ClosedChunkSystemAssembler : ILoadedChunkSystem
     {
         private IntervalVector coveredArea;
         private Dictionary<TileMapType, IConduitSystemManager> conduitSystemManagersDict; 
@@ -82,7 +179,7 @@ namespace Chunks.Systems {
         private string savePath;
         public string SavePath => savePath;
         private int dim;
-        public LoadedClosedChunkSystem(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) {
+        public ClosedChunkSystemAssembler(List<SoftLoadedConduitTileChunk> unloadedChunks, string savePath, int dim) {
             this.softLoadedChunks = unloadedChunks;
             this.dim = dim;
             this.savePath = savePath;
@@ -91,7 +188,7 @@ namespace Chunks.Systems {
             }
             for (int i = 0; i < unloadedChunks.Count; i++) {
                 updateCoveredArea(unloadedChunks[i]);
-                Chunks[i].System = this;
+                Chunks[i].SystemAssembler = this;
             } 
         }
 

@@ -252,7 +252,7 @@ namespace TileEntity.Instances.SimonSays {
 
         private void InitTiles() {
             coloredTiles = new List<SimonSaysColoredTileEntityInstance>();
-            IChunkSystem system = chunk.GetChunkSystem();
+            ILoadedChunkSystem system = chunk.GetChunkSystem();
             const int RADIUS = 1;
             for (int x = -RADIUS; x <= RADIUS; x++) {
                 for (int y = -RADIUS; y <= RADIUS; y++)

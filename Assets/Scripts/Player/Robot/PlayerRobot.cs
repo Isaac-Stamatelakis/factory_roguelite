@@ -573,9 +573,9 @@ namespace Player {
             
             WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
-            IChunkSystem chunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            ILoadedChunkSystem iLoadedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTilePosition);
-            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
+            var (partition, positionInPartition) = iLoadedChunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
             if (partition == null) return false;
 
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
@@ -868,7 +868,7 @@ namespace Player {
             Vector2 tileCenter = TileHelper.getRealTileCenter(position);
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
             if (ReferenceEquals(objHit.collider, null)) return null;
-            IChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+            ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             Vector2Int cellPosition = Global.getCellPositionFromWorld(tileCenter);
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             

@@ -17,6 +17,7 @@ namespace Conduits.Systems {
         public HashSet<IConduit> GetConduits();
         public void Rebuild();
         public bool IsActive();
+        public void ClearConduits();
     }
 
     public interface IPortConduitSystem : IConduitSystem, ITickableConduitSystem {
@@ -74,6 +75,11 @@ namespace Conduits.Systems {
                 manager.RefreshSystemTiles(this);
             }
             SystemTickUpdate();
+        }
+
+        public bool IsEmpty()
+        {
+            return coloredOutputPorts.Count == 0 || coloredPriorityInputs.Count == 0;
         }
 
         public abstract void SystemTickUpdate();

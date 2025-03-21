@@ -12,6 +12,7 @@ using Dimensions;
 using Entities;
 using Entities.Mobs;
 using Newtonsoft.Json;
+using World.Cave.Registry;
 
 namespace Chunks {
     public interface ILoadedChunk : IChunk {
@@ -39,11 +40,19 @@ namespace Chunks {
         public IChunkPartition GetPartition(Vector2Int position);
         public int GetDim();
         public List<IChunkPartitionData> GetChunkPartitionData();
-        public IChunkSystem GetChunkSystem();
+        public ILoadedChunkSystem GetChunkSystem();
 
     }
 
     public interface IChunkSystem
+    {
+        public void Save();
+        public void TickUpdate();
+        public IEnumerator SaveCoroutine();
+        public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry);
+    }
+
+    public interface ILoadedChunkSystem : IChunkSystem
     {
         public IChunk GetChunkAtPosition(Vector2Int chunkPosition);
         public IChunk GetChunkAtCellPosition(Vector2Int cellPosition)
@@ -67,7 +76,6 @@ namespace Chunks {
             Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             return (chunk?.GetPartition(partitionPosition), positionInPartition);
         }
-
     }
     
     public class Chunk : MonoBehaviour, ILoadedChunk
@@ -86,7 +94,7 @@ namespace Chunks {
         [SerializeField] protected bool chunkLoaded = false;
         public bool ScheduleForUnloading;
         protected Transform entityContainer;
-        protected ClosedChunkSystem closedChunkSystem;
+        protected ClosedChunkSystem ClosedChunkSystem;
         protected Vector2Int position; 
         protected int dim;
         protected Transform tileEntityContainer;
@@ -98,7 +106,7 @@ namespace Chunks {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
-            this.closedChunkSystem = closedChunkSystem;
+            this.ClosedChunkSystem = closedChunkSystem;
             generatePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
             initalizeContainers();
@@ -109,15 +117,15 @@ namespace Chunks {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = partitions;
-            this.closedChunkSystem = closedChunkSystem;
+            this.ClosedChunkSystem = closedChunkSystem;
             transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
             initalizeContainers();
         }
 
         protected void initalizeContainers() {
-            DimController dimController = closedChunkSystem.transform.parent.GetComponent<DimController>();
+            DimController dimController = ClosedChunkSystem.transform.parent.GetComponent<DimController>();
             entityContainer = dimController.EntityContainer;
-            transform.SetParent(closedChunkSystem.ChunkContainerTransform,false);
+            transform.SetParent(ClosedChunkSystem.ChunkContainerTransform,false);
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";
             tileEntityContainer = tileEntityContainerObject.transform;
@@ -155,9 +163,9 @@ namespace Chunks {
             return dataList;
         }
 
-        public IChunkSystem GetChunkSystem()
+        public ILoadedChunkSystem GetChunkSystem()
         {
-            return closedChunkSystem;
+            return ClosedChunkSystem;
         }
 
         public virtual void Unload()
@@ -277,12 +285,12 @@ namespace Chunks {
 
         public IWorldTileMap GetTileMap(TileMapType type)
         {
-            return closedChunkSystem.GetTileMap(type);
+            return ClosedChunkSystem.GetTileMap(type);
         }
 
         public ClosedChunkSystem GetSystem()
         {
-            return closedChunkSystem;
+            return ClosedChunkSystem;
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Dimensions {
             activeSystem.Save();
         }
 
-        public LoadedClosedChunkSystem GetInactiveSystem()
+        public ClosedChunkSystemAssembler GetInactiveSystem()
         {
             return null;
         }

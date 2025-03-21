@@ -271,7 +271,7 @@ namespace TileMaps.Place {
             
             Vector2Int placePosition = getPlacePosition(tileItem, worldPosition.x, worldPosition.y);
 
-            var (partition, positionInPartition) = ((IChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
+            var (partition, positionInPartition) = ((ILoadedChunkSystem)closedChunkSystem).GetPartitionAndPositionAtCellPosition(placePosition);
             int rotation = placementData?.Rotation ?? 0;
             
             if (tileItem.tile is HammerTile)

@@ -55,16 +55,16 @@ public static class FindTileAtLocation
         return null;
     }
 
-    public static Vector2Int? find(Vector2Int hitPosition, LoadedClosedChunkSystem system) {
+    public static Vector2Int? find(Vector2Int hitPosition, ClosedChunkSystemAssembler systemAssembler) {
         int searchWidth = 1;
         Dictionary<Vector2Int,IChunk> chunkCache = new Dictionary<Vector2Int, IChunk>();
         Dictionary<Vector2Int,IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
-        TileItem originTileItem = system.getTileItem(hitPosition,chunkCache,partitionCache,TileMapLayer.Base);
+        TileItem originTileItem = systemAssembler.getTileItem(hitPosition,chunkCache,partitionCache,TileMapLayer.Base);
         while (searchWidth < maxSearchWidth) {
             if (Global.modInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                     Vector2Int vec = new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
-                    TileItem tileItem = system.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
+                    TileItem tileItem = systemAssembler.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
                     if (tileItem == null) {
                         continue;
                     }
@@ -75,7 +75,7 @@ public static class FindTileAtLocation
                 for (int y = -searchWidth/2+1; y <= searchWidth/2-1; y ++) {
                     Vector2Int vec = new Vector2Int(hitPosition.x-(searchWidth/2),hitPosition.y+y);
 
-                    TileItem tileItem = system.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
+                    TileItem tileItem = systemAssembler.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
                     if (tileItem == null) {
                         continue;
                     }
@@ -86,7 +86,7 @@ public static class FindTileAtLocation
             } else {
                 for (int x = -(searchWidth-1)/2; x <= (searchWidth-1)/2; x ++) {
                     Vector2Int vec = new Vector2Int(hitPosition.x+x,hitPosition.y+(searchWidth-1)/2);
-                    TileItem tileItem = system.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
+                    TileItem tileItem = systemAssembler.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
                     if (tileItem == null) {
                         continue;
                     }
@@ -97,7 +97,7 @@ public static class FindTileAtLocation
                 for (int y = (searchWidth-1)/2-1; y >= -(searchWidth-1)/2; y --) {
                     Vector2Int vec = new Vector2Int(hitPosition.x+(searchWidth-1)/2,hitPosition.y+y);
 
-                    TileItem tileItem = system.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
+                    TileItem tileItem = systemAssembler.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
                     if (tileItem == null) {
                         continue;
                     }

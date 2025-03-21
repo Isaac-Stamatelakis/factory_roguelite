@@ -7,7 +7,7 @@ using Chunks.Systems;
 namespace Chunks {
 
     public interface ISoftLoadedChunk {
-        public LoadedClosedChunkSystem getSystem();
+        public ClosedChunkSystemAssembler getSystem();
     }
     /// <summary>
     /// A lightweight version of a conduit tile chunk
@@ -19,8 +19,8 @@ namespace Chunks {
         private int dim;
         public Vector2Int Position { get => position; set => position = value; }
         public IChunkPartition[,] Partitions { get => partitions; set => partitions = value; }
-        public LoadedClosedChunkSystem System { get => system; set => system = value; }
-        private LoadedClosedChunkSystem system;
+        public ClosedChunkSystemAssembler SystemAssembler { get => systemAssembler; set => systemAssembler = value; }
+        private ClosedChunkSystemAssembler systemAssembler;
 
         public SoftLoadedConduitTileChunk(List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, int dim) {
             this.position = chunkPosition;
@@ -77,14 +77,14 @@ namespace Chunks {
             return dataList;
         }
 
-        public IChunkSystem GetChunkSystem()
+        public ILoadedChunkSystem GetChunkSystem()
         {
-            return system;
+            return systemAssembler;
         }
 
-        public LoadedClosedChunkSystem getSystem()
+        public ClosedChunkSystemAssembler getSystem()
         {
-            return system;   
+            return systemAssembler;   
         }
     }
 }
