@@ -266,6 +266,8 @@ namespace Dimensions {
         {
             switch (controller)
             {
+                case null:
+                    return;
                 case ISingleSystemController singleSystemController:
                 {
                     singleSystemController.DeactivateSystem();
@@ -283,7 +285,16 @@ namespace Dimensions {
 
         public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
             DimController controller = GetDimController(dim);
+            if (activeSystem && activeSystem.Dim == dim && controller is ISingleSystemController)
+            {
+                return;
+            }
             dimensionOptions ??= GetDimensionOptions(dim);
+
+            activeSystem?.DeactivateAllPartitions();
+            currentDimension?.ClearEntities();
+            
+            DeactivateControllerSystem(currentDimension, key);
             
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             if (!newSystem) {
@@ -305,19 +316,6 @@ namespace Dimensions {
             else
             {
                 player.TileViewers.ConduitPortViewer.enabled = true;
-            }
-            
-            if (!ReferenceEquals(activeSystem,null) && !ReferenceEquals(activeSystem, newSystem))
-            {
-                int oldDim = activeSystem.Dim;
-                DimController oldController = GetDimController(oldDim);
-                
-                activeSystem.DeactivateAllPartitions();
-                GameObject.Destroy(activeSystem.gameObject);
-                if (currentDimension)
-                {
-                    currentDimension.ClearEntities();
-                }
             }
             
             currentDimension = controller;
