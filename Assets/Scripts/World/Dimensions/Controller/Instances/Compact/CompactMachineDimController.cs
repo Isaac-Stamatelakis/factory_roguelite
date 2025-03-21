@@ -29,6 +29,7 @@ namespace Dimensions {
         private List<SoftLoadedClosedChunkSystem> softLoadedClosedChunkSystems = new();
         private CompactMachineClosedChunkSystem activeSystem;
         private List<Vector2Int> currentSystemPath;
+        public List<Vector2Int> CurrentSystemPath => currentSystemPath;
         
         public ClosedChunkSystem GetActiveSystem()
         {
@@ -117,7 +118,6 @@ namespace Dimensions {
             }
             
             Directory.Delete(dimPath,true);
-            
         }
 
 
@@ -232,7 +232,7 @@ namespace Dimensions {
             var newTree = SoftLoadTree(newAssemblerTree);
             parentTree.Children[placePosition] = newTree;
         }
-
+        
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
         {
             if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
