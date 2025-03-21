@@ -17,8 +17,6 @@ namespace Dimensions {
     public interface ISingleSystemController {
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript);
         public ClosedChunkSystem GetActiveSystem();
-        public IEnumerator SaveSystemCoroutine();
-        public void SaveSystem();
         public IChunkSystem GetSystem();
         public void DeactivateSystem();
     }
@@ -26,6 +24,7 @@ namespace Dimensions {
     public abstract class DimController : MonoBehaviour
     {
         private Transform entityContainer;
+        public abstract void TickUpdate();
         public Transform EntityContainer { get => entityContainer;}
         public bool BoundCamera = false;
 

@@ -59,7 +59,8 @@ namespace Dimensions {
         }
         protected DimController currentDimension;
         public DimController CurrentDimension { get => currentDimension; set => currentDimension = value; }
-        private ClosedChunkSystem activeSystem;
+        protected ClosedChunkSystem activeSystem;
+        
         public void Start() {
             StartCoroutine(InitalLoad());
         }
@@ -149,6 +150,14 @@ namespace Dimensions {
 
         public void FixedUpdate()
         {
+            BackUpUpdate();
+            TickUpdate();
+        }
+
+        protected abstract void TickUpdate();
+
+        private void BackUpUpdate()
+        {
             bool canAutoBackup = activeSystem && WorldLoadUtils.UsePersistentPath;
             if (!canAutoBackup) return;
             ticksSinceLastSave++;
@@ -173,7 +182,7 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    yield return StartCoroutine(singleSystemController.SaveSystemCoroutine());
+                    yield return singleSystemController.GetSystem()?.SaveCoroutine();
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
@@ -211,7 +220,7 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    singleSystemController.SaveSystem();
+                    singleSystemController.GetSystem()?.Save();
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
                     foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
@@ -289,11 +298,12 @@ namespace Dimensions {
             {
                 return;
             }
+            
             dimensionOptions ??= GetDimensionOptions(dim);
-
+            
+            activeSystem?.Save();
             activeSystem?.DeactivateAllPartitions();
             currentDimension?.ClearEntities();
-            
             DeactivateControllerSystem(currentDimension, key);
             
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);

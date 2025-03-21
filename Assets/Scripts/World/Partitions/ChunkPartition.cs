@@ -76,6 +76,7 @@ namespace Chunks.Partitions {
         /// </summary>
         public virtual IEnumerator Load(Dictionary<TileMapType, IWorldTileMap> tileGridMaps, Direction direction)
         {
+            tickableTileEntities ??= new List<ITickableTileEntity>();
             loading = true;
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();

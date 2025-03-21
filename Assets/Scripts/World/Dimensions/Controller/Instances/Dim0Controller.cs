@@ -14,10 +14,6 @@ namespace Dimensions {
     {
         private IChunkSystem dim0System;
         
-        public void FixedUpdate() {
-            dim0System?.TickUpdate();
-        }
-
         public void LoadSystems() {
             /*
             string path = WorldLoadUtils.GetDimPath(0);
@@ -68,33 +64,25 @@ namespace Dimensions {
         }
         public void DeactivateSystem()
         {
-            if (dim0System is ConduitTileClosedChunkSystem closedChunkSystem)
-            {
-                dim0System.Save();
-                dim0System = closedChunkSystem.ToSoftLoadedSystem();
-                GameObject.Destroy(closedChunkSystem.gameObject); 
-            }
-            
+            if (dim0System is not ConduitTileClosedChunkSystem closedChunkSystem) return;
+            dim0System = closedChunkSystem.ToSoftLoadedSystem();
+            GameObject.Destroy(closedChunkSystem.gameObject);
+
         }
         
         public ClosedChunkSystem GetActiveSystem()
         {
             return dim0System as ClosedChunkSystem;
         }
-
-        public IEnumerator SaveSystemCoroutine()
-        {
-            yield return dim0System?.SaveCoroutine();
-        }
-
-        public void SaveSystem()
-        {
-            dim0System?.Save();
-        }
         
         public IChunkSystem GetSystem()
         {
             return dim0System;
+        }
+
+        public override void TickUpdate()
+        {
+            dim0System?.TickUpdate();
         }
     }
 }

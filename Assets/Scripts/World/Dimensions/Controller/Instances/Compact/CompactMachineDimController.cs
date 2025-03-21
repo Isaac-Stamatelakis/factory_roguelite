@@ -27,18 +27,7 @@ namespace Dimensions {
         private CompactMachineTree systemTree;
         private List<ClosedChunkSystemAssembler> systems = new List<ClosedChunkSystemAssembler>();
         private CompactMachineClosedChunkSystem activeSystem;
-        public void FixedUpdate() {
-            foreach (ClosedChunkSystemAssembler system in systems) {
-                system.TickUpdate();
-            }
-        }
-        public void OnDestroy()
-        {
-            foreach (ClosedChunkSystemAssembler system in systems) {
-                system?.Save();
-            }
-        }
-
+        
         public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key)
         {
             return activeSystem;
@@ -359,6 +348,13 @@ namespace Dimensions {
                 }
 
                 return result;
+            }
+        }
+
+        public override void TickUpdate()
+        {
+            foreach (ClosedChunkSystemAssembler system in systems) {
+                system.TickUpdate();
             }
         }
     }

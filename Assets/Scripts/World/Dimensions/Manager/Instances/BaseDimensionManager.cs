@@ -20,6 +20,7 @@ namespace Dimensions {
         [SerializeField] public Dim0Controller overworldDimController;
         [SerializeField] public CaveController caveDimController;
         [SerializeField] public CompactMachineDimController compactMachineDimController;
+
         
         public override DimController GetDimController(int dim) {
             switch (dim) {
@@ -53,6 +54,16 @@ namespace Dimensions {
                 caveDimController,
                 compactMachineDimController
             };
+        }
+
+        protected override void TickUpdate()
+        {
+            if (activeSystem.Dim == -1)
+            {
+                caveDimController.TickUpdate();
+            }
+            overworldDimController.TickUpdate();
+            compactMachineDimController.TickUpdate();
         }
 
         public override void SoftLoadSystems()
