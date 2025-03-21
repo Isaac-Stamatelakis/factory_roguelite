@@ -83,7 +83,7 @@ namespace TileEntity {
         
     }
 
-    public interface ISoftLoadableTileEntity {
+    public interface ISoftLoadableTileEntity : ITileEntityInstance {
 
     }
 

@@ -181,7 +181,7 @@ namespace TileMaps {
 
         protected IChunkPartition GetPartitionAtPosition(Vector2Int cellPosition) {
             Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
-            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            ILoadedChunk chunk = closedChunkSystem.GetChunk(chunkPosition);
             if (chunk == null) {
                 return null;
             }
@@ -230,7 +230,7 @@ namespace TileMaps {
         protected ILoadedChunk GetChunk(Vector2Int hitTilePosition) {
             Vector2Int chunkPosition = GetChunkPosition(hitTilePosition);
             
-            return closedChunkSystem.getChunk(chunkPosition);
+            return closedChunkSystem.GetChunk(chunkPosition);
         }
     
         public TileMapType getType()

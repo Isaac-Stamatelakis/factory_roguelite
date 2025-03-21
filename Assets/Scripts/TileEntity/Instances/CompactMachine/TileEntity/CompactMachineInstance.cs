@@ -61,16 +61,7 @@ namespace TileEntity.Instances.CompactMachines {
             bool locked = compactMachineDimManager.GetCompactMachineDimController().IsLocked(path);
             return new CompactMachineTeleportKey(path,locked);
         }
-
-        public IChunkSystem GetCompactMachineSystem()
-        {
-            CompactMachineTeleportKey key = GetTeleportKey();
-            if (DimensionManager.Instance is not ICompactMachineDimManager compactMachineDimManager)
-            {
-                return null;
-            }
-            return compactMachineDimManager.GetCompactMachineDimController().GetSystem(key.Path);
-        }
+        
 
         public void SaveSystem()
         {

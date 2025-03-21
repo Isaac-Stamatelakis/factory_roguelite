@@ -8,12 +8,6 @@ using Chunks.IO;
 
 
 namespace Chunks.Systems {
-    public static class InactiveClosedChunkFactory 
-    {
-        public static SoftLoadedClosedChunkSystem Import(string path) {
-            var chunks = ChunkIO.GetUnloadedChunks(1,path);
-            return new SoftLoadedClosedChunkSystem(chunks,path);
-        }
-    }
+    
 
 }

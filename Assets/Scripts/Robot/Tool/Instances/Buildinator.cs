@@ -143,7 +143,7 @@ namespace Robot.Tool.Instances
         {
             Vector2Int position = (Vector2Int)vector3Int;
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
-            IChunkSystem chunkSystem = system;
+            ILoadedChunkSystem chunkSystem = system;
 
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             HashSet<Vector2Int> hitPositions = new HashSet<Vector2Int>();

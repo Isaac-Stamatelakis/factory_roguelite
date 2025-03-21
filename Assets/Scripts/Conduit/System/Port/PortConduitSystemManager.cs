@@ -5,9 +5,9 @@ using TileEntity;
 using UnityEngine;
 
 namespace Conduits.Systems {
-    public class PortConduitSystemManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystem
+    public class PortConduitSystemManagerManager : ConduitSystemManager<IPortConduit,IPortConduitSystem>, ITickableConduitSystemManager
     {
-        public PortConduitSystemManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts) : base(conduitType, conduits, chunkConduitPorts)
+        public PortConduitSystemManagerManager(ConduitType conduitType,Dictionary<Vector2Int, IPortConduit> conduits, Dictionary<ITileEntityInstance, List<TileEntityPortData>> chunkConduitPorts) : base(conduitType, conduits, chunkConduitPorts)
         {
 
         }
@@ -22,10 +22,19 @@ namespace Conduits.Systems {
             return ReferenceEquals(conduit?.GetPort(), null) ? null : conduit;
         }
 
-        public void tickUpdate() {
+        public void TickUpdate() {
             foreach (IPortConduitSystem system in conduitSystems) {
                 system.TickUpdate();
             }
+        }
+
+        public List<ITickableConduitSystem> GetTickableConduitSystems()
+        {
+            List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();
+            foreach (IPortConduitSystem system in conduitSystems) {
+                tickableConduitSystems.Add(system);
+            }
+            return tickableConduitSystems;
         }
 
         public override void OnGenerationCompleted()

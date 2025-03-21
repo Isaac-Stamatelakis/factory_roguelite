@@ -9,6 +9,7 @@ using Entities.Mobs;
 using System.Threading.Tasks;
 using System.IO;
 using System.Numerics;
+using Chunks;
 using Tiles;
 using Items;
 using Misc.Audio;
@@ -112,12 +113,11 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    SoftLoadedClosedChunkSystem system = singleSystemController.GetInactiveSystem();
-                    if (system == null) continue;
-                    system.SyncCaveRegistryTileEntities(caveRegistry);
+                    IChunkSystem chunkSystem = singleSystemController.GetSystem();
+                    chunkSystem?.SyncCaveRegistryTileEntities(caveRegistry);
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
                     {
                         system.SyncCaveRegistryTileEntities(caveRegistry);
                     }
@@ -177,7 +177,7 @@ namespace Dimensions {
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
                     {
                         systems++;
                         yield return StartCoroutine(system?.SaveCoroutine());
@@ -214,19 +214,17 @@ namespace Dimensions {
                     singleSystemController.SaveSystem();
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (SoftLoadedClosedChunkSystem system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
                     {
                         system.Save();
                     }
                 }
             }
 
+            if (!WorldLoadUtils.UsePersistentPath) return;
             
-            if (WorldLoadUtils.UsePersistentPath)
-            {
-                WorldManager.getInstance().SaveMetaData();
-                WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
-            }
+            WorldManager.getInstance().SaveMetaData();
+            WorldBackUpUtils.BackUpWorld(WorldManager.getInstance().GetWorldName());
         }
 
         private ClosedChunkSystem GetControllerSystem(DimController controller, PlayerScript playerScript, IDimensionTeleportKey key = null)
@@ -262,11 +260,41 @@ namespace Dimensions {
                 Debug.LogError(invalidSystemException.Message);
                 return null;
             }
-            
         }
+
+        private void DeactivateControllerSystem(DimController controller, IDimensionTeleportKey key = null)
+        {
+            switch (controller)
+            {
+                case null:
+                    return;
+                case ISingleSystemController singleSystemController:
+                {
+                    singleSystemController.DeactivateSystem();
+                    return;
+                }
+                case IMultipleSystemController multipleSystemController:
+                {
+                    // TODO
+                    return;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
             DimController controller = GetDimController(dim);
+            if (activeSystem && activeSystem.Dim == dim && controller is ISingleSystemController)
+            {
+                return;
+            }
             dimensionOptions ??= GetDimensionOptions(dim);
+
+            activeSystem?.DeactivateAllPartitions();
+            currentDimension?.ClearEntities();
+            
+            DeactivateControllerSystem(currentDimension, key);
             
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             if (!newSystem) {
@@ -290,19 +318,9 @@ namespace Dimensions {
                 player.TileViewers.ConduitPortViewer.enabled = true;
             }
             
-            if (!ReferenceEquals(activeSystem,null) && !ReferenceEquals(activeSystem, newSystem))
-            {
-                activeSystem.DeactivateAllPartitions();
-                GameObject.Destroy(activeSystem.gameObject);
-                if (currentDimension)
-                {
-                    currentDimension.ClearEntities();
-                }
-            }
-            
             currentDimension = controller;
             activeSystem = newSystem;
-            newSystem.InitalizeMiscObjects(miscObjects);
+            newSystem.InitializeMiscObjects(miscObjects);
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
             
             Vector3 playerPosition = player.transform.position;

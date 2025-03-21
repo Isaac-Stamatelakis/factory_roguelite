@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using UnityEngine;
 using Chunks.Systems;
 using Player;
@@ -24,10 +25,6 @@ namespace Dimensions {
         public void setCurrentCave(CaveInstance caveInstance) {
             this.currentCave = caveInstance;
         }
-        public void deactivateSystem()
-        {
-            GameObject.Destroy(activeSystem.gameObject);
-        }
 
         public bool isActive()
         {
@@ -51,9 +48,15 @@ namespace Dimensions {
             activeSystem.Save();
         }
 
-        public SoftLoadedClosedChunkSystem GetInactiveSystem()
+        public IChunkSystem GetSystem()
         {
-            return null;
+            return activeSystem;
+        }
+
+        public void DeactivateSystem()
+        {
+            if (!activeSystem) return;
+            GameObject.Destroy(activeSystem.gameObject);
         }
     }
 }

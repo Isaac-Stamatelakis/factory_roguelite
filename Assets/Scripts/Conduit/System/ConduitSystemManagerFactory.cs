@@ -20,7 +20,7 @@ namespace Conduits.Systems {
                 case ConduitType.Fluid:
                 case ConduitType.Energy:
                 case ConduitType.Signal:
-                    return new PortConduitSystemManager(
+                    return new PortConduitSystemManagerManager(
                         conduitType: conduitType,
                         conduits: CastConduitDict<IPortConduit>(conduits),
                         chunkConduitPorts: chunkConduitPorts

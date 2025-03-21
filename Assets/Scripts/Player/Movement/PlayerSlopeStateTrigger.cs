@@ -44,7 +44,7 @@ namespace Player.Movement
         private bool? OnSlope(Collider2D other)
         {
             Vector2Int cellPosition = Global.getCellPositionFromWorld(other.ClosestPoint(transform.position));
-            IChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
+            ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);
             if (ReferenceEquals(tileItem, cachedTileItem)) return null;

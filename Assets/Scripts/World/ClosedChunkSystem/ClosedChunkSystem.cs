@@ -19,6 +19,7 @@ using Player;
 using TileEntity;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
+using World.Cave.Registry;
 
 namespace Chunks.Systems {
     
@@ -29,7 +30,7 @@ namespace Chunks.Systems {
 
     
 
-    public abstract class ClosedChunkSystem : MonoBehaviour, IChunkSystem
+    public abstract class ClosedChunkSystem : MonoBehaviour, ILoadedChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();
         protected Dictionary<TileEntityTileMapType, Tilemap> tileEntityMaps = new Dictionary<TileEntityTileMapType, Tilemap>();
@@ -58,12 +59,7 @@ namespace Chunks.Systems {
             
         }
 
-        public void Start()
-        {
-            
-        }
-
-        public void addChunk(ILoadedChunk chunk) {
+        public void AddChunk(ILoadedChunk chunk) {
             if (chunk == null) {
                 return;
             }
@@ -72,7 +68,7 @@ namespace Chunks.Systems {
             FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
             fluidWorldTileMap?.AddChunk(chunk);
         }
-        public void removeChunk(ILoadedChunk chunk) {
+        public void RemoveChunk(ILoadedChunk chunk) {
             Vector2Int chunkPosition = chunk.GetPosition();
             if (ChunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
@@ -81,11 +77,9 @@ namespace Chunks.Systems {
             fluidWorldTileMap?.RemoveChunk(chunkPosition);
         }
 
-        public ILoadedChunk getChunk(Vector2Int position) {
-            if (cachedChunks.ContainsKey(position)) {
-                return cachedChunks[position];
-            }
-            return null;
+        public ILoadedChunk GetChunk(Vector2Int position)
+        {
+            return cachedChunks.GetValueOrDefault(position);
         }
 
         public bool LocalWorldPositionInSystem(Vector2 worldPosition) {
@@ -115,7 +109,7 @@ namespace Chunks.Systems {
             return tileGridMaps.GetValueOrDefault(tileMapType);
         }
 
-        public void InitalizeMiscObjects(DimensionObjects dimensionObjects)
+        public void InitializeMiscObjects(DimensionObjects dimensionObjects)
         {
             this.loadedPartitionBoundary = Instantiate(dimensionObjects.loadedPartitionBoundary, transform, false);
             loadedPartitionBoundary.Initialize();
@@ -123,7 +117,7 @@ namespace Chunks.Systems {
             this.breakIndicator = Instantiate(dimensionObjects.tileBreakIndicator, transform, false);
         }
         
-        public void InitalizeObject(DimController dimController, IntervalVector coveredArea, int dim) {
+        public void InitializeObject(DimController dimController, IntervalVector coveredArea, int dim) {
             transform.position = Vector3.zero;
 
             transform.SetParent(dimController.transform,false);
@@ -287,7 +281,7 @@ namespace Chunks.Systems {
 
         public void CacheChunk(Vector2Int chunkPosition) {
             ILoadedChunk chunk = ChunkIO.GetChunkFromJson(chunkPosition, this);
-            addChunk(chunk);
+            AddChunk(chunk);
         }
 
         public void InstantCacheChunksNearPlayer() {
@@ -328,7 +322,17 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk);
             }
         }
-        
+
+        public void TickUpdate()
+        {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    partition.Tick();
+                }
+                
+            }
+        }
+
 
         public IEnumerator SaveCoroutine()
         {
@@ -344,6 +348,11 @@ namespace Chunks.Systems {
                 ChunkIO.WriteChunk(chunk);
                 yield return delay;
             }
+        }
+
+        public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
+        {
+            // TODO
         }
 
         protected Vector2Int GetSize() {

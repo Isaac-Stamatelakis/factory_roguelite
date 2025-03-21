@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Chunks;
+using Chunks.Partitions;
 using Conduits.Ports;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -39,8 +40,11 @@ namespace TileEntity.Instances.Signal {
             active = signal;
             if (active) {
                 Load();
-            } else {
-                if (tileItem.tile is IStateTile stateTile) {
+            } else
+            {
+                IChunkPartition partition = GetPartition();
+                if (tileItem.tile is IStateTile && partition.GetLoaded() && !partition.GetScheduledForUnloading())
+                {
                     TileEntityUtils.stateSwitch(this,0); // set off
                 }
                 Unload();
@@ -51,24 +55,29 @@ namespace TileEntity.Instances.Signal {
             if (!active) {
                 return;
             }
-            if (chunk is not ILoadedChunk loadedChunk) {
+            if (chunk is not ILoadedChunk loadedChunk || !GetPartition().GetLoaded()) {
                 return;
             }
-            Color color = TileEntityObject.color;
-            color.a = 1;
             if (!ReferenceEquals(lightObject,null)) return;
-            lightObject = new GameObject();
-            lightObject.name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"; 
+            
+            
+            lightObject = new GameObject
+            {
+                name = "Torch[" + positionInChunk.x + "," + positionInChunk.y + "]"
+            };
             Light2D light = lightObject.AddComponent<Light2D>();
             light.lightType = Light2D.LightType.Point;
             light.intensity = TileEntityObject.intensity;
+            Color color = TileEntityObject.color;
+            color.a = 1;
             light.color = color;
             light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
             light.pointLightOuterRadius=TileEntityObject.radius;
             light.falloffIntensity=TileEntityObject.falloff;
             lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
             lightObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
-            if (tileItem.tile is IStateTile stateTile) {
+            IChunkPartition partition = GetPartition();
+            if (tileItem.tile is IStateTile stateTile &&  partition.GetLoaded() && !partition.GetScheduledForUnloading()) {
                 TileEntityUtils.stateSwitch(this,1); // set on
             }
         }

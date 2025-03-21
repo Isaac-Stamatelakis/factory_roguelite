@@ -10,7 +10,7 @@ namespace Chunks.Systems {
         public void Initalize(DimController dimController, IntervalVector coveredArea, int dim) {
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
             TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps,DimensionManager.Instance.MiscDimAssets.LitMaterial);
-            InitalizeObject(dimController,coveredArea,dim);
+            InitializeObject(dimController,coveredArea,dim);
         }
     }
 

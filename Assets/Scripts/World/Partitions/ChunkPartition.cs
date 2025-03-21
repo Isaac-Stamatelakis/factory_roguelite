@@ -51,7 +51,6 @@ namespace Chunks.Partitions {
             if (tickableTileEntities == null) {
                 return;
             }
-            
             foreach (ITickableTileEntity tileEntity in tickableTileEntities) {
                 tileEntity.TickUpdate();
             }

@@ -100,7 +100,7 @@ namespace TileEntity {
             };
 
             HashSet<IMultiBlockTileEntity> adjacentMultiBlocks = new HashSet<IMultiBlockTileEntity>();
-            IChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
+            ILoadedChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
             foreach (Vector2Int direction in directions)
             {
                 var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(direction + tileEntityInstance.GetCellPosition());
@@ -224,15 +224,15 @@ namespace TileEntity {
             IChunkPartition partition = null;
             if (chunk is ILoadedChunk loadedChunk) {
                 ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
-                ILoadedChunk adjacentChunk = closedChunkSystem.getChunk(chunkPosition);
+                ILoadedChunk adjacentChunk = closedChunkSystem.GetChunk(chunkPosition);
                 if (adjacentChunk == null) {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;
                 }
                 partition = adjacentChunk.GetPartition(partitionPosition);
             } else if (chunk is ISoftLoadedChunk softLoadedChunk) {
-                SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = softLoadedChunk.getSystem();
-                SoftLoadedConduitTileChunk adjacentSoftLoadedChunk = softLoadedClosedChunkSystem.getChunk(chunkPosition);
+                ClosedChunkSystemAssembler closedChunkSystemAssembler = softLoadedChunk.getSystem();
+                SoftLoadedConduitTileChunk adjacentSoftLoadedChunk = closedChunkSystemAssembler.getChunk(chunkPosition);
                 if (adjacentSoftLoadedChunk == null) {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;
@@ -256,7 +256,7 @@ namespace TileEntity {
         /// <param name="positions">Adjacent tile entity positions</param>
         public static bool SyncTileMultiBlockAggregates(ITileEntityInstance tileEntityInstance, IMultiBlockTileEntity multiBlockCast, List<Vector2Int> positions)
         {
-            IChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
+            ILoadedChunkSystem system = tileEntityInstance.GetChunk().GetChunkSystem();
             bool alreadyConnected = false;
             foreach (Vector2Int position in positions)
             {
@@ -301,7 +301,7 @@ namespace TileEntity {
             TileMapLayer layer = tileMapType.toLayer();
             
             IChunk chunk = tileEntityInstance.GetChunk();
-            IChunkSystem chunkSystem = chunk.GetChunkSystem();
+            ILoadedChunkSystem iLoadedChunkSystem = chunk.GetChunkSystem();
             
             Vector2Int origin = tileEntityInstance.GetCellPosition();
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
@@ -328,7 +328,7 @@ namespace TileEntity {
                     bool alreadyVisited = !visited.Add(neighborPosition);
                     if (alreadyVisited) continue;
 
-                    var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
+                    var (partition, positionInPartition) = iLoadedChunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
                     TileItem neighborTileItem = partition.GetTileItem(positionInPartition, layer);
                     if (ReferenceEquals(neighborTileItem,null) || neighborTileItem.id != tileItem.id) continue;
                     queue.Enqueue(neighborPosition);
@@ -345,7 +345,7 @@ namespace TileEntity {
             TileMapLayer layer = tileMapType.toLayer();
             
             IChunk chunk = tileEntityInstance.GetChunk();
-            IChunkSystem chunkSystem = chunk.GetChunkSystem();
+            ILoadedChunkSystem iLoadedChunkSystem = chunk.GetChunkSystem();
             
             Vector2Int origin = tileEntityInstance.GetCellPosition();
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
@@ -371,7 +371,7 @@ namespace TileEntity {
                     bool alreadyVisited = !visited.Add(neighborPosition);
                     if (alreadyVisited) continue;
 
-                    var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
+                    var (partition, positionInPartition) = iLoadedChunkSystem.GetPartitionAndPositionAtCellPosition(neighborPosition);
                     ITileEntityInstance neighborTileEntity = partition.GetTileEntity(positionInPartition);
                     
                     if (neighborTileEntity is not T value) continue;

@@ -28,7 +28,7 @@ namespace Entities {
                 }
                 Vector2 position = new Vector2(seralizedEntityData.x,seralizedEntityData.y);
                 Vector2Int chunkPosition = Global.getChunkFromWorld(position);
-                IChunk chunk = system.getChunk(chunkPosition);
+                IChunk chunk = system.GetChunk(chunkPosition);
                 if (chunk == null) {
                     continue;
                 }

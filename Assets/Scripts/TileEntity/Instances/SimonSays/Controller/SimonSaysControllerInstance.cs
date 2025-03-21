@@ -222,7 +222,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
-                IChunk chestChunk = closedChunkSystem.getChunk(chestChunkPosition);
+                IChunk chestChunk = closedChunkSystem.GetChunk(chestChunkPosition);
                 ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
                 IItemConduitInteractable itemConduitInteractable = TileEntityUtils.GetConduitInteractable<IItemConduitInteractable>(tileEntityInstance, ConduitType.Item);
                 if (itemConduitInteractable == null)
@@ -252,7 +252,7 @@ namespace TileEntity.Instances.SimonSays {
 
         private void InitTiles() {
             coloredTiles = new List<SimonSaysColoredTileEntityInstance>();
-            IChunkSystem system = chunk.GetChunkSystem();
+            ILoadedChunkSystem system = chunk.GetChunkSystem();
             const int RADIUS = 1;
             for (int x = -RADIUS; x <= RADIUS; x++) {
                 for (int y = -RADIUS; y <= RADIUS; y++)

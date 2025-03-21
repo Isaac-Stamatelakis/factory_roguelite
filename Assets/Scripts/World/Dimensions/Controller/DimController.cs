@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using UnityEngine;
 using Chunks.Systems;
 using Entities;
@@ -10,7 +11,7 @@ namespace Dimensions {
     public interface IMultipleSystemController {
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript);
         public ClosedChunkSystem GetActiveSystem(IDimensionTeleportKey key);
-        public List<SoftLoadedClosedChunkSystem> GetAllInactiveSystems();
+        public List<ClosedChunkSystemAssembler> GetAllInactiveSystems();
     }
 
     public interface ISingleSystemController {
@@ -18,7 +19,8 @@ namespace Dimensions {
         public ClosedChunkSystem GetActiveSystem();
         public IEnumerator SaveSystemCoroutine();
         public void SaveSystem();
-        public SoftLoadedClosedChunkSystem GetInactiveSystem();
+        public IChunkSystem GetSystem();
+        public void DeactivateSystem();
     }
     
     public abstract class DimController : MonoBehaviour
