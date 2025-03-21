@@ -50,17 +50,33 @@ namespace Chunks.Systems {
         public Dictionary<TileMapType, IConduitSystemManager> ConduitSystemManagersDict => conduitSystemManagersDict;
         private PortViewerController viewerController;
         public PortViewerController PortViewerController => viewerController;
+        private List<ITickableTileEntity> tickableTileEntities;
+        private List<ITickableConduitSystemManager> tickableConduitSystemManagers;
         
         
         public void TileEntityPlaceUpdate(ITileEntityInstance tileEntity) {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.AddTileEntity(tileEntity);
             }
+
+            if (tileEntity is ITickableTileEntity tickableTileEntity)
+            {
+                tickableTileEntities.Add(tickableTileEntity);
+            }
         }
 
-        public void TileEntityDeleteUpdate(Vector2Int position) {
+        public void TileEntityDeleteUpdate(Vector2Int position)
+        {
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values) {
                 conduitSystemManager.DeleteTileEntity(position);
+            }
+
+            for (var index = tickableTileEntities.Count-1; index >= 0; index--)
+            {
+                if (tickableTileEntities[index].GetCellPosition() == position)
+                {
+                    tickableTileEntities.RemoveAt(index);
+                }
             }
         }
         
@@ -74,7 +90,11 @@ namespace Chunks.Systems {
             TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
             InitializeObject(dimController,coveredArea,dim);
             InitalLoadChunks(inactiveClosedChunkSystemAssembler.Chunks);
+            
+            
             conduitSystemManagersDict = inactiveClosedChunkSystemAssembler.ConduitSystemManagersDict;
+
+            this.tickableTileEntities = inactiveClosedChunkSystemAssembler.GetTickableTileEntities();
             foreach (var (type, conduitSystemManager) in conduitSystemManagersDict)
             {
                 conduitSystemManager.SetSystem(this);
@@ -86,6 +106,15 @@ namespace Chunks.Systems {
                     conduitTileChunkPartition.Activate(loadedChunk);
                 }
             }
+            tickableConduitSystemManagers = new List<ITickableConduitSystemManager>();
+            foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values)
+            {
+                if (conduitSystemManager is ITickableConduitSystemManager tickableSystemManager)
+                {
+                    tickableConduitSystemManagers.Add(tickableSystemManager);
+                }
+            }
+            
             SyncConduitTileMap(TileMapType.ItemConduit);
             SyncConduitTileMap(TileMapType.FluidConduit);
             SyncConduitTileMap(TileMapType.EnergyConduit);
@@ -99,7 +128,6 @@ namespace Chunks.Systems {
             viewListener.Initialize(this,playerScript);
             conduitViewListener.transform.SetParent(transform,false);
             this.savePath = inactiveClosedChunkSystemAssembler.SavePath;
-
         }
         
 
@@ -112,12 +140,7 @@ namespace Chunks.Systems {
             conduitTileMap.ConduitSystemManager = conduitSystemManagersDict[tileMapType];
             conduitSystemManagersDict[tileMapType].SetTileMap(conduitTileMap);
         }
-        public override IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition)
-        {
-            yield return base.UnloadChunkPartition(chunkPartition);
-            
-        }
-
+        
         public override void PlayerChunkUpdate()
         {
             // Doesn't do anything except refresh viewer
@@ -156,20 +179,12 @@ namespace Chunks.Systems {
 
         public SoftLoadedClosedChunkSystem ToSoftLoadedSystem()
         {
-            List<ITickableTileEntity> tickableEntities = new List<ITickableTileEntity>();
+            List<ISoftLoadableTileEntity> softLoadableTileEntities = new List<ISoftLoadableTileEntity>();
             foreach (var (position, chunk) in cachedChunks)
             {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions())
                 {
-                    for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
-                    {
-                        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
-                        {
-                            ITileEntityInstance tileEntityInstance = partition.GetTileEntity(new Vector2Int(x, y));
-                            if (tileEntityInstance is not ITickableTileEntity tickableTileEntity) continue;
-                            tickableEntities.Add(tickableTileEntity);
-                        }
-                    }
+                    softLoadableTileEntities.AddRange(partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>());
                 }
             }
             List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();
@@ -178,7 +193,7 @@ namespace Chunks.Systems {
                 if (conduitSystemManager is not ITickableConduitSystemManager tickableConduitSystemManager) continue;
                 tickableConduitSystems.AddRange(tickableConduitSystemManager.GetTickableConduitSystems());
             }
-            return new SoftLoadedClosedChunkSystem(tickableEntities, tickableConduitSystems,savePath,dim);
+            return new SoftLoadedClosedChunkSystem(softLoadableTileEntities, tickableConduitSystems,savePath,dim);
             
         }
         
@@ -201,7 +216,19 @@ namespace Chunks.Systems {
             }
         }
 
-        public IEnumerator SaveCoroutine()
+        public override void TickUpdate()
+        {
+            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            {
+                tickableTileEntity.TickUpdate();
+            }
+            foreach (ITickableConduitSystemManager tickableConduitSystemManager in tickableConduitSystemManagers)
+            {
+                tickableConduitSystemManager.TickUpdate();
+            }
+        }
+
+        public override IEnumerator SaveCoroutine()
         {
             WaitForFixedUpdate wait = new WaitForFixedUpdate();
             foreach (var (position, chunk) in cachedChunks) {

@@ -220,6 +220,23 @@ namespace Chunks.Partitions {
             return tileEntity;
         }
 
+        public List<TTileEntityType> GetTileEntitiesOfType<TTileEntityType>()
+        {
+            List<TTileEntityType> typedTileEntities = new List<TTileEntityType>();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    if (!tileEntities.TryGetValue(new Vector2Int(x, y), out ITileEntityInstance tileEntityInstance)) continue;
+                    if (tileEntityInstance is TTileEntityType tileEntity)
+                    {
+                        typedTileEntities.Add(tileEntity);
+                    }
+                }
+            }
+            return typedTileEntities;
+        }
+
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
 
         public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);

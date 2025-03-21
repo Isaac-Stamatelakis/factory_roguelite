@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Chunks.Loaders;
 using Chunks.IO;
+using Chunks.Partitions;
 
 namespace Chunks.Systems {
     /// <summary>
@@ -28,6 +30,31 @@ namespace Chunks.Systems {
             chunkLoader.addToQueue(GetUnCachedChunkPositionsNearPlayer());
             chunkUnloader.addToQueue(GetLoadedChunksOutsideRange());
         
+        }
+
+        public override void TickUpdate()
+        {
+            foreach (ILoadedChunk chunk in cachedChunks.Values) {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    partition.Tick();
+                }
+            }
+        }
+
+        public override IEnumerator SaveCoroutine()
+        {
+            var delay = new WaitForFixedUpdate();
+            List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
+            foreach (Vector2Int chunkPosition in currentlyCachedChunks) {
+                if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    if (partition.GetLoaded()) {
+                        partition.Save();
+                    }
+                }
+                ChunkIO.WriteChunk(chunk);
+                yield return delay;
+            }
         }
     }
 }

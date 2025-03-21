@@ -43,7 +43,7 @@ namespace Dimensions {
             {
                 return closedChunkSystem;
             }
-            if (dim0System is SoftLoadedClosedChunkSystem)
+            if (dim0System is SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem)
             {
                 GameObject closedChunkSystemObject = new GameObject();
                 IntervalVector bounds = WorldCreation.GetDim0Bounds();
@@ -52,8 +52,8 @@ namespace Dimensions {
                 string path = WorldLoadUtils.GetDimPath(0);
                 List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
                 ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
-                closedChunkSystemAssembler.LoadSystem();
-                
+                closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities());
+                //closedChunkSystemAssembler.LoadSystem();
                 mainArea.Initialize(
                     this,
                     coveredArea: bounds,
@@ -70,6 +70,7 @@ namespace Dimensions {
         {
             if (dim0System is ConduitTileClosedChunkSystem closedChunkSystem)
             {
+                dim0System.Save();
                 dim0System = closedChunkSystem.ToSoftLoadedSystem();
                 GameObject.Destroy(closedChunkSystem.gameObject); 
             }

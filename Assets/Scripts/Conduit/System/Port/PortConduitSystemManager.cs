@@ -19,7 +19,7 @@ namespace Conduits.Systems {
 
         public IPortConduit GetConduitWithPort(Vector2Int position) {
             IPortConduit conduit = (IPortConduit)GetConduitAtCellPosition(position);
-            return ReferenceEquals(conduit?.GetPort(), null) ? null : conduit;
+            return conduit?.GetPort() == null ? null : conduit;
         }
 
         public void TickUpdate() {

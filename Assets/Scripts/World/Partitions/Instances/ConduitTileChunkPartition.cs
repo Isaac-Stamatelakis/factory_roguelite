@@ -25,6 +25,7 @@ namespace Chunks.Partitions {
         public void SetConduitItem(Vector2Int position, ConduitType type, ConduitItem item);
         public void Activate(ILoadedChunk loadedChunk);
         public void AssembleMultiBlocks();
+        public void SyncPreLoadedTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> tileEntities);
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
     {
@@ -310,6 +311,23 @@ namespace Chunks.Partitions {
                     continue;
                 }
                 multiBlockTileEntity.AssembleMultiBlock();
+            }
+        }
+
+        public void SyncPreLoadedTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> tileEntityDict)
+        {
+            tileEntities ??= new Dictionary<Vector2Int, ITileEntityInstance>();
+            tickableTileEntities ??= new List<ITickableTileEntity>();
+            Vector2Int worldPosition = GetRealPosition() * Global.CHUNK_PARTITION_SIZE;
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    Vector2Int cellPosition = new Vector2Int(x, y) + worldPosition;
+                    if (!tileEntityDict.TryGetValue(cellPosition, out ISoftLoadableTileEntity tileEntity)) continue;
+                    tileEntities[new Vector2Int(x,y)] = tileEntity;
+                    if (tileEntity is ITickableTileEntity tickableTileEntity) tickableTileEntities.Add(tickableTileEntity);
+                }
             }
         }
     }

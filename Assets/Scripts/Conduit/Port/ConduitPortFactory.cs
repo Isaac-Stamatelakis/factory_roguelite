@@ -52,7 +52,6 @@ namespace Conduits.Ports {
                 {
                     Vector2Int position = new Vector2Int(x, y);
                     ITileEntityInstance tileEntity = partition.GetTileEntity(position);
-                    
                     var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
                     if (entityPorts == null) {
                         continue;
