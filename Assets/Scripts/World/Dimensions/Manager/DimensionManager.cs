@@ -118,7 +118,7 @@ namespace Dimensions {
                     chunkSystem?.SyncCaveRegistryTileEntities(caveRegistry);
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (IChunkSystem system in multipleSystemController.GetAllSystems())
                     {
                         system.SyncCaveRegistryTileEntities(caveRegistry);
                     }
@@ -150,6 +150,7 @@ namespace Dimensions {
 
         public void FixedUpdate()
         {
+            if (!activeSystem) return;
             BackUpUpdate();
             TickUpdate();
         }
@@ -158,8 +159,7 @@ namespace Dimensions {
 
         private void BackUpUpdate()
         {
-            bool canAutoBackup = activeSystem && WorldLoadUtils.UsePersistentPath;
-            if (!canAutoBackup) return;
+            if (!WorldLoadUtils.UsePersistentPath) return;
             ticksSinceLastSave++;
             if (ticksSinceLastSave < AUTO_SAVE_TIME) return;
             StartCoroutine(AutoSaveCoroutine());
@@ -186,7 +186,7 @@ namespace Dimensions {
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllSystems())
                     {
                         systems++;
                         yield return StartCoroutine(system?.SaveCoroutine());
@@ -223,7 +223,7 @@ namespace Dimensions {
                     singleSystemController.GetSystem()?.Save();
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllInactiveSystems())
+                    foreach (IChunkSystem system in multipleSystemController.GetAllSystems())
                     {
                         system.Save();
                     }
@@ -253,7 +253,7 @@ namespace Dimensions {
                     }
                     case IMultipleSystemController multipleSystemController:
                     {
-                        var system = multipleSystemController.GetActiveSystem(key);
+                        var system = multipleSystemController.GetActiveSystem();
                         if (!system)
                         {
                             system = multipleSystemController.ActivateSystem(key, playerScript);
@@ -270,41 +270,20 @@ namespace Dimensions {
                 return null;
             }
         }
+        
 
-        private void DeactivateControllerSystem(DimController controller, IDimensionTeleportKey key = null)
-        {
-            switch (controller)
-            {
-                case null:
-                    return;
-                case ISingleSystemController singleSystemController:
-                {
-                    singleSystemController.DeactivateSystem();
-                    return;
-                }
-                case IMultipleSystemController multipleSystemController:
-                {
-                    // TODO
-                    return;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
-            DimController controller = GetDimController(dim);
-            if (activeSystem && activeSystem.Dim == dim && controller is ISingleSystemController)
+        public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
+            DimController controller = GetDimController(dimension);
+            if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
                 return;
             }
             
-            dimensionOptions ??= GetDimensionOptions(dim);
-            
+            dimensionOptions ??= GetDimensionOptions(dimension);
             activeSystem?.Save();
             activeSystem?.DeactivateAllPartitions();
             currentDimension?.ClearEntities();
-            DeactivateControllerSystem(currentDimension, key);
+            currentDimension?.DeActivateSystem();
             
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             if (!newSystem) {
@@ -365,17 +344,16 @@ namespace Dimensions {
             newSystem.PlayerPartitionUpdate();
         }
         
-        public abstract DimController GetDimController(int dim);
+        public abstract DimController GetDimController(Dimension dimension);
 
-        private DimensionOptions GetDimensionOptions(int dim)
+        private DimensionOptions GetDimensionOptions(Dimension dimension)
         {
-            DimensionType dimensionType = (DimensionType)dim;
-            switch (dimensionType)
+            switch (dimension)
             {
-                case DimensionType.Cave: // This is probably not required for cave
-                case DimensionType.BaseDim:
+                case Dimension.Cave: // This is probably not required for cave
+                case Dimension.OverWorld:
                     return new DimensionOptions(Color.white, Color.black, 0.05f, null,true);
-                case DimensionType.CompactMachines:
+                case Dimension.CompactMachine:
                     return new DimensionOptions(Color.white, Color.black, 0.05f, null,true);
                 default:
                     throw new ArgumentOutOfRangeException();

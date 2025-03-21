@@ -18,7 +18,7 @@ namespace UI.Chat {
             Vector3 playerPosition = PlayerManager.Instance.GetPlayer().transform.position;
             string id = parameters[0];
             int dim = DimensionManager.Instance.GetPlayerDimension();
-            DimController dimController = DimensionManager.Instance.GetDimController(dim);
+            DimController dimController = DimensionManager.Instance.GetDimController((Dimension)dim);
             SerializedMobEntityData spawnEntityData = new SerializedMobEntityData
             {
                 Id = id,

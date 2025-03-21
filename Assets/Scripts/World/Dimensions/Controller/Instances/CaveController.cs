@@ -42,7 +42,7 @@ namespace Dimensions {
             return activeSystem;
         }
 
-        public void DeactivateSystem()
+        public override void DeActivateSystem()
         {
             if (!activeSystem) return;
             GameObject.Destroy(activeSystem.gameObject);

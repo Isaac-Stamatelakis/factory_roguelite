@@ -16,14 +16,14 @@ namespace UI.Chat {
         }
         public override void execute()
         {
-            int dim = ChatCommandParameterParser.ParseInt(parameters,0,"dim",null);
+            Dimension dim = (Dimension) ChatCommandParameterParser.ParseInt(parameters,0,"dim",null);
             PlayerScript player = PlayerManager.Instance.GetPlayer();
             Vector2 position = player.transform.position;
             if (parameters.Length > 1) {
                 position.x = ChatCommandParameterParser.ParseFloat(parameters,1,"x",position.x);
                 position.y = ChatCommandParameterParser.ParseFloat(parameters,2,"y",position.y);
             }
-            DimensionManager.Instance.SetPlayerSystem(player,(int)dim,new Vector2Int((int)position.x,(int)position.y));
+            DimensionManager.Instance.SetPlayerSystem(player,dim,new Vector2Int((int)position.x,(int)position.y));
         }
 
         public override string getDescription()

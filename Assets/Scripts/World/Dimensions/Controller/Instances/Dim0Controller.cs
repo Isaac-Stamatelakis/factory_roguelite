@@ -13,28 +13,12 @@ namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
         private IChunkSystem dim0System;
-        
-        public void LoadSystems() {
-            /*
-            string path = WorldLoadUtils.GetDimPath(0);
-            List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
-            ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
-            closedChunkSystemAssembler.LoadSystem();
-            dim0System = closedChunkSystemAssembler.ToSoftLoaded();
-            Debug.Log("Assembled Dim0System");
-            */
-        }
-
         public void SetSoftLoadedSystem(SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem)
         {
             dim0System = softLoadedClosedChunkSystem;
         }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
-            if (dim0System == null) {
-                LoadSystems();
-            }
-
             if (dim0System is ClosedChunkSystem closedChunkSystem)
             {
                 return closedChunkSystem;
@@ -49,7 +33,6 @@ namespace Dimensions {
                 List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
                 ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
                 closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities());
-                //closedChunkSystemAssembler.LoadSystem();
                 mainArea.Initialize(
                     this,
                     coveredArea: bounds,
@@ -62,12 +45,11 @@ namespace Dimensions {
             }
             throw new System.Exception("Failed to activate dim0 system");
         }
-        public void DeactivateSystem()
+        public override void DeActivateSystem()
         {
             if (dim0System is not ConduitTileClosedChunkSystem closedChunkSystem) return;
             dim0System = closedChunkSystem.ToSoftLoadedSystem();
             GameObject.Destroy(closedChunkSystem.gameObject);
-
         }
         
         public ClosedChunkSystem GetActiveSystem()

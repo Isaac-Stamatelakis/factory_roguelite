@@ -62,6 +62,7 @@ namespace Chunks.Systems {
         private List<ITickableConduitSystem> TickableConduitSystems;
         private int dim;
         private string savePath;
+        public string SavePath => savePath;
         public void TickUpdate()
         {
             foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
@@ -113,7 +114,7 @@ namespace Chunks.Systems {
                 }
             }
         }
-
+        
         private Dictionary<Vector2Int, ISerializableTileEntity> GetSerializableTileEntities()
         {
             Dictionary<Vector2Int, ISerializableTileEntity> tileEntities = new Dictionary<Vector2Int, ISerializableTileEntity>();
@@ -159,9 +160,9 @@ namespace Chunks.Systems {
         /// </summary>
         public void ClearActiveComponents()
         {
-            foreach (ITickableTileEntity tickableTileEntity in tickableTileEntities)
+            foreach (ISoftLoadableTileEntity softLoadableTileEntity in softLoadableTileEntities)
             {
-                tickableTileEntity.SetChunk(null);
+                softLoadableTileEntity.SetChunk(null);
             }
 
             for (var i = TickableConduitSystems.Count-1; i >=0; i--)
