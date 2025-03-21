@@ -20,7 +20,7 @@ namespace Chunks.Loaders {
 
         public override void update(Chunk value)
         {
-            closedChunkSystem.removeChunk(value);
+            closedChunkSystem.RemoveChunk(value);
             value.Unload();
         }
     }

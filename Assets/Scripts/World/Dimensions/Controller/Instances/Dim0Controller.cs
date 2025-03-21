@@ -19,12 +19,19 @@ namespace Dimensions {
         }
 
         public void LoadSystems() {
+            /*
             string path = WorldLoadUtils.GetDimPath(0);
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
             ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
             closedChunkSystemAssembler.LoadSystem();
             dim0System = closedChunkSystemAssembler.ToSoftLoaded();
             Debug.Log("Assembled Dim0System");
+            */
+        }
+
+        public void SetSoftLoadedSystem(SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem)
+        {
+            dim0System = softLoadedClosedChunkSystem;
         }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
@@ -54,14 +61,16 @@ namespace Dimensions {
                     closedChunkSystemAssembler,
                     playerScript
                 );
+                dim0System = mainArea;
                 return mainArea;
             }
             throw new System.Exception("Failed to activate dim0 system");
         }
         public void DeactivateSystem()
         {
-            if (dim0System is ClosedChunkSystem closedChunkSystem)
+            if (dim0System is ConduitTileClosedChunkSystem closedChunkSystem)
             {
+                dim0System = closedChunkSystem.ToSoftLoadedSystem();
                 GameObject.Destroy(closedChunkSystem.gameObject); 
             }
             

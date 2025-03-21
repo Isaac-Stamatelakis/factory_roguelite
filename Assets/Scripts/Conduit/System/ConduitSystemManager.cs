@@ -341,7 +341,7 @@ namespace Conduits.Systems {
         protected void TryDropConduitPortItems(IConduit conduit)
         {
             Vector2Int chunkPosition = Global.getChunkFromCell(conduit.GetPosition());
-            ILoadedChunk chunk = ChunkSystem?.getChunk(chunkPosition);
+            ILoadedChunk chunk = ChunkSystem?.GetChunk(chunkPosition);
             if (chunk == null) return;
             
             if (conduit is not IPortConduit portConduit || portConduit.GetPort() is not IItemDropConduitPort itemDropConduitPort) return;

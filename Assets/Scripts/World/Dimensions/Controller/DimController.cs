@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Chunks;
 using UnityEngine;
 using Chunks.Systems;
 using Entities;
@@ -18,7 +19,8 @@ namespace Dimensions {
         public ClosedChunkSystem GetActiveSystem();
         public IEnumerator SaveSystemCoroutine();
         public void SaveSystem();
-        public ClosedChunkSystemAssembler GetInactiveSystem();
+        public IChunkSystem GetSystem();
+        public void DeactivateSystem();
     }
     
     public abstract class DimController : MonoBehaviour

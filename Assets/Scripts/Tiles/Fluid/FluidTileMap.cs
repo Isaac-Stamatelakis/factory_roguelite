@@ -250,7 +250,7 @@ namespace Fluids {
             var chunkPosition= Global.getChunkFromCell(position);
             if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return;
             Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            IChunkPartition partition = closedChunkSystem.GetChunk(chunkPosition).GetPartition(partitionPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             PartitionFluidData partitionData = partition.GetFluidData();
             
@@ -276,7 +276,7 @@ namespace Fluids {
             var chunkPosition= Global.getChunkFromCell(position);
             if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return;
             Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            IChunkPartition partition = closedChunkSystem.GetChunk(chunkPosition).GetPartition(partitionPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             PartitionFluidData partitionData = partition.GetFluidData();
             
@@ -307,7 +307,7 @@ namespace Fluids {
             var chunkPosition= Global.getChunkFromCell(position);
             if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return;
             Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            IChunkPartition partition = closedChunkSystem.GetChunk(chunkPosition).GetPartition(partitionPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             PartitionFluidData fluidPartitionData = partition.GetFluidData();
             AddFluidUpdate(position,fluidPartitionData.ids[positionInPartition.x,positionInPartition.y]);
@@ -316,7 +316,7 @@ namespace Fluids {
         private (PartitionFluidData,Vector2Int)? GetPartitionFluidData(Vector2Int position)
         {
             var (chunkPosition, partitionPosition, positionInPartition) = Global.GetChunkPartitionAndPositionInPartitionPositions(position);
-            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            ILoadedChunk chunk = closedChunkSystem.GetChunk(chunkPosition);
             IChunkPartition partition = chunk?.GetPartition(partitionPosition);
             if (partition == null) return null;
             return (partition.GetFluidData(),positionInPartition);
@@ -327,7 +327,7 @@ namespace Fluids {
             var chunkPosition= Global.getChunkFromCell(position);
             if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return null;
             Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            IChunkPartition partition = closedChunkSystem.GetChunk(chunkPosition).GetPartition(partitionPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             return new FluidCellData(dataArray[partitionPosition.x][partitionPosition.y], partition, positionInPartition, position);
         }
@@ -337,7 +337,7 @@ namespace Fluids {
             var chunkPosition= Global.getChunkFromCell(position);
             if (!dualChunkFluidData.TryGetValue(chunkPosition, out var dataArray)) return null;
             Vector2Int partitionPosition = Global.getPartitionFromCell(position) - chunkPosition * Global.PARTITIONS_PER_CHUNK;
-            IChunkPartition partition = closedChunkSystem.getChunk(chunkPosition).GetPartition(partitionPosition);
+            IChunkPartition partition = closedChunkSystem.GetChunk(chunkPosition).GetPartition(partitionPosition);
             Vector2Int positionInPartition = Global.getPositionInPartition(position);
             return new FluidCellData(partition.GetFluidData(), partition, positionInPartition, position);
         }

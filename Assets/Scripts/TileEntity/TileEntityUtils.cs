@@ -224,7 +224,7 @@ namespace TileEntity {
             IChunkPartition partition = null;
             if (chunk is ILoadedChunk loadedChunk) {
                 ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
-                ILoadedChunk adjacentChunk = closedChunkSystem.getChunk(chunkPosition);
+                ILoadedChunk adjacentChunk = closedChunkSystem.GetChunk(chunkPosition);
                 if (adjacentChunk == null) {
                     Debug.LogError("Attempted to locate adjcent tile entity in null chunk");
                     return null;

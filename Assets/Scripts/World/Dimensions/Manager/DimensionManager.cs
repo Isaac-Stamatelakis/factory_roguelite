@@ -113,7 +113,7 @@ namespace Dimensions {
             {
                 if (controller is ISingleSystemController singleSystemController)
                 {
-                    IChunkSystem chunkSystem = singleSystemController.GetInactiveSystem();
+                    IChunkSystem chunkSystem = singleSystemController.GetSystem();
                     chunkSystem?.SyncCaveRegistryTileEntities(caveRegistry);
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
@@ -260,8 +260,27 @@ namespace Dimensions {
                 Debug.LogError(invalidSystemException.Message);
                 return null;
             }
-            
         }
+
+        private void DeactivateControllerSystem(DimController controller, IDimensionTeleportKey key = null)
+        {
+            switch (controller)
+            {
+                case ISingleSystemController singleSystemController:
+                {
+                    singleSystemController.DeactivateSystem();
+                    return;
+                }
+                case IMultipleSystemController multipleSystemController:
+                {
+                    // TODO
+                    return;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public void SetPlayerSystem(PlayerScript player, int dim, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
             DimController controller = GetDimController(dim);
             dimensionOptions ??= GetDimensionOptions(dim);
@@ -290,6 +309,9 @@ namespace Dimensions {
             
             if (!ReferenceEquals(activeSystem,null) && !ReferenceEquals(activeSystem, newSystem))
             {
+                int oldDim = activeSystem.Dim;
+                DimController oldController = GetDimController(oldDim);
+                
                 activeSystem.DeactivateAllPartitions();
                 GameObject.Destroy(activeSystem.gameObject);
                 if (currentDimension)
@@ -300,7 +322,7 @@ namespace Dimensions {
             
             currentDimension = controller;
             activeSystem = newSystem;
-            newSystem.InitalizeMiscObjects(miscObjects);
+            newSystem.InitializeMiscObjects(miscObjects);
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
             
             Vector3 playerPosition = player.transform.position;

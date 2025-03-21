@@ -194,7 +194,7 @@ namespace PlayerModule.Mouse {
                 return null;
             }
             Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
-            return closedChunkSystem.getChunk(chunkPosition);
+            return closedChunkSystem.GetChunk(chunkPosition);
         }
 
         private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {

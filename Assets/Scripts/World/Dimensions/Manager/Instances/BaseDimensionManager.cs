@@ -61,8 +61,9 @@ namespace Dimensions {
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
             ClosedChunkSystemAssembler dim0SystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
             dim0SystemAssembler.LoadSystem();
-            overworldDimController.LoadSystems();
-            compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
+            SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = dim0SystemAssembler.ToSoftLoaded();
+            overworldDimController.SetSoftLoadedSystem(softLoadedClosedChunkSystem);
+            //compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
         }
         
     }

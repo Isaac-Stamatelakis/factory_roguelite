@@ -336,7 +336,7 @@ namespace TileMaps.Place {
             Vector2Int partitionPosition = Global.getPartitionFromWorld(offsetPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
             Vector2Int positionInChunk = tileMapPosition-chunkPosition*Global.CHUNK_SIZE;
             Vector2Int positionInPartition = positionInChunk-partitionPosition*Global.CHUNK_PARTITION_SIZE;
-            ILoadedChunk chunk = closedChunkSystem.getChunk(chunkPosition);
+            ILoadedChunk chunk = closedChunkSystem.GetChunk(chunkPosition);
             if (chunk == null) {
                 Debug.LogError("Attempted to add TileEntity to null chunk. Chunk [" + chunkPosition.x + "," + chunkPosition.y + "]");
                 return;

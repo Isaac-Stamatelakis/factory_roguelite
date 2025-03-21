@@ -222,7 +222,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
-                IChunk chestChunk = closedChunkSystem.getChunk(chestChunkPosition);
+                IChunk chestChunk = closedChunkSystem.GetChunk(chestChunkPosition);
                 ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
                 IItemConduitInteractable itemConduitInteractable = TileEntityUtils.GetConduitInteractable<IItemConduitInteractable>(tileEntityInstance, ConduitType.Item);
                 if (itemConduitInteractable == null)
