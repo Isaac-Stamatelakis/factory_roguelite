@@ -55,7 +55,7 @@ namespace Robot.Tool.Instances
             {
                 bool explosions = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.AoE) > 0;
                 if (!explosions) return;
-                FireExplosions();
+                FireExplosions(mousePosition);
                 return;
             }
 
@@ -68,7 +68,7 @@ namespace Robot.Tool.Instances
         private void FireLasers(Vector2 mousePosition)
         {
 
-            const float speed = 40;
+            const float speed = 30;
             Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
             FireLaser(direction,speed);
             
@@ -97,9 +97,12 @@ namespace Robot.Tool.Instances
             basicLaserGunProjectile.Initialize(1f, direction, speed);
         }
 
-        private void FireExplosions()
+        private void FireExplosions(Vector2 mousePosition)
         {
-            
+            Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
+            LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab);
+            laserGunExplosionProjectile.transform.position = playerScript.transform.position;
+            laserGunExplosionProjectile.Initialize(1f, direction, 10f);
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
@@ -110,6 +113,8 @@ namespace Robot.Tool.Instances
             float fireRateUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate);
             if (fireRateUpgrades > MAX_FIRE_RATE_UPGRADES) fireRateUpgrades = MAX_FIRE_RATE_UPGRADES;
             float fireRate = Mathf.Lerp(BASE_FIRE_RATE, MIN_FIRE_RATE, fireRateUpgrades/MAX_FIRE_RATE_UPGRADES);
+            const float EXPLOSION_RATE_REDUCTION = 4;
+            if (mouseButtonKey == MouseButtonKey.Right) fireRate *= EXPLOSION_RATE_REDUCTION;
             if (time < fireRate) return false;
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;

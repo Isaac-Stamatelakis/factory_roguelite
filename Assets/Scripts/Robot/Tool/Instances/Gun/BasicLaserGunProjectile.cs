@@ -27,6 +27,7 @@ namespace Robot.Tool.Instances.Gun
             this.speed = speed;
             spriteRenderer = GetComponent<SpriteRenderer>();
             defaultColor = spriteRenderer.color;
+            Update();
         }
 
         public void Update()
@@ -39,8 +40,6 @@ namespace Robot.Tool.Instances.Gun
             transform.localScale = scale;
             spriteRenderer.color = Color.Lerp(defaultColor, Color.white, Mathf.PingPong(Time.time, 1));
             if (lifeTime > 2f) Destroy(gameObject);
-            
-
         }
 
         public void OnTriggerEnter2D(Collider2D other)

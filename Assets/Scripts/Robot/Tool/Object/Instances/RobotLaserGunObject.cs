@@ -9,5 +9,6 @@ namespace Player.Tool.Object
     public class RobotLaserGunObject : RobotToolObject
     {
         public BasicLaserGunProjectile BasicLaserGunProjectilePrefab;
+        public LaserGunExplosionProjectile LaserGunExplosionProjectilePrefab;
     }
 }
