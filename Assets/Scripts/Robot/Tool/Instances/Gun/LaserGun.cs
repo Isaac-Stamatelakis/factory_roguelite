@@ -67,27 +67,41 @@ namespace Robot.Tool.Instances
 
         private void FireLasers(Vector2 mousePosition)
         {
-
+            const float RANDOM_SPEED_RANGE = 5f;
             const float speed = 30;
             Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
-            FireLaser(direction,speed);
+            FireLaser(direction,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE));
             
             int bonusShots = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.MultiShot);
             
             const float totalSpreadAngle = 4f;
-            float angleBetweenShots = bonusShots > 1 ? totalSpreadAngle / (bonusShots - 1) : 0;
-            const float startAngle = -totalSpreadAngle / 2f;
-            for (int i = 0; i < bonusShots; i++)
+            float angleBetweenShots = bonusShots > 1 ? totalSpreadAngle / (bonusShots - 1) : totalSpreadAngle;
+            const float startAngle =  -totalSpreadAngle / 2f;
+            
+            int spreadFire = 2 * (bonusShots / 2); // Converted to even number
+            for (int i = 0; i < spreadFire; i++)
             {
                 float randomOffset = UnityEngine.Random.Range(-angleBetweenShots / 2f, angleBetweenShots / 2f);
-                float currentAngle = startAngle + angleBetweenShots * (i+1) + randomOffset;
+                float currentAngle = startAngle + angleBetweenShots * i + randomOffset;
                 float angleInRadians = currentAngle * Mathf.Deg2Rad;
-                Vector2 spreadDirection = new Vector2(
-                    direction.x * Mathf.Cos(angleInRadians) - direction.y * Mathf.Sin(angleInRadians),
-                    direction.x * Mathf.Sin(angleInRadians) + direction.y * Mathf.Cos(angleInRadians)
-                );
-                FireLaser(spreadDirection.normalized,speed + UnityEngine.Random.Range(-5f,5f));
+                FireLaserAtAngle(direction,angleInRadians,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE));
             }
+
+            if (bonusShots % 2 == 1)
+            {
+                float randomAngle = UnityEngine.Random.Range(-totalSpreadAngle / 2f, totalSpreadAngle / 2f);
+                float angleInRadians = randomAngle * Mathf.Deg2Rad;
+                FireLaserAtAngle(direction,angleInRadians,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE));
+            }
+        }
+
+        private void FireLaserAtAngle(Vector2 direction, float angle, float speed)
+        {
+            Vector2 spreadDirection = new Vector2(
+                direction.x * Mathf.Cos(angle) - direction.y * Mathf.Sin(angle),
+                direction.x * Mathf.Sin(angle) + direction.y * Mathf.Cos(angle)
+            );
+            FireLaser(spreadDirection.normalized,speed);
         }
 
         private void FireLaser(Vector2 direction, float speed)
