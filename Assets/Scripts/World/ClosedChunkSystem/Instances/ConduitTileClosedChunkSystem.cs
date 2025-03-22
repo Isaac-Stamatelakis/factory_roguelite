@@ -80,6 +80,7 @@ namespace Chunks.Systems {
             }
         }
         
+        
         public void Initialize(DimController dimController, IntervalVector coveredArea, int dim, ClosedChunkSystemAssembler inactiveClosedChunkSystemAssembler, PlayerScript playerScript) {
             if (coveredArea == null)
             {

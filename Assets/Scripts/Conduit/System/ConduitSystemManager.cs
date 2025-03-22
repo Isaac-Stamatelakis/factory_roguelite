@@ -81,11 +81,6 @@ namespace Conduits.Systems {
         public void SetSystem(ConduitTileClosedChunkSystem chunkSystem)
         {
             this.ChunkSystem = chunkSystem;
-            foreach (TSystem system in conduitSystems)
-            {
-                system.Rebuild();
-            }
-
         }
 
         protected bool CanRefreshTiles()

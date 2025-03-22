@@ -7,6 +7,7 @@ using UnityEngine;
 using PlayerModule.IO;
 using WorldModule;
 using Chunks.Systems;
+using Player;
 using World.Serialization;
 
 namespace Dimensions {
@@ -37,6 +38,7 @@ namespace Dimensions {
         public CompactMachineDimController GetCompactMachineDimController() {
             return compactMachineDimController;
         }
+        
 
         protected override List<DimController> GetAllControllers()
         {

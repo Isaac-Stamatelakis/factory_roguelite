@@ -29,6 +29,7 @@ namespace Dimensions {
         private List<SoftLoadedClosedChunkSystem> softLoadedClosedChunkSystems = new();
         private CompactMachineClosedChunkSystem activeSystem;
         private List<Vector2Int> currentSystemPath;
+        public List<Vector2Int> CurrentSystemPath => currentSystemPath;
         
         public ClosedChunkSystem GetActiveSystem()
         {
@@ -105,9 +106,20 @@ namespace Dimensions {
             if (hash == null) return;
             CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
+            if (Directory.Exists(dimPath))
+            {
+                Debug.LogError($"Tried to remove system at path '{dimPath}' which doesn't exist.");
+                return;
+            }
             if (metaData.Instances <= 1)
             {
                 string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
+                if (Directory.Exists(hashPath))
+                {
+                    Debug.LogError($"Tried to remove system at hash path '{hashPath}' which doesn't exist.");
+                    return;
+                }
+
                 GlobalHelper.CopyDirectory(dimPath,hashPath);
                 Debug.Log($"Removed system at path '{dimPath}' and saved at '{hashPath}'");
             }
@@ -117,7 +129,6 @@ namespace Dimensions {
             }
             
             Directory.Delete(dimPath,true);
-            
         }
 
 
@@ -232,7 +243,7 @@ namespace Dimensions {
             var newTree = SoftLoadTree(newAssemblerTree);
             parentTree.Children[placePosition] = newTree;
         }
-
+        
         public ClosedChunkSystem ActivateSystem(IDimensionTeleportKey key, PlayerScript playerScript)
         {
             if (key is not CompactMachineTeleportKey compactMachineTeleportKey) {
@@ -287,7 +298,10 @@ namespace Dimensions {
             LoadCompactMachineSystem(assemblerTree,WorldLoadUtils.GetDimPath(1),false);
             systemTree = SoftLoadTree(assemblerTree);
             
-            //Debug.Log($"Loaded {systems.Count} Compact Machine Systems");
+            // Remove dim0 data from tree
+            softLoadedClosedChunkSystems.Remove(systemTree.Data);
+            systemTree.Data = null;
+            Debug.Log($"Loaded {softLoadedClosedChunkSystems.Count} Compact Machine Systems");
         }
 
         public void ReSyncConduitPorts(List<Vector2Int> path, CompactMachinePortType portType, ConduitType conduitType, Vector2Int breakCellPosition)

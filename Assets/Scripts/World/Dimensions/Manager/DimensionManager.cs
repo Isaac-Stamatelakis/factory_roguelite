@@ -186,7 +186,7 @@ namespace Dimensions {
                     systems++;
                 } else if (controller is IMultipleSystemController multipleSystemController)
                 {
-                    foreach (ClosedChunkSystemAssembler system in multipleSystemController.GetAllSystems())
+                    foreach (IChunkSystem system in multipleSystemController.GetAllSystems())
                     {
                         systems++;
                         yield return StartCoroutine(system?.SaveCoroutine());

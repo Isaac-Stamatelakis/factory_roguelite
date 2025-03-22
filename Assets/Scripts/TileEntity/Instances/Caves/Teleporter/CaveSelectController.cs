@@ -11,6 +11,8 @@ using WorldModule;
 using System.IO;
 using Entities.Mobs;
 using Player;
+using TileEntity.Instances.Caves.Teleporter;
+using UI;
 using UI.Chat;
 using UI.Statistics;
 using UnityEngine.AddressableAssets;
@@ -32,6 +34,7 @@ namespace TileEntity.Instances {
         public CaveObject CurrentCaveObject => currentCaveObject;
         private CaveInstance caveInstance;
         
+        [SerializeField] private CaveTeleporterParticles mParticlePrefab;
         public void ShowCave(CaveObject caveObject)
         {
             teleportButton.interactable = true;
@@ -60,7 +63,15 @@ namespace TileEntity.Instances {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
             }
+            PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+            CaveTeleporterParticles caveTeleporterParticles = Instantiate(mParticlePrefab, playerScript.transform, false);
+            caveTeleporterParticles.transform.localPosition = Vector3.zero;
+            Canvas parentCanvas = CanvasController.Instance.GetComponentInParent<Canvas>();
+            parentCanvas.enabled = false;
+            yield return StartCoroutine(caveTeleporterParticles.LoadParticles());
             yield return StartCoroutine(LoadCave(currentCaveObject,GenerateAndTeleportToCave));
+            GameObject.Destroy(caveTeleporterParticles.gameObject);
+            parentCanvas.enabled = true;
         }
 
         public static IEnumerator LoadCave(CaveObject caveObject, CaveCallback caveCallback) {
@@ -155,7 +166,7 @@ namespace TileEntity.Instances {
             
 
             CaveInstance caveInstance = new CaveInstance(caveObject,caveElements);
-            caveCallback(caveInstance);
+           
             foreach (var kvp in handles) {
                 Addressables.Release(kvp.Value);
             }
@@ -163,11 +174,12 @@ namespace TileEntity.Instances {
             foreach (var handle in songHandles) {
                 Addressables.Release(handle);
             }
+            yield return caveCallback(caveInstance);
 
         }
-        public delegate void CaveCallback(CaveInstance caveInstance);
+        public delegate IEnumerator CaveCallback(CaveInstance caveInstance);
 
-        public void GenerateAndTeleportToCave(CaveInstance caveInstance) {
+        public IEnumerator GenerateAndTeleportToCave(CaveInstance caveInstance) {
             if (WorldLoadUtils.DimExists(-1)) {
                 string path = WorldLoadUtils.GetDimPath(-1);
                 Directory.Delete(path, true);
@@ -176,12 +188,13 @@ namespace TileEntity.Instances {
             SeralizedWorldData worldTileData = caveInstance.Generate(UnityEngine.Random.Range(int.MinValue,int.MaxValue));
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            WorldGenerationFactory.SaveToJson(
+            yield return WorldGenerationFactory.SaveToJsonCoroutine(
                 worldTileData,
                 caveInstance.getChunkCaveSize(),
                 -1,
                 WorldLoadUtils.GetDimPath(-1)
             );
+            
             Debug.Log($"Serialized cave data in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
             stopwatch.Stop();
             IntervalVector coveredArea = caveInstance.getChunkCoveredArea();

@@ -67,8 +67,9 @@ namespace Robot.Upgrades {
 
     public enum LaserGunUpgrade
     {
-        Beam,
-        Rocket
+        FireRate = 0,
+        MultiShot = 1,
+        AoE = 2
     }
     
 

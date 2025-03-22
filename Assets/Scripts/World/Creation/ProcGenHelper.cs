@@ -40,6 +40,26 @@ namespace WorldModule {
                 }
             }
         }
+        
+        public static IEnumerator SaveToJsonCoroutine(SeralizedWorldData worldTileData, Vector2Int caveSize, int dim, string dimPath) {
+            // Normalize coordinates so center is at 0,0
+            int minX = -(caveSize.x-1)/2;
+            int maxX = (caveSize.x)/2;
+            int minY = -(caveSize.y-1)/2;
+            int maxY = (caveSize.y)/2;
+            int saves = 0;
+            for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
+                for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
+                    SaveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
+                    saves++;
+                    if (saves > 8)
+                    {
+                        saves = 0;
+                        yield return null;
+                    }
+                }
+            }
+        }
 
         public static void SaveChunk(int chunkX, int chunkY, int minX, int minY, int dim, SeralizedWorldData worldTileData, string dimPath) {
             List<IChunkPartitionData> chunkPartitionDataList = new List<IChunkPartitionData>();

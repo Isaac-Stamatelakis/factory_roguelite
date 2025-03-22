@@ -76,21 +76,16 @@ namespace TileEntity.Instances.CompactMachines {
         }
         public static void TeleportOutOfCompactMachine(CompactMachineInstance compactMachine) {
             DimensionManager dimensionManager = DimensionManager.Instance;
-            IChunk chunk = compactMachine.GetChunk();
-            if (chunk is not ILoadedChunk loadedChunk) {
-                return;
+            CompactMachineDimController dimController = (CompactMachineDimController)dimensionManager.GetDimController(Dimension.CompactMachine);
+            List<Vector2Int> currentPath = dimController.CurrentSystemPath;
+            List<Vector2Int> newPath = new List<Vector2Int>();
+            for (int i = 0; i < currentPath.Count-1; i++)
+            {
+                newPath.Add(currentPath[i]);
             }
-            ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
-            List<Vector2Int> parentPath = new List<Vector2Int>();
-            if (closedChunkSystem is ICompactMachineClosedChunkSystem compactMachineClosedChunkSystem) {
-                CompactMachineTeleportKey key = compactMachineClosedChunkSystem.GetCompactMachineKey();
-                for (int i = 0; i < key.Path.Count; i++) {
-                    parentPath.Add(key.Path[i]);
-                }   
-            }
-            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(parentPath,compactMachine.IsParentLocked());
-            Dimension dimension = parentPath.Count == 0 ? Dimension.OverWorld : Dimension.CompactMachine;
-          
+            bool locked = dimController.IsLocked(newPath);
+            CompactMachineTeleportKey parentKey = new CompactMachineTeleportKey(newPath,locked);
+            Dimension dimension = newPath.Count == 0 ? Dimension.OverWorld : Dimension.CompactMachine;
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 dimension,
