@@ -35,13 +35,6 @@ namespace PlayerModule.IO {
 
         public static void VerifyIntegrityOfPlayerData(PlayerData playerData)
         {
-            const int OUT_BOUNDS_POSITION = 512;
-            if (playerData.dimensionData != null)
-            {
-                if (Mathf.Abs(playerData.dimensionData.Y) > OUT_BOUNDS_POSITION) playerData.dimensionData.X = 0;
-                if (Mathf.Abs(playerData.dimensionData.X) > OUT_BOUNDS_POSITION) playerData.dimensionData.Y = 0;
-            }
-            
             playerData.playerStatistics ??= new PlayerStatisticCollection();
             PlayerStatisticsUtils.VerifyStaticsCollection(playerData.playerStatistics);
         }

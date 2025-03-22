@@ -401,6 +401,12 @@ namespace Dimensions {
             
             Vector3 playerPosition = player.transform.position;
 
+            IntervalVector coveredArea = activeSystem.CoveredArea;
+            const int BONUS_MIN = 1;
+            const float CHUNK_WORLD_SIZE = Global.CHUNK_SIZE * Global.TILE_SIZE;
+            teleportPosition.x = Mathf.Clamp(teleportPosition.x,coveredArea.X.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.X.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
+            teleportPosition.y = Mathf.Clamp(teleportPosition.y,coveredArea.Y.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.Y.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
+            
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;

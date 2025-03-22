@@ -43,10 +43,10 @@ namespace WorldModule.Caves {
             return new Vector2Int(ChunkWidth, ChunkHeight);
         }
         public IntervalVector GetChunkCoveredArea() {
-            int xMin = -(ChunkWidth / 2 + 1);
-            int xMax = ChunkWidth / 2 * 2;
-            int yMin = -(ChunkHeight / 2 + 1);
-            int yMax = ChunkHeight / 2 * 2;
+            int xMin = -((ChunkWidth+1) / 2 - 1);
+            int xMax = ChunkWidth / 2;
+            int yMin = -((ChunkHeight+1) / 2 - 1);
+            int yMax = ChunkHeight / 2;
             return new IntervalVector(new Interval<int>(xMin,xMax), new Interval<int>(yMin,yMax));
         }
     }
