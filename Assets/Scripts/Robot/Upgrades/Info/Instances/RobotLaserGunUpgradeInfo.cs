@@ -19,7 +19,9 @@ namespace Robot.Upgrades.Info.Instances
             LaserGunUpgrade buildinatorUpgrade = (LaserGunUpgrade)upgrade;
             return buildinatorUpgrade switch
             {
-                LaserGunUpgrade.Beam => "Beam!",
+                LaserGunUpgrade.FireRate => "Increases Fire Rate",
+                LaserGunUpgrade.MultiShot => "Increases Lasers Fired",
+                LaserGunUpgrade.AoE => "Unlocks AoE Explosions",
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -36,7 +38,10 @@ namespace Robot.Upgrades.Info.Instances
 
         public override List<int> GetContinuousUpgrades()
         {
-            return new List<int>();
+            return new List<int>
+            {
+                (int)LaserGunUpgrade.FireRate
+            };
         }
 
         public override List<int> GetConstantUpgrades()
