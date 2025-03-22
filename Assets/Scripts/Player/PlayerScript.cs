@@ -27,6 +27,7 @@ using UI.RingSelector;
 using UI.Statistics;
 using UnityEngine;
 using UnityEngine.Serialization;
+using World.Dimensions.Serialization;
 using WorldModule;
 
 namespace Player
@@ -63,7 +64,7 @@ namespace Player
         public PlayerStatisticCollection PlayerStatisticCollection => playerStatisticCollection;
         private Vector2 lastPosition;
         public bool Cheats;
-        
+        public DimensionData DimensionData;
         
         public void Start()
         {
@@ -74,7 +75,7 @@ namespace Player
             playerMouse = GetComponent<PlayerMouse>();
         }
         
-        public void Initialize()
+        public PlayerDimensionData Initialize()
         {
             InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
@@ -94,6 +95,7 @@ namespace Player
             ControlUtils.LoadBindings();
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
+            return playerData.dimensionData;
         }
 
         private void InitializeStages()

@@ -173,11 +173,7 @@ namespace Chunks.Systems {
             }
             return conduitSystemManagersDict[tileMapType];
         }
-
-        public Vector2Int GetBottomLeftCorner() {
-            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
-        }
-
+        
         public SoftLoadedClosedChunkSystem ToSoftLoadedSystem()
         {
             List<ISoftLoadableTileEntity> softLoadableTileEntities = new List<ISoftLoadableTileEntity>();

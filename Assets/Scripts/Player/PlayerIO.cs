@@ -14,6 +14,7 @@ using Item.Slot;
 using Player;
 using Robot.Upgrades;
 using UI.Statistics;
+using World.Dimensions.Serialization;
 
 namespace PlayerModule.IO {
 
@@ -35,8 +36,12 @@ namespace PlayerModule.IO {
         public static void VerifyIntegrityOfPlayerData(PlayerData playerData)
         {
             const int OUT_BOUNDS_POSITION = 512;
-            if (Mathf.Abs(playerData.x) > OUT_BOUNDS_POSITION) playerData.x = 0;
-            if (Mathf.Abs(playerData.y) > OUT_BOUNDS_POSITION) playerData.y = 0;
+            if (playerData.dimensionData != null)
+            {
+                if (Mathf.Abs(playerData.dimensionData.Y) > OUT_BOUNDS_POSITION) playerData.dimensionData.X = 0;
+                if (Mathf.Abs(playerData.dimensionData.X) > OUT_BOUNDS_POSITION) playerData.dimensionData.Y = 0;
+            }
+            
             playerData.playerStatistics ??= new PlayerStatisticCollection();
             PlayerStatisticsUtils.VerifyStaticsCollection(playerData.playerStatistics);
         }
@@ -46,9 +51,9 @@ namespace PlayerModule.IO {
             PlayerInventory playerInventory = GetComponent<PlayerInventory>();
             PlayerRobot playerRobot = GetComponent<PlayerRobot>();
             PlayerScript playerScript = GetComponent<PlayerScript>();
+            PlayerDimensionData playerDimensionData = new PlayerDimensionData(playerScript.DimensionData,transform.position.x,transform.position.y);
             PlayerData playerData = new PlayerData(
-                transform.position.x, 
-                transform.position.y, 
+                playerDimensionData,
                 ItemSlotFactory.seralizeItemSlot(playerRobot.robotItemSlot),
                 PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData),
                 JsonConvert.SerializeObject(playerRobot.RobotUpgradeLoadOut),
@@ -61,16 +66,15 @@ namespace PlayerModule.IO {
 
     [System.Serializable]
     public class PlayerData {
-        public PlayerData(float x, float y, string playerRobot, string sInventoryData, string sRobotLoadOut, PlayerStatisticCollection playerStatistics) {
-            this.x = x;
-            this.y = y;
+        public PlayerData(PlayerDimensionData dimensionData, string playerRobot, string sInventoryData, string sRobotLoadOut, PlayerStatisticCollection playerStatistics) {
+            this.dimensionData = dimensionData;
             this.playerRobot = playerRobot;
             this.sInventoryData = sInventoryData;
             this.sRobotLoadOut = sRobotLoadOut;
             this.playerStatistics = playerStatistics;
         }
-        public float x;
-        public float y;
+
+        public PlayerDimensionData dimensionData;
         public string playerRobot;
         public string sInventoryData;
         public string sRobotLoadOut;

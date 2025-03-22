@@ -11,27 +11,29 @@ using WorldModule.Caves;
 namespace Dimensions {
     public class CaveController : DimController, ISingleSystemController
     {
-        private CaveInstance currentCave;
+        private string caveId;
+        private IntervalVector coveredArea;
         private TileClosedChunkSystem activeSystem;
+
+        public string GetCurrentCaveId()
+        {
+            return caveId;
+        }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
         {
-            if (currentCave == null) return null;
+            if (caveId == null) return null;
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
-            IntervalVector coveredArea = currentCave.getChunkCoveredArea();
+            
             activeSystem.Initalize(this,coveredArea,-1);
             return activeSystem;
         }
-        public void setCurrentCave(CaveInstance caveInstance) {
-            this.currentCave = caveInstance;
+        public void setCurrentCave(CaveObject caveObject) {
+            caveId = caveObject.GetId();
+            coveredArea = caveObject.GetChunkCoveredArea();
         }
-
-        public bool isActive()
-        {
-            return activeSystem != null;
-        }
-
+        
         public ClosedChunkSystem GetActiveSystem()
         {
             return activeSystem;

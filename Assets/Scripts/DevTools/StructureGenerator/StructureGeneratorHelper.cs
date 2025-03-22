@@ -85,8 +85,7 @@ namespace DevTools.Structures {
                 Global.MAX_SIZE, null);
             
             PlayerData playerData = new PlayerData(
-                x: 0,
-                y: 0,
+                dimensionData:null,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(playerInventoryData),
                 sRobotLoadOut: null,

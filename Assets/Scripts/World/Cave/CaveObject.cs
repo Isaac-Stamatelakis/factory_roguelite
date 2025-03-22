@@ -21,6 +21,8 @@ namespace WorldModule.Caves {
         public Tier tier;
         [TextArea] [SerializeField] private string description;
         public string Description {get => description;}
+        public int ChunkWidth = 21;
+        public int ChunkHeight = 21;
         public AssetReference generationModel;
         public TileDistributorObject TileDistributorObject;
         public OreDistributionObject OreDistributionObject;
@@ -35,8 +37,20 @@ namespace WorldModule.Caves {
         {
             return name.Replace(" ", "_");
         }
+        
+        public UnityEngine.Vector2Int GetChunkCaveSize()
+        {
+            return new Vector2Int(ChunkWidth, ChunkHeight);
+        }
+        public IntervalVector GetChunkCoveredArea() {
+            int xMin = -(ChunkWidth / 2 + 1);
+            int xMax = ChunkWidth / 2 * 2;
+            int yMin = -(ChunkHeight / 2 + 1);
+            int yMax = ChunkHeight / 2 * 2;
+            return new IntervalVector(new Interval<int>(xMin,xMax), new Interval<int>(yMin,yMax));
+        }
     }
-
+    
     [System.Serializable]
     public class CaveOptions
     {
@@ -62,15 +76,17 @@ namespace WorldModule.Caves {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             double total = 0;
+            Vector2Int worldSize = new Vector2Int(caveObject.ChunkWidth, caveObject.ChunkHeight) * Global.CHUNK_SIZE;
+            Debug.Log(worldSize);
             UnityEngine.Random.InitState(seed);
-            SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed);
+            SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed,worldSize);
             
             double modelTime = stopwatch.Elapsed.TotalSeconds;
             
             total += modelTime;
             
-            Vector2Int size = getChunkCaveSize()*Global.CHUNK_SIZE;
-            IntervalVector coveredArea = getChunkCoveredArea();
+            Vector2Int size = caveObject.GetChunkCaveSize()*Global.CHUNK_SIZE;
+            IntervalVector coveredArea = caveObject.GetChunkCoveredArea();
             Vector2Int bottomLeft = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound) * Global.CHUNK_SIZE;
             stopwatch.Restart();
             caveElements.TileDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
@@ -101,12 +117,7 @@ namespace WorldModule.Caves {
                       $"Tile Distribution Time: {tileDistributionTime:F2} seconds. Entity Distribution Time: {entityDistributionTime:F2} seconds.");
             return worldTileData;
         }
-        public UnityEngine.Vector2Int getChunkCaveSize() {
-            return caveElements.GenerationModel.GetChunkSize();
-        }
-        public IntervalVector getChunkCoveredArea() {
-            return caveElements.GenerationModel.GetCoveredChunkArea();
-        }
+        
     }
     
     public struct CaveElements {

@@ -104,8 +104,7 @@ namespace WorldModule {
         public static PlayerData GetDefaultPlayerData()
         {
             return new PlayerData(
-                x: 0,
-                y: 0,
+                dimensionData:null,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
                 sRobotLoadOut: null,
