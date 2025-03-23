@@ -10,7 +10,7 @@ using UI;
 
 namespace TileEntity.Instances.Matrix {
     public class MatrixRecipeEncoderInstance : TileEntityInstance<MatrixRecipeEncoder>, 
-        IRightClickableTileEntity, IMatrixConduitInteractable, ISerializableTileEntity, ILoadableTileEntity
+        IMatrixConduitInteractable, ISerializableTileEntity, ILoadableTileEntity
     {
         public MatrixRecipeEncoderInstance(MatrixRecipeEncoder tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -28,15 +28,7 @@ namespace TileEntity.Instances.Matrix {
         {
             return TileEntityObject.Layout;
         }
-
-        public void OnRightClick()
-        {
-            GameObject uiPrefab = TileEntityObject.UIManager.getUIElement();
-            GameObject instantiated = GameObject.Instantiate(uiPrefab);
-            RecipeEncoderUI recipeEncoderUI = instantiated.GetComponent<RecipeEncoderUI>();
-            recipeEncoderUI.init(this); 
-            MainCanvasController.Instance.DisplayObject(instantiated);
-        }
+        
 
         private void initInventories() {
             if (recipeOutputs == null || recipeOutputs.Count != TileEntityObject.RecipeOutputCount) {

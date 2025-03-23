@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Items.Inventory;
 using Items.Tags;
+using TileEntity.Instances.Machine.UI;
 using TileEntity.Instances.Machines;
 using TMPro;
 using UI.Chat;
@@ -14,7 +15,7 @@ using WorldModule.Caves;
 
 namespace TileEntity.Instances.Caves.Researcher
 {
-    public class CaveProcessorUI : MonoBehaviour, ITileEntityUI<CaveProcessorInstance>
+    public class CaveProcessorUI : MonoBehaviour, ITileEntityUI, IInventoryUITileEntityUI
     {
         [SerializeField] private InventoryUI mDriveInputUI;
         [SerializeField] private InventoryUI mDriveOutputUI;
@@ -39,9 +40,10 @@ namespace TileEntity.Instances.Caves.Researcher
             "===============================================\n" +
             "               TERMINAL ONLINE\n" +
             "===============================================\n";
-        public void DisplayTileEntityInstance(CaveProcessorInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            caveProcessorInstance = tileEntityInstance;
+            if (tileEntityInstance is not CaveProcessorInstance caveProcessor) return;
+            caveProcessorInstance = caveProcessor;
             DisplayText();
             SendTerminalMessage(START_MESSAGE);
             SendTerminalMessage("Welcome Back!\n");
@@ -59,15 +61,15 @@ namespace TileEntity.Instances.Caves.Researcher
                 mTextInput.Select();
             });
             
-            mDriveInputUI.DisplayInventory(tileEntityInstance.InputDrives);
+            mDriveInputUI.DisplayInventory(caveProcessorInstance.InputDrives);
             mDriveInputUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
             
-            mDriveInputUI.AddListener(tileEntityInstance);
+            mDriveInputUI.AddListener(caveProcessorInstance);
             
-            mDriveOutputUI.DisplayInventory(tileEntityInstance.OutputDrives);
+            mDriveOutputUI.DisplayInventory(caveProcessorInstance.OutputDrives);
             mDriveOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mDriveOutputUI.AddListener(tileEntityInstance);
+            mDriveOutputUI.AddListener(caveProcessorInstance);
             
             mTextInput.ActivateInputField();
             mTextInput.Select();
@@ -102,7 +104,6 @@ namespace TileEntity.Instances.Caves.Researcher
 
         private void DisplayText()
         {
-            
             if (caveProcessorInstance.ResearchDriveProcess == null)
             {
                 mStatusText.text = "Awaiting Instruction";
@@ -244,6 +245,20 @@ namespace TileEntity.Instances.Caves.Researcher
             mDriveOutputUI.RefreshSlots();
             mDriveInputUI.RefreshSlots();
             
+        }
+
+        public InventoryUI GetInput()
+        {
+            return mDriveInputUI;
+        }
+
+        public List<InventoryUI> GetAllInventoryUIs()
+        {
+            return new List<InventoryUI>
+            {
+                mDriveInputUI,
+                mDriveOutputUI
+            };
         }
     }
 

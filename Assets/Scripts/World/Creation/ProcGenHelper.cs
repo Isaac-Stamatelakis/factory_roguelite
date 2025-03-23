@@ -15,8 +15,8 @@ using WorldModule.Caves;
 namespace WorldModule {
     public static class WorldGenerationFactory {
         public static void SaveToJson(SeralizedWorldData worldTileData, CaveInstance cave, int dim, string dimPath) {
-            UnityEngine.Vector2Int caveSize = cave.getChunkCaveSize();
-            IntervalVector caveCoveredArea = cave.getChunkCoveredArea();
+            UnityEngine.Vector2Int caveSize = cave.CaveObject.GetChunkCaveSize();
+            IntervalVector caveCoveredArea = cave.CaveObject.GetChunkCoveredArea();
             int tileMaxX = Global.CHUNK_SIZE*caveSize.x;
             int tileMaxY = Global.CHUNK_SIZE*caveSize.y;
             int minX = caveCoveredArea.X.LowerBound; int maxX = caveCoveredArea.X.UpperBound;
@@ -48,11 +48,12 @@ namespace WorldModule {
             int minY = -(caveSize.y-1)/2;
             int maxY = (caveSize.y)/2;
             int saves = 0;
+            const int DELAYS_PER_SAVES = 4;
             for (int chunkY = minY; chunkY <= maxY; chunkY ++) {
                 for (int chunkX = minX; chunkX <= maxX; chunkX ++) {
                     SaveChunk(chunkX, chunkY, minX, minY, dim, worldTileData, dimPath);
                     saves++;
-                    if (saves > 8)
+                    if (saves > DELAYS_PER_SAVES)
                     {
                         saves = 0;
                         yield return null;

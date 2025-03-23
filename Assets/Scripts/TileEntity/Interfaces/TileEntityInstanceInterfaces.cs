@@ -23,12 +23,12 @@ namespace TileEntity {
         public int GetSpeed();
     }
 
-    public interface IConditionalRightClickableTileEntity : IRightClickableTileEntity
+    public interface IConditionalRightClickableTileEntity
     {
         public bool CanRightClick();
     }
 
-    public interface ILockUnInteractableRightClickTileEntity : IRightClickableTileEntity
+    public interface ILockUnInteractableRightClickTileEntity
     {
         
     }

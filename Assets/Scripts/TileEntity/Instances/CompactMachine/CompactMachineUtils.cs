@@ -89,7 +89,7 @@ namespace TileEntity.Instances.CompactMachines {
             dimensionManager.SetPlayerSystem(
                 PlayerManager.Instance.GetPlayer(),
                 dimension,
-                compactMachine.GetCellPosition(),
+                compactMachine.GetWorldPosition(),
                 key:parentKey
             );
         }
@@ -100,7 +100,7 @@ namespace TileEntity.Instances.CompactMachines {
             Vector2Int teleportPosition = compactMachine.Teleporter == null
                 ? (Global.CHUNK_SIZE / 2 + 1) * Vector2Int.one
                 : compactMachine.Teleporter.GetCellPosition() + Vector2Int.one;
-            
+            Vector2 vector2Position = new Vector2(teleportPosition.x/2f, teleportPosition.y/2f);
             DimensionManager dimensionManager = DimensionManager.Instance;
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations_Into_Compact_Machines]++;
@@ -113,7 +113,7 @@ namespace TileEntity.Instances.CompactMachines {
             dimensionManager.SetPlayerSystem(
                 playerScript,
                 Dimension.CompactMachine,
-                teleportPosition,
+                vector2Position,
                 key:key
             );
         }
@@ -219,9 +219,16 @@ namespace TileEntity.Instances.CompactMachines {
         internal static CompactMachineMetaData GetMetaDataFromHash(string hash)
         {
             if (hash == null) return null;
-            string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
-            return GetMetaData(path);
-
+            try
+            {
+                string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
+                return GetMetaData(path);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogWarning($"Could not load compact machine meta data {e.Message}");
+                return null;
+            }
         }
         internal static void InitializeMetaData(string path, string tileID)
         {

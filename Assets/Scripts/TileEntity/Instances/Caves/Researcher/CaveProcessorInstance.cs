@@ -12,7 +12,7 @@ using UI.QuestBook;
 using UnityEngine;
 
 namespace TileEntity.Instances.Caves.Researcher {
-    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity, IInventoryListener, IBreakActionTileEntity
+    public class CaveProcessorInstance : TileEntityInstance<CaveProcessor>, ISerializableTileEntity, IPlaceInitializable, ITickableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity, IInventoryListener, IBreakActionTileEntity
     {
         public List<ItemSlot> InputDrives;
         public List<ItemSlot> OutputDrives;
@@ -31,15 +31,7 @@ namespace TileEntity.Instances.Caves.Researcher {
         public CaveProcessorInstance(CaveProcessor tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-
-        public void OnRightClick()
-        {
-            CaveProcessorUI caveProcessorUI = GameObject.Instantiate(TileEntityObject.uIManager.getUIElement()).GetComponent<CaveProcessorUI>();
-            caveProcessorUI.DisplayTileEntityInstance(this);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(caveProcessorUI.gameObject);
-            CacheQuestData();
-        }
-
+        
         public string Serialize()
         {
             SerializedData serializedData = new SerializedData(

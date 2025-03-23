@@ -38,7 +38,7 @@ namespace TileEntity.Instances.Machine.UI
         public void ResetRecipe();
     }
     
-    public class MachineBaseUI : MonoBehaviour, ITileEntityUI<IMachineInstance>, IAmountIteratorListener, IRecipeProcessorUI, IInventoryUIAggregator
+    public class MachineBaseUI : MonoBehaviour, ITileEntityUI, IAmountIteratorListener, IRecipeProcessorUI, IInventoryUIAggregator
     {
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         [SerializeField] private TextMeshProUGUI titleText;
@@ -55,8 +55,9 @@ namespace TileEntity.Instances.Machine.UI
             amountIteratorUI.setListener(this);
         }
 
-        public void DisplayTileEntityInstance(IMachineInstance machineInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
+            if (tileEntityInstance is not IMachineInstance machineInstance) return;
             this.displayedInstance = machineInstance;
             titleText.text = machineInstance.GetTileEntity().name;
             

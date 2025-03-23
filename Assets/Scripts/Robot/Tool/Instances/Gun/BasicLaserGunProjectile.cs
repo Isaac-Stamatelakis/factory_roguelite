@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Robot.Tool.Instances.Gun
@@ -16,11 +18,14 @@ namespace Robot.Tool.Instances.Gun
         private float speed;
         private Color defaultColor;
         private SpriteRenderer spriteRenderer;
-
+        private ToolObjectPool particlePool;
+        private bool damaged = false;
+        private ParticleSystem particles;
         
-        public void Initialize(float damage, Vector2 direction, float speed)
+        public void Initialize(float damage, Vector2 direction, float speed, ToolObjectPool particlePool)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            this.particlePool = particlePool;
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
             this.damage = damage;
             this.direction = direction;
@@ -39,15 +44,37 @@ namespace Robot.Tool.Instances.Gun
             scale.x += scaleChange;
             transform.localScale = scale;
             spriteRenderer.color = Color.Lerp(defaultColor, Color.white, Mathf.PingPong(Time.time, 1));
-            if (lifeTime > 2f) Destroy(gameObject);
+            if (lifeTime > 2f && !damaged) Destroy(gameObject);
         }
 
         public void OnTriggerEnter2D(Collider2D other)
         {
+            if (damaged) return;
             if (other.gameObject.CompareTag("Player")) return;
+            damaged = true;
             IDamageableEntity damageableEntity = other.gameObject.GetComponent<IDamageableEntity>();
             damageableEntity?.Damage(damage,direction);
+            var poolObject = particlePool?.TakeFromPool();
+            if (!poolObject)
+            {
+                GameObject.Destroy(gameObject);
+                return;
+            }
+            particles = poolObject.GetComponent<ParticleSystem>();
+            particles.transform.position = other.ClosestPoint(transform.position);
+            var particleModule = particles.main;
+            particleModule.loop = false;
+            particles.Play();
+            StartCoroutine(DelayDestroy());
+        }
+
+        private IEnumerator DelayDestroy()
+        {
+            GetComponent<SpriteRenderer>().enabled = false;
+            yield return new WaitForSeconds(0.5f);
+            particlePool.ReturnToPool(particles.gameObject);
             Destroy(gameObject);
+            ;
         }
     }
 }

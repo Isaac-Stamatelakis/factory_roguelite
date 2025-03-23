@@ -14,8 +14,6 @@ namespace TileEntity.Instances.Storage {
     {
         public Tier Tier;
         public ConduitPortLayout ConduitLayout;
-        public TileEntityUIManager UIManager;
-
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new FluidTankInstance(this,tilePosition,tileItem,chunk);

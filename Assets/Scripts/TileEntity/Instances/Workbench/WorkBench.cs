@@ -6,13 +6,14 @@ using Chunks;
 using Recipe.Processor;
 using UI;
 using UnityEditor;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.WorkBenchs {
     [CreateAssetMenu(fileName ="New WorkBench",menuName="Tile Entity/Workbench")]
-    public class WorkBench : TileEntityObject, IProcessorTileEntity, IManagedUITileEntity
+    public class WorkBench : TileEntityObject, IProcessorTileEntity, IUITileEntity
     {
         public RecipeProcessor WorkBenchRecipeProcessor;
-        public TileEntityUIManager UIAssetManager;
+        public AssetReference AssetReference;
         public bool HasInventory;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
@@ -24,9 +25,9 @@ namespace TileEntity.Instances.WorkBenchs {
             return WorkBenchRecipeProcessor;
         }
 
-        public TileEntityUIManager getUIManager()
+        public AssetReference GetUIAssetReference()
         {
-            return UIAssetManager;
+            return AssetReference;
         }
     }
     

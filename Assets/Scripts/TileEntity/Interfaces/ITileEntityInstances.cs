@@ -1,19 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity {
-    public interface IManagedUITileEntity {
-        public TileEntityUIManager getUIManager();
+    
+    public interface IUITileEntity {
+        public AssetReference GetUIAssetReference();
     }
 
-    public interface IAssetManagerTileEntity {
-        public void load();
-        public void free();
-        public TileEntityAssetManager getAssetManager();
+    public interface IAssetTileEntity
+    {
+        public AssetReference GetAssetReference();
     }
 
-    public interface ITileEntityUI<T> where T : ITileEntityInstance {
-        public void DisplayTileEntityInstance(T tileEntityInstance);
+    public interface ITileEntityUI {
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance);
     }
 }

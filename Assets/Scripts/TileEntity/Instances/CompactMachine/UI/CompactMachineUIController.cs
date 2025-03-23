@@ -12,7 +12,7 @@ using UI;
 using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.CompactMachines {
-    public class CompactMachineUIController : MonoBehaviour, ITileEntityUI<CompactMachineInstance>
+    public class CompactMachineUIController : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] public TextMeshProUGUI mTitle;
         [SerializeField] public TextMeshProUGUI mIdText;
@@ -45,22 +45,23 @@ namespace TileEntity.Instances.CompactMachines {
             Addressables.Release(editHandle);
         }
 
-        public void DisplayTileEntityInstance(CompactMachineInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            if (tileEntityInstance.Hash == null)
+            if (tileEntityInstance is not CompactMachineInstance compactMachineInstance) return;
+            compactMachine = compactMachineInstance;
+            if (compactMachineInstance.Hash == null)
             {
                 Debug.LogWarning("Cannot display compact machine with null hash");
                 return;
             }
-            this.compactMachine = tileEntityInstance;
-            mTitle.text = tileEntityInstance.TileEntityObject.name;
-            CompactMachineTeleportKey key = tileEntityInstance.GetTeleportKey();
+            mTitle.text = compactMachineInstance.TileEntityObject.name;
+            CompactMachineTeleportKey key = compactMachineInstance.GetTeleportKey();
             mPositionText.text = GetPositionText(key);
             metaData = CompactMachineUtils.GetMetaDataFromHash(compactMachine.Hash);
             mDepthText.text = $"Depth: {key.Path.Count-1}";
             mSubSystemText.text = $"Sub-Systems: {compactMachine.GetSubSystems()}";
             
-            mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
+            mIdText.text = $"ID: '{compactMachineInstance.Hash}'";
             mStatusText.text = GetStatusText();
             
             if (metaData != null)
@@ -78,7 +79,7 @@ namespace TileEntity.Instances.CompactMachines {
 
                 void OnHashChange()
                 {
-                    mIdText.text = $"ID: '{tileEntityInstance.Hash}'";
+                    mIdText.text = $"ID: '{compactMachineInstance.Hash}'";
                     DisplayMetaData(CompactMachineUtils.GetMetaDataFromHash(compactMachine.Hash));
                 }
                 mEditButton.onClick.AddListener(() =>
@@ -98,7 +99,7 @@ namespace TileEntity.Instances.CompactMachines {
             
             mTeleportButton.onClick.AddListener(() =>
             {
-                CompactMachineUtils.TeleportIntoCompactMachine(tileEntityInstance);
+                CompactMachineUtils.TeleportIntoCompactMachine(compactMachineInstance);
             });
         }
 
@@ -141,8 +142,15 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnDestroy()
         {
             if (compactMachine.Hash == null) return;
-            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
-            CompactMachineUtils.SaveMetaDataJson(metaData,path);
+            try
+            {
+                string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+                CompactMachineUtils.SaveMetaDataJson(metaData,path);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogWarning(e.Message);
+            }
         }
     }
 }

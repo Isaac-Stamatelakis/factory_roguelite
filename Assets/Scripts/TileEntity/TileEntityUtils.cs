@@ -12,6 +12,7 @@ using Conduits.Ports;
 using Entities;
 using Item.Slot;
 using Newtonsoft.Json;
+using TileEntity.AssetManagement;
 using TileEntity.Instances.CompactMachines;
 using TileEntity.MultiBlock;
 using TileMaps;
@@ -31,18 +32,15 @@ namespace TileEntity {
             return default;
         }
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, 
-            string data = null, bool assembleMultiblocks = false) {
+            string data = null, bool assembleMultiblocks = false, bool loadAssets = true) {
             ITileEntityInstance tileEntityInstance = tileItem.tileEntity.CreateInstance(positionInChunk, tileItem, chunk);
             
-            if (tileItem.tileEntity is IManagedUITileEntity managedUITileEntity) {
-                TileEntityUIManager tileEntityUIManager = managedUITileEntity.getUIManager();
-                if (!tileEntityUIManager.Loaded && !tileEntityUIManager.Loading) {
-                    tileEntityUIManager.loadUIIntoMemory();
-                }
+            if (loadAssets && tileItem.tileEntity is IUITileEntity uiTileEntity) {
+                TileEntityAssetRegistry.Instance.LoadAsset(TileEntityAssetType.UI,tileItem.tileEntity,uiTileEntity.GetUIAssetReference());
             }
             
-            if (tileItem.tileEntity is IAssetManagerTileEntity assetManagerTileEntity) {
-                // TODO
+            if (loadAssets && tileItem.tileEntity is IAssetTileEntity assetTileEntity) {
+                TileEntityAssetRegistry.Instance.LoadAsset(TileEntityAssetType.UI,tileItem.tileEntity,assetTileEntity.GetAssetReference());
             }
             if (load && tileEntityInstance is ILoadableTileEntity loadableTileEntity) {
                 loadableTileEntity.Load();
@@ -384,12 +382,5 @@ namespace TileEntity {
             return result;
         }
         
-
-        public static void DisplayTileEntityUI<T>(GameObject uiPrefab, T instance) where T : ITileEntityInstance
-        {
-            GameObject uiObject = GameObject.Instantiate(uiPrefab);
-            uiObject.GetComponent<ITileEntityUI<T>>().DisplayTileEntityInstance(instance);
-            CanvasController.Instance.DisplayObject(uiObject);
-        }
     }
 }

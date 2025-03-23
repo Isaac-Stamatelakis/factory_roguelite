@@ -7,22 +7,23 @@ using System;
 using UI;
 
 namespace TileEntity.Instances.Signal {
-    public class SignalClockUI : MonoBehaviour, ITileEntityUI<SignalClockInstance>, IAmountIteratorListener
+    public class SignalClockUI : MonoBehaviour, ITileEntityUI, IAmountIteratorListener
     {
         [SerializeField] private TMP_InputField delayField;
         [SerializeField] private Toggle toggle;
         [SerializeField] private AmountIteratorUI amountIteratorUI;
         private SignalClockInstance instance;
-        public void DisplayTileEntityInstance(SignalClockInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            this.instance = tileEntityInstance;
-            delayField.text = tileEntityInstance.ClockData.Time.ToString();
+            if (tileEntityInstance is not SignalClockInstance signalClockInstance) return;
+            this.instance = signalClockInstance;
+            delayField.text = signalClockInstance.ClockData.Time.ToString();
             delayField.onValueChanged.AddListener((string value) => {
-                ValidateInput(value, tileEntityInstance);
+                ValidateInput(value, signalClockInstance);
             });
-            toggle.isOn = tileEntityInstance.ClockData.Active;
+            toggle.isOn = signalClockInstance.ClockData.Active;
             toggle.onValueChanged.AddListener((bool val) => {
-                tileEntityInstance.ClockData.Active = val;
+                signalClockInstance.ClockData.Active = val;
             });
             amountIteratorUI.setListener(this);
 

@@ -102,11 +102,10 @@ namespace Chunks.Partitions {
              * The other alternative is assigning soft load to the tile entity directly but this leaves lots of room for human error
              */
             ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
-            if (instance is not ISoftLoadableTileEntity) {
-                return null;
-            }
+            if (instance is not ISoftLoadableTileEntity) return null;
+            
             Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options);
+            return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options, loadAssets:false);
         }
 
         private void GetConduitsFromData(SeralizedChunkConduitData data, Dictionary<Vector2Int, IConduit> conduitDict,

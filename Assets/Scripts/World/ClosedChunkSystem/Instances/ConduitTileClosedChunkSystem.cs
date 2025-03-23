@@ -23,6 +23,7 @@ using Dimensions;
 using JetBrains.Annotations;
 using Player;
 using Player.Controls;
+using TileEntity.AssetManagement;
 using Object = UnityEngine.Object;
 
 namespace Chunks.Systems {
@@ -100,13 +101,18 @@ namespace Chunks.Systems {
             {
                 conduitSystemManager.SetSystem(this);
             }
+            
+            HashSet<TileEntityObject> tileEntityObjects = new HashSet<TileEntityObject>();
             foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystemAssembler.Chunks) {
                 ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
                 foreach (IChunkPartition partition in loadedChunk.GetChunkPartitions()) {
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) continue;
                     conduitTileChunkPartition.Activate(loadedChunk);
+                    partition.GetTileEntityObjects(tileEntityObjects);
                 }
             }
+            TileEntityAssetRegistry.Instance.LoadAssetsCoroutine(tileEntityObjects);
+
             tickableConduitSystemManagers = new List<ITickableConduitSystemManager>();
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values)
             {
@@ -173,11 +179,7 @@ namespace Chunks.Systems {
             }
             return conduitSystemManagersDict[tileMapType];
         }
-
-        public Vector2Int GetBottomLeftCorner() {
-            return new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
-        }
-
+        
         public SoftLoadedClosedChunkSystem ToSoftLoadedSystem()
         {
             List<ISoftLoadableTileEntity> softLoadableTileEntities = new List<ISoftLoadableTileEntity>();

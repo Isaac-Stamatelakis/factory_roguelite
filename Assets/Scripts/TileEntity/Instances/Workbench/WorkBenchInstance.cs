@@ -9,18 +9,14 @@ using Recipe.Processor;
 using TileEntity.Instances.WorkBench;
 
 namespace TileEntity.Instances.WorkBenchs {
-    public class WorkBenchInstance : TileEntityInstance<WorkBench>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable
+    public class WorkBenchInstance : TileEntityInstance<WorkBench>, ISerializableTileEntity, IPlaceInitializable
     {
         public List<ItemSlot> Inventory;
         public WorkBenchData WorkBenchData;
         public WorkBenchInstance(WorkBench tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-
-        public void OnRightClick()
-        {
-            tileEntityObject.UIAssetManager.Display<WorkBenchInstance,WorkBenchUI>(this);
-        }
+        
 
         public string Serialize()
         {

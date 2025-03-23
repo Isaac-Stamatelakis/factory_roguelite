@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Chunks;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.Signs {
     [CreateAssetMenu(fileName = "New Sign", menuName = "Tile Entity/Sign")]
-    public class Sign : TileEntityObject, IManagedUITileEntity
+    public class Sign : TileEntityObject, IUITileEntity
     {
-        public TileEntityUIManager UIManager;
+        public AssetReference AssetReference;
 
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new SignInstance(this,tilePosition,tileItem,chunk);
         }
 
-        public TileEntityUIManager getUIManager()
+        public AssetReference GetUIAssetReference()
         {
-            return UIManager;
+            return AssetReference;
         }
     }
     [System.Serializable]

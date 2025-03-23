@@ -25,23 +25,20 @@ using UI;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.SceneManagement;
 using World.BackUp;
 using World.Cave.Registry;
+using World.Dimensions.Serialization;
 using World.Serialization;
 using WorldModule.Caves;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Dimensions {
-    public enum DimensionType
-    {
-        Cave = -1,
-        BaseDim = 0,
-        CompactMachines = 1,
-    }
     public interface ICompactMachineDimManager {
         public CompactMachineDimController GetCompactMachineDimController();
     }
@@ -78,21 +75,29 @@ namespace Dimensions {
             
             WorldManager worldManager = WorldManager.getInstance();
             string worldName = worldManager.GetWorldName();
-            
-            if (!TryExecuteInitialLoad(() =>
-                {
-                    WorldLoadUtils.InitializeQuestBook(worldName);
-                },null, "QuestBook")) yield break;
+
+            void InlineLoadQuestBook()
+            {
+                WorldLoadUtils.InitializeQuestBook(worldName);
+            }
+            if (!TryExecuteInitialLoad(InlineLoadQuestBook,null, "QuestBook")) yield break;
             
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-            if (!TryExecuteInitialLoad(playerScript.Initialize,null, "Player")) yield break;
-            if (!TryExecuteInitialLoad(() =>
-                {
-                    InitializeMetaData(worldManager, playerScript);
-                } , null, "MetaData")) yield break;
-            if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
+            PlayerDimensionData playerDimensionData = null;
+            void InlineLoadPlayer()
+            {
+                playerDimensionData = playerScript.Initialize();
+            }
+            if (!TryExecuteInitialLoad(InlineLoadPlayer, null, "Player")) yield break;
+
+            void InlineLoadMetaData()
+            {
+                InitializeMetaData(worldManager, playerScript);
+            }
+            if (!TryExecuteInitialLoad( InlineLoadMetaData, null, "MetaData")) yield break;
             
-            SetPlayerSystem(playerScript, 0, Vector2Int.zero);
+            if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
+            yield return SetPlayerSystem(playerScript, playerDimensionData);
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
             
@@ -193,6 +198,7 @@ namespace Dimensions {
                     }
                 }
             }
+            PlayerManager.Instance.GetPlayer().GetComponent<PlayerIO>().Serialize();
             Debug.Log($"Saved {systems} systems.");
             ticksSinceLastSave = 0;
             StartCoroutine(autoSaveUI.CompletionFade());
@@ -210,6 +216,13 @@ namespace Dimensions {
         {
             return activeSystem?.Dim ?? int.MinValue;
         }
+        
+        public Dimension? GetPlayerDimensionType()
+        {
+            if (!activeSystem) return null;
+            return (Dimension)activeSystem.Dim;
+        }
+        
 
         public void OnDestroy()
         {
@@ -270,9 +283,78 @@ namespace Dimensions {
                 return null;
             }
         }
+
+        public IEnumerator SetPlayerSystem(PlayerScript playerScript, PlayerDimensionData playerDimensionData)
+        {
+            DimensionData dimensionData = playerDimensionData?.DimensionData;
+            if (dimensionData == null)
+            {
+                SetDefaultPlayerSystem(playerScript);
+                yield break;
+            }
+
+            IDimensionTeleportKey key = null;
+            
+            Dimension dimension = (Dimension)dimensionData.Dim;
+            DimensionOptions dimensionOptions = null;
+            switch (dimension)
+            {
+                case Dimension.OverWorld:
+                    break;
+                case Dimension.Cave:
+                    var handle = Addressables.LoadAssetsAsync<CaveObject>("cave",null);
+                    yield return handle;
+                    var result = handle.Result;
+                    var allCaves = new List<CaveObject>();
+                    foreach (CaveObject cave in result)
+                    {
+                        allCaves.Add(cave);
+                    }
+                    Addressables.Release(handle);
+                    CaveObject caveObject = null;
+                    foreach (CaveObject cave in allCaves)
+                    {
+                        if (cave.GetId() == dimensionData.DimData)
+                        {
+                            caveObject = cave;
+                            break;
+                        }
+                    }
+
+                    if (!caveObject)
+                    {
+                        SetDefaultPlayerSystem(playerScript);
+                        yield break;
+                    }
+                    CaveController caveController = (CaveController)GetDimController(Dimension.Cave);
+                    caveController.setCurrentCave(caveObject);
+                    dimensionOptions = new DimensionOptions(caveObject.CaveOptions);
+                    break;
+                case Dimension.CompactMachine:
+                    try
+                    {
+                        key = JsonConvert.DeserializeObject<CompactMachineTeleportKey>(dimensionData.DimData);
+                    }
+                    catch (Exception e) when (e is NullReferenceException or JsonSerializationException)
+                    {
+                        SetDefaultPlayerSystem(playerScript);
+                    }
+                    
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            SetPlayerSystem(playerScript,dimension,new Vector2(playerDimensionData.X,playerDimensionData.Y),key,dimensionOptions);
+            
+        }
+
+        private void SetDefaultPlayerSystem(PlayerScript playerScript)
+        {
+            SetPlayerSystem(playerScript,Dimension.OverWorld,Vector2Int.zero);
+        }
         
 
-        public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2Int teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
+        public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
             DimController controller = GetDimController(dimension);
             if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
@@ -313,13 +395,19 @@ namespace Dimensions {
             BackgroundImageController.Instance?.setOffset(Vector2.zero);
             
             Vector3 playerPosition = player.transform.position;
+
+            IntervalVector coveredArea = activeSystem.CoveredArea;
+            const int BONUS_MIN = 1;
+            const float CHUNK_WORLD_SIZE = Global.CHUNK_SIZE * Global.TILE_SIZE;
+            teleportPosition.x = Mathf.Clamp(teleportPosition.x,coveredArea.X.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.X.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
+            teleportPosition.y = Mathf.Clamp(teleportPosition.y,coveredArea.Y.LowerBound*CHUNK_WORLD_SIZE+BONUS_MIN,(coveredArea.Y.UpperBound+1)*CHUNK_WORLD_SIZE-BONUS_MIN);
             
-            playerPosition.x = teleportPosition.x*Global.TILE_SIZE;
-            playerPosition.y = teleportPosition.y*Global.TILE_SIZE;
+            playerPosition.x = teleportPosition.x;
+            playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
+            player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             
             CanvasController.Instance.ClearStack();
-
             
             player.SetParticles(dimensionOptions.ParticleOptions);
             Light2D light2D = GameObject.FindWithTag("GlobalLight").GetComponent<Light2D>();

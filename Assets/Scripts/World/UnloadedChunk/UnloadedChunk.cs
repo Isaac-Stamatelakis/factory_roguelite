@@ -27,6 +27,13 @@ namespace Chunks {
             this.dim = dim;
             GeneratePartitions(chunkPartitionDataList);
         }
+
+        public SoftLoadedConduitTileChunk(ILoadedChunk loadedChunk)
+        {
+            this.dim = loadedChunk.GetDim();
+            this.position = loadedChunk.GetPosition();
+            this.partitions = loadedChunk.GetChunkPartitions();
+        }
         protected void GeneratePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
             partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
             for (int x = 0; x < Global.PARTITIONS_PER_CHUNK; x ++) {

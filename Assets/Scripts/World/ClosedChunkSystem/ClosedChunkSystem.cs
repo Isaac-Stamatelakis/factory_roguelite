@@ -54,6 +54,7 @@ namespace Chunks.Systems {
         private Camera mainCamera;
         protected bool interactable = true;
         public bool Interactable => interactable;
+        public IntervalVector CoveredArea => coveredArea;
         public virtual void Awake () {
             mainCamera = Camera.main;
             

@@ -20,7 +20,7 @@ using ItemObject = Items.ItemObject;
 
 namespace TileEntity.Instances.Machine.UI
 {
-    public class BurnerUIBase : MonoBehaviour, ITileEntityUI<BurnerMachineInstance>, IRecipeProcessorUI, IInventoryUIAggregator
+    public class BurnerUIBase : MonoBehaviour, ITileEntityUI, IRecipeProcessorUI, IInventoryUIAggregator
     {
         [SerializeField] private TextMeshProUGUI title;
         [SerializeField] private TileEntityInventoryUI tileEntityInventoryUI;
@@ -28,15 +28,16 @@ namespace TileEntity.Instances.Machine.UI
         [SerializeField] private ArrowProgressController burnerProgress;
         [SerializeField] private ArrowProgressController machineProgress;
         private BurnerMachineInstance displayedInstance;
-        public void DisplayTileEntityInstance(BurnerMachineInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            displayedInstance = tileEntityInstance;
+            if (tileEntityInstance is not BurnerMachineInstance burnerMachineInstance) return;
+            displayedInstance = burnerMachineInstance;
             title.text = tileEntityInstance.GetName();
-            tileEntityInventoryUI.Display(tileEntityInstance.GetItemInventory().Content,tileEntityInstance.GetMachineLayout(),tileEntityInstance);
-            burnerInventoryUI.DisplayInventory(tileEntityInstance.BurnerFuelInventory.BurnerSlots);
-            burnerInventoryUI.AddListener(tileEntityInstance);
+            tileEntityInventoryUI.Display(burnerMachineInstance.GetItemInventory().Content,burnerMachineInstance.GetMachineLayout(),tileEntityInstance);
+            burnerInventoryUI.DisplayInventory(burnerMachineInstance.BurnerFuelInventory.BurnerSlots);
+            burnerInventoryUI.AddListener(burnerMachineInstance);
 
-            if (tileEntityInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
+            if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
 
             bool ValidateFunction(ItemObject itemObject)
             {

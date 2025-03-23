@@ -67,7 +67,7 @@ namespace Dimensions {
             ClosedChunkSystemAssembler dim0SystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
             dim0SystemAssembler.LoadSystem();
             SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = dim0SystemAssembler.ToSoftLoaded();
-            overworldDimController.SetSoftLoadedSystem(softLoadedClosedChunkSystem);
+            overworldDimController.SetSoftLoadedSystem(softLoadedClosedChunkSystem,unloadedChunks);
             compactMachineDimController.softLoadSystem(dim0SystemAssembler,overworldDimController);
         }
         

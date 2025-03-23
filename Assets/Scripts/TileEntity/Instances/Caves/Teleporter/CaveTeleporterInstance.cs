@@ -7,20 +7,14 @@ using UI;
 using UnityEngine;
 
 namespace TileEntity.Instances {
-    public class CaveTeleporterInstance : TileEntityInstance<CaveTeleporter>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity
+    public class CaveTeleporterInstance : TileEntityInstance<CaveTeleporter>, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity
     {
         public List<ItemSlot> CaveStorageDrives;
         private const int INVENTORY_SIZE = 10;
         public CaveTeleporterInstance(CaveTeleporter tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-
-        public void OnRightClick()
-        {
-            CaveTeleporterUIController caveTeleporterUIController = GameObject.Instantiate(TileEntityObject.uIManager.getUIElement()).GetComponent<CaveTeleporterUIController>();
-            caveTeleporterUIController.DisplayTileEntityInstance(this);
-            MainCanvasController.TInstance.DisplayUIWithPlayerInventory(caveTeleporterUIController.gameObject);
-        }
+        
 
         public string Serialize()
         {
