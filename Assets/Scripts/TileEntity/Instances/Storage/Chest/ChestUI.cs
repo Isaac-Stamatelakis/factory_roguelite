@@ -6,14 +6,15 @@ using UnityEngine;
 
 namespace TileEntity.Instances.Storage.Chest
 {
-    public class ChestUI : MonoBehaviour, ITileEntityUI<ChestInstance>, IInventoryUITileEntityUI
+    public class ChestUI : MonoBehaviour, ITileEntityUI, IInventoryUITileEntityUI
     {
         [SerializeField] private InventoryUI mInventoryUI;
         [SerializeField] private TextMeshProUGUI mTitle;
-        public void DisplayTileEntityInstance(ChestInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
+            if (tileEntityInstance is not ChestInstance chestInstance) return;
             mTitle.text = tileEntityInstance.GetName();
-            mInventoryUI.DisplayInventory(tileEntityInstance.Inventory.Items);
+            mInventoryUI.DisplayInventory(chestInstance.Inventory.Items);
         }
 
         public InventoryUI GetInput()

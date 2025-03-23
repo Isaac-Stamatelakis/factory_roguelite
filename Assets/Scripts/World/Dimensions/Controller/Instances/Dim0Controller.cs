@@ -13,8 +13,10 @@ namespace Dimensions {
     public class Dim0Controller : DimController, ISingleSystemController
     {
         private IChunkSystem dim0System;
-        public void SetSoftLoadedSystem(SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem)
+        private List<SoftLoadedConduitTileChunk> cachedChunks;
+        public void SetSoftLoadedSystem(SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem, List<SoftLoadedConduitTileChunk> chunks)
         {
+            cachedChunks = chunks;
             dim0System = softLoadedClosedChunkSystem;
         }
         public ClosedChunkSystem ActivateSystem(PlayerScript playerScript)
@@ -30,8 +32,7 @@ namespace Dimensions {
                 closedChunkSystemObject.name="Dim0System";
                 ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
                 string path = WorldLoadUtils.GetDimPath(0);
-                List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,path);
-                ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,path,0);
+                ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(cachedChunks,path,0);
                 closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities());
                 mainArea.Initialize(
                     this,
@@ -49,6 +50,12 @@ namespace Dimensions {
         {
             if (dim0System is not ConduitTileClosedChunkSystem closedChunkSystem) return;
             dim0System = closedChunkSystem.ToSoftLoadedSystem();
+            cachedChunks.Clear();
+            foreach (ILoadedChunk loadedChunk in closedChunkSystem.CachedChunk.Values)
+            {
+                SoftLoadedConduitTileChunk softLoadedConduitTileChunk = new SoftLoadedConduitTileChunk(loadedChunk);
+                cachedChunks.Add(softLoadedConduitTileChunk);
+            }
             GameObject.Destroy(closedChunkSystem.gameObject);
         }
         

@@ -7,14 +7,15 @@ using UnityEngine;
 
 namespace TileEntity.Instances.Creative.CreativeChest
 {
-    public class CreativeChestUI : MonoBehaviour, ITileEntityUI<CreativeChestInstance>
+    public class CreativeChestUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private InventoryUI mInventoryUI;
         private CreativeChestInstance creativeChestInstance;
-        public void DisplayTileEntityInstance(CreativeChestInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            this.creativeChestInstance = tileEntityInstance;
-            mInventoryUI.DisplayInventory(new List<ItemSlot>{tileEntityInstance.ItemSlot});
+            if (tileEntityInstance is not CreativeChestInstance chestInstance) return;
+            this.creativeChestInstance = chestInstance;
+            mInventoryUI.DisplayInventory(new List<ItemSlot>{creativeChestInstance.ItemSlot});
             mInventoryUI.OverrideClickAction(OnClick);
         }
 

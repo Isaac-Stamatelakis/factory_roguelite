@@ -7,44 +7,26 @@ using UI;
 
 
 namespace TileEntity.Instances.Signs {
-    public class SignInstance : TileEntityInstance<Sign>, ILockUnInteractableRightClickTileEntity, ISerializableTileEntity
+    public class SignInstance : TileEntityInstance<Sign>, ILockUnInteractableRightClickTileEntity, ISerializableTileEntity, IPlaceInitializable
     {
         public SignInstance(Sign tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-        private SignData signData;
-        public void OnRightClick()
-        {
-            GameObject signUIPrefab = TileEntityObject.UIManager.getUIElement();
-            if (signData == null) {
-                signData = new SignData("","","");
-            }
-            if (signUIPrefab == null) {
-                Debug.LogError("Sign '"+ TileEntityObject.name + "' has null ui prefab");
-                return;
-            }
-            
-            GameObject instantiated = GameObject.Instantiate(signUIPrefab);
-            SignUIController signUIController = instantiated.GetComponent<SignUIController>();
-            if (signUIController == null) {
-                Debug.LogError("Sign '" + TileEntityObject.name + "' ui prefab doesn't have SignUIController MonoBehavior Attached");
-                GameObject.Destroy(instantiated);
-                return;
-            }
-            signUIController.init(signData);
-            MainCanvasController.Instance.DisplayObject(instantiated);
-        }
-
+        public SignData SignData;
+       
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(signData);
+            return JsonConvert.SerializeObject(SignData);
         }
 
         public void Unserialize(string data)
         {
-            if (data != null) {
-                signData = JsonConvert.DeserializeObject<SignData>(data);
-            }
+            SignData = JsonConvert.DeserializeObject<SignData>(data);
+        }
+
+        public void PlaceInitialize()
+        {
+            SignData = new SignData("","","");
         }
     }
 }

@@ -11,7 +11,7 @@ using TileEntity.Instances.Storage.Fluid;
 
 
 namespace TileEntity.Instances.Storage {
-    public class FluidTankInstance : TileEntityInstance<FluidTank>, IRightClickableTileEntity, ISerializableTileEntity, IConduitPortTileEntity, ILoadableTileEntity, IItemConduitInteractable
+    public class FluidTankInstance : TileEntityInstance<FluidTank>, ISerializableTileEntity, IConduitPortTileEntity, ILoadableTileEntity, IItemConduitInteractable
     {
         private ItemSlot itemSlot;
         public uint FillAmount {get => itemSlot.amount;}
@@ -45,11 +45,6 @@ namespace TileEntity.Instances.Storage {
             visualManager.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
         }
         
-
-        public void OnRightClick()
-        {
-            TileEntityObject.UIManager.Display<FluidTankInstance,FluidTankUI>(this);
-        }
 
         public string Serialize()
         {

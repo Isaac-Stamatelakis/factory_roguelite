@@ -46,7 +46,7 @@ namespace TileEntity.Instances
             ItemSlotUtils.InsertIntoInventory(Items, toInsert, Global.MAX_SIZE);
         }
     }
-    public class ChestInstance : TileEntityInstance<Chest>, IRightClickableTileEntity, ISerializableTileEntity, IBreakActionTileEntity, 
+    public class ChestInstance : TileEntityInstance<Chest>, ISerializableTileEntity, IBreakActionTileEntity, 
         IConduitPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity
     {
         public SingleItemInventory Inventory;
@@ -65,12 +65,7 @@ namespace TileEntity.Instances
             }
             TileEntityUtils.spawnItemsOnBreak(Inventory.Items,GetWorldPosition(),loadedChunk);
         }
-
-        public void OnRightClick()
-        {
-            TileEntityObject.UIManager.Display<ChestInstance, ChestUI>(this,true);
-        }
-
+        
         public string Serialize()
         {
             return ItemSlotFactory.serializeList(Inventory.Items);

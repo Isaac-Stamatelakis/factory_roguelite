@@ -30,6 +30,7 @@ using PlayerModule.IO;
 using PlayerModule.KeyPress;
 using Robot.Tool;
 using Robot.Upgrades;
+using TileEntity.AssetManagement;
 using Tiles.Highlight;
 using UI;
 using UI.ToolTip;
@@ -159,17 +160,9 @@ namespace PlayerModule.Mouse {
 
         public static bool CanRightClickTileEntity(ITileEntityInstance tileEntityInstance, ClosedChunkSystem system)
         {
-            if (tileEntityInstance is not IRightClickableTileEntity) return false;
+            if (tileEntityInstance is not IRightClickableTileEntity && tileEntityInstance?.GetTileEntity() is not IUITileEntity) return false;
             if (system && !system.Interactable && tileEntityInstance is ILockUnInteractableRightClickTileEntity) return false;
-            if (tileEntityInstance is IConditionalRightClickableTileEntity conditionalRightClickableTileEntity)
-            {
-                if (!conditionalRightClickableTileEntity.CanRightClick())
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return tileEntityInstance is not IConditionalRightClickableTileEntity conditionalRightClickableTileEntity || conditionalRightClickableTileEntity.CanRightClick();
         }
         private void MouseScrollUpdate(Vector2 mousePosition)
         {
@@ -300,8 +293,20 @@ namespace PlayerModule.Mouse {
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
             ITileEntityInstance tileEntityInstance = chunkPartition.GetTileEntity(tilePositionInPartition);
             if (!CanRightClickTileEntity(tileEntityInstance, chunk.GetSystem())) return false;
-            ((IRightClickableTileEntity)tileEntityInstance).OnRightClick();
-            return true;
+            
+            IRightClickableTileEntity rightClickableTileEntity = tileEntityInstance as IRightClickableTileEntity;
+            
+            // In cases where the tile entity has both ui and click behavior, holding left shit lets the player interact with the entity instance
+            bool clickInstanceInterface = rightClickableTileEntity != null && Input.GetKey(KeyCode.LeftShift); 
+            
+            if (!clickInstanceInterface && tileEntityInstance.GetTileEntity() is IUITileEntity)
+            {
+                TileEntityAssetRegistry.Instance.DisplayUI(tileEntityInstance);
+                return true;
+            }
+
+            rightClickableTileEntity?.OnRightClick();
+            return rightClickableTileEntity != null;
         }
 
         private bool HandlePlace(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {

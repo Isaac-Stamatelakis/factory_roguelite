@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 
 namespace TileEntity.Instances.Signs {
-    public class SignUIController : MonoBehaviour
+    public class SignUIController : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] public TMP_InputField line1In;
         [SerializeField] public TMP_InputField line2In;
@@ -40,6 +40,11 @@ namespace TileEntity.Instances.Signs {
         }
 
 
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
+        {
+            if (tileEntityInstance is not SignInstance signInstance) return;
+            signData = signInstance.SignData;
+        }
     }
 }
 

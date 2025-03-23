@@ -24,7 +24,7 @@ using UnityEngine.UI;
 
 namespace TileEntity.Instances.Robot.Upgrader
 {
-    public class RobotUpgraderUI : MonoBehaviour, ITileEntityUI<RobotUpgraderInstance>
+    public class RobotUpgraderUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private AssetReference RobotUpgradeUPrefabI;
         [SerializeField] private TextMeshProUGUI mRobotName;
@@ -46,7 +46,7 @@ namespace TileEntity.Instances.Robot.Upgrader
             robotUpgradeUIPrefab = handle.Result.GetComponent<RobotUpgradeUI>();
         }
 
-        public void DisplayTileEntityInstance(RobotUpgraderInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
             PlayerRobot playerRobot = PlayerManager.Instance.GetPlayer().PlayerRobot;
             RobotItemData robotItemData = playerRobot.RobotData;

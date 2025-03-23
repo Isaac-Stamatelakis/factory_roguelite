@@ -4,12 +4,13 @@ using Chunks;
 using Conduits.Ports;
 using UnityEngine;
 using Newtonsoft.Json;
+using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.Signal {
     [CreateAssetMenu(fileName = "E~New Clock", menuName = "Tile Entity/Signal/Clock")]
-    public class SignalClock : TileEntityObject, IManagedUITileEntity
+    public class SignalClock : TileEntityObject, IUITileEntity
     {
-        public TileEntityUIManager UIManager;
+        public AssetReference AssetReference;
         public int ActiveDuration = 5;
         public int DefaultTime = 25;
         public int MinTime = 5;
@@ -20,9 +21,9 @@ namespace TileEntity.Instances.Signal {
             return new SignalClockInstance(this,tilePosition,tileItem,chunk);
         }
 
-        public TileEntityUIManager getUIManager()
+        public AssetReference GetUIAssetReference()
         {
-            return UIManager;
+            return AssetReference;
         }
     }
 
@@ -45,10 +46,7 @@ namespace TileEntity.Instances.Signal {
             
         }
 
-        public void OnRightClick()
-        {
-            TileEntityObject.UIManager.Display<SignalClockInstance,SignalClockUI>(this);
-        }
+       
         
         public string Serialize()
         {

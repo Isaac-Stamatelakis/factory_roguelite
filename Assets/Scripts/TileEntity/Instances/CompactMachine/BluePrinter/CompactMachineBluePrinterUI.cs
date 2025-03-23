@@ -15,7 +15,7 @@ using UnityEngine.UI;
 
 namespace TileEntity.Instances.CompactMachine.BluePrinter
 {
-    public class CompactMachineBluePrinterUI : MonoBehaviour, ITileEntityUI<CompactMachineBluePrinterInstance>
+    public class CompactMachineBluePrinterUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private InventoryUI mCompactMachineInput;
         [SerializeField] private InventoryUI mCompactMachineOutput;
@@ -42,9 +42,10 @@ namespace TileEntity.Instances.CompactMachine.BluePrinter
             Addressables.Release(handle);
         }
 
-        public void DisplayTileEntityInstance(CompactMachineBluePrinterInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            bluePrinterInstance = tileEntityInstance;
+            if (tileEntityInstance is not CompactMachineBluePrinterInstance compactMachineBluePrinterInstance) return;
+            bluePrinterInstance = compactMachineBluePrinterInstance;
             var inventory = bluePrinterInstance.BluePrintInventory;
             mCompactMachineInput.AddTagRestriction(ItemTag.CompactMachine);
             mCompactMachineInput.DisplayInventory(inventory.CompactMachineInput);

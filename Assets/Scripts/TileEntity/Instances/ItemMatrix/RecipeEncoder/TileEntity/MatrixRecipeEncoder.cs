@@ -11,7 +11,6 @@ namespace TileEntity.Instances.Matrix {
     public class MatrixRecipeEncoder : TileEntityObject
     {
         public ConduitPortLayout Layout;
-        public TileEntityUIManager UIManager;
         public int RecipeOutputCount;
         public int RecipeInputCount;
         public int BlankRecipeCount;

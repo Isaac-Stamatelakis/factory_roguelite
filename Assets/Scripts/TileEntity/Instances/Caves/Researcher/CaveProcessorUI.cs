@@ -14,7 +14,7 @@ using WorldModule.Caves;
 
 namespace TileEntity.Instances.Caves.Researcher
 {
-    public class CaveProcessorUI : MonoBehaviour, ITileEntityUI<CaveProcessorInstance>
+    public class CaveProcessorUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private InventoryUI mDriveInputUI;
         [SerializeField] private InventoryUI mDriveOutputUI;
@@ -39,9 +39,10 @@ namespace TileEntity.Instances.Caves.Researcher
             "===============================================\n" +
             "               TERMINAL ONLINE\n" +
             "===============================================\n";
-        public void DisplayTileEntityInstance(CaveProcessorInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            caveProcessorInstance = tileEntityInstance;
+            if (tileEntityInstance is not CaveProcessorInstance caveProcessor) return;
+            caveProcessorInstance = caveProcessor;
             DisplayText();
             SendTerminalMessage(START_MESSAGE);
             SendTerminalMessage("Welcome Back!\n");
@@ -59,15 +60,15 @@ namespace TileEntity.Instances.Caves.Researcher
                 mTextInput.Select();
             });
             
-            mDriveInputUI.DisplayInventory(tileEntityInstance.InputDrives);
+            mDriveInputUI.DisplayInventory(caveProcessorInstance.InputDrives);
             mDriveInputUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
             
-            mDriveInputUI.AddListener(tileEntityInstance);
+            mDriveInputUI.AddListener(caveProcessorInstance);
             
-            mDriveOutputUI.DisplayInventory(tileEntityInstance.OutputDrives);
+            mDriveOutputUI.DisplayInventory(caveProcessorInstance.OutputDrives);
             mDriveOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mDriveOutputUI.AddListener(tileEntityInstance);
+            mDriveOutputUI.AddListener(caveProcessorInstance);
             
             mTextInput.ActivateInputField();
             mTextInput.Select();

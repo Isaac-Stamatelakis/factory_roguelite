@@ -19,7 +19,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace TileEntity.Instances.WorkBench {
-    public class WorkBenchUI : MonoBehaviour, ITileEntityUI<WorkBenchInstance>, IRecipeProcessorUI
+    public class WorkBenchUI : MonoBehaviour, ITileEntityUI, IRecipeProcessorUI
     {
         [SerializeField] private WorkbenchProcessorUI mWorkbenchProcessorUI;
         [FormerlySerializedAs("recipeLookUpList")] [SerializeField] private RecipeLookUpList mRecipeLookUpList;
@@ -98,18 +98,19 @@ namespace TileEntity.Instances.WorkBench {
             
         }
 
-        public void DisplayTileEntityInstance(WorkBenchInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            workBenchInstance = tileEntityInstance;
+            if (tileEntityInstance is not WorkBenchInstance workBench) return;
+            workBenchInstance = workBench;
             mWorkbenchProcessorUI.Initialize(this);
             PlayerInventory playerInventory = PlayerManager.Instance.GetPlayer().PlayerInventory;
             mPlayerInventoryUI.DisplayInventory(playerInventory.Inventory);
-            RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(tileEntityInstance.TileEntityObject.WorkBenchRecipeProcessor);
-            mRecipeLookUpList.Initialize(recipeProcessorInstance,this, tileEntityInstance.WorkBenchData); // Note this displays the first recipe
-            mInventoryUIGroup.gameObject.SetActive(tileEntityInstance.Inventory!=null);
+            RecipeProcessorInstance recipeProcessorInstance = RecipeRegistry.GetProcessorInstance(workBenchInstance.TileEntityObject.WorkBenchRecipeProcessor);
+            mRecipeLookUpList.Initialize(recipeProcessorInstance,this, workBenchInstance.WorkBenchData); // Note this displays the first recipe
+            mInventoryUIGroup.gameObject.SetActive(workBenchInstance.Inventory!=null);
             if (!ReferenceEquals(mInventoryUI, null))
             {
-                mInventoryUI.DisplayInventory(tileEntityInstance.Inventory);
+                mInventoryUI.DisplayInventory(workBenchInstance.Inventory);
                 mInventoryUI.SetConnection(mPlayerInventoryUI);
                 mPlayerInventoryUI.SetConnection(mInventoryUI);
             }

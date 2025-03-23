@@ -185,6 +185,7 @@ namespace Dimensions {
                 string hash = tree.CompactMachineInstance?.Hash;
                 if (hash == null) continue;
                 CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
+                if (metaData == null) return true;
                 if (metaData.Locked) return true;
             }
             return false;

@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace TileEntity.Instances.Creative.CreativeChest
 {
-    public class StructureExpandUI : MonoBehaviour, ITileEntityUI<StructureExpandInstance>
+    public class StructureExpandUI : MonoBehaviour, ITileEntityUI
     {
 
         [SerializeField] private Button mSelectSerializedItemUI;
@@ -20,9 +20,10 @@ namespace TileEntity.Instances.Creative.CreativeChest
         [SerializeField] private Button mBackButton;
         [SerializeField] private SerializedItemSlotEditorUI serializedItemSlotEditorUIPrefab;
         private StructureExpandInstance structureExpandInstance;
-        public void DisplayTileEntityInstance(StructureExpandInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            this.structureExpandInstance = tileEntityInstance;
+            if (tileEntityInstance is not StructureExpandInstance structureExpand) return;
+            this.structureExpandInstance = structureExpand;
             LoadItemSlot();
             mBackButton.onClick.AddListener(() =>
             {
@@ -31,21 +32,21 @@ namespace TileEntity.Instances.Creative.CreativeChest
             mSelectSerializedItemUI.onClick.AddListener(() =>
             {
                 SerializedItemSlotEditorUI serializedItemSlotEditorUI = GameObject.Instantiate(serializedItemSlotEditorUIPrefab, transform, false);
-                List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(tileEntityInstance.StructureExpandData.Id,1,null)};
+                List<SerializedItemSlot> serializedItemSlots = new List<SerializedItemSlot>{new(structureExpandInstance.StructureExpandData.Id,1,null)};
                 serializedItemSlotEditorUI.Init(serializedItemSlots,0,null,gameObject,callback:CallBack,displayAmount:false,displayTags:false,displayArrows:false);
             });
            
-            mMaxSizeField.text = tileEntityInstance.StructureExpandData.MaxSize.ToString();
+            mMaxSizeField.text = structureExpandInstance.StructureExpandData.MaxSize.ToString();
             
             mMaxSizeField.onValueChanged.AddListener((value) =>
             {
                 try
                 {
-                    tileEntityInstance.StructureExpandData.MaxSize = System.Convert.ToInt32(value);
+                    structureExpandInstance.StructureExpandData.MaxSize = System.Convert.ToInt32(value);
                 }
                 catch (Exception e) when (e is FormatException or OverflowException)
                 {
-                    mMaxSizeField.text = tileEntityInstance.StructureExpandData.MaxSize.ToString();
+                    mMaxSizeField.text = structureExpandInstance.StructureExpandData.MaxSize.ToString();
                 }
                
             });

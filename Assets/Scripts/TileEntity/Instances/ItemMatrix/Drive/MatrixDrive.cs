@@ -12,7 +12,7 @@ using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances.Matrix {
     [CreateAssetMenu(fileName = "E~New Matrix Drive", menuName = "Tile Entity/Item Matrix/Drive")]
-    public class MatrixDrive : TileEntityObject, IAssetManagerTileEntity
+    public class MatrixDrive : TileEntityObject, IAssetTileEntity
     {
         public ConduitPortLayout Layout;
         public int rows;
@@ -42,6 +42,11 @@ namespace TileEntity.Instances.Matrix {
                 { "Pixels", PixelPrefabReference }
             };
             assetManager = new TileEntityAssetManager(dict);
+        }
+
+        public AssetReference GetAssetReference()
+        {
+            return PixelPrefabReference;
         }
     }
 }

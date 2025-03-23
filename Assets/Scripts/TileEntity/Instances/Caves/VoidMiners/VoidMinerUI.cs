@@ -10,7 +10,7 @@ using World.Cave.Registry;
 
 namespace TileEntity.Instances.Caves.VoidMiners
 {
-    public class VoidMinerUI : MonoBehaviour, ITileEntityUI<VoidMinerInstance>
+    public class VoidMinerUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private InventoryUI mDriveInventoryUI;
         [SerializeField] private InventoryUI mFilterInventoryUI;
@@ -19,10 +19,11 @@ namespace TileEntity.Instances.Caves.VoidMiners
         [SerializeField] private InventoryUI mOreOutputUI;
         [SerializeField] private InventoryUI mFluidOutputUI;
         private VoidMinerInstance voidMinerInstance;
-        public void DisplayTileEntityInstance(VoidMinerInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            voidMinerInstance = tileEntityInstance;
-            VoidMinerInstance.VoidMinerData minerData = tileEntityInstance.MinerData;
+            if (tileEntityInstance is not VoidMinerInstance voidMiner) return;
+            voidMinerInstance = voidMiner;
+            VoidMinerInstance.VoidMinerData minerData = voidMinerInstance.MinerData;
             
             mDriveInventoryUI.DisplayInventory(new List<ItemSlot>{minerData.DriveSlot},clear:false);
             mDriveInventoryUI.AddTagRestriction(ItemTag.CaveData);

@@ -77,7 +77,6 @@ namespace WorldModule.Caves {
             stopwatch.Start();
             double total = 0;
             Vector2Int worldSize = new Vector2Int(caveObject.ChunkWidth, caveObject.ChunkHeight) * Global.CHUNK_SIZE;
-            Debug.Log(worldSize);
             UnityEngine.Random.InitState(seed);
             SeralizedWorldData worldTileData = caveElements.GenerationModel.GenerateBase(seed,worldSize);
             

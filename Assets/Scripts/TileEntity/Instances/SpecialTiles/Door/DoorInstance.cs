@@ -15,14 +15,7 @@ namespace TileEntity.Instances {
         public DoorInstance(Door tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
-
-        public void OnRightClick()
-        {
-            if (signalActive) return;
-            int stateSwitch = GetStateSwitchCount();
-            TileEntityUtils.stateIterate(this,stateSwitch);
-        }
-
+        
         public bool CanRightClick()
         {
             return !signalActive;

@@ -204,6 +204,7 @@ namespace Dimensions {
                     }
                 }
             }
+            PlayerManager.Instance.GetPlayer().GetComponent<PlayerIO>().Serialize();
             Debug.Log($"Saved {systems} systems.");
             ticksSinceLastSave = 0;
             StartCoroutine(autoSaveUI.CompletionFade());

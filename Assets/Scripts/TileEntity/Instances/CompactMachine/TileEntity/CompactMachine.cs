@@ -11,26 +11,25 @@ using Items.Tags;
 
 namespace TileEntity.Instances.CompactMachines {
     [CreateAssetMenu(fileName = "E~New Compact Machine", menuName = "Tile Entity/Compact Machine/Compact Machine")]
-    public class CompactMachine : TileEntityObject, IManagedUITileEntity, ITagPlacementTileEntity
+    public class CompactMachine : TileEntityObject, IUITileEntity, ITagPlacementTileEntity
     {
         public ConduitPortLayout ConduitPortLayout;
         public string StructurePath;
-        public TileEntityUIManager UIManager;
+        public AssetReference AssetReference;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new CompactMachineInstance(this,tilePosition,tileItem,chunk);
         }
-
-        public TileEntityUIManager getUIManager()
-        {
-            return UIManager;
-        }
-
+        
         public ItemTag GetItemTag()
         {
             return ItemTag.CompactMachine;
         }
-        
+
+        public AssetReference GetUIAssetReference()
+        {
+            return AssetReference;
+        }
     }
 }
 

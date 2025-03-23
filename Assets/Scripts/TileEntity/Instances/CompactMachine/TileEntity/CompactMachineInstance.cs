@@ -79,11 +79,7 @@ namespace TileEntity.Instances.CompactMachines {
         
         public void OnRightClick()
         {
-            if (Input.GetKey(KeyCode.LeftShift)) {
-                CompactMachineUtils.TeleportIntoCompactMachine(this);
-                return;
-            }
-            TileEntityObject.UIManager.Display<CompactMachineInstance,CompactMachineUIController>(this);
+            CompactMachineUtils.TeleportIntoCompactMachine(this);
         }
         
         

@@ -5,15 +5,16 @@ using UnityEngine.UI;
 using TMPro;
 
 namespace TileEntity.Instances.Storage {
-    public class EnergyStorageUIController : MonoBehaviour, ITileEntityUI<BatteryInstance>
+    public class EnergyStorageUIController : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] public TextMeshProUGUI textMeshProUGUI;
         [SerializeField] public Slider energySlider;
         private BatteryInstance battery;
     
-        public void DisplayTileEntityInstance(BatteryInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            this.battery = tileEntityInstance;
+            if (tileEntityInstance is not BatteryInstance batteryInstance) return;
+            this.battery = batteryInstance;
             this.textMeshProUGUI.text = tileEntityInstance.GetName();
         }
 

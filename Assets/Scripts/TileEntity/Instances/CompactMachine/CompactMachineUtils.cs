@@ -219,9 +219,16 @@ namespace TileEntity.Instances.CompactMachines {
         internal static CompactMachineMetaData GetMetaDataFromHash(string hash)
         {
             if (hash == null) return null;
-            string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
-            return GetMetaData(path);
-
+            try
+            {
+                string path = Path.Combine(GetCompactMachineHashFoldersPath(), hash);
+                return GetMetaData(path);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogWarning($"Could not load compact machine meta data {e.Message}");
+                return null;
+            }
         }
         internal static void InitializeMetaData(string path, string tileID)
         {

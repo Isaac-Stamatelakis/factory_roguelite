@@ -9,7 +9,7 @@ using Chunks;
 
 namespace TileEntity.Instances.Storage {
     
-    public class BatteryInstance : TileEntityInstance<Battery>, IRightClickableTileEntity, ISerializableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity
+    public class BatteryInstance : TileEntityInstance<Battery>, ISerializableTileEntity, IEnergyConduitInteractable, IConduitPortTileEntity
     {
         public ulong Energy;
         public BatteryInstance(Battery tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -21,11 +21,6 @@ namespace TileEntity.Instances.Storage {
             return TileEntityObject.ConduitPortLayout;
         }
         
-        public void OnRightClick()
-        {
-            TileEntityObject.UIManager.Display<BatteryInstance,EnergyStorageUIController>(this);
-        }
-
         public string Serialize()
         {
             return Energy.ToString();

@@ -38,8 +38,8 @@ namespace PlayerModule.IO {
             playerData.playerStatistics ??= new PlayerStatisticCollection();
             PlayerStatisticsUtils.VerifyStaticsCollection(playerData.playerStatistics);
         }
-        
-        void OnDestroy()
+
+        public void Serialize()
         {
             PlayerInventory playerInventory = GetComponent<PlayerInventory>();
             PlayerRobot playerRobot = GetComponent<PlayerRobot>();
@@ -54,6 +54,10 @@ namespace PlayerModule.IO {
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
+        }
+        void OnDestroy()
+        {
+            Serialize();
         }
     }
 

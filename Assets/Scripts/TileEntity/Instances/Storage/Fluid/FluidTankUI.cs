@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 
 namespace TileEntity.Instances.Storage {
-    public class FluidTankUI : MonoBehaviour, ITileEntityUI<FluidTankInstance>
+    public class FluidTankUI : MonoBehaviour, ITileEntityUI
     {
         [SerializeField] private Image image;
         [SerializeField] private RectTransform spriteContainer;
@@ -13,9 +13,10 @@ namespace TileEntity.Instances.Storage {
         private FluidTankInstance fluidTank;
         private string itemID;
 
-        public void DisplayTileEntityInstance(FluidTankInstance tileEntityInstance)
+        public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
-            this.fluidTank = tileEntityInstance;
+            if (tileEntityInstance is not FluidTankInstance fluidTankInstance) return;
+            this.fluidTank = fluidTankInstance;
         }
 
         public void Update() {
