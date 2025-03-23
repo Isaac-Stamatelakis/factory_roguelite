@@ -39,12 +39,6 @@ using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Dimensions {
-    public enum DimensionType
-    {
-        Cave = -1,
-        BaseDim = 0,
-        CompactMachines = 1,
-    }
     public interface ICompactMachineDimManager {
         public CompactMachineDimController GetCompactMachineDimController();
     }

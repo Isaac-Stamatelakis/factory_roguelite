@@ -142,8 +142,15 @@ namespace TileEntity.Instances.CompactMachines {
         public void OnDestroy()
         {
             if (compactMachine.Hash == null) return;
-            string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
-            CompactMachineUtils.SaveMetaDataJson(metaData,path);
+            try
+            {
+                string path = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(), compactMachine.Hash);
+                CompactMachineUtils.SaveMetaDataJson(metaData,path);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogWarning(e.Message);
+            }
         }
     }
 }

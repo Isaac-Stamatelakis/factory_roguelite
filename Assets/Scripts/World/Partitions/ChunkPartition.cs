@@ -238,6 +238,23 @@ namespace Chunks.Partitions {
             return typedTileEntities;
         }
 
+        public void GetTileEntityObjects(HashSet<TileEntityObject> objects)
+        {
+            string[,] baseIds = data.baseData.ids;
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    string tileId = baseIds[x, y];
+                    TileItem tileItem = itemRegistry.GetTileItem(tileId);
+                    TileEntityObject tileEntityObject = tileItem?.tileEntity;
+                    if (!tileEntityObject) continue;
+                    objects.Add(tileEntityObject);
+                }
+            }
+        }
+
         public abstract TileItem GetTileItem(Vector2Int position, TileMapLayer layer);
 
         public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);

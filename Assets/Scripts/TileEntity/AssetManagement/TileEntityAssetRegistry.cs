@@ -40,6 +40,10 @@ namespace TileEntity.AssetManagement
             loadingAssetPrefabs = new HashSet<string>();
         }
 
+        public void LoadAssetsCoroutine(HashSet<TileEntityObject> tileEntityObjects)
+        {
+            StartCoroutine(LoadAssets(tileEntityObjects));
+        }
         public IEnumerator LoadAssets(HashSet<TileEntityObject> tileEntityObjects)
         {
             List<TileEntityAssetData> uiAssetData = GetUIAssetData(tileEntityObjects, TileEntityAssetType.UI);
@@ -48,6 +52,7 @@ namespace TileEntity.AssetManagement
             var miscAssetLoad = StartCoroutine(LoadAssets(miscAssetData, assetPrefabs));
             yield return uiAssetLoad;
             yield return miscAssetLoad;
+            Debug.Log($"TileEntityAssetRegistry loaded {uiPrefabs.Count} UIPrefabs & {miscAssetData.Count} Misc Assets");
         }
 
         public void DisplayUI(ITileEntityInstance tileEntityInstance)
@@ -67,6 +72,7 @@ namespace TileEntity.AssetManagement
                 Debug.LogWarning($"Ui element of tile entity '{tileEntityInstance.GetTileEntity().name}' does not implement ITileEntityUI");
                 return;
             }
+            tileEntityUI.DisplayTileEntityInstance(tileEntityInstance);
             if (tileEntityUI is IInventoryUITileEntityUI or IInventoryUIAggregator)
             {
                 mainCanvasController.DisplayUIWithPlayerInventory(uiElement);
@@ -96,7 +102,8 @@ namespace TileEntity.AssetManagement
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
-                if (assetReference?.RuntimeKeyIsValid() ?? false) continue;
+
+                if (assetReference == null || !assetReference.RuntimeKeyIsValid()) continue;
                 TileEntityAssetData tileEntityAssetData = new TileEntityAssetData
                 {
                     AssetReference = assetReference,
