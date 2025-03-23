@@ -75,6 +75,13 @@ namespace Entities.Mobs {
             } else if (loadingHandleMap.TryGetValue(id, out var handle))
             {
                 yield return handle;
+                
+                if (handle.IsValid()) // Work around, this is slightly ineffiecent
+                {
+                    GameObject prefab = handle.Result;
+                    cache[id] = prefab.GetComponent<MobEntity>();
+                }
+                
                 Spawn(entityData,position,container);
             }
             else

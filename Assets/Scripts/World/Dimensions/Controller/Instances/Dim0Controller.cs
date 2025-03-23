@@ -33,7 +33,7 @@ namespace Dimensions {
                 ConduitTileClosedChunkSystem mainArea = closedChunkSystemObject.AddComponent<ConduitTileClosedChunkSystem>();
                 string path = WorldLoadUtils.GetDimPath(0);
                 ClosedChunkSystemAssembler closedChunkSystemAssembler = new ClosedChunkSystemAssembler(cachedChunks,path,0);
-                closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities());
+                closedChunkSystemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities(),false);
                 mainArea.Initialize(
                     this,
                     coveredArea: bounds,
@@ -49,7 +49,9 @@ namespace Dimensions {
         public override void DeActivateSystem()
         {
             if (dim0System is not ConduitTileClosedChunkSystem closedChunkSystem) return;
-            dim0System = closedChunkSystem.ToSoftLoadedSystem();
+            SoftLoadedClosedChunkSystem softLoadedClosedChunkSystem = closedChunkSystem.ToSoftLoadedSystem();
+            dim0System = softLoadedClosedChunkSystem;
+            softLoadedClosedChunkSystem.ClearActiveComponents();
             cachedChunks.Clear();
             foreach (ILoadedChunk loadedChunk in closedChunkSystem.CachedChunk.Values)
             {

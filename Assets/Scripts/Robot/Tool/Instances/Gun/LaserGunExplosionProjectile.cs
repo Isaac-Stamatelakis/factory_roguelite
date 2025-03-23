@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using LibNoise.Operator;
 using UnityEngine;
 
 namespace Robot.Tool.Instances.Gun
@@ -7,7 +8,7 @@ namespace Robot.Tool.Instances.Gun
     public class LaserGunExplosionProjectile : MonoBehaviour
     {
         private float damage;
-        private float lifeTime;
+        private float explodeTimer;
         [SerializeField] float Acceleration;
         private Vector2 direction;
         private float speed;
@@ -33,8 +34,10 @@ namespace Robot.Tool.Instances.Gun
         {
             speed += Acceleration * Time.deltaTime;
             if (speed > 0) transform.Translate(direction * (speed * Time.deltaTime), Space.World);
-            lifeTime += Time.deltaTime;
-            if (lifeTime > 5f) Destroy(gameObject);
+            explodeTimer += Time.deltaTime;
+            if (!(explodeTimer > 5f) || explodeCounter != NOT_EXPLODING) return;
+            StartExplosion();
+            explodeTimer = float.MinValue;
         }
 
         public void FixedUpdate()
@@ -45,6 +48,7 @@ namespace Robot.Tool.Instances.Gun
             if (explodeCounter < TICK_RATE) return;
             explodeCounter = 0;
             explosions++;
+            
             int entityLayer = 1 << LayerMask.NameToLayer("Entity");
             RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position,8f,Vector2.zero,Mathf.Infinity,entityLayer);
             
@@ -56,11 +60,10 @@ namespace Robot.Tool.Instances.Gun
                 damageableEntity?.Damage(damage,damageDirection);
             }
 
-            if (explosions > EXPLOSIONS)
-            {
-                StartCoroutine(TerminateCoroutine());
-                explodeCounter = NOT_EXPLODING;
-            }
+            if (explosions < EXPLOSIONS) return;
+            StartCoroutine(TerminateCoroutine());
+            explodeCounter = NOT_EXPLODING;
+
         }
 
         private IEnumerator TerminateCoroutine()
@@ -83,6 +86,11 @@ namespace Robot.Tool.Instances.Gun
         {
             if (explodeCounter != NOT_EXPLODING) return;
             if (other.gameObject.CompareTag("Player")) return;
+            StartExplosion();
+        }
+
+        private void StartExplosion()
+        {
             speed = 0;
             particles = particlePool.TakeFromPool();
             if (particles)
@@ -98,7 +106,6 @@ namespace Robot.Tool.Instances.Gun
             GetComponent<SpriteRenderer>().enabled = false;
             explodeCounter = TICK_RATE;
         }
-
         public void OnDestroy()
         {
             if (particles)
