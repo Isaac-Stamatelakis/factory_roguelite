@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Player;
 using Player.Tool.Object;
 using Robot.Tool;
@@ -12,10 +13,45 @@ namespace Robot.Tool.Instances
     {
         
     }
+
+    public class ToolObjectPool
+    {
+        public ToolObjectPool(int count, GameObject prefab, Transform container, string name)
+        {
+            GameObject objectContainer = new GameObject(name);
+            objectContainer.transform.SetParent(container,false);
+            while (count > 0)
+            {
+                GameObject obj = GameObject.Instantiate(prefab, objectContainer.transform, false);
+                pool.Push(obj);
+                obj.SetActive(false);
+                count--;
+            }
+        }
+
+        private Stack<GameObject> pool = new Stack<GameObject>();
+
+        public GameObject TakeFromPool()
+        {
+            if (pool.Count == 0) return null;
+            GameObject top = pool.Pop();
+            top.SetActive(true);
+            return top;
+        }
+        public void ReturnToPool(GameObject obj)
+        {
+            obj.SetActive(false);
+            pool.Push(obj);
+        }
+    }
     public class LaserGun : RobotToolInstance<LaserGunData, RobotLaserGunObject>
     {
+        private ToolObjectPool bombParticlePool;
+        private ToolObjectPool laserParticlePool;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
+            bombParticlePool = new ToolObjectPool(5, robotObject.ExplosionParticlePrefab, playerScript.ToolObjectContainer, "GunAoE");
+            laserParticlePool = new ToolObjectPool(5, robotObject.LaserParticlePrefab, playerScript.ToolObjectContainer, "Laser");
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -70,7 +106,7 @@ namespace Robot.Tool.Instances
             const float RANDOM_SPEED_RANGE = 5f;
             const float speed = 30;
             Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
-            FireLaser(direction,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE));
+            FireLaser(direction,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE),true);
             
             int bonusShots = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.MultiShot);
             
@@ -101,22 +137,22 @@ namespace Robot.Tool.Instances
                 direction.x * Mathf.Cos(angle) - direction.y * Mathf.Sin(angle),
                 direction.x * Mathf.Sin(angle) + direction.y * Mathf.Cos(angle)
             );
-            FireLaser(spreadDirection.normalized,speed);
+            FireLaser(spreadDirection.normalized,speed,false);
         }
 
-        private void FireLaser(Vector2 direction, float speed)
+        private void FireLaser(Vector2 direction, float speed, bool usePool)
         {
-            BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab);
+            BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.ToolObjectContainer,false);
             basicLaserGunProjectile.transform.position = playerScript.transform.position;
-            basicLaserGunProjectile.Initialize(1f, direction, speed);
+            basicLaserGunProjectile.Initialize(1f, direction, speed, usePool ? laserParticlePool : null);
         }
 
         private void FireExplosions(Vector2 mousePosition)
         {
             Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
-            LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab);
+            LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.ToolObjectContainer,false);
             laserGunExplosionProjectile.transform.position = playerScript.transform.position;
-            laserGunExplosionProjectile.Initialize(1f, direction, 10f);
+            laserGunExplosionProjectile.Initialize(1f, direction, 10f,bombParticlePool);
         }
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)

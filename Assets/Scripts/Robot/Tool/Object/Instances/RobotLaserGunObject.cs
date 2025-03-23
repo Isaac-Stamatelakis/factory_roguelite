@@ -10,5 +10,7 @@ namespace Player.Tool.Object
     {
         public BasicLaserGunProjectile BasicLaserGunProjectilePrefab;
         public LaserGunExplosionProjectile LaserGunExplosionProjectilePrefab;
+        public GameObject ExplosionParticlePrefab;
+        public GameObject LaserParticlePrefab;
     }
 }

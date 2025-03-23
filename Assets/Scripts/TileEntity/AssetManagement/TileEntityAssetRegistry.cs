@@ -116,10 +116,24 @@ namespace TileEntity.AssetManagement
 
         public void LoadAsset(TileEntityAssetType type, TileEntityObject tileEntityObject, AssetReference assetReference)
         {
-            StartCoroutine(LoadAssetCoroutine(type, tileEntityObject, assetReference));
+            var (dict, loading) = GetDataStructures(type);
+            
+            StartCoroutine(LoadAssetCoroutine(type, tileEntityObject, assetReference,dict,loading));
         }
 
-        private IEnumerator LoadAssetCoroutine(TileEntityAssetType type, TileEntityObject tileEntityObject, AssetReference assetReference)
+        private (Dictionary<string, GameObject>, HashSet<string>) GetDataStructures(TileEntityAssetType type)
+        {
+            switch (type)
+            {
+                case TileEntityAssetType.UI:
+                    return (uiPrefabs, loadingUIPrefabs);
+                case TileEntityAssetType.Misc:
+                    return (assetPrefabs, loadingAssetPrefabs);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+        private IEnumerator LoadAssetCoroutine(TileEntityAssetType type, TileEntityObject tileEntityObject, AssetReference assetReference, Dictionary<string, GameObject> dict, HashSet<string> loadingHandles)
         {
             if (!assetReference.RuntimeKeyIsValid())
             {
@@ -127,35 +141,14 @@ namespace TileEntity.AssetManagement
                 yield break;
             }
             string id = GetId(tileEntityObject);
-            switch (type)
-            {
-                case TileEntityAssetType.UI:
-                    if (uiPrefabs.ContainsKey(id) || loadingUIPrefabs.Add(id)) yield break;
-                    break;
-                case TileEntityAssetType.Misc:
-                    if (assetPrefabs.ContainsKey(id) || loadingAssetPrefabs.Add(id)) yield break;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-            
+            if (dict.ContainsKey(id) || !loadingHandles.Add(id)) yield break;
             var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
             
             yield return handle;
+
+            dict[id] = handle.Result;
+            loadingHandles.Remove(id);
             
-            switch (type)
-            {
-                case TileEntityAssetType.UI:
-                    uiPrefabs[id] = handle.Result;
-                    loadingUIPrefabs.Remove(id);
-                    break;
-                case TileEntityAssetType.Misc:
-                    assetPrefabs[id] = handle.Result;
-                    loadingAssetPrefabs.Remove(id);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
             Addressables.Release(handle);
             
         }

@@ -17,6 +17,12 @@ namespace UI.Chat {
         {
             Vector3 playerPosition = PlayerManager.Instance.GetPlayer().transform.position;
             string id = parameters[0];
+            int amount = 1;
+            if (parameters.Length > 1)
+            {
+                amount = ChatCommandParameterParser.ParseInt(parameters, 1, "amount",1);
+            }
+         
             int dim = DimensionManager.Instance.GetPlayerDimension();
             DimController dimController = DimensionManager.Instance.GetDimController((Dimension)dim);
             SerializedMobEntityData spawnEntityData = new SerializedMobEntityData
@@ -24,7 +30,12 @@ namespace UI.Chat {
                 Id = id,
                 Health = float.MinValue
             };
-            EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.EntityContainer);
+            while (amount > 0)
+            {
+                EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.EntityContainer);
+                amount--;
+            }
+            
             
         }
 

@@ -46,6 +46,8 @@ namespace Player
         [SerializeField] private PlayerUIContainer playerUIContainer;
         [SerializeField] private TileViewerCollection tileViewers;
         [SerializeField] private ParticleSystem particles;
+        [SerializeField] private Transform toolObjectContainer;
+        public Transform ToolObjectContainer => toolObjectContainer;
         private PlayerGameStageCollection gameStageCollection;
         public PlayerGameStageCollection GameStageCollection => gameStageCollection;
         public PlayerInventory PlayerInventory => playerInventory;
