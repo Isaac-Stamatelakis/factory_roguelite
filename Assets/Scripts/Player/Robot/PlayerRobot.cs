@@ -20,6 +20,7 @@ using Robot.Tool;
 using Robot.Tool.Instances.Gun;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.RocketBoots;
 using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
@@ -101,6 +102,7 @@ namespace Player {
         private bool freezeY;
         private PlayerTeleportEvent playerTeleportEvent;
         private ParticleSystem bonusJumpParticles;
+        private ParticleSystem teleportParticles;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -117,10 +119,16 @@ namespace Player {
         private IEnumerator LoadAsyncAssets()
         {
             var bonusJumpHandle = Addressables.LoadAssetAsync<GameObject>(RobotUpgradeAssets.BonusJumpParticles);
+            var tpHandle = Addressables.LoadAssetAsync<GameObject>(RobotUpgradeAssets.TeleportParticles);
             yield return bonusJumpHandle;
+            yield return tpHandle;
             bonusJumpParticles = GameObject.Instantiate(bonusJumpHandle.Result,transform,false).GetComponent<ParticleSystem>();
             bonusJumpParticles.transform.localPosition = Vector3.zero;
+            
+            teleportParticles = GameObject.Instantiate(tpHandle.Result,transform,false).GetComponent<ParticleSystem>();
+            teleportParticles.transform.localPosition = Vector3.zero;
             Addressables.Release(bonusJumpHandle);
+            Addressables.Release(tpHandle);
         }
 
         public void Update()
@@ -205,7 +213,8 @@ namespace Player {
             
             float flight = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Flight);
 
-            if (flight > 0)
+
+            if (flight > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.FLIGHT_COST, 0))
             {
                 animator.SetBool(Walk,false);
                 FlightMoveUpdate();
@@ -236,6 +245,7 @@ namespace Player {
             }
             if (ControlUtils.GetControlKeyDown(PlayerControl.Teleport) && playerTeleportEvent == null)
             {
+                if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
                 Camera mainCamera = Camera.main;
                 if (!mainCamera) return;
                 Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -244,6 +254,7 @@ namespace Player {
                 if (teleported)
                 {
                     playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
+                    teleportParticles.Play();
                     fallTime = 0;
                 }
             }
@@ -251,7 +262,7 @@ namespace Player {
 
         public bool CanJump()
         {
-            return bonusJumps > 0 || IsGrounded();
+            return IsGrounded() || (bonusJumps > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.BONUS_JUMP_COST, 0));
         }
 
         public bool IsGrounded()
@@ -275,7 +286,13 @@ namespace Player {
              
             Vector2 velocity = rb.velocity;
             const float BASE_SPEED = 5;
-            float speed = BASE_SPEED + RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+            float speed = BASE_SPEED; 
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
+            if (TryConsumeEnergy((ulong)(speedUpgrades * 16 * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            {
+                speed += speedUpgrades;
+            }
+            
             bool horizontalMovement = leftInput != rightInput;
             bool verticalMovement = upInput != downInput;
             
@@ -365,9 +382,13 @@ namespace Player {
             
             int sign = moveDirTime < 0 ? -1 : 1;
             float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
-
-            float bonusSpeed = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.Speed) ?? 0;
-            float speed = MovementStats.speed + bonusSpeed;
+            
+            float speed = MovementStats.speed;
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
+            if (wishdir > 0.05f && TryConsumeEnergy((ulong)(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            {
+                speed += speedUpgrades;
+            }
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -429,7 +450,8 @@ namespace Player {
                 if (rocketBoots.Boost > 0)
                 {
                     rb.gravityScale = 0;
-                    velocity.y = rocketBoots.Boost;
+                    float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
+                    velocity.y = rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
                 }
                 else
                 {
@@ -471,7 +493,6 @@ namespace Player {
                 coyoteFrames = 0;
                 liveYUpdates = 3;
                 
-                
                 fallTime = 0;
                 jumpEvent = new JumpEvent();
                 return;
@@ -479,12 +500,12 @@ namespace Player {
             
             if (!IsOnGround() && rocketBoots != null)
             {
-                if (!rocketBoots.Active &&  ControlUtils.GetControlKeyDown(PlayerControl.Jump))
+                if (!rocketBoots.Active && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
                 {
                     StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
                 }
 
-                if (rocketBoots.Active)
+                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST, 0))
                 {
                     rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
                     if (rocketBoots.FlightTime < 0)
@@ -1052,6 +1073,7 @@ namespace Player {
         {
             public AssetReference RocketBootParticles;
             public AssetReference BonusJumpParticles;
+            public AssetReference TeleportParticles;
         }
     }
 

@@ -7,6 +7,12 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong FLIGHT_COST = 1024;
+        public const ulong SPEED_INCREASE_COST = 4;
+        public const ulong JUMP_INCREASE_COST = 128;
+        public const ulong BONUS_JUMP_COST = 512;
+        public const ulong ROCKET_BOOTS_COST = 32;
+        public const ulong TELEPORT_COST = 16384;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<RobotUpgrade>();
