@@ -77,7 +77,7 @@ namespace UI.NodeNetwork {
         /// Ensure that the network is initalized prior to calling
         /// </summary>
         public void Display() {
-            GlobalHelper.deleteAllChildren(nodeContainer);
+            GlobalHelper.DeleteAllChildren(nodeContainer);
             
             nodeUIDict = new Dictionary<TNode, INodeUI>();
             foreach (TNode node in nodeNetwork.GetNodes()) {
@@ -144,7 +144,7 @@ namespace UI.NodeNetwork {
 
         public void DisplayLines()
         {
-            GlobalHelper.deleteAllChildren(LineContainer);
+            GlobalHelper.DeleteAllChildren(LineContainer);
             foreach (TNode node in nodeNetwork.GetNodes())
             {
                 List<int> preRequites = node.GetPrerequisites();

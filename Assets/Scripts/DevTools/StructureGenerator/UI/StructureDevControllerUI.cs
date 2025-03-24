@@ -43,7 +43,7 @@ namespace DevTools.Structures {
 
         public override void DisplayList()
         {
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             string directoryPath = StructureGeneratorHelper.GetFolderPath();
             string[] folders = Directory.GetDirectories(directoryPath);
             List<FolderInfo> folderValues = new List<FolderInfo>();

@@ -88,7 +88,7 @@ namespace UI.ToolTip {
         public void HideToolTip()
         {
             if (transform.childCount == 0) return;
-            GlobalHelper.deleteAllChildren(transform);
+            GlobalHelper.DeleteAllChildren(transform);
             toolTipType = ToolTipType.None;
         }
         

@@ -39,7 +39,7 @@ namespace TileEntity.Instances.Workbench.UI
         public void Initialize(RecipeProcessorInstance recipeProcessor, IRecipeProcessorUI recipeProcessorUI, WorkBenchData workBenchData)
         {
             this.workBenchData = workBenchData;
-            GlobalHelper.deleteAllChildren(mContentList.transform);
+            GlobalHelper.DeleteAllChildren(mContentList.transform);
             modeRecipes = recipeProcessor.GetRecipesToDisplayByMode();
             mSearchField.text = this.workBenchData.CurrentSearch;
             mSearchField.onValueChanged.AddListener(FilterResults);

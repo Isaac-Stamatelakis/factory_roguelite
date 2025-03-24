@@ -44,7 +44,7 @@ namespace DevTools.QuestBook
 
         public override void DisplayList()
         {
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             string path = DevToolUtils.GetDevToolPath(DevTool.QuestBook);
             string[] directories = Directory.GetDirectories(path);
             

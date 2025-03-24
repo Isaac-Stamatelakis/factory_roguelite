@@ -176,7 +176,7 @@ namespace UI {
                 currentItems = ItemRegistry.GetInstance().Query(value,int.MaxValue);
             }
             
-            GlobalHelper.deleteAllChildren(itemSearchResultContainer.transform);
+            GlobalHelper.DeleteAllChildren(itemSearchResultContainer.transform);
             Vector2 contentSize = scrollRect.content.sizeDelta;
             contentSize.y = initalSize;
             scrollRect.verticalNormalizedPosition = 1f;

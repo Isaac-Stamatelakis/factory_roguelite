@@ -13,8 +13,8 @@ namespace Recipe.Viewer
         [SerializeField] private VerticalLayoutGroup mRequirementList;
         public void Display(List<string> costs, List<string> requirements)
         {
-            GlobalHelper.deleteAllChildren(mCostList.transform);
-            GlobalHelper.deleteAllChildren(mRequirementList.transform);
+            GlobalHelper.DeleteAllChildren(mCostList.transform);
+            GlobalHelper.DeleteAllChildren(mRequirementList.transform);
             foreach (string cost in costs)
             {
                 var textElement = Instantiate(textElementPrefab, mCostList.transform);

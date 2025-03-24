@@ -99,7 +99,7 @@ namespace TileEntity.Instances.Machine.UI
             if (ReferenceEquals(inventoryUI, null)) return 0;
             int size = GetSize(inventoryOptions, inventory);
             if (size != 0) return size;
-            GlobalHelper.deleteAllChildren(inventoryUI.transform);
+            GlobalHelper.DeleteAllChildren(inventoryUI.transform);
             return 0;
         }
         
@@ -155,7 +155,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             if (inventories == null || inventories.Count == 0)
             {
-                if (!ReferenceEquals(inventoryUI,null)) GlobalHelper.deleteAllChildren(inventoryUI.transform);
+                if (!ReferenceEquals(inventoryUI,null)) GlobalHelper.DeleteAllChildren(inventoryUI.transform);
                 return;
             }
             int size = SizeCheckInventoryUI(inventoryUI,inventories[0],inventoryOptions);

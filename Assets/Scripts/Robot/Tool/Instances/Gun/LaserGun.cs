@@ -41,6 +41,7 @@ namespace Robot.Tool.Instances
         public void ReturnToPool(GameObject obj)
         {
             obj.SetActive(false);
+            obj.transform.position = Vector3.zero;
             pool.Push(obj);
         }
     }

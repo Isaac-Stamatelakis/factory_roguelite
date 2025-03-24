@@ -34,7 +34,7 @@ namespace Player.Controls.UI
         
         private void Display()
         {
-            GlobalHelper.deleteAllChildren(listTransform);
+            GlobalHelper.DeleteAllChildren(listTransform);
             Dictionary<string, ControlBindingCollection> sections = ControlUtils.GetKeyBindingSections();
             foreach (var kvp in sections)
             {

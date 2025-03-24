@@ -120,7 +120,7 @@ namespace UI.QuestBook.Tasks.Rewards
 
         public void Display()
         {
-            GlobalHelper.deleteAllChildren(mElementContainer.transform);
+            GlobalHelper.DeleteAllChildren(mElementContainer.transform);
             UpdateClaimButtonImage();
             DisplayArrows();
             switch (currentPage)

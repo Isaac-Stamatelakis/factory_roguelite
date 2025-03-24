@@ -37,7 +37,7 @@ namespace TileEntity.Instances.CompactMachine.UI.Selector
         public void Display(Action<string> onHashSelect)
         {
             displayElements.Clear();
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             string[] hashs = CompactMachineUtils.GetAllHashes();
             foreach (string hash in hashs)
             {

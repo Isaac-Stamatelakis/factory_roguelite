@@ -13,7 +13,7 @@ namespace UI.QuestBook
         [SerializeField] private QuestBookSelectorUI selectorPrefab;
         public void Initialize(string questBookName)
         {
-            GlobalHelper.deleteAllChildren(transform);
+            GlobalHelper.DeleteAllChildren(transform);
             string path = Path.Combine(DevToolUtils.GetDevToolPath(DevTool.QuestBook), questBookName);
             string libPath = Path.Combine(path, QuestBookUtils.LIBRARY_DATA_PATH);
             QuestBookLibraryData questBookLibraryData = GlobalHelper.DeserializeCompressedJson<QuestBookLibraryData>(libPath);

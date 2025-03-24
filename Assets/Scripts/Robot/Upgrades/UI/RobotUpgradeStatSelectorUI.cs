@@ -93,7 +93,7 @@ namespace Robot.Upgrades
             }
             RobotStatLoadOut statLoadOut = this.robotStatLoadOutCollection.GetCurrent();
             robotUpgradeInfo.VerifyStatLoadOut(statLoadOut);
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             List<int> upgrades = robotUpgradeInfo.GetAllUpgrades();
             List<int> constantUpgrades = robotUpgradeInfo.GetConstantUpgrades();
             upgrades.Sort();
