@@ -336,6 +336,7 @@ namespace Chunks.Partitions {
                     Vector2Int cellPosition = new Vector2Int(x, y) + worldPosition;
                     if (!tileEntityDict.TryGetValue(cellPosition, out ISoftLoadableTileEntity tileEntity)) continue;
                     tileEntities[new Vector2Int(x,y)] = tileEntity;
+                    tileEntity.SetChunk(parent);
                     if (tileEntity is ITickableTileEntity tickableTileEntity) tickableTileEntities.Add(tickableTileEntity);
                 }
             }

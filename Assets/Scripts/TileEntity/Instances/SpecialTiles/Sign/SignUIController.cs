@@ -11,16 +11,6 @@ namespace TileEntity.Instances.Signs {
         [SerializeField] public TMP_InputField line2In;
         [SerializeField] public TMP_InputField line3In;
         private SignData signData;
-        public void init(SignData signData) {
-            this.signData = signData;
-            line1In.text = signData.line1;
-            line2In.text = signData.line2;
-            line3In.text = signData.line3;
-            
-            AddInputFieldListener(line1In, value => signData.line1 = value);
-            AddInputFieldListener(line2In, value => signData.line2 = value);
-            AddInputFieldListener(line3In, value => signData.line3 = value);
-        }
 
         private void AddInputFieldListener(TMP_InputField inputField, System.Action<string> onValueChanged)
         {
@@ -44,6 +34,13 @@ namespace TileEntity.Instances.Signs {
         {
             if (tileEntityInstance is not SignInstance signInstance) return;
             signData = signInstance.SignData;
+            line1In.text = signData.line1;
+            line2In.text = signData.line2;
+            line3In.text = signData.line3;
+            
+            AddInputFieldListener(line1In, value => signData.line1 = value);
+            AddInputFieldListener(line2In, value => signData.line2 = value);
+            AddInputFieldListener(line3In, value => signData.line3 = value);
         }
     }
 }

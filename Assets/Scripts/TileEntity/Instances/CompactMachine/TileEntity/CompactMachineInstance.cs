@@ -29,7 +29,7 @@ namespace TileEntity.Instances.CompactMachines {
     public class CompactMachineInstance : TileEntityInstance<CompactMachine>, 
         IRightClickableTileEntity, ICompactMachine, 
         IBreakActionTileEntity, ISerializableTileEntity,
-        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity
+        IItemConduitInteractable, ISignalConduitInteractable, IEnergyConduitInteractable, IConduitPortTileEntity, ITextPreviewTileEntity
     {
         private CompactMachineTeleporterInstance teleporter;
         public CompactMachineTeleporterInstance Teleporter { get => teleporter; set => teleporter = value; }
@@ -299,6 +299,12 @@ namespace TileEntity.Instances.CompactMachines {
         {
             IConduitInteractable interactable = outputConduitPortMap.GetValueOrDefault(ConduitType.Energy);
             ((IEnergyConduitInteractable)interactable)?.SetEnergy(energy, portPosition);
+        }
+
+        public string GetTextPreview()
+        {
+            CompactMachineMetaData machineMetaData = CompactMachineUtils.GetMetaDataFromHash(compactMachineData.Hash);
+            return machineMetaData?.Name;
         }
     }
 }

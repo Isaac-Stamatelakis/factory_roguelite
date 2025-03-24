@@ -7,7 +7,7 @@ using UI;
 
 
 namespace TileEntity.Instances.Signs {
-    public class SignInstance : TileEntityInstance<Sign>, ILockUnInteractableRightClickTileEntity, ISerializableTileEntity, IPlaceInitializable
+    public class SignInstance : TileEntityInstance<Sign>, ILockUnInteractableRightClickTileEntity, ISerializableTileEntity, IPlaceInitializable, ITextPreviewTileEntity
     {
         public SignInstance(Sign tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
@@ -27,6 +27,24 @@ namespace TileEntity.Instances.Signs {
         public void PlaceInitialize()
         {
             SignData = new SignData("","","");
+        }
+
+        public string GetTextPreview()
+        {
+            string text = string.Empty;
+
+            void AddText(string value)
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    text += value + "\n";
+                }
+            }
+            AddText(SignData.line1);
+            AddText(SignData.line2);
+            AddText(SignData.line3);
+            text = text.Trim('\n');
+            return text;
         }
     }
 }

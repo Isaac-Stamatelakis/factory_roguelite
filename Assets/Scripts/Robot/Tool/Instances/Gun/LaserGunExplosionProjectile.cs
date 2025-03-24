@@ -93,6 +93,7 @@ namespace Robot.Tool.Instances.Gun
         {
             speed = 0;
             particles = particlePool.TakeFromPool();
+   
             if (particles)
             {
                 ParticleSystem particleComponent = particles.GetComponent<ParticleSystem>();
