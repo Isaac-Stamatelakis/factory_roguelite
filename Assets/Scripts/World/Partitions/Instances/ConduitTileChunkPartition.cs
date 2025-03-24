@@ -26,6 +26,7 @@ namespace Chunks.Partitions {
         public void Activate(ILoadedChunk loadedChunk);
         public void AssembleMultiBlocks();
         public void SyncPreLoadedTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> tileEntities);
+        public void LoadNonSoftLoadableConduitTileEntities();
     }
     public class ConduitChunkPartition<T> : TileChunkPartition<WorldTileConduitData>, IConduitTileChunkPartition where T : WorldTileConduitData
     {
@@ -88,6 +89,7 @@ namespace Chunks.Partitions {
                     }
                     Vector2Int positionInPartition = new Vector2Int(x, y);
                     ITileEntityInstance tileEntityInstance = PlaceSoftLoadableTileEntity(tileItem,data.sTileEntityOptions[x,y],positionInPartition);
+                    if (tileEntityInstance == null) continue;
                     tileEntities[positionInPartition] = tileEntityInstance;
                     if (tileEntityInstance is ITickableTileEntity tickableTileEntity)
                     {
@@ -102,7 +104,16 @@ namespace Chunks.Partitions {
              * The other alternative is assigning soft load to the tile entity directly but this leaves lots of room for human error
              */
             ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
-            if (instance is not ISoftLoadableTileEntity) return null;
+            if (instance is not ISoftLoadableTileEntity or ISystemLoadedConduitPortTileEntity) return null;
+            
+            Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
+            return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options, loadAssets:false);
+        }
+        
+        protected ITileEntityInstance PlaceConduitNonSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition)
+        {
+            ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
+            if (instance is not ISystemLoadedConduitPortTileEntity) return null;
             
             Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options, loadAssets:false);
@@ -325,9 +336,37 @@ namespace Chunks.Partitions {
                     Vector2Int cellPosition = new Vector2Int(x, y) + worldPosition;
                     if (!tileEntityDict.TryGetValue(cellPosition, out ISoftLoadableTileEntity tileEntity)) continue;
                     tileEntities[new Vector2Int(x,y)] = tileEntity;
+                    tileEntity.SetChunk(parent);
                     if (tileEntity is ITickableTileEntity tickableTileEntity) tickableTileEntities.Add(tickableTileEntity);
                 }
             }
+        }
+
+        public void LoadNonSoftLoadableConduitTileEntities()
+        {
+            tileEntities ??= new Dictionary<Vector2Int, ITileEntityInstance>();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
+                    string id = data.baseData.ids[x,y];
+                    if (id == null) {
+                        continue;
+                    }
+                    TileItem tileItem = itemRegistry.GetTileItem(id);
+                    if (ReferenceEquals(tileItem?.tileEntity,null)) {
+                        continue;
+                    }
+                    Vector2Int positionInPartition = new Vector2Int(x, y);
+                    ITileEntityInstance tileEntityInstance = PlaceConduitNonSoftLoadableTileEntity(tileItem,data.baseData.sTileEntityOptions[x,y],positionInPartition);
+                    if (tileEntityInstance == null) continue;
+                    tileEntities[positionInPartition] = tileEntityInstance;
+                    if (tileEntityInstance is ITickableTileEntity tickableTileEntity)
+                    {
+                        tickableTileEntities.Add(tickableTileEntity);
+                    }
+                }
+            }
+                    
         }
     }
 }

@@ -277,7 +277,7 @@ namespace Dimensions {
             
             List<SoftLoadedConduitTileChunk> unloadedChunks = ChunkIO.GetUnloadedChunks(0,currentPath);
             ClosedChunkSystemAssembler systemAssembler = new ClosedChunkSystemAssembler(unloadedChunks,currentPath,0);
-            systemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities());
+            systemAssembler.LoadSystem(softLoadedClosedChunkSystem.GetSoftLoadableTileEntities(),false);
             
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name = "Compact Machine System";

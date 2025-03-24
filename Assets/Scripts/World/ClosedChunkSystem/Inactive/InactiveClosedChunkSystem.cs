@@ -168,13 +168,14 @@ namespace Chunks.Systems {
             for (var i = TickableConduitSystems.Count-1; i >=0; i--)
             {
                 var tickableConduitSystem = TickableConduitSystems[i];
+                tickableConduitSystem.ClearNonSoftLoadableTileEntities();
                 if (tickableConduitSystem.IsEmpty())
                 {
                     TickableConduitSystems.RemoveAt(i);
                     continue;
                 }
                 tickableConduitSystem.ClearConduits();
-            } 
+            }
         }
 
         public void Save()
@@ -239,8 +240,8 @@ namespace Chunks.Systems {
             }
         }
 
-        public void LoadSystem(Dictionary<Vector2Int, ISoftLoadableTileEntity> loadedTileEntities = null) {
-            SoftLoadTileEntities(loadedTileEntities);
+        public void LoadSystem(Dictionary<Vector2Int, ISoftLoadableTileEntity> loadedTileEntities = null, bool softLoaded = true) {
+            SoftLoadTileEntities(loadedTileEntities,softLoaded);
             AssembleMultiBlocks();
             InitConduitSystemManagers();
         }
@@ -371,14 +372,18 @@ namespace Chunks.Systems {
             return new Vector2Int(xSizeChunks*Global.CHUNK_SIZE,ySizeChunks*Global.CHUNK_SIZE);
         }
         
-        private void SoftLoadTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> preloadedTileEntities) {
+        private void SoftLoadTileEntities(Dictionary<Vector2Int, ISoftLoadableTileEntity> preloadedTileEntities, bool softLoaded) {
             foreach (SoftLoadedConduitTileChunk chunk in softLoadedChunks) {
                 foreach (IChunkPartition partition in chunk.Partitions) {
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogError("Attempted to tick load non conduit tile chunk partition");
                         continue;
                     }
-
+                    if (!softLoaded)
+                    {
+                        conduitTileChunkPartition.LoadNonSoftLoadableConduitTileEntities();
+                    }
+                    
                     if (preloadedTileEntities != null)
                     {
                         conduitTileChunkPartition.SyncPreLoadedTileEntities(preloadedTileEntities);
@@ -387,6 +392,8 @@ namespace Chunks.Systems {
                     {
                         conduitTileChunkPartition.SoftLoadTileEntities();
                     }
+
+                    
                 }
             }
         }

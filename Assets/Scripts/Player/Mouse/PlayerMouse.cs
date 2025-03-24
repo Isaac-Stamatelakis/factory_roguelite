@@ -152,9 +152,31 @@ namespace PlayerModule.Mouse {
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);
+            if (Input.GetKey(KeyCode.LeftShift) || tileEntityInstance is not ITextPreviewTileEntity textPreviewTileEntity || !DisplayTextPreviewToolTip(textPreviewTileEntity))
+            {
+                ToolTipController.Instance.HideToolTip(ToolTipType.World);
+            }
+            
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
             
             tileHighlighter.Highlight(position, tilemap.GetTilemap());
+            return true;
+        }
+
+        private bool DisplayTextPreviewToolTip(ITextPreviewTileEntity textPreviewTileEntity)
+        {
+            Vector2Int spriteSize = Global.getSpriteSize(TileItem.GetDefaultSprite(textPreviewTileEntity.GetTile()));
+            float verticalOffset = (spriteSize.y / 2 + 1) * Global.TILE_SIZE;
+            Vector2 worldPosition = textPreviewTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
+            
+            Vector2 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
+            
+            string text = textPreviewTileEntity.GetTextPreview();
+            if (string.IsNullOrEmpty(text))
+            {
+                return false;
+            }
+            ToolTipController.Instance.ShowWorldToolTip(screenPosition,textPreviewTileEntity.GetTextPreview());
             return true;
         }
 
@@ -164,15 +186,6 @@ namespace PlayerModule.Mouse {
             if (system && !system.Interactable && tileEntityInstance is ILockUnInteractableRightClickTileEntity) return false;
             return tileEntityInstance is not IConditionalRightClickableTileEntity conditionalRightClickableTileEntity || conditionalRightClickableTileEntity.CanRightClick();
         }
-        private void MouseScrollUpdate(Vector2 mousePosition)
-        {
-            if (eventSystem.IsPointerOverGameObject())
-            {
-                MouseScrollUIUpdate(mousePosition);
-            }
-            // More after?
-        }
-
         private void MouseScrollUIUpdate(Vector2 mousePosition)
         {
             ItemSlotUIClickHandler clickHandler = PlayerKeyPress.GetPointerOverComponent<ItemSlotUIClickHandler>();

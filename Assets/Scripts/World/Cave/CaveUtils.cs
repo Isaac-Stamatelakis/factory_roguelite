@@ -166,6 +166,7 @@ namespace WorldModule.Caves {
             Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
+            Vector2 worldSpawnPosition = spawnPosition * Vector2.one * Global.TILE_SIZE;
             
             Debug.Log("Teleporting to " + caveInstance.CaveObject.name);
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
@@ -177,7 +178,7 @@ namespace WorldModule.Caves {
             CaveOptions caveOptions = caveInstance.CaveObject.CaveOptions;
 
             DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
-            DimensionManager.Instance.SetPlayerSystem(playerScript, Dimension.Cave,spawnPosition,dimensionOptions: dimensionOptions);
+            DimensionManager.Instance.SetPlayerSystem(playerScript, Dimension.Cave,worldSpawnPosition,dimensionOptions: dimensionOptions);
             
             TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.CaveObject.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
         }

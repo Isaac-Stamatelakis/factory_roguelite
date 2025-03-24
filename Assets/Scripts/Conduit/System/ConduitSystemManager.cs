@@ -49,6 +49,7 @@ namespace Conduits.Systems {
     {
         public void TickUpdate();
         public bool IsEmpty();
+        public void ClearNonSoftLoadableTileEntities();
     }
 
     public interface ITickableConduitSystemManager {
@@ -455,6 +456,7 @@ namespace Conduits.Systems {
                 conduitSystems.Add(conduitSystem);
                 BfsConduit(conduit, conduitSystem);
             }
+            
             OnGenerationCompleted();
         }
 

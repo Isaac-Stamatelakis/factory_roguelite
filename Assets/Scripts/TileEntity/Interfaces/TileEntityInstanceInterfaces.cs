@@ -8,81 +8,129 @@ using World.Cave.Registry;
 
 
 namespace TileEntity {
-    
+    /// <summary>
+    /// TileEntityObjects which implement will have the method 'TickUpdate' called every tick
+    /// </summary>
     public interface ITickableTileEntity : ISoftLoadableTileEntity
     {
         public void TickUpdate();
     }
     
+    /// <summary>
+    /// TileEntityObjects which implement will have the method 'PlaceInitialize' called the first time they are placed
+    /// <remarks>The method 'PlaceInitialize' is also called if an error occurs during a call of 'Deserialize' from the interface ISeriazableTileEntity</remarks>
+    /// </summary>
     public interface IPlaceInitializable
     {
         public void PlaceInitialize();
     }
 
+    /// <summary>
+    /// TileEntityObjects which implement this interface can be their instances climbed by the player
+    /// </summary>
     public interface IClimableTileEntity {
         public int GetSpeed();
     }
 
+    /// <summary>
+    /// TileEntities which implement this interface can not be clicked if the method 'CanRightClick' returns false
+    /// </summary>
     public interface IConditionalRightClickableTileEntity
     {
         public bool CanRightClick();
     }
-
+    /// <summary>
+    /// TileEntities which implement this interface can not be clicked if the system is locked.
+    /// </summary>
     public interface ILockUnInteractableRightClickTileEntity
     {
         
     }
-    public interface IRightClickableTileEntity
-    {
-        public void OnRightClick();
-    }
-
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'OnLeftClick' called if 'CanBreak' returns false and the player left clicks them.
+    /// </summary>
     public interface ILeftClickableTileEntity {
         public void OnLeftClick();
         public bool CanInteract();
         public bool CanBreak();
     }
+    /// <summary>
+    /// TileEntities which implement this interface will have the method OnRightClick called when the player right clicks them.
+    /// <remarks>TileEntities whose object implements the interface 'IUITileEntity' will instantiate a UIElement when clicked, unless LShift is held</remarks>
+    /// </summary>
+    public interface IRightClickableTileEntity
+    {
+        public void OnRightClick();
+    }
     
+    /// <summary>
+    /// TileEntities which implement this interface will have the method Serialize saving any data, and the method
+    /// 'Unserialize' called when created.
+    /// </summary>
     public interface ISerializableTileEntity {
         public string Serialize();
         public void Unserialize(string data);
     }
 
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'Load' called when the player is within load range of them,
+    /// and the method 'Unload' called when unloaded after the player is far away from them.
+    /// </summary>
     public interface ILoadableTileEntity {
         public void Load();
         public void Unload();
     }
 
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'OnBreak' called when the TileEntities tile is broken
+    /// </summary>
     public interface IBreakActionTileEntity {
         public void OnBreak();
     }
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'AssembleMultiBlock' called during the MultiBlock assembly phase of system loading.
+    /// </summary>
     public interface IMultiBlockTileEntity {
         public void AssembleMultiBlock();
     }
-
+    
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'OnCaveRegistryLoaded' called when the CaveRegistry finishes async loading
+    /// </summary>
     public interface IOnCaveRegistryLoadActionTileEntity
     {
         public void OnCaveRegistryLoaded(CaveRegistry caveRegistry);
     }
+    
 
+    /// <summary>
+    /// Implemented by other blueprint interfaces
+    /// </summary>
     public interface IBluePrintModifiedTileEntity
     {
         
     }
 
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'OnPlaceInitialize' called when copy pasted through compact machine blueprinting
+    /// </summary>
     public interface IBluePrintPlaceInitializedTileEntity : IBluePrintModifiedTileEntity, IPlaceInitializable
     {
         
     }
 
+    /// <summary>
+    /// TileEntities which implement this interface will have the method 'OnPlaceInitialize' called when copied through compact machine blueprinting
+    /// </summary>
     public interface IOnBluePrintActionTileEntity : IBluePrintModifiedTileEntity
     {
         public void OnBluePrint();
     }
-    public interface IStaticTileEntity {
-        
-    }
-
+    
+    /// <summary>
+    /// TileEntities which implement this interface will be loaded when their ClosedChunkSystem is not loaded.
+    /// <remarks>A TileEntity which implements 'ISystemLoadedConduitPortTileEntity' will override this interface and cause the TileEntity to not be loaded unless their system is loaded</remarks>
+    /// </summary>
     public interface ISoftLoadableTileEntity : ITileEntityInstance {
 
     }
@@ -92,7 +140,15 @@ namespace TileEntity {
         public void AddPassRestriction(BooleanRecipeRestriction recipeRestriction);
         public void RemoveRestriction(BooleanRecipeRestriction recipeRestriction);
     }
-    
+
+    /// <summary>
+    /// TileEntities which implement this interface will show a text preview when the player hovers over them.
+    /// <remarks>Holding LShift will hide this text preview</remarks>
+    /// </summary>
+    public interface ITextPreviewTileEntity : ITileEntityInstance
+    {
+        public string GetTextPreview();
+    }
     
 
 }

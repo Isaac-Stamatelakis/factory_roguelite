@@ -82,6 +82,34 @@ namespace Conduits.Systems {
             return coloredOutputPorts.Count == 0 || coloredPriorityInputs.Count == 0;
         }
 
+        public void ClearNonSoftLoadableTileEntities()
+        {
+            ClearNonSoftLoadableTileEntitiesFromDict(coloredOutputPorts);
+            ClearNonSoftLoadableTileEntitiesFromDict(coloredPriorityInputs);
+        }
+
+        private void ClearNonSoftLoadableTileEntitiesFromDict(Dictionary<int, List<TTileEntityPort>> dict)
+        {
+            List<int> emptyKeys = new List<int>();
+            foreach (var (key, ports) in dict)
+            {
+                for (var index = ports.Count-1; index >= 0; index--)
+                {
+                    var port = ports[index];
+                    if (port.GetInteractable() is ISystemLoadedConduitPortTileEntity)
+                    {
+                        ports.RemoveAt(index);
+                    }
+                }
+                if (ports.Count == 0) emptyKeys.Add(key);
+            }
+
+            foreach (int key in emptyKeys)
+            {
+                coloredOutputPorts.Remove(key);
+            }
+        }
+
         public abstract void SystemTickUpdate();
         protected void AddOutputPort(TTileEntityPort tileEntityPort)
         {
@@ -98,8 +126,6 @@ namespace Conduits.Systems {
             if (ReferenceEquals(tileEntityPort?.GetPortData(PortConnectionType.Input),null)) return;
             if (!tileEntityPort.GetPortData(PortConnectionType.Input).Enabled) return;
             
-            bool loaded = manager.IsSystemLoaded();
-            if (!loaded && tileEntityPort.GetInteractable() is ISystemLoadedConduitPortTileEntity) return;
             int color = tileEntityPort.GetColor(PortConnectionType.Input);
             if (!coloredPriorityInputs.ContainsKey(color)) {
                 coloredPriorityInputs[color] = new List<TTileEntityPort>();
