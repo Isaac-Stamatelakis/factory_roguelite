@@ -110,12 +110,7 @@ namespace Robot.Tool.Instances
             
             audioController?.PlayAudioClip(tileItem?.tileOptions?.AudioType ?? TileAudioType.None);
             
-            Color? particleColor = GetParticleSystemColor(tileItem);
-            if (particleColor.HasValue)
-            {
-                ParticleSystem.MainModule particleSystemMain = particleSystem.main;
-                particleSystemMain.startColor = particleColor.Value;
-            }
+            SetParticleSystemColor(tileItem);
             
             if (multiBreak == 0)
             {
@@ -161,33 +156,18 @@ namespace Robot.Tool.Instances
             }
         }
 
-        private Color? GetParticleSystemColor(TileItem tileItem)
+        private void SetParticleSystemColor(TileItem tileItem)
         {
-            if (!tileItem) return null;
+            if (!tileItem) return;
             TileParticleOptions gradient = tileItem.tileOptions?.ParticleGradient;
-
-            if (gradient == null) return null;
-            int source = UnityEngine.Random.Range(0, 2);
-            const int OVERLAY_SOURCE = 0;
-            const int GRADIENT_SOURCE = 1;
-            switch (source)
-            {
-                case OVERLAY_SOURCE:
-                    if (tileItem.tileOptions.Overlay)
-                    {
-                        if (tileItem.tileOptions.Overlay.GetColor().a == 0)
-                        {
-                            goto case GRADIENT_SOURCE;
-                        }
-                        return tileItem.tileOptions.Overlay.GetColor();
-                    }
-                    break;
-                case GRADIENT_SOURCE:
-                    float ran = UnityEngine.Random.Range(0f, 1f);
-                    Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
-                    return color;
-            }
-            return null;
+            ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+            var minMaxColor = particleSystemMain.startColor;
+            if (gradient == null) return;
+            float ran = UnityEngine.Random.Range(0f, 1f);
+            Color color = Color.Lerp(gradient.FirstGradientColor, gradient.SecondGradientColor, ran);
+            minMaxColor.colorMax = color;
+            minMaxColor.colorMin = tileItem.tileOptions.Overlay?.GetColor() ?? color;
+            particleSystemMain.startColor = minMaxColor;
         }
 
         private WorldTileGridMap GetWorldTileGridMap(ClosedChunkSystem closedChunkSystem)

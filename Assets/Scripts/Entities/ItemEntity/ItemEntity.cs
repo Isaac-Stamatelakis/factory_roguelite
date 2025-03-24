@@ -46,7 +46,9 @@ namespace Entities {
                 spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
             }
             transform.localScale = new Vector3(0.5f, 0.5f,1f);
-            boxCollider.size = spriteRenderer.sprite.bounds.size;
+            
+            boxCollider.size = spriteRenderer.sprite ? spriteRenderer.sprite.bounds.size : new Vector2(0.5f, 0.5f);
+            
         }
 
         private void IterateLifeTime() {

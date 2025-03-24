@@ -380,7 +380,7 @@ namespace Dimensions {
                 return;
             }
             
-            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
+            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
             }

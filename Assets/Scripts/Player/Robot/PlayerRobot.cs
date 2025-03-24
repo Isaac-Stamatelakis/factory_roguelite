@@ -100,6 +100,7 @@ namespace Player {
         private JumpEvent jumpEvent;
         private bool freezeY;
         private PlayerTeleportEvent playerTeleportEvent;
+        private ParticleSystem bonusJumpParticles;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -110,6 +111,16 @@ namespace Player {
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
+            StartCoroutine(LoadAsyncAssets());
+        }
+
+        private IEnumerator LoadAsyncAssets()
+        {
+            var bonusJumpHandle = Addressables.LoadAssetAsync<GameObject>(RobotUpgradeAssets.BonusJumpParticles);
+            yield return bonusJumpHandle;
+            bonusJumpParticles = GameObject.Instantiate(bonusJumpHandle.Result,transform,false).GetComponent<ParticleSystem>();
+            bonusJumpParticles.transform.localPosition = Vector3.zero;
+            Addressables.Release(bonusJumpHandle);
         }
 
         public void Update()
@@ -450,11 +461,16 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
             {
+                if (bonusJumps > 0 && coyoteFrames <= 0)
+                {
+                    bonusJumpParticles.Play();
+                    bonusJumps--;
+                }
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
-                if (!IsOnGround() && coyoteFrames <= 0) bonusJumps--;
+                
                 
                 fallTime = 0;
                 jumpEvent = new JumpEvent();
@@ -824,7 +840,6 @@ namespace Player {
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             PlayerDeathScreenUI playerDeathScreenUI = Instantiate(deathScreenUIPrefab);
-            PlayerScript playerScript = GetComponent<PlayerScript>();
             playerDeathScreenUI.Initialize(playerScript);
             CanvasController.Instance.DisplayOnParentCanvas(playerDeathScreenUI.gameObject);
             playerScript.PlayerInventory.DropAll();
@@ -1026,6 +1041,7 @@ namespace Player {
         private class RobotUpgradeAssetReferences
         {
             public AssetReference RocketBootParticles;
+            public AssetReference BonusJumpParticles;
         }
     }
 

@@ -13,16 +13,21 @@ using UnityEngine.Serialization;
 namespace TileEntity.Instances.Creative.CreativeChest
 {
     [CreateAssetMenu(fileName = "New Structure Expand", menuName = "Tile Entity/Creative/Structure Expand")]
-    public class StructureExpandObject : TileEntityObject
+    public class StructureExpandObject : TileEntityObject, IUITileEntity
     {
         public AssetReference StructureExpandUIPrefab;
         public override ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk)
         {
             return new StructureExpandInstance(this, tilePosition, tileItem, chunk);
         }
+
+        public AssetReference GetUIAssetReference()
+        {
+            return StructureExpandUIPrefab;
+        }
     }
 
-    public class StructureExpandInstance : TileEntityInstance<StructureExpandObject>, ISerializableTileEntity, IRightClickableTileEntity, IPlaceInitializable
+    public class StructureExpandInstance : TileEntityInstance<StructureExpandObject>, ISerializableTileEntity, IPlaceInitializable
     {
         internal StructureExpandData StructureExpandData;
         public StructureExpandInstance(StructureExpandObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
@@ -38,22 +43,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
         {
             StructureExpandData = JsonConvert.DeserializeObject<StructureExpandData>(data);
         }
-
-        public void OnRightClick()
-        {
-            // Testing with asset reference;
-            Addressables.LoadAssetAsync<GameObject>(tileEntityObject.StructureExpandUIPrefab).Completed += OnComplete;
-        }
-
-        private void OnComplete(AsyncOperationHandle<GameObject> handle)
-        {
-            GameObject loadedObject = handle.Result;
-            StructureExpandUI expandUI = GameObject.Instantiate(loadedObject).GetComponent<StructureExpandUI>();
-            expandUI.DisplayTileEntityInstance(this);
-            CanvasController.Instance.DisplayObject(expandUI.gameObject);
-            Addressables.Release(handle);
-        }
-
+        
         public void PlaceInitialize()
         {
             StructureExpandData = new StructureExpandData();
