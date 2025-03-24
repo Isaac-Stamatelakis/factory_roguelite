@@ -175,6 +175,10 @@ namespace Robot.Tool.Instances
                 case OVERLAY_SOURCE:
                     if (tileItem.tileOptions.Overlay)
                     {
+                        if (tileItem.tileOptions.Overlay.GetColor().a == 0)
+                        {
+                            goto case GRADIENT_SOURCE;
+                        }
                         return tileItem.tileOptions.Overlay.GetColor();
                     }
                     break;
@@ -244,14 +248,20 @@ namespace Robot.Tool.Instances
             
             if (toolData.Layer == TileMapLayer.Base)
             {
-                if (particleSystem.isStopped && hitting)
-                {
-                    particleSystem.Play();
-                }
-
-                if (particleSystem.isPlaying && !hitting)
+                ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+                if (!Mathf.Approximately(particleSystemMain.duration, toolData.HitRate))
                 {
                     particleSystem.Stop();
+                    particleSystemMain.duration = toolData.HitRate; 
+                    particleSystem.Play();
+                }
+                if (hitting)
+                {
+                    if (!particleSystem.isPlaying)
+                    {
+                        particleSystem.Play();
+                    }
+                    //particleSystemMain.loop = true;
                 }
             }
             else
