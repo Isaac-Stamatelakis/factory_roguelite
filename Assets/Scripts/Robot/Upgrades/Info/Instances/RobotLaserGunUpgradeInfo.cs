@@ -9,6 +9,8 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class RobotLaserGunUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong COST_PER_LASER = 32;
+        public const ulong COST_PER_EXPLOSION = 1024;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<LaserGunUpgrade>();

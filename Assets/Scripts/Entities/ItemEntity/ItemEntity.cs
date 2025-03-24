@@ -64,14 +64,13 @@ namespace Entities {
 
             for (int i = 0; i < transform.childCount; i++)
             {
-                if (transform.tag == "SpriteOverlay")
+                if (transform.GetChild(i).tag == "SpriteOverlay")
                 {
                     var overlaySpriteRenderer = transform.GetChild(i).GetComponent<SpriteRenderer>();
                     boxCollider2D.size = overlaySpriteRenderer.sprite.bounds.size;
                     return;
                 }
             }
-
             boxCollider2D.size = new Vector2(0.5f, 0.5f); // Default
         }
         private void SpawnTagObjects()

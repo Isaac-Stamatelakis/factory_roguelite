@@ -4,6 +4,7 @@ using Player.Tool.Object;
 using Robot.Tool;
 using Robot.Tool.Instances.Gun;
 using Robot.Upgrades;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.LoadOut;
 using UnityEngine;
 
@@ -149,6 +150,7 @@ namespace Robot.Tool.Instances
 
         private void FireLaser(Vector2 direction, float speed, bool usePool)
         {
+            if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_LASER,0.1f)) return;
             BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.ToolObjectContainer,false);
             basicLaserGunProjectile.transform.position = playerScript.transform.position;
             basicLaserGunProjectile.Initialize(1f, direction, speed, usePool ? laserParticlePool : null);
@@ -156,6 +158,7 @@ namespace Robot.Tool.Instances
 
         private void FireExplosions(Vector2 mousePosition)
         {
+            if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_EXPLOSION,0.1f)) return;
             Vector2 dif = mousePosition - (Vector2)playerScript.transform.position;
             if (dif == Vector2.zero)
             {

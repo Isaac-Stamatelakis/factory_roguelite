@@ -16,6 +16,7 @@ using PlayerModule.Mouse;
 using Robot.Tool.Instances.Drill;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.VeinMine;
 using Robot.Upgrades.LoadOut;
 using TileMaps;
@@ -88,11 +89,6 @@ namespace Robot.Tool.Instances
                 hitting = MouseUtils.RaycastObject(mousePosition, toolData.Layer.toRaycastLayers());
                 if (!hitting) return;
             }
-            else
-            {
-                // This works I think ?
-                hitting = true;
-            }
 
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             WorldTileGridMap worldTileGridMap = GetWorldTileGridMap(closedChunkSystem);
@@ -111,10 +107,11 @@ namespace Robot.Tool.Instances
             audioController?.PlayAudioClip(tileItem?.tileOptions?.AudioType ?? TileAudioType.None);
             
             SetParticleSystemColor(tileItem);
-            
+            const float minPercent = 0.1f;
+            if (!playerRobot.TryConsumeEnergy(RobotDrillUpgradeInfo.COST_PER_HIT,minPercent)) return;
+            bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
             if (multiBreak == 0)
             {
-                bool broken = MouseUtils.HitTileLayer(toolData.Layer, mousePosition, drop, RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection,(int)RobotDrillUpgrade.Tier),true);
                 if (broken)
                 {
                     if (!drop && !DevMode.Instance.instantBreak)
@@ -129,25 +126,48 @@ namespace Robot.Tool.Instances
 
             PlayerInventory playerInventory = playerScript.PlayerInventory;
             bool anyBroken = false;
-            for (int x = -multiBreak; x <= multiBreak; x++)
+            
+
+            bool Break(int x, int y)
             {
-                for (int y = -multiBreak; y <= multiBreak; y++)
+                Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
+                TileItem multiHitTileItem = worldTileGridMap.GetTileItem(position);
+                if (!playerRobot.TryConsumeEnergy(RobotDrillUpgradeInfo.COST_PER_HIT,minPercent)) return false;
+                bool broken = MouseUtils.HitTileLayer(
+                    toolData.Layer, 
+                    position, 
+                    drop,
+                    RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier), 
+                    false
+                );
+                if (broken) anyBroken = true;
+                if (broken && !drop)
                 {
-                    Vector2 position = mousePosition + Global.TILE_SIZE * new Vector2(x, y);
-                    TileItem multiHitTileItem = worldTileGridMap.GetTileItem(position);
-                    bool broken = MouseUtils.HitTileLayer(
-                        toolData.Layer, 
-                        position, 
-                        drop,
-                        RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)RobotDrillUpgrade.Tier), 
-                        false
-                    );
-                    if (broken) anyBroken = true;
-                    if (broken && !drop)
-                    {
-                        playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(multiHitTileItem));
-                    }
+                    playerInventory.GiveItems(ItemSlotUtils.GetTileItemDrop(multiHitTileItem));
                 }
+                return true;
+            }
+            
+            int r = 0;
+            while (r <= multiBreak)
+            {
+                for (int x = -r; x < r; x++)
+                {
+                    if (!Break(x, r)) break;
+                }
+                for (int y = r; y > -r; y--)
+                {
+                    if (!Break(r, y)) break;
+                }
+                for (int x = r; x > -r; x--)
+                {
+                    if (!Break(x, -r)) break;
+                }
+                for (int y = -r; y < r; y++)
+                {
+                    if (!Break(-r, y)) break;
+                }
+                r++;
             }
 
             if (anyBroken)
@@ -206,13 +226,18 @@ namespace Robot.Tool.Instances
         private IVeinMineEvent GetVeinMineEvent(WorldTileGridMap worldTileGridMap, bool drop, TileItem initialTile, int drillPower)
         {
             TileMapLayer tileMapLayer = toolData.Layer;
+
+            bool EnergyCostFunction()
+            {
+                return playerRobot.TryConsumeEnergy(RobotDrillUpgradeInfo.COST_PER_HIT, 0.1f);
+            }
             switch (tileMapLayer)
             {
                 case TileMapLayer.Base:
                     int hardness = initialTile.tileOptions.hardness;
-                    return new BlockVeinMineEvent(worldTileGridMap, drop, drillPower, hardness);
+                    return new BlockVeinMineEvent(worldTileGridMap, drop, EnergyCostFunction, drillPower, hardness);
                 case TileMapLayer.Background:
-                    return new BackGroundVeinMineEvent(worldTileGridMap, drop);
+                    return new BackGroundVeinMineEvent(worldTileGridMap, drop, EnergyCostFunction);
                 default:
                     return null;
             }

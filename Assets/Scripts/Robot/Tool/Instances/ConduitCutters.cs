@@ -8,6 +8,7 @@ using Player.Mouse;
 using Player.Tool.Object;
 using PlayerModule;
 using Robot.Upgrades;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.VeinMine;
 using Robot.Upgrades.LoadOut;
 using TileMaps;
@@ -54,6 +55,7 @@ namespace Robot.Tool.Instances
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
+            if (!playerRobot.TryConsumeEnergy(RobotConduitUpgradeInfo.COST_PER_HIT,0.1f)) return;
             laserManager.UpdateLineRenderer(mousePosition,GetConduitColor(toolData.Type));
             switch (toolData.CutterMode)
             {
@@ -92,7 +94,11 @@ namespace Robot.Tool.Instances
             }
             if (veinMinePower <= 1) return;
 
-            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, false, conduit);
+            bool EnergyCostFunction()
+            {
+                return playerRobot.TryConsumeEnergy(32, 0.1f);
+            }
+            ConduitVeinMineEvent veinMineEvent = new ConduitVeinMineEvent(conduitTileMap, false, EnergyCostFunction,conduit);
             veinMineEvent.Execute(cellPosition,veinMinePower);
             if (!drop)
             {

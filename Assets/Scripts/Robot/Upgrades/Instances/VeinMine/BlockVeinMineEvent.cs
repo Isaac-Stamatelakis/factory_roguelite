@@ -1,3 +1,4 @@
+using System;
 using TileMaps;
 using Tiles;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Robot.Upgrades.Instances.VeinMine
         private int drillPower;
         private int initialHardness;
 
-        public BlockVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop, int drillPower, int initialHardness) : base(hitableTileMap, drop)
+        public BlockVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop, Func<bool> energyCostFunction, int drillPower, int initialHardness) : base(hitableTileMap, drop,energyCostFunction)
         {
             this.drillPower = drillPower;
             this.initialHardness = initialHardness;

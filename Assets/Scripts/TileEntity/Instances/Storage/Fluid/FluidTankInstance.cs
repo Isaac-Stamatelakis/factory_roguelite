@@ -14,7 +14,7 @@ namespace TileEntity.Instances.Storage {
     public class FluidTankInstance : TileEntityInstance<FluidTank>, ISerializableTileEntity, IConduitPortTileEntity, ILoadableTileEntity, IItemConduitInteractable
     {
         private ItemSlot itemSlot;
-        public uint FillAmount {get => itemSlot.amount;}
+        public uint FillAmount {get => itemSlot?.amount ?? 0;}
         public float FillRatio {get => ((float)FillAmount)/GetStorage();}
         public ItemSlot ItemSlot { get => itemSlot; set => itemSlot = value; }
         private FluidTankVisualManager visualManager;
@@ -37,12 +37,11 @@ namespace TileEntity.Instances.Storage {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;   
             }
-            GameObject fluid = new GameObject();
+            GameObject fluid = new GameObject("Fluid");
+            fluid.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
             visualManager = fluid.AddComponent<FluidTankVisualManager>();
             visualManager.Initialize();
-            fluid.name = "Fluid";
-            fluid.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
-            visualManager.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
+            visualManager?.UpdateVisual(itemSlot,FillRatio,GetWorldPosition());
         }
         
 

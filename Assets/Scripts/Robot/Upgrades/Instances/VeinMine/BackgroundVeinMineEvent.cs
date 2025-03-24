@@ -1,3 +1,4 @@
+using System;
 using TileMaps;
 using UnityEngine;
 
@@ -5,7 +6,7 @@ namespace Robot.Upgrades.Instances.VeinMine
 {
     public class BackGroundVeinMineEvent : VeinMineEvent<WorldTileGridMap>
     {
-        public BackGroundVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop) : base(hitableTileMap, drop)
+        public BackGroundVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop, Func<bool> energyCostFunction) : base(hitableTileMap, drop,energyCostFunction)
         {
            
         }

@@ -707,6 +707,16 @@ namespace Player {
             robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
             if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
         }
+
+        public bool TryConsumeEnergy(ulong energy, float minPercent)
+        {
+            if (DevMode.Instance.NoEnergyCost) return true;
+            ulong current = robotData.Energy;
+            ulong max = currentRobot.MaxEnergy;
+            if (current < energy || (float)(current - energy)/max < minPercent) return false;
+            robotData.Energy -= energy;
+            return true;
+        }
         
 
         private void ClampFallSpeed()

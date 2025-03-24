@@ -56,11 +56,13 @@ namespace Robot.Tool
             this.robotObject = robotObject;
             this.statLoadOutCollection = statLoadOutCollection;
             this.playerScript = playerScript;
+            playerRobot = this.playerScript.GetComponent<PlayerRobot>();
         }
         protected TData toolData;
         protected TObject robotObject;
         protected RobotStatLoadOutCollection statLoadOutCollection;
         protected PlayerScript playerScript;
+        protected PlayerRobot playerRobot;
         
         public Sprite GetSprite()
         {

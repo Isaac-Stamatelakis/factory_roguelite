@@ -101,17 +101,6 @@ namespace Chunks.Systems {
             {
                 conduitSystemManager.SetSystem(this);
             }
-            
-            HashSet<TileEntityObject> tileEntityObjects = new HashSet<TileEntityObject>();
-            foreach (SoftLoadedConduitTileChunk unloadedConduitTileChunk in inactiveClosedChunkSystemAssembler.Chunks) {
-                ILoadedChunk loadedChunk = cachedChunks[unloadedConduitTileChunk.Position];
-                foreach (IChunkPartition partition in loadedChunk.GetChunkPartitions()) {
-                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) continue;
-                    conduitTileChunkPartition.Activate(loadedChunk);
-                    partition.GetTileEntityObjects(tileEntityObjects);
-                }
-            }
-            TileEntityAssetRegistry.Instance.LoadAssetsCoroutine(tileEntityObjects);
 
             tickableConduitSystemManagers = new List<ITickableConduitSystemManager>();
             foreach (IConduitSystemManager conduitSystemManager in conduitSystemManagersDict.Values)
