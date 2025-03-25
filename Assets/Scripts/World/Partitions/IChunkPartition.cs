@@ -7,6 +7,7 @@ using TileMaps;
 using TileMaps.Layer;
 using TileEntity;
 using Tiles;
+using Tiles.Fluid.Simulation;
 
 namespace Chunks.Partitions {
     public interface IChunkPartition {
@@ -29,6 +30,7 @@ namespace Chunks.Partitions {
         public void GetTileEntityObjects(HashSet<TileEntityObject> objects);
         public TileItem GetTileItem(Vector2Int position,TileMapLayer layer);
         public void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
+        public void AddFluidDataToChunk(FluidCell[][] chunkFluidCells);
         public PartitionFluidData GetFluidData();
         public void UnloadEntities();
         public bool GetFarLoaded();

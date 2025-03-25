@@ -19,22 +19,34 @@ namespace Tiles.Fluid.Simulation
 	}
 	public class FluidCell
 	{
+		public string FluidId;
 		public float Liquid;
-		public int FluidFlow;
 		public bool Settled;
 		public FluidFlowRestriction FlowRestriction;
 		public Vector2Int Position;
 		public float Diff;
 		public int SettleCount;
+
+		public FluidCell(string fluidId, float liquid, FluidFlowRestriction flowRestriction, Vector2Int position)
+		{
+			FluidId = fluidId;
+			Liquid = liquid;
+			FlowRestriction = flowRestriction;
+			Position = position;
+		}
 	}
 	/*
 	 * Adapted from https://github.com/jongallant/LiquidSimulator/tree/master
 	 * With massive changes and improvements
 	 */
 	
-    public class FluidUpdateManager
+    public class FluidTileMapSimulator
     {
-	    private Dictionary<Vector2Int, FluidCell[,]> chunkCellArrayDict = new(); 
+	    // Implementation that might be better than storing settling
+	    private uint ticks;
+	    private Dictionary<uint, HashSet<Vector2Int>> tickFluidUpdates = new Dictionary<uint, HashSet<Vector2Int>>(); 
+	    
+	    private Dictionary<Vector2Int, FluidCell[][]> chunkCellArrayDict = new(); 
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.005f;
 
@@ -59,92 +71,119 @@ namespace Tiles.Fluid.Simulation
 				_ => (sum + MAX_COMPRESSION) / 2f
 			};
         }
-        
+
+        public void AddChunk(Vector2Int position, FluidCell[][] fluidCells)
+        {
+	        chunkCellArrayDict[position] = fluidCells;
+        }
+
+        public void RemoveChunk(Vector2Int position)
+        {
+	        chunkCellArrayDict.Remove(position);
+        }
+
+        public void AddFluidCell(FluidCell fluidCell)
+        {
+	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
+	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
+	        Vector2Int positionInChunk = fluidCell.Position - chunkPosition * Global.CHUNK_SIZE;
+	        fluidCells[positionInChunk.x][positionInChunk.y] = fluidCell;
+        }
         
 		public void Simulate() {
 			
 			foreach (var chunkFluidCellCollection in chunkCellArrayDict.Values)
 			{
-				foreach (FluidCell fluidCell in chunkFluidCellCollection)
+				foreach (FluidCell[] fluidCells in chunkFluidCellCollection)
 				{
-					fluidCell.Diff = 0;
+					foreach (FluidCell cell in fluidCells)
+					{
+						cell.Diff = 0;
+					}
 				}
 			}
 
 			foreach (var chunkFluidCellCollection in chunkCellArrayDict.Values)
 			{
-				foreach (FluidCell cell in chunkFluidCellCollection)
+				foreach (FluidCell[] fluidCells in chunkFluidCellCollection)
 				{
-					if (cell.FlowRestriction == FluidFlowRestriction.None) {
-						cell.Liquid = 0;
-						continue;
-					}
-					if (cell.Liquid == 0)
-						continue;
-					if (cell.Settled) 
-						continue;
-					if (cell.Liquid < MIN_FILL) {
-						cell.Liquid = 0;
-						continue;
-					}
+					foreach (FluidCell cell in fluidCells)
+					{
+						if (cell.FlowRestriction == FluidFlowRestriction.None) {
+							cell.Liquid = 0;
+							continue;
+						}
+						if (cell.Liquid == 0)
+							continue;
+						if (cell.Settled) 
+							continue;
+						if (cell.Liquid < MIN_FILL) {
+							cell.Liquid = 0;
+							continue;
+						}
 
-					// Keep track of how much liquid this cell started off with
-					float startValue = cell.Liquid;
-					float remainingValue = cell.Liquid;
-					float flow = 0;
+						// Keep track of how much liquid this cell started off with
+						float startValue = cell.Liquid;
+						float remainingValue = cell.Liquid;
+						float flow = 0;
 
 				
-					FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
+						FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
 					
-					if (remainingValue < MIN_FILL) {
-						cell.Diff -= remainingValue;
-						continue;
-					}
-
-					// Flow to left cell
-					HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow);
-					
-					if (remainingValue < MIN_FILL) {
-						cell.Diff -= remainingValue;
-						continue;
-					}
-					
-					HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow);
-					
-					// Check to ensure we still have liquid in this cell
-					if (remainingValue < MIN_FILL) {
-						cell.Diff -= remainingValue;
-						continue;
-					}
-					
-					RiseFluidUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow);
-					// Check to ensure we still have liquid in this cell
-					if (remainingValue < MIN_FILL) {
-						cell.Diff -= remainingValue;
-						continue;
-					}
-
-					// Check if cell is settled
-					if (Mathf.Approximately(startValue, remainingValue)) {
-						cell.SettleCount++;
-						if (cell.SettleCount >= 10) {
-							cell.Settled = true;
+						if (remainingValue < MIN_FILL) {
+							cell.Diff -= remainingValue;
+							continue;
 						}
-					} else
-					{
-						UnsettleNeighbors(cell);
+
+						// Flow to left cell
+						HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow);
+					
+						if (remainingValue < MIN_FILL) {
+							cell.Diff -= remainingValue;
+							continue;
+						}
+					
+						HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow);
+					
+						// Check to ensure we still have liquid in this cell
+						if (remainingValue < MIN_FILL) {
+							cell.Diff -= remainingValue;
+							continue;
+						}
+					
+						RiseFluidUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow);
+						// Check to ensure we still have liquid in this cell
+						if (remainingValue < MIN_FILL) {
+							cell.Diff -= remainingValue;
+							continue;
+						}
+
+						// Check if cell is settled
+						if (Mathf.Approximately(startValue, remainingValue)) {
+							cell.SettleCount++;
+							if (cell.SettleCount >= 10) {
+								cell.Settled = true;
+							}
+						} else
+						{
+							UnsettleNeighbors(cell);
+						}
 					}
 				}
+				
 			}
 
 			foreach (var chunkFluidCellCollection in chunkCellArrayDict.Values)
 			{
-				foreach (FluidCell cell in chunkFluidCellCollection)
+				foreach (FluidCell[] fluidCells in chunkFluidCellCollection)
 				{
-					cell.Liquid += cell.Diff;
-					if (!(cell.Liquid < MIN_FILL)) continue;
-					cell.Liquid = 0;
-					cell.Settled = false;
+					foreach (FluidCell cell in fluidCells)
+					{
+						cell.Liquid += cell.Diff;
+						if (!(cell.Liquid < MIN_FILL)) continue;
+						cell.Liquid = 0;
+						cell.Settled = false;
+					}
 				}
 			}
 		}
@@ -227,9 +266,9 @@ namespace Tiles.Fluid.Simulation
 		public FluidCell GetFluidCell(Vector2Int cellPosition)
 		{
 			Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
-			if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[,] fluidCells))return null;
+			if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells))return null;
 			Vector2Int positionInChunk = cellPosition - chunkPosition * Global.CHUNK_SIZE;
-			return fluidCells[positionInChunk.x, positionInChunk.y];
+			return fluidCells[positionInChunk.x][positionInChunk.y];
 		}
 
 		public FluidCell GetFluidCellInDirection(FluidCell fluidCell, FluidFlowDirection flowDirection)
