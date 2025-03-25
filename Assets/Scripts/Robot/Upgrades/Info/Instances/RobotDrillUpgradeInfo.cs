@@ -54,6 +54,20 @@ namespace Robot.Upgrades.Info.Instances
             return null;
         }
 
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
+            RobotDrillUpgrade robotDrillUpgrade = (RobotDrillUpgrade)upgrade;
+            switch (robotDrillUpgrade)
+            {
+                case RobotDrillUpgrade.Speed:
+                    return new RobotDrillSpeedUpgradeFormatter();
+                case RobotDrillUpgrade.Fortune:
+                    break;
+            }
+
+            return null;
+        }
+
         public override List<int> GetContinuousUpgrades()
         {
             return new List<int>

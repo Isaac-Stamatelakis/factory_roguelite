@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Item.Slot;
+using Items;
+using Player;
 using TMPro;
 
 namespace Robot.Upgrades.Info.Instances
@@ -8,14 +11,15 @@ namespace Robot.Upgrades.Info.Instances
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
     {
         public const ulong FLIGHT_COST = 1024;
-        public const ulong SPEED_INCREASE_COST = 4;
+        public const ulong SPEED_INCREASE_COST_PER_SECOND = 16;
         public const ulong JUMP_INCREASE_COST = 128;
         public const ulong BONUS_JUMP_COST = 512;
-        public const ulong ROCKET_BOOTS_COST = 32;
+        public const ulong ROCKET_BOOTS_COST_PER_SECOND = 128;
         public const ulong TELEPORT_COST = 16384;
         public const int NANO_BOT_DELAY = 2;
         public const int HEALTH_PER_UPGRADE = 5;
         public const float NANO_BOT_TIME_PER_UPGRADE = 2f;
+        
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<RobotUpgrade>();
@@ -60,17 +64,58 @@ namespace Robot.Upgrades.Info.Instances
 
         public override IAmountFormatter GetAmountFormatter(int upgrade)
         {
+            PlayerRobot playerRobot = PlayerManager.Instance.GetPlayer().PlayerRobot;
             RobotUpgrade robotUpgrade = (RobotUpgrade)upgrade;
             switch (robotUpgrade)
             {
                 case RobotUpgrade.Speed:
-                    break;
+                    return new RatioUpgradeFormatter("+", string.Empty,1/PlayerRobot.BASE_MOVE_SPEED,RatioUpgradeDisplayType.Percent);
                 case RobotUpgrade.JumpHeight:
-                    break;
+                    return new RatioUpgradeFormatter("+", string.Empty,1/playerRobot.JumpStats.jumpVelocity,RatioUpgradeDisplayType.Percent);
                 case RobotUpgrade.BonusJump:
                     break;
                 case RobotUpgrade.RocketBoots:
                     break;
+                case RobotUpgrade.Flight:
+                    break;
+                case RobotUpgrade.Reach:
+                    break;
+                case RobotUpgrade.Dash:
+                    break;
+                case RobotUpgrade.Hover:
+                    break;
+                case RobotUpgrade.Teleport:
+                    break;
+                case RobotUpgrade.Light:
+                    break;
+                case RobotUpgrade.NightVision:
+                    break;
+                case RobotUpgrade.Health:
+                    return new RatioUpgradeFormatter("+", string.Empty,HEALTH_PER_UPGRADE,RatioUpgradeDisplayType.Integer);
+                case RobotUpgrade.Energy:
+                    return new EnergyUpgradeFormatter();
+                case RobotUpgrade.NanoBots:
+                    return new RatioUpgradeFormatter(string.Empty,"S", NANO_BOT_TIME_PER_UPGRADE,RatioUpgradeDisplayType.Integer);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return null;
+        }
+
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
+            RobotUpgrade robotUpgrade = (RobotUpgrade)upgrade;
+            switch (robotUpgrade)
+            {
+                case RobotUpgrade.Speed:
+                    return new EnergyCostFormatter(SPEED_INCREASE_COST_PER_SECOND);
+                case RobotUpgrade.JumpHeight:
+                    break;
+                case RobotUpgrade.BonusJump:
+                    return new EnergyCostFormatter(BONUS_JUMP_COST);
+                case RobotUpgrade.RocketBoots:
+                    return new EnergyCostFormatter(ROCKET_BOOTS_COST_PER_SECOND);
                 case RobotUpgrade.Flight:
                     break;
                 case RobotUpgrade.Reach:
@@ -121,6 +166,72 @@ namespace Robot.Upgrades.Info.Instances
         public override List<int> GetAllUpgrades()
         {
             return System.Enum.GetValues(typeof(RobotUpgrade)).Cast<int>().ToList();
+        }
+
+        private class EnergyUpgradeFormatter : IDiscreteUpgradeAmountFormatter
+        {
+            public string Format(int value)
+            {
+                int realValue = 2 << value;
+                return ItemDisplayUtils.FormatAmountText((uint)realValue, false) + "J";
+            }
+        }
+        
+        private class EnergyCostFormatter : IContinousUpgradeAmountFormatter
+        {
+            private readonly ulong cost;
+
+            public EnergyCostFormatter(ulong cost)
+            {
+                this.cost = cost;
+            }
+
+            public string Format(float upgrade)
+            {
+                return $"Requires: {cost * upgrade:F0}J/S";
+            }
+        }
+        
+        private class RatioUpgradeFormatter : IDiscreteUpgradeAmountFormatter, IContinousUpgradeAmountFormatter
+        {
+            private readonly float ratio;
+            private readonly string prefix;
+            private readonly string suffix;
+            private readonly RatioUpgradeDisplayType displayType;
+
+            public RatioUpgradeFormatter(string prefix, string suffix, float ratio, RatioUpgradeDisplayType ratioUpgradeDisplayType)
+            {
+                this.prefix = prefix;
+                this.ratio = ratio;
+                this.suffix = suffix;
+                this.displayType = ratioUpgradeDisplayType;
+            }
+
+            public string Format(int value)
+            {
+                return Format((float)value);
+            }
+
+            public string Format(float upgrade)
+            {
+                float realValue = upgrade * ratio;
+                switch (displayType)
+                {
+                    case RatioUpgradeDisplayType.Percent:
+                        return $"{prefix}{realValue:P1}{suffix}";
+                    case RatioUpgradeDisplayType.Integer:
+                        return $"{prefix}{realValue:F0}{suffix}";
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                
+            }
+        }
+
+        private enum RatioUpgradeDisplayType
+        {
+            Percent,
+            Integer
         }
     }
 

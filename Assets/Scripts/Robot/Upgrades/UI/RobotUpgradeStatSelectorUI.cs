@@ -34,11 +34,11 @@ namespace Robot.Upgrades
     {
         [SerializeField] private VerticalLayoutGroup mList;
         [SerializeField] private FormattedSlider mNumSliderPrefab;
-        [SerializeField] private FormattedSlider mBoolSliderPrefab;
         [SerializeField] private Transform presetList;
+        [SerializeField] private Transform energyElementList;
         private Button[] presetSelectButtons;
         private Color buttonColor;
-        private Color highlightButtonColor = Color.yellow;
+        private Color highlightButtonColor = Color.green;
 
         private RobotStatLoadOutCollection robotStatLoadOutCollection;
         private Dictionary<int, int> statUpgradeDict;
@@ -115,6 +115,9 @@ namespace Robot.Upgrades
 
         private FormattedSlider GetSlider(RobotStatLoadOut statLoadOut, string title, int upgrade, int maxValue, bool isConstant, RobotUpgradeInfo upgradeInfo)
         {
+            FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
+            RobotUpgradeEnergyCostElement energyCostElement = slider.GetComponentInChildren<RobotUpgradeEnergyCostElement>();
+            
             if (statLoadOut.DiscreteValues.TryGetValue(upgrade, out int intValue))
             {
                 if (intValue < 0)
@@ -127,22 +130,32 @@ namespace Robot.Upgrades
                     statLoadOut.DiscreteValues[upgrade] = maxValue;
                 }
       
+                IDiscreteUpgradeAmountFormatter energyFormatter = upgradeInfo.GetEnergyCostFormatter(upgrade) as IDiscreteUpgradeAmountFormatter;
+                energyCostElement.gameObject.SetActive(energyFormatter != null);
+
+                void SetEnergyCostText(int input)
+                {
+                    if (energyFormatter != null)
+                    {
+                        energyCostElement.SetDisplayText(energyFormatter.Format(input));
+                    }
+                }
+                SetEnergyCostText(intValue);
                 void OnValueChanged(int newValue)
                 {
                     statLoadOut.DiscreteValues[upgrade] = newValue;
+                    SetEnergyCostText(newValue);
                 };
                 if (maxValue == 1 && !isConstant)
                 {
-                    FormattedSlider slider = Instantiate(mBoolSliderPrefab, mList.transform);
+                    
                     slider.DisplayBool(title,intValue,OnValueChanged);
-                    return slider;
                 }
                 else
                 {
-                    FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
                     slider.DisplayInteger(title,intValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IDiscreteUpgradeAmountFormatter);
-                    return slider;
                 }
+                
             }
 
             if (statLoadOut.ContinuousValues.TryGetValue(upgrade, out float floatValue))
@@ -156,17 +169,26 @@ namespace Robot.Upgrades
                 {
                     statLoadOut.ContinuousValues[upgrade] = maxValue;
                 }
-                
+                IContinousUpgradeAmountFormatter energyFormatter = upgradeInfo.GetEnergyCostFormatter(upgrade) as IContinousUpgradeAmountFormatter;
+                energyCostElement.gameObject.SetActive(energyFormatter != null);
+                void SetEnergyCostText(float input)
+                {
+                    if (energyFormatter != null)
+                    {
+                        energyCostElement.SetDisplayText(energyFormatter.Format(input));
+                    }
+                }
+
+                SetEnergyCostText(floatValue);
                 void OnValueChanged(float newValue)
                 {
                     statLoadOut.ContinuousValues[upgrade] = newValue;
+                    SetEnergyCostText(newValue);
                 }
-
-                FormattedSlider slider = Instantiate(mNumSliderPrefab, mList.transform);
                 slider.DisplayFloat(title,floatValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IContinousUpgradeAmountFormatter);
-                return slider;
             }
-            return null;
+            
+            return slider;
         }
     }
     

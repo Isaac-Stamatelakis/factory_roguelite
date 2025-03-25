@@ -38,6 +38,11 @@ namespace Robot.Upgrades.Info.Instances
             return null;
         }
 
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
+            return null;
+        }
+
         public override List<int> GetContinuousUpgrades()
         {
             return new List<int>
