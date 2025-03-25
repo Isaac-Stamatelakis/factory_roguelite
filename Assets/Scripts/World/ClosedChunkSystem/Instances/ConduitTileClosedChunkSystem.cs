@@ -176,7 +176,14 @@ namespace Chunks.Systems {
             {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions())
                 {
-                    softLoadableTileEntities.AddRange(partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>());
+                    var partitionSoftLoadableTileEntities = partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>();
+                    foreach (ISoftLoadableTileEntity softLoadableTileEntity in partitionSoftLoadableTileEntities)
+                    {
+                        if (softLoadableTileEntity is not IRequireSystemLoadedTileEntity)
+                        {
+                            softLoadableTileEntities.Add(softLoadableTileEntity);
+                        }
+                    }
                 }
             }
             List<ITickableConduitSystem> tickableConduitSystems = new List<ITickableConduitSystem>();

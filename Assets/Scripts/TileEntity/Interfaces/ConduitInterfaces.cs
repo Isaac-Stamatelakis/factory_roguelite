@@ -11,15 +11,6 @@ public interface IConduitPortTileEntity : ISoftLoadableTileEntity {
 }
 
 
-/// <summary>
-/// A tile entity that inherients this interface will only be added to the conduit system if it is currently loaded by the player
-/// <example>Useful for doors, lamps, etc which do not require conduit interaction unless the player is near</example>
-/// </summary>
-public interface ISystemLoadedConduitPortTileEntity : IConduitPortTileEntity
-{
-    
-}
-
 public interface IConduitPortTileEntityAggregator : IConduitPortTileEntity
 {
     public IConduitInteractable GetConduitInteractable(ConduitType conduitType);

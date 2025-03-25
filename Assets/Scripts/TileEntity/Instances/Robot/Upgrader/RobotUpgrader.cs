@@ -24,7 +24,7 @@ namespace TileEntity.Instances.Robot.Upgrader
         }
     }
 
-    public class RobotUpgraderInstance : TileEntityInstance<RobotUpgrader>, ITickableTileEntity, ILoadableTileEntity
+    public class RobotUpgraderInstance : TileEntityInstance<RobotUpgrader>, ITickableTileEntity, ILoadableTileEntity, IRequireSystemLoadedTileEntity
     {
         private PlayerRobot playerRobot;
         public RobotUpgraderInstance(RobotUpgrader tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)

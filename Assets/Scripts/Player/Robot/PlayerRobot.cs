@@ -111,7 +111,6 @@ namespace Player {
         private ParticleSystem bonusJumpParticles;
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
-        private float remainingNanoBotTime;
         private float timeSinceDamaged = 0;
         
         void Start() {
@@ -685,11 +684,8 @@ namespace Player {
             iFrames--;
             
             CanStartClimbing();
-            Debug.Log(remainingNanoBotTime);
-            Debug.Log(timeSinceDamaged);
-            if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && remainingNanoBotTime > 0)
+            if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
             {
-                remainingNanoBotTime -= Time.fixedDeltaTime;
                 NanoBotHeal();
             }
             if (climbing) {
@@ -883,15 +879,17 @@ namespace Player {
         public void NanoBotHeal()
         {
             float maxHealth = GetHealth();
+            if (robotData.Health >= maxHealth) return;
             robotData.Health += maxHealth * 0.0025f;
-            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
+            robotData.nanoBotTime -= Time.fixedDeltaTime;
             nanoBotParticles.Play();
-            
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
 
         public void RefreshNanoBots()
         {
-            remainingNanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
+            nanoBotParticles.Play();
+            robotData.nanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
         }
 
         public bool Damage(float amount)
