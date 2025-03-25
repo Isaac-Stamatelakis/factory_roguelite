@@ -16,7 +16,7 @@ namespace Player.Robot
             RobotItemData robotData = playerRobot.RobotData;
             if (robotData == null) return;
             mHealthBar.size = robotData.Health / playerRobot.GetHealth();
-            mEnergyBar.size = ((float)robotData.Energy) / playerRobot.GetEnergy();
+            mEnergyBar.size = ((float)robotData.Energy) / playerRobot.GetEnergyStorage();
         }
         
     }

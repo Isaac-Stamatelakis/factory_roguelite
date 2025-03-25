@@ -44,10 +44,6 @@ namespace Conduits {
 
         public static IConduitInteractable GetInteractableFromTileEntity(ITileEntityInstance tileEntityInstance, ConduitType conduitType)
         {
-            if (conduitType == ConduitType.Item)
-            {
-                Debug.Log($"{tileEntityInstance.GetName()} {tileEntityInstance is ISolidItemPortTileEntityAggregator}");
-            }
             return tileEntityInstance switch
             {
                 null => null,

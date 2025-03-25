@@ -434,7 +434,7 @@ namespace Player {
             return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
         }
 
-        public ulong GetEnergy()
+        public ulong GetEnergyStorage()
         {
             return currentRobot.MaxEnergy * 2 << RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Energy);
         }
@@ -756,10 +756,32 @@ namespace Player {
 
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
+            ulong maxEnergy = GetEnergyStorage();
             if (robotData.Energy >= currentRobot.MaxEnergy) return;
             
             robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
             if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
+        }
+
+        /// <summary>
+        /// Inserts energy into the player robot
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <returns>Returns amount taken</returns>
+        public ulong GiveEnergy(ulong amount)
+        {
+            ulong storage = GetEnergyStorage();
+            if (robotData.Energy >= storage)
+            {
+                return 0;
+            }
+            ulong sum = robotData.Energy+=amount;
+            if (sum > storage) {
+                robotData.Energy = storage;
+                return sum - storage;
+            }
+            robotData.Energy = sum;
+            return amount;
         }
 
         public bool TryConsumeEnergy(ulong energy, float minPercent)
