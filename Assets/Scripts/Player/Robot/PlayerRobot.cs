@@ -111,6 +111,8 @@ namespace Player {
         private ParticleSystem bonusJumpParticles;
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
+        private float remainingNanoBotTime;
+        private float timeSinceDamaged = 0;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -131,7 +133,7 @@ namespace Player {
                 var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
                 yield return handle;
                 var instantiated = GameObject.Instantiate(handle.Result, transform, false);
-                instantiated.transform.localPosition = Vector3.zero;
+                instantiated.transform.localPosition = new Vector3(0,0,5);
                 onLoad(instantiated);
                 Addressables.Release(handle);
             }
@@ -152,10 +154,11 @@ namespace Player {
 
         public void Update()
         {
-            mPlayerRobotUI.Display(robotData,currentRobot);
+            mPlayerRobotUI.Display(this);
             MoveUpdate();
             cameraBounds.UpdateCameraBounds();
             MiscKeyListens();
+            timeSinceDamaged += Time.deltaTime;
         }
 
         private void MiscKeyListens()
@@ -427,6 +430,16 @@ namespace Player {
             rb.velocity = velocity;
         }
 
+        public float GetHealth()
+        {
+            return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
+        }
+
+        public ulong GetEnergy()
+        {
+            return currentRobot.MaxEnergy * 2 << RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Energy);
+        }
+
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
             if (climbing) return;
@@ -672,9 +685,14 @@ namespace Player {
             iFrames--;
             
             CanStartClimbing();
-           
+            Debug.Log(remainingNanoBotTime);
+            Debug.Log(timeSinceDamaged);
+            if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && remainingNanoBotTime > 0)
+            {
+                remainingNanoBotTime -= Time.fixedDeltaTime;
+                NanoBotHeal();
+            }
             if (climbing) {
-                //RemoveCollisionState(CollisionState.OnGround);
                 HandleClimbing();
                 return;
             }
@@ -857,8 +875,23 @@ namespace Player {
         public void Heal(float amount)
         {
             robotData.Health += amount;
-             nanoBotParticles.Play();
-            if (robotData.Health > currentRobot.BaseHealth) robotData.Health = currentRobot.BaseHealth;
+            nanoBotParticles.Play();
+            float maxHealth = GetHealth();
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
+        }
+
+        public void NanoBotHeal()
+        {
+            float maxHealth = GetHealth();
+            robotData.Health += maxHealth * 0.0025f;
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
+            nanoBotParticles.Play();
+            
+        }
+
+        public void RefreshNanoBots()
+        {
+            remainingNanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
         }
 
         public bool Damage(float amount)
@@ -867,6 +900,7 @@ namespace Player {
             iFrames = 15;
             liveYUpdates = 3;
             robotData.Health -= amount;
+            timeSinceDamaged = 0;
             if (robotData.Health > 0 || dead) return true;
             
             Die();
@@ -877,8 +911,6 @@ namespace Player {
         {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = currentRobot.BaseHealth;
-            PlayerScript playerScript = GetComponent<PlayerScript>();
-            
             DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
             dead = false;
         }

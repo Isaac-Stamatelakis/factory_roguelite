@@ -37,7 +37,7 @@ namespace TileEntity.Instances.Robot.Upgrader
             if (!playerRobot) return;
             float distance = Vector2.Distance(playerRobot.transform.position, GetWorldPosition());
             if (distance > RANGE) return;
-            playerRobot.Heal(0.05f);
+            playerRobot.RefreshNanoBots();
         }
 
         public void Load()

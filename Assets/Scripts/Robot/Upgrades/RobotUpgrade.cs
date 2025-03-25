@@ -31,6 +31,9 @@ namespace Robot.Upgrades {
         Teleport = 8,
         Light = 9,
         NightVision = 10,
+        Health = 11,
+        Energy = 12,
+        NanoBots = 13,
     }
     
     internal enum RobotDrillUpgrade
