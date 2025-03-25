@@ -811,7 +811,7 @@ namespace Player {
             float remaining = energy-intCost;
             if (remaining > 0.01f)
             {
-                float ran = UnityEngine.Random.Range(0, 1);
+                float ran = UnityEngine.Random.value;
                 if (remaining < ran) robotData.Energy -= 1;
             }
             return true;

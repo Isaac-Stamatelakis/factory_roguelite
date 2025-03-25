@@ -36,6 +36,7 @@ namespace Robot.Upgrades
         [SerializeField] private FormattedSlider mNumSliderPrefab;
         [SerializeField] private Transform presetList;
         [SerializeField] private Transform energyElementList;
+        [SerializeField] private RobotUpgradeEnergyCostElement upgradeEnergyCostElementPrefab;
         private Button[] presetSelectButtons;
         private Color buttonColor;
         private Color highlightButtonColor = Color.green;
@@ -45,7 +46,7 @@ namespace Robot.Upgrades
         private RobotUpgradeInfo robotUpgradeInfo;
         
         
-        public void Initialize()
+        private void Initialize(RobotUpgradeInfo upgradeInfo)
         {
             presetSelectButtons = presetList.GetComponentsInChildren<Button>();
             if (presetSelectButtons.Length == 0) return;
@@ -58,6 +59,13 @@ namespace Robot.Upgrades
                 {
                     SelectPreset(buttonIndex);
                 });
+            }
+
+            GlobalHelper.DeleteAllChildren(energyElementList);
+            foreach (string defaultValue in upgradeInfo.GetDefaultCosts())
+            {
+                RobotUpgradeEnergyCostElement energyCostElement = Instantiate(upgradeEnergyCostElementPrefab, energyElementList.transform, false);
+                energyCostElement.SetDisplayText(defaultValue);
             }
         }
 
@@ -73,7 +81,7 @@ namespace Robot.Upgrades
 
         internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo)
         {
-            Initialize();
+            Initialize(upgradeInfo);
             this.robotStatLoadOutCollection = statLoadOutCollection;
             this.statUpgradeDict = statUpgradeDict;
             this.robotUpgradeInfo = upgradeInfo;

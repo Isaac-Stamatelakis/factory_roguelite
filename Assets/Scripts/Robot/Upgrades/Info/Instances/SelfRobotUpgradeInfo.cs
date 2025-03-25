@@ -62,6 +62,11 @@ namespace Robot.Upgrades.Info.Instances
             return ((RobotUpgrade)upgrade).ToString();
         }
 
+        public override List<string> GetDefaultCosts()
+        {
+            return new List<string>();
+        }
+
         public override IAmountFormatter GetAmountFormatter(int upgrade)
         {
             PlayerRobot playerRobot = PlayerManager.Instance.GetPlayer().PlayerRobot;
@@ -109,13 +114,13 @@ namespace Robot.Upgrades.Info.Instances
             switch (robotUpgrade)
             {
                 case RobotUpgrade.Speed:
-                    return new EnergyCostFormatter(SPEED_INCREASE_COST_PER_SECOND);
+                    return new EnergyCostFormatter(SPEED_INCREASE_COST_PER_SECOND,true,false);
                 case RobotUpgrade.JumpHeight:
                     break;
                 case RobotUpgrade.BonusJump:
-                    return new EnergyCostFormatter(BONUS_JUMP_COST);
+                    return new EnergyCostFormatter(BONUS_JUMP_COST,false,true);
                 case RobotUpgrade.RocketBoots:
-                    return new EnergyCostFormatter(ROCKET_BOOTS_COST_PER_SECOND);
+                    return new EnergyCostFormatter(ROCKET_BOOTS_COST_PER_SECOND,true,true);
                 case RobotUpgrade.Flight:
                     break;
                 case RobotUpgrade.Reach:
@@ -125,7 +130,7 @@ namespace Robot.Upgrades.Info.Instances
                 case RobotUpgrade.Hover:
                     break;
                 case RobotUpgrade.Teleport:
-                    break;
+                    return new EnergyCostFormatter(TELEPORT_COST,false,true);
                 case RobotUpgrade.Light:
                     break;
                 case RobotUpgrade.NightVision:
@@ -177,20 +182,33 @@ namespace Robot.Upgrades.Info.Instances
             }
         }
         
-        private class EnergyCostFormatter : IContinousUpgradeAmountFormatter
+        private class EnergyCostFormatter : IContinousUpgradeAmountFormatter, IDiscreteUpgradeAmountFormatter
         {
             private readonly ulong cost;
-
-            public EnergyCostFormatter(ulong cost)
+            private readonly bool perSecond;
+            private readonly bool constant;
+            private string suffix;
+            public EnergyCostFormatter(ulong cost, bool perSecond, bool constant)
             {
                 this.cost = cost;
+                this.perSecond = perSecond;
+                this.constant = constant;
+                suffix = perSecond ? "/s" : "";
             }
 
             public string Format(float upgrade)
             {
-                return $"Requires: {cost * upgrade:F0}J/S";
+                float value = constant ? cost : cost * upgrade;
+                return $"Requires: {value}J{suffix}";
+            }
+
+            public string Format(int upgrade)
+            {
+                ulong value = constant ? cost : cost * (ulong)upgrade;
+                return $"Requires: {value}J{suffix}";
             }
         }
+        
         
         private class RatioUpgradeFormatter : IDiscreteUpgradeAmountFormatter, IContinousUpgradeAmountFormatter
         {

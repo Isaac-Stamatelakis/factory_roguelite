@@ -29,6 +29,14 @@ namespace Robot.Upgrades.Info.Instances
             return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
 
+        public override List<string> GetDefaultCosts()
+        {
+            return new List<string>
+            {
+                $"Requires {COST_PER_HIT}J/hit"
+            };
+        }
+
         public override IAmountFormatter GetAmountFormatter(int upgrade)
         {
             ConduitSlicerUpgrade conduitSlicerUpgrade = (ConduitSlicerUpgrade)upgrade;

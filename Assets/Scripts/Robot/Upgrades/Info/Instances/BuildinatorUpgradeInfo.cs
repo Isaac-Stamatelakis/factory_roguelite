@@ -9,6 +9,7 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class BuildinatorUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong COST_PER_HIT = 32;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<BuildinatorUpgrade>();
@@ -27,6 +28,14 @@ namespace Robot.Upgrades.Info.Instances
         public override string GetTitle(int upgrade)
         {
             return ((BuildinatorUpgrade)upgrade).ToString();
+        }
+        
+        public override List<string> GetDefaultCosts()
+        {
+            return new List<string>
+            {
+                $"Requires {COST_PER_HIT}J/hit"
+            };
         }
 
         public override IAmountFormatter GetAmountFormatter(int upgrade)
