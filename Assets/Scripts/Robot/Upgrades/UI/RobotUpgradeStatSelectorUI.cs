@@ -35,8 +35,7 @@ namespace Robot.Upgrades
         [SerializeField] private VerticalLayoutGroup mList;
         [SerializeField] private FormattedSlider mNumSliderPrefab;
         [SerializeField] private Transform presetList;
-        [SerializeField] private Transform energyElementList;
-        [SerializeField] private RobotUpgradeEnergyCostElement upgradeEnergyCostElementPrefab;
+        [SerializeField] private RobotUpgradeEnergyCostElement upgradeEnergyCostElement;
         private Button[] presetSelectButtons;
         private Color buttonColor;
         private Color highlightButtonColor = Color.green;
@@ -60,13 +59,10 @@ namespace Robot.Upgrades
                     SelectPreset(buttonIndex);
                 });
             }
-
-            GlobalHelper.DeleteAllChildren(energyElementList);
-            foreach (string defaultValue in upgradeInfo.GetDefaultCosts())
-            {
-                RobotUpgradeEnergyCostElement energyCostElement = Instantiate(upgradeEnergyCostElementPrefab, energyElementList.transform, false);
-                energyCostElement.SetDisplayText(defaultValue);
-            }
+            
+            string costText = upgradeInfo.GetDefaultCosts();
+            upgradeEnergyCostElement.gameObject.SetActive(!string.IsNullOrEmpty(costText));
+            upgradeEnergyCostElement.SetDisplayText(costText);
         }
 
         private void SelectPreset(int index)

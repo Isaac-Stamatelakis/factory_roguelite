@@ -54,12 +54,9 @@ namespace Robot.Upgrades.Info.Instances
             return null;
         }
         
-        public override List<string> GetDefaultCosts()
+        public override string GetDefaultCosts()
         {
-            return new List<string>
-            {
-                $"Requires {COST_PER_HIT}J/hit"
-            };
+            return $"Requires {COST_PER_HIT}J/hit";
         }
 
         public override IAmountFormatter GetEnergyCostFormatter(int upgrade)

@@ -61,13 +61,9 @@ namespace Robot.Upgrades.Info.Instances
             return System.Enum.GetValues(typeof(LaserGunUpgrade)).Cast<int>().ToList();
         }
         
-        public override List<string> GetDefaultCosts()
+        public override string GetDefaultCosts()
         {
-            return new List<string>
-            {
-                $"Requires: {COST_PER_LASER}J/laser",
-                $"Requires: {COST_PER_EXPLOSION}J/explosion"
-            };
+            return $"Requires: {COST_PER_LASER}J/laser\n& {COST_PER_EXPLOSION}J/explosion\"";
         }
     }
 }

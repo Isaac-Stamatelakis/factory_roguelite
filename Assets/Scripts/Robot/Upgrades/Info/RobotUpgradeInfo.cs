@@ -22,7 +22,7 @@ namespace Robot.Upgrades.Info
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
         public abstract string GetTitle(int upgrade);
-        public abstract List<string> GetDefaultCosts();
+        public abstract string GetDefaultCosts();
         public abstract IAmountFormatter GetAmountFormatter(int upgrade);
         public abstract IAmountFormatter GetEnergyCostFormatter(int upgrade);
         public RobotStatLoadOut GetRobotStatLoadOut()

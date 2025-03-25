@@ -30,12 +30,9 @@ namespace Robot.Upgrades.Info.Instances
             return ((BuildinatorUpgrade)upgrade).ToString();
         }
         
-        public override List<string> GetDefaultCosts()
+        public override string GetDefaultCosts()
         {
-            return new List<string>
-            {
-                $"Requires {COST_PER_HIT}J/hit"
-            };
+            return $"Requires {COST_PER_HIT}J/hit";
         }
 
         public override IAmountFormatter GetAmountFormatter(int upgrade)

@@ -790,6 +790,7 @@ namespace Player {
             return amount;
         }
 
+        
         public bool TryConsumeEnergy(ulong energy, float minPercent)
         {
             if (DevMode.Instance.NoEnergyCost) return true;
@@ -800,6 +801,13 @@ namespace Player {
             return true;
         }
         
+        /// <summary>
+        /// This function consumes a given float value from the robot's energy.
+        /// </summary>
+        /// <param name="energy"></param>
+        /// <param name="minPercent"></param>
+        /// <example>2.25f -> Consumes 2 energy + 1 25% of the time</example>
+        /// <returns></returns>
         public bool TryConsumeEnergy(float energy, float minPercent)
         {
             if (DevMode.Instance.NoEnergyCost) return true;
@@ -807,13 +815,14 @@ namespace Player {
             ulong max = currentRobot.MaxEnergy;
             if (current < energy || (float)(current - energy)/max < minPercent) return false;
             ulong intCost = (ulong)energy;
-            robotData.Energy -= intCost;
+            
             float remaining = energy-intCost;
             if (remaining > 0.01f)
             {
                 float ran = UnityEngine.Random.value;
-                if (remaining < ran) robotData.Energy -= 1;
+                intCost += Convert.ToUInt64(remaining < ran);
             }
+            robotData.Energy -= intCost;
             return true;
         }
 

@@ -11,7 +11,7 @@ namespace Robot.Upgrades.Info.Instances
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
     {
         public const ulong FLIGHT_COST = 1024;
-        public const ulong SPEED_INCREASE_COST_PER_SECOND = 16;
+        public const ulong SPEED_INCREASE_COST_PER_SECOND = 64;
         public const ulong JUMP_INCREASE_COST = 128;
         public const ulong BONUS_JUMP_COST = 512;
         public const ulong ROCKET_BOOTS_COST_PER_SECOND = 128;
@@ -62,9 +62,9 @@ namespace Robot.Upgrades.Info.Instances
             return ((RobotUpgrade)upgrade).ToString();
         }
 
-        public override List<string> GetDefaultCosts()
+        public override string GetDefaultCosts()
         {
-            return new List<string>();
+            return null;
         }
 
         public override IAmountFormatter GetAmountFormatter(int upgrade)
