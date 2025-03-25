@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
@@ -49,6 +50,12 @@ namespace Player {
     }
     public class PlayerRobot : MonoBehaviour
     {
+        private enum RobotParticleSystems
+        {
+            Teleport,
+            BonusJump,
+            Heal
+        }
         private static readonly int Walk = Animator.StringToHash("IsWalking");
         private static readonly int Air = Animator.StringToHash("InAir");
 
@@ -103,6 +110,7 @@ namespace Player {
         private PlayerTeleportEvent playerTeleportEvent;
         private ParticleSystem bonusJumpParticles;
         private ParticleSystem teleportParticles;
+        private ParticleSystem nanoBotParticles;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -113,22 +121,33 @@ namespace Player {
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
-            StartCoroutine(LoadAsyncAssets());
+            LoadAsyncAssets();
         }
 
-        private IEnumerator LoadAsyncAssets()
+        private void LoadAsyncAssets()
         {
-            var bonusJumpHandle = Addressables.LoadAssetAsync<GameObject>(RobotUpgradeAssets.BonusJumpParticles);
-            var tpHandle = Addressables.LoadAssetAsync<GameObject>(RobotUpgradeAssets.TeleportParticles);
-            yield return bonusJumpHandle;
-            yield return tpHandle;
-            bonusJumpParticles = GameObject.Instantiate(bonusJumpHandle.Result,transform,false).GetComponent<ParticleSystem>();
-            bonusJumpParticles.transform.localPosition = Vector3.zero;
+            IEnumerator LoadAsset(AssetReference assetReference, Action<GameObject> onLoad)
+            {
+                var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
+                yield return handle;
+                var instantiated = GameObject.Instantiate(handle.Result, transform, false);
+                instantiated.transform.localPosition = Vector3.zero;
+                onLoad(instantiated);
+                Addressables.Release(handle);
+            }
             
-            teleportParticles = GameObject.Instantiate(tpHandle.Result,transform,false).GetComponent<ParticleSystem>();
-            teleportParticles.transform.localPosition = Vector3.zero;
-            Addressables.Release(bonusJumpHandle);
-            Addressables.Release(tpHandle);
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
+            {
+                bonusJumpParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.TeleportParticles, (GameObject result) =>
+            {
+                teleportParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.NanoBotParticles, (GameObject result) =>
+            {
+                nanoBotParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
         }
 
         public void Update()
@@ -838,6 +857,7 @@ namespace Player {
         public void Heal(float amount)
         {
             robotData.Health += amount;
+             nanoBotParticles.Play();
             if (robotData.Health > currentRobot.BaseHealth) robotData.Health = currentRobot.BaseHealth;
         }
 
@@ -1074,6 +1094,7 @@ namespace Player {
             public AssetReference RocketBootParticles;
             public AssetReference BonusJumpParticles;
             public AssetReference TeleportParticles;
+            public AssetReference NanoBotParticles;
         }
     }
 
