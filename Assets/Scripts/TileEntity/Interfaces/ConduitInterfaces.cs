@@ -6,14 +6,43 @@ using TileEntity.Instances.Matrix;
 using Conduits.Systems;
 using Conduits.Ports;
 
+/// <summary>
+/// TileEntities that implement this interface will be interactable by conduits as defined by their ConduitPortLayout
+/// </summary>
 public interface IConduitPortTileEntity : ISoftLoadableTileEntity {
     public ConduitPortLayout GetConduitPortLayout();
 }
 
-
+/// <summary>
+/// Alternative interface to the individual PortTileEntityAggregators
+/// </summary>
 public interface IConduitPortTileEntityAggregator : IConduitPortTileEntity
 {
     public IConduitInteractable GetConduitInteractable(ConduitType conduitType);
+}
+
+public interface IEnergyPortTileEntityAggregator
+{
+    public IEnergyConduitInteractable GetEnergyConduitInteractable();
+}
+public interface ISolidItemPortTileEntityAggregator
+{
+    public IItemConduitInteractable GetSolidItemConduitInteractable();
+}
+
+public interface IFluidItemPortTileEntityAggregator
+{
+    public IItemConduitInteractable GetFluidItemConduitInteractable();
+}
+
+public interface ISignalPortTileEntityAggregator
+{
+    public ISignalConduitInteractable GetSignalConduitInteractable();
+}
+
+public interface IMatrixPortTileEntityAggregator : IConduitPortTileEntity
+{
+    public IMatrixConduitInteractable GetMatrixConduitInteractable();
 }
 public interface IConduitInteractable
 {

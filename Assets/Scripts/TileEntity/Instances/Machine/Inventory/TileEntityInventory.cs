@@ -11,6 +11,7 @@ using RecipeModule;
 using TileEntity.Instances.Machine;
 using TileEntity.Instances.Machine.Instances.Passive;
 using TileEntity.Instances.Machine.UI;
+using TileEntity.Instances.Storage;
 
 namespace TileEntity {
     public class TileEntityInventory {
@@ -94,72 +95,23 @@ namespace TileEntity {
         }
     }
 
-    public class MachineEnergyInventory :  IEnergyConduitInteractable
+    public class MachineEnergyInventory :  IEnergyPortTileEntityAggregator
     {
+        public EnergyInventory EnergyInventory;
         public MachineEnergyInventory(ulong energy, IMachineInstance parent)
         {
-            Energy = energy;
-            this.parent = parent;
             Tier tier = Tier.Basic;
             if (parent.GetTileEntity() is ITieredTileEntity tieredTileEntity)
             {
                 tier = tieredTileEntity.GetTier();
             }
-
-            maxEnergy = tier.GetEnergyStorage();
+            
+            EnergyInventory = new CallBackEnergyInventory(energy, tier.GetEnergyStorage(),() => {parent.InventoryUpdate(0);});
         }
-
-        public ulong Energy;
-        private IMachineInstance parent;
-        private ulong maxEnergy;
-        public ulong InsertEnergy(ulong amount, Vector2Int portPosition)
+        
+        public IEnergyConduitInteractable GetEnergyConduitInteractable()
         {
-            if (Energy >= maxEnergy) {
-                return 0;
-            }
-            parent.InventoryUpdate(0);
-            ulong sum = Energy+=amount;
-            if (sum > maxEnergy) {
-                Energy = maxEnergy;
-                return sum - maxEnergy;
-            }
-            Energy = sum;
-            return amount;
-        }
-
-        public static ulong InsertEnergy(ref ulong energy, ulong input, ulong maxEnergy)
-        {
-            ulong sum = energy+=input;
-            if (sum > maxEnergy) {
-                energy = maxEnergy;
-                return sum - maxEnergy;
-            }
-            energy = sum;
-            return input;
-        }
-
-        public ulong GetEnergy(Vector2Int portPosition)
-        {
-            return Energy;
-        }
-
-        public void SetEnergy(ulong energy, Vector2Int portPosition)
-        {
-            Energy = energy;
-        }
-
-        public ulong GetSpace()
-        {
-            return maxEnergy - Energy;
-        }
-        public float GetFillPercent()
-        {
-            return ((float)Energy)/maxEnergy;
-        }
-
-        public void Fill()
-        {
-            Energy = maxEnergy;
+            return EnergyInventory;
         }
     }
     public static class TileEntityInventoryFactory {
@@ -235,7 +187,7 @@ namespace TileEntity {
     {
         public static string SerializedEnergyMachineInventory(MachineEnergyInventory machineInventory)
         {
-            return machineInventory == null ? null : JsonConvert.SerializeObject(machineInventory.Energy);
+            return machineInventory == null ? null : JsonConvert.SerializeObject(machineInventory.EnergyInventory.Energy);
         }
 
         public static string SerializeMachineBurnerInventory(BurnerFuelInventory burnerFuelInventory)

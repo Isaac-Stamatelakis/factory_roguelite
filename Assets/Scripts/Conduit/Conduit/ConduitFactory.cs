@@ -44,10 +44,19 @@ namespace Conduits {
 
         public static IConduitInteractable GetInteractableFromTileEntity(ITileEntityInstance tileEntityInstance, ConduitType conduitType)
         {
+            if (conduitType == ConduitType.Item)
+            {
+                Debug.Log($"{tileEntityInstance.GetName()} {tileEntityInstance is ISolidItemPortTileEntityAggregator}");
+            }
             return tileEntityInstance switch
             {
                 null => null,
                 IConduitPortTileEntityAggregator aggregator => aggregator.GetConduitInteractable(conduitType),
+                ISolidItemPortTileEntityAggregator solidItemAggregator when conduitType == ConduitType.Item => solidItemAggregator.GetSolidItemConduitInteractable(),
+                IFluidItemPortTileEntityAggregator fluidItemAggregator when conduitType == ConduitType.Fluid => fluidItemAggregator.GetFluidItemConduitInteractable(),
+                IEnergyPortTileEntityAggregator energyAggregator when conduitType == ConduitType.Energy => energyAggregator.GetEnergyConduitInteractable(),
+                ISignalPortTileEntityAggregator signalAggregator when conduitType == ConduitType.Signal => signalAggregator.GetSignalConduitInteractable(),
+                IMatrixPortTileEntityAggregator matrixAggregator when conduitType == ConduitType.Matrix => matrixAggregator.GetMatrixConduitInteractable(),
                 IConduitInteractable conduitInteractable => conduitInteractable,
                 _ => null
             };

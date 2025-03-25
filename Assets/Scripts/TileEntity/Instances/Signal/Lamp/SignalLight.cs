@@ -20,7 +20,7 @@ namespace TileEntity.Instances.Signal {
         }
     }
 
-    public class SignalLampInstance : TileEntityInstance<SignalLight>, ILoadableTileEntity, ISignalConduitInteractable, IRequireSystemLoadedTileEntity
+    public class SignalLampInstance : TileEntityInstance<SignalLight>, ILoadableTileEntity, ISignalConduitInteractable, IOverrideSoftLoadTileEntity
     {
         private bool active;
         private GameObject lightObject;

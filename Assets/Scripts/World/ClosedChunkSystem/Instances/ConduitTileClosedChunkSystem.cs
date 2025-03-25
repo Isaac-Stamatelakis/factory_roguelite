@@ -179,7 +179,7 @@ namespace Chunks.Systems {
                     var partitionSoftLoadableTileEntities = partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>();
                     foreach (ISoftLoadableTileEntity softLoadableTileEntity in partitionSoftLoadableTileEntities)
                     {
-                        if (softLoadableTileEntity is not IRequireSystemLoadedTileEntity)
+                        if (softLoadableTileEntity is not IOverrideSoftLoadTileEntity)
                         {
                             softLoadableTileEntities.Add(softLoadableTileEntity);
                         }

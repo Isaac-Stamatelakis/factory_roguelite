@@ -98,7 +98,7 @@ namespace TileEntity.Instances.Machine.UI
         {
             if (machineEnergyInventory != null)
             {
-                energyScrollbar.size = machineEnergyInventory.GetFillPercent();
+                energyScrollbar.size = machineEnergyInventory.EnergyInventory.GetFillPercent();
             }
 
             if (displayedInstance != null)

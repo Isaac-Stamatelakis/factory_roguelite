@@ -20,7 +20,7 @@ namespace TileEntity.Instances.Storage {
 
         void Update()
         {
-            energySlider.value = ((float) battery.Energy)/battery.TileEntityObject.Storage;
+            energySlider.value = ((float) battery.EnergyInventory.Energy)/battery.TileEntityObject.Storage;
         }
     }
 }
