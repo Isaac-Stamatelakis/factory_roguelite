@@ -24,6 +24,7 @@ namespace Robot.Tool.Instances.Gun
         
         public void Initialize(float damage, Vector2 direction, float speed, ToolObjectPool particlePool)
         {
+            if (direction == Vector2.zero) direction = Vector2.up;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             this.particlePool = particlePool;
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
@@ -71,10 +72,9 @@ namespace Robot.Tool.Instances.Gun
         private IEnumerator DelayDestroy()
         {
             GetComponent<SpriteRenderer>().enabled = false;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.4f);
             particlePool.ReturnToPool(particles.gameObject);
             Destroy(gameObject);
-            ;
         }
     }
 }

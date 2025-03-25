@@ -37,7 +37,7 @@ namespace Dimensions {
 
         public void ClearEntities()
         {
-            GlobalHelper.deleteAllChildren(entityContainer);
+            GlobalHelper.DeleteAllChildren(entityContainer);
         }
         
         public abstract void DeActivateSystem();

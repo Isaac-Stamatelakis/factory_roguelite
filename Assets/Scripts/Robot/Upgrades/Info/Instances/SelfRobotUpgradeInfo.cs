@@ -7,6 +7,15 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class SelfRobotUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong FLIGHT_COST = 1024;
+        public const ulong SPEED_INCREASE_COST = 4;
+        public const ulong JUMP_INCREASE_COST = 128;
+        public const ulong BONUS_JUMP_COST = 512;
+        public const ulong ROCKET_BOOTS_COST = 32;
+        public const ulong TELEPORT_COST = 16384;
+        public const int NANO_BOT_DELAY = 2;
+        public const int HEALTH_PER_UPGRADE = 5;
+        public const float NANO_BOT_TIME_PER_UPGRADE = 2f;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<RobotUpgrade>();
@@ -31,7 +40,14 @@ namespace Robot.Upgrades.Info.Instances
                 case RobotUpgrade.Dash:
                 case RobotUpgrade.Hover:
                 case RobotUpgrade.Teleport:
-                    return null;
+                case RobotUpgrade.Light:
+                case RobotUpgrade.NightVision:
+                case RobotUpgrade.Health:
+                    return "Increases max health";
+                case RobotUpgrade.Energy:
+                    return "Increases max energy";
+                case RobotUpgrade.NanoBots:
+                    return $"After not taking damage for {NANO_BOT_DELAY} seconds, nanobots heal the robot";
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -69,6 +85,14 @@ namespace Robot.Upgrades.Info.Instances
                     break;
                 case RobotUpgrade.NightVision:
                     break;
+                case RobotUpgrade.Health:
+                    break;
+                case RobotUpgrade.Energy:
+                    break;
+                case RobotUpgrade.NanoBots:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             return null;
@@ -86,7 +110,12 @@ namespace Robot.Upgrades.Info.Instances
 
         public override List<int> GetConstantUpgrades()
         {
-            return new List<int>();
+            return new List<int>
+            {
+                (int)RobotUpgrade.Health,
+                (int)RobotUpgrade.Energy,
+                (int)RobotUpgrade.NanoBots
+            };
         }
 
         public override List<int> GetAllUpgrades()

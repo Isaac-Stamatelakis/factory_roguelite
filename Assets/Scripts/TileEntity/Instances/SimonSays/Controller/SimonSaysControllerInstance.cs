@@ -10,6 +10,7 @@ using Tiles;
 using TileMaps.Place;
 using Chunks.Systems;
 using Chunks.Partitions;
+using Conduits;
 using Conduits.Ports;
 using Item.Slot;
 using TileMaps;
@@ -224,8 +225,7 @@ namespace TileEntity.Instances.SimonSays {
                 Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
                 IChunk chestChunk = closedChunkSystem.GetChunk(chestChunkPosition);
                 ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
-                IItemConduitInteractable itemConduitInteractable = TileEntityUtils.GetConduitInteractable<IItemConduitInteractable>(tileEntityInstance, ConduitType.Item);
-                if (itemConduitInteractable == null)
+                if (ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, ConduitType.Item) is not IItemConduitInteractable itemConduitInteractable)
                 {
                     Debug.LogError($"{tileEntityObject.name} chest tile is not item interactable");
                     return;

@@ -22,15 +22,6 @@ using UI;
 namespace TileEntity {
     public static class TileEntityUtils {
         
-        public static T GetConduitInteractable<T>(ITileEntityInstance tileEntityInstance, ConduitType conduitType) where T : IConduitInteractable
-        {
-            if (tileEntityInstance is T conduitInteractable) return conduitInteractable;
-            if (tileEntityInstance is IConduitPortTileEntityAggregator portTileEntityAggregator)
-            {
-                if (portTileEntityAggregator.GetConduitInteractable(conduitType) is T aggregatorInteractable) return aggregatorInteractable;
-            }
-            return default;
-        }
         public static ITileEntityInstance placeTileEntity(TileItem tileItem, Vector2Int positionInChunk, IChunk chunk, bool load, bool unserialize = false, 
             string data = null, bool assembleMultiblocks = false, bool loadAssets = true) {
             ITileEntityInstance tileEntityInstance = tileItem.tileEntity.CreateInstance(positionInChunk, tileItem, chunk);

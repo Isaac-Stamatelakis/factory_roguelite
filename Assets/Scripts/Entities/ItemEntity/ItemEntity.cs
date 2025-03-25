@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
+using Item.Tags.ItemTagManagers;
+using Items;
+using Items.Tags;
 using Items.Transmutable;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -46,7 +49,86 @@ namespace Entities {
                 spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
             }
             transform.localScale = new Vector3(0.5f, 0.5f,1f);
-            boxCollider.size = spriteRenderer.sprite.bounds.size;
+            
+            AddOverlays();
+            SetColliderSize(boxCollider);
+        }
+
+        private void SetColliderSize(BoxCollider2D boxCollider2D)
+        {
+            if (spriteRenderer.sprite)
+            {
+                boxCollider2D.size = spriteRenderer.sprite.bounds.size;
+                return;
+            }
+
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                if (transform.GetChild(i).tag == "SpriteOverlay")
+                {
+                    var overlaySpriteRenderer = transform.GetChild(i).GetComponent<SpriteRenderer>();
+                    boxCollider2D.size = overlaySpriteRenderer.sprite.bounds.size;
+                    return;
+                }
+            }
+            boxCollider2D.size = new Vector2(0.5f, 0.5f); // Default
+        }
+        private void SpawnTagObjects()
+        {
+            foreach (var (itemTag, data) in itemSlot.tags.Dict)
+            {
+                GameObject tagObject = itemTag.GetWorldTagElement(itemSlot,data);
+                if (!tagObject) continue;
+                ItemTagVisualLayer visualLayer = itemTag.GetVisualLayer();
+                tagObject.transform.SetParent(transform,false);
+                switch (visualLayer)
+                {
+                    case ItemTagVisualLayer.Front:
+                        tagObject.transform.SetAsFirstSibling();
+                        break;
+                    case ItemTagVisualLayer.Back:
+                        tagObject.transform.SetAsLastSibling();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        private void AddOverlays()
+        {
+            if (itemSlot.tags?.Dict != null)
+            {
+                SpawnTagObjects();
+            }
+
+            if (itemSlot.itemObject is TileItem tileItem)
+            {
+                var tileOverlay = tileItem.tileOptions.Overlay;
+                if (tileOverlay)
+                {
+                    AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor());
+                }
+            }
+
+            if (itemSlot.itemObject.SpriteOverlays != null)
+            {
+                foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
+                {
+                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color);
+                }
+            }
+        }
+        
+        private void AddOverlaySprite(Sprite sprite, Color color)
+        {
+            GameObject overlayContainer = new GameObject("SpriteOverlay");
+            overlayContainer.tag = "SpriteOverlay";
+            SpriteRenderer spriteRenderer = overlayContainer.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = sprite;
+            spriteRenderer.color = color;
+            overlayContainer.transform.SetParent(transform,false);
+            overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
         }
 
         private void IterateLifeTime() {

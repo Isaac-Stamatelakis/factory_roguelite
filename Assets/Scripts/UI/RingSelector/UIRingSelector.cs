@@ -60,7 +60,7 @@ namespace UI.RingSelector
         {
             this.currentComponents = components;
             this.defaultComponent = defaultComponent;
-            GlobalHelper.deleteAllChildren(selectableRingContainer);
+            GlobalHelper.DeleteAllChildren(selectableRingContainer);
             activeComponents = new UIRingSelectorElement[currentComponents.Count];
             for (int i = 0; i < components.Count; i++)
             {

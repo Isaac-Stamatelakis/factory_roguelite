@@ -48,6 +48,11 @@ namespace Conduits {
             {
                 null => null,
                 IConduitPortTileEntityAggregator aggregator => aggregator.GetConduitInteractable(conduitType),
+                ISolidItemPortTileEntityAggregator solidItemAggregator when conduitType == ConduitType.Item => solidItemAggregator.GetSolidItemConduitInteractable(),
+                IFluidItemPortTileEntityAggregator fluidItemAggregator when conduitType == ConduitType.Fluid => fluidItemAggregator.GetFluidItemConduitInteractable(),
+                IEnergyPortTileEntityAggregator energyAggregator when conduitType == ConduitType.Energy => energyAggregator.GetEnergyConduitInteractable(),
+                ISignalPortTileEntityAggregator signalAggregator when conduitType == ConduitType.Signal => signalAggregator.GetSignalConduitInteractable(),
+                IMatrixPortTileEntityAggregator matrixAggregator when conduitType == ConduitType.Matrix => matrixAggregator.GetMatrixConduitInteractable(),
                 IConduitInteractable conduitInteractable => conduitInteractable,
                 _ => null
             };

@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Item.Slot;
 using Items;
+using Player;
 using TileMaps;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -30,10 +32,13 @@ namespace Robot.Upgrades.Instances.VeinMine
             Vector2Int.down,
         };
         
+        private Func<bool> energyCostFunction;
+        
         protected VeinMineItemCollector veinMineItemCollector;
-        protected VeinMineEvent(T hitableTileMap, bool dropItems)
+        protected VeinMineEvent(T hitableTileMap, bool dropItems, Func<bool> energyCostFunction)
         {
             this.hitableTileMap = hitableTileMap;
+            this.energyCostFunction = energyCostFunction;
             if (!dropItems)
             {
                 veinMineItemCollector = new VeinMineItemCollector();
@@ -44,7 +49,6 @@ namespace Robot.Upgrades.Instances.VeinMine
         {
             InitialExpand(initial);
             int breaks = 0;
-            
             while (breaks < veinMinePower && queue.Count > 0)
             {
                 bool broken = TryIterate();
@@ -58,7 +62,7 @@ namespace Robot.Upgrades.Instances.VeinMine
         private bool TryIterate()
         {
             Vector2Int current = queue.Dequeue();
-            
+            if (!energyCostFunction.Invoke()) return false;
             if (!hitableTileMap.hasTile(current)) return false;
             Expand(current);
             if (DevMode.Instance.instantBreak)

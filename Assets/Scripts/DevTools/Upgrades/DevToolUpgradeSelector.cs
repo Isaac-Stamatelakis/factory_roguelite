@@ -17,7 +17,7 @@ namespace DevTools.Upgrades
 
         public override void DisplayList()
         {
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             string path = DevToolUtils.GetDevToolPath(DevTool.Upgrade);
             string[] files = Directory.GetFiles(path);
             

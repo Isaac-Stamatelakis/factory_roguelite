@@ -96,7 +96,7 @@ namespace Conduits.Systems {
                 for (var index = ports.Count-1; index >= 0; index--)
                 {
                     var port = ports[index];
-                    if (port.GetInteractable() is ISystemLoadedConduitPortTileEntity)
+                    if (port.GetInteractable() is IOverrideSoftLoadTileEntity)
                     {
                         ports.RemoveAt(index);
                     }

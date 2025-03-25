@@ -23,7 +23,8 @@ namespace RobotModule {
                 RobotToolFactory.Serialize(robotItemData.ToolData),
                 robotItemData.RobotUpgrades,
                 robotItemData.Health,
-                robotItemData.Energy
+                robotItemData.Energy,
+                robotItemData.nanoBotTime
             );
             return JsonConvert.SerializeObject(seralizedRobotItemData);
         }
@@ -33,7 +34,9 @@ namespace RobotModule {
                 RobotToolFactory.Deserialize(seralizedRobotItemData.SerializedToolData),
                 seralizedRobotItemData.RobotUpgradeData,
                 seralizedRobotItemData.Health,
-                seralizedRobotItemData.Energy
+                seralizedRobotItemData.Energy,
+                seralizedRobotItemData.NanoBotTime
+                
             );
             robotItemData.RobotUpgrades ??= new List<RobotUpgradeData>();
             return robotItemData;
@@ -59,7 +62,7 @@ namespace RobotModule {
             
             
             ItemRobotToolData defaultToolData = new ItemRobotToolData(defaultTypes, defaultData, newUpgradeData);
-            RobotItemData robotItemData = new RobotItemData(defaultToolData, new List<RobotUpgradeData>(), robotObject.BaseHealth, 0);
+            RobotItemData robotItemData = new RobotItemData(defaultToolData, new List<RobotUpgradeData>(), robotObject.BaseHealth, 0,0);
             Dictionary<ItemTag,object> dict = new Dictionary<ItemTag, object>();
             dict[ItemTag.RobotData] = robotItemData;
             ItemTagCollection itemTagCollection = new ItemTagCollection(
@@ -81,12 +84,14 @@ namespace RobotModule {
             public string SerializedToolData;
             public ulong Energy;
             public float Health;
+            public float NanoBotTime;
             public List<RobotUpgradeData> RobotUpgradeData;
-            public SeralizedRobotItemData(string serializedToolData, List<RobotUpgradeData> robotUpgradeData, float health, ulong energy) {
+            public SeralizedRobotItemData(string serializedToolData, List<RobotUpgradeData> robotUpgradeData, float health, ulong energy, float nanoBotTime) {
                 this.SerializedToolData = serializedToolData;
                 this.Energy = energy;
                 this.Health = health;
                 this.RobotUpgradeData = robotUpgradeData;
+                this.NanoBotTime = nanoBotTime;
             }
         }
     }

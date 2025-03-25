@@ -4,6 +4,7 @@ using Player.Tool.Object;
 using Robot.Tool;
 using Robot.Tool.Instances.Gun;
 using Robot.Upgrades;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.LoadOut;
 using UnityEngine;
 
@@ -41,6 +42,7 @@ namespace Robot.Tool.Instances
         public void ReturnToPool(GameObject obj)
         {
             obj.SetActive(false);
+            obj.transform.position = Vector3.zero;
             pool.Push(obj);
         }
     }
@@ -50,8 +52,9 @@ namespace Robot.Tool.Instances
         private ToolObjectPool laserParticlePool;
         public LaserGun(LaserGunData toolData, RobotLaserGunObject robotObject, RobotStatLoadOutCollection statLoadOutCollection, PlayerScript playerScript) : base(toolData, robotObject, statLoadOutCollection, playerScript)
         {
-            bombParticlePool = new ToolObjectPool(5, robotObject.ExplosionParticlePrefab, playerScript.ToolObjectContainer, "GunAoE");
-            laserParticlePool = new ToolObjectPool(5, robotObject.LaserParticlePrefab, playerScript.ToolObjectContainer, "Laser");
+            // TODO auto adjust this based on firing rate
+            bombParticlePool = new ToolObjectPool(10, robotObject.ExplosionParticlePrefab, playerScript.ToolObjectContainer, "GunAoE");
+            laserParticlePool = new ToolObjectPool(16, robotObject.LaserParticlePrefab, playerScript.ToolObjectContainer, "Laser");
         }
         
         public override Sprite GetPrimaryModeSprite()
@@ -105,7 +108,12 @@ namespace Robot.Tool.Instances
         {
             const float RANDOM_SPEED_RANGE = 5f;
             const float speed = 30;
-            Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
+            Vector2 dif = mousePosition - (Vector2)playerScript.transform.position;
+            if (dif == Vector2.zero)
+            {
+                dif = mousePosition +Vector2.one * 0.05f - (Vector2)playerScript.transform.position;
+            }
+            Vector2 direction = dif.normalized;
             FireLaser(direction,speed + UnityEngine.Random.Range(-RANDOM_SPEED_RANGE,RANDOM_SPEED_RANGE),true);
             
             int bonusShots = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)LaserGunUpgrade.MultiShot);
@@ -142,6 +150,7 @@ namespace Robot.Tool.Instances
 
         private void FireLaser(Vector2 direction, float speed, bool usePool)
         {
+            if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_LASER,0.1f)) return;
             BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.ToolObjectContainer,false);
             basicLaserGunProjectile.transform.position = playerScript.transform.position;
             basicLaserGunProjectile.Initialize(1f, direction, speed, usePool ? laserParticlePool : null);
@@ -149,7 +158,14 @@ namespace Robot.Tool.Instances
 
         private void FireExplosions(Vector2 mousePosition)
         {
-            Vector2 direction = (mousePosition - (Vector2)playerScript.transform.position).normalized;
+            if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_EXPLOSION,0.1f)) return;
+            Vector2 dif = mousePosition - (Vector2)playerScript.transform.position;
+            if (dif == Vector2.zero)
+            {
+                dif = mousePosition +Vector2.one * 0.05f - (Vector2)playerScript.transform.position;
+            }
+            Vector2 direction = dif.normalized;
+            
             LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.ToolObjectContainer,false);
             laserGunExplosionProjectile.transform.position = playerScript.transform.position;
             laserGunExplosionProjectile.Initialize(1f, direction, 10f,bombParticlePool);

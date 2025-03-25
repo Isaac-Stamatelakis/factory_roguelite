@@ -253,7 +253,8 @@ namespace Chunks.Systems {
             {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions())
                 {
-                    softLoadableTileEntities.AddRange(partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>());
+                    List<ISoftLoadableTileEntity> partitionSoftLoadableTileEntities = partition.GetTileEntitiesOfType<ISoftLoadableTileEntity>();
+                    softLoadableTileEntities.AddRange(partitionSoftLoadableTileEntities);
                 }
             }
 

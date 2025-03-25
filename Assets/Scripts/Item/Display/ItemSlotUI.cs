@@ -57,7 +57,6 @@ namespace Items {
         
         private int counter;
         private ItemSlot displayedSlot;
-        private List<Image> overLayImages = new();
         
         public void FixedUpdate() {
             if (currentDisplayList == null || Paused)
@@ -124,7 +123,7 @@ namespace Items {
                 Unload();
                 return;
             }
-            
+            GlobalHelper.DeleteAllChildren(ItemImage.transform);
             displayedSlot = itemSlot;
             
             var toDisplay = new ItemDisplay[sprites.Length];
@@ -160,6 +159,7 @@ namespace Items {
             currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
             counter = 0;
             RefreshDisplay();
+            ItemImage.enabled = ItemImage.sprite;
             ItemImage.gameObject.SetActive(true);
             
             DisplayTagVisuals(itemSlot);
@@ -175,8 +175,7 @@ namespace Items {
             rectTransform.anchorMin = Vector2.zero;
             rectTransform.anchorMax = Vector2.one;
             rectTransform.sizeDelta = Vector2.zero;
-
-            overLayImages.Add(overlayImage);
+            
             overlayObject.transform.SetParent(ItemImage.transform, false);
         }
         
@@ -202,8 +201,8 @@ namespace Items {
 
         public void DisableItemSlotVisuals()
         {
-            GlobalHelper.deleteAllChildren(TagBehindContainer);
-            GlobalHelper.deleteAllChildren(TagFrontContainer);
+            GlobalHelper.DeleteAllChildren(TagBehindContainer);
+            GlobalHelper.DeleteAllChildren(TagFrontContainer);
             mBottomText.text = "";
             if (!ReferenceEquals(mTopText,null)) mTopText.text = "";
      
@@ -211,13 +210,9 @@ namespace Items {
         public void Unload()
         {
             currentDisplayList = null;
+            GlobalHelper.DeleteAllChildren(ItemImage.transform);
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
-            foreach (Image image in overLayImages)
-            {
-                Destroy(image.gameObject);
-            }
-            overLayImages.Clear();
         }
         
 

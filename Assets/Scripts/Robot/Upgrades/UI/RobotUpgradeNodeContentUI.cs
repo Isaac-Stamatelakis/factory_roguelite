@@ -179,7 +179,7 @@ namespace Robot.Upgrades
 
         public void DisplayItemCost()
         {
-            GlobalHelper.deleteAllChildren(mItemList.transform);
+            GlobalHelper.DeleteAllChildren(mItemList.transform);
             for (var i = 0; i < robotUpgradeNode.NodeData.Cost.Count; i++)
             {
                 UpgradeCostItemUI upgradeCostItemUI = Instantiate(mUpgradeCostItemUIPrefab, mItemList.transform);

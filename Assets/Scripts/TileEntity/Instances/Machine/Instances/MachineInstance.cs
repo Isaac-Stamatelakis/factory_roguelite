@@ -22,7 +22,7 @@ namespace TileEntity.Instances.Machine.Instances
         public int Mode;
         public int Restrictions;
         public MachineItemInventory Inventory;
-        public MachineEnergyInventory EnergyInventory;
+        public MachineEnergyInventory MachineEnergyInventory;
         
         protected MachineInstance(TMachine tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {
@@ -37,8 +37,8 @@ namespace TileEntity.Instances.Machine.Instances
 
         protected void InitializeEnergyInventory()
         {
-            if (EnergyInventory != null) return;
-            EnergyInventory = new MachineEnergyInventory(0, this);
+            if (MachineEnergyInventory != null) return;
+            MachineEnergyInventory = new MachineEnergyInventory(0, this);
         }
 
         public abstract void TickUpdate();
@@ -62,7 +62,7 @@ namespace TileEntity.Instances.Machine.Instances
             switch (conduitType)
             {
                 case ConduitType.Energy:
-                    return EnergyInventory;
+                    return MachineEnergyInventory.GetEnergyConduitInteractable();
                 case ConduitType.Item:
                 case ConduitType.Fluid:
                     return Inventory;
@@ -101,7 +101,7 @@ namespace TileEntity.Instances.Machine.Instances
 
         public MachineEnergyInventory GetEnergyInventory()
         {
-            return EnergyInventory;
+            return MachineEnergyInventory;
         }
 
         public void SetMode(int mode)

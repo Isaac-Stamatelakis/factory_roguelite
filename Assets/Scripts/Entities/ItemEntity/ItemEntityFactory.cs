@@ -32,27 +32,7 @@ namespace Entities {
             itemEntity.transform.parent = entityContainer;
             itemEntity.tag = "ItemEntity";
             itemEntity.initalize();
-            if (itemSlot.tags?.Dict != null)
-            {
-                SpawnTagObjects(itemEntity, itemSlot);
-            }
-
-            if (itemSlot.itemObject is TileItem tileItem)
-            {
-                var tileOverlay = tileItem.tileOptions.Overlay;
-                if (tileOverlay)
-                {
-                    AddOverlaySprite(itemEntity,TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor());
-                }
-            }
-
-            if (itemSlot.itemObject.SpriteOverlays != null)
-            {
-                foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
-                {
-                    AddOverlaySprite(itemEntity,spriteOverlay.Sprite,spriteOverlay.Color);
-                }
-            }
+            
             
             if (initialVelocity != null)
             {
@@ -63,37 +43,7 @@ namespace Entities {
             return tileItemEntity;
         }
 
-        private static void AddOverlaySprite(ItemEntity itemEntity, Sprite sprite, Color color)
-        {
-            GameObject overlayContainer = new GameObject("SpriteOverlay");
-            SpriteRenderer spriteRenderer = overlayContainer.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = sprite;
-            spriteRenderer.color = color;
-            overlayContainer.transform.SetParent(itemEntity.transform,false);
-            overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
-        }
-
-        private static void SpawnTagObjects(ItemEntity itemEntity, ItemSlot itemSlot)
-        {
-            foreach (var (tag, data) in itemSlot.tags.Dict)
-            {
-                GameObject gameObject = tag.GetWorldTagElement(itemSlot,data);
-                if (!gameObject) continue;
-                ItemTagVisualLayer visualLayer = tag.GetVisualLayer();
-                gameObject.transform.SetParent(itemEntity.transform,false);
-                switch (visualLayer)
-                {
-                    case ItemTagVisualLayer.Front:
-                        gameObject.transform.SetAsFirstSibling();
-                        break;
-                    case ItemTagVisualLayer.Back:
-                        gameObject.transform.SetAsLastSibling();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+        
 
         public static GameObject SpawnItemEntityWithRandomVelocity(Vector2 position, ItemSlot itemSlot, Transform entityContainer)
         {

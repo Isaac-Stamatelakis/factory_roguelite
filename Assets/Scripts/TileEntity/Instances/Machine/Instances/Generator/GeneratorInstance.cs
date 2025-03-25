@@ -12,6 +12,7 @@ using Recipe.Data;
 using Recipe.Processor;
 using RecipeModule;
 using TileEntity.Instances.Machine.Instances;
+using TileEntity.Instances.Storage;
 using TileEntity.Instances.WorkBenchs;
 using UI;
 
@@ -30,7 +31,7 @@ namespace TileEntity.Instances.Machines
             SerializedGeneratorData serializedGeneratorData = new SerializedGeneratorData(
                 Mode,
                 TileEntityInventoryFactory.Serialize(Inventory.Content),
-                MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(MachineEnergyInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Generator)
             );
             return JsonConvert.SerializeObject(serializedGeneratorData);
@@ -41,15 +42,17 @@ namespace TileEntity.Instances.Machines
             if (ReferenceEquals(currentRecipe,null)) {
                 return;
             }
-            ulong space = EnergyInventory.GetSpace();
+
+            EnergyInventory energyInventory = MachineEnergyInventory.EnergyInventory;
+            ulong space = energyInventory.GetSpace();
             if (space > currentRecipe.EnergyOutputPerTick)
             {
-                EnergyInventory.Energy += currentRecipe.EnergyOutputPerTick;
+                energyInventory.Energy += currentRecipe.EnergyOutputPerTick;
                 currentRecipe.RemainingTicks--;
             }
             else
             {
-                EnergyInventory.Fill();
+                energyInventory.Fill();
                 double loss = (double)space/currentRecipe.EnergyOutputPerTick;
                 currentRecipe.RemainingTicks -= loss;
             }
@@ -93,7 +96,7 @@ namespace TileEntity.Instances.Machines
                 this,
                 TileEntityInventoryFactory.Deserialize(serializedProcessingMachine.SerializedMachineInventory, GetMachineLayout())
             );
-            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
+            MachineEnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             currentRecipe = RecipeSerializationFactory.Deserialize<GeneratorItemRecipe>(
                 serializedProcessingMachine.SerializedGeneratorRecipe, 
                 RecipeType.Generator

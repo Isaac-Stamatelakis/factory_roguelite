@@ -17,6 +17,7 @@ using PlayerModule;
 using Dimensions;
 using Player;
 using TileEntity;
+using TileEntity.AssetManagement;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 using World.Cave.Registry;
@@ -213,6 +214,19 @@ namespace Chunks.Systems {
                 }
             }
             return positions;
+        }
+
+        public IEnumerator LoadTileEntityAssets()
+        {
+            HashSet<TileEntityObject> tileEntityObjects = new HashSet<TileEntityObject>();
+            foreach (ILoadedChunk loadedChunk in cachedChunks.Values) {
+                foreach (IChunkPartition partition in loadedChunk.GetChunkPartitions()) {
+                    if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) continue;
+                    conduitTileChunkPartition.Activate(loadedChunk);
+                    partition.GetTileEntityObjects(tileEntityObjects);
+                }
+            }
+            yield return TileEntityAssetRegistry.Instance.LoadAssets(tileEntityObjects);
         }
 
         public List<ILoadedChunk> GetLoadedChunksNearPlayer() {

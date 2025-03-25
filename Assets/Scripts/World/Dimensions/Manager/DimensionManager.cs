@@ -352,13 +352,18 @@ namespace Dimensions {
         {
             SetPlayerSystem(playerScript,Dimension.OverWorld,Vector2Int.zero);
         }
-        
 
-        public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null) {
+        public void SetPlayerSystem(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
+        {
+            StartCoroutine(SetPlayerSystemCoroutine(player, dimension, teleportPosition, key, dimensionOptions));
+        }
+
+        private IEnumerator SetPlayerSystemCoroutine(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
+        {
             DimController controller = GetDimController(dimension);
             if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
-                return;
+                yield break;
             }
             
             dimensionOptions ??= GetDimensionOptions(dimension);
@@ -370,17 +375,17 @@ namespace Dimensions {
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
             if (!newSystem) {
                 Debug.LogError("Could not switch player system");
-                return;
+                yield break;
             }
             player.PlayerRobot.TemporarilyPausePlayer();
             
             if (ReferenceEquals(newSystem,activeSystem))
             {
                 player.transform.position = Vector2.zero;
-                return;
+                yield break;
             }
             
-            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem conduitTileClosedChunkSystem)
+            if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
             }
@@ -429,8 +434,10 @@ namespace Dimensions {
             }
             
             newSystem.InstantCacheChunksNearPlayer();
+            yield return newSystem.LoadTileEntityAssets();
             newSystem.PlayerPartitionUpdate();
         }
+        
         
         public abstract DimController GetDimController(Dimension dimension);
 

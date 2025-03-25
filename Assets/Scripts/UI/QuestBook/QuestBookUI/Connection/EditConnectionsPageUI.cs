@@ -45,7 +45,7 @@ namespace UI.QuestBook {
         }
 
         public void DisplayConnections() {
-            GlobalHelper.deleteAllChildren(connectionList.transform);
+            GlobalHelper.DeleteAllChildren(connectionList.transform);
             displayed = new HashSet<int>();
 
             // DisplayNewElement nodes in connections first so they are easier to remove

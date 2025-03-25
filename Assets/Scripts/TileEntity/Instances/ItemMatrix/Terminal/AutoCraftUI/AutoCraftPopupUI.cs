@@ -36,7 +36,7 @@ namespace TileEntity.Instances.Matrix {
         }
 
         private void DisplayCraftingTree() {
-            GlobalHelper.deleteAllChildren(itemElementContainer.transform);
+            GlobalHelper.DeleteAllChildren(itemElementContainer.transform);
             Tree<PreparedRecipePreview> craftingTree = AutoCraftingSequenceFactory.CreateRecipeTree(controller,toCraft,amount);
             List<TreeNode<PreparedRecipePreview>> items = TreeHelper.postOrderTraversal<PreparedRecipePreview>(craftingTree);
             foreach (TreeNode<PreparedRecipePreview> preparedRecipePreview in items) {

@@ -10,11 +10,13 @@ namespace Player.Robot
         [SerializeField] private Scrollbar mHealthBar;
         [SerializeField] private Scrollbar mEnergyBar;
         
-        public void Display(RobotItemData robotData, RobotObject robot)
+        public void Display(PlayerRobot playerRobot)
         {
-            if (robotData == null || ReferenceEquals(robot, null)) return;
-            mHealthBar.size = robotData.Health / robot.BaseHealth;
-            mEnergyBar.size = ((float)robotData.Energy) / robot.MaxEnergy;
+            if (!playerRobot) return;
+            RobotItemData robotData = playerRobot.RobotData;
+            if (robotData == null) return;
+            mHealthBar.size = robotData.Health / playerRobot.GetHealth();
+            mEnergyBar.size = ((float)robotData.Energy) / playerRobot.GetEnergyStorage();
         }
         
     }

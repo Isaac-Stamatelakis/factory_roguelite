@@ -127,7 +127,7 @@ namespace Items.Inventory {
             if (clear)
             {
                 slots.Clear();
-                GlobalHelper.deleteAllChildren(transform);
+                GlobalHelper.DeleteAllChildren(transform);
             }
             inventory = displayInventory;
             if (inventory == null)

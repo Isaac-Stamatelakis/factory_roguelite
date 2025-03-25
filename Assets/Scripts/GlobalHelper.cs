@@ -14,7 +14,8 @@ public static class GlobalHelper
     public static GameObject instantiateFromResourcePath(string path) {
         return GameObject.Instantiate(Resources.Load<GameObject>(path));
     }
-    public static void deleteAllChildren(Transform parent) {
+    public static void DeleteAllChildren(Transform parent)
+    {
         for (int i = 0; i < parent.childCount; i++) {
             GameObject.Destroy(parent.GetChild(i).gameObject);
         }

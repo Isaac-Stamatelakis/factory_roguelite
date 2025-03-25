@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
@@ -20,6 +21,7 @@ using Robot.Tool;
 using Robot.Tool.Instances.Gun;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
+using Robot.Upgrades.Info.Instances;
 using Robot.Upgrades.Instances.RocketBoots;
 using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
@@ -48,6 +50,12 @@ namespace Player {
     }
     public class PlayerRobot : MonoBehaviour
     {
+        private enum RobotParticleSystems
+        {
+            Teleport,
+            BonusJump,
+            Heal
+        }
         private static readonly int Walk = Animator.StringToHash("IsWalking");
         private static readonly int Air = Animator.StringToHash("InAir");
 
@@ -100,6 +108,10 @@ namespace Player {
         private JumpEvent jumpEvent;
         private bool freezeY;
         private PlayerTeleportEvent playerTeleportEvent;
+        private ParticleSystem bonusJumpParticles;
+        private ParticleSystem teleportParticles;
+        private ParticleSystem nanoBotParticles;
+        private float timeSinceDamaged = 0;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -110,14 +122,42 @@ namespace Player {
             defaultGravityScale = rb.gravityScale;
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
+            LoadAsyncAssets();
+        }
+
+        private void LoadAsyncAssets()
+        {
+            IEnumerator LoadAsset(AssetReference assetReference, Action<GameObject> onLoad)
+            {
+                var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
+                yield return handle;
+                var instantiated = GameObject.Instantiate(handle.Result, transform, false);
+                instantiated.transform.localPosition = new Vector3(0,0,5);
+                onLoad(instantiated);
+                Addressables.Release(handle);
+            }
+            
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
+            {
+                bonusJumpParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.TeleportParticles, (GameObject result) =>
+            {
+                teleportParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
+            StartCoroutine(LoadAsset(RobotUpgradeAssets.NanoBotParticles, (GameObject result) =>
+            {
+                nanoBotParticles = result.gameObject.GetComponent<ParticleSystem>();
+            }));
         }
 
         public void Update()
         {
-            mPlayerRobotUI.Display(robotData,currentRobot);
+            mPlayerRobotUI.Display(this);
             MoveUpdate();
             cameraBounds.UpdateCameraBounds();
             MiscKeyListens();
+            timeSinceDamaged += Time.deltaTime;
         }
 
         private void MiscKeyListens()
@@ -194,7 +234,8 @@ namespace Player {
             
             float flight = RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Flight);
 
-            if (flight > 0)
+
+            if (flight > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.FLIGHT_COST, 0))
             {
                 animator.SetBool(Walk,false);
                 FlightMoveUpdate();
@@ -225,6 +266,7 @@ namespace Player {
             }
             if (ControlUtils.GetControlKeyDown(PlayerControl.Teleport) && playerTeleportEvent == null)
             {
+                if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
                 Camera mainCamera = Camera.main;
                 if (!mainCamera) return;
                 Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -233,6 +275,7 @@ namespace Player {
                 if (teleported)
                 {
                     playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
+                    teleportParticles.Play();
                     fallTime = 0;
                 }
             }
@@ -240,7 +283,7 @@ namespace Player {
 
         public bool CanJump()
         {
-            return bonusJumps > 0 || IsGrounded();
+            return IsGrounded() || (bonusJumps > 0 && TryConsumeEnergy(SelfRobotUpgradeInfo.BONUS_JUMP_COST, 0));
         }
 
         public bool IsGrounded()
@@ -264,7 +307,13 @@ namespace Player {
              
             Vector2 velocity = rb.velocity;
             const float BASE_SPEED = 5;
-            float speed = BASE_SPEED + RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+            float speed = BASE_SPEED; 
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
+            if (TryConsumeEnergy((ulong)(speedUpgrades * 16 * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            {
+                speed += speedUpgrades;
+            }
+            
             bool horizontalMovement = leftInput != rightInput;
             bool verticalMovement = upInput != downInput;
             
@@ -354,9 +403,13 @@ namespace Player {
             
             int sign = moveDirTime < 0 ? -1 : 1;
             float wishdir = MovementStats.accelationModifier*moveDirTime * sign;
-
-            float bonusSpeed = RobotUpgradeLoadOut?.SelfLoadOuts?.GetCurrent()?.GetCountinuousValue((int)RobotUpgrade.Speed) ?? 0;
-            float speed = MovementStats.speed + bonusSpeed;
+            
+            float speed = MovementStats.speed;
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
+            if (wishdir > 0.05f && TryConsumeEnergy((ulong)(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            {
+                speed += speedUpgrades;
+            }
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -374,6 +427,16 @@ namespace Player {
             SpaceBarMovementUpdate(ref velocity);
             UpdateVerticalMovement(ref velocity);
             rb.velocity = velocity;
+        }
+
+        public float GetHealth()
+        {
+            return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
+        }
+
+        public ulong GetEnergyStorage()
+        {
+            return currentRobot.MaxEnergy * 2 << RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Energy);
         }
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
@@ -418,7 +481,8 @@ namespace Player {
                 if (rocketBoots.Boost > 0)
                 {
                     rb.gravityScale = 0;
-                    velocity.y = rocketBoots.Boost;
+                    float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
+                    velocity.y = rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
                 }
                 else
                 {
@@ -450,11 +514,15 @@ namespace Player {
             
             if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
             {
+                if (bonusJumps > 0 && coyoteFrames <= 0)
+                {
+                    bonusJumpParticles.Play();
+                    bonusJumps--;
+                }
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
                 coyoteFrames = 0;
                 liveYUpdates = 3;
-                if (!IsOnGround() && coyoteFrames <= 0) bonusJumps--;
                 
                 fallTime = 0;
                 jumpEvent = new JumpEvent();
@@ -463,12 +531,12 @@ namespace Player {
             
             if (!IsOnGround() && rocketBoots != null)
             {
-                if (!rocketBoots.Active &&  ControlUtils.GetControlKeyDown(PlayerControl.Jump))
+                if (!rocketBoots.Active && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
                 {
                     StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
                 }
 
-                if (rocketBoots.Active)
+                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST, 0))
                 {
                     rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
                     if (rocketBoots.FlightTime < 0)
@@ -616,9 +684,11 @@ namespace Player {
             iFrames--;
             
             CanStartClimbing();
-           
+            if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
+            {
+                NanoBotHeal();
+            }
             if (climbing) {
-                //RemoveCollisionState(CollisionState.OnGround);
                 HandleClimbing();
                 return;
             }
@@ -686,10 +756,42 @@ namespace Player {
 
         private void EnergyRechargeUpdate(IEnergyRechargeRobot energyRechargeRobot)
         {
+            ulong maxEnergy = GetEnergyStorage();
             if (robotData.Energy >= currentRobot.MaxEnergy) return;
             
             robotData.Energy += energyRechargeRobot.EnergyRechargeRate;
             if (robotData.Energy > currentRobot.MaxEnergy) robotData.Energy = currentRobot.MaxEnergy;
+        }
+
+        /// <summary>
+        /// Inserts energy into the player robot
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <returns>Returns amount taken</returns>
+        public ulong GiveEnergy(ulong amount)
+        {
+            ulong storage = GetEnergyStorage();
+            if (robotData.Energy >= storage)
+            {
+                return 0;
+            }
+            ulong sum = robotData.Energy+=amount;
+            if (sum > storage) {
+                robotData.Energy = storage;
+                return sum - storage;
+            }
+            robotData.Energy = sum;
+            return amount;
+        }
+
+        public bool TryConsumeEnergy(ulong energy, float minPercent)
+        {
+            if (DevMode.Instance.NoEnergyCost) return true;
+            ulong current = robotData.Energy;
+            ulong max = currentRobot.MaxEnergy;
+            if (current < energy || (float)(current - energy)/max < minPercent) return false;
+            robotData.Energy -= energy;
+            return true;
         }
         
 
@@ -791,7 +893,25 @@ namespace Player {
         public void Heal(float amount)
         {
             robotData.Health += amount;
-            if (robotData.Health > currentRobot.BaseHealth) robotData.Health = currentRobot.BaseHealth;
+            nanoBotParticles.Play();
+            float maxHealth = GetHealth();
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
+        }
+
+        public void NanoBotHeal()
+        {
+            float maxHealth = GetHealth();
+            if (robotData.Health >= maxHealth) return;
+            robotData.Health += maxHealth * 0.0025f;
+            robotData.nanoBotTime -= Time.fixedDeltaTime;
+            nanoBotParticles.Play();
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
+        }
+
+        public void RefreshNanoBots()
+        {
+            nanoBotParticles.Play();
+            robotData.nanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
         }
 
         public bool Damage(float amount)
@@ -800,6 +920,7 @@ namespace Player {
             iFrames = 15;
             liveYUpdates = 3;
             robotData.Health -= amount;
+            timeSinceDamaged = 0;
             if (robotData.Health > 0 || dead) return true;
             
             Die();
@@ -810,8 +931,6 @@ namespace Player {
         {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = currentRobot.BaseHealth;
-            PlayerScript playerScript = GetComponent<PlayerScript>();
-            
             DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
             dead = false;
         }
@@ -824,7 +943,6 @@ namespace Player {
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
             PlayerDeathScreenUI playerDeathScreenUI = Instantiate(deathScreenUIPrefab);
-            PlayerScript playerScript = GetComponent<PlayerScript>();
             playerDeathScreenUI.Initialize(playerScript);
             CanvasController.Instance.DisplayOnParentCanvas(playerDeathScreenUI.gameObject);
             playerScript.PlayerInventory.DropAll();
@@ -1026,6 +1144,9 @@ namespace Player {
         private class RobotUpgradeAssetReferences
         {
             public AssetReference RocketBootParticles;
+            public AssetReference BonusJumpParticles;
+            public AssetReference TeleportParticles;
+            public AssetReference NanoBotParticles;
         }
     }
 

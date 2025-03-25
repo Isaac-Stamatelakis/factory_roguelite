@@ -10,19 +10,22 @@ using Items.Tags;
 using LibNoise.Operator;
 using Newtonsoft.Json;
 using TileEntity.Instances.Caves.VoidMiners;
+using TileEntity.Instances.Storage;
 using UI;
 using UnityEngine;
 using World.Cave.Registry;
 using Random = System.Random;
 
 namespace TileEntity.Instances {
-    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyConduitInteractable
+    public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
+        IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
         private CaveTileCollection caveTileCollection;
         private System.Random random;
         private ItemRegistry itemRegistry;
+        private EnergyInventory EnergyInventory;
         public VoidMinerInstance(VoidMinerObject tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
@@ -38,6 +41,7 @@ namespace TileEntity.Instances {
         {
             SerializedVoidMinerData serializedVoidMinerData = new SerializedVoidMinerData
             {
+                Energy = EnergyInventory.Energy,
                 DriveData = ItemSlotFactory.seralizeItemSlot(MinerData.DriveSlot),
                 ItemFilter = MinerData.ItemFilter,
                 StoneOutputs = ItemSlotFactory.serializeList(MinerData.StoneOutputs),
@@ -58,6 +62,7 @@ namespace TileEntity.Instances {
                 OreOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.OreOutputs),
                 FluidOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.FluidOutputs),
             };
+            EnergyInventory = new EnergyInventory(serializedVoidMinerData.Energy, 65365);
         }
 
         public void PlaceInitialize()
@@ -70,6 +75,8 @@ namespace TileEntity.Instances {
                 OreOutputs = ItemSlotFactory.createEmptyInventory(OUTPUT_SIZE),
                 FluidOutputs = ItemSlotFactory.createEmptyInventory(OUTPUT_SIZE),
             };
+            // TODO GIVE THIS PROPER ENERGY STORAGE
+            EnergyInventory = new EnergyInventory(0, 65365);
         }
         
         public void OnBreak()
@@ -146,7 +153,6 @@ namespace TileEntity.Instances {
 
         internal class VoidMinerData
         {
-            public ulong Energy;
             public ItemSlot DriveSlot;
             public ItemFilter ItemFilter;
             public List<ItemSlot> StoneOutputs;
@@ -196,20 +202,10 @@ namespace TileEntity.Instances {
         {
             
         }
-
-        public ulong InsertEnergy(ulong energy, Vector2Int portPosition)
+        
+        public IEnergyConduitInteractable GetEnergyConduitInteractable()
         {
-            return MachineEnergyInventory.InsertEnergy(ref MinerData.Energy, energy, 16 * tileEntityObject.Tier.GetEnergyStorage());
-        }
-
-        public ulong GetEnergy(Vector2Int portPosition)
-        {
-            return 0;
-        }
-
-        public void SetEnergy(ulong energy, Vector2Int portPosition)
-        {
-            MinerData.Energy = energy;
+            return EnergyInventory;
         }
     }
     

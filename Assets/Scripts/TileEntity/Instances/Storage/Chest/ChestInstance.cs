@@ -47,7 +47,7 @@ namespace TileEntity.Instances
         }
     }
     public class ChestInstance : TileEntityInstance<Chest>, ISerializableTileEntity, IBreakActionTileEntity, 
-        IConduitPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity
+        ISolidItemPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity, IConduitPortTileEntity
     {
         public SingleItemInventory Inventory;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -82,20 +82,9 @@ namespace TileEntity.Instances
             return TileEntityObject.ConduitLayout;
         }
 
-        public IConduitInteractable GetConduitInteractable(ConduitType conduitType)
+        public IItemConduitInteractable GetSolidItemConduitInteractable()
         {
-            switch (conduitType)
-            {
-                case ConduitType.Item:
-                    return Inventory;
-                case ConduitType.Fluid:
-                case ConduitType.Energy:
-                case ConduitType.Signal:
-                case ConduitType.Matrix:
-                    return null;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(conduitType), conduitType, null);
-            }
+            return Inventory;
         }
 
         public void PlaceInitialize()

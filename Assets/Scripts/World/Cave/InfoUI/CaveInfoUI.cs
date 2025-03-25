@@ -25,7 +25,7 @@ namespace World.Cave.InfoUI
 
         public override void DisplayPage(int pageIndex)
         {
-            GlobalHelper.deleteAllChildren(mList.transform);
+            GlobalHelper.DeleteAllChildren(mList.transform);
             int startIndex = pageIndex * ELEMENTS_PER_PAGE;
             List<CaveTileInfoElement> tileInfoElements = caveInfo.TileInfoElements;
             for (int i = startIndex; i < ELEMENTS_PER_PAGE; i++)

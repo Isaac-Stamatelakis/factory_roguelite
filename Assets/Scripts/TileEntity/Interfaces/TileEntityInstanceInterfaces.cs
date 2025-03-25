@@ -128,6 +128,16 @@ namespace TileEntity {
     }
     
     /// <summary>
+    /// A tile entity that inherients this interface will only be added to the conduit system if it is currently loaded by the player.
+    /// It will also not be added to tickable tile entities unless the system is loaded by the player.
+    /// <example>Useful for doors, lamps, etc which do not require conduit interaction unless the player is near</example>
+    /// <remarks>Most TileEntities are soft loadable by default when tickable or conduit interactable, this interface provides a way to cancel it out</remarks>
+    /// </summary>
+    public interface IOverrideSoftLoadTileEntity
+    {
+    
+    }
+    /// <summary>
     /// TileEntities which implement this interface will be loaded when their ClosedChunkSystem is not loaded.
     /// <remarks>A TileEntity which implements 'ISystemLoadedConduitPortTileEntity' will override this interface and cause the TileEntity to not be loaded unless their system is loaded</remarks>
     /// </summary>

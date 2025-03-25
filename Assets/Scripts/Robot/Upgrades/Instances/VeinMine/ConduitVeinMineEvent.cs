@@ -1,3 +1,4 @@
+using System;
 using Conduit.Conduit;
 using Conduits;
 using TileMaps.Conduit;
@@ -9,7 +10,7 @@ namespace Robot.Upgrades.Instances.VeinMine
     public class ConduitVeinMineEvent : VeinMineEvent<ConduitTileMap>
     {
         private IConduit initialConduit;
-        public ConduitVeinMineEvent(ConduitTileMap hitableTileMap, bool drop, IConduit initialConduit) : base(hitableTileMap, drop)
+        public ConduitVeinMineEvent(ConduitTileMap hitableTileMap, bool drop, Func<bool> energyCostFunction, IConduit initialConduit) : base(hitableTileMap, drop,energyCostFunction)
         {
             this.initialConduit = initialConduit;
         }

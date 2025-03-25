@@ -36,7 +36,7 @@ namespace TileEntity.Instances {
             mInventoryUI.AddTagRestriction(ItemTag.CaveData);
             mInventoryUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mInventoryUI.AddListener(this);
-            GlobalHelper.deleteAllChildren(mButtonList.transform);
+            GlobalHelper.DeleteAllChildren(mButtonList.transform);
             StartCoroutine(LoadCaves());
         }
 
@@ -59,7 +59,7 @@ namespace TileEntity.Instances {
         {
             if (allCaves == null) return;
             
-            GlobalHelper.deleteAllChildren(mButtonList.transform);
+            GlobalHelper.DeleteAllChildren(mButtonList.transform);
             
             foreach (CaveObject cave in allCaves) {
                 if (!CaveDataInTeleporter(cave)) continue;

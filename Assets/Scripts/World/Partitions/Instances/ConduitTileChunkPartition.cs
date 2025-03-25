@@ -104,7 +104,7 @@ namespace Chunks.Partitions {
              * The other alternative is assigning soft load to the tile entity directly but this leaves lots of room for human error
              */
             ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
-            if (instance is not ISoftLoadableTileEntity or ISystemLoadedConduitPortTileEntity) return null;
+            if (instance is not ISoftLoadableTileEntity or IOverrideSoftLoadTileEntity) return null;
             
             Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options, loadAssets:false);
@@ -113,7 +113,7 @@ namespace Chunks.Partitions {
         protected ITileEntityInstance PlaceConduitNonSoftLoadableTileEntity(TileItem tileItem, string options, Vector2Int positionInPartition)
         {
             ITileEntityInstance instance = tileItem.tileEntity.CreateInstance(Vector2Int.zero, tileItem, parent);
-            if (instance is not ISystemLoadedConduitPortTileEntity) return null;
+            if (instance is not IOverrideSoftLoadTileEntity) return null;
             
             Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             return TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,false,unserialize:true, data:options, loadAssets:false);

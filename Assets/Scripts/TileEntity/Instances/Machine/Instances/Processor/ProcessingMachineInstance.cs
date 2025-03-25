@@ -14,6 +14,7 @@ using Recipe;
 using Recipe.Data;
 using Recipe.Processor;
 using TileEntity.Instances.Machine.Instances;
+using TileEntity.Instances.Storage;
 using UI;
 
 namespace TileEntity.Instances.Machines
@@ -34,7 +35,7 @@ namespace TileEntity.Instances.Machines
             SerializedProcessingMachine serializedProcessingMachine = new SerializedProcessingMachine(
                 Mode,
                 TileEntityInventoryFactory.Serialize(Inventory.Content),
-                MachineInventoryFactory.SerializedEnergyMachineInventory(EnergyInventory),
+                MachineInventoryFactory.SerializedEnergyMachineInventory(MachineEnergyInventory),
                 RecipeSerializationFactory.Serialize(currentRecipe, RecipeType.Machine),
                 ItemSlotFactory.serializeList(BatteryInventory)
             );
@@ -53,7 +54,7 @@ namespace TileEntity.Instances.Machines
                 serializedProcessingMachine.SerializedGeneratorRecipe, 
                 RecipeType.Machine
             );
-            EnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
+            MachineEnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             BatteryInventory = ItemSlotFactory.Deserialize(serializedProcessingMachine.SerializedBatteryInventory);
             InventoryUpdate(0);
         }
@@ -64,10 +65,12 @@ namespace TileEntity.Instances.Machines
             {
                 // TODO draw energy from battery
             }
-            if (ReferenceEquals(currentRecipe?.InputEnergy,null) || EnergyInventory.Energy == 0) return;
+
+            EnergyInventory energyInventory = MachineEnergyInventory.EnergyInventory;
+            if (ReferenceEquals(currentRecipe?.InputEnergy,null) || energyInventory.Energy == 0) return;
             
-            ulong energyToUse = EnergyInventory.Energy < currentRecipe.EnergyCostPerTick ? EnergyInventory.Energy : currentRecipe.EnergyCostPerTick;
-            EnergyInventory.Energy -= energyToUse;
+            ulong energyToUse = energyInventory.Energy < currentRecipe.EnergyCostPerTick ? energyInventory.Energy : currentRecipe.EnergyCostPerTick;
+            energyInventory.Energy -= energyToUse;
             currentRecipe.InputEnergy -= energyToUse;
             if (currentRecipe.InputEnergy > 0) return;
             Inventory.TryOutputRecipe(currentRecipe);

@@ -7,6 +7,7 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class RobotConduitUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong COST_PER_HIT = 32;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<ConduitSlicerUpgrade>();

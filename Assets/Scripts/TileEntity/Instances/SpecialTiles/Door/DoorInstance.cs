@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TileEntity.Instances {
     
-    public class DoorInstance : TileEntityInstance<Door>, IRightClickableTileEntity, IConditionalRightClickableTileEntity, ILockUnInteractableRightClickTileEntity, ISystemLoadedConduitPortTileEntity, ISignalConduitInteractable
+    public class DoorInstance : TileEntityInstance<Door>, IRightClickableTileEntity, IConditionalRightClickableTileEntity, ILockUnInteractableRightClickTileEntity, IOverrideSoftLoadTileEntity, ISignalConduitInteractable
     {
         private bool signalActive;
         public DoorInstance(Door tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
