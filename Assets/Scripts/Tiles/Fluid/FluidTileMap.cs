@@ -84,7 +84,7 @@ namespace Fluids {
 
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
-            int tileIndex = (int)(8 * fill);
+            int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
             tilemap.SetTile(new Vector3Int(x,y,0),tile);
         }
