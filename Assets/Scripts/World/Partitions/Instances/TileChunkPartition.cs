@@ -265,6 +265,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         {
             int px = position.x*Global.CHUNK_PARTITION_SIZE;
             int py = position.y*Global.CHUNK_PARTITION_SIZE;
+            
             string[,] baseIds = data.baseData.ids;
             string[,] fluidIds = data.fluidData.ids;
             float[,] fill = data.fluidData.fill;
@@ -281,7 +282,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     float fillValue = fill[x,y];
                     Vector2Int positionInPartition = new Vector2Int(x, y);
                     FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
-                    FluidCell fluidCell = new FluidCell(fluidId, fillValue, flowRestriction, realPosition + positionInPartition);
+                    FluidCell fluidCell = new FluidCell(fluidId, fillValue, flowRestriction, realPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition);
                     chunkFluidCells[px + x][py + y] = fluidCell;
                 }
             }
@@ -289,11 +290,11 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
         private FluidFlowRestriction GetFlowRestriction(TileItem tileItem, Vector2Int positionInPartition)
         {
-            if (!tileItem) return FluidFlowRestriction.None;
-            if (tileItem.tileType != TileType.Block) return FluidFlowRestriction.None;
-            if (tileItem.tile is not HammerTile) return FluidFlowRestriction.All;
-            int state = data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y].state;
-            return state == 0 ? FluidFlowRestriction.All : FluidFlowRestriction.WaterLog;
+            if (!tileItem) return FluidFlowRestriction.NoRestriction;
+            if (tileItem.tileType != TileType.Block) return FluidFlowRestriction.NoRestriction;
+            if (tileItem.tile is not HammerTile) return FluidFlowRestriction.BlockFluids;
+            int state = data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y]?.state ?? 0;
+            return state == 0 ? FluidFlowRestriction.BlockFluids : FluidFlowRestriction.WaterLog;
         }
         
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Fluids;
 using UnityEngine;
 
 namespace Tiles.Fluid.Simulation
@@ -13,9 +14,9 @@ namespace Tiles.Fluid.Simulation
 	}
 	public enum FluidFlowRestriction
 	{
-		None,
+		BlockFluids,
 		WaterLog,
-		All
+		NoRestriction
 	}
 	public class FluidCell
 	{
@@ -42,6 +43,11 @@ namespace Tiles.Fluid.Simulation
 	
     public class FluidTileMapSimulator
     {
+	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap)
+	    {
+		    this.fluidWorldTileMap = fluidWorldTileMap;
+	    }
+
 	    // Implementation that might be better than storing settling
 	    private uint ticks;
 	    private Dictionary<uint, HashSet<Vector2Int>> tickFluidUpdates = new Dictionary<uint, HashSet<Vector2Int>>(); 
@@ -59,17 +65,17 @@ namespace Tiles.Fluid.Simulation
 
 	    // Adjusts flow speed (0.0f - 1.0f)
 	    const float FLOW_SPEED = 1f;
+	    private FluidWorldTileMap fluidWorldTileMap;
 	    
-        float CalculateVerticalFlowValue(float remainingLiquid, FluidCell destination) {
-			float sum = remainingLiquid + destination.Liquid;
+        float CalculateVerticalFlowValue(float remainingLiquid, FluidCell destination)
+        {
+	        float sum = remainingLiquid + destination.Liquid;
 
-			return sum switch
-			{
-				<= MAX_FILL => MAX_FILL,
-				< 2 * MAX_FILL + MAX_COMPRESSION => (MAX_FILL * MAX_FILL + sum * MAX_COMPRESSION) /
-				                                    (MAX_FILL + MAX_COMPRESSION),
-				_ => (sum + MAX_COMPRESSION) / 2f
-			};
+	        if (sum <= MAX_FILL)
+		        return MAX_FILL;
+	        if (sum < 2 * MAX_FILL + MAX_COMPRESSION)
+		        return (MAX_FILL * MAX_FILL + sum * MAX_COMPRESSION) / (MAX_FILL + MAX_COMPRESSION);
+	        return (sum + MAX_COMPRESSION) / 2f;
         }
 
         public void AddChunk(Vector2Int position, FluidCell[][] fluidCells)
@@ -81,7 +87,7 @@ namespace Tiles.Fluid.Simulation
         {
 	        chunkCellArrayDict.Remove(position);
         }
-
+	
         public void AddFluidCell(FluidCell fluidCell)
         {
 	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
@@ -91,7 +97,6 @@ namespace Tiles.Fluid.Simulation
         }
         
 		public void Simulate() {
-			
 			foreach (var chunkFluidCellCollection in chunkCellArrayDict.Values)
 			{
 				foreach (FluidCell[] fluidCells in chunkFluidCellCollection)
@@ -109,7 +114,7 @@ namespace Tiles.Fluid.Simulation
 				{
 					foreach (FluidCell cell in fluidCells)
 					{
-						if (cell.FlowRestriction == FluidFlowRestriction.None) {
+						if (cell.FlowRestriction == FluidFlowRestriction.BlockFluids) {
 							cell.Liquid = 0;
 							continue;
 						}
@@ -126,15 +131,14 @@ namespace Tiles.Fluid.Simulation
 						float startValue = cell.Liquid;
 						float remainingValue = cell.Liquid;
 						float flow = 0;
-
-				
+						
 						FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
 					
 						if (remainingValue < MIN_FILL) {
 							cell.Diff -= remainingValue;
 							continue;
 						}
-
+						
 						// Flow to left cell
 						HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow);
 					
@@ -151,15 +155,16 @@ namespace Tiles.Fluid.Simulation
 							continue;
 						}
 					
-						RiseFluidUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow);
+						RiseFluidUpdate(cell,FluidFlowDirection.Up,ref remainingValue, ref flow);
 						// Check to ensure we still have liquid in this cell
 						if (remainingValue < MIN_FILL) {
 							cell.Diff -= remainingValue;
 							continue;
 						}
-
+						
 						// Check if cell is settled
-						if (Mathf.Approximately(startValue, remainingValue)) {
+						if (startValue == remainingValue) {
+							
 							cell.SettleCount++;
 							if (cell.SettleCount >= 10) {
 								cell.Settled = true;
@@ -180,9 +185,17 @@ namespace Tiles.Fluid.Simulation
 					foreach (FluidCell cell in fluidCells)
 					{
 						cell.Liquid += cell.Diff;
-						if (!(cell.Liquid < MIN_FILL)) continue;
+
+						if (cell.Liquid > MIN_FILL)
+						{
+							fluidWorldTileMap.DisplayTile(cell);
+							continue;
+						}
+						
 						cell.Liquid = 0;
+						cell.FluidId = null;
 						cell.Settled = false;
+						fluidWorldTileMap.DisplayTile(cell);
 					}
 				}
 			}
@@ -191,7 +204,7 @@ namespace Tiles.Fluid.Simulation
 		public void FallFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (adjacent == null || adjacent.FlowRestriction != FluidFlowRestriction.None) return;
+			if (!CanFlowInto(cell, adjacent)) return;
 			
 			flow = CalculateVerticalFlowValue(cell.Liquid, adjacent) - adjacent.Liquid;
 			if (adjacent.Liquid > 0 && flow > MIN_FLOW)
@@ -218,28 +231,35 @@ namespace Tiles.Fluid.Simulation
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.left));
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.right));
 		}
+
+		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj)
+		{
+			return adj != null && adj.FlowRestriction != FluidFlowRestriction.BlockFluids && (adj.FluidId == null || string.Equals(fluidCell.FluidId, adj.FluidId));
+		}
 		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent)
 		{
 			if (flow == 0) return;
 			remainingValue -= flow;
 			cell.Diff -= flow;
 			adjacent.Diff += flow;
-			
 			adjacent.Settled = false;
+			adjacent.FluidId = cell.FluidId;
 		}
 
 		public void HorizontalFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (adjacent == null || adjacent.FlowRestriction != FluidFlowRestriction.None) return;
+			if (!CanFlowInto(cell, adjacent)) return;
 			
-			flow = (remainingValue - adjacent.Liquid) / 4f;
+			flow = (remainingValue - adjacent.Liquid)/4;
+			
 			if (flow > MIN_FLOW)
 				flow *= FLOW_SPEED;
 			
-			flow = Mathf.Max (flow, 0);
-			if (flow > Mathf.Min(MAX_FLOW, remainingValue)) 
-				flow = Mathf.Min(MAX_FLOW, remainingValue);
+			flow = Mathf.Max(flow, 0);
+			float currentMax = Mathf.Min(MAX_FLOW, remainingValue);
+			if (flow > currentMax)
+				flow = currentMax;
 
 			UpdateFlowValues(ref remainingValue, flow, cell, adjacent);
 		}
@@ -247,7 +267,7 @@ namespace Tiles.Fluid.Simulation
 		public void RiseFluidUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (adjacent == null || adjacent.FlowRestriction != FluidFlowRestriction.None) return;
+			if (!CanFlowInto(cell, adjacent)) return;
 			
 			flow = remainingValue - CalculateVerticalFlowValue (remainingValue, adjacent); 
 			if (flow > MIN_FLOW)

@@ -9,12 +9,18 @@ using Items;
 using System.Linq;
 using Chunks;
 using Chunks.Systems;
+using TileMaps.Layer;
 using Tiles.Fluid.Simulation;
 
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
-        private FluidTileMapSimulator simulator = new();
+        public void Awake()
+        {
+            simulator = new FluidTileMapSimulator(this);
+        }
+
+        private FluidTileMapSimulator simulator;
         public const float MAX_FILL = 1f;
         public override bool HitTile(Vector2 position, bool dropItem)
         {
@@ -83,19 +89,35 @@ namespace Fluids {
             tilemap.SetTile(new Vector3Int(x,y,0),tile);
         }
         
+        public void DisplayTile(FluidCell fluidCell)
+        {
+            var fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(fluidCell.FluidId);
+            if (!fluidTileItem)
+            {
+                tilemap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
+                return;
+            }
+            DisplayTile(fluidCell.Position.x,fluidCell.Position.y,fluidTileItem,fluidCell.Liquid);
+        }
+        
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, FluidTileItem item)
         {
             PartitionFluidData partitionFluidData = partition.GetFluidData();
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.None,cellPosition);
+            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition);
             simulator.AddFluidCell(fluidCell);
         }
 
         public void TileUpdate(Vector2Int position)
         {
             // TODO
+        }
+
+        public void FixedUpdate()
+        {
+            simulator.Simulate();
         }
     }
 }
