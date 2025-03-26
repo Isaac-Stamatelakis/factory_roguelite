@@ -18,7 +18,7 @@ namespace Items {
                 return null;
             }
             fill--;
-            if (fill == 0) return null; // Do not display last tile cause its ugly
+            if (fill <= 0) return null; // Do not display last tile cause its ugly
             return fill >= tiles.Length ? tiles[^1] : tiles[fill];
         }
 
