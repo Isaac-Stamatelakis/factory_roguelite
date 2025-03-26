@@ -365,20 +365,20 @@ public class EditorFactory
     }
 
     public static Tile[] fluidTilesFromSprite(Texture2D texture, string spritePath, string tileName, bool inverted) {
-        int TILES_TO_CREATE = 8;
+        const int TILES_TO_CREATE = 16;
+        const int SPRITE_SIZE = 16;
         AssetDatabase.CreateFolder(spritePath, "Sprites");
-        Tile[] tiles = new Tile[8];
+        Tile[] tiles = new Tile[16];
         spritePath += "/Sprites/";
         
-        for (int i = 0; i < TILES_TO_CREATE; i++) {
-            int yMin = inverted ? 0 : 16-2*(TILES_TO_CREATE-(i+1));
-            int yMax = inverted ? 2*(TILES_TO_CREATE-(i+1)) : 16;
-            Color[] pixels = texture.GetPixels(0,0,16,16);
-            if (i != TILES_TO_CREATE-1) {
-                for (int x = 0; x < 16; x++) {
-                    for (int y = yMin; y < yMax; y++) {
-                        pixels[y*16+x] = new Color(0,0,0,0);
-                    }
+        for (int i = 0; i < TILES_TO_CREATE; i++)
+        {
+            int yMin = inverted ? 0 : SPRITE_SIZE - SPRITE_SIZE / TILES_TO_CREATE * (TILES_TO_CREATE - i -1);
+            int yMax = inverted ? SPRITE_SIZE / TILES_TO_CREATE * (TILES_TO_CREATE - i - 1) : SPRITE_SIZE;
+            Color[] pixels = texture.GetPixels(0,0,SPRITE_SIZE,SPRITE_SIZE);
+            for (int x = 0; x < SPRITE_SIZE; x++) {
+                for (int y = yMin; y < yMax; y++) {
+                    pixels[y*SPRITE_SIZE+x] = new Color(0,0,0,0);
                 }
             }
             Texture2D dividedTexture = new Texture2D(16,16);

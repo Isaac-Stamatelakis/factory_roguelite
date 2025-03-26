@@ -7,12 +7,10 @@ using UnityEngine.Tilemaps;
 namespace Items {
     public class FluidTileItem : ItemObject
     {
+        public const int FLUID_TILE_ARRAY_SIZE = 16;
         public GameStageObject GameStageObject;
         public override Sprite[] getSprites()
         {
-            if (tiles.Length < 0) {
-                return null;
-            }
             return new Sprite[]{getSprite()};
         }
         public Tile getTile(int fill) {
@@ -20,10 +18,8 @@ namespace Items {
                 return null;
             }
             fill--;
-            if(fill >= tiles.Length) {
-                return tiles[tiles.Length-1];
-            }
-            return tiles[fill];
+            if (fill == 0) return null; // Do not display last tile cause its ugly
+            return fill >= tiles.Length ? tiles[^1] : tiles[fill];
         }
 
         public Tile GetTile(float fill)
@@ -46,7 +42,7 @@ namespace Items {
 
         public override Sprite getSprite()
         {
-            return tiles[tiles.Length-1].sprite;
+            return tiles[^1].sprite;
         }
 
         [SerializeField] public Tile[] tiles;

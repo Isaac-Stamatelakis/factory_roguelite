@@ -176,8 +176,8 @@ namespace Items {
                 return null;
             }
 
-            if (itemObject is FluidTileItem) {
-                return (FluidTileItem) itemObject;
+            if (itemObject is FluidTileItem item) {
+                return item;
             }
             return null;
         }
