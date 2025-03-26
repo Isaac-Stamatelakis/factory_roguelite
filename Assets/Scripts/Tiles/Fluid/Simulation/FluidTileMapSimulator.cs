@@ -61,7 +61,7 @@ namespace Tiles.Fluid.Simulation
     public class FluidTileMapSimulator
     {
 	    private const bool LOG = false;
-	    private const int MAX_VISCOSITY = 10;
+	    
 	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap)
 	    {
 		    this.fluidWorldTileMap = fluidWorldTileMap;
@@ -78,11 +78,15 @@ namespace Tiles.Fluid.Simulation
 	    private ItemRegistry itemRegistry;
 	    private uint ticks;
 	    private uint tickCounter;
+	    private uint tickArrayCounter;
 	    private Dictionary<uint, FluidUpdateCollection> tickFluidUpdates = new (); 
 	    private Stack<FluidUpdateCollection> fluidUpdateArrayStack = new (MAX_VISCOSITY);
 	    private Dictionary<Vector2Int, FluidCell[][]> chunkCellArrayDict = new();
 	    private FluidCell[] currentUpdates;
-	    const int MAX_UPDATES_PER_SECOND = 1024;
+	    
+	    // Note: These values take up this is only 160kB
+	    const int MAX_UPDATES_PER_SECOND = 2048;
+	    private const int MAX_VISCOSITY = 10;
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.005f;
 	    private bool stackEmpty = false;
@@ -125,14 +129,6 @@ namespace Tiles.Fluid.Simulation
         public void RemoveChunk(Vector2Int position)
         {
 	        chunkCellArrayDict.Remove(position);
-        }
-
-        public void SyncAllChunks(List<ILoadedChunk> loadedChunks)
-        {
-	        foreach (ILoadedChunk loadedChunk in loadedChunks)
-	        {
-		        SaveToChunk(loadedChunk);
-	        }
         }
 
         public void SetPartitionDisplayStatus(Vector2Int partitionPosition, bool display)
@@ -213,6 +209,7 @@ namespace Tiles.Fluid.Simulation
         }
 		public void Simulate()
 		{
+			tickArrayCounter = tickCounter;
 			bool update = tickFluidUpdates.TryGetValue(tickCounter, out var fluidUpdateCollection);
 			if (update) tickFluidUpdates.Remove(tickCounter);
 			tickCounter++;
@@ -270,14 +267,20 @@ namespace Tiles.Fluid.Simulation
 				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Down)));
 				DisplayCell(cell);
 			}
+
+#pragma warning disable 0162
+			if (LOG)
+			{
+				Debug.Log($"Simulator Updated {updateIndex} Cells at Tick {tickCounter}");
+			}
+#pragma warning enable 0162
 			
-			if (LOG) Debug.Log($"Simulator Updated {updateIndex} Cells at Tick {tickCounter}");
 			fluidUpdateCollection.Index = 0;
 			fluidUpdateArrayStack.Push(fluidUpdateCollection);
 			
 			if (updateListFull)
 			{
-				Debug.LogWarning("Fluid update list is full");
+				Debug.LogWarning("Fluid update list is full, pushed updates to next tick");
 				updateListFull = false;
 			}
 
@@ -307,8 +310,6 @@ namespace Tiles.Fluid.Simulation
 			
 			
 			FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
-			
-			//goto test;
 			
 			const int HORIZONTAL_DISTANCE = 2;
 			bool left = true;
@@ -363,7 +364,7 @@ namespace Tiles.Fluid.Simulation
 			FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(adjacent.FluidId);
 			if (!fluidTileItem) return;
 
-			uint updateTick = (uint)fluidTileItem.fluidOptions.Viscosity + tickCounter;
+			uint updateTick = (uint)fluidTileItem.fluidOptions.Viscosity + tickArrayCounter;
 			if (!tickFluidUpdates.ContainsKey(updateTick))
 			{
 				if (fluidUpdateArrayStack.Count == 0)
@@ -378,6 +379,8 @@ namespace Tiles.Fluid.Simulation
 
 			if (collection.Index >= MAX_UPDATES_PER_SECOND)
 			{
+				tickArrayCounter++;
+				UnsettleCell(adjacent);
 				updateListFull = true;
 				return;
 			}

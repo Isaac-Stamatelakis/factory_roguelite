@@ -27,11 +27,19 @@ namespace Fluids {
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
+            gameObject.tag = "Fluid";
             GameObject unlitContainer = new GameObject("Unlit");
+            unlitContainer.tag = "Fluid";
             unlitContainer.transform.SetParent(transform,false);
             unlitTileMap = unlitContainer.AddComponent<Tilemap>();
+            unlitContainer.layer = LayerMask.NameToLayer("Fluid");
             TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
             tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
+            var unlitCollider = unlitContainer.AddComponent<TilemapCollider2D>();
+            unlitCollider.isTrigger = true;
+            tilemapCollider.isTrigger = true;
+            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
+            unlitCollider.maximumTileChangeCount=int.MaxValue; 
         }
         private ItemRegistry itemRegistry;
 
@@ -53,6 +61,12 @@ namespace Fluids {
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
             return false;
+        }
+
+        protected override void RemoveTile(int x, int y)
+        {
+            base.RemoveTile(x, y);
+            unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
         }
 
         public void AddChunk(ILoadedChunk loadedChunk)

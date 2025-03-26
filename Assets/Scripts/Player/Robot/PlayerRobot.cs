@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Chunks;
 using Chunks.Systems;
@@ -46,7 +47,9 @@ namespace Player {
         OnGround,
         OnSlope,
         HeadContact,
-        OnPlatform
+        OnPlatform,
+        HeadInFluid,
+        FeetInFluid,
     }
     public class PlayerRobot : MonoBehaviour
     {
@@ -201,8 +204,8 @@ namespace Player {
                 {
                     rocketBoots = null;
                 }
-                
             }
+            
             collisionStates.Add(state);
         }
 
@@ -214,6 +217,11 @@ namespace Player {
         public bool CollisionStateActive(CollisionState state)
         {
             return collisionStates.Contains(state);
+        }
+
+        public bool InFluid()
+        {
+            return collisionStates.Contains(CollisionState.HeadInFluid) && collisionStates.Contains(CollisionState.FeetInFluid);
         }
 
         private void MoveUpdate()
@@ -361,6 +369,7 @@ namespace Player {
 
         private void StandardMoveUpdate()
         {
+            bool feetInFluid = collisionStates.Contains(CollisionState.FeetInFluid);
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
@@ -416,6 +425,8 @@ namespace Player {
             {
                 speed += speedUpgrades;
             }
+
+            if (feetInFluid) speed *= 0.25f;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -447,16 +458,18 @@ namespace Player {
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
+            const float FLUID_REDUCTION = 0.25f;
+            float fluidModifer = InFluid() ? FLUID_REDUCTION : 1f;
             if (climbing) return;
             if (jumpEvent != null)
             {
                 if (collisionStates.Contains(CollisionState.HeadContact))
                 {
-                    rb.gravityScale = defaultGravityScale;
+                    rb.gravityScale = fluidModifer * defaultGravityScale;
                     jumpEvent = null;
                 } else if (ControlUtils.GetControlKey(PlayerControl.Jump))
                 {
-                    rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
+                    rb.gravityScale = fluidModifer * jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
                     if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) 
                     {
@@ -466,7 +479,7 @@ namespace Player {
                 }
                 else
                 {
-                    rb.gravityScale = defaultGravityScale;   
+                    rb.gravityScale = fluidModifer*defaultGravityScale;   
                 }
                 if (Input.GetKeyUp(KeyCode.Space))
                 {
@@ -492,7 +505,7 @@ namespace Player {
                 }
                 else
                 {
-                    rb.gravityScale = defaultGravityScale;
+                    rb.gravityScale = fluidModifer*defaultGravityScale;
                 }
             }
             if (blockInput)
@@ -502,6 +515,7 @@ namespace Player {
 
             const float BONUS_FALL_MODIFIER = 1.25f;
             rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
+            rb.gravityScale *= fluidModifer;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)

@@ -85,7 +85,7 @@ namespace Robot.Tool.Instances.Gun
         public void OnTriggerEnter2D(Collider2D other)
         {
             if (explodeCounter != NOT_EXPLODING) return;
-            if (other.gameObject.CompareTag("Player")) return;
+            if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Fluid")) return;
             StartExplosion();
         }
 

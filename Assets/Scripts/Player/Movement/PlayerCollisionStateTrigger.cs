@@ -17,27 +17,49 @@ namespace Player.Movement
             LeftWall = Player.CollisionState.OnWallLeft,
             RightWall = Player.CollisionState.OnWallRight,
             GroundContact = Player.CollisionState.OnGround,
-            
+            HeadInFluid = Player.CollisionState.HeadInFluid,
+            FeetInFluid = Player.CollisionState.FeetInFluid,
+        }
+
+        private const string GROUND_TAG = "Ground";
+        private const string FLUID_TAG = "Fluid";
+        private string GetTag(TriggerableCollisionState state)
+        {
+            switch (state)
+            {
+                case TriggerableCollisionState.HeadContact:
+                case TriggerableCollisionState.LeftWall:
+                case TriggerableCollisionState.RightWall:
+                case TriggerableCollisionState.GroundContact:
+                    return GROUND_TAG;
+                case TriggerableCollisionState.HeadInFluid:
+                case TriggerableCollisionState.FeetInFluid:
+                    return FLUID_TAG;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
         }
         [SerializeField] private TriggerableCollisionState CollisionState;
         private PlayerRobot playerRobot;
+        private string tagLayer;
         
         public void Start()
         {
             playerRobot = transform.parent.GetComponentInParent<PlayerRobot>();
             
             if (!playerRobot) Debug.LogError($"Trigger has no player robot {playerRobot}");
+            tagLayer = GetTag(CollisionState);
         }
         public void OnTriggerEnter2D(Collider2D other)
         {
-            if (!other.CompareTag("Ground")) return;
+            if (!other.CompareTag(tagLayer)) return;
             playerRobot.AddCollisionState((CollisionState)CollisionState);
             
         }
 
         public void OnTriggerExit2D(Collider2D other)
         {
-            if (!other.CompareTag("Ground")) return;
+            if (!other.CompareTag(tagLayer)) return;
             playerRobot.RemoveCollisionState((CollisionState)CollisionState);
             
         }
