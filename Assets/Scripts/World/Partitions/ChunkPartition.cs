@@ -11,6 +11,7 @@ using Conduits.Ports;
 using Entities;
 using Entities.Mobs;
 using Player;
+using Tiles.Fluid.Simulation;
 
 namespace Chunks.Partitions {
     
@@ -148,6 +149,11 @@ namespace Chunks.Partitions {
                 
             }
         }
+
+        public PartitionFluidData GetFluidData()
+        {
+            return new PartitionFluidData(data.fluidData.ids,data.baseData.ids,data.fluidData.fill);
+        }
         public void UnloadEntities() {
             int size = Global.CHUNK_PARTITION_SIZE/2;
             Vector2 castPosition = (GetRealPosition()+Vector2.one/2f) * size;
@@ -259,7 +265,7 @@ namespace Chunks.Partitions {
 
         public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
-        public abstract PartitionFluidData GetFluidData();
+        public abstract void AddFluidDataToChunk(FluidCell[][] chunkFluidCells);
         public abstract bool GetFarLoaded();
         public abstract void LoadFarLoadTileEntities();
         public abstract void UnloadFarLoadTileEntities();

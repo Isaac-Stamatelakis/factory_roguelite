@@ -29,6 +29,11 @@ namespace Robot.Upgrades.Info.Instances
             return ((ConduitSlicerUpgrade)upgrade).ToString();
         }
 
+        public override string GetDefaultCosts()
+        {
+            return $"Requires {COST_PER_HIT}J/hit";
+        }
+
         public override IAmountFormatter GetAmountFormatter(int upgrade)
         {
             ConduitSlicerUpgrade conduitSlicerUpgrade = (ConduitSlicerUpgrade)upgrade;
@@ -38,6 +43,11 @@ namespace Robot.Upgrades.Info.Instances
                     return new VeinMineUpgradeFormatter();
             }
 
+            return null;
+        }
+
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
             return null;
         }
 

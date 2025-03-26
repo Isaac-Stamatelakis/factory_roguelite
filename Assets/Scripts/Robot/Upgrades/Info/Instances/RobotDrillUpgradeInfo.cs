@@ -53,6 +53,25 @@ namespace Robot.Upgrades.Info.Instances
             }
             return null;
         }
+        
+        public override string GetDefaultCosts()
+        {
+            return $"Requires {COST_PER_HIT}J/hit";
+        }
+
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
+            RobotDrillUpgrade robotDrillUpgrade = (RobotDrillUpgrade)upgrade;
+            switch (robotDrillUpgrade)
+            {
+                case RobotDrillUpgrade.Speed:
+                    return new RobotDrillSpeedUpgradeFormatter();
+                case RobotDrillUpgrade.Fortune:
+                    break;
+            }
+
+            return null;
+        }
 
         public override List<int> GetContinuousUpgrades()
         {

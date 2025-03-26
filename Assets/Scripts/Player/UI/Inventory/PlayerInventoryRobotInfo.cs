@@ -84,6 +84,9 @@ namespace Player.UI.Inventory
             }
 
             if (error) return;
+            bool prefabNotLoadedYet = !statSelectorUIPrefab;
+            if (prefabNotLoadedYet) return;
+            
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
             statSelectorUI.Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);

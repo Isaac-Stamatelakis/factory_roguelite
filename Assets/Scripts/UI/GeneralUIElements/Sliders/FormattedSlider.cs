@@ -77,6 +77,12 @@ namespace UI.GeneralUIElements.Sliders
             mScrollBar.value = val;
             DisplayBoolText(val, falseText, trueText);
             mScrollBar.size = 0.5f;
+            RectTransform rectTransform = (RectTransform)mScrollBar.transform;
+            var max = rectTransform.anchorMax;
+            max.x = 0.63f;
+            rectTransform.anchorMax = max;
+            rectTransform.offsetMin = new Vector2(0, rectTransform.offsetMin.y);
+            rectTransform.offsetMax = new Vector2(0, rectTransform.offsetMax.y);
             mScrollBar.onValueChanged.AddListener((value) =>
             {
                 int boolInt = value > 0.5f ? 1 : 0;

@@ -99,8 +99,8 @@ namespace Player {
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         
-        [SerializeField] private DirectionalMovementStats MovementStats;
-        [SerializeField] private JumpMovementStats JumpStats;
+        [SerializeField] internal DirectionalMovementStats MovementStats;
+        [SerializeField] internal JumpMovementStats JumpStats;
         [SerializeField] private RobotUpgradeAssetReferences RobotUpgradeAssets;
 
         public RobotUpgradeLoadOut RobotUpgradeLoadOut;
@@ -112,6 +112,8 @@ namespace Player {
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
         private float timeSinceDamaged = 0;
+
+        public const float BASE_MOVE_SPEED = 5f;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -127,15 +129,19 @@ namespace Player {
 
         private void LoadAsyncAssets()
         {
+            GameObject container = new GameObject("ParticleContainer");
+            container.transform.SetParent(transform,false);
+            container.transform.localPosition = Vector3.zero;
             IEnumerator LoadAsset(AssetReference assetReference, Action<GameObject> onLoad)
             {
                 var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
                 yield return handle;
-                var instantiated = GameObject.Instantiate(handle.Result, transform, false);
+                var instantiated = GameObject.Instantiate(handle.Result, container.transform, false);
                 instantiated.transform.localPosition = new Vector3(0,0,5);
                 onLoad(instantiated);
                 Addressables.Release(handle);
             }
+            
             
             StartCoroutine(LoadAsset(RobotUpgradeAssets.BonusJumpParticles, (GameObject result) =>
             {
@@ -306,10 +312,10 @@ namespace Player {
             bool downInput = ControlUtils.GetControlKey(PlayerControl.MoveDown);
              
             Vector2 velocity = rb.velocity;
-            const float BASE_SPEED = 5;
-            float speed = BASE_SPEED; 
-            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
-            if (TryConsumeEnergy((ulong)(speedUpgrades * 16 * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            
+            float speed = BASE_MOVE_SPEED; 
+            float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+            if (TryConsumeEnergy((ulong)(speedUpgrades * 16 * (SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND*Time.deltaTime)), 0.1f))
             {
                 speed += speedUpgrades;
             }
@@ -406,7 +412,7 @@ namespace Player {
             
             float speed = MovementStats.speed;
             float speedUpgrades = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);;
-            if (wishdir > 0.05f && TryConsumeEnergy((ulong)(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST), 0.1f))
+            if (wishdir > 0.05f && TryConsumeEnergy(speedUpgrades * SelfRobotUpgradeInfo.SPEED_INCREASE_COST_PER_SECOND*Time.deltaTime, 0.1f))
             {
                 speed += speedUpgrades;
             }
@@ -536,7 +542,7 @@ namespace Player {
                     StartCoroutine(rocketBoots.Activate(RobotUpgradeAssets.RocketBootParticles, transform));
                 }
 
-                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST, 0))
+                if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST_PER_SECOND * Time.deltaTime, 0))
                 {
                     rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
                     if (rocketBoots.FlightTime < 0)
@@ -784,6 +790,7 @@ namespace Player {
             return amount;
         }
 
+        
         public bool TryConsumeEnergy(ulong energy, float minPercent)
         {
             if (DevMode.Instance.NoEnergyCost) return true;
@@ -794,6 +801,30 @@ namespace Player {
             return true;
         }
         
+        /// <summary>
+        /// This function consumes a given float value from the robot's energy.
+        /// </summary>
+        /// <param name="energy"></param>
+        /// <param name="minPercent"></param>
+        /// <example>2.25f -> Consumes 2 energy + 1 25% of the time</example>
+        /// <returns></returns>
+        public bool TryConsumeEnergy(float energy, float minPercent)
+        {
+            if (DevMode.Instance.NoEnergyCost) return true;
+            ulong current = robotData.Energy;
+            ulong max = currentRobot.MaxEnergy;
+            if (current < energy || (float)(current - energy)/max < minPercent) return false;
+            ulong intCost = (ulong)energy;
+            
+            float remaining = energy-intCost;
+            if (remaining > 0.01f)
+            {
+                float ran = UnityEngine.Random.value;
+                intCost += Convert.ToUInt64(remaining < ran);
+            }
+            robotData.Energy -= intCost;
+            return true;
+        }
 
         private void ClampFallSpeed()
         {
@@ -1115,30 +1146,7 @@ namespace Player {
             }
         }
 
-        [System.Serializable]
-        private class DirectionalMovementStats
-        {
-            public float minMove = 0.2f;
-            public float accelationModifier = 3f;
-            public float friction = 10;
-            public float turnRate = 10f;
-            public float moveModifier = 2f;
-            public float airFriction = 5;
-            public float speed = 5f;
-            public float airSpeedIncrease = 1.1f;
-            public float iceFriction = 0.1f;
-            public float slowSpeedReduction = 0.25f;
-            public int iceNoAirFrictionFrames = 10;
-        }
-
-        [System.Serializable]
-        private class JumpMovementStats
-        {
-            public float initialGravityPercent = 0;
-            public float jumpVelocity = 8f;
-            public float maxGravityTime = 0.5f;
-            public int coyoteFrames;
-        }
+        
 
         [System.Serializable]
         private class RobotUpgradeAssetReferences
@@ -1148,6 +1156,30 @@ namespace Player {
             public AssetReference TeleportParticles;
             public AssetReference NanoBotParticles;
         }
+    }
+    [System.Serializable]
+    internal class DirectionalMovementStats
+    {
+        public float minMove = 0.2f;
+        public float accelationModifier = 3f;
+        public float friction = 10;
+        public float turnRate = 10f;
+        public float moveModifier = 2f;
+        public float airFriction = 5;
+        public float speed = 5f;
+        public float airSpeedIncrease = 1.1f;
+        public float iceFriction = 0.1f;
+        public float slowSpeedReduction = 0.25f;
+        public int iceNoAirFrictionFrames = 10;
+    }
+
+    [System.Serializable]
+    internal class JumpMovementStats
+    {
+        public float initialGravityPercent = 0;
+        public float jumpVelocity = 8f;
+        public float maxGravityTime = 0.5f;
+        public int coyoteFrames;
     }
 
 }

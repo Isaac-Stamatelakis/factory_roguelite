@@ -9,6 +9,7 @@ namespace Robot.Upgrades.Info.Instances
 {
     internal class BuildinatorUpgradeInfo : RobotUpgradeInfo
     {
+        public const ulong COST_PER_HIT = 32;
         public override List<TMP_Dropdown.OptionData> GetDropDownOptions()
         {
             return GlobalHelper.EnumToDropDown<BuildinatorUpgrade>();
@@ -28,6 +29,11 @@ namespace Robot.Upgrades.Info.Instances
         {
             return ((BuildinatorUpgrade)upgrade).ToString();
         }
+        
+        public override string GetDefaultCosts()
+        {
+            return $"Requires {COST_PER_HIT}J/hit";
+        }
 
         public override IAmountFormatter GetAmountFormatter(int upgrade)
         {
@@ -37,6 +43,11 @@ namespace Robot.Upgrades.Info.Instances
                 case BuildinatorUpgrade.MultiHit:
                     return new RobotDrillMultiBreakUpgradeFormatter();
             }
+            return null;
+        }
+
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
             return null;
         }
 

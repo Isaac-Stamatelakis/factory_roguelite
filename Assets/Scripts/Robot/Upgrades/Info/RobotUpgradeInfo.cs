@@ -22,8 +22,9 @@ namespace Robot.Upgrades.Info
         public abstract  List<TMP_Dropdown.OptionData> GetDropDownOptions();
         public abstract string GetDescription(int upgrade);
         public abstract string GetTitle(int upgrade);
+        public abstract string GetDefaultCosts();
         public abstract IAmountFormatter GetAmountFormatter(int upgrade);
-
+        public abstract IAmountFormatter GetEnergyCostFormatter(int upgrade);
         public RobotStatLoadOut GetRobotStatLoadOut()
         {
             RobotStatLoadOut loadOut = new RobotStatLoadOut(new Dictionary<int, float>(), new Dictionary<int, int>());

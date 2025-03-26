@@ -199,7 +199,6 @@ namespace Chunks.Systems {
             {
                 partition.LoadFarLoadTileEntities();
             }
-            //partitionFarLoader.addToQueue(partitionsToFarLoad);
         }
 
         public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {

@@ -15,6 +15,7 @@ using Entities;
 using Entities.Mobs;
 using Newtonsoft.Json;
 using Player;
+using Tiles.Fluid.Simulation;
 
 namespace Chunks.Partitions {
 public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T : SeralizedWorldData
@@ -260,11 +261,41 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             }
         }
 
-        public override PartitionFluidData GetFluidData()
+        public override void AddFluidDataToChunk(FluidCell[][] chunkFluidCells)
         {
-            SeralizedWorldData serializedTileData = (SeralizedWorldData) GetData();
-            return new PartitionFluidData(serializedTileData.fluidData.ids,serializedTileData.baseData.ids,serializedTileData.fluidData.fill);
+            int px = position.x*Global.CHUNK_PARTITION_SIZE;
+            int py = position.y*Global.CHUNK_PARTITION_SIZE;
+            string[,] baseIds = data.baseData.ids;
+            string[,] fluidIds = data.fluidData.ids;
+            float[,] fill = data.fluidData.fill;
+            Vector2Int realPosition = GetRealPosition();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+            {
+                for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+                {
+                    string baseId = baseIds[x,y];
+                    TileItem tileItem = itemRegistry.GetTileItem(baseId);
+                    
+                    string fluidId = fluidIds[x,y];
+                    float fillValue = fill[x,y];
+                    Vector2Int positionInPartition = new Vector2Int(x, y);
+                    FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
+                    FluidCell fluidCell = new FluidCell(fluidId, fillValue, flowRestriction, realPosition + positionInPartition);
+                    chunkFluidCells[px + x][py + y] = fluidCell;
+                }
+            }
         }
+
+        private FluidFlowRestriction GetFlowRestriction(TileItem tileItem, Vector2Int positionInPartition)
+        {
+            if (!tileItem) return FluidFlowRestriction.None;
+            if (tileItem.tileType != TileType.Block) return FluidFlowRestriction.None;
+            if (tileItem.tile is not HammerTile) return FluidFlowRestriction.All;
+            int state = data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y].state;
+            return state == 0 ? FluidFlowRestriction.All : FluidFlowRestriction.WaterLog;
+        }
+        
 
         public override bool GetFarLoaded()
         {
@@ -277,27 +308,26 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 return;
             }
             farLoaded = true;
-            SeralizedWorldData data = (SeralizedWorldData) GetData();
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-      
+            string[,] baseIdArray = data.baseData.ids;
+            string[,] tileEntityDataArray = data.baseData.sTileEntityOptions;
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++) {
                 for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++) {
                     Vector2Int positionInPartition = new Vector2Int(x, y);
                     if (tileEntities.ContainsKey(positionInPartition)) {
                         continue;
                     }
-                    string id = data.baseData.ids[x,y];
+                    string id = baseIdArray[x,y];
                     if (id == null) {
                         continue;
                     }
                     TileItem tileItem = itemRegistry.GetTileItem(id);
                     TileEntityObject tileEntity = tileItem?.tileEntity;
                     if (tileEntity is not { ExtraLoadRange: true }) continue;
-                        
                     
-                    string tileEntityData = data.baseData.sTileEntityOptions[x,y];
-                    Vector2Int position = this.position * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x,y);
-                    tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,position,parent,true,true,tileEntityData);
+                    string tileEntityData = tileEntityDataArray[x,y];
+                    Vector2Int cellPosition = this.position * Global.CHUNK_PARTITION_SIZE + new Vector2Int(x,y);
+                    tileEntities[positionInPartition] = TileEntityUtils.placeTileEntity(tileItem,cellPosition,parent,true,true,tileEntityData);
                 }
             }
         }

@@ -38,6 +38,11 @@ namespace Robot.Upgrades.Info.Instances
             return null;
         }
 
+        public override IAmountFormatter GetEnergyCostFormatter(int upgrade)
+        {
+            return null;
+        }
+
         public override List<int> GetContinuousUpgrades()
         {
             return new List<int>
@@ -54,6 +59,11 @@ namespace Robot.Upgrades.Info.Instances
         public override List<int> GetAllUpgrades()
         {
             return System.Enum.GetValues(typeof(LaserGunUpgrade)).Cast<int>().ToList();
+        }
+        
+        public override string GetDefaultCosts()
+        {
+            return $"Requires: {COST_PER_LASER}J/laser\n& {COST_PER_EXPLOSION}J/explosion\"";
         }
     }
 }
