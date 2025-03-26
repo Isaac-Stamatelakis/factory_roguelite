@@ -76,6 +76,7 @@ namespace Chunks.Systems {
                 cachedChunks.Remove(chunkPosition);
             }
             FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+            fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
             fluidWorldTileMap?.RemoveChunk(chunkPosition);
         }
 
@@ -322,8 +323,17 @@ namespace Chunks.Systems {
             partitionUnloader.clearQueue();
         }
 
-        public virtual void Save() {
+        public FluidWorldTileMap GetFluidTileMap()
+        {
+            return tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
+        }
+        
+        public virtual void Save()
+        {
+            FluidWorldTileMap fluidWorldTileMap = GetFluidTileMap();
+            
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
+                fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Chunks;
+using Chunks.Partitions;
 using Fluids;
 using Items;
 using UnityEditor.UIElements;
@@ -28,7 +30,6 @@ namespace Tiles.Fluid.Simulation
 		public Vector2Int Position;
 		public float Diff;
 		public bool QueuedForUpdate;
-		public bool UpdateVisuals;
 
 		public FluidCell(string fluidId, float liquid, FluidFlowRestriction flowRestriction, Vector2Int position)
 		{
@@ -57,6 +58,7 @@ namespace Tiles.Fluid.Simulation
 	
     public class FluidTileMapSimulator
     {
+	    private const bool LOG = false;
 	    private const int MAX_VISCOSITY = 10;
 	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap)
 	    {
@@ -122,7 +124,46 @@ namespace Tiles.Fluid.Simulation
         {
 	        chunkCellArrayDict.Remove(position);
         }
-	
+
+        public void SyncAllChunks(List<ILoadedChunk> loadedChunks)
+        {
+	        foreach (ILoadedChunk loadedChunk in loadedChunks)
+	        {
+		        SaveToChunk(loadedChunk);
+	        }
+        }
+        public void SaveToChunk(ILoadedChunk loadedChunk)
+        {
+	        Vector2Int chunkPosition = loadedChunk.GetPosition();
+	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
+	        for (int px = 0; px < Global.PARTITIONS_PER_CHUNK; px++)
+	        {
+		        for (int py = 0; py < Global.PARTITIONS_PER_CHUNK; py++)
+		        {
+			        IChunkPartition partition = loadedChunk.GetPartition(new Vector2Int(px, py));
+			        PartitionFluidData fluidData = partition.GetFluidData();
+			        string[,] ids = fluidData.ids;
+			        float[,] fill = fluidData.fill;
+			        for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
+			        {
+				        for (int y = 0; y < Global.CHUNK_PARTITION_SIZE; y++)
+				        {
+					        FluidCell cell = fluidCells[px*Global.CHUNK_PARTITION_SIZE + x][py*Global.CHUNK_PARTITION_SIZE + y];
+					        if (cell == null)
+					        {
+						        ids[x, y] = null;
+						        fill[x, y] = 0;
+					        }
+					        else
+					        {
+						        ids[x, y] = cell.FluidId;
+						        fill[x, y] = cell.Liquid;
+					        }
+				        }
+			        }
+		        }
+	        }
+        }
         public void AddFluidCell(FluidCell fluidCell)
         {
 	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
@@ -145,10 +186,8 @@ namespace Tiles.Fluid.Simulation
 			{
 				var position = updates[i];
 				FluidCell fluidCell = GetFluidCell(position);
-				if (fluidCell == null) continue;
-				if (fluidCell.QueuedForUpdate) continue;
-				fluidCell.QueuedForUpdate = true;
 				currentUpdates[updateIndex] = fluidCell;
+				fluidCell.QueuedForUpdate = false;
 				updateIndex++;
 				if (updateIndex >= fluidUpdateCollection.Index) break;
 			}
@@ -163,15 +202,16 @@ namespace Tiles.Fluid.Simulation
 			{
 				FluidCell cell = currentUpdates[index];
 				if (cell == null) break;
+				
 				FluidUpdate(cell);
 			}
-
+			
 			void UpdateVisualsOfAdjacent(FluidCell adjacent)
 			{
-				if (adjacent == null) return;
-				if (!adjacent.UpdateVisuals || adjacent.QueuedForUpdate) return;
+				if (adjacent == null || adjacent.Diff == 0) return;
 				adjacent.Liquid += adjacent.Diff;
-				adjacent.UpdateVisuals = false;
+				adjacent.Diff = 0;
+				
 				if (adjacent.Liquid > MIN_FILL)
 				{
 					fluidWorldTileMap.DisplayTile(adjacent);
@@ -186,9 +226,11 @@ namespace Tiles.Fluid.Simulation
 			for (var index = 0; index < currentUpdates.Length; index++)
 			{
 				var cell = currentUpdates[index];
+				currentUpdates[index] = null;
 				if (cell == null) break;
 				cell.Liquid += cell.Diff;
-				//Debug.Log($"{cell.Position} {cell.Liquid}");
+				cell.Diff = 0;
+				
 				Vector2Int cellPosition = cell.Position;
 				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Left)));
 				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Right)));
@@ -200,20 +242,14 @@ namespace Tiles.Fluid.Simulation
 					fluidWorldTileMap.DisplayTile(cell);
 					continue;
 				}
-
 				cell.Liquid = 0;
 				cell.FluidId = null;
 				fluidWorldTileMap.DisplayTile(cell);
+				
 			}
-
-			for (var index = 0; index < currentUpdates.Length; index++)
-			{
-				var cell = currentUpdates[index];
-				if (cell == null) break;
-				cell.QueuedForUpdate = false;
-				currentUpdates[index] = null;
-			}
-			Debug.Log($"Simulator Updated {fluidUpdateCollection.Index} Cells at Tick {tickCounter}");
+			
+			
+			Debug.Log($"Simulator Updated {updateIndex} Cells at Tick {tickCounter}");
 			fluidUpdateCollection.Index = 0;
 			fluidUpdateArrayStack.Push(fluidUpdateCollection);
 			
@@ -248,18 +284,9 @@ namespace Tiles.Fluid.Simulation
 			float flow = 0;
 			
 			
-			bool TerminateUpdate()
-			{
-				if (remainingValue < MIN_FILL) {
-					cell.Diff -= remainingValue;
-					return true;
-				}
-
-				return false;
-			}
+			FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
 			
-			bool fall = FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
-			if (TerminateUpdate()) return;
+			//goto test;
 			
 			const int HORIZONTAL_DISTANCE = 2;
 			bool left = true;
@@ -269,33 +296,33 @@ namespace Tiles.Fluid.Simulation
 				if (left)
 				{
 					left = HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow,i);
-					if (TerminateUpdate()) return;
 				}
 				
 				if (right)
 				{
 					right = HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow,i);
-					if (TerminateUpdate()) return;
 				}
 				if (!left && !right) break;
 			}
 
 			
 			RiseFluidUpdate(cell,FluidFlowDirection.Up,ref remainingValue, ref flow);
-			if (TerminateUpdate()) return;
 			
-			test:
+			if (remainingValue < MIN_FILL) {
+				cell.Diff -= remainingValue;
+			}
 			// Check if cell is settled
-			if (startValue != remainingValue) {
+			if (Mathf.Abs(startValue - remainingValue) > 0.001f) {
 				UnsettleCell(cell);
 				UnsettleNeighbors(cell.Position); 
 			}
 		}
 
-		public bool FallFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
+		public void FallFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
+			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (!CanFlowInto(cell, adjacent)) return true;
+			if (!CanFlowInto(cell, adjacent)) return;
 			
 			flow = CalculateVerticalFlowValue(cell.Liquid, adjacent) - adjacent.Liquid;
 			if (adjacent.Liquid > 0 && flow > MIN_FLOW)
@@ -306,12 +333,11 @@ namespace Tiles.Fluid.Simulation
 				flow = Mathf.Min(MAX_FLOW, cell.Liquid);
 			
 			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,false);
-			return false;
 		}
 		
 		private void UnsettleCell(FluidCell adjacent)
 		{
-			if (adjacent == null) return;
+			if (adjacent == null || adjacent.QueuedForUpdate) return;
 			FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(adjacent.FluidId);
 			if (!fluidTileItem) return;
 
@@ -325,7 +351,7 @@ namespace Tiles.Fluid.Simulation
 				}
 				tickFluidUpdates[updateTick] = fluidUpdateArrayStack.Pop();
 			}
-
+			
 			var collection = tickFluidUpdates[updateTick];
 
 			if (collection.Index >= MAX_UPDATES_PER_SECOND)
@@ -333,6 +359,7 @@ namespace Tiles.Fluid.Simulation
 				updateListFull = true;
 				return;
 			}
+			adjacent.QueuedForUpdate = true;
 			collection.Updates[collection.Index] = adjacent.Position;
 			collection.Index++;
 		}
@@ -359,12 +386,11 @@ namespace Tiles.Fluid.Simulation
 				adjacent.Diff += flow;
 			}
 			adjacent.FluidId = cell.FluidId;
-			adjacent.UpdateVisuals = true;
-			UnsettleCell(adjacent);
 		}
 
 		public bool HorizontalFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow, int distance)
 		{
+			if (remainingValue < MIN_FILL) return false;
 			FluidCell adjacent = GetFluidCell(cell.Position + GetVectorDirectionFromFlow(flowDirection) * distance);
 			if (!CanFlowInto(cell, adjacent)) return false;
 			
@@ -384,6 +410,7 @@ namespace Tiles.Fluid.Simulation
 
 		public void RiseFluidUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
+			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
 			if (!CanFlowInto(cell, adjacent)) return;
 			
@@ -398,9 +425,6 @@ namespace Tiles.Fluid.Simulation
 			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,false);
 		}
 		
-		
-		
-
 		public FluidCell GetFluidCell(Vector2Int cellPosition)
 		{
 			Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);

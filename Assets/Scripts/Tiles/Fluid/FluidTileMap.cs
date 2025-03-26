@@ -21,6 +21,7 @@ namespace Fluids {
         }
 
         private FluidTileMapSimulator simulator;
+        public FluidTileMapSimulator Simulator => simulator;
         public const float MAX_FILL = 1f;
         public override bool HitTile(Vector2 position, bool dropItem)
         {

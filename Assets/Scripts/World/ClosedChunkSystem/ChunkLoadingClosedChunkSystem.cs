@@ -5,6 +5,7 @@ using UnityEngine;
 using Chunks.Loaders;
 using Chunks.IO;
 using Chunks.Partitions;
+using Fluids;
 
 namespace Chunks.Systems {
     /// <summary>
@@ -44,9 +45,11 @@ namespace Chunks.Systems {
         public override IEnumerator SaveCoroutine()
         {
             var delay = new WaitForFixedUpdate();
+            FluidWorldTileMap fluidWorldTileMap = GetFluidTileMap();
             List<Vector2Int> currentlyCachedChunks = cachedChunks.Keys.ToList(); // Required to prevent modifying collection during enumeration
             foreach (Vector2Int chunkPosition in currentlyCachedChunks) {
                 if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) continue;
+                fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
                     if (partition.GetLoaded()) {
                         partition.Save();

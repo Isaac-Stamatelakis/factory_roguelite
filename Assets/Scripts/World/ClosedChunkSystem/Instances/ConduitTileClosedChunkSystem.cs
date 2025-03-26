@@ -196,9 +196,13 @@ namespace Chunks.Systems {
             
         }
         
-        public override void Save() {
+        public override void Save()
+        {
+            var fluidWorldTileMap = GetFluidTileMap();
+            
             foreach (var (position, chunk) in cachedChunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
                         continue;
@@ -229,9 +233,11 @@ namespace Chunks.Systems {
 
         public override IEnumerator SaveCoroutine()
         {
+            var fluidWorldTileMap = GetFluidTileMap();
             WaitForFixedUpdate wait = new WaitForFixedUpdate();
             foreach (var (position, chunk) in cachedChunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
+                    fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                     if (partition is not IConduitTileChunkPartition conduitTileChunkPartition) {
                         Debug.LogWarning("Non conduit partition in soft loaded tile chunk");
                         continue;
