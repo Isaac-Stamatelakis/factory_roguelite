@@ -7,6 +7,7 @@ using TileEntity;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
 using World.Cave.DecorationDistributor;
+using World.Cave.Distributors.FluidDistributor;
 using World.Cave.TileDistributor;
 using World.Cave.TileDistributor.Ore;
 using Debug = UnityEngine.Debug;
@@ -30,6 +31,7 @@ namespace WorldModule.Caves {
         public AssetReference structureDistributor;
         public List<AssetReference> songs;
         public List<CaveDecoration> CaveDecorations;
+        public List<FluidAreaDistribution> FluidAreaDistributions;
         
         public CaveOptions CaveOptions;
         
@@ -109,6 +111,9 @@ namespace WorldModule.Caves {
             AreaGenerationHelper.smoothNatureTiles(worldTileData,size.x,size.y);
             CaveDecorationDistributor caveDecorationDistributor = new CaveDecorationDistributor(caveObject.CaveDecorations);
             caveDecorationDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+
+            FluidAreaDistributor fluidAreaDistributor = new FluidAreaDistributor(caveObject.FluidAreaDistributions);
+            fluidAreaDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
             MusicTrackController.Instance.SetSong(caveElements.Songs);
             stopwatch.Stop();

@@ -45,6 +45,6 @@ namespace Chunks.Partitions {
         public void UnloadTileEntities();
         public void SetHardness(Vector2Int positionInPartition, int hardness);
         public void SetBaseTileData(Vector2Int positionInPartition, BaseTileData baseTileData);
-        public FluidCell GetFluidCell(Vector2Int positionInPartition);
+        public FluidCell GetFluidCell(Vector2Int positionInPartition, bool displayable);
     }
 }

@@ -142,16 +142,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     positionInPartition: partitionPosition
                 );
             }
-            string fluidID = data.fluidData.ids[x,y];
-            if (fluidID != null) {
-                placeFluid(
-                    id: fluidID,
-                    itemRegistry: itemRegistry,
-                    tileGridMaps: tileGridMaps,
-                    realPosition: realPosition,
-                    positionInPartition: partitionPosition
-                );
-            }
         }
 
         private static void PlaceBackground(string id, ItemRegistry itemRegistry, Dictionary<TileMapType, IWorldTileMap> tileGridMaps,Vector2Int realPosition,Vector2Int positionInPartition) {
@@ -280,12 +270,12 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     
                     string fluidId = fluidIds[x,y];
                     float fillValue = fill[x,y];
-                    chunkFluidCells[px + x][py + y] = GetFluidCell(tileItem, new Vector2Int(x,y), realPosition, fluidId, fillValue);
+                    chunkFluidCells[px + x][py + y] = GetFluidCell(tileItem, new Vector2Int(x,y), realPosition, fluidId, fillValue,false);
                 }
             }
         }
 
-        public override FluidCell GetFluidCell(Vector2Int positionInPartition)
+        public override FluidCell GetFluidCell(Vector2Int positionInPartition, bool displayable)
         {
             int x = positionInPartition.x;
             int y = positionInPartition.y;
@@ -299,16 +289,16 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     
             string fluidId = fluidIds[x,y];
             float fillValue = fill[x,y];
-            return GetFluidCell(tileItem, positionInPartition, realPosition, fluidId, fillValue);
+            return GetFluidCell(tileItem, positionInPartition, realPosition, fluidId, fillValue,displayable);
             
         }
 
-        private FluidCell GetFluidCell(TileItem tileItem, Vector2Int positionInPartition, Vector2Int partitionWorldPosition, string fluidId, float fillValue)
+        private FluidCell GetFluidCell(TileItem tileItem, Vector2Int positionInPartition, Vector2Int partitionWorldPosition, string fluidId, float fillValue, bool displayable)
         {
             FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
             return flowRestriction == FluidFlowRestriction.BlockFluids 
                 ? null 
-                : new FluidCell(fluidId, fillValue, flowRestriction, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition);
+                : new FluidCell(fluidId, fillValue, flowRestriction, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition,displayable);
         }
 
         private FluidFlowRestriction GetFlowRestriction(TileItem tileItem, Vector2Int positionInPartition)

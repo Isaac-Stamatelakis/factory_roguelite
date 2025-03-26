@@ -56,6 +56,7 @@ namespace Chunks.Systems {
         protected bool interactable = true;
         public bool Interactable => interactable;
         public IntervalVector CoveredArea => coveredArea;
+        private FluidWorldTileMap fluidWorldTileMap;
         public virtual void Awake () {
             mainCamera = Camera.main;
             
@@ -67,7 +68,6 @@ namespace Chunks.Systems {
             }
             Vector2Int chunkPosition = chunk.GetPosition();
             cachedChunks[chunkPosition] = chunk;
-            FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
             fluidWorldTileMap?.AddChunk(chunk);
         }
         public void RemoveChunk(ILoadedChunk chunk) {
@@ -75,7 +75,6 @@ namespace Chunks.Systems {
             if (ChunkIsCached(chunkPosition)) {
                 cachedChunks.Remove(chunkPosition);
             }
-            FluidWorldTileMap fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
             fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
             fluidWorldTileMap?.RemoveChunk(chunkPosition);
         }
@@ -139,6 +138,8 @@ namespace Chunks.Systems {
 
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
             cameraBounds.SetSystem(this,dimController.BoundCamera);
+            
+            fluidWorldTileMap = tileGridMaps[TileMapType.Fluid] as FluidWorldTileMap;
         }
 
         public virtual void InitLoaders() {
@@ -175,6 +176,7 @@ namespace Chunks.Systems {
             currentPlayerPartition = GetCurrentPartitionPosition();
             playerPartitionChangeDifference = currentPlayerPartition - last;
             
+            // TODO put this in constant memory (state of class)
             List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
             List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
             List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
@@ -290,6 +292,7 @@ namespace Chunks.Systems {
 
         public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
             loadedPartitionBoundary.PartitionLoaded(chunkPartition.GetRealPosition());
+            fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),true);
             yield return chunkPartition.Load(tileGridMaps,direction);
             chunkPartition.SetTileLoaded(true);
         }
@@ -308,8 +311,10 @@ namespace Chunks.Systems {
         
         public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
             chunkPartition.UnloadEntities();
+            fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
             loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
+            
             breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
             chunkPartition.SetTileLoaded(false);
             chunkPartition.SetFarLoaded(false);
@@ -330,8 +335,6 @@ namespace Chunks.Systems {
         
         public virtual void Save()
         {
-            FluidWorldTileMap fluidWorldTileMap = GetFluidTileMap();
-            
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {

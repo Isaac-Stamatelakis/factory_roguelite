@@ -9,16 +9,31 @@ using Items;
 using System.Linq;
 using Chunks;
 using Chunks.Systems;
+using Dimensions;
 using TileMaps.Layer;
+using TileMaps.Type;
 using Tiles.Fluid.Simulation;
 
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
+        private Tilemap unlitTileMap;
         public void Awake()
         {
             simulator = new FluidTileMapSimulator(this);
+            itemRegistry = ItemRegistry.GetInstance();
         }
+
+        public override void Initialize(TileMapType type)
+        {
+            base.Initialize(type);
+            GameObject unlitContainer = new GameObject("Unlit");
+            unlitContainer.transform.SetParent(transform,false);
+            unlitTileMap = unlitContainer.AddComponent<Tilemap>();
+            TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
+            tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
+        }
+        private ItemRegistry itemRegistry;
 
         private FluidTileMapSimulator simulator;
         public FluidTileMapSimulator Simulator => simulator;
@@ -74,6 +89,7 @@ namespace Fluids {
         {
             if (ReferenceEquals(item,null)) {
                 tilemap.SetTile(new Vector3Int(x,y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
                 return;
             }
             Vector2Int position = new Vector2Int(x,y);
@@ -85,21 +101,36 @@ namespace Fluids {
 
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
+            Tilemap map = fluidTileItem.fluidOptions.Lit ? unlitTileMap : tilemap;
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
-            tilemap.SetTile(new Vector3Int(x,y,0),tile);
+            map.SetTile(new Vector3Int(x,y,0),tile);
+        }
+        
+        public void DisplayTile(int x, int y, string id, float fill)
+        {
+            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
+            if (!fluidTileItem)
+            {
+                tilemap.SetTile(new Vector3Int(x,y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
+                return;
+            }
+            DisplayTile(x,y,fluidTileItem, fill);
         }
         
         public void DisplayTile(FluidCell fluidCell)
         {
-            var fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(fluidCell.FluidId);
+            var fluidTileItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
             if (!fluidTileItem)
             {
                 tilemap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
                 return;
             }
             DisplayTile(fluidCell.Position.x,fluidCell.Position.y,fluidTileItem,fluidCell.Liquid);
         }
+        
         
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, FluidTileItem item)
         {
@@ -107,7 +138,7 @@ namespace Fluids {
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition);
+            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell);
         }
 
@@ -115,7 +146,7 @@ namespace Fluids {
         {
             ILoadedChunkSystem chunkSystem = closedChunkSystem;
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
-            FluidCell fluidCell = partition.GetFluidCell(positionInPartition);
+            FluidCell fluidCell = partition.GetFluidCell(positionInPartition, true);
             simulator.AddFluidCell(fluidCell);
             simulator.UnsettleNeighbors(position);
         }

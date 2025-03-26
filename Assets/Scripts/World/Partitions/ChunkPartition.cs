@@ -332,6 +332,6 @@ namespace Chunks.Partitions {
             data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y] = baseTileData;
         }
 
-        public abstract FluidCell GetFluidCell(Vector2Int positionInPartition);
+        public abstract FluidCell GetFluidCell(Vector2Int positionInPartition, bool displayable);
     }
 }

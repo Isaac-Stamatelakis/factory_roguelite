@@ -52,6 +52,7 @@ namespace Items {
     public class FluidOptions {
         [SerializeField] private int viscosity;
         [SerializeField] private bool invertedGravity;
+        public bool Lit = false;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;
