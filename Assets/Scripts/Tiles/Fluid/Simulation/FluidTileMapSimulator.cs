@@ -288,7 +288,7 @@ namespace Tiles.Fluid.Simulation
 			// Check if cell is settled
 			if (startValue != remainingValue) {
 				UnsettleCell(cell);
-				//UnsettleNeighbors(cell); 
+				UnsettleNeighbors(cell.Position); 
 			}
 		}
 
@@ -305,18 +305,17 @@ namespace Tiles.Fluid.Simulation
 			if (flow > Mathf.Min(MAX_FLOW, cell.Liquid)) 
 				flow = Mathf.Min(MAX_FLOW, cell.Liquid);
 			
-			UpdateFlowValues(ref remainingValue, flow, cell, adjacent);
+			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,false);
 			return false;
 		}
 		
 		private void UnsettleCell(FluidCell adjacent)
 		{
 			if (adjacent == null) return;
-			//FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(adjacent.FluidId);
-			//if (!fluidTileItem) return;
+			FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(adjacent.FluidId);
+			if (!fluidTileItem) return;
 
-			//uint updateTick = (uint)fluidTileItem.fluidOptions.Viscosity + tickCounter;
-			uint updateTick = tickCounter;
+			uint updateTick = (uint)fluidTileItem.fluidOptions.Viscosity + tickCounter;
 			if (!tickFluidUpdates.ContainsKey(updateTick))
 			{
 				if (fluidUpdateArrayStack.Count == 0)
@@ -338,10 +337,8 @@ namespace Tiles.Fluid.Simulation
 			collection.Index++;
 		}
 		
-		public void UnsettleNeighbors(FluidCell cell)
+		public void UnsettleNeighbors(Vector2Int cellPosition)
 		{
-			Vector2Int cellPosition = cell.Position;
-			
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.up));
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.down));
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.left));
@@ -352,18 +349,18 @@ namespace Tiles.Fluid.Simulation
 		{
 			return adj != null && adj.FlowRestriction != FluidFlowRestriction.BlockFluids && (adj.FluidId == null || string.Equals(fluidCell.FluidId, adj.FluidId));
 		}
-		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent)
+		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent, bool loss)
 		{
 			if (flow == 0) return;
 			remainingValue -= flow;
 			cell.Diff -= flow;
-			if (flow > 0.005f) // This makes fluids lose size as they move but makes this much more efficent
+			if (!loss || flow > 0.005f) // This makes fluids lose size as they move but makes the 
 			{
 				adjacent.Diff += flow;
 			}
-			UnsettleCell(adjacent);
 			adjacent.FluidId = cell.FluidId;
 			adjacent.UpdateVisuals = true;
+			UnsettleCell(adjacent);
 		}
 
 		public bool HorizontalFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow, int distance)
@@ -381,7 +378,7 @@ namespace Tiles.Fluid.Simulation
 			if (flow > currentMax)
 				flow = currentMax;
 
-			UpdateFlowValues(ref remainingValue, flow, cell, adjacent);
+			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,true);
 			return true;
 		}
 
@@ -398,7 +395,7 @@ namespace Tiles.Fluid.Simulation
 			if (flow > Mathf.Min(MAX_FLOW, remainingValue)) 
 				flow = Mathf.Min(MAX_FLOW, remainingValue);
 			
-			UpdateFlowValues(ref remainingValue, flow, cell, adjacent);
+			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,false);
 		}
 		
 		

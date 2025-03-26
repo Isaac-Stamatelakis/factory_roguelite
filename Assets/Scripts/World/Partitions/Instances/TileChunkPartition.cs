@@ -280,12 +280,35 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     
                     string fluidId = fluidIds[x,y];
                     float fillValue = fill[x,y];
-                    Vector2Int positionInPartition = new Vector2Int(x, y);
-                    FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
-                    FluidCell fluidCell = new FluidCell(fluidId, fillValue, flowRestriction, realPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition);
-                    chunkFluidCells[px + x][py + y] = fluidCell;
+                    chunkFluidCells[px + x][py + y] = GetFluidCell(tileItem, new Vector2Int(x,y), realPosition, fluidId, fillValue);
                 }
             }
+        }
+
+        public override FluidCell GetFluidCell(Vector2Int positionInPartition)
+        {
+            int x = positionInPartition.x;
+            int y = positionInPartition.y;
+            string[,] baseIds = data.baseData.ids;
+            string[,] fluidIds = data.fluidData.ids;
+            float[,] fill = data.fluidData.fill;
+            Vector2Int realPosition = GetRealPosition();
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
+            string baseId = baseIds[x,y];
+            TileItem tileItem = itemRegistry.GetTileItem(baseId);
+                    
+            string fluidId = fluidIds[x,y];
+            float fillValue = fill[x,y];
+            return GetFluidCell(tileItem, positionInPartition, realPosition, fluidId, fillValue);
+            
+        }
+
+        private FluidCell GetFluidCell(TileItem tileItem, Vector2Int positionInPartition, Vector2Int partitionWorldPosition, string fluidId, float fillValue)
+        {
+            FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
+            return flowRestriction == FluidFlowRestriction.BlockFluids 
+                ? null 
+                : new FluidCell(fluidId, fillValue, flowRestriction, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition);
         }
 
         private FluidFlowRestriction GetFlowRestriction(TileItem tileItem, Vector2Int positionInPartition)

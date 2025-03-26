@@ -112,7 +112,11 @@ namespace Fluids {
 
         public void TileUpdate(Vector2Int position)
         {
-            // TODO
+            ILoadedChunkSystem chunkSystem = closedChunkSystem;
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
+            FluidCell fluidCell = partition.GetFluidCell(positionInPartition);
+            simulator.AddFluidCell(fluidCell);
+            simulator.UnsettleNeighbors(position);
         }
 
         public void FixedUpdate()
