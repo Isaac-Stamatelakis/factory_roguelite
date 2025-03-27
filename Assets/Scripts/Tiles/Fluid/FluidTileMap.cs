@@ -180,7 +180,7 @@ namespace Fluids {
         {
             simulator.Simulate();
             
-            const int RANDOM_UNLIT_LIGHT_CHANCE = 10;
+            const int RANDOM_UNLIT_LIGHT_CHANCE = 1;
             int ran = Random.Range(0, RANDOM_UNLIT_LIGHT_CHANCE);
             if (ran != 0) return;
             
@@ -192,9 +192,10 @@ namespace Fluids {
             //float random = UnityEngine.Random.value;
             //if (size / HIGHEST_ODDS < random) return;
             Vector3Int randomPosition = new Vector3Int(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1), UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1),0);
-            if (!unlitTileMap.HasTile(randomPosition)) return;
-            Debug.Log("Unlit flash");
-            StartCoroutine(FlashUnlitMap(randomPosition,4));
+            if (!unlitTileMap.HasTile(randomPosition) || unlitTileMap.GetColor(randomPosition) != Color.white * 0.9f) return;
+           
+            int flashSize = UnityEngine.Random.Range(3, 10);
+            StartCoroutine(FlashUnlitMap(randomPosition,flashSize));
 
         }
 
@@ -212,9 +213,10 @@ namespace Fluids {
             List<Vector3Int> seen = new List<Vector3Int>();
             seen.Add(origin);
             int r = 0;
-            var delay = new WaitForSeconds(0.25f);
+            var delay = new WaitForSeconds(0.1f);
             colors.Add(unlitTileMap.GetColor(origin));
-            while (r < size)
+
+            void IncreaseSize()
             {
                 void TryAddToSeen(Vector3Int vector3Int)
                 {
@@ -232,16 +234,9 @@ namespace Fluids {
                     TryAddToSeen(current + Vector3Int.right);
                 }
                 colors.Add(unlitTileMap.GetColor(origin));
-                
-                yield return delay;
-                r++;
             }
 
-            foreach (Color c in colors)
-            {
-                Debug.Log(c);
-            }
-            while (r >= 0)
+            void DecreaseSize()
             {
                 int index = seen.Count-1;
                 int colorIndex = r;
@@ -249,7 +244,6 @@ namespace Fluids {
                 {
                     int toColor = 4 * colorIndex;
                     Color color = colors[r-colorIndex];
-                    Debug.Log(color + "," + toColor);
                     while (toColor > 0)
                     {
                         unlitTileMap.SetColor(seen[index],color);
@@ -269,13 +263,20 @@ namespace Fluids {
                 {
                     seen.RemoveAt(i);
                 }
-               
+            }
+            while (r < size)
+            {
+                IncreaseSize();
+                yield return delay;
+                r++;
+            }
+            while (r >= 0)
+            {
+                DecreaseSize();
                 yield return delay;
                 r--;
             }
         }
-        
-        
     }
 }
 

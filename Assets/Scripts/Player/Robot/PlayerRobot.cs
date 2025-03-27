@@ -181,7 +181,7 @@ namespace Player {
 
         public void AddCollisionState(CollisionState state)
         {
-            if (collisionStates.Contains(state)) return;
+            if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
                 liveYUpdates = 3;
@@ -211,13 +211,23 @@ namespace Player {
                 var vector2 = rb.velocity;
                 vector2.y = vector2.y * 0.1f;
                 rb.velocity = vector2;
+
+                Vector3 position = transform.position;
+                position.z = 2;
+                transform.position = position;
             }
-            collisionStates.Add(state);
+            
         }
 
         public void RemoveCollisionState(CollisionState state)
         {
-            collisionStates.Remove(state);
+            if (!collisionStates.Remove(state)) return;
+            if (state == CollisionState.FeetInFluid)
+            {
+                Vector3 position = transform.position;
+                position.z = -5;
+                transform.position = position;
+            }
         }
 
         public bool CollisionStateActive(CollisionState state)
