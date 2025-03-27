@@ -174,7 +174,6 @@ namespace TileMaps {
         {
             Vector3Int vector3Int = new Vector3Int(position.x,position.y,0);
             if (!mTileMap.GetTile(vector3Int)) return false;
-            
             if (dropItem) 
             {
                 TileItem tileItem = getTileItem(position);
@@ -500,6 +499,13 @@ namespace TileMaps {
                     BreakAndDropTile(adjacentPosition,true);
                 }
             }
+        }
+
+        public void FluidUpdate(Vector2Int cellPosition)
+        {
+            TileItem tileItem = getTileItem(cellPosition);
+            if (!tileItem || !tileItem.tileOptions.fluidBreakable) return;
+            BreakAndDropTile(cellPosition, true);
         }
 
         private bool UpdateDirectionalStateTile(Direction direction, TilePlacementOptions tilePlacementOptions)

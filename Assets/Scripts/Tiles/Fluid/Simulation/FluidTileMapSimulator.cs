@@ -4,6 +4,7 @@ using Chunks;
 using Chunks.Partitions;
 using Fluids;
 using Items;
+using TileMaps;
 using UnityEditor.UIElements;
 using UnityEngine;
 
@@ -62,9 +63,10 @@ namespace Tiles.Fluid.Simulation
     {
 	    private const bool LOG = false;
 	    
-	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap)
+	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap, WorldTileGridMap objectTileMap)
 	    {
 		    this.fluidWorldTileMap = fluidWorldTileMap;
+		    this.objectTileMap = objectTileMap;
 		    currentUpdates = new FluidCell[MAX_UPDATES_PER_SECOND];
 		    for (int i = 0; i < MAX_VISCOSITY; i++)
 		    {
@@ -102,6 +104,7 @@ namespace Tiles.Fluid.Simulation
 	    // Adjusts flow speed (0.0f - 1.0f)
 	    const float FLOW_SPEED = 1f;
 	    private FluidWorldTileMap fluidWorldTileMap;
+	    private WorldTileGridMap objectTileMap;
 	    
         float CalculateVerticalFlowValue(float remainingLiquid, FluidCell destination)
         {
@@ -121,7 +124,22 @@ namespace Tiles.Fluid.Simulation
 	        {
 		        foreach (FluidCell cell in fluidCellArray)
 		        {
-			        UnsettleCell(cell);
+			        if (cell == null) continue; // Do not unsettle cells that are almost maxed
+			        
+			        bool CheckSimilarity(FluidCell adjacent)
+			        {
+				        if (adjacent == null || (Mathf.Abs(adjacent.Liquid - cell.Liquid) > 0.01f))
+				        {
+					        UnsettleCell(cell);
+					        return true;
+				        }
+				        return false;
+			        }
+			       
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.left))) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.right))) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.down))) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.up))) continue;
 		        }
 	        }
         }
@@ -184,12 +202,12 @@ namespace Tiles.Fluid.Simulation
         public void DisruptSurface(Vector2Int cellPosition)
         {
 	        FluidCell cell = GetFluidCell(cellPosition);
-	        if (cell == null || cell.Liquid < MIN_FILL || cell.QueuedForUpdate) return;
+	        if (cell == null || cell.Liquid < MIN_FILL) return;
 	        
 	        float current = cell.Liquid;
 	        void Disrupt(FluidCell adjacent)
 	        {
-		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL) || adjacent.QueuedForUpdate) return;
+		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL)) return;
 		        float dif = UnityEngine.Random.Range(current / 4, current / 2);
 		        adjacent.Liquid += dif;
 		        cell.Liquid -= dif;
@@ -198,15 +216,20 @@ namespace Tiles.Fluid.Simulation
 	        Disrupt(left);
 	        FluidCell right = GetFluidCell(cellPosition + Vector2Int.right);
 	        Disrupt(right);
-	        
-			UnsettleCell(cell);
+	        UnsettleCell(cell);
+			UnsettleNeighbors(cell.Position);
         }
-        public void AddFluidCell(FluidCell fluidCell)
+        public void AddFluidCell(FluidCell fluidCell, bool replace)
         {
 	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
 	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
 	        Vector2Int positionInChunk = fluidCell.Position - chunkPosition * Global.CHUNK_SIZE;
-	        fluidCells[positionInChunk.x][positionInChunk.y] = fluidCell;
+	        FluidCell current = fluidCells[positionInChunk.x][positionInChunk.y];
+	        if (current == null || replace)
+	        {
+		        fluidCells[positionInChunk.x][positionInChunk.y] = fluidCell;
+	        }
+	        
 	        UnsettleCell(fluidCell);
         }
         
@@ -222,7 +245,7 @@ namespace Tiles.Fluid.Simulation
         {
 	        if (!fluidCell.Displayable) return;
 	        var above = GetFluidCell(fluidCell.Position + Vector2Int.up);
-	        if (above != null && above.Liquid > 1/16f && fluidCell.FluidId == above.FluidId && above.FluidId != null)
+	        if (above != null && above.Liquid > 1/16f && above.FluidId != null)
 	        {
 		        fluidWorldTileMap.DisplayTile(fluidCell.Position.x,fluidCell.Position.y, fluidCell.FluidId, 1);
 		        return;
@@ -270,14 +293,17 @@ namespace Tiles.Fluid.Simulation
 				
 				FluidUpdate(cell);
 			}
-
 			
-			void UpdateVisualsOfAdjacent(FluidCell adjacent)
+			void UpdateFill(FluidCell adjacent)
 			{
 				if (adjacent == null || adjacent.Diff == 0) return;
+				bool emptyBefore = adjacent.Liquid < MIN_FILL;
 				adjacent.Liquid += adjacent.Diff;
+				if (emptyBefore && adjacent.Liquid > MIN_FILL)
+				{
+					objectTileMap.FluidUpdate(adjacent.Position);
+				}
 				adjacent.Diff = 0;
-				
 				DisplayCell(adjacent);
 			}
 			
@@ -286,14 +312,14 @@ namespace Tiles.Fluid.Simulation
 				var cell = currentUpdates[index];
 				currentUpdates[index] = null;
 				if (cell == null) break;
-				cell.Liquid += cell.Diff;
-				cell.Diff = 0;
+				
 				
 				Vector2Int cellPosition = cell.Position;
-				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Left)));
-				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Right)));
-				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Up)));
-				UpdateVisualsOfAdjacent(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Down)));
+				UpdateFill(cell);
+				UpdateFill(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Left)));
+				UpdateFill(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Right)));
+				UpdateFill(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Up)));
+				UpdateFill(GetFluidCell(cellPosition + GetVectorDirectionFromFlow(FluidFlowDirection.Down)));
 				DisplayCell(cell);
 			}
 
@@ -436,7 +462,7 @@ namespace Tiles.Fluid.Simulation
 			remainingValue -= flow;
 			cell.Diff -= flow;
 			// flow > 0.005f
-			if (!loss || flow > 0.000f) // This makes fluids lose size as they move but makes the 
+			if (!loss || flow > 0.000f) // This makes fluids lose size as they move but makes 
 			{
 				adjacent.Diff += flow;
 			}

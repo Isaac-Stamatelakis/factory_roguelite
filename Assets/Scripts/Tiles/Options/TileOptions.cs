@@ -45,6 +45,7 @@ namespace Tiles {
         public bool rotatable = false;
         public int hardness = 8;
         public bool placeBreakable = false;
+        public bool fluidBreakable = false;
         public Tier requiredToolTier;
         public TileAudioType AudioType;
         public TileMovementType movementModifier  = TileMovementType.None;

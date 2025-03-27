@@ -24,7 +24,6 @@ namespace Fluids {
         private int ticksToTryFlash = 25;
         public void Awake()
         {
-            simulator = new FluidTileMapSimulator(this);
             itemRegistry = ItemRegistry.GetInstance();
         }
         
@@ -42,19 +41,9 @@ namespace Fluids {
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
-
-            /*
-            void AddRb(Tilemap map) // Rbs required for triggers
-            {
-                Rigidbody2D rb = map.gameObject.AddComponent<Rigidbody2D>();
-                rb.isKinematic = true;
-                rb.constraints = RigidbodyConstraints2D.FreezeAll; 
-            }
-            //AddRb(tilemap);
-            //AddRb(unlitTileMap);
-            */
+            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap);
             
-            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
+            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
             unlitCollider2D.maximumTileChangeCount=int.MaxValue; 
         }
         private ItemRegistry itemRegistry;
@@ -143,11 +132,10 @@ namespace Fluids {
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
             map.SetTile(vector3Int,tile);
-            if (lit)
-            {
-                map.SetTileFlags(vector3Int,TileFlags.None);
-                map.SetColor(vector3Int,Color.white*0.9f);
-            }
+            if (!lit) return;
+            if (map.GetTileFlags(vector3Int) == TileFlags.None) return;
+            map.SetTileFlags(vector3Int,TileFlags.None);
+            map.SetColor(vector3Int,Color.white*0.9f);
         }
         
         public void DisplayTile(int x, int y, string id, float fill)
@@ -182,7 +170,7 @@ namespace Fluids {
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
-            simulator.AddFluidCell(fluidCell);
+            simulator.AddFluidCell(fluidCell,true);
         }
 
         public void TileUpdate(Vector2Int position)
@@ -192,11 +180,11 @@ namespace Fluids {
             FluidCell fluidCell = partition.GetFluidCell(positionInPartition, true);
             if (fluidCell == null)
             {
-                simulator.RemoveChunk(position);
+                simulator.RemoveFluidCell(position);
             }
             else
             {
-                simulator.AddFluidCell(fluidCell);
+                simulator.AddFluidCell(fluidCell,false);
             }
             
             simulator.UnsettleNeighbors(position);
