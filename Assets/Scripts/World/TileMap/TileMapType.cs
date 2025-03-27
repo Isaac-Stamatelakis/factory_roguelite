@@ -41,6 +41,8 @@ namespace TileMaps.Type {
                     return TileMapLayer.Signal;
                 case TileMapType.MatrixConduit:
                     return TileMapLayer.Matrix;
+                case TileMapType.Fluid:
+                    return TileMapLayer.Fluid;
                 default:
                     Debug.LogError("TileMapTypeExtension method toLayer did not handle switch case for " + type.ToString());
                     return TileMapLayer.Base;
@@ -49,23 +51,18 @@ namespace TileMaps.Type {
         public static bool hasCollider(this TileMapType tileType) {
             switch (tileType) {
                 case TileMapType.Block:
+                case TileMapType.Object:
+                case TileMapType.Platform:
+                case TileMapType.ColladableObject:
+                case TileMapType.Fluid:
                     return true;
                 case TileMapType.Background:
                     return false;
-                case TileMapType.Object:
-                    return true;
-                case TileMapType.Platform:
-                    return true;
-                case TileMapType.ColladableObject:
-                    return true;
+                case TileMapType.MatrixConduit:
                 case TileMapType.ItemConduit:
-                    return false;
                 case TileMapType.FluidConduit:
-                    return false;
                 case TileMapType.EnergyConduit:
-                    return false;
                 case TileMapType.SignalConduit:
-                    return false;
                 default:
                     return false;
             }

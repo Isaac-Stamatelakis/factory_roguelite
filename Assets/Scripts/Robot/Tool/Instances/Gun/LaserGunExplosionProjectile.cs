@@ -55,7 +55,7 @@ namespace Robot.Tool.Instances.Gun
             foreach (var hit in hits)
             {
                 Vector2 collisionPoint = hit.collider.ClosestPoint(transform.position);
-                Vector2 damageDirection = ((Vector2)transform.position-collisionPoint).normalized;
+                Vector2 damageDirection = (collisionPoint-(Vector2)hit.transform.position).normalized;
                 IDamageableEntity damageableEntity = hit.collider.GetComponent<IDamageableEntity>();
                 damageableEntity?.Damage(damage,damageDirection);
             }
@@ -85,7 +85,7 @@ namespace Robot.Tool.Instances.Gun
         public void OnTriggerEnter2D(Collider2D other)
         {
             if (explodeCounter != NOT_EXPLODING) return;
-            if (other.gameObject.CompareTag("Player")) return;
+            if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Fluid")) return;
             StartExplosion();
         }
 

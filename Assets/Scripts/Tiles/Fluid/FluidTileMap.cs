@@ -9,18 +9,55 @@ using Items;
 using System.Linq;
 using Chunks;
 using Chunks.Systems;
+using Dimensions;
 using TileMaps.Layer;
+using TileMaps.Type;
 using Tiles.Fluid.Simulation;
+using Random = UnityEngine.Random;
 
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
+        private Tilemap unlitTileMap;
         public void Awake()
         {
             simulator = new FluidTileMapSimulator(this);
+            itemRegistry = ItemRegistry.GetInstance();
         }
+        
+        public override void Initialize(TileMapType type)
+        {
+            base.Initialize(type);
+            gameObject.tag = "Fluid";
+            GameObject unlitContainer = new GameObject("Unlit");
+            unlitContainer.tag = "Fluid";
+            unlitContainer.transform.SetParent(transform,false);
+            unlitTileMap = unlitContainer.AddComponent<Tilemap>();
+            unlitContainer.layer = LayerMask.NameToLayer("Fluid");
+            TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
+            tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
+            var unlitCollider = unlitContainer.AddComponent<TilemapCollider2D>();
+            unlitCollider.isTrigger = true;
+            tilemapCollider.isTrigger = true;
+
+            /*
+            void AddRb(Tilemap map) // Rbs required for triggers
+            {
+                Rigidbody2D rb = map.gameObject.AddComponent<Rigidbody2D>();
+                rb.isKinematic = true;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll; 
+            }
+            //AddRb(tilemap);
+            //AddRb(unlitTileMap);
+            */
+            
+            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
+            unlitCollider.maximumTileChangeCount=int.MaxValue; 
+        }
+        private ItemRegistry itemRegistry;
 
         private FluidTileMapSimulator simulator;
+        public FluidTileMapSimulator Simulator => simulator;
         public const float MAX_FILL = 1f;
         public override bool HitTile(Vector2 position, bool dropItem)
         {
@@ -34,9 +71,20 @@ namespace Fluids {
             return null;
         }
 
+        public FluidTileItem GetFluidTile(Vector2Int position)
+        {
+            return ItemRegistry.GetInstance().GetFluidTileItem(simulator.GetFluidCell(position)?.FluidId);
+        }
+
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
             return false;
+        }
+
+        protected override void RemoveTile(int x, int y)
+        {
+            base.RemoveTile(x, y);
+            unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
         }
 
         public void AddChunk(ILoadedChunk loadedChunk)
@@ -73,6 +121,7 @@ namespace Fluids {
         {
             if (ReferenceEquals(item,null)) {
                 tilemap.SetTile(new Vector3Int(x,y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
                 return;
             }
             Vector2Int position = new Vector2Int(x,y);
@@ -84,21 +133,44 @@ namespace Fluids {
 
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
+            bool lit = fluidTileItem.fluidOptions.Lit;
+            Tilemap map = lit ? unlitTileMap : tilemap;
+            Vector3Int vector3Int = new Vector3Int(x, y, 0);
+            
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
-            tilemap.SetTile(new Vector3Int(x,y,0),tile);
+            map.SetTile(vector3Int,tile);
+            if (lit)
+            {
+                map.SetTileFlags(vector3Int,TileFlags.None);
+                map.SetColor(vector3Int,Color.white*0.9f);
+            }
+        }
+        
+        public void DisplayTile(int x, int y, string id, float fill)
+        {
+            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
+            if (!fluidTileItem)
+            {
+                tilemap.SetTile(new Vector3Int(x,y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
+                return;
+            }
+            DisplayTile(x,y,fluidTileItem, fill);
         }
         
         public void DisplayTile(FluidCell fluidCell)
         {
-            var fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(fluidCell.FluidId);
+            var fluidTileItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
             if (!fluidTileItem)
             {
                 tilemap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
+                unlitTileMap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
                 return;
             }
             DisplayTile(fluidCell.Position.x,fluidCell.Position.y,fluidTileItem,fluidCell.Liquid);
         }
+        
         
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, FluidTileItem item)
         {
@@ -106,18 +178,119 @@ namespace Fluids {
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition);
+            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell);
         }
 
         public void TileUpdate(Vector2Int position)
         {
-            // TODO
+            ILoadedChunkSystem chunkSystem = closedChunkSystem;
+            var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
+            FluidCell fluidCell = partition.GetFluidCell(positionInPartition, true);
+            simulator.AddFluidCell(fluidCell);
+            simulator.UnsettleNeighbors(position);
         }
 
         public void FixedUpdate()
         {
             simulator.Simulate();
+            
+            const int RANDOM_UNLIT_LIGHT_CHANCE = 1;
+            int ran = Random.Range(0, RANDOM_UNLIT_LIGHT_CHANCE);
+            if (ran != 0) return;
+            
+            // Calls this about once per second
+            unlitTileMap.ResizeBounds();
+            BoundsInt bounds = unlitTileMap.cellBounds;
+            int size = bounds.size.x * bounds.size.y;
+            const float HIGHEST_ODDS = 1024;
+            //float random = UnityEngine.Random.value;
+            //if (size / HIGHEST_ODDS < random) return;
+            Vector3Int randomPosition = new Vector3Int(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1), UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1),0);
+            if (!unlitTileMap.HasTile(randomPosition) || unlitTileMap.GetColor(randomPosition) != Color.white * 0.9f) return;
+           
+            int flashSize = UnityEngine.Random.Range(3, 10);
+            StartCoroutine(FlashUnlitMap(randomPosition,flashSize));
+
+        }
+
+        private IEnumerator FlashUnlitMap(Vector3Int origin, int size)
+        {
+            void Highlight(Vector3Int vector3Int)
+            {
+                unlitTileMap.SetTileFlags(vector3Int,TileFlags.None);
+                Color current = unlitTileMap.GetColor(vector3Int);
+                unlitTileMap.SetColor(vector3Int,Color.Lerp(Color.white,current,0.5f));
+            }
+            
+
+            List<Color> colors = new List<Color>();
+            List<Vector3Int> seen = new List<Vector3Int>();
+            seen.Add(origin);
+            int r = 0;
+            var delay = new WaitForSeconds(0.1f);
+            colors.Add(unlitTileMap.GetColor(origin));
+
+            void IncreaseSize()
+            {
+                void TryAddToSeen(Vector3Int vector3Int)
+                {
+                    if (seen.Contains(vector3Int)) return;
+                    seen.Add(vector3Int);
+                }
+                int original = seen.Count;
+                for (var index = 0; index < original; index++)
+                {
+                    var current = seen[index];
+                    Highlight(current);
+                    TryAddToSeen(current + Vector3Int.down);
+                    TryAddToSeen(current + Vector3Int.left);
+                    TryAddToSeen(current + Vector3Int.up);
+                    TryAddToSeen(current + Vector3Int.right);
+                }
+                colors.Add(unlitTileMap.GetColor(origin));
+            }
+
+            void DecreaseSize()
+            {
+                int index = seen.Count-1;
+                int colorIndex = r;
+                while (colorIndex >= 0)
+                {
+                    int toColor = 4 * colorIndex;
+                    Color color = colors[r-colorIndex];
+                    while (toColor > 0)
+                    {
+                        unlitTileMap.SetColor(seen[index],color);
+                        toColor--;
+                        index--;
+                    }
+
+                    if (colorIndex == 0)
+                    {
+                        unlitTileMap.SetColor(seen[index],color);
+                    }
+                    colorIndex--;
+                }
+                int removals = 4 * r;
+                int count = seen.Count;
+                for (int i = count-1; i >= count-removals; i--)
+                {
+                    seen.RemoveAt(i);
+                }
+            }
+            while (r < size)
+            {
+                IncreaseSize();
+                yield return delay;
+                r++;
+            }
+            while (r >= 0)
+            {
+                DecreaseSize();
+                yield return delay;
+                r--;
+            }
         }
     }
 }

@@ -120,6 +120,11 @@ public class CameraBounds : MonoBehaviour
     public void Update() {
         CheckPartitionAndChunk();
     }
+
+    public void LateUpdate()
+    {
+        UpdateCameraBounds();
+    }
 }
 
 

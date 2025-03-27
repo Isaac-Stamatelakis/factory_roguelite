@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Chunks;
 using Chunks.Systems;
@@ -46,7 +47,9 @@ namespace Player {
         OnGround,
         OnSlope,
         HeadContact,
-        OnPlatform
+        OnPlatform,
+        HeadInFluid,
+        FeetInFluid,
     }
     public class PlayerRobot : MonoBehaviour
     {
@@ -112,6 +115,7 @@ namespace Player {
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
         private float timeSinceDamaged = 0;
+        private FluidCollisionInformation fluidCollisionInformation = new();
 
         public const float BASE_MOVE_SPEED = 5f;
         
@@ -161,9 +165,18 @@ namespace Player {
         {
             mPlayerRobotUI.Display(this);
             MoveUpdate();
-            cameraBounds.UpdateCameraBounds();
+            FluidDamageUpdate();
             MiscKeyListens();
             timeSinceDamaged += Time.deltaTime;
+        }
+
+        private void FluidDamageUpdate()
+        {
+            if (!fluidCollisionInformation.Colliding || fluidCollisionInformation.Damage <= 0.05f) return;
+            fluidCollisionInformation.DamageCounter += Time.deltaTime;
+            if (fluidCollisionInformation.DamageCounter < 1f) return;
+            Damage(fluidCollisionInformation.Damage);
+            fluidCollisionInformation.DamageCounter = 0;
         }
 
         private void MiscKeyListens()
@@ -178,7 +191,7 @@ namespace Player {
 
         public void AddCollisionState(CollisionState state)
         {
-            if (collisionStates.Contains(state)) return;
+            if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
                 liveYUpdates = 3;
@@ -201,19 +214,54 @@ namespace Player {
                 {
                     rocketBoots = null;
                 }
-                
             }
-            collisionStates.Add(state);
+
+            if (state is CollisionState.FeetInFluid)
+            {
+                var vector2 = rb.velocity;
+                vector2.y = vector2.y * 0.1f;
+                rb.velocity = vector2;
+
+                Vector3 position = transform.position;
+                position.z = 2;
+                transform.position = position;
+            }
+        }
+
+        public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
+        {
+            if (!collisionStates.Contains(collisionState)) return;
+            if (collisionState != CollisionState.FeetInFluid) return;
+            if (!fluidTileItem) return;
+            if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
+            {
+                // Deal half damage on first collision
+                Damage(fluidTileItem.fluidOptions.DamagePerSecond/2f);
+            }
+            fluidCollisionInformation.SetFluidItem(fluidTileItem);
+            
         }
 
         public void RemoveCollisionState(CollisionState state)
         {
-            collisionStates.Remove(state);
+            if (!collisionStates.Remove(state)) return;
+            if (state == CollisionState.FeetInFluid)
+            {
+                Vector3 position = transform.position;
+                position.z = -5;
+                transform.position = position;
+                fluidCollisionInformation.Clear();
+            }
         }
 
         public bool CollisionStateActive(CollisionState state)
         {
             return collisionStates.Contains(state);
+        }
+
+        public bool InFluid()
+        {
+            return collisionStates.Contains(CollisionState.HeadInFluid) && collisionStates.Contains(CollisionState.FeetInFluid);
         }
 
         private void MoveUpdate()
@@ -416,6 +464,8 @@ namespace Player {
             {
                 speed += speedUpgrades;
             }
+
+            if (fluidCollisionInformation.Colliding) speed *= fluidCollisionInformation.SpeedModifier;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -447,16 +497,17 @@ namespace Player {
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
+            float fluidModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
             if (climbing) return;
             if (jumpEvent != null)
             {
                 if (collisionStates.Contains(CollisionState.HeadContact))
                 {
-                    rb.gravityScale = defaultGravityScale;
+                    rb.gravityScale = fluidModifer * defaultGravityScale;
                     jumpEvent = null;
                 } else if (ControlUtils.GetControlKey(PlayerControl.Jump))
                 {
-                    rb.gravityScale = jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
+                    rb.gravityScale = fluidModifer * jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
                     if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) 
                     {
@@ -466,7 +517,7 @@ namespace Player {
                 }
                 else
                 {
-                    rb.gravityScale = defaultGravityScale;   
+                    rb.gravityScale = fluidModifer*defaultGravityScale;   
                 }
                 if (Input.GetKeyUp(KeyCode.Space))
                 {
@@ -488,11 +539,11 @@ namespace Player {
                 {
                     rb.gravityScale = 0;
                     float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
-                    velocity.y = rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
+                    velocity.y = fluidModifer * rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
                 }
                 else
                 {
-                    rb.gravityScale = defaultGravityScale;
+                    rb.gravityScale = fluidModifer*defaultGravityScale;
                 }
             }
             if (blockInput)
@@ -502,6 +553,7 @@ namespace Player {
 
             const float BONUS_FALL_MODIFIER = 1.25f;
             rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
+            rb.gravityScale *= fluidModifer;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)
@@ -525,8 +577,10 @@ namespace Player {
                     bonusJumpParticles.Play();
                     bonusJumps--;
                 }
+
+                float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
-                velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
+                velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
                 coyoteFrames = 0;
                 liveYUpdates = 3;
                 
@@ -867,7 +921,7 @@ namespace Player {
 
         private void CalculateFallTime()
         {
-            if (!IsOnGround())
+            if (!IsOnGround() && !InFluid())
             {
                 if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
                 return;
@@ -1129,6 +1183,29 @@ namespace Player {
                 if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
                 
                 RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data,loadOut,playerScript));
+            }
+        }
+
+        private class FluidCollisionInformation
+        {
+            public float DamageCounter;
+            public bool Colliding;
+            public float SpeedModifier;
+            public float GravityModifier => SpeedModifier / 2f;
+            public float Damage;
+
+            public void SetFluidItem(FluidTileItem fluidTileItem)
+            {
+                DamageCounter = 0;
+                Colliding = true;
+                SpeedModifier = fluidTileItem.fluidOptions.SpeedSlowFactor;
+                Damage = fluidTileItem.fluidOptions.DamagePerSecond;
+            }
+
+            public void Clear()
+            {
+                DamageCounter = 0;
+                Colliding = false;
             }
         }
 

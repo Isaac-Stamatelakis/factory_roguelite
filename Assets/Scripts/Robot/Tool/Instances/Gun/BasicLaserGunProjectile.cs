@@ -21,6 +21,7 @@ namespace Robot.Tool.Instances.Gun
         private ToolObjectPool particlePool;
         private bool damaged = false;
         private ParticleSystem particles;
+        private bool inFluid;
         
         public void Initialize(float damage, Vector2 direction, float speed, ToolObjectPool particlePool)
         {
@@ -38,8 +39,9 @@ namespace Robot.Tool.Instances.Gun
 
         public void Update()
         {
-            float scaleChange = Time.deltaTime*SizeChangeRate*speed;
-            transform.Translate(direction * (scaleChange/2f + speed * Time.deltaTime), Space.World);
+            float currentSpeed = !inFluid ? speed : speed * 0.5f;
+            float scaleChange = Time.deltaTime*SizeChangeRate*currentSpeed;
+            transform.Translate(direction * (scaleChange/2f + currentSpeed * Time.deltaTime), Space.World);
             lifeTime += Time.deltaTime;
             var scale = transform.localScale;
             scale.x += scaleChange;
@@ -52,6 +54,11 @@ namespace Robot.Tool.Instances.Gun
         {
             if (damaged) return;
             if (other.gameObject.CompareTag("Player")) return;
+            if (other.gameObject.CompareTag("Fluid"))
+            {
+                inFluid = true;
+                return;
+            }
             damaged = true;
             IDamageableEntity damageableEntity = other.gameObject.GetComponent<IDamageableEntity>();
             damageableEntity?.Damage(damage,direction);
@@ -67,6 +74,14 @@ namespace Robot.Tool.Instances.Gun
             particleModule.loop = false;
             particles.Play();
             StartCoroutine(DelayDestroy());
+        }
+
+        public void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.gameObject.CompareTag("Fluid"))
+            {
+                inFluid = false;
+            }
         }
 
         private IEnumerator DelayDestroy()

@@ -53,7 +53,7 @@ namespace WorldModule.Caves {
                 handles["Entity"] = Addressables.LoadAssetAsync<Object>(caveObject.entityDistributor);
             }
 
-            if (caveObject.generationModel.RuntimeKeyIsValid())
+            if (caveObject.structureDistributor.RuntimeKeyIsValid())
             {
                 handles["Structure"] = Addressables.LoadAssetAsync<Object>(caveObject.structureDistributor);
             }
