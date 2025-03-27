@@ -165,11 +165,19 @@ namespace Player {
         {
             mPlayerRobotUI.Display(this);
             MoveUpdate();
-            
+            FluidDamageUpdate();
             MiscKeyListens();
             timeSinceDamaged += Time.deltaTime;
         }
-        
+
+        private void FluidDamageUpdate()
+        {
+            if (!fluidCollisionInformation.Colliding || fluidCollisionInformation.Damage <= 0.05f) return;
+            fluidCollisionInformation.DamageCounter += Time.deltaTime;
+            if (fluidCollisionInformation.DamageCounter < 1f) return;
+            Damage(fluidCollisionInformation.Damage);
+            fluidCollisionInformation.DamageCounter = 0;
+        }
 
         private void MiscKeyListens()
         {
@@ -223,9 +231,13 @@ namespace Player {
         public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
         {
             if (!collisionStates.Contains(collisionState)) return;
-            
+            if (collisionState != CollisionState.FeetInFluid) return;
             if (!fluidTileItem) return;
-            
+            if (fluidTileItem.fluidOptions.DamagePerSecond > 0)
+            {
+                // Deal half damage on first collision
+                Damage(fluidTileItem.fluidOptions.DamagePerSecond/2f);
+            }
             fluidCollisionInformation.SetFluidItem(fluidTileItem);
             
         }
@@ -1176,6 +1188,7 @@ namespace Player {
 
         private class FluidCollisionInformation
         {
+            public float DamageCounter;
             public bool Colliding;
             public float SpeedModifier;
             public float GravityModifier => SpeedModifier / 2f;
@@ -1183,6 +1196,7 @@ namespace Player {
 
             public void SetFluidItem(FluidTileItem fluidTileItem)
             {
+                DamageCounter = 0;
                 Colliding = true;
                 SpeedModifier = fluidTileItem.fluidOptions.SpeedSlowFactor;
                 Damage = fluidTileItem.fluidOptions.DamagePerSecond;
@@ -1190,6 +1204,7 @@ namespace Player {
 
             public void Clear()
             {
+                DamageCounter = 0;
                 Colliding = false;
             }
         }
