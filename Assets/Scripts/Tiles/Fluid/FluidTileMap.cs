@@ -13,6 +13,7 @@ using Dimensions;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Fluid.Simulation;
+using Random = UnityEngine.Random;
 
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
@@ -23,6 +24,8 @@ namespace Fluids {
             simulator = new FluidTileMapSimulator(this);
             itemRegistry = ItemRegistry.GetInstance();
         }
+        
+        
 
         public override void Initialize(TileMapType type)
         {
@@ -115,10 +118,18 @@ namespace Fluids {
 
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
-            Tilemap map = fluidTileItem.fluidOptions.Lit ? unlitTileMap : tilemap;
+            bool lit = fluidTileItem.fluidOptions.Lit;
+            Tilemap map = lit ? unlitTileMap : tilemap;
+            Vector3Int vector3Int = new Vector3Int(x, y, 0);
+            
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
-            map.SetTile(new Vector3Int(x,y,0),tile);
+            map.SetTile(vector3Int,tile);
+            if (lit)
+            {
+                map.SetTileFlags(vector3Int,TileFlags.None);
+                map.SetColor(vector3Int,Color.white*0.9f);
+            }
         }
         
         public void DisplayTile(int x, int y, string id, float fill)
@@ -168,7 +179,103 @@ namespace Fluids {
         public void FixedUpdate()
         {
             simulator.Simulate();
+            
+            const int RANDOM_UNLIT_LIGHT_CHANCE = 10;
+            int ran = Random.Range(0, RANDOM_UNLIT_LIGHT_CHANCE);
+            if (ran != 0) return;
+            
+            // Calls this about once per second
+            unlitTileMap.ResizeBounds();
+            BoundsInt bounds = unlitTileMap.cellBounds;
+            int size = bounds.size.x * bounds.size.y;
+            const float HIGHEST_ODDS = 1024;
+            //float random = UnityEngine.Random.value;
+            //if (size / HIGHEST_ODDS < random) return;
+            Vector3Int randomPosition = new Vector3Int(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1), UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1),0);
+            if (!unlitTileMap.HasTile(randomPosition)) return;
+            Debug.Log("Unlit flash");
+            StartCoroutine(FlashUnlitMap(randomPosition,4));
+
         }
+
+        private IEnumerator FlashUnlitMap(Vector3Int origin, int size)
+        {
+            void Highlight(Vector3Int vector3Int)
+            {
+                unlitTileMap.SetTileFlags(vector3Int,TileFlags.None);
+                Color current = unlitTileMap.GetColor(vector3Int);
+                unlitTileMap.SetColor(vector3Int,Color.Lerp(Color.white,current,0.5f));
+            }
+            
+
+            List<Color> colors = new List<Color>();
+            List<Vector3Int> seen = new List<Vector3Int>();
+            seen.Add(origin);
+            int r = 0;
+            var delay = new WaitForSeconds(0.25f);
+            colors.Add(unlitTileMap.GetColor(origin));
+            while (r < size)
+            {
+                void TryAddToSeen(Vector3Int vector3Int)
+                {
+                    if (seen.Contains(vector3Int)) return;
+                    seen.Add(vector3Int);
+                }
+                int original = seen.Count;
+                for (var index = 0; index < original; index++)
+                {
+                    var current = seen[index];
+                    Highlight(current);
+                    TryAddToSeen(current + Vector3Int.down);
+                    TryAddToSeen(current + Vector3Int.left);
+                    TryAddToSeen(current + Vector3Int.up);
+                    TryAddToSeen(current + Vector3Int.right);
+                }
+                colors.Add(unlitTileMap.GetColor(origin));
+                
+                yield return delay;
+                r++;
+            }
+
+            foreach (Color c in colors)
+            {
+                Debug.Log(c);
+            }
+            while (r >= 0)
+            {
+                int index = seen.Count-1;
+                int colorIndex = r;
+                while (colorIndex >= 0)
+                {
+                    int toColor = 4 * colorIndex;
+                    Color color = colors[r-colorIndex];
+                    Debug.Log(color + "," + toColor);
+                    while (toColor > 0)
+                    {
+                        unlitTileMap.SetColor(seen[index],color);
+                        toColor--;
+                        index--;
+                    }
+
+                    if (colorIndex == 0)
+                    {
+                        unlitTileMap.SetColor(seen[index],color);
+                    }
+                    colorIndex--;
+                }
+                int removals = 4 * r;
+                int count = seen.Count;
+                for (int i = count-1; i >= count-removals; i--)
+                {
+                    seen.RemoveAt(i);
+                }
+               
+                yield return delay;
+                r--;
+            }
+        }
+        
+        
     }
 }
 

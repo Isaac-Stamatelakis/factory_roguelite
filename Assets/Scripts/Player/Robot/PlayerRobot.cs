@@ -205,7 +205,13 @@ namespace Player {
                     rocketBoots = null;
                 }
             }
-            
+
+            if (state is CollisionState.FeetInFluid)
+            {
+                var vector2 = rb.velocity;
+                vector2.y = vector2.y * 0.1f;
+                rb.velocity = vector2;
+            }
             collisionStates.Add(state);
         }
 
@@ -426,7 +432,7 @@ namespace Player {
                 speed += speedUpgrades;
             }
 
-            if (feetInFluid) speed *= 0.25f;
+            if (feetInFluid) speed *= 0.5f;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -501,7 +507,7 @@ namespace Player {
                 {
                     rb.gravityScale = 0;
                     float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
-                    velocity.y = rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
+                    velocity.y = fluidModifer * rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
                 }
                 else
                 {
@@ -539,8 +545,10 @@ namespace Player {
                     bonusJumpParticles.Play();
                     bonusJumps--;
                 }
+
+                float fluidModifier = collisionStates.Contains(CollisionState.FeetInFluid) ? 0.5f : 1f;
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
-                velocity.y = JumpStats.jumpVelocity+bonusJumpHeight;
+                velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
                 coyoteFrames = 0;
                 liveYUpdates = 3;
                 
@@ -881,7 +889,7 @@ namespace Player {
 
         private void CalculateFallTime()
         {
-            if (!IsOnGround())
+            if (!IsOnGround() && !InFluid())
             {
                 if (rb.velocity.y < 0) fallTime += Time.fixedDeltaTime;
                 return;
