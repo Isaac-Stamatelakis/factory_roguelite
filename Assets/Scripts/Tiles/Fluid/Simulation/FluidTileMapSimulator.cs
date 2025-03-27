@@ -273,7 +273,7 @@ namespace Tiles.Fluid.Simulation
 			{
 				Debug.Log($"Simulator Updated {updateIndex} Cells at Tick {tickCounter}");
 			}
-#pragma warning enable 0162
+#pragma warning restore 0162
 			
 			fluidUpdateCollection.Index = 0;
 			fluidUpdateArrayStack.Push(fluidUpdateCollection);

@@ -164,10 +164,11 @@ namespace Player {
         {
             mPlayerRobotUI.Display(this);
             MoveUpdate();
-            cameraBounds.UpdateCameraBounds();
+            
             MiscKeyListens();
             timeSinceDamaged += Time.deltaTime;
         }
+        
 
         private void MiscKeyListens()
         {
