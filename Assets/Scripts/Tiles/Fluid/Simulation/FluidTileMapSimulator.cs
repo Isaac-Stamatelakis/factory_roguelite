@@ -180,6 +180,27 @@ namespace Tiles.Fluid.Simulation
 		        }
 	        }
         }
+
+        public void DisruptSurface(Vector2Int cellPosition)
+        {
+	        FluidCell cell = GetFluidCell(cellPosition);
+	        if (cell == null || cell.Liquid < MIN_FILL || cell.QueuedForUpdate) return;
+	        
+	        float current = cell.Liquid;
+	        void Disrupt(FluidCell adjacent)
+	        {
+		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL) || adjacent.QueuedForUpdate) return;
+		        float dif = UnityEngine.Random.Range(current / 4, current / 2);
+		        adjacent.Liquid += dif;
+		        cell.Liquid -= dif;
+	        }
+	        FluidCell left = GetFluidCell(cellPosition + Vector2Int.left);
+	        Disrupt(left);
+	        FluidCell right = GetFluidCell(cellPosition + Vector2Int.right);
+	        Disrupt(right);
+	        
+			UnsettleCell(cell);
+        }
         public void AddFluidCell(FluidCell fluidCell)
         {
 	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
