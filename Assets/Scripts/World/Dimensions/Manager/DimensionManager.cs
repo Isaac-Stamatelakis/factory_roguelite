@@ -361,8 +361,14 @@ namespace Dimensions {
         private IEnumerator SetPlayerSystemCoroutine(PlayerScript player, Dimension dimension, Vector2 teleportPosition, IDimensionTeleportKey key = null, DimensionOptions dimensionOptions = null)
         {
             DimController controller = GetDimController(dimension);
+            if (player.PlayerRobot.Dead)
+            {
+                controller = GetDimController(Dimension.OverWorld);
+                player.PlayerRobot.Heal(258124);
+            }
             if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
+                player.transform.position = teleportPosition;
                 yield break;
             }
             
@@ -379,9 +385,10 @@ namespace Dimensions {
             }
             player.PlayerRobot.TemporarilyPausePlayer();
             
+            
             if (ReferenceEquals(newSystem,activeSystem))
             {
-                player.transform.position = Vector2.zero;
+                player.transform.position = teleportPosition;
                 yield break;
             }
             

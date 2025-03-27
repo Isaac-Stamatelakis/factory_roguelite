@@ -68,7 +68,7 @@ namespace Tiles.Fluid.Simulation
 		    this.fluidWorldTileMap = fluidWorldTileMap;
 		    this.objectTileMap = objectTileMap;
 		    currentUpdates = new FluidCell[MAX_UPDATES_PER_SECOND];
-		    for (int i = 0; i < MAX_VISCOSITY; i++)
+		    for (int i = 0; i < STACKS; i++)
 		    {
 			    Vector2Int[] stackUpdateList = new Vector2Int[MAX_UPDATES_PER_SECOND];
 			    FluidUpdateCollection fluidUpdateCollection = new FluidUpdateCollection(stackUpdateList, 0);
@@ -82,13 +82,13 @@ namespace Tiles.Fluid.Simulation
 	    private uint tickCounter;
 	    private uint tickArrayCounter;
 	    private Dictionary<uint, FluidUpdateCollection> tickFluidUpdates = new (); 
-	    private Stack<FluidUpdateCollection> fluidUpdateArrayStack = new (MAX_VISCOSITY);
+	    private Stack<FluidUpdateCollection> fluidUpdateArrayStack = new (STACKS);
 	    private Dictionary<Vector2Int, FluidCell[][]> chunkCellArrayDict = new();
 	    private FluidCell[] currentUpdates;
 	    
 	    // Note: These values take up this is only 160kB
-	    const int MAX_UPDATES_PER_SECOND = 2048;
-	    private const int MAX_VISCOSITY = 10;
+	    const int MAX_UPDATES_PER_SECOND = 1024;
+	    private const int STACKS = 20;
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.005f;
 	    private bool stackEmpty = false;

@@ -150,7 +150,14 @@ namespace WorldModule.Caves {
                 Directory.Delete(path, true);
             }
             WorldLoadUtils.createDimFolder(-1);
+            
+            IntervalVector coveredArea = caveInstance.CaveObject.GetChunkCoveredArea();
             SeralizedWorldData worldTileData = caveInstance.Generate(UnityEngine.Random.Range(int.MinValue,int.MaxValue));
+            Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
+            CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
+            Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
+            worldTileData.baseData.ids[spawnPosition.x-bottomLeftCorner.x, spawnPosition.y-bottomLeftCorner.y] = "wall_torch"; // TODO replace this with something more thematic
+            
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             yield return WorldGenerationFactory.SaveToJsonCoroutine(
@@ -162,10 +169,7 @@ namespace WorldModule.Caves {
             
             Debug.Log($"Serialized cave data in {stopwatch.Elapsed.TotalSeconds:F2} seconds");
             stopwatch.Stop();
-            IntervalVector coveredArea = caveInstance.CaveObject.GetChunkCoveredArea();
-            Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
-            CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
-            Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
+            
             Vector2 worldSpawnPosition = spawnPosition * Vector2.one * Global.TILE_SIZE;
             
             Debug.Log("Teleporting to " + caveInstance.CaveObject.name);
@@ -178,6 +182,7 @@ namespace WorldModule.Caves {
             CaveOptions caveOptions = caveInstance.CaveObject.CaveOptions;
 
             DimensionOptions dimensionOptions = new DimensionOptions(caveOptions);
+            
             DimensionManager.Instance.SetPlayerSystem(playerScript, Dimension.Cave,worldSpawnPosition,dimensionOptions: dimensionOptions);
             
             TextChatUI.Instance.SendChatMessage($"Teleported to <b><color=purple>{caveInstance.CaveObject.name}!</color></b>\nPress <b>[KEY]</b> to return to the hub!");
