@@ -25,8 +25,6 @@ namespace Fluids {
             itemRegistry = ItemRegistry.GetInstance();
         }
         
-        
-
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
@@ -41,6 +39,18 @@ namespace Fluids {
             var unlitCollider = unlitContainer.AddComponent<TilemapCollider2D>();
             unlitCollider.isTrigger = true;
             tilemapCollider.isTrigger = true;
+
+            /*
+            void AddRb(Tilemap map) // Rbs required for triggers
+            {
+                Rigidbody2D rb = map.gameObject.AddComponent<Rigidbody2D>();
+                rb.isKinematic = true;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll; 
+            }
+            //AddRb(tilemap);
+            //AddRb(unlitTileMap);
+            */
+            
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
             unlitCollider.maximumTileChangeCount=int.MaxValue; 
         }
@@ -59,6 +69,11 @@ namespace Fluids {
         {
             // Isn't required
             return null;
+        }
+
+        public FluidTileItem GetFluidTile(Vector2Int position)
+        {
+            return ItemRegistry.GetInstance().GetFluidTileItem(simulator.GetFluidCell(position)?.FluidId);
         }
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)

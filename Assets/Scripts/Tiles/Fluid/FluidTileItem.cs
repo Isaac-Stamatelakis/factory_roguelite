@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Item.GameStage;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Items {
@@ -53,6 +54,8 @@ namespace Items {
         [SerializeField] private int viscosity;
         [SerializeField] private bool invertedGravity;
         public bool Lit = false;
+        [FormerlySerializedAs("SpeedSlowFactory")] [Range(0,1)] public float SpeedSlowFactor = 0.5f;
+        [Range(0,10)] public float DamagePerSecond = 0f;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;
@@ -61,6 +64,7 @@ namespace Items {
         public int Viscosity { get => viscosity;}
         public bool InvertedGravity { get => invertedGravity;}
     }
+    
 }
 
 

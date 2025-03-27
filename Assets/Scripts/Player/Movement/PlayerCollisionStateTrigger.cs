@@ -2,6 +2,8 @@ using System;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
+using Fluids;
+using Items;
 using TileMaps;
 using TileMaps.Layer;
 using Tiles;
@@ -54,7 +56,47 @@ namespace Player.Movement
         {
             if (!other.CompareTag(tagLayer)) return;
             playerRobot.AddCollisionState((CollisionState)CollisionState);
-            
+            switch (CollisionState)
+            {
+                case TriggerableCollisionState.HeadInFluid:
+                case TriggerableCollisionState.FeetInFluid:
+                    FluidWorldTileMap fluidWorldTileMap = other.GetComponent<FluidWorldTileMap>();
+                    if (!fluidWorldTileMap)
+                    {
+                        fluidWorldTileMap = other.GetComponentInParent<FluidWorldTileMap>();
+                    }
+                    if (!fluidWorldTileMap) return;
+                    SpriteRenderer spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
+                    Vector2 playerPosition = playerRobot.transform.position;
+                    Vector2 left = playerPosition + Vector2.left * spriteRenderer.sprite.bounds.extents.x;
+                    Vector2 right = playerPosition + Vector2.right * spriteRenderer.sprite.bounds.extents.x;
+                    FluidTileItem leftFluid = GetTileItem(left);
+                    if (leftFluid)
+                    {
+                        Debug.Log(leftFluid.name);
+                        playerRobot.AddFluidCollisionData((CollisionState)CollisionState, leftFluid);
+                        return;
+                    }
+                    FluidTileItem rightFluid = GetTileItem(right);
+                    if (rightFluid)
+                    {
+                        Debug.Log(rightFluid.name);
+                        playerRobot.AddFluidCollisionData((CollisionState)CollisionState, rightFluid);
+                    }
+                    
+                    Debug.Log("none");
+                    
+                    FluidTileItem GetTileItem(Vector2 position)
+                    {
+                        Vector2 collisionPoint = other.ClosestPoint(position);
+                        Vector2Int cellPosition = Global.getCellPositionFromWorld(collisionPoint);
+                        FluidTileItem fluidTileItem = fluidWorldTileMap.GetFluidTile(cellPosition);
+                        
+                        return fluidTileItem;
+                    }
+                    
+                    break;
+            }
         }
 
         public void OnTriggerExit2D(Collider2D other)

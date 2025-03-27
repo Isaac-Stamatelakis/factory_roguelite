@@ -108,6 +108,7 @@ namespace Entities.Mob.Display
             boxCollider2D.isTrigger = true;
             boxCollider2D.size = partHealthCollider.size / 2f;
             MobDamageTrigger mobDamageTrigger = damageCollider.AddComponent<MobDamageTrigger>();
+            //partObject.AddComponent<MobFluidTrigger>(); For now this is too laggy
             mobDamageTrigger.Damage = damage;
             return partObject.transform;
         }

@@ -115,6 +115,7 @@ namespace Player {
         private ParticleSystem teleportParticles;
         private ParticleSystem nanoBotParticles;
         private float timeSinceDamaged = 0;
+        private FluidCollisionInformation fluidCollisionInformation = new();
 
         public const float BASE_MOVE_SPEED = 5f;
         
@@ -217,6 +218,15 @@ namespace Player {
                 position.z = 2;
                 transform.position = position;
             }
+        }
+
+        public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
+        {
+            if (!collisionStates.Contains(collisionState)) return;
+            
+            if (!fluidTileItem) return;
+            
+            fluidCollisionInformation.SetFluidItem(fluidTileItem);
             
         }
 
@@ -228,6 +238,7 @@ namespace Player {
                 Vector3 position = transform.position;
                 position.z = -5;
                 transform.position = position;
+                fluidCollisionInformation.Clear();
             }
         }
 
@@ -386,7 +397,6 @@ namespace Player {
 
         private void StandardMoveUpdate()
         {
-            bool feetInFluid = collisionStates.Contains(CollisionState.FeetInFluid);
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
@@ -443,7 +453,7 @@ namespace Player {
                 speed += speedUpgrades;
             }
 
-            if (feetInFluid) speed *= 0.5f;
+            if (fluidCollisionInformation.Colliding) speed *= fluidCollisionInformation.SpeedModifier;
             switch (currentTileMovementType)
             {
                 case TileMovementType.None:
@@ -475,8 +485,7 @@ namespace Player {
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
-            const float FLUID_REDUCTION = 0.25f;
-            float fluidModifer = InFluid() ? FLUID_REDUCTION : 1f;
+            float fluidModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
             if (climbing) return;
             if (jumpEvent != null)
             {
@@ -557,7 +566,7 @@ namespace Player {
                     bonusJumps--;
                 }
 
-                float fluidModifier = collisionStates.Contains(CollisionState.FeetInFluid) ? 0.5f : 1f;
+                float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
                 coyoteFrames = 0;
@@ -1162,6 +1171,26 @@ namespace Player {
                 if (!currentRobotToolObjects.TryGetValue(type, out var toolObject)) continue;
                 
                 RobotTools.Add(RobotToolFactory.GetInstance(type,toolObject,data,loadOut,playerScript));
+            }
+        }
+
+        private class FluidCollisionInformation
+        {
+            public bool Colliding;
+            public float SpeedModifier;
+            public float GravityModifier => SpeedModifier / 2f;
+            public float Damage;
+
+            public void SetFluidItem(FluidTileItem fluidTileItem)
+            {
+                Colliding = true;
+                SpeedModifier = fluidTileItem.fluidOptions.SpeedSlowFactor;
+                Damage = fluidTileItem.fluidOptions.DamagePerSecond;
+            }
+
+            public void Clear()
+            {
+                Colliding = false;
             }
         }
 
