@@ -210,6 +210,14 @@ namespace Tiles.Fluid.Simulation
 	        UnsettleCell(fluidCell);
         }
         
+        public void RemoveFluidCell(Vector2Int position)
+        {
+	        Vector2Int chunkPosition = Global.getChunkFromCell(position);
+	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
+	        Vector2Int positionInChunk = position - chunkPosition * Global.CHUNK_SIZE;
+	        fluidCells[positionInChunk.x][positionInChunk.y] = null;
+        }
+        
         private void DisplayCell(FluidCell fluidCell)
         {
 	        if (!fluidCell.Displayable) return;

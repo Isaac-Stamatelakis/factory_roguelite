@@ -116,9 +116,9 @@ namespace TileMaps {
             Vector2Int vect = new Vector2Int(x,y);
             Vector2Int tilePosition = GetTilePositionInPartition(vect);
             IChunkPartition partition = GetPartitionAtPosition(vect);
-            CallListeners(vect);
             WriteTile(partition, tilePosition, item);
             SetTile(x, y, (TItem) item);
+            CallListeners(vect);
         }
 
         public void CallListeners(Vector2Int position) {
