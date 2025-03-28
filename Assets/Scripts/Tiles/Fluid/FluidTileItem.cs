@@ -19,8 +19,12 @@ namespace Items {
                 return null;
             }
             fill--;
-            if (fill <= 0) return null; // Do not display last tile cause its ugly
-            return fill >= tiles.Length ? tiles[^1] : tiles[fill];
+            return fill switch
+            {
+                0 => tiles[1],
+                < 0 => null,
+                _ => fill >= tiles.Length ? tiles[^1] : tiles[fill]
+            };
         }
 
         public Tile GetTile(float fill)
@@ -56,6 +60,8 @@ namespace Items {
         public bool Lit = false;
         [FormerlySerializedAs("SpeedSlowFactory")] [Range(0,1)] public float SpeedSlowFactor = 0.5f;
         [Range(0,10)] public float DamagePerSecond = 0f;
+        public int CollisionDominance = 0;
+        public TileItem OnCollisionTile;
         public FluidOptions(int viscosity, bool invertedGravity) {
             this.viscosity = viscosity;
             this.invertedGravity = invertedGravity;

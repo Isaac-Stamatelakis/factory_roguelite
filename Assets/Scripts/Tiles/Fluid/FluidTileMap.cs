@@ -41,7 +41,7 @@ namespace Fluids {
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
-            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap);
+            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap);
             
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
             unlitCollider2D.maximumTileChangeCount=int.MaxValue; 

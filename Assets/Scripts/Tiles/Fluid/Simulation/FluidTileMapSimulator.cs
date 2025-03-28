@@ -63,10 +63,11 @@ namespace Tiles.Fluid.Simulation
     {
 	    private const bool LOG = false;
 	    
-	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap, WorldTileGridMap objectTileMap)
+	    public FluidTileMapSimulator(FluidWorldTileMap fluidWorldTileMap, WorldTileGridMap objectTileMap, WorldTileGridMap blockTileMap)
 	    {
 		    this.fluidWorldTileMap = fluidWorldTileMap;
 		    this.objectTileMap = objectTileMap;
+		    this.blockTileMap = blockTileMap;
 		    currentUpdates = new FluidCell[MAX_UPDATES_PER_SECOND];
 		    for (int i = 0; i < STACKS; i++)
 		    {
@@ -105,7 +106,7 @@ namespace Tiles.Fluid.Simulation
 	    const float FLOW_SPEED = 1f;
 	    private FluidWorldTileMap fluidWorldTileMap;
 	    private WorldTileGridMap objectTileMap;
-	    
+	    private WorldTileGridMap blockTileMap;
         float CalculateVerticalFlowValue(float remainingLiquid, FluidCell destination)
         {
 	        float sum = remainingLiquid + destination.Liquid;
@@ -400,7 +401,7 @@ namespace Tiles.Fluid.Simulation
 		{
 			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (!CanFlowInto(cell, adjacent)) return;
+			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return;
 			
 			flow = CalculateVerticalFlowValue(cell.Liquid, adjacent) - adjacent.Liquid;
 			if (adjacent.Liquid > 0 && flow > MIN_FLOW)
@@ -452,9 +453,28 @@ namespace Tiles.Fluid.Simulation
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.right));
 		}
 
-		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj)
+		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj, ref float remainingFluid)
 		{
-			return adj != null && adj.FlowRestriction != FluidFlowRestriction.BlockFluids && (adj.FluidId == null || string.Equals(fluidCell.FluidId, adj.FluidId));
+			if (adj == null || adj.FlowRestriction == FluidFlowRestriction.BlockFluids) return false;
+			if (adj.FluidId == null || adj.FluidId == fluidCell.FluidId) return true;
+			FluidTileItem cellItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
+			if (!cellItem) return false;
+			FluidTileItem adjItem = itemRegistry.GetFluidTileItem(adj.FluidId);
+			if (!adjItem) return false;
+			if (cellItem.fluidOptions.CollisionDominance == adjItem.fluidOptions.CollisionDominance) return false;
+			FluidCell dominator = cellItem.fluidOptions.CollisionDominance < adjItem.fluidOptions.CollisionDominance ? adj : fluidCell;
+			FluidTileItem dominatorItem = cellItem.fluidOptions.CollisionDominance < adjItem.fluidOptions.CollisionDominance ? adjItem : cellItem;
+			TileItem dominatorTile = dominatorItem.fluidOptions.OnCollisionTile;
+			if (!dominatorTile) return false;
+			dominator.FluidId = null;
+			dominator.Diff = -dominator.Liquid;
+			remainingFluid = 0;
+			FluidCell dominated = cellItem.fluidOptions.CollisionDominance > adjItem.fluidOptions.CollisionDominance ? adj : fluidCell;
+			dominated.Liquid = 0;
+			dominated.FlowRestriction = FluidFlowRestriction.BlockFluids;
+			dominated.FluidId = null;
+			blockTileMap.placeNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
+			return false;
 		}
 		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent, bool loss)
 		{
@@ -473,7 +493,7 @@ namespace Tiles.Fluid.Simulation
 		{
 			if (remainingValue < MIN_FILL) return false;
 			FluidCell adjacent = GetFluidCell(cell.Position + GetVectorDirectionFromFlow(flowDirection) * distance);
-			if (!CanFlowInto(cell, adjacent)) return false;
+			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return false;
 			
 			flow = (remainingValue - adjacent.Liquid)/4;
 			
@@ -493,7 +513,7 @@ namespace Tiles.Fluid.Simulation
 		{
 			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (!CanFlowInto(cell, adjacent)) return;
+			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return;
 			
 			flow = remainingValue - CalculateVerticalFlowValue (remainingValue, adjacent); 
 			if (flow > MIN_FLOW)
