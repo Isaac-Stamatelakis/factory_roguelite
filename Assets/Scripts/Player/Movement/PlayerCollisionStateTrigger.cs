@@ -89,7 +89,7 @@ namespace Player.Movement
                         Vector2 collisionPoint = other.ClosestPoint(position);
                         Vector2Int cellPosition = Global.getCellPositionFromWorld(collisionPoint);
                         FluidTileItem fluidTileItem = fluidWorldTileMap.GetFluidTile(cellPosition);
-                        fluidWorldTileMap.Simulator.DisruptSurface(cellPosition);
+                        fluidWorldTileMap.Disrupt(position,cellPosition,fluidTileItem);
                         return fluidTileItem;
                     }
                     

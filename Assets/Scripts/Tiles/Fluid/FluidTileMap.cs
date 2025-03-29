@@ -26,7 +26,9 @@ namespace Fluids {
         {
             itemRegistry = ItemRegistry.GetInstance();
         }
-        
+
+        private ParticleSystem splashParticles;
+        private ParticleSystem fluidParticles;
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
@@ -37,7 +39,10 @@ namespace Fluids {
             unlitTileMap = unlitContainer.AddComponent<Tilemap>();
             unlitContainer.layer = LayerMask.NameToLayer("Fluid");
             TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
-            tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
+            MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
+            tilemapRenderer.material = miscDimAssets.LitMaterial;
+            splashParticles = GameObject.Instantiate(miscDimAssets.SplashParticlePrefab, transform, false);
+            fluidParticles = GameObject.Instantiate(miscDimAssets.FluidParticlePrefab, transform, false);
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
@@ -79,6 +84,17 @@ namespace Fluids {
         {
             base.RemoveTile(x, y);
             unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
+        }
+
+        public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
+        {
+            if (splashParticles.isPlaying) return;
+            simulator.DisruptSurface(cellPosition);
+            if (!fluidTileItem) return;
+            splashParticles.transform.position = worldPosition;
+            var mainModule = splashParticles.main;
+            mainModule.startColor = fluidTileItem.fluidOptions.ParticleColor;
+            splashParticles.Play();
         }
 
         public void AddChunk(ILoadedChunk loadedChunk)
