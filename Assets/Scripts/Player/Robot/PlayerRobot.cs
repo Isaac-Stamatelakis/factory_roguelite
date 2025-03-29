@@ -333,7 +333,10 @@ namespace Player {
 
             IEnumerator DelayForceUpdate()
             {
-                yield return new WaitForSeconds(1f);
+                // Sometimes partitions are not loaded on teleport
+                yield return new WaitForSeconds(0.5f);
+                mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
+                yield return new WaitForSeconds(0.5f);
                 mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
             }
 
