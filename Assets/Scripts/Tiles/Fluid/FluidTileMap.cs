@@ -10,6 +10,7 @@ using System.Linq;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
+using Robot.Tool.Instances.Gun;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Fluid.Simulation;
@@ -20,13 +21,16 @@ namespace Fluids {
     {
         private Tilemap unlitTileMap;
         private TilemapCollider2D unlitCollider2D;
+        private TilemapCollider2D mapCollider2D;
         private int flashCounter = 0;
         private int ticksToTryFlash = 25;
         public void Awake()
         {
             itemRegistry = ItemRegistry.GetInstance();
         }
-        
+
+        private ParticleSystem splashParticles;
+        private ParticleSystem fluidParticles;
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
@@ -37,8 +41,12 @@ namespace Fluids {
             unlitTileMap = unlitContainer.AddComponent<Tilemap>();
             unlitContainer.layer = LayerMask.NameToLayer("Fluid");
             TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
-            tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
+            MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
+            tilemapRenderer.material = miscDimAssets.LitMaterial;
+            splashParticles = GameObject.Instantiate(miscDimAssets.SplashParticlePrefab, transform, false);
+            fluidParticles = GameObject.Instantiate(miscDimAssets.FluidParticlePrefab, transform, false);
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
+            mapCollider2D = tilemap.GetComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
             simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap);
@@ -79,6 +87,35 @@ namespace Fluids {
         {
             base.RemoveTile(x, y);
             unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
+        }
+        public FluidTileItem GetFluidItem(Vector2 worldPosition)
+        {
+            Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
+            FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
+            return itemRegistry.GetFluidTileItem(fluidCell?.FluidId);
+        }
+        public float GetFill(Vector2 worldPosition)
+        {
+            Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
+            FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
+            if (fluidCell == null || fluidCell.FluidId == null) return 0;
+            return fluidCell.Liquid;
+        }
+        public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
+        {
+            if (splashParticles.isPlaying) return;
+            simulator.DisruptSurface(cellPosition);
+            if (!fluidTileItem) return;
+            PlayParticles(splashParticles, worldPosition,fluidTileItem);
+            
+        }
+
+        void PlayParticles(ParticleSystem particles, Vector2 position, FluidTileItem fluidTileItem)
+        {
+            particles.transform.position = position;
+            var mainModule = particles.main;
+            mainModule.startColor = fluidTileItem.fluidOptions.ParticleColor;
+            particles.Play();
         }
 
         public void AddChunk(ILoadedChunk loadedChunk)
@@ -178,10 +215,10 @@ namespace Fluids {
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item?.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item?.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
+            float fill = item ? MAX_FILL : 0;
+            FluidCell fluidCell = new FluidCell(item?.id,fill,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell,true);
         }
-        
 
         public override bool HasTile(Vector3Int vector3Int)
         {
@@ -209,6 +246,8 @@ namespace Fluids {
         {
             simulator.Simulate();
             RandomlyFlashUnlitMap();
+            DisplayRandomParticles(unlitTileMap,unlitCollider2D);
+            DisplayRandomParticles(tilemap,mapCollider2D);
         }
 
         private void RandomlyFlashUnlitMap()
@@ -217,23 +256,57 @@ namespace Fluids {
             if (flashCounter < ticksToTryFlash) return;
             flashCounter = 0;
             Bounds bounds = unlitCollider2D.bounds;
+            TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds);
+            if (!randomPosition.HasValue) return;
+            Vector3Int cellPosition = randomPosition.Value.CellPosition;
+            if (!unlitTileMap.HasTile(cellPosition) || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f) return;
+           
+            int flashSize = UnityEngine.Random.Range(3, 10);
+            StartCoroutine(FlashUnlitMap(cellPosition,flashSize));
+        }
+
+        private TileMapPositionInfo? GetRandomCellPosition(ref Bounds bounds)
+        {
             float size = bounds.size.x * bounds.size.y;
-            
-            if (size == 0) return;
+            if (size == 0) return null;
             
             // Large pool of lava in large camera view has ~1000 tiles
             const float HIGHEST_ODDS = 1024;
             float random = UnityEngine.Random.value;
-            if (size / HIGHEST_ODDS < random) return;
+            if (size / HIGHEST_ODDS < random) return null;
+            
             Vector2 randomWorldPosition = new Vector2(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1),UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1));
             Vector3Int randomCellPosition = unlitTileMap.WorldToCell(randomWorldPosition);
             randomCellPosition.z = 0;
-            
-            if (!unlitTileMap.HasTile(randomCellPosition) || unlitTileMap.GetColor(randomCellPosition) != Color.white * 0.9f) return;
-           
-            int flashSize = UnityEngine.Random.Range(3, 10);
-            StartCoroutine(FlashUnlitMap(randomCellPosition,flashSize));
+            return new TileMapPositionInfo
+            {
+                CellPosition = randomCellPosition,
+                WorldPosition = randomWorldPosition
+            };
+
         }
+        
+        
+
+        private void DisplayRandomParticles(Tilemap map, Collider2D mapCollider)
+        {
+            Bounds bounds = mapCollider.bounds;
+            TileMapPositionInfo? nullableRandomPosition = GetRandomCellPosition(ref bounds);
+            if (!nullableRandomPosition.HasValue) return;
+            
+            TileMapPositionInfo tileMapPositionInfo = nullableRandomPosition.Value;
+            Vector3Int randomCellPosition = tileMapPositionInfo.CellPosition;
+            if (!map.HasTile(randomCellPosition)) return;
+            
+            FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)randomCellPosition);
+            if (fluidCell == null || fluidCell.Liquid < 0.95f || fluidCell.FluidId == null) return;
+            
+            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
+            if (!fluidTileItem) return;
+            
+            PlayParticles(fluidParticles, tileMapPositionInfo.WorldPosition, fluidTileItem);
+        }
+        
 
         private IEnumerator FlashUnlitMap(Vector3Int origin, int size)
         {
@@ -333,6 +406,12 @@ namespace Fluids {
                 yield return delay;
                 r--;
             }
+        }
+        
+        private struct TileMapPositionInfo {
+            public Vector3Int CellPosition;
+            public Vector2 WorldPosition;
+            
         }
     }
 }

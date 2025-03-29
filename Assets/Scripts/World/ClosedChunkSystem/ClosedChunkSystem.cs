@@ -392,6 +392,8 @@ namespace Chunks.Systems {
     public class MiscDimAssets
     {
         [FormerlySerializedAs("UnlitMaterial")] public Material LitMaterial;
+        public ParticleSystem SplashParticlePrefab;
+        public ParticleSystem FluidParticlePrefab;
     }
 }
 

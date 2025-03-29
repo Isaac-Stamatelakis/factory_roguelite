@@ -235,6 +235,7 @@ namespace Tiles.Fluid.Simulation
 	        }
 	        
 	        UnsettleCell(fluidCell);
+	        UnsettleNeighbors(fluidCell.Position);
         }
         
         public void RemoveFluidCell(Vector2Int position)
@@ -308,6 +309,7 @@ namespace Tiles.Fluid.Simulation
 					objectTileMap.FluidUpdate(adjacent.Position);
 				}
 				adjacent.Diff = 0;
+				if (adjacent.Liquid > MAX_FILL) adjacent.Liquid = MAX_FILL;
 				DisplayCell(adjacent);
 			}
 			

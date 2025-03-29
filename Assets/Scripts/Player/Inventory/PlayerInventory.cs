@@ -12,6 +12,8 @@ using Chunks.Systems;
 using UnityEngine.UI;
 using Entities;
 using Item.Slot;
+using Items.Tags;
+using Items.Tags.FluidContainers;
 using Newtonsoft.Json;
 using Player;
 using Player.Controls;
@@ -160,6 +162,69 @@ namespace PlayerModule {
             
             ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.GetEntityContainer());
         }
+
+        public void GiveFluid(FluidTileItem fluidTileItem, float fill)
+        {
+            if (!fluidTileItem) return;
+            const int FLUID_IN_TILE = 1000;
+            uint fluidAmount = (uint)fill * FLUID_IN_TILE;
+            int firstEmptyCellIndex = -1;
+            for (var index = 0; index < playerInventoryData.Inventory.Count; index++)
+            {
+                
+                var itemSlot = playerInventoryData.Inventory[index];
+                if (fluidAmount == 0) return;
+                if (ItemSlotUtils.IsItemSlotNull(itemSlot)) continue;
+                if (itemSlot.itemObject is not IFluidContainerDataItem fluidCellItem) continue;
+                
+                if (itemSlot.tags?.Dict == null || !itemSlot.tags.Dict.TryGetValue(ItemTag.FluidContainer, out var tagData))
+                {
+                    if (firstEmptyCellIndex < 0) firstEmptyCellIndex = index;
+                    continue;
+                }
+                ItemSlot fluidSlot = tagData as ItemSlot;
+                if (ItemSlotUtils.IsItemSlotNull(fluidSlot)) continue; // Should never be null but to be safe
+                if (!string.Equals(fluidSlot.itemObject.id, fluidTileItem.id)) continue;
+                if (itemSlot.amount == 1 && fluidSlot.amount + fluidAmount <= fluidCellItem.storage)
+                {
+                    ItemSlotUtils.InsertIntoSlot(fluidSlot, ref fluidAmount, fluidCellItem.storage);
+                    if (fluidSlot.amount == fluidCellItem.storage)
+                    {
+                        playerInventoryData.Inventory[index] = null;
+                        Give(itemSlot);
+                        return;
+                    }
+                    playerInventoryGrid.DisplayItem(index);
+                    continue;
+                }
+                if (fluidSlot.amount + fluidAmount > fluidCellItem.storage) continue;
+                ItemSlot spliced = ItemSlotFactory.Splice(itemSlot, 1);
+                itemSlot.amount--;
+                ItemSlot splicedFluidSlot = spliced.tags.Dict[ItemTag.FluidContainer] as ItemSlot;
+                ItemSlotUtils.InsertIntoSlot(splicedFluidSlot, ref fluidAmount, fluidCellItem.storage);
+                Give(spliced);
+                
+            }
+
+            if (firstEmptyCellIndex > 0)
+            {
+                ItemSlot itemSlot = playerInventoryData.Inventory[firstEmptyCellIndex];
+                IFluidContainerDataItem fluidCellItem = (IFluidContainerDataItem)itemSlot.itemObject;
+                uint amount = fluidAmount > fluidCellItem.storage ? fluidCellItem.storage : fluidAmount;
+                ItemSlot newFluidSlot = new ItemSlot(fluidTileItem, amount, null);
+                if (itemSlot.amount == 1)
+                {
+                    ItemSlotUtils.AddTag(itemSlot, ItemTag.FluidContainer, newFluidSlot);
+                    playerInventoryGrid.DisplayItem(firstEmptyCellIndex);
+                    return;
+                }
+                ItemSlot spliced = ItemSlotFactory.Splice(itemSlot, 1);
+                itemSlot.amount--;
+                ItemSlotUtils.AddTag(spliced, ItemTag.FluidContainer, newFluidSlot);
+                Give(spliced);
+            }
+        }
+        
 
         public void GiveItems(List<ItemSlot> itemSlots)
         {

@@ -77,7 +77,7 @@ namespace Item.Tags.ItemTagManagers.Instances
         {
             if (first is not ItemSlot firstSlot) return false;
             if (second is not ItemSlot secondSlot) return false;
-            return String.Equals(firstSlot.itemObject?.id, secondSlot.itemObject?.id);
+            return firstSlot.amount == secondSlot.amount && String.Equals(firstSlot.itemObject?.id, secondSlot.itemObject?.id);
         }
     }
 }
