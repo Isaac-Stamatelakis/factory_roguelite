@@ -92,8 +92,11 @@ namespace Tiles.Fluid.Simulation
 	    private const int STACKS = 20;
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.005f;
+	    
+	    #if UNITY_EDITOR
 	    private bool stackEmpty = false;
 	    private bool updateListFull = false;
+	    #endif
 
 	    // Extra liquid a cell can store than the cell above it
 	    const float MAX_COMPRESSION = 0.0f;
@@ -125,22 +128,22 @@ namespace Tiles.Fluid.Simulation
 	        {
 		        foreach (FluidCell cell in fluidCellArray)
 		        {
-			        if (cell == null) continue; // Do not unsettle cells that are almost maxed
+			        if (cell == null) continue;
 			        
-			        bool CheckSimilarity(FluidCell adjacent)
+			        bool CheckSimilarity(FluidCell adjacent, bool top)
 			        {
-				        if (adjacent == null || (Mathf.Abs(adjacent.Liquid - cell.Liquid) > 0.01f))
-				        {
-					        UnsettleCell(cell);
-					        return true;
-				        }
-				        return false;
+				        bool adjacentNull = adjacent == null;
+				        if (adjacentNull && top) return true;
+				        if (adjacentNull || (Mathf.Abs(adjacent.Liquid - cell.Liquid) < MIN_FILL)) return false;
+				        UnsettleCell(cell);
+				        return true;
+				       
 			        }
 			       
-			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.left))) continue;
-			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.right))) continue;
-			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.down))) continue;
-			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.up))) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.left),false)) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.right),false)) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.down),false)) continue;
+			        if (CheckSimilarity(GetFluidCell(cell.Position + Vector2Int.up),true)) continue;
 		        }
 	        }
         }
@@ -333,7 +336,8 @@ namespace Tiles.Fluid.Simulation
 			
 			fluidUpdateCollection.Index = 0;
 			fluidUpdateArrayStack.Push(fluidUpdateCollection);
-			
+				
+			#if UNITY_EDITOR
 			if (updateListFull)
 			{
 				Debug.LogWarning("Fluid update list is full, pushed updates to next tick");
@@ -345,6 +349,7 @@ namespace Tiles.Fluid.Simulation
 				Debug.LogWarning("Fluid update list stack is empty");
 				stackEmpty = false;
 			}
+			#endif
 		}
 
 		private void FluidUpdate(FluidCell cell)
@@ -425,7 +430,9 @@ namespace Tiles.Fluid.Simulation
 			{
 				if (fluidUpdateArrayStack.Count == 0)
 				{
+					#if UNITY_EDITOR
 					stackEmpty = true;
+					#endif
 					return;
 				}
 				tickFluidUpdates[updateTick] = fluidUpdateArrayStack.Pop();
@@ -437,7 +444,9 @@ namespace Tiles.Fluid.Simulation
 			{
 				tickArrayCounter++;
 				UnsettleCell(adjacent);
+				#if UNITY_EDITOR
 				updateListFull = true;
+				#endif
 				return;
 			}
 			adjacent.QueuedForUpdate = true;
@@ -466,14 +475,15 @@ namespace Tiles.Fluid.Simulation
 			FluidTileItem dominatorItem = cellItem.fluidOptions.CollisionDominance < adjItem.fluidOptions.CollisionDominance ? adjItem : cellItem;
 			TileItem dominatorTile = dominatorItem.fluidOptions.OnCollisionTile;
 			if (!dominatorTile) return false;
-			dominator.FluidId = null;
-			dominator.Diff = -dominator.Liquid;
-			remainingFluid = 0;
 			FluidCell dominated = cellItem.fluidOptions.CollisionDominance > adjItem.fluidOptions.CollisionDominance ? adj : fluidCell;
+			dominator.Diff = 0;
+			remainingFluid = 0;
 			dominated.Liquid = 0;
-			dominated.FlowRestriction = FluidFlowRestriction.BlockFluids;
-			dominated.FluidId = null;
+			dominator.Liquid = 0;
+			dominator.FluidId = null;
+			fluidWorldTileMap.DeleteTile(dominated.Position);
 			blockTileMap.placeNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
+			UnsettleNeighbors(dominated.Position);
 			return false;
 		}
 		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent, bool loss)

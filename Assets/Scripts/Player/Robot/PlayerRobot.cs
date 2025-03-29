@@ -1191,7 +1191,7 @@ namespace Player {
             public float DamageCounter;
             public bool Colliding;
             public float SpeedModifier;
-            public float GravityModifier => SpeedModifier / 2f;
+            public float GravityModifier => SpeedModifier / 4f;
             public float Damage;
 
             public void SetFluidItem(FluidTileItem fluidTileItem)

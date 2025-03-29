@@ -56,6 +56,7 @@ namespace Fluids {
             return false;
             // Cannot hit fluid tiles
         }
+        
 
         public override ItemObject GetItemObject(Vector2Int position)
         {
@@ -70,7 +71,8 @@ namespace Fluids {
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
-            return false;
+            BreakTile(position);
+            return true;
         }
 
         protected override void RemoveTile(int x, int y)
@@ -97,6 +99,13 @@ namespace Fluids {
             }
 
             simulator.AddChunk(loadedChunk.GetPosition(), fluidCells);
+        }
+
+        public override void BreakTile(Vector2Int position)
+        {
+            Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
+            tilemap.SetTile(vector3Int,null);
+            unlitTileMap.SetTile(vector3Int,null);
         }
 
         public void RemoveChunk(Vector2Int position)
@@ -166,11 +175,17 @@ namespace Fluids {
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, FluidTileItem item)
         {
             PartitionFluidData partitionFluidData = partition.GetFluidData();
-            partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
+            partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item?.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
+            FluidCell fluidCell = new FluidCell(item?.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell,true);
+        }
+        
+
+        public override bool HasTile(Vector3Int vector3Int)
+        {
+            return mTileMap.GetTile(vector3Int) || unlitTileMap.HasTile(vector3Int);
         }
 
         public void TileUpdate(Vector2Int position)

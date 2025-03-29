@@ -155,13 +155,22 @@ namespace TileMaps {
         public virtual bool DeleteTile(Vector2 position) {
             Vector2Int hitTilePosition = GetHitTilePosition(position);
             Vector3Int vect = new Vector3Int(hitTilePosition.x, hitTilePosition.y, 0);
-            if (!mTileMap.GetTile(vect)) return false;
+            if (!HasTile(vect)) return false;
             BreakTile(hitTilePosition);
             IChunkPartition partition = GetPartitionAtPosition(hitTilePosition);
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(hitTilePosition);
             WriteTile(partition,tilePositionInPartition,null);
             CallListeners(hitTilePosition);
             return true;
+        }
+        
+        public virtual bool DeleteTile(Vector2Int cellPosition) {
+            return DeleteTile(mTileMap.CellToWorld(new Vector3Int(cellPosition.x, cellPosition.y, 0)));
+        }
+
+        public virtual bool HasTile(Vector3Int vector3Int)
+        {
+            return mTileMap.GetTile(vector3Int);
         }
 
         protected abstract void SetTile(int x, int y,TItem item);
