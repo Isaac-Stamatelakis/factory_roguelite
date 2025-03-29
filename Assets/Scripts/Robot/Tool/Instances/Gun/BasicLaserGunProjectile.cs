@@ -54,11 +54,6 @@ namespace Robot.Tool.Instances.Gun
         {
             if (damaged) return;
             if (other.gameObject.CompareTag("Player")) return;
-            if (other.gameObject.CompareTag("Fluid"))
-            {
-                inFluid = true;
-                return;
-            }
             damaged = true;
             IDamageableEntity damageableEntity = other.gameObject.GetComponent<IDamageableEntity>();
             damageableEntity?.Damage(damage,direction);
@@ -75,14 +70,7 @@ namespace Robot.Tool.Instances.Gun
             particles.Play();
             StartCoroutine(DelayDestroy());
         }
-
-        public void OnTriggerExit2D(Collider2D other)
-        {
-            if (other.gameObject.CompareTag("Fluid"))
-            {
-                inFluid = false;
-            }
-        }
+        
 
         private IEnumerator DelayDestroy()
         {
