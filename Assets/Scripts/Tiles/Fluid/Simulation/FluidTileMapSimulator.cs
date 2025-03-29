@@ -235,6 +235,7 @@ namespace Tiles.Fluid.Simulation
 	        }
 	        
 	        UnsettleCell(fluidCell);
+	        UnsettleNeighbors(fluidCell.Position);
         }
         
         public void RemoveFluidCell(Vector2Int position)
