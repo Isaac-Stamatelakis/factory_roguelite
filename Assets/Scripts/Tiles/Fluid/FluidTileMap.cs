@@ -10,6 +10,7 @@ using System.Linq;
 using Chunks;
 using Chunks.Systems;
 using Dimensions;
+using Robot.Tool.Instances.Gun;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Fluid.Simulation;
@@ -87,7 +88,19 @@ namespace Fluids {
             base.RemoveTile(x, y);
             unlitTileMap.SetTile(new Vector3Int(x, y, 0), null);
         }
-
+        public FluidTileItem GetFluidItem(Vector2 worldPosition)
+        {
+            Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
+            FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
+            return itemRegistry.GetFluidTileItem(fluidCell?.FluidId);
+        }
+        public float GetFill(Vector2 worldPosition)
+        {
+            Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
+            FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
+            if (fluidCell == null || fluidCell.FluidId == null) return 0;
+            return fluidCell.Liquid;
+        }
         public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
         {
             if (splashParticles.isPlaying) return;
@@ -202,10 +215,10 @@ namespace Fluids {
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item?.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item?.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
+            float fill = item ? MAX_FILL : 0;
+            FluidCell fluidCell = new FluidCell(item?.id,fill,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell,true);
         }
-        
 
         public override bool HasTile(Vector3Int vector3Int)
         {

@@ -308,6 +308,7 @@ namespace Tiles.Fluid.Simulation
 					objectTileMap.FluidUpdate(adjacent.Position);
 				}
 				adjacent.Diff = 0;
+				if (adjacent.Liquid > MAX_FILL) adjacent.Liquid = MAX_FILL;
 				DisplayCell(adjacent);
 			}
 			

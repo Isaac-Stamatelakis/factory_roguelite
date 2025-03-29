@@ -9,6 +9,7 @@ namespace Player.Tool.Object
     {
         public Sprite BaseLayerSprite;
         public Sprite BackgroundLayerSprite;
+        public Sprite FluidLayerSprite;
         public LineRenderer LineRendererPrefab;
         public ParticleSystem ParticleEmitterPrefab;
         public LaserDrillAudioController AudioControllerPrefab;

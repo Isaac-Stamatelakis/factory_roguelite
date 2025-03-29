@@ -191,6 +191,18 @@ namespace Item.Slot
                 toTakeFrom.itemObject = null;
             }
         }
+        
+        public static void InsertIntoSlot(ItemSlot itemSlot, ref uint amount, uint maxSize)
+        {
+            uint sum = itemSlot.amount + amount;
+            if (sum > maxSize) {
+                itemSlot.amount = maxSize;
+                amount = sum-maxSize;
+            } else {
+                itemSlot.amount = sum;
+                amount = 0;
+            }
+        }
 
         public static bool AreEqual(ItemSlot first, ItemSlot second)
         {
@@ -285,24 +297,7 @@ namespace Item.Slot
                 }
             }
         }
-
-        public static void handleInsert(ItemSlot inputSlot, ItemSlot toInsert) {
-            if (inputSlot.itemObject.id != toInsert.itemObject.id) {
-                return;
-            }
-            if (inputSlot.amount >= Global.MAX_SIZE) {
-                return;
-            }
-            // Success
-            uint sum = inputSlot.amount + toInsert.amount;
-            if (sum > Global.MAX_SIZE) {
-                toInsert.amount = sum - Global.MAX_SIZE;
-                inputSlot.amount = Global.MAX_SIZE;
-            } else {
-                inputSlot.amount = sum;
-                toInsert.amount = 0;
-            }
-        }
+        
 
         public static void sortInventoryByState<T>(List<T> inputs,out List<T> solidRecipeInputs,out List<T> fluidRecipeInputs) where T : ItemSlot{
             solidRecipeInputs = new List<T>();

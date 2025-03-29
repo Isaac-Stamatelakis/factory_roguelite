@@ -9,6 +9,7 @@ namespace Robot.Tool.Instances.Gun
     {
         public void Damage(float damage,Vector2 damageDirection);
     }
+    
     public class BasicLaserGunProjectile : MonoBehaviour
     {
         [SerializeField] private float SizeChangeRate = 0.5f;
@@ -54,6 +55,7 @@ namespace Robot.Tool.Instances.Gun
         {
             if (damaged) return;
             if (other.gameObject.CompareTag("Player")) return;
+            if (other.gameObject.CompareTag("Fluid")) return;
             damaged = true;
             IDamageableEntity damageableEntity = other.gameObject.GetComponent<IDamageableEntity>();
             damageableEntity?.Damage(damage,direction);
@@ -79,5 +81,7 @@ namespace Robot.Tool.Instances.Gun
             particlePool.ReturnToPool(particles.gameObject);
             Destroy(gameObject);
         }
+
+        
     }
 }

@@ -186,6 +186,7 @@ namespace TileMaps {
 
         private void UpdateListeners(Vector2Int position, TileItem tileItem)
         {
+            if (!tileItem) return;
             Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
             if (spriteSize.x <= 1 && spriteSize.y <= 1)
             {

@@ -4,6 +4,7 @@ using Chunks.Systems;
 using Conduit.Conduit;
 using Conduits;
 using Dimensions;
+using Fluids;
 using Item.Slot;
 using Items;
 using Newtonsoft.Json;
@@ -52,6 +53,8 @@ namespace Robot.Tool.Instances
                     return robotObject.BaseLayerSprite;
                 case TileMapLayer.Background:
                     return robotObject.BackgroundLayerSprite;
+                case TileMapLayer.Fluid:
+                    return robotObject.FluidLayerSprite;
                 default:
                     return null;
             }
@@ -78,7 +81,18 @@ namespace Robot.Tool.Instances
             
         }
 
-        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        private void HitFluid(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            if (mouseButtonKey != MouseButtonKey.Left) return;
+            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
+            FluidWorldTileMap fluidWorldTileMap = closedChunkSystem.GetFluidTileMap();
+            float fill = fluidWorldTileMap.GetFill(mousePosition);
+            FluidTileItem fluidTileItem = fluidWorldTileMap.GetFluidItem(mousePosition);
+            playerScript.PlayerInventory.GiveFluid(fluidTileItem,fill);
+            fluidWorldTileMap.DeleteTile(mousePosition);
+        }
+        private void HitTile(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
             laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
@@ -176,6 +190,22 @@ namespace Robot.Tool.Instances
             }
         }
 
+        public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
+        {
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                case TileMapLayer.Background:
+                    HitTile(mousePosition,mouseButtonKey);
+                    break;
+                case TileMapLayer.Fluid:
+                    HitFluid(mousePosition,mouseButtonKey);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         private void SetParticleSystemColor(TileItem tileItem)
         {
             if (!tileItem) return;
@@ -198,7 +228,6 @@ namespace Robot.Tool.Instances
                     return closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap;
                 case TileMapLayer.Background:
                     return closedChunkSystem.GetTileMap(TileMapType.Background) as WorldTileGridMap;
-                
             }
 
             return null;
@@ -295,13 +324,26 @@ namespace Robot.Tool.Instances
                     return new Color(145f / 255, 100f / 255, 1f, 1f);
                 case TileMapLayer.Background:
                     return new Color(46f / 255, 29f / 255, 89f/255, 1f);
+                case TileMapLayer.Fluid:
+                    return new Color(0f / 255, 29f / 255, 89f/255, 1f);
             }
             return Color.white;
         }
 
         public override void ModeSwitch(MoveDirection moveDirection, bool subMode)
         {
-            toolData.Layer = toolData.Layer == TileMapLayer.Base ? TileMapLayer.Background : TileMapLayer.Base;
+            switch (toolData.Layer)
+            {
+                case TileMapLayer.Base:
+                    toolData.Layer = moveDirection == MoveDirection.Left ? TileMapLayer.Background : TileMapLayer.Fluid; 
+                    break;
+                case TileMapLayer.Background:
+                    toolData.Layer = moveDirection == MoveDirection.Left ? TileMapLayer.Fluid : TileMapLayer.Base; 
+                    break;
+                case TileMapLayer.Fluid:
+                    toolData.Layer = moveDirection == MoveDirection.Left ? TileMapLayer.Base : TileMapLayer.Background; 
+                    break;
+            }
         }
 
         public override string GetModeName()

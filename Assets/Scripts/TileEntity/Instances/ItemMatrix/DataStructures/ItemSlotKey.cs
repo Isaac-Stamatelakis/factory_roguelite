@@ -21,15 +21,6 @@ namespace Items {
             if (obj is not ItemTagKey itemTagKey) {
                 return false;
             }
-            if (itemTagCollection == null && itemTagKey.itemTagCollection == null) {
-                return true;
-            }
-            if (itemTagCollection == null) {
-                return false;
-            }
-            if (itemTagKey.itemTagCollection == null) {
-                return false;
-            }
             return ItemTagFactory.TagsEqual(itemTagKey.itemTagCollection,itemTagCollection);
         }
 
