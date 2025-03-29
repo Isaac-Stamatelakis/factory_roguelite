@@ -88,7 +88,7 @@ namespace Player {
         public bool Dead => robotData.Health <= 0;
         private CameraBounds cameraBounds;
 
-        private const float TERMINAL_VELOCITY = 30f;
+        private const float TERMINAL_VELOCITY = 20f;
         private int liveYUpdates = 0;
         private int blockLayer;
         private int baseCollidableLayer;
@@ -318,22 +318,29 @@ namespace Player {
                 playerTeleportEvent.IterateTime(Time.deltaTime);
                 if (playerTeleportEvent.Expired()) playerTeleportEvent = null;
             }
-            if (ControlUtils.GetControlKeyDown(PlayerControl.Teleport) && playerTeleportEvent == null)
+
+            if (!ControlUtils.GetControlKeyDown(PlayerControl.Teleport) || playerTeleportEvent != null) return;
+            if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
+            Camera mainCamera = Camera.main;
+            if (!mainCamera) return;
+            Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
+            bool teleported = playerTeleportEvent.TryTeleport();
+            if (!teleported) return;
+            playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
+            teleportParticles.Play();
+            fallTime = 0;
+
+            IEnumerator DelayForceUpdate()
             {
-                if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
-                Camera mainCamera = Camera.main;
-                if (!mainCamera) return;
-                Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-                playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
-                bool teleported = playerTeleportEvent.TryTeleport();
-                if (teleported)
-                {
-                    playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
-                    teleportParticles.Play();
-                    fallTime = 0;
-                }
+                yield return new WaitForSeconds(1f);
+                mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
             }
+
+            StartCoroutine(DelayForceUpdate());
+
         }
+        
 
         public bool CanJump()
         {

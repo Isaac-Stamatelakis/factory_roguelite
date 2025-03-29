@@ -61,7 +61,7 @@ public class CameraBounds : MonoBehaviour
         }
     }
 
-    private void CheckPartitionAndChunk()
+    public void CheckPartitionAndChunk()
     {
         if (ReferenceEquals(closedChunkSystem, null)) return;
         
@@ -86,6 +86,15 @@ public class CameraBounds : MonoBehaviour
         lastChunk = new Vector2Int(cx,cy);
     }
 
+    public void ForceUpdatePartition()
+    {
+        Vector3 position = transform.position;
+        int worldPartitionSize = Global.CHUNK_PARTITION_SIZE >> 1;
+        int px = (int) position.x / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
+        int py = (int) position.y / worldPartitionSize % Global.PARTITIONS_PER_CHUNK;
+        closedChunkSystem.PlayerPartitionUpdate();
+        lastPartition = new Vector2Int(px,py);
+    }
 
 
     public void UpdateCameraBounds()

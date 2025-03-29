@@ -22,7 +22,6 @@ namespace Chunks.Loaders {
 
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
-            value.SetScheduleForUnloading(false);
             return value.GetLoaded() && !value.InRange(playerPosition,CameraView.ChunkPartitionLoadRange.x,CameraView.ChunkPartitionLoadRange.y);
         }
 
