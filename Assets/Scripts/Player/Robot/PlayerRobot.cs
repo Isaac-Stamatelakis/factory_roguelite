@@ -82,14 +82,13 @@ namespace Player {
         public List<RobotToolType> ToolTypes => robotData.ToolData.Types;
         private float fallTime;
         private float defaultGravityScale;
-        private bool dead = false;
         private bool immuneToNextFall = false;
         private int iFrames;
         private TileMovementType currentTileMovementType;
-        public bool Dead => dead;
+        public bool Dead => robotData.Health <= 0;
         private CameraBounds cameraBounds;
 
-        private const float TERMINAL_VELOCITY = 30f;
+        private const float TERMINAL_VELOCITY = 20f;
         private int liveYUpdates = 0;
         private int blockLayer;
         private int baseCollidableLayer;
@@ -219,8 +218,9 @@ namespace Player {
             if (state is CollisionState.FeetInFluid)
             {
                 var vector2 = rb.velocity;
-                vector2.y = vector2.y * 0.1f;
+                vector2.y = vector2.y * 0.05f;
                 rb.velocity = vector2;
+                fallTime = 0;
 
                 Vector3 position = transform.position;
                 position.z = 2;
@@ -318,22 +318,32 @@ namespace Player {
                 playerTeleportEvent.IterateTime(Time.deltaTime);
                 if (playerTeleportEvent.Expired()) playerTeleportEvent = null;
             }
-            if (ControlUtils.GetControlKeyDown(PlayerControl.Teleport) && playerTeleportEvent == null)
+
+            if (!ControlUtils.GetControlKeyDown(PlayerControl.Teleport) || playerTeleportEvent != null) return;
+            if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
+            Camera mainCamera = Camera.main;
+            if (!mainCamera) return;
+            Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
+            bool teleported = playerTeleportEvent.TryTeleport();
+            if (!teleported) return;
+            playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
+            teleportParticles.Play();
+            fallTime = 0;
+
+            IEnumerator DelayForceUpdate()
             {
-                if (!TryConsumeEnergy(SelfRobotUpgradeInfo.TELEPORT_COST, 0)) return;
-                Camera mainCamera = Camera.main;
-                if (!mainCamera) return;
-                Vector2 teleportPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-                playerTeleportEvent = new PlayerTeleportEvent(transform, teleportPosition, spriteRenderer.sprite.bounds);
-                bool teleported = playerTeleportEvent.TryTeleport();
-                if (teleported)
-                {
-                    playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Teleportations]++;
-                    teleportParticles.Play();
-                    fallTime = 0;
-                }
+                // Sometimes partitions are not loaded on teleport
+                yield return new WaitForSeconds(0.5f);
+                mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
+                yield return new WaitForSeconds(0.5f);
+                mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
             }
+
+            StartCoroutine(DelayForceUpdate());
+
         }
+        
 
         public bool CanJump()
         {
@@ -485,7 +495,7 @@ namespace Player {
             rb.velocity = velocity;
         }
 
-        public float GetHealth()
+        public float GetMaxHealth()
         {
             return currentRobot.BaseHealth + SelfRobotUpgradeInfo.HEALTH_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Health);
         }
@@ -497,17 +507,17 @@ namespace Player {
 
         private void UpdateVerticalMovement(ref Vector2 velocity)
         {
-            float fluidModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
+            float fluidGravityModifer = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
             if (climbing) return;
             if (jumpEvent != null)
             {
                 if (collisionStates.Contains(CollisionState.HeadContact))
                 {
-                    rb.gravityScale = fluidModifer * defaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer * defaultGravityScale;
                     jumpEvent = null;
                 } else if (ControlUtils.GetControlKey(PlayerControl.Jump))
                 {
-                    rb.gravityScale = fluidModifer * jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer * jumpEvent.GetGravityModifier(JumpStats.initialGravityPercent,JumpStats.maxGravityTime) * defaultGravityScale;
                     jumpEvent.IterateTime();
                     if (ControlUtils.GetControlKey(PlayerControl.MoveDown)) 
                     {
@@ -517,7 +527,7 @@ namespace Player {
                 }
                 else
                 {
-                    rb.gravityScale = fluidModifer*defaultGravityScale;   
+                    rb.gravityScale = fluidGravityModifer*defaultGravityScale;   
                 }
                 if (Input.GetKeyUp(KeyCode.Space))
                 {
@@ -525,6 +535,8 @@ namespace Player {
                 }
                 return;
             }
+            
+            float fluidSpeedModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
             
             bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
             if (rocketBoots != null && rocketBoots.Active)
@@ -539,11 +551,11 @@ namespace Player {
                 {
                     rb.gravityScale = 0;
                     float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight);
-                    velocity.y = fluidModifer * rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
+                    velocity.y = fluidSpeedModifier * rocketBoots.Boost * (1+0.33f*bonusJumpHeight);
                 }
                 else
                 {
-                    rb.gravityScale = fluidModifer*defaultGravityScale;
+                    rb.gravityScale = fluidGravityModifer*defaultGravityScale;
                 }
             }
             if (blockInput)
@@ -553,7 +565,7 @@ namespace Player {
 
             const float BONUS_FALL_MODIFIER = 1.25f;
             rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
-            rb.gravityScale *= fluidModifer;
+            rb.gravityScale *= fluidGravityModifer;
         }
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)
@@ -578,7 +590,7 @@ namespace Player {
                     bonusJumps--;
                 }
 
-                float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.GravityModifier : 1f;
+                float fluidModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
                 float bonusJumpHeight = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.JumpHeight); 
                 velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
                 coyoteFrames = 0;
@@ -603,7 +615,7 @@ namespace Player {
                     {
                         rocketBoots.Terminate();
                         rocketBoots = null;
-                        rb.gravityScale = defaultGravityScale;
+                        rb.gravityScale =  fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f * defaultGravityScale;
                     }
                 }
             }
@@ -979,13 +991,13 @@ namespace Player {
         {
             robotData.Health += amount;
             nanoBotParticles.Play();
-            float maxHealth = GetHealth();
+            float maxHealth = GetMaxHealth();
             if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
 
         public void NanoBotHeal()
         {
-            float maxHealth = GetHealth();
+            float maxHealth = GetMaxHealth();
             if (robotData.Health >= maxHealth) return;
             robotData.Health += maxHealth * 0.0025f;
             robotData.nanoBotTime -= Time.fixedDeltaTime;
@@ -1006,7 +1018,7 @@ namespace Player {
             liveYUpdates = 3;
             robotData.Health -= amount;
             timeSinceDamaged = 0;
-            if (robotData.Health > 0 || dead) return true;
+            if (robotData.Health > 0) return true;
             
             Die();
             return false;
@@ -1015,15 +1027,13 @@ namespace Player {
         public void Respawn()
         {
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            robotData.Health = currentRobot.BaseHealth;
+            robotData.Health = GetMaxHealth();
             DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
-            dead = false;
         }
 
         public void Die()
         {
             robotData.Health = 0;
-            dead = true;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
@@ -1191,7 +1201,7 @@ namespace Player {
             public float DamageCounter;
             public bool Colliding;
             public float SpeedModifier;
-            public float GravityModifier => SpeedModifier / 2f;
+            public float GravityModifier => SpeedModifier / 4f;
             public float Damage;
 
             public void SetFluidItem(FluidTileItem fluidTileItem)

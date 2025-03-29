@@ -57,6 +57,9 @@ namespace Chunks.Systems {
         public bool Interactable => interactable;
         public IntervalVector CoveredArea => coveredArea;
         private FluidWorldTileMap fluidWorldTileMap;
+        List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>(128);
+        List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>(128);
+        List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>(128);
         public virtual void Awake () {
             mainCamera = Camera.main;
             
@@ -176,10 +179,10 @@ namespace Chunks.Systems {
             currentPlayerPartition = GetCurrentPartitionPosition();
             playerPartitionChangeDifference = currentPlayerPartition - last;
             
-            // TODO put this in constant memory (state of class)
-            List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>();
-            List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>();
-            List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>();
+            partitionsToLoad.Clear();
+            partitionsToUnload.Clear();
+            partitionsToFarLoad.Clear();
+            
             for (int x = - Global.CHUNK_LOAD_RANGE; x <=  Global.CHUNK_LOAD_RANGE; x++) {
                 for (int y = - Global.CHUNK_LOAD_RANGE; y <=  Global.CHUNK_LOAD_RANGE; y++) {
                     Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
@@ -187,12 +190,13 @@ namespace Chunks.Systems {
                         continue;
                     }
 
-                    partitionsToUnload.AddRange(chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange));
-                    partitionsToLoad.AddRange(chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,0));
-                    partitionsToFarLoad.AddRange(chunk.GetUnFarLoadedParititionsCloseTo(
+                    chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
+                    chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
+                    chunk.GetUnFarLoadedParititionsCloseTo(
                         currentPlayerPartition,
-                        CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE)
-                    ));
+                        CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE),
+                        partitionsToFarLoad
+                    );
                 }
             }
             partitionLoader.addToQueue(partitionsToLoad);
@@ -310,11 +314,13 @@ namespace Chunks.Systems {
         }
         
         public virtual IEnumerator UnloadChunkPartition(IChunkPartition chunkPartition) {
+            
             chunkPartition.UnloadEntities();
             fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
             loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
+            chunkPartition.SetScheduleForUnloading(true);
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
-            
+            chunkPartition.SetScheduleForUnloading(false);
             breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
             chunkPartition.SetTileLoaded(false);
             chunkPartition.SetFarLoaded(false);

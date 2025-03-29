@@ -152,7 +152,10 @@ namespace Robot.Tool.Instances
         {
             if (!playerRobot.TryConsumeEnergy(RobotLaserGunUpgradeInfo.COST_PER_LASER,0.1f)) return;
             BasicLaserGunProjectile basicLaserGunProjectile = GameObject.Instantiate(robotObject.BasicLaserGunProjectilePrefab,playerScript.ToolObjectContainer,false);
-            basicLaserGunProjectile.transform.position = playerScript.transform.position;
+            float z = basicLaserGunProjectile.transform.position.z;
+            var vector3 = playerScript.transform.position;
+            vector3.z = z;
+            basicLaserGunProjectile.transform.position = vector3;
             basicLaserGunProjectile.Initialize(1f, direction, speed, usePool ? laserParticlePool : null);
         }
 
@@ -167,7 +170,10 @@ namespace Robot.Tool.Instances
             Vector2 direction = dif.normalized;
             
             LaserGunExplosionProjectile laserGunExplosionProjectile = GameObject.Instantiate(robotObject.LaserGunExplosionProjectilePrefab,playerScript.ToolObjectContainer,false);
-            laserGunExplosionProjectile.transform.position = playerScript.transform.position;
+            float z = laserGunExplosionProjectile.transform.position.z;
+            var vector3 = playerScript.transform.position;
+            vector3.z = z;
+            laserGunExplosionProjectile.transform.position = vector3;
             laserGunExplosionProjectile.Initialize(1f, direction, 10f,bombParticlePool);
         }
 

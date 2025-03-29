@@ -177,7 +177,8 @@ namespace UI
         
         public void DisplayOnParentCanvas(GameObject displayObject)
         {
-            displayObject.transform.SetParent(transform.parent, false);
+            displayObject.transform.SetParent(transform.parent.parent, false);
+            displayObject.transform.SetAsLastSibling();
         }
 
         [System.Serializable]

@@ -19,9 +19,11 @@ namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
         private Tilemap unlitTileMap;
+        private TilemapCollider2D unlitCollider2D;
+        private int flashCounter = 0;
+        private int ticksToTryFlash = 25;
         public void Awake()
         {
-            simulator = new FluidTileMapSimulator(this);
             itemRegistry = ItemRegistry.GetInstance();
         }
         
@@ -36,23 +38,13 @@ namespace Fluids {
             unlitContainer.layer = LayerMask.NameToLayer("Fluid");
             TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
             tilemapRenderer.material = DimensionManager.Instance.MiscDimAssets.LitMaterial;
-            var unlitCollider = unlitContainer.AddComponent<TilemapCollider2D>();
-            unlitCollider.isTrigger = true;
+            unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
+            unlitCollider2D.isTrigger = true;
             tilemapCollider.isTrigger = true;
-
-            /*
-            void AddRb(Tilemap map) // Rbs required for triggers
-            {
-                Rigidbody2D rb = map.gameObject.AddComponent<Rigidbody2D>();
-                rb.isKinematic = true;
-                rb.constraints = RigidbodyConstraints2D.FreezeAll; 
-            }
-            //AddRb(tilemap);
-            //AddRb(unlitTileMap);
-            */
+            simulator = new FluidTileMapSimulator(this, closedChunkSystem.GetTileMap(TileMapType.Object) as WorldTileGridMap,closedChunkSystem.GetTileMap(TileMapType.Block) as WorldTileGridMap);
             
-            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC
-            unlitCollider.maximumTileChangeCount=int.MaxValue; 
+            // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
+            unlitCollider2D.maximumTileChangeCount=int.MaxValue; 
         }
         private ItemRegistry itemRegistry;
 
@@ -64,6 +56,7 @@ namespace Fluids {
             return false;
             // Cannot hit fluid tiles
         }
+        
 
         public override ItemObject GetItemObject(Vector2Int position)
         {
@@ -78,7 +71,8 @@ namespace Fluids {
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
         {
-            return false;
+            BreakTile(position);
+            return true;
         }
 
         protected override void RemoveTile(int x, int y)
@@ -105,6 +99,13 @@ namespace Fluids {
             }
 
             simulator.AddChunk(loadedChunk.GetPosition(), fluidCells);
+        }
+
+        public override void BreakTile(Vector2Int position)
+        {
+            Vector3Int vector3Int = new Vector3Int(position.x, position.y, 0);
+            tilemap.SetTile(vector3Int,null);
+            unlitTileMap.SetTile(vector3Int,null);
         }
 
         public void RemoveChunk(Vector2Int position)
@@ -140,11 +141,10 @@ namespace Fluids {
             int tileIndex = (int)(FluidTileItem.FLUID_TILE_ARRAY_SIZE * fill);
             Tile tile = fluidTileItem.getTile(tileIndex);
             map.SetTile(vector3Int,tile);
-            if (lit)
-            {
-                map.SetTileFlags(vector3Int,TileFlags.None);
-                map.SetColor(vector3Int,Color.white*0.9f);
-            }
+            if (!lit) return;
+            if (map.GetTileFlags(vector3Int) == TileFlags.None) return;
+            map.SetTileFlags(vector3Int,TileFlags.None);
+            map.SetColor(vector3Int,Color.white*0.9f);
         }
         
         public void DisplayTile(int x, int y, string id, float fill)
@@ -175,11 +175,17 @@ namespace Fluids {
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, FluidTileItem item)
         {
             PartitionFluidData partitionFluidData = partition.GetFluidData();
-            partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item.id;
+            partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item?.id;
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
-            FluidCell fluidCell = new FluidCell(item.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
-            simulator.AddFluidCell(fluidCell);
+            FluidCell fluidCell = new FluidCell(item?.id,MAX_FILL,FluidFlowRestriction.NoRestriction,cellPosition,true);
+            simulator.AddFluidCell(fluidCell,true);
+        }
+        
+
+        public override bool HasTile(Vector3Int vector3Int)
+        {
+            return mTileMap.GetTile(vector3Int) || unlitTileMap.HasTile(vector3Int);
         }
 
         public void TileUpdate(Vector2Int position)
@@ -187,31 +193,46 @@ namespace Fluids {
             ILoadedChunkSystem chunkSystem = closedChunkSystem;
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
             FluidCell fluidCell = partition.GetFluidCell(positionInPartition, true);
-            simulator.AddFluidCell(fluidCell);
+            if (fluidCell == null)
+            {
+                simulator.RemoveFluidCell(position);
+            }
+            else
+            {
+                simulator.AddFluidCell(fluidCell,false);
+            }
+            
             simulator.UnsettleNeighbors(position);
         }
 
         public void FixedUpdate()
         {
             simulator.Simulate();
+            RandomlyFlashUnlitMap();
+        }
+
+        private void RandomlyFlashUnlitMap()
+        {
+            flashCounter++;
+            if (flashCounter < ticksToTryFlash) return;
+            flashCounter = 0;
+            Bounds bounds = unlitCollider2D.bounds;
+            float size = bounds.size.x * bounds.size.y;
             
-            const int RANDOM_UNLIT_LIGHT_CHANCE = 1;
-            int ran = Random.Range(0, RANDOM_UNLIT_LIGHT_CHANCE);
-            if (ran != 0) return;
+            if (size == 0) return;
             
-            // Calls this about once per second
-            unlitTileMap.ResizeBounds();
-            BoundsInt bounds = unlitTileMap.cellBounds;
-            int size = bounds.size.x * bounds.size.y;
+            // Large pool of lava in large camera view has ~1000 tiles
             const float HIGHEST_ODDS = 1024;
-            //float random = UnityEngine.Random.value;
-            //if (size / HIGHEST_ODDS < random) return;
-            Vector3Int randomPosition = new Vector3Int(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1), UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1),0);
-            if (!unlitTileMap.HasTile(randomPosition) || unlitTileMap.GetColor(randomPosition) != Color.white * 0.9f) return;
+            float random = UnityEngine.Random.value;
+            if (size / HIGHEST_ODDS < random) return;
+            Vector2 randomWorldPosition = new Vector2(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1),UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1));
+            Vector3Int randomCellPosition = unlitTileMap.WorldToCell(randomWorldPosition);
+            randomCellPosition.z = 0;
+            
+            if (!unlitTileMap.HasTile(randomCellPosition) || unlitTileMap.GetColor(randomCellPosition) != Color.white * 0.9f) return;
            
             int flashSize = UnityEngine.Random.Range(3, 10);
-            StartCoroutine(FlashUnlitMap(randomPosition,flashSize));
-
+            StartCoroutine(FlashUnlitMap(randomCellPosition,flashSize));
         }
 
         private IEnumerator FlashUnlitMap(Vector3Int origin, int size)
@@ -279,12 +300,33 @@ namespace Fluids {
                     seen.RemoveAt(i);
                 }
             }
+
+            const int MIN_SIZE = 3;
+            const float INCREASE_ODDS = 0.666f;
             while (r < size)
             {
-                IncreaseSize();
+                if (r > MIN_SIZE)
+                {
+                    float ran = UnityEngine.Random.value;
+                    if (ran < INCREASE_ODDS)
+                    {
+                        IncreaseSize();
+                        r++;
+                    }
+                    else
+                    {
+                        DecreaseSize();
+                        r--;
+                    }
+                }
+                else
+                {
+                    IncreaseSize();
+                    r++;
+                }
                 yield return delay;
-                r++;
             }
+            
             while (r >= 0)
             {
                 DecreaseSize();

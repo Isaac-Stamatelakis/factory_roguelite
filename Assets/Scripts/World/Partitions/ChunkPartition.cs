@@ -141,10 +141,14 @@ namespace Chunks.Partitions {
             Save();
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
+                /*
                 if (loading)
                 {
+                    This doesn't seem to do anything
+                    Debug.Log("Broken");
                     yield break;
                 }
+                */
                 yield return tileMap.removePartition(realPosition);
                 
             }
@@ -175,9 +179,6 @@ namespace Chunks.Partitions {
                 }
                 GameObject.Destroy(hit.collider.gameObject);
             }
-        }
-        public virtual IEnumerator unload(Dictionary<TileMapType, IWorldTileMap> tileGridMaps) {
-            yield return UnloadTiles(tileGridMaps);
         }
 
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
