@@ -340,7 +340,7 @@ namespace Player {
                 mainCamera.GetComponent<CameraBounds>().ForceUpdatePartition();
             }
 
-            StartCoroutine(DelayForceUpdate());
+            //StartCoroutine(DelayForceUpdate());
 
         }
         

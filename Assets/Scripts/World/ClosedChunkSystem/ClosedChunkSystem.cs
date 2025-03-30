@@ -318,12 +318,10 @@ namespace Chunks.Systems {
             chunkPartition.UnloadEntities();
             fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),false);
             loadedPartitionBoundary.PartitionUnloaded(chunkPartition.GetRealPosition());
-            chunkPartition.SetScheduleForUnloading(true);
+            
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
-            chunkPartition.SetScheduleForUnloading(false);
+          
             breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
-            chunkPartition.SetTileLoaded(false);
-            chunkPartition.SetFarLoaded(false);
         }
         
         public void OnDisable()

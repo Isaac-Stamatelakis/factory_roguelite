@@ -226,7 +226,7 @@ namespace Chunks {
                 if (partition.GetLoaded() && !partition.GetScheduledForUnloading() && !partition.InRange(target,range.x,range.y)) {
                     partition.SetScheduleForUnloading(true);
                     fill.Add(partition);
-                } 
+                }
             }
         }
 

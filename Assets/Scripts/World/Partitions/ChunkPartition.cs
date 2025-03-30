@@ -141,17 +141,14 @@ namespace Chunks.Partitions {
             Save();
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
-                /*
                 if (loading)
                 {
-                    This doesn't seem to do anything
-                    Debug.Log("Broken");
                     yield break;
                 }
-                */
                 yield return tileMap.removePartition(realPosition);
-                
             }
+            SetTileLoaded(false);
+            SetFarLoaded(false);
         }
 
         public PartitionFluidData GetFluidData()
