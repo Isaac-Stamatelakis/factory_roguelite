@@ -213,9 +213,10 @@ namespace Fluids {
         {
             PartitionFluidData partitionFluidData = partition.GetFluidData();
             partitionFluidData.ids[positionInPartition.x,positionInPartition.y] = item?.id;
-            partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = MAX_FILL;
-            Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             float fill = item ? MAX_FILL : 0;
+            partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = fill;
+            Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
+            
             FluidCell fluidCell = new FluidCell(item?.id,fill,FluidFlowRestriction.NoRestriction,cellPosition,true);
             simulator.AddFluidCell(fluidCell,true);
         }
@@ -229,14 +230,15 @@ namespace Fluids {
         {
             ILoadedChunkSystem chunkSystem = closedChunkSystem;
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
-            FluidCell fluidCell = partition.GetFluidCell(positionInPartition, true);
-            if (fluidCell == null)
+            TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
+            if (tileItem)
             {
                 simulator.RemoveFluidCell(position);
             }
             else
             {
-                simulator.AddFluidCell(fluidCell,false);
+                FluidCell fluidCell = new FluidCell(null, 0, FluidFlowRestriction.NoRestriction, position,true);
+                simulator.AddFluidCell(fluidCell,true);
             }
             
             simulator.UnsettleNeighbors(position);
@@ -256,24 +258,25 @@ namespace Fluids {
             if (flashCounter < ticksToTryFlash) return;
             flashCounter = 0;
             Bounds bounds = unlitCollider2D.bounds;
-            TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds);
+            
+            // Large pool of lava in large camera view has ~1000 tiles
+            const float CHANCE = 1024;
+            TileMapPositionInfo? randomPosition = GetRandomCellPosition(ref bounds,CHANCE);
             if (!randomPosition.HasValue) return;
             Vector3Int cellPosition = randomPosition.Value.CellPosition;
             if (!unlitTileMap.HasTile(cellPosition) || unlitTileMap.GetColor(cellPosition) != Color.white * 0.9f) return;
            
-            int flashSize = UnityEngine.Random.Range(3, 10);
+            int flashSize = UnityEngine.Random.Range(6, 10);
             StartCoroutine(FlashUnlitMap(cellPosition,flashSize));
         }
 
-        private TileMapPositionInfo? GetRandomCellPosition(ref Bounds bounds)
+        private TileMapPositionInfo? GetRandomCellPosition(ref Bounds bounds, float chance)
         {
             float size = bounds.size.x * bounds.size.y;
             if (size == 0) return null;
             
-            // Large pool of lava in large camera view has ~1000 tiles
-            const float HIGHEST_ODDS = 1024;
             float random = UnityEngine.Random.value;
-            if (size / HIGHEST_ODDS < random) return null;
+            if (size / chance < random) return null;
             
             Vector2 randomWorldPosition = new Vector2(UnityEngine.Random.Range(bounds.min.x,bounds.max.x+1),UnityEngine.Random.Range(bounds.min.y,bounds.max.y+1));
             Vector3Int randomCellPosition = unlitTileMap.WorldToCell(randomWorldPosition);
@@ -291,7 +294,8 @@ namespace Fluids {
         private void DisplayRandomParticles(Tilemap map, Collider2D mapCollider)
         {
             Bounds bounds = mapCollider.bounds;
-            TileMapPositionInfo? nullableRandomPosition = GetRandomCellPosition(ref bounds);
+            
+            TileMapPositionInfo? nullableRandomPosition = GetRandomCellPosition(ref bounds,256);
             if (!nullableRandomPosition.HasValue) return;
             
             TileMapPositionInfo tileMapPositionInfo = nullableRandomPosition.Value;
@@ -375,7 +379,7 @@ namespace Fluids {
             }
 
             const int MIN_SIZE = 3;
-            const float INCREASE_ODDS = 0.666f;
+            const float INCREASE_ODDS = 0.6f;
             while (r < size)
             {
                 if (r > MIN_SIZE)

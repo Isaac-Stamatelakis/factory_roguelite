@@ -231,6 +231,7 @@ namespace Tiles.Fluid.Simulation
 	        FluidCell current = fluidCells[positionInChunk.x][positionInChunk.y];
 	        if (current == null || replace)
 	        {
+		        Debug.Log("Overwrote cell");
 		        fluidCells[positionInChunk.x][positionInChunk.y] = fluidCell;
 	        }
 	        
@@ -318,7 +319,7 @@ namespace Tiles.Fluid.Simulation
 				var cell = currentUpdates[index];
 				currentUpdates[index] = null;
 				if (cell == null) break;
-				
+				if (cell.FlowRestriction == FluidFlowRestriction.BlockFluids) continue;
 				
 				Vector2Int cellPosition = cell.Position;
 				UpdateFill(cell);
@@ -467,7 +468,7 @@ namespace Tiles.Fluid.Simulation
 		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj, ref float remainingFluid)
 		{
 			if (adj == null || adj.FlowRestriction == FluidFlowRestriction.BlockFluids) return false;
-			if (adj.FluidId == null || adj.FluidId == fluidCell.FluidId) return true;
+			if (adj.FluidId == null || adj.FluidId == fluidCell.FluidId || adj.Liquid < 0.1f) return true;
 			FluidTileItem cellItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
 			if (!cellItem) return false;
 			FluidTileItem adjItem = itemRegistry.GetFluidTileItem(adj.FluidId);
@@ -479,13 +480,16 @@ namespace Tiles.Fluid.Simulation
 			if (!dominatorTile) return false;
 			FluidCell dominated = cellItem.fluidOptions.CollisionDominance > adjItem.fluidOptions.CollisionDominance ? adj : fluidCell;
 			dominator.Diff = 0;
-			remainingFluid = 0;
-			dominated.Liquid = 0;
 			dominator.Liquid = 0;
+			remainingFluid = 0;
 			dominator.FluidId = null;
-			fluidWorldTileMap.DeleteTile(dominated.Position);
+			dominated.Liquid = 0;
+			
 			blockTileMap.placeNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
+			fluidWorldTileMap.BreakTile(dominated.Position);
+			fluidWorldTileMap.BreakTile(dominator.Position);
 			UnsettleNeighbors(dominated.Position);
+	
 			return false;
 		}
 		public void UpdateFlowValues(ref float remainingValue, float flow, FluidCell cell, FluidCell adjacent, bool loss)
