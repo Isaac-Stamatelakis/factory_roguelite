@@ -51,6 +51,12 @@ namespace Player {
         HeadInFluid,
         FeetInFluid,
     }
+
+    public enum ToolActionDirection
+    {
+        Left,
+        Right
+    }
     public class PlayerRobot : MonoBehaviour
     {
         private enum RobotParticleSystems
@@ -117,6 +123,8 @@ namespace Player {
         private FluidCollisionInformation fluidCollisionInformation = new();
 
         public const float BASE_MOVE_SPEED = 5f;
+        private ToolActionDirection toolActionDirection;
+        public PlayerRobotLaserGunController gunController;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -128,6 +136,7 @@ namespace Player {
             cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
             LoadAsyncAssets();
+            gunController.Initialize(this);
         }
 
         private void LoadAsyncAssets()
@@ -225,6 +234,22 @@ namespace Player {
                 Vector3 position = transform.position;
                 position.z = 2;
                 transform.position = position;
+            }
+        }
+
+        private void SetWalkAnimation()
+        {
+            switch (toolActionDirection)
+            {
+                case ToolActionDirection.Left:
+                    animator.Play("WalkLeftAction");
+                    break;
+                case ToolActionDirection.Right:
+                    animator.Play("WalkRightAction");
+                    break;
+                default:
+                    animator.Play("Walk");
+                    break;
             }
         }
 
@@ -331,6 +356,7 @@ namespace Player {
             teleportParticles.Play();
             fallTime = 0;
 
+            
             IEnumerator DelayForceUpdate()
             {
                 // Sometimes partitions are not loaded on teleport
@@ -341,7 +367,6 @@ namespace Player {
             }
 
             StartCoroutine(DelayForceUpdate());
-
         }
         
 
@@ -453,7 +478,7 @@ namespace Player {
                 {
                     const float ANIMATOR_SPEED_INCREASE = 0.25f;
                     animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                    animator.Play("Walk");
+                    SetWalkAnimation();
                 }
             }
 

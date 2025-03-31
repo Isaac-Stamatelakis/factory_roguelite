@@ -22,6 +22,9 @@ namespace Chunks.Loaders {
 
         public override bool canUpdate(IChunkPartition value, Vector2Int playerPosition)
         {
+            // If the partition is updated, it is no longer scheduled for unloading.
+            // If the partition is not updated it is no longer scheduled for unloading.
+            value.SetScheduleForUnloading(false);
             return value.GetLoaded() && !value.InRange(playerPosition,CameraView.ChunkPartitionLoadRange.x,CameraView.ChunkPartitionLoadRange.y);
         }
 

@@ -124,7 +124,6 @@ namespace Chunks.Partitions {
                     }
                     break;
             }
-            loading = false;
             SetTileLoaded(true);
         }
 
@@ -141,17 +140,14 @@ namespace Chunks.Partitions {
             Save();
             Vector2Int realPosition = GetRealPosition();
             foreach (IWorldTileMap tileMap in tileGridMaps.Values) {
-                /*
                 if (loading)
                 {
-                    This doesn't seem to do anything
-                    Debug.Log("Broken");
                     yield break;
                 }
-                */
                 yield return tileMap.removePartition(realPosition);
-                
             }
+            SetTileLoaded(false);
+            SetFarLoaded(false);
         }
 
         public PartitionFluidData GetFluidData()
@@ -214,6 +210,16 @@ namespace Chunks.Partitions {
         public bool GetLoaded()
         {
             return loaded;
+        }
+
+        public bool IsLoading()
+        {
+            return loading;
+        }
+
+        public void SetIsLoading(bool value)
+        {
+            loading = value;
         }
 
         public void SetTileLoaded(bool val)

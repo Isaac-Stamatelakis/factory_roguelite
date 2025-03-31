@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b4a9bf09c8a3e8a45930ddcb56266a1b
+guid: 629bf87844bd45247b4e546f108a6fc1
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,12 +117,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_0
+      name: happy walking full left arm missing_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -131,19 +131,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8680bd079061ccc479fbf470c2251b4c
-      internalID: 1664672190
+      spriteID: 503df400f98dff64da1c2b74d235b135
+      internalID: 994433218
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_1
+      name: happy walking full left arm missing_1
       rect:
         serializedVersion: 2
-        x: 25
+        x: 16
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -152,19 +152,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8a14efd048bda0f4a9d6c8949b4c6722
-      internalID: 15002359
+      spriteID: 6c4ed1f37dbfafe419c8f5453bd3c309
+      internalID: -390425929
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_2
+      name: happy walking full left arm missing_2
       rect:
         serializedVersion: 2
-        x: 50
+        x: 32
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -173,19 +173,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7463172fc32c65b46a34e115cc9ae640
-      internalID: 2104171125
+      spriteID: f60b330eb4092644b82af84363eae888
+      internalID: -1912115375
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_3
+      name: happy walking full left arm missing_3
       rect:
         serializedVersion: 2
-        x: 75
+        x: 48
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -194,19 +194,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 79d98372ff08dd740b4e24445cb48416
-      internalID: -1365399263
+      spriteID: 8d355208ac08f9f44bcdc5318fec2a05
+      internalID: -105954082
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_4
+      name: happy walking full left arm missing_4
       rect:
         serializedVersion: 2
-        x: 100
+        x: 64
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -215,19 +215,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b600f2efc44099c4cbe74470f2cb2afb
-      internalID: 1781831056
+      spriteID: bfecb66fcaafad243970ec0a96becc53
+      internalID: -929116803
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_5
+      name: happy walking full left arm missing_5
       rect:
         serializedVersion: 2
-        x: 125
+        x: 80
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -236,19 +236,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 99ad685a904806c4fa428c87f84c7e5b
-      internalID: -410827048
+      spriteID: 3ca58475a907ac7499afc1596d3ebbc6
+      internalID: -2048581610
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_6
+      name: happy walking full left arm missing_6
       rect:
         serializedVersion: 2
-        x: 150
+        x: 96
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -257,19 +257,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4531f02c00121dc4f9b0c4506e611054
-      internalID: 421845129
+      spriteID: d31a32814a212224db869c1bbaa8efe8
+      internalID: 1506872447
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_7
+      name: happy walking full left arm missing_7
       rect:
         serializedVersion: 2
-        x: 175
+        x: 112
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -278,19 +278,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3e35ffe77cdfdec47a461fad8aeb12af
-      internalID: 1599896595
+      spriteID: 2c5bb0f4f4fdc234cbca75ec18ba0bce
+      internalID: 595656392
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_8
+      name: happy walking full left arm missing_8
       rect:
         serializedVersion: 2
-        x: 200
+        x: 128
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -299,19 +299,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e053043671f5603468a2b451ed98233a
-      internalID: 1551322993
+      spriteID: 0fc26d3474541c54488b157a4d03a792
+      internalID: -1670429545
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_9
+      name: happy walking full left arm missing_9
       rect:
         serializedVersion: 2
-        x: 225
+        x: 144
         y: 0
-        width: 25
+        width: 16
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -320,113 +320,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9ffdd245ff1d0c04ca6a5e116cfa7b2c
-      internalID: -1327240864
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_10
-      rect:
-        serializedVersion: 2
-        x: 250
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bd8282975ec6b6b4d8fce77c04f72352
-      internalID: 1526971507
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_11
-      rect:
-        serializedVersion: 2
-        x: 275
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8beb5cdc843d622438f00edd6456347e
-      internalID: -58728719
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_12
-      rect:
-        serializedVersion: 2
-        x: 300
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: acee5258497c21f44b8570832a778fd7
-      internalID: 2121065664
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_13
-      rect:
-        serializedVersion: 2
-        x: 325
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d682c87fcc9c84c49bebe0547371ff6c
-      internalID: 827422447
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_ready_animation_14
-      rect:
-        serializedVersion: 2
-        x: 350
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bc144c344f6004e49b5d6cbba5e76cd2
-      internalID: -1464421804
+      spriteID: b6992eb6adc3189419439e0d87453ea8
+      internalID: -409110440
       vertices: []
       indices: 
       edges: []
@@ -442,21 +337,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Happy_arm_gun_ready_animation_0: 1664672190
-      Happy_arm_gun_ready_animation_1: 15002359
-      Happy_arm_gun_ready_animation_10: 1526971507
-      Happy_arm_gun_ready_animation_11: -58728719
-      Happy_arm_gun_ready_animation_12: 2121065664
-      Happy_arm_gun_ready_animation_13: 827422447
-      Happy_arm_gun_ready_animation_14: -1464421804
-      Happy_arm_gun_ready_animation_2: 2104171125
-      Happy_arm_gun_ready_animation_3: -1365399263
-      Happy_arm_gun_ready_animation_4: 1781831056
-      Happy_arm_gun_ready_animation_5: -410827048
-      Happy_arm_gun_ready_animation_6: 421845129
-      Happy_arm_gun_ready_animation_7: 1599896595
-      Happy_arm_gun_ready_animation_8: 1551322993
-      Happy_arm_gun_ready_animation_9: -1327240864
+      happy walking full left arm missing_0: 994433218
+      happy walking full left arm missing_1: -390425929
+      happy walking full left arm missing_2: -1912115375
+      happy walking full left arm missing_3: -105954082
+      happy walking full left arm missing_4: -929116803
+      happy walking full left arm missing_5: -2048581610
+      happy walking full left arm missing_6: 1506872447
+      happy walking full left arm missing_7: 595656392
+      happy walking full left arm missing_8: -1670429545
+      happy walking full left arm missing_9: -409110440
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

@@ -23,7 +23,7 @@ namespace Chunks.Loaders {
 
         public override void update(IChunkPartition value)
         {
-            value.SetTileLoaded(true);
+            //value.SetTileLoaded(true);
             Vector2Int playerPosition = getPlayerPosition();
             Vector2Int position = value.GetRealPosition();
             Vector2Int positionChange = closedChunkSystem.GetPlayerPartitionChangeDifference();
