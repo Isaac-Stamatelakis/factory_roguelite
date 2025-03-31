@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Items;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -97,7 +98,9 @@ namespace WorldModule.Caves {
             }
         }
 
-        private bool hasSpace(int radius,Vector2Int position) {
+        private bool hasSpace(int radius,Vector2Int position)
+        {
+            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     int adjx = position.x+x;
@@ -108,6 +111,9 @@ namespace WorldModule.Caves {
                     if (worldTileData.baseData.ids[adjx,adjy] != null) {
                         return false;
                     }
+                    string fluidId = worldTileData.fluidData.ids[adjx, adjy];
+                    FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(fluidId);
+                    if (fluidTileItem && fluidTileItem.fluidOptions.DamagePerSecond > 0) return false;
                 }
             }
 

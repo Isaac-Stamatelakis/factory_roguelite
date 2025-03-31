@@ -28,6 +28,11 @@ namespace TileEntity {
             return positionInChunk;
         }
 
+        public Vector2 GetWorldPositionInChunk()
+        {
+            return (Vector2)positionInChunk / 2;
+        }
+
         public Vector2 GetWorldPosition() {
             Vector2Int cellPosition = GetCellPosition();
             return new Vector2(cellPosition.x/2f+0.25f,cellPosition.y/2f+0.25f);

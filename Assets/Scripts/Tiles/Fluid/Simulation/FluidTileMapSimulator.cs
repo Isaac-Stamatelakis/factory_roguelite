@@ -7,37 +7,37 @@ using Items;
 using TileMaps;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 namespace Tiles.Fluid.Simulation
 {
 	public enum FluidFlowDirection
 	{
-		Up,
-		Left,
-		Right,
-		Down
-	}
-	public enum FluidFlowRestriction
-	{
-		BlockFluids,
-		WaterLog,
-		NoRestriction
+		Up = 1,
+		Left = 2,
+		Right = 4,
+		Down = 8
 	}
 	public class FluidCell
 	{
-		public string FluidId;
+		public FluidTileItem FluidTileItem;
 		public float Liquid;
-		public FluidFlowRestriction FlowRestriction;
+		private readonly int flowBitMap;
 		public Vector2Int Position;
 		public float Diff;
 		public bool QueuedForUpdate;
 		public bool Displayable;
 
-		public FluidCell(string fluidId, float liquid, FluidFlowRestriction flowRestriction, Vector2Int position, bool displayable)
+		public bool CanFlow(FluidFlowDirection fluidFlowDirection)
 		{
-			FluidId = fluidId;
+			return (flowBitMap & (int)fluidFlowDirection) != 0;
+		}
+
+		public FluidCell(FluidTileItem fluidTileItem, float liquid, int flowBitMap, Vector2Int position, bool displayable)
+		{
+			FluidTileItem = fluidTileItem;
 			Liquid = liquid;
-			FlowRestriction = flowRestriction;
+			this.flowBitMap = flowBitMap;
 			Position = position;
 			Displayable = displayable;
 		}
@@ -75,10 +75,8 @@ namespace Tiles.Fluid.Simulation
 			    FluidUpdateCollection fluidUpdateCollection = new FluidUpdateCollection(stackUpdateList, 0);
 			    fluidUpdateArrayStack.Push(fluidUpdateCollection);
 		    }
-		    itemRegistry = ItemRegistry.GetInstance();
 	    }
-
-	    private ItemRegistry itemRegistry;
+	    
 	    private uint ticks;
 	    private uint tickCounter;
 	    private uint tickArrayCounter;
@@ -91,7 +89,7 @@ namespace Tiles.Fluid.Simulation
 	    const int MAX_UPDATES_PER_SECOND = 2048;
 	    private const int STACKS = 15;
 	    const float MAX_FILL = 1.0f;
-	    const float MIN_FILL = 0.005f;
+	    const float MIN_FILL = 0.025f;
 	    
 	    #if UNITY_EDITOR
 	    private bool stackEmpty = false;
@@ -194,7 +192,7 @@ namespace Tiles.Fluid.Simulation
 					        }
 					        else
 					        {
-						        ids[x, y] = cell.FluidId;
+						        ids[x, y] = cell.FluidTileItem?.id;
 						        fill[x, y] = cell.Liquid;
 					        }
 				        }
@@ -209,19 +207,32 @@ namespace Tiles.Fluid.Simulation
 	        if (cell == null || cell.Liquid < MIN_FILL) return;
 	        
 	        float current = cell.Liquid;
-	        void Disrupt(FluidCell adjacent)
+	        bool Disrupt(FluidCell adjacent)
 	        {
-		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL)) return;
+		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL) || adjacent.Liquid > MAX_FILL- 0.05f) return false;
 		        float dif = UnityEngine.Random.Range(current / 4, current / 2);
+		        if (adjacent.Liquid + dif > MAX_FILL)
+		        {
+			        dif = adjacent.Liquid + dif - MAX_FILL;
+		        }
 		        adjacent.Liquid += dif;
 		        cell.Liquid -= dif;
+		        return true;
 	        }
 	        FluidCell left = GetFluidCell(cellPosition + Vector2Int.left);
-	        Disrupt(left);
+	        bool disruptLeft = Disrupt(left);
 	        FluidCell right = GetFluidCell(cellPosition + Vector2Int.right);
-	        Disrupt(right);
+	        bool disruptRight = Disrupt(right);
+	        if (!disruptLeft && !disruptRight)
+	        {
+		        FluidCell top = GetFluidCell(cellPosition + Vector2Int.up);
+		        bool disruptTop = Disrupt(top);
+		        if (!disruptTop) return;
+	        }
+	        
 	        UnsettleCell(cell);
-			UnsettleNeighbors(cell.Position);
+	        UnsettleNeighbors(cell.Position);
+
         }
         public void AddFluidCell(FluidCell fluidCell, bool replace)
         {
@@ -250,9 +261,9 @@ namespace Tiles.Fluid.Simulation
         {
 	        if (!fluidCell.Displayable) return;
 	        var above = GetFluidCell(fluidCell.Position + Vector2Int.up);
-	        if (above != null && above.Liquid > 1/16f && above.FluidId != null)
+	        if (above != null && above.Liquid > 1/16f && above.FluidTileItem)
 	        {
-		        fluidWorldTileMap.DisplayTile(fluidCell.Position.x,fluidCell.Position.y, fluidCell.FluidId, 1);
+		        fluidWorldTileMap.DisplayTile(fluidCell.Position.x,fluidCell.Position.y, fluidCell.FluidTileItem, 1);
 		        return;
 	        }
 	        if (fluidCell.Liquid > MIN_FILL)
@@ -261,7 +272,7 @@ namespace Tiles.Fluid.Simulation
 		        return;
 	        }
 	        fluidCell.Liquid = 0;
-	        fluidCell.FluidId = null;
+	        fluidCell.FluidTileItem = null;
 	        fluidWorldTileMap.DisplayTile(fluidCell);
         }
 		public void Simulate()
@@ -318,7 +329,6 @@ namespace Tiles.Fluid.Simulation
 				var cell = currentUpdates[index];
 				currentUpdates[index] = null;
 				if (cell == null) break;
-				if (cell.FlowRestriction == FluidFlowRestriction.BlockFluids) continue;
 				
 				Vector2Int cellPosition = cell.Position;
 				UpdateFill(cell);
@@ -356,43 +366,53 @@ namespace Tiles.Fluid.Simulation
 
 		private void FluidUpdate(FluidCell cell)
 		{
-			if (cell.FlowRestriction == FluidFlowRestriction.BlockFluids) {
+			if (cell.Liquid < MIN_FILL || !cell.FluidTileItem) {
 				cell.Liquid = 0;
 				return;
 			}
-			if (cell.Liquid == 0)
-				return;
-			if (cell.Liquid < MIN_FILL) {
-				cell.Liquid = 0;
-				return;
-			}
-			// Keep track of how much liquid this cell started off with
+			
 			float startValue = cell.Liquid;
 			float remainingValue = cell.Liquid;
 			float flow = 0;
 			
+			if (!cell.FluidTileItem) return;
 			
-			FallFlowUpdate(cell,FluidFlowDirection.Down,ref remainingValue, ref flow); // TODO falling up 
+			FluidFlowDirection verticalFlowDirection = cell.FluidTileItem.fluidOptions.InvertedGravity 
+				? FluidFlowDirection.Up 
+				: FluidFlowDirection.Down;
+			if (cell.CanFlow(verticalFlowDirection))
+			{
+				FallFlowUpdate(cell,verticalFlowDirection,ref remainingValue, ref flow);
+			}
+			
 			
 			const int HORIZONTAL_DISTANCE = 2;
-			bool left = true;
-			bool right = true;
-			for (int i = 1; i <= HORIZONTAL_DISTANCE; i++)
+			bool left = cell.CanFlow(FluidFlowDirection.Left);
+			bool right = cell.CanFlow(FluidFlowDirection.Right);
+			for (int distance = 1; distance <= HORIZONTAL_DISTANCE; distance++)
 			{
 				if (left)
 				{
-					left = HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow,i);
+					
+					left = HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow,distance);
 				}
 				
 				if (right)
 				{
-					right = HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow,i);
+					right = HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow,distance);
 				}
 				if (!left && !right) break;
 			}
 
+			if (!cell.FluidTileItem) return;
+			FluidFlowDirection riseFlowDirection = cell.FluidTileItem.fluidOptions.InvertedGravity
+				? FluidFlowDirection.Down
+				: FluidFlowDirection.Up;
+			if (cell.CanFlow(riseFlowDirection))
+			{
+				RiseFluidUpdate(cell,riseFlowDirection,ref remainingValue, ref flow);
+			}
 			
-			RiseFluidUpdate(cell,FluidFlowDirection.Up,ref remainingValue, ref flow);
 			
 			if (remainingValue < MIN_FILL) {
 				cell.Diff -= remainingValue;
@@ -408,7 +428,7 @@ namespace Tiles.Fluid.Simulation
 		{
 			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return;
+			if (!CanFlowInto(cell, adjacent, flowDirection,ref remainingValue)) return;
 			
 			flow = CalculateVerticalFlowValue(cell.Liquid, adjacent) - adjacent.Liquid;
 			if (adjacent.Liquid > 0 && flow > MIN_FLOW)
@@ -424,7 +444,7 @@ namespace Tiles.Fluid.Simulation
 		private void UnsettleCell(FluidCell adjacent)
 		{
 			if (adjacent == null || adjacent.QueuedForUpdate) return;
-			FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(adjacent.FluidId);
+			FluidTileItem fluidTileItem = adjacent.FluidTileItem;
 			if (!fluidTileItem) return;
 
 			uint updateTick = (uint)fluidTileItem.fluidOptions.Viscosity + tickArrayCounter;
@@ -464,13 +484,30 @@ namespace Tiles.Fluid.Simulation
 			UnsettleCell(GetFluidCell(cellPosition + Vector2Int.right));
 		}
 
-		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj, ref float remainingFluid)
+		public FluidFlowDirection InvertFlowDirection(FluidFlowDirection flowDirection)
 		{
-			if (adj == null || adj.FlowRestriction == FluidFlowRestriction.BlockFluids) return false;
-			if (adj.FluidId == null || adj.FluidId == fluidCell.FluidId || adj.Liquid < 0.1f) return true;
-			FluidTileItem cellItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
+			switch (flowDirection)
+			{
+				case FluidFlowDirection.Up:
+					return FluidFlowDirection.Down;
+				case FluidFlowDirection.Left:
+					return FluidFlowDirection.Right;
+				case FluidFlowDirection.Right:
+					return FluidFlowDirection.Left;
+				case FluidFlowDirection.Down:
+					return FluidFlowDirection.Up;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(flowDirection), flowDirection, null);
+			}
+		}
+
+		public bool CanFlowInto(FluidCell fluidCell, FluidCell adj, FluidFlowDirection flowDirection, ref float remainingFluid)
+		{
+			if (adj == null || !adj.CanFlow(InvertFlowDirection(flowDirection))) return false;
+			if (!adj.FluidTileItem || adj.FluidTileItem.id == fluidCell.FluidTileItem?.id || adj.Liquid < MIN_FILL) return true;
+			FluidTileItem cellItem = fluidCell.FluidTileItem;
 			if (!cellItem) return false;
-			FluidTileItem adjItem = itemRegistry.GetFluidTileItem(adj.FluidId);
+			FluidTileItem adjItem = adj.FluidTileItem;
 			if (!adjItem) return false;
 			if (cellItem.fluidOptions.CollisionDominance == adjItem.fluidOptions.CollisionDominance) return false;
 			FluidCell dominator = cellItem.fluidOptions.CollisionDominance < adjItem.fluidOptions.CollisionDominance ? adj : fluidCell;
@@ -481,7 +518,7 @@ namespace Tiles.Fluid.Simulation
 			dominator.Diff = 0;
 			dominator.Liquid = 0;
 			remainingFluid = 0;
-			dominator.FluidId = null;
+			dominator.FluidTileItem = null;
 			dominated.Liquid = 0;
 			
 			blockTileMap.placeNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
@@ -501,14 +538,14 @@ namespace Tiles.Fluid.Simulation
 			{
 				adjacent.Diff += flow;
 			}
-			adjacent.FluidId = cell.FluidId;
+			adjacent.FluidTileItem = cell.FluidTileItem;
 		}
 
 		public bool HorizontalFlowUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow, int distance)
 		{
 			if (remainingValue < MIN_FILL) return false;
 			FluidCell adjacent = GetFluidCell(cell.Position + GetVectorDirectionFromFlow(flowDirection) * distance);
-			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return false;
+			if (!CanFlowInto(cell, adjacent,flowDirection, ref remainingValue)) return false;
 			
 			flow = (remainingValue - adjacent.Liquid)/4;
 			
@@ -521,14 +558,14 @@ namespace Tiles.Fluid.Simulation
 				flow = currentMax;
 
 			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,true);
-			return true;
+			return adjacent.CanFlow(flowDirection);
 		}
 
 		public void RiseFluidUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)
 		{
 			if (remainingValue < MIN_FILL) return;
 			FluidCell adjacent = GetFluidCellInDirection(cell, flowDirection);
-			if (!CanFlowInto(cell, adjacent, ref remainingValue)) return;
+			if (!CanFlowInto(cell, adjacent, flowDirection,ref remainingValue)) return;
 			
 			flow = remainingValue - CalculateVerticalFlowValue (remainingValue, adjacent); 
 			if (flow > MIN_FLOW)

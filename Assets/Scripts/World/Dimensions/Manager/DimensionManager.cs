@@ -312,9 +312,21 @@ namespace Dimensions {
                     }
                     Addressables.Release(handle);
                     CaveObject caveObject = null;
+                    SerializedCaveDimData serializedCaveDimData;
+                    try
+                    {
+                        serializedCaveDimData = JsonConvert.DeserializeObject<SerializedCaveDimData>(dimensionData.DimData);
+                    }
+                    catch (JsonReaderException)
+                    {
+                        SetDefaultPlayerSystem(playerScript);
+                        yield break;
+                    }
+                    
+                    string caveId = serializedCaveDimData.CaveId;
                     foreach (CaveObject cave in allCaves)
                     {
-                        if (cave.GetId() == dimensionData.DimData)
+                        if (cave.GetId() == caveId)
                         {
                             caveObject = cave;
                             break;
@@ -327,7 +339,7 @@ namespace Dimensions {
                         yield break;
                     }
                     CaveController caveController = (CaveController)GetDimController(Dimension.Cave);
-                    caveController.setCurrentCave(caveObject);
+                    caveController.setCurrentCave(caveObject,new Vector2(serializedCaveDimData.X,serializedCaveDimData.Y));
                     dimensionOptions = new DimensionOptions(caveObject.CaveOptions);
                     break;
                 case Dimension.CompactMachine:
@@ -335,7 +347,7 @@ namespace Dimensions {
                     {
                         key = JsonConvert.DeserializeObject<CompactMachineTeleportKey>(dimensionData.DimData);
                     }
-                    catch (Exception e) when (e is NullReferenceException or JsonSerializationException)
+                    catch (Exception e) when (e is NullReferenceException or JsonSerializationException or JsonReaderException)
                     {
                         SetDefaultPlayerSystem(playerScript);
                     }
@@ -417,6 +429,7 @@ namespace Dimensions {
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
+            player.PlayerUIContainer.IndicatorManager.caveIndicatorUI.Display(dimension);
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             
             CanvasController.Instance.ClearStack();

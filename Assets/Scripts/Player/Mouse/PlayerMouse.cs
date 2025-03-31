@@ -96,8 +96,12 @@ namespace PlayerModule.Mouse {
             {
                 toolClickHandlerCollection.Terminate(MouseButtonKey.Right);
             }
-            
-            if (!leftClick && !rightClick) return;
+
+            if (!leftClick && !rightClick)
+            {
+                playerRobot.SetIsUsingTool(false);
+                return;
+            }
             
             if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
@@ -203,15 +207,23 @@ namespace PlayerModule.Mouse {
             return closedChunkSystem.GetChunk(chunkPosition);
         }
 
+        private void ToolClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem, MouseButtonKey mouseButtonKey)
+        {
+            var clickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType,mouseButtonKey, playerInventory.CurrentTool);
+            if (clickHandler == null)
+            {
+                return;
+            }
+            clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
+            playerRobot.FaceMousePosition(mousePosition);
+            playerRobot.SetIsUsingTool(true);
+        }
         private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
             if (drop) {
                 return;
             }
-
-            var leftClickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, MouseButtonKey.Left, playerInventory.CurrentTool);
-            leftClickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
-
+            ToolClickUpdate(mousePosition, closedChunkSystem, MouseButtonKey.Left);
         }
         private void RightClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
         {
@@ -220,8 +232,7 @@ namespace PlayerModule.Mouse {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
-            var rightClickHandler = toolClickHandlerCollection.GetOrAddTool(playerInventory.CurrentToolType, MouseButtonKey.Right, playerInventory.CurrentTool);
-            rightClickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
+            ToolClickUpdate(mousePosition, closedChunkSystem, MouseButtonKey.Right);
         }
 
         private ConduitType? GetPortClickType()

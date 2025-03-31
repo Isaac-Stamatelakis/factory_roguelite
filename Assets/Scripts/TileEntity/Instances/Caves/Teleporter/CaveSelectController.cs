@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,20 +34,37 @@ namespace TileEntity.Instances {
         private CaveObject currentCaveObject;
         public CaveObject CurrentCaveObject => currentCaveObject;
         private CaveInstance caveInstance;
-        
+        private Color buttonColor;
+
+        public void Awake()
+        {
+            buttonColor = teleportButton.GetComponent<Image>().color;
+        }
+
         [SerializeField] private CaveTeleporterParticles mParticlePrefab;
+        private Action teleportAction;
+        public void Initialize(Action teleportCallback)
+        {
+            teleportAction = teleportCallback;
+        }
         public void ShowCave(CaveObject caveObject)
         {
             teleportButton.interactable = true;
             mNoSelectText.gameObject.SetActive(false);
             teleportButton.onClick.RemoveAllListeners();
             teleportButton.onClick.AddListener(() => {
-                StartCoroutine(teleportButtonPress());
+                StartCoroutine(TeleportButtonPress());
             });
             teleportButton.gameObject.SetActive(true);
             currentCaveObject = caveObject;
             nameText.text = caveObject.name;
             descriptionText.text = caveObject.Description;
+        }
+
+        public void DisplayButtonStatus(bool ready)
+        {
+            teleportButton.image.color = ready ? buttonColor : Color.red;
+            teleportButton.interactable = ready || DevMode.Instance.NoTeleportCoolDown;
         }
 
         public void DisplayEmpty()
@@ -58,7 +76,7 @@ namespace TileEntity.Instances {
         }
         
 
-        private IEnumerator teleportButtonPress() {
+        private IEnumerator TeleportButtonPress() {
             if (!currentCaveObject) {
                 Debug.LogError("Tried to teleport to null cave");
                 yield break;
@@ -70,6 +88,7 @@ namespace TileEntity.Instances {
             parentCanvas.enabled = false;
             yield return StartCoroutine(caveTeleporterParticles.LoadParticles());
             yield return StartCoroutine(CaveUtils.LoadCave(currentCaveObject,CaveUtils.GenerateAndTeleportToCave));
+            teleportAction.Invoke();
             GameObject.Destroy(caveTeleporterParticles.gameObject);
             parentCanvas.enabled = true;
         }

@@ -18,6 +18,7 @@ using TileEntity.MultiBlock;
 using TileMaps;
 using TileMaps.Layer;
 using UI;
+using UnityEngine.Rendering.Universal;
 
 namespace TileEntity {
     public static class TileEntityUtils {
@@ -372,6 +373,23 @@ namespace TileEntity {
     
             return result;
         }
-        
+
+        public static GameObject SpawnLightObject(Color color, float intensity, float radius, float falloff, Vector2 position, Transform container)
+        {
+            var lightObject = new GameObject
+            {
+                name = "Torch[" + position.x + "," + position.y + "]"
+            };
+            Light2D light = lightObject.AddComponent<Light2D>();
+            light.lightType = Light2D.LightType.Point;
+            light.intensity = intensity;
+            light.color = color;
+            light.overlapOperation = Light2D.OverlapOperation.AlphaBlend;
+            light.pointLightOuterRadius = radius;
+            light.falloffIntensity = falloff;
+            lightObject.transform.position = position;
+            lightObject.transform.SetParent(container,false);
+            return lightObject;
+        }
     }
 }

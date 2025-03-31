@@ -128,13 +128,14 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (!Input.GetKey(KeyCode.LeftShift)) return false;
             
             if (ReferenceEquals(inventoryUI.Connection, null)) return false;
+            ItemSlot transferItem = inventory[index];
+            if (!inventoryUI.Connection.ValidateInput(transferItem)) return false;
             var connectionInventory = inventoryUI.Connection.GetInventory();
-            if (ItemSlotUtils.CanInsertIntoInventory(connectionInventory, inventory[index], inventoryUI.Connection.MaxSize))
-            {
-                ItemSlotUtils.InsertIntoInventory(connectionInventory, inventory[index], inventoryUI.MaxSize);
-                inventoryUI.Connection.RefreshSlots();
-                inventoryUI.Connection.CallListeners(0);
-            }
+
+            if (!ItemSlotUtils.CanInsertIntoInventory(connectionInventory, transferItem, inventoryUI.Connection.MaxSize)) return false;
+            ItemSlotUtils.InsertIntoInventory(connectionInventory, transferItem, inventoryUI.MaxSize);
+            inventoryUI.Connection.RefreshSlots();
+            inventoryUI.Connection.CallListeners(0);
 
             return true;
             

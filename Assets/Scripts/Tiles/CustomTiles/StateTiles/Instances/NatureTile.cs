@@ -25,13 +25,13 @@ namespace Tiles {
         {
             switch (state)
             {
-                case 0:
+                case (int)HammerTileState.Solid:
                     return baseTile;
-                case 1:
+                case (int)HammerTileState.Slab:
                     return cleanSlab;
-                case 2:
+                case (int)HammerTileState.Slant:
                     return cleanSlant;
-                case 3:
+                case (int)HammerTileState.Stair:
                     return stairs;
             }
             int tempState = state-4;
@@ -42,6 +42,19 @@ namespace Tiles {
             if (tempState < natureSlabs.Length) {
                 return natureSlabs[tempState];
             }
+            return null;
+        }
+
+        public override HammerTileState? GetHammerTileState(int state)
+        {
+            if (state < 4)
+            {
+                return (HammerTileState)state;
+            }
+            state -= 4;
+            if (state < natureSlants.Length) return HammerTileState.Slant;
+            state -= natureSlabs.Length;
+            if (state < natureSlabs.Length) return HammerTileState.Slab;
             return null;
         }
         

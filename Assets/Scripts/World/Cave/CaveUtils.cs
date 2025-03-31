@@ -156,7 +156,7 @@ namespace WorldModule.Caves {
             Vector2Int bottomLeftCorner = new Vector2Int(coveredArea.X.LowerBound,coveredArea.Y.LowerBound)*Global.CHUNK_SIZE;
             CaveSpawnPositionSearcher caveSpawnPositionSearcher = new CaveSpawnPositionSearcher(worldTileData,bottomLeftCorner,Vector2Int.zero,65536);
             Vector2Int spawnPosition = caveSpawnPositionSearcher.search();
-            worldTileData.baseData.ids[spawnPosition.x-bottomLeftCorner.x, spawnPosition.y-bottomLeftCorner.y] = "wall_torch"; // TODO replace this with something more thematic
+            worldTileData.baseData.ids[spawnPosition.x-bottomLeftCorner.x, spawnPosition.y-bottomLeftCorner.y] = "return_portal";
             
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -177,7 +177,7 @@ namespace WorldModule.Caves {
             playerScript.PlayerStatisticCollection.DiscreteValues[PlayerStatistic.Caves_Explored]++;
             DimensionManager dimensionManager = DimensionManager.Instance;
             CaveController caveController = (CaveController)dimensionManager.GetDimController(Dimension.Cave);
-            caveController.setCurrentCave(caveInstance.CaveObject);
+            caveController.setCurrentCave(caveInstance.CaveObject,worldSpawnPosition);
 
             CaveOptions caveOptions = caveInstance.CaveObject.CaveOptions;
 

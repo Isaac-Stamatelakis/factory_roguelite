@@ -1,5 +1,6 @@
 
 using System;
+using Dimensions;
 using Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,7 @@ namespace UI.Indicators
         public TileRotationIndicatorUI tileRotationIndicatorUI;
         public TileStateIndicatorUI tileStateIndicatorUI;
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
+        public CaveIndicatorUI caveIndicatorUI;
 
         public void Start()
         {
@@ -24,6 +26,7 @@ namespace UI.Indicators
             tileRotationIndicatorUI = GetComponentInChildren<TileRotationIndicatorUI>();
             tileStateIndicatorUI = GetComponentInChildren<TileStateIndicatorUI>();
             tilePreviewerIndicatorUI = GetComponentInChildren<TileHighligherIndicatorUI>();
+            caveIndicatorUI = GetComponentInChildren<CaveIndicatorUI>();
         }
 
         public void Initialize(PlayerScript playerScript)
@@ -34,6 +37,7 @@ namespace UI.Indicators
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
             tilePreviewerIndicatorUI.Display(playerScript);
+            caveIndicatorUI.Display((Dimension)DimensionManager.Instance.GetPlayerDimension());
         }
 
         public void SetColor(Color color)

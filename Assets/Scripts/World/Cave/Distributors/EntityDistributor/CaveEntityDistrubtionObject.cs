@@ -50,7 +50,7 @@ namespace WorldModule.Caves {
                 int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);
                 MobSpawnCondition spawnCondition = mobEntityPrefab.MobSpawnCondition;
                 while (amount > 0) {
-                    int spawnAttempts = 1000;
+                    int spawnAttempts = 64;
                     while (spawnAttempts > 0) {
                         int ranX = Random.Range(0,width-spriteSize.x);
                         int ranY = Random.Range(0,height-spriteSize.y);
@@ -96,9 +96,32 @@ namespace WorldModule.Caves {
                 }
             }
 
+            bool underWater = IsUnderWater(worldData, tilePosition, spriteSize);
+            
+            if (underWater)
+            {
+                return mobSpawnCondition == MobSpawnCondition.InWater;
+            }
+            
+            if (mobSpawnCondition == MobSpawnCondition.InWater) return false;
+                
             if (mobSpawnCondition == MobSpawnCondition.InAir) return true;
             return IsOnGround(worldData,tilePosition,spriteSize);
 
+        }
+
+        private bool IsUnderWater(SeralizedWorldData worldData, Vector2Int tilePosition, Vector2Int spriteSize)
+        {
+            for (int x = 0; x < spriteSize.x; x++)
+            {
+                for (int y = 0; y < spriteSize.y; y++)
+                {
+                    Vector2Int position = new Vector2Int(tilePosition.x + x, tilePosition.y + y);
+                    const float MAX_FILL = 1f;
+                    if (!Mathf.Approximately(worldData.fluidData.fill[position.x, position.y], MAX_FILL)) return false;
+                }
+            }
+            return true;
         }
 
         private bool IsOnGround(SeralizedWorldData worldData, Vector2Int tilePosition, Vector2Int spriteSize)

@@ -51,12 +51,7 @@ namespace Player {
         HeadInFluid,
         FeetInFluid,
     }
-
-    public enum ToolActionDirection
-    {
-        Left,
-        Right
-    }
+    
     public class PlayerRobot : MonoBehaviour
     {
         private enum RobotParticleSystems
@@ -67,6 +62,7 @@ namespace Player {
         }
         private static readonly int Walk = Animator.StringToHash("IsWalking");
         private static readonly int Air = Animator.StringToHash("InAir");
+        private static readonly int Action = Animator.StringToHash("Action");
 
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -106,6 +102,7 @@ namespace Player {
         private bool recalling;
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
+        private bool isUsingTool;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
@@ -123,7 +120,6 @@ namespace Player {
         private FluidCollisionInformation fluidCollisionInformation = new();
 
         public const float BASE_MOVE_SPEED = 5f;
-        private ToolActionDirection toolActionDirection;
         public PlayerRobotLaserGunController gunController;
         
         void Start() {
@@ -177,6 +173,19 @@ namespace Player {
             MiscKeyListens();
             timeSinceDamaged += Time.deltaTime;
         }
+
+        public void SetIsUsingTool(bool value)
+        {
+            isUsingTool = value;
+            animator.SetBool(Action,value);
+            gunController.gameObject.SetActive(value);
+        }
+
+        public Vector3 GetToolLocation()
+        {
+            return gunController.transform.position;
+        }
+        
 
         private void FluidDamageUpdate()
         {
@@ -237,21 +246,13 @@ namespace Player {
             }
         }
 
-        private void SetWalkAnimation()
+        
+        public void FaceMousePosition(Vector2 mousePosition)
         {
-            switch (toolActionDirection)
-            {
-                case ToolActionDirection.Left:
-                    animator.Play("WalkLeftAction");
-                    break;
-                case ToolActionDirection.Right:
-                    animator.Play("WalkRightAction");
-                    break;
-                default:
-                    animator.Play("Walk");
-                    break;
-            }
+            Vector2 dif = (Vector2)transform.position - mousePosition;
+            spriteRenderer.flipX = dif.x > 0;
         }
+        
 
         public void AddFluidCollisionData(CollisionState collisionState, FluidTileItem fluidTileItem)
         {
@@ -325,6 +326,7 @@ namespace Player {
             }
             
         }
+        
 
         private IEnumerator RecallCoroutine()
         {
@@ -471,14 +473,14 @@ namespace Player {
             {
                 if (!moveUpdate)
                 {
-                    animator.Play("Idle");
+                    animator.Play(isUsingTool ? "IdleAction" : "Idle");
                     animator.speed = 1;
                 }
                 else
                 {
                     const float ANIMATOR_SPEED_INCREASE = 0.25f;
                     animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
-                    SetWalkAnimation();
+                    animator.Play(isUsingTool ? "WalkAction" : "Walk");
                 }
             }
 
@@ -802,7 +804,7 @@ namespace Player {
             }
             else
             {
-                if (coyoteFrames < 0) animator.Play("Air");
+                if (coyoteFrames < 0) animator.Play(isUsingTool ? "AirAction" : "Air");
                 
                 if ((DevMode.Instance.flight || RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.Flight) > 0) && playerScript.PlayerStatisticCollection != null)
                 {
