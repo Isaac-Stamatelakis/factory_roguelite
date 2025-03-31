@@ -24,10 +24,6 @@ namespace Fluids {
         private TilemapCollider2D mapCollider2D;
         private int flashCounter = 0;
         private int ticksToTryFlash = 25;
-        public void Awake()
-        {
-            itemRegistry = ItemRegistry.GetInstance();
-        }
 
         private ParticleSystem splashParticles;
         private ParticleSystem fluidParticles;
@@ -54,10 +50,10 @@ namespace Fluids {
             // why can't we just disable this unity. God forbid some poor soul manages to break this many blocks. RIP PC. Isaac -2025 'yep'
             unlitCollider2D.maximumTileChangeCount=int.MaxValue; 
         }
-        private ItemRegistry itemRegistry;
 
         private FluidTileMapSimulator simulator;
         public FluidTileMapSimulator Simulator => simulator;
+        const int FLOW_ALL = 15;
         public const float MAX_FILL = 1f;
         public override bool HitTile(Vector2 position, bool dropItem)
         {
@@ -74,7 +70,7 @@ namespace Fluids {
 
         public FluidTileItem GetFluidTile(Vector2Int position)
         {
-            return ItemRegistry.GetInstance().GetFluidTileItem(simulator.GetFluidCell(position)?.FluidId);
+            return simulator.GetFluidCell(position).FluidTileItem;
         }
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
@@ -92,13 +88,13 @@ namespace Fluids {
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
-            return itemRegistry.GetFluidTileItem(fluidCell?.FluidId);
+            return fluidCell.FluidTileItem;
         }
         public float GetFill(Vector2 worldPosition)
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
-            if (fluidCell == null || fluidCell.FluidId == null) return 0;
+            if (fluidCell == null || !fluidCell.FluidTileItem) return 0;
             return fluidCell.Liquid;
         }
         public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
@@ -171,6 +167,7 @@ namespace Fluids {
 
         public void DisplayTile(int x, int y, FluidTileItem fluidTileItem, float fill)
         {
+            if (!fluidTileItem) return;
             bool lit = fluidTileItem.fluidOptions.Lit;
             Tilemap map = lit ? unlitTileMap : tilemap;
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
@@ -184,21 +181,10 @@ namespace Fluids {
             map.SetColor(vector3Int,Color.white*0.9f);
         }
         
-        public void DisplayTile(int x, int y, string id, float fill)
-        {
-            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(id);
-            if (!fluidTileItem)
-            {
-                tilemap.SetTile(new Vector3Int(x,y,0),null);
-                unlitTileMap.SetTile(new Vector3Int(x,y,0),null);
-                return;
-            }
-            DisplayTile(x,y,fluidTileItem, fill);
-        }
         
         public void DisplayTile(FluidCell fluidCell)
         {
-            var fluidTileItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
+            var fluidTileItem = fluidCell.FluidTileItem;
             if (!fluidTileItem)
             {
                 tilemap.SetTile(new Vector3Int(fluidCell.Position.x,fluidCell.Position.y,0),null);
@@ -217,7 +203,7 @@ namespace Fluids {
             partitionFluidData.fill[positionInPartition.x,positionInPartition.y] = fill;
             Vector2Int cellPosition = partition.GetRealPosition() * Global.CHUNK_PARTITION_SIZE + positionInPartition;
             
-            FluidCell fluidCell = new FluidCell(item?.id,fill,FluidFlowRestriction.NoRestriction,cellPosition,true);
+            FluidCell fluidCell = new FluidCell(item,fill,FLOW_ALL,cellPosition,true);
             simulator.AddFluidCell(fluidCell,true);
         }
 
@@ -237,7 +223,7 @@ namespace Fluids {
             }
             else
             {
-                FluidCell fluidCell = new FluidCell(null, 0, FluidFlowRestriction.NoRestriction, position,true);
+                FluidCell fluidCell = new FluidCell(null, 0, FLOW_ALL, position,true);
                 simulator.AddFluidCell(fluidCell,true);
             }
             
@@ -303,12 +289,9 @@ namespace Fluids {
             if (!map.HasTile(randomCellPosition)) return;
             
             FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)randomCellPosition);
-            if (fluidCell == null || fluidCell.Liquid < 0.95f || fluidCell.FluidId == null) return;
+            if (fluidCell == null || fluidCell.Liquid < 0.95f || !fluidCell.FluidTileItem) return;
             
-            FluidTileItem fluidTileItem = itemRegistry.GetFluidTileItem(fluidCell.FluidId);
-            if (!fluidTileItem) return;
-            
-            PlayParticles(fluidParticles, tileMapPositionInfo.WorldPosition, fluidTileItem);
+            PlayParticles(fluidParticles, tileMapPositionInfo.WorldPosition, fluidCell.FluidTileItem);
         }
         
 

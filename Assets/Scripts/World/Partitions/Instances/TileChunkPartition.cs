@@ -270,7 +270,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     
                     string fluidId = fluidIds[x,y];
                     float fillValue = fill[x,y];
-                    chunkFluidCells[px + x][py + y] = GetFluidCell(tileItem, new Vector2Int(x,y), realPosition, fluidId, fillValue,false);
+                    chunkFluidCells[px + x][py + y] = GetFluidCell(tileItem, new Vector2Int(x,y), realPosition, itemRegistry.GetFluidTileItem(fluidId), fillValue,false);
                 }
             }
         }
@@ -289,26 +289,20 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     
             string fluidId = fluidIds[x,y];
             float fillValue = fill[x,y];
-            return GetFluidCell(tileItem, positionInPartition, realPosition, fluidId, fillValue,displayable);
+            FluidTileItem fluidTileItem = ItemRegistry.GetInstance().GetFluidTileItem(fluidId);
+            return GetFluidCell(tileItem, positionInPartition, realPosition, fluidTileItem, fillValue,displayable);
             
         }
 
-        private FluidCell GetFluidCell(TileItem tileItem, Vector2Int positionInPartition, Vector2Int partitionWorldPosition, string fluidId, float fillValue, bool displayable)
+        private FluidCell GetFluidCell(TileItem tileItem, Vector2Int positionInPartition, Vector2Int partitionWorldPosition, FluidTileItem fluidTileItem, float fillValue, bool displayable)
         {
-            FluidFlowRestriction flowRestriction = GetFlowRestriction(tileItem, positionInPartition);
-            return flowRestriction == FluidFlowRestriction.BlockFluids 
+            int bitMap = HammerTile.GetFlowBitMap(tileItem, GetBaseData(positionInPartition));
+            const int BLOCK_FLOW = 0;
+            return bitMap == BLOCK_FLOW 
                 ? null 
-                : new FluidCell(fluidId, fillValue, flowRestriction, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition,displayable);
+                : new FluidCell(fluidTileItem, fillValue, bitMap, partitionWorldPosition * Global.CHUNK_PARTITION_SIZE + positionInPartition,displayable);
         }
-
-        private FluidFlowRestriction GetFlowRestriction(TileItem tileItem, Vector2Int positionInPartition)
-        {
-            if (!tileItem) return FluidFlowRestriction.NoRestriction;
-            if (tileItem.tileType != TileType.Block) return FluidFlowRestriction.NoRestriction;
-            if (tileItem.tile is not HammerTile) return FluidFlowRestriction.BlockFluids;
-            int state = data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y]?.state ?? 0;
-            return state == 0 ? FluidFlowRestriction.BlockFluids : FluidFlowRestriction.WaterLog;
-        }
+        
         
 
         public override bool GetFarLoaded()

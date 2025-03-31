@@ -32,9 +32,7 @@ namespace TileEntity.Instances {
             light.falloffIntensity=TileEntityObject.falloff;
             lightObject.transform.position = (Vector2) positionInChunk/2 + TileEntityObject.positionInTile;
             lightObject.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
-            
         }
-
         public void Unload()
         {
             if (ReferenceEquals(lightObject, null)) return;

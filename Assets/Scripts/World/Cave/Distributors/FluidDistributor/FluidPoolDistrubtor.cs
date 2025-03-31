@@ -85,6 +85,7 @@ namespace World.Cave.Distributors.FluidDistributor
                 string baseId = worldData.baseData.ids[x, y];
                 if (baseId == null) return true;
                 TileItem tileItem = itemRegistry.GetTileItem(baseId);
+                if (tileItem.tileType != TileType.Block) return true;
                 if (tileItem.tile is not HammerTile) return false;
                 BaseTileData baseTileData = worldData.baseData.sTileOptions[x, y];
                 if (baseTileData == null) return true;
