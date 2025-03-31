@@ -182,14 +182,13 @@ namespace Chunks.Systems {
             partitionsToLoad.Clear();
             partitionsToUnload.Clear();
             partitionsToFarLoad.Clear();
-            
-            for (int x = - Global.CHUNK_LOAD_RANGE; x <=  Global.CHUNK_LOAD_RANGE; x++) {
-                for (int y = - Global.CHUNK_LOAD_RANGE; y <=  Global.CHUNK_LOAD_RANGE; y++) {
+            const int CHUNK_SEARCH_RANGE = Global.CHUNK_LOAD_RANGE + 1;
+            for (int x = - CHUNK_SEARCH_RANGE; x <=  CHUNK_SEARCH_RANGE; x++) {
+                for (int y = - CHUNK_SEARCH_RANGE; y <=  CHUNK_SEARCH_RANGE; y++) {
                     Vector2Int chunkPosition = playerChunkPosition + new Vector2Int(x,y); 
                     if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) {
                         continue;
                     }
-
                     chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
                     chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
                     chunk.GetUnFarLoadedParititionsCloseTo(
@@ -295,10 +294,11 @@ namespace Chunks.Systems {
         }
 
         public virtual IEnumerator LoadChunkPartition(IChunkPartition chunkPartition, Direction direction) {
+            if (chunkPartition.IsLoading()) yield break;
             loadedPartitionBoundary.PartitionLoaded(chunkPartition.GetRealPosition());
             fluidWorldTileMap?.Simulator.SetPartitionDisplayStatus(chunkPartition.GetRealPosition(),true);
             yield return chunkPartition.Load(tileGridMaps,direction);
-            chunkPartition.SetTileLoaded(true);
+            chunkPartition.SetIsLoading(false);
         }
 
         public void CacheChunk(Vector2Int chunkPosition) {

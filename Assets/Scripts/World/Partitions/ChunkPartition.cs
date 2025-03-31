@@ -124,7 +124,6 @@ namespace Chunks.Partitions {
                     }
                     break;
             }
-            loading = false;
             SetTileLoaded(true);
         }
 
@@ -211,6 +210,16 @@ namespace Chunks.Partitions {
         public bool GetLoaded()
         {
             return loaded;
+        }
+
+        public bool IsLoading()
+        {
+            return loading;
+        }
+
+        public void SetIsLoading(bool value)
+        {
+            loading = value;
         }
 
         public void SetTileLoaded(bool val)

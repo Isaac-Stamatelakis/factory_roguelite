@@ -88,8 +88,8 @@ namespace Tiles.Fluid.Simulation
 	    private FluidCell[] currentUpdates;
 	    
 	    // Note: These values take up this is only 160kB
-	    const int MAX_UPDATES_PER_SECOND = 1024;
-	    private const int STACKS = 20;
+	    const int MAX_UPDATES_PER_SECOND = 2048;
+	    private const int STACKS = 15;
 	    const float MAX_FILL = 1.0f;
 	    const float MIN_FILL = 0.005f;
 	    
@@ -231,7 +231,6 @@ namespace Tiles.Fluid.Simulation
 	        FluidCell current = fluidCells[positionInChunk.x][positionInChunk.y];
 	        if (current == null || replace)
 	        {
-		        Debug.Log("Overwrote cell");
 		        fluidCells[positionInChunk.x][positionInChunk.y] = fluidCell;
 	        }
 	        

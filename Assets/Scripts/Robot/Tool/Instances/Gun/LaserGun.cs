@@ -179,17 +179,22 @@ namespace Robot.Tool.Instances
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            const float MAX_FIRE_RATE_UPGRADES = 10;
-            const float BASE_FIRE_RATE = 0.33f;
-            const float MIN_FIRE_RATE = 0.05f;
-            float fireRateUpgrades = RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate);
-            if (fireRateUpgrades > MAX_FIRE_RATE_UPGRADES) fireRateUpgrades = MAX_FIRE_RATE_UPGRADES;
-            float fireRate = Mathf.Lerp(BASE_FIRE_RATE, MIN_FIRE_RATE, fireRateUpgrades/MAX_FIRE_RATE_UPGRADES);
+            
+            float fireRate = GetFireRate(RobotUpgradeUtils.GetContinuousValue(statLoadOutCollection, (int)LaserGunUpgrade.FireRate));
             const float EXPLOSION_RATE_REDUCTION = 4;
             if (mouseButtonKey == MouseButtonKey.Right) fireRate *= EXPLOSION_RATE_REDUCTION;
             if (time < fireRate) return false;
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
+        }
+
+        public static float GetFireRate(float upgrades)
+        {
+            const float MAX_FIRE_RATE_UPGRADES = 10;
+            const float BASE_FIRE_RATE = 0.33f;
+            const float MIN_FIRE_RATE = 0.05f;
+            if (upgrades > MAX_FIRE_RATE_UPGRADES) upgrades = MAX_FIRE_RATE_UPGRADES;
+            return Mathf.Lerp(BASE_FIRE_RATE, MIN_FIRE_RATE, upgrades/MAX_FIRE_RATE_UPGRADES);
         }
     }
 }

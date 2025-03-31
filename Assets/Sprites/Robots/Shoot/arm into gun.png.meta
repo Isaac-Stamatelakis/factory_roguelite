@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b47ac28628c65c24284605d05be0bf4d
+guid: 5dd8f49217d85ef479d19e793d7928b6
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -70,7 +70,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -117,139 +117,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gun_animation_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 64
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 12e4deaf9961ac849847658087706c4a
-      internalID: 43365681
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_1
-      rect:
-        serializedVersion: 2
-        x: 25
-        y: 64
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: eb439610173c2f94d816521531e92c9c
-      internalID: -1065929283
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_2
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 64
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ffcb104a4c2189b4c97f0ea073e7db79
-      internalID: 1043876828
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_3
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 32
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 665f74a5d8ca1454c8f74fcc8ee50ea2
-      internalID: -743776601
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_4
-      rect:
-        serializedVersion: 2
-        x: 25
-        y: 32
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 82312795df27dd4408de07e4debec021
-      internalID: -168753712
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_5
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 32
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0ec087d36280e7049864ea552fdfb20b
-      internalID: 1025290793
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gun_animation_6
+      name: arm into gun_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -257,20 +131,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f730241cd5f432540b5734300efb1dff
-      internalID: 827366862
+      spriteID: 381f2bdf8b7468b4aaa4384b91d6d841
+      internalID: -230915460
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gun_animation_7
+      name: arm into gun_1
       rect:
         serializedVersion: 2
-        x: 25
+        x: 18
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -278,20 +152,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0b908ce29d318fe4bb50aaa7e588eb7a
-      internalID: -319473912
+      spriteID: 7600baf184b388741ad0baa48c5477f7
+      internalID: -1178712522
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gun_animation_8
+      name: arm into gun_2
       rect:
         serializedVersion: 2
-        x: 50
+        x: 36
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -299,8 +173,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d6c5698e0b573f44b9efe93072dafa21
-      internalID: 901623361
+      spriteID: 2c0c59704d6f04240b16c4283ea34e8e
+      internalID: -690197075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: arm into gun_3
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 0
+        width: 18
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3539a8b05566d4e4288b5254427e84ba
+      internalID: 778158268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: arm into gun_4
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 0
+        width: 18
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d846f2b8e12898d4f88bdbefdcf0921a
+      internalID: 181814201
       vertices: []
       indices: 
       edges: []
@@ -316,15 +232,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      gun_animation_0: 43365681
-      gun_animation_1: -1065929283
-      gun_animation_2: 1043876828
-      gun_animation_3: -743776601
-      gun_animation_4: -168753712
-      gun_animation_5: 1025290793
-      gun_animation_6: 827366862
-      gun_animation_7: -319473912
-      gun_animation_8: 901623361
+      arm into gun_0: -230915460
+      arm into gun_1: -1178712522
+      arm into gun_2: -690197075
+      arm into gun_3: 778158268
+      arm into gun_4: 181814201
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

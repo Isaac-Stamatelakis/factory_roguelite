@@ -14,6 +14,8 @@ namespace Chunks.Partitions {
         public SeralizedWorldData GetData();
         public UnityEngine.Vector2Int GetRealPosition();
         public bool GetLoaded();
+        public bool IsLoading();
+        public void SetIsLoading(bool value);
         public void SetTileLoaded(bool val);
         public float DistanceFrom(UnityEngine.Vector2Int target);
         public bool GetScheduledForUnloading();

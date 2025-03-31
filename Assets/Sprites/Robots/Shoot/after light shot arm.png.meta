@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 144033a15211e2d4c836e30d6ec39d18
+guid: 3fa933adf408f76498f764705a2255b7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,13 +117,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_0
+      name: after light shot arm_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +131,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c79bacc8ab5eb94b8e3d0955762f07b
-      internalID: 1126578135
+      spriteID: 746058d6c573eb64a861498c3655efe1
+      internalID: 2116950718
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_1
+      name: after light shot arm_1
       rect:
         serializedVersion: 2
-        x: 25
+        x: 18
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,20 +152,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c8371ec0b4ecb12438ae4514629ed80c
-      internalID: 503613038
+      spriteID: c4470893ff02bf7449b3225d8dab8ef2
+      internalID: 1000349167
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_2
+      name: after light shot arm_2
       rect:
         serializedVersion: 2
-        x: 50
+        x: 36
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -173,20 +173,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fb14c65836d1ce24298ebc1fd2ab6522
-      internalID: 952844215
+      spriteID: d5453dff5271c5043bdc207a739fb649
+      internalID: 1620465124
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_3
+      name: after light shot arm_3
       rect:
         serializedVersion: 2
-        x: 75
+        x: 54
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,20 +194,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6015e7db40838ee46aef4a4d1508dc72
-      internalID: -1489114811
+      spriteID: f3ba18882654be74ab0361c5a030a3e9
+      internalID: -1439637263
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_4
+      name: after light shot arm_4
       rect:
         serializedVersion: 2
-        x: 100
+        x: 72
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -215,20 +215,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 959e50db4433ef348bd9ef4d63a45e01
-      internalID: -738180025
+      spriteID: 780029a5a6dc6a642bd5961391f81a9e
+      internalID: -1809788006
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_5
+      name: after light shot arm_5
       rect:
         serializedVersion: 2
-        x: 125
+        x: 90
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -236,20 +236,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: db29397796a5f26478cfb8b21bde82c1
-      internalID: 1775993594
+      spriteID: 4e15022d16865dc40ada628ee3f874df
+      internalID: -2081608029
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Happy_arm_gun_animation_6
+      name: after light shot arm_6
       rect:
         serializedVersion: 2
-        x: 150
+        x: 108
         y: 0
-        width: 25
-        height: 32
+        width: 18
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -257,50 +257,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 59c3867c2db2b7d40b260a825171a72e
-      internalID: 408082046
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_animation_7
-      rect:
-        serializedVersion: 2
-        x: 175
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 40fd439bf8762b243b8c0c081b82617c
-      internalID: -1334865811
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Happy_arm_gun_animation_8
-      rect:
-        serializedVersion: 2
-        x: 200
-        y: 0
-        width: 25
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 44398d4c871283848a08cfd268965d79
-      internalID: -1475163614
+      spriteID: 14724de991b6e384fb10f745931a4b55
+      internalID: -121477498
       vertices: []
       indices: 
       edges: []
@@ -316,15 +274,13 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Happy_arm_gun_animation_0: 1126578135
-      Happy_arm_gun_animation_1: 503613038
-      Happy_arm_gun_animation_2: 952844215
-      Happy_arm_gun_animation_3: -1489114811
-      Happy_arm_gun_animation_4: -738180025
-      Happy_arm_gun_animation_5: 1775993594
-      Happy_arm_gun_animation_6: 408082046
-      Happy_arm_gun_animation_7: -1334865811
-      Happy_arm_gun_animation_8: -1475163614
+      after light shot arm_0: 2116950718
+      after light shot arm_1: 1000349167
+      after light shot arm_2: 1620465124
+      after light shot arm_3: -1439637263
+      after light shot arm_4: -1809788006
+      after light shot arm_5: -2081608029
+      after light shot arm_6: -121477498
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

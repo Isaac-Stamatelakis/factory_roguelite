@@ -35,7 +35,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
             int loads = 0;
             for (int i = data.entityData.Count - 1; i >= 0; i--)
             {
-                if (i >= data.entityData.Count) yield break;
+                //if (i >= data.entityData.Count) yield break;
                 SeralizedEntityData entityData = data.entityData[i];
                 Vector2 entityPosition = new Vector2(entityData.x, entityData.y);
                 switch (entityData.type)
@@ -51,11 +51,8 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                if (!loaded) yield break;
-                if (i < data.entityData.Count)
-                {
-                    data.entityData.RemoveAt(i);
-                }
+                //if (!loaded) yield break;
+                data.entityData.RemoveAt(i);
                 loads++;
                 if (loads >= ENTITY_LOAD_PER_UPDATE)
                 {
