@@ -61,8 +61,6 @@ namespace UI.Indicators
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            return null;
         }
         
         public void OnPointerEnter(PointerEventData eventData)
