@@ -22,6 +22,7 @@ namespace TileEntity.Instances {
         public Button buttonPrefab;
         private List<CaveObject> allCaves;
         private CaveTeleporterInstance caveTeleporterInstance;
+        public TextMeshProUGUI mStatusText;
         
         private void ButtonPress(CaveObject caveObject) {
             caveSelectController.ShowCave(caveObject);
@@ -38,6 +39,11 @@ namespace TileEntity.Instances {
             mInventoryUI.AddListener(this);
             GlobalHelper.DeleteAllChildren(mButtonList.transform);
             StartCoroutine(LoadCaves());
+            caveSelectController.Initialize(() =>
+            {
+                caveTeleporterInstance.Delay = CaveTeleporterInstance.TELEPORT_DELAY;
+            });
+            DisplayStatus();
         }
 
         public IEnumerator LoadCaves() {
@@ -52,6 +58,26 @@ namespace TileEntity.Instances {
 
             Addressables.Release(handle);
             Display();
+        }
+
+        public void FixedUpdate()
+        {
+            DisplayStatus();
+        }
+
+        private void DisplayStatus()
+        {
+            bool ready = caveTeleporterInstance.Delay <= 0;
+            const string STATUS_PREFIX = "Status: ";
+            if (ready)
+            {
+                mStatusText.text = $"{STATUS_PREFIX}Ready To Teleport";
+            }
+            else
+            {
+                mStatusText.text = $"{STATUS_PREFIX}Recharging {caveTeleporterInstance.Delay:F1}";
+            }
+            caveSelectController.DisplayButtonStatus(ready);
         }
 
 

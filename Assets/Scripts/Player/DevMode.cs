@@ -12,8 +12,7 @@ public class DevMode : MonoBehaviour
     {
         instance = this;
     }
-
-    [SerializeField] public bool noClip;
+    
     [SerializeField] public bool flight;
     [SerializeField] public bool instantBreak;
     [SerializeField] public bool noBreakCooldown;
@@ -21,10 +20,11 @@ public class DevMode : MonoBehaviour
     [SerializeField] public bool noPlaceCost;
     [SerializeField] public bool noPlaceLimit;
     public bool NoEnergyCost;
-    public bool EnableGameStages = true;
+    public bool EnableGameStages;
     public float FlightSpeed = 5f;
     public bool NoReachLimit;
-    public bool LightOn = true;
+    public bool LightOn;
+    public bool NoTeleportCoolDown;
 
 
 }
