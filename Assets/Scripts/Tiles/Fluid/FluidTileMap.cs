@@ -70,7 +70,7 @@ namespace Fluids {
 
         public FluidTileItem GetFluidTile(Vector2Int position)
         {
-            return simulator.GetFluidCell(position).FluidTileItem;
+            return simulator.GetFluidCell(position)?.FluidTileItem;
         }
 
         public override bool BreakAndDropTile(Vector2Int position, bool dropItem)
