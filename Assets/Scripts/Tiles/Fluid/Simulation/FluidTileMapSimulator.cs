@@ -40,7 +40,6 @@ namespace Tiles.Fluid.Simulation
 			this.flowBitMap = flowBitMap;
 			Position = position;
 			Displayable = displayable;
-	
 		}
 	}
 	/*
@@ -390,16 +389,17 @@ namespace Tiles.Fluid.Simulation
 			const int HORIZONTAL_DISTANCE = 2;
 			bool left = cell.CanFlow(FluidFlowDirection.Left);
 			bool right = cell.CanFlow(FluidFlowDirection.Right);
-			for (int i = 1; i <= HORIZONTAL_DISTANCE; i++)
+			for (int distance = 1; distance <= HORIZONTAL_DISTANCE; distance++)
 			{
 				if (left)
 				{
-					left = HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow,i);
+					
+					left = HorizontalFlowUpdate(cell,FluidFlowDirection.Left,ref remainingValue, ref flow,distance);
 				}
 				
 				if (right)
 				{
-					right = HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow,i);
+					right = HorizontalFlowUpdate(cell,FluidFlowDirection.Right,ref remainingValue, ref flow,distance);
 				}
 				if (!left && !right) break;
 			}
@@ -558,7 +558,7 @@ namespace Tiles.Fluid.Simulation
 				flow = currentMax;
 
 			UpdateFlowValues(ref remainingValue, flow, cell, adjacent,true);
-			return true;
+			return adjacent.CanFlow(flowDirection);
 		}
 
 		public void RiseFluidUpdate(FluidCell cell, FluidFlowDirection flowDirection, ref float remainingValue, ref float flow)

@@ -50,7 +50,7 @@ namespace World.Dimensions.Serialization
                     return null;
                 case Dimension.Cave:
                     CaveController caveController = (CaveController)dimensionManager.GetDimController(Dimension.Cave);
-                    return caveController.GetCurrentCaveId();
+                    return JsonConvert.SerializeObject(caveController.GetSerializedCaveDimData());
                 case Dimension.CompactMachine:
                     CompactMachineDimController compactMachineDimController = (CompactMachineDimController)dimensionManager.GetDimController(Dimension.CompactMachine);
                     List<Vector2Int> currentPath = compactMachineDimController.CurrentSystemPath;
