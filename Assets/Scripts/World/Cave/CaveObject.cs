@@ -32,7 +32,7 @@ namespace WorldModule.Caves {
         public List<AssetReference> songs;
         public List<CaveDecoration> CaveDecorations;
         public List<FluidAreaDistribution> FluidAreaDistributions;
-        
+        public List<FluidPoolDistribution> FluidPoolDistributions;
         public CaveOptions CaveOptions;
         
         public string GetId()
@@ -108,6 +108,9 @@ namespace WorldModule.Caves {
 
             FluidAreaDistributor fluidAreaDistributor = new FluidAreaDistributor(caveObject.FluidAreaDistributions);
             fluidAreaDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            
+            FluidPoolDistributor fluidPoolDistributor = new FluidPoolDistributor(caveObject.FluidPoolDistributions);
+            fluidPoolDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
             if (caveElements.CaveEntityDistributor != null) {
                 stopwatch.Restart();
