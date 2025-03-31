@@ -99,12 +99,6 @@ namespace WorldModule.Caves {
             {
                 caveElements.StructureDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
             }
-            if (caveElements.CaveEntityDistributor != null) {
-                stopwatch.Restart();
-                caveElements.CaveEntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
-                entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
-                total += entityDistributionTime;
-            }
             
             caveElements.OreDistributor?.Distribute(worldTileData,size.x,size.y,bottomLeft);
             
@@ -114,6 +108,13 @@ namespace WorldModule.Caves {
 
             FluidAreaDistributor fluidAreaDistributor = new FluidAreaDistributor(caveObject.FluidAreaDistributions);
             fluidAreaDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+            
+            if (caveElements.CaveEntityDistributor != null) {
+                stopwatch.Restart();
+                caveElements.CaveEntityDistributor.Distribute(worldTileData,size.x,size.y,bottomLeft);
+                entityDistributionTime = stopwatch.Elapsed.TotalSeconds;
+                total += entityDistributionTime;
+            }
             
             MusicTrackController.Instance.SetSong(caveElements.Songs);
             stopwatch.Stop();

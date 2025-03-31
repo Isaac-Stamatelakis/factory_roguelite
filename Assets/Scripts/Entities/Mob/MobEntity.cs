@@ -10,9 +10,10 @@ using Robot.Tool.Instances.Gun;
 namespace Entities.Mobs {
     public enum MobSpawnCondition
     {
-        OnGround,
-        InAir,
-        None
+        OnGround = 0,
+        InAir = 1,
+        None = 2,
+        InWater = 3
     }
 
     public enum MobLootSpawnPlacement

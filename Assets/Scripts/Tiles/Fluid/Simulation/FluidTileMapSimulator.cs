@@ -209,19 +209,32 @@ namespace Tiles.Fluid.Simulation
 	        if (cell == null || cell.Liquid < MIN_FILL) return;
 	        
 	        float current = cell.Liquid;
-	        void Disrupt(FluidCell adjacent)
+	        bool Disrupt(FluidCell adjacent)
 	        {
-		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL)) return;
+		        if (adjacent == null || !(adjacent.Liquid > MIN_FILL) || adjacent.Liquid > MAX_FILL- 0.05f) return false;
 		        float dif = UnityEngine.Random.Range(current / 4, current / 2);
+		        if (adjacent.Liquid + dif > MAX_FILL)
+		        {
+			        dif = adjacent.Liquid + dif - MAX_FILL;
+		        }
 		        adjacent.Liquid += dif;
 		        cell.Liquid -= dif;
+		        return true;
 	        }
 	        FluidCell left = GetFluidCell(cellPosition + Vector2Int.left);
-	        Disrupt(left);
+	        bool disruptLeft = Disrupt(left);
 	        FluidCell right = GetFluidCell(cellPosition + Vector2Int.right);
-	        Disrupt(right);
+	        bool disruptRight = Disrupt(right);
+	        if (!disruptLeft && !disruptRight)
+	        {
+		        FluidCell top = GetFluidCell(cellPosition + Vector2Int.up);
+		        bool disruptTop = Disrupt(top);
+		        if (!disruptTop) return;
+	        }
+	        
 	        UnsettleCell(cell);
-			UnsettleNeighbors(cell.Position);
+	        UnsettleNeighbors(cell.Position);
+
         }
         public void AddFluidCell(FluidCell fluidCell, bool replace)
         {
