@@ -106,6 +106,7 @@ namespace Player {
         private bool recalling;
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
+        private bool isUsingTool;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
@@ -178,6 +179,12 @@ namespace Player {
             timeSinceDamaged += Time.deltaTime;
         }
 
+        public void SetIsUsingTool(bool value)
+        {
+            isUsingTool = value;
+        }
+        
+
         private void FluidDamageUpdate()
         {
             if (!fluidCollisionInformation.Colliding || fluidCollisionInformation.Damage <= 0.05f) return;
@@ -235,6 +242,13 @@ namespace Player {
                 position.z = 2;
                 transform.position = position;
             }
+        }
+
+        
+        public void FaceMousePosition(Vector2 mousePosition)
+        {
+            Vector2 dif = (Vector2)transform.position - mousePosition;
+            spriteRenderer.flipX = dif.x > 0;
         }
 
         private void SetWalkAnimation()
