@@ -17,7 +17,9 @@ namespace Robot.Upgrades
             nodeNetwork = robotUpgradeNodeNetwork;
             editController.gameObject.SetActive(SceneManager.GetActiveScene().name == "DevTools");
             editController.Initialize(this);
-            movementEnabled = false;
+            lockHorizontalMovement = true;
+            lockZoom = true;
+            SetViewBounds();
             Display();
         }
         protected override INodeUI GenerateNode(RobotUpgradeNode node)

@@ -88,7 +88,7 @@ namespace Fluids {
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)cellPosition);
-            return fluidCell.FluidTileItem;
+            return fluidCell?.FluidTileItem;
         }
         public float GetFill(Vector2 worldPosition)
         {

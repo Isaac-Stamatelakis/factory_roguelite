@@ -1057,6 +1057,7 @@ namespace Player {
 
         public void Respawn()
         {
+            spriteRenderer.enabled = true;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = GetMaxHealth();
@@ -1065,6 +1066,7 @@ namespace Player {
 
         public void Die()
         {
+            spriteRenderer.enabled = false;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;

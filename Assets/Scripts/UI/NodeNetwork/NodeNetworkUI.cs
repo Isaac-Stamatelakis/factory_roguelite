@@ -45,15 +45,18 @@ namespace UI.NodeNetwork {
         private Dictionary<TNode, INodeUI> nodeUIDict = new Dictionary<TNode, INodeUI>();
         private float moveCounter = 0;
         private RightClickEvent rightClickEvent;
-        protected bool movementEnabled = true;
+        protected bool lockVerticalMovement = false;
+        protected bool lockHorizontalMovement = false;
+        protected bool lockZoom = false;
+        protected Bounds? viewBounds;
         
 
-        private readonly Dictionary<KeyCode[], Direction> MOVE_DIRECTIONS = new Dictionary<KeyCode[], Direction>
+        List<(KeyCode[], Direction)> moveDirections = new List<(KeyCode[], Direction)>
         {
-            { new KeyCode[] { KeyCode.LeftArrow, KeyCode.A }, Direction.Left },
-            { new KeyCode[] { KeyCode.RightArrow, KeyCode.D }, Direction.Right },
-            { new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down },
-            { new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up }
+            (new KeyCode[] { KeyCode.LeftArrow, KeyCode.A }, Direction.Left),
+            (new KeyCode[] { KeyCode.RightArrow, KeyCode.D }, Direction.Right),
+            (new KeyCode[] { KeyCode.UpArrow, KeyCode.W }, Direction.Up),
+            (new KeyCode[] { KeyCode.DownArrow, KeyCode.S }, Direction.Down)
         };
         
         public void SelectNode(INodeUI nodeUI)
@@ -90,6 +93,46 @@ namespace UI.NodeNetwork {
         protected abstract INodeUI GenerateNode(TNode node);
         public abstract bool ShowAllComplete();
         public abstract void OnDeleteSelectedNode();
+
+        protected void SetViewBounds()
+        {
+            Bounds newBounds = new Bounds();
+            foreach (TNode node in nodeNetwork.GetNodes())
+            {
+                Vector2 position = node.GetPosition();
+                
+                if (position.x > newBounds.max.x)
+                {
+                    var max = newBounds.max;
+                    max.x = position.x;
+                    newBounds.max = max;
+                }
+                if (position.y > newBounds.max.y)
+                {
+                    var max = newBounds.max;
+                    max.y = position.y;
+                    newBounds.max = max;
+                }
+                
+                if (position.x < newBounds.min.x)
+                {
+                    var min = newBounds.min;
+                    min.x = position.x;
+                    newBounds.min = min;
+                }
+                if (position.y < newBounds.min.y)
+                {
+                    var min = newBounds.min;
+                    min.y = position.y;
+                    newBounds.min = min;
+                }
+            }
+
+            newBounds.min += transform.position;
+            newBounds.max += transform.position;
+            viewBounds = newBounds;
+            
+        }
 
         public void DeleteNode(TNode node)
         {
@@ -181,18 +224,17 @@ namespace UI.NodeNetwork {
         public void Update() {
             HandleZoom();
             HandleRightClick();
-            if (selectedNode == null)
-            {
-                KeyPressMoveUpdate();
-                return;
-            }
+            bool selectingNode = selectedNode != null;
+            if (!selectingNode) KeyPressMoveUpdate();
+            ClampPosition();
+            if (!selectingNode) return;
             
             if ((Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
             {
                 DeleteNode((TNode)selectedNode.GetNode());
             }
             const float delay = 0.2f;
-            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
+            foreach (var (keycodes, direction) in moveDirections)
             {
                 if (!IsPressed(keycodes,hold:false)) continue;
           
@@ -204,18 +246,36 @@ namespace UI.NodeNetwork {
             if (moveCounter < delay) return;
             
             moveCounter = 0;
-            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
+            foreach (var (keycodes, direction) in moveDirections)
             {
                 if (!IsPressed(keycodes)) continue;
                 MoveNode((TNode)selectedNode?.GetNode(),direction);
             }
+            ClampPosition();
+
+
+        }
+
+        void ClampPosition()
+        {
+            if (!viewBounds.HasValue) return;
+            Bounds boundsValue = viewBounds.Value;
+            Vector3 position = transform.position;
+            if (position.x > boundsValue.max.x) position.x = boundsValue.max.x;
+            if (position.x < boundsValue.min.x) position.x = boundsValue.min.x;
+            if (position.y > boundsValue.max.y) position.y = boundsValue.max.y;
+            if (position.y < boundsValue.min.y) position.y = boundsValue.min.y;
+            transform.position = position;
         }
 
         private void KeyPressMoveUpdate()
         {
-            if (!movementEnabled) return;
-            foreach (var (keycodes, direction) in MOVE_DIRECTIONS)
+            const int DIRECTION_COUNT = 2;
+            int startIndex = lockHorizontalMovement ? DIRECTION_COUNT : 0;
+            int endIndex = lockVerticalMovement ? DIRECTION_COUNT : 2*DIRECTION_COUNT;
+            for (int i = startIndex; i < endIndex; i++)
             {
+                var (keycodes, direction) = moveDirections[i];
                 if (!IsPressed(keycodes)) continue;
                 Vector3 position = transform.position;
                 const int SPEED = 5;
@@ -227,7 +287,7 @@ namespace UI.NodeNetwork {
         
         private void HandleZoom()
         {
-            if (!movementEnabled) return;
+            if (lockZoom) return;
             float scrollInput = Input.GetAxis("Mouse ScrollWheel");
             if (scrollInput != 0)
             {
@@ -247,7 +307,7 @@ namespace UI.NodeNetwork {
         }
 
         private void HandleRightClick() {
-            if (!movementEnabled) return;
+            if (lockHorizontalMovement && lockVerticalMovement) return;
             if (Input.GetMouseButtonDown(1))
             {
                 rightClickEvent = new RightClickEvent(Input.mousePosition-ContentContainer.position);
@@ -255,7 +315,17 @@ namespace UI.NodeNetwork {
 
             if (rightClickEvent != null)
             {
-                transform.position =  rightClickEvent.GetNetworkPosition(Input.mousePosition);
+                Vector2 newPosition = rightClickEvent.GetNetworkPosition(Input.mousePosition);
+                if (lockHorizontalMovement)
+                {
+                    newPosition.x = transform.position.x;
+                }
+
+                if (lockVerticalMovement)
+                {
+                    newPosition.y = transform.position.y;
+                }
+                transform.position = newPosition;
             }
 
             if (Input.GetMouseButtonUp(1))
