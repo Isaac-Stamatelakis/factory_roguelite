@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Player.Tool;
+using Robot.Tool;
 using Robot.Tool.Instances;
 using Robot.Upgrades;
 using Robot.Upgrades.LoadOut;
@@ -11,9 +12,7 @@ namespace Player.Robot
     public class PlayerRobotLaserGunController : MonoBehaviour
     {
         private static readonly int Shooting = Animator.StringToHash("Shooting");
-        private const string LASER_SHOOT_ANIMATION = "ShootLaser";
         private Animator animator;
-        private SpriteRenderer robotSpriteRenderer;
         private SpriteRenderer spriteRenderer;
         private Vector3 defaultPosition;
         private PlayerRobot playerRobot;
@@ -23,26 +22,31 @@ namespace Player.Robot
         public void Initialize(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
-            robotSpriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
             defaultPosition = transform.localPosition;
          
         }
-        public void Update()
+        private void TryInitializeAnimation(MouseButtonKey mouseButtonKey)
         {
-            bool shootingLaser = Input.GetMouseButton(0);
-            if (shootingLaser && animator.GetCurrentAnimatorStateInfo(0).IsName("Static"))
-            {
-                RobotStatLoadOutCollection laserLoadOut = playerRobot.RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(RobotToolType.LaserGun);
-                float speed = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
-                float fireRate = LaserGun.GetFireRate(speed);
-                animator.speed = 1/fireRate;
-                animator.Play(LASER_SHOOT_ANIMATION);
-            }
-            
-            animator.SetBool(Shooting,shootingLaser);
-            
+            if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Static")) return;
+            RobotStatLoadOutCollection laserLoadOut = playerRobot.RobotUpgradeLoadOut.ToolLoadOuts.GetValueOrDefault(RobotToolType.LaserGun);
+            float speed = RobotUpgradeUtils.GetContinuousValue(laserLoadOut, (int)LaserGunUpgrade.FireRate);
+            float fireRate = LaserGun.GetFireRate(speed);
+            if (mouseButtonKey == MouseButtonKey.Right) fireRate *= 4;
+            animator.speed = 1/fireRate;
+            animator.Play(mouseButtonKey == MouseButtonKey.Left ? "ShootLaser" : "ShootExplosion");
+        }
+
+        public void OnClick(MouseButtonKey mouseButtonKey)
+        {
+            TryInitializeAnimation(mouseButtonKey); 
+            animator.SetBool(Shooting,true);
+        }
+        
+        public void OnNoClick()
+        {
+            animator.SetBool(Shooting,false);
         }
 
         public Vector3 GetEdgePosition()

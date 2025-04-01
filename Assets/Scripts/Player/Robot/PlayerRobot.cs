@@ -122,6 +122,7 @@ namespace Player {
         public const float BASE_MOVE_SPEED = 5f;
         public PlayerRobotLaserGunController gunController;
         
+        
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
@@ -179,16 +180,10 @@ namespace Player {
             isUsingTool = value;
             animator.SetBool(Action,value);
             gunController.gameObject.SetActive(value);
-        }
-
-        public void ToolAngleTowardsMouse(Vector2 mousePosition)
-        {
-            gunController.AngleToPosition(mousePosition);
-        }
-
-        public Vector3 GetToolLocation()
-        {
-            return gunController.GetEdgePosition();
+            if (value == false)
+            {
+                gunController.OnNoClick();
+            }
         }
         
 
@@ -486,6 +481,10 @@ namespace Player {
                     const float ANIMATOR_SPEED_INCREASE = 0.25f;
                     animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
                     animator.Play(isUsingTool ? "WalkAction" : "Walk");
+                    if ((spriteRenderer.flipX && moveDirTime > 0) || (!spriteRenderer.flipX && moveDirTime < 0))
+                    {
+                        animator.speed *= -1;
+                    }
                 }
             }
 
@@ -945,6 +944,7 @@ namespace Player {
 
         public void TemporarilyPausePlayer()
         {
+            fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
@@ -1045,7 +1045,7 @@ namespace Player {
 
         public bool Damage(float amount)
         {
-            if (DevMode.Instance.noHit || iFrames > 0) return false;
+            if (DevMode.Instance.noHit || iFrames > 0 || robotData.Health < 0) return false;
             iFrames = 15;
             liveYUpdates = 3;
             robotData.Health -= amount;
@@ -1058,6 +1058,7 @@ namespace Player {
 
         public void Respawn()
         {
+            fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = GetMaxHealth();
             DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
@@ -1065,7 +1066,6 @@ namespace Player {
 
         public void Die()
         {
-            robotData.Health = 0;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;

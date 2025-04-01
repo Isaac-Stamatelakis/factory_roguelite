@@ -25,6 +25,7 @@ using Item.GrabbedItem;
 using Item.Slot;
 using Player;
 using Player.Mouse;
+using Player.Robot;
 using Player.Tool;
 using PlayerModule.IO;
 using PlayerModule.KeyPress;
@@ -217,7 +218,9 @@ namespace PlayerModule.Mouse {
             clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
             playerRobot.FaceMousePosition(mousePosition);
             playerRobot.SetIsUsingTool(true);
-            playerRobot.ToolAngleTowardsMouse(mousePosition);
+            PlayerRobotLaserGunController gunController = playerRobot.gunController;
+            gunController.AngleToPosition(mousePosition);
+            gunController.OnClick(mouseButtonKey);
         }
         private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
