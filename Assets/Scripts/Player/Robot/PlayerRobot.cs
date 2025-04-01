@@ -181,9 +181,14 @@ namespace Player {
             gunController.gameObject.SetActive(value);
         }
 
+        public void ToolAngleTowardsMouse(Vector2 mousePosition)
+        {
+            gunController.AngleToPosition(mousePosition);
+        }
+
         public Vector3 GetToolLocation()
         {
-            return gunController.transform.position;
+            return gunController.GetEdgePosition();
         }
         
 

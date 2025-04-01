@@ -217,6 +217,7 @@ namespace PlayerModule.Mouse {
             clickHandler.Tick(mousePosition, !closedChunkSystem.Interactable);
             playerRobot.FaceMousePosition(mousePosition);
             playerRobot.SetIsUsingTool(true);
+            playerRobot.ToolAngleTowardsMouse(mousePosition);
         }
         private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);

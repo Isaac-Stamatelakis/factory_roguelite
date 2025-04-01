@@ -17,6 +17,9 @@ namespace Player.Robot
         private SpriteRenderer spriteRenderer;
         private Vector3 defaultPosition;
         private PlayerRobot playerRobot;
+        private Direction shootDirection;
+        private float shootAngle;
+        
         public void Initialize(PlayerRobot playerRobot)
         {
             this.playerRobot = playerRobot;
@@ -24,18 +27,10 @@ namespace Player.Robot
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
             defaultPosition = transform.localPosition;
+         
         }
         public void Update()
         {
-            spriteRenderer.flipX = robotSpriteRenderer.flipX;
-            if (robotSpriteRenderer.flipX && transform.localPosition.x > 0)
-            {
-                transform.localPosition = defaultPosition + Vector3.left * (2 * defaultPosition.x);
-            } else if (!robotSpriteRenderer.flipX && transform.localPosition.x < 0)
-            {
-                transform.localPosition = defaultPosition;
-            }
-
             bool shootingLaser = Input.GetMouseButton(0);
             if (shootingLaser && animator.GetCurrentAnimatorStateInfo(0).IsName("Static"))
             {
@@ -48,6 +43,24 @@ namespace Player.Robot
             
             animator.SetBool(Shooting,shootingLaser);
             
+        }
+
+        public Vector3 GetEdgePosition()
+        {
+            return transform.position;
+        }
+
+        public void AngleToPosition(Vector3 target)
+        {
+            Vector3 direction = (target - playerRobot.transform.position).normalized;
+            shootDirection = direction.x < 0 ? Direction.Left : Direction.Right;
+            float angle = Mathf.Atan2(direction.y, direction.x);
+            float cos = Mathf.Cos(angle);
+            float sin = Mathf.Sin(angle);
+            float sign = shootDirection == Direction.Left ? -1 : 1;
+            spriteRenderer.flipY = shootDirection == Direction.Left;
+            transform.localPosition =  new Vector3(defaultPosition.x * cos + defaultPosition.y * sin, defaultPosition.x * sin + sign*defaultPosition.y * cos, 1f);
+            transform.localEulerAngles = new Vector3(0, 0, angle * Mathf.Rad2Deg);
         }
     }
 }
