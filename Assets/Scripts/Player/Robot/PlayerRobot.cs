@@ -63,6 +63,7 @@ namespace Player {
         private static readonly int Walk = Animator.StringToHash("IsWalking");
         private static readonly int Air = Animator.StringToHash("InAir");
         private static readonly int Action = Animator.StringToHash("Action");
+        private static readonly int AnimationDirection = Animator.StringToHash("Direction");
 
         [SerializeField] private PlayerRobotUI mPlayerRobotUI;
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -88,7 +89,6 @@ namespace Player {
         private int iFrames;
         private TileMovementType currentTileMovementType;
         public bool Dead => robotData.Health <= 0;
-        private CameraBounds cameraBounds;
 
         private const float TERMINAL_VELOCITY = 20f;
         private int liveYUpdates = 0;
@@ -122,6 +122,7 @@ namespace Player {
         public const float BASE_MOVE_SPEED = 5f;
         public PlayerRobotLaserGunController gunController;
         
+        
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             rb = GetComponent<Rigidbody2D>();
@@ -129,7 +130,6 @@ namespace Player {
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             defaultGravityScale = rb.gravityScale;
-            cameraBounds = Camera.main.GetComponent<CameraBounds>();
             animator = GetComponent<Animator>();
             LoadAsyncAssets();
             gunController.Initialize(this);
@@ -179,11 +179,10 @@ namespace Player {
             isUsingTool = value;
             animator.SetBool(Action,value);
             gunController.gameObject.SetActive(value);
-        }
-
-        public Vector3 GetToolLocation()
-        {
-            return gunController.transform.position;
+            if (value == false)
+            {
+                gunController.OnNoClick();
+            }
         }
         
 
@@ -481,6 +480,10 @@ namespace Player {
                     const float ANIMATOR_SPEED_INCREASE = 0.25f;
                     animator.speed = 1 + ANIMATOR_SPEED_INCREASE*RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
                     animator.Play(isUsingTool ? "WalkAction" : "Walk");
+                    bool walkingBackwards = isUsingTool && (
+                        (gunController.ShootDirection == Direction.Left && moveDirTime > 0) || 
+                        (gunController.ShootDirection  == Direction.Right&& moveDirTime < 0));
+                    animator.SetFloat(AnimationDirection,walkingBackwards ? -1 : 1);
                 }
             }
 
@@ -940,6 +943,7 @@ namespace Player {
 
         public void TemporarilyPausePlayer()
         {
+            fluidCollisionInformation.Clear();
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
@@ -1040,7 +1044,7 @@ namespace Player {
 
         public bool Damage(float amount)
         {
-            if (DevMode.Instance.noHit || iFrames > 0) return false;
+            if (DevMode.Instance.noHit || iFrames > 0 || robotData.Health < 0) return false;
             iFrames = 15;
             liveYUpdates = 3;
             robotData.Health -= amount;
@@ -1053,6 +1057,7 @@ namespace Player {
 
         public void Respawn()
         {
+            fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = GetMaxHealth();
             DimensionManager.Instance.SetPlayerSystem(playerScript,0,new Vector2Int(0,0));
@@ -1060,7 +1065,6 @@ namespace Player {
 
         public void Die()
         {
-            robotData.Health = 0;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
