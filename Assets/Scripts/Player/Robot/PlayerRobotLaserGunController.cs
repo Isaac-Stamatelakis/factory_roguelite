@@ -17,6 +17,7 @@ namespace Player.Robot
         private Vector3 defaultPosition;
         private PlayerRobot playerRobot;
         private Direction shootDirection;
+        public Direction ShootDirection => shootDirection;
         private float shootAngle;
         
         public void Initialize(PlayerRobot playerRobot)

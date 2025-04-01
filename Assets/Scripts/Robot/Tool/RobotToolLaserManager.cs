@@ -4,6 +4,7 @@ namespace Robot.Tool
 {
     public class RobotToolLaserManager
     {
+        private static readonly int ColorKey = Shader.PropertyToID("_Color");
         private LineRenderer lineRenderer;
     
         public void UpdateLineRenderer(Vector2 mousePosition, Color color)
@@ -12,11 +13,7 @@ namespace Robot.Tool
             Vector2 dif =  mousePosition - (Vector2)lineRenderer.transform.position;
             lineRenderer.SetPositions(new Vector3[] { Vector3.up/2f, dif });
             
-            Gradient gradient = lineRenderer.colorGradient;
-            GradientColorKey[] colorKeys = gradient.colorKeys;
-            colorKeys[1].color = color;
-            gradient.colorKeys = colorKeys;
-            lineRenderer.colorGradient = gradient;
+            lineRenderer.materials[0].SetColor(ColorKey,color);
             
         }
 

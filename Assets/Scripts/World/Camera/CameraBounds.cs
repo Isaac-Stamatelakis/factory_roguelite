@@ -99,7 +99,11 @@ public class CameraBounds : MonoBehaviour
 
     public void UpdateCameraBounds()
     {
-        if (bounds == null) return;
+        if (bounds == null)
+        {
+            transform.localPosition = new Vector3(0, yOffset, transform.localPosition.z);
+            return;
+        }
         Transform playerTransform = transform.parent;
         Vector3 position = transform.localPosition;
         bool outLeft = playerTransform.position.x-width/2 < bounds.X.LowerBound;
