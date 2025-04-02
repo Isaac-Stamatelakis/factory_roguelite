@@ -981,7 +981,7 @@ namespace Player {
             
             
             
-            const float DAMAGE_RATE = 4;
+            const float DAMAGE_RATE = 2;
             const float MIN_DAMAGE = 1f;
 
             float damage = DAMAGE_RATE * fallTime * fallTime;
