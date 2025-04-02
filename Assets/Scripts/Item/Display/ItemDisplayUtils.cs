@@ -7,31 +7,14 @@ using UnityEngine.UI;
 
 namespace Items {
     public static class ItemDisplayUtils {
-        private static readonly string slotName = "slot";
-        private static readonly string itemImageName = "item";
-        private static readonly string itemAmountName = "amount";
-        private static readonly string itemTagNameFront = "tagFront";
-        private static readonly string itemTagNameBehind = "tagBehind";
-        private static readonly string stackSpriteImage = "stackSprite";
-        public static string ItemImageName { get => itemImageName; }
-        public static string ItemAmountName { get => itemAmountName; }
-        public static string ItemTagNameFront { get => itemTagNameFront; }
-        public static string ItemTagNameBehind { get => itemTagNameBehind; }
-        private static readonly Color solidItemPanelColor = new Color(200f/255f,200f/255f,200f/255f,100f/255f);
-        private static readonly Color fluidItemPanelColor = new Color(115f/255f,115f/255f,115f/255f,100/255f);
+       
+       
 
         public static string[] AmountSuffixes => suffixes;
-        private static readonly int animationSpeed = 10;
+       
 
-        public static string SlotName => slotName;
-
-        public static string StackSpriteImageName => stackSpriteImage;
-
-        public static Color SolidItemPanelColor => solidItemPanelColor;
-
-        public static Color FluidItemPanelColor => fluidItemPanelColor;
-
-        public static int AnimationSpeed { get => animationSpeed; }
+      
+        
 
         private static readonly string[] suffixes = {"k","M","B","T"};
 
@@ -145,33 +128,7 @@ namespace Items {
             image.sprite = sprite;
             image.transform.localScale = GetItemScale(sprite);
         }
-
-        public static void DisplayItemSprite(Image image, ItemObject itemObject, int counter)
-        {
-            switch (itemObject.getDisplayType()) {
-                case ItemDisplayType.Single:
-                    SetImageItemSprite(image,itemObject.getSprite());
-                    break;
-                case ItemDisplayType.Stack:
-                    //Image[] images = image.GetComponentsInChildren<Image>();
-                    SetImageItemSprite(image,itemObject.getSprite());
-                    // TODO fix this
-                    /*
-                    Sprite[] stackSprites = itemObject.getSprites();
-                    for (int i = 1; i < stackSprites.Length; i++) {
-                        int imageIndex = stackSprites.Length-i; // Sprites are orded by index with larger showing lower
-                        SetImageItemSprite(images[imageIndex],stackSprites[i]);
-                    }
-                    */
-                    break;
-                case ItemDisplayType.Animated:
-                    Sprite[] animationSprites = itemObject.getSprites();
-                    int adjustedCounter = Mathf.FloorToInt(counter/(float) ItemDisplayUtils.AnimationSpeed);
-                    int animationIndex = adjustedCounter % animationSprites.Length;
-                    SetImageItemSprite(image,animationSprites[animationIndex]);
-                    break;
-            }
-        }
+        
         
     }
 }

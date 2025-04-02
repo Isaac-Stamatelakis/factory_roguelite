@@ -44,6 +44,14 @@ namespace Items {
     }
     public class ItemSlotUI : MonoBehaviour
     {
+        private enum ItemAnimationSpeed
+        {
+            VerySlow = -1,
+            Slow = 0,
+            Normal = 1,
+            Fast = 2,
+            VeryFast = 3,
+        }
         public ItemState ItemState = ItemState.Solid;
         public Image Panel;
         
@@ -52,8 +60,11 @@ namespace Items {
         public TextMeshProUGUI mTopText;
         public Transform TagBehindContainer;
         public Transform TagFrontContainer;
+        [SerializeField] private ItemAnimationSpeed animationSpeed = ItemAnimationSpeed.Normal;
+        public bool ScaleItems = true;
         private ItemDisplayList currentDisplayList;
         [NonSerialized] public bool Paused;
+        
         
         private int counter;
         private ItemSlot displayedSlot;
@@ -64,6 +75,13 @@ namespace Items {
                 return;
             }
             counter ++;
+            RefreshDisplay();
+        }
+
+        public void DisplayFirstFrame()
+        {
+            if (displayedSlot == null) return;
+            counter = 0;
             RefreshDisplay();
         }
 
@@ -95,7 +113,15 @@ namespace Items {
         private void DisplayItem(ItemDisplayList itemDisplayList, Image image)
         {
             ItemDisplay display = itemDisplayList.GetItemToDisplay(counter);
-            ItemDisplayUtils.SetImageItemSprite(image, display.Sprite);
+            if (ScaleItems)
+            {
+                ItemDisplayUtils.SetImageItemSprite(image, display.Sprite);
+            }
+            else
+            {
+                image.sprite = display.Sprite;
+            }
+            
             image.color = display.Color;
         }
 
@@ -156,13 +182,32 @@ namespace Items {
                 toDisplay[i] = new ItemDisplay(sprites[i], color);
             }
             
-            currentDisplayList = new ItemDisplayList(toDisplay, ItemDisplayUtils.AnimationSpeed);
+            currentDisplayList = new ItemDisplayList(toDisplay, GetAnimationSpeedValue());
             counter = 0;
             RefreshDisplay();
             ItemImage.enabled = ItemImage.sprite;
             ItemImage.gameObject.SetActive(true);
             
             DisplayTagVisuals(itemSlot);
+        }
+
+        private int GetAnimationSpeedValue()
+        {
+            switch (animationSpeed)
+            {
+                case ItemAnimationSpeed.VerySlow:
+                    return 20;
+                case ItemAnimationSpeed.Slow:
+                    return 15;
+                case ItemAnimationSpeed.Normal:
+                    return 10;
+                case ItemAnimationSpeed.Fast:
+                    return 6;
+                case ItemAnimationSpeed.VeryFast:
+                    return 3;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void AddOverlay(Sprite sprite, Color color, string overlayName)
