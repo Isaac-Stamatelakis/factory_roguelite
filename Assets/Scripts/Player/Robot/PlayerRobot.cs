@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -694,7 +694,7 @@ namespace Player {
 
         private bool IsOnGround()
         {
-            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05);
+            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
         }
 
         private bool WalkingIntoSlope(Direction direction)

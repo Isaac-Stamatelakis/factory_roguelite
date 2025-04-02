@@ -26,9 +26,7 @@ namespace TileEntity.Instances.Workbench.UI
         [SerializeField] private RecipeListHeader headerPrefab;
         [SerializeField] private RecipeListElement listElementPrefab;
         [SerializeField] private Color highLightColor;
-        private Dictionary<string, List<RecipeListElement>> itemNameElementDict;
-        private Dictionary<int, List<DisplayableRecipe>> modeRecipes;
-        private Dictionary<int, (RecipeListHeader, List<RecipeListElement>)> modeElementDict;
+        private Dictionary<int, RecipeListHeader> modeElementDict;
         private List<int> orderedModes;
         private int currentMode = -1;
         private int currentIndex = -1;
@@ -40,24 +38,18 @@ namespace TileEntity.Instances.Workbench.UI
         {
             this.workBenchData = workBenchData;
             GlobalHelper.DeleteAllChildren(mContentList.transform);
-            modeRecipes = recipeProcessor.GetRecipesToDisplayByMode();
+            var modeRecipes = recipeProcessor.GetRecipesToDisplayByMode();
             mSearchField.text = this.workBenchData.CurrentSearch;
             mSearchField.onValueChanged.AddListener(FilterResults);
-            
-            modeElementDict = new Dictionary<int, (RecipeListHeader, List<RecipeListElement>)>();
-            itemNameElementDict = new Dictionary<string, List<RecipeListElement>>();
+
+            modeElementDict = new Dictionary<int, RecipeListHeader>();
             foreach (var (mode, recipes) in modeRecipes)
             {
-                List<RecipeListElement> elements = new List<RecipeListElement>();
                 string modeName = recipeProcessor.GetModeName(mode);
                 RecipeListHeader header = Instantiate(headerPrefab, mContentList.transform);
-                header.Display(this,modeName,mode);
-                foreach (var displayableRecipe in recipes)
-                {
-                    int index = elements.Count;
-                    InitializeRecipeElement(displayableRecipe, header, mode, index,elements);
-                }
-                modeElementDict[mode] = (header,elements);
+                header.Display(this,modeName,mode, recipes);
+                
+                modeElementDict[mode] = header;
             }
 
             defaultElementColor = listElementPrefab.GetComponent<Image>().color;
@@ -86,6 +78,7 @@ namespace TileEntity.Instances.Workbench.UI
 
         private void SelectCategory(int index)
         {
+            /*
             int selectedMode = orderedModes[index];
             foreach (var (mode, elements) in modeElementDict)
             {
@@ -98,10 +91,12 @@ namespace TileEntity.Instances.Workbench.UI
                     recipeElement.gameObject.SetActive(newState);
                 }
             }
+            */
         }
 
         private void ResetCategories()
         {
+            /*
             foreach (var (mode, elements) in modeElementDict)
             {
                 var (header, elementList) = elements;
@@ -112,25 +107,21 @@ namespace TileEntity.Instances.Workbench.UI
                     recipeElement.gameObject.SetActive(newState);
                 }
             }
+            */
         }
         private void FilterResults(string text)
         {
             workBenchData.CurrentSearch = text;
-            foreach (var (itemName, elementList) in itemNameElementDict)
+            foreach (var collection in modeElementDict.Values)
             {
-                bool passesFilter = itemName.ToLower().Contains(text.ToLower());
-                foreach (var element in elementList)
+                List<RecipeListElement> recipeListElements = collection.RecipeListElements;
+                foreach (RecipeListElement recipeListElement in recipeListElements)
                 {
-                    if (!element.HeaderActive) continue;
-                    element.gameObject.SetActive(passesFilter);
+                    bool pass = recipeListElement.Filter(text);
+                    recipeListElement.gameObject.SetActive(pass);
                 }
             }
-
-            foreach (var (mode, values) in modeElementDict)
-            {
-                //var (header, elementList) = values;
-                //header.gameObject.SetActive(!HeaderElementsAllInactive(elementList));
-            }
+            
         }
 
         private bool HeaderElementsAllInactive(List<RecipeListElement> elements)
@@ -142,66 +133,20 @@ namespace TileEntity.Instances.Workbench.UI
 
             return true;
         } 
-
-        private void InitializeRecipeElement(DisplayableRecipe displayableRecipe, RecipeListHeader header, int mode, int index, List<RecipeListElement> elements)
-        {
-            RecipeListElement recipeListElement = Instantiate(listElementPrefab, mContentList.transform);
-            string itemName = string.Empty;
-            if (displayableRecipe is ItemDisplayableRecipe itemDisplayableRecipe)
-            {
-                ItemSlot output = itemDisplayableRecipe.SolidOutputs[0];
-                recipeListElement.Display(new List<ItemSlot>{output}, displayableRecipe.RecipeData.Recipe,this,header,mode,index);
-                itemName = output.itemObject.name;
-            }
-
-            if (displayableRecipe is TransmutationDisplayableRecipe transmutationDisplayableRecipe)
-            {
-                recipeListElement.Display(transmutationDisplayableRecipe.Outputs, displayableRecipe.RecipeData.Recipe,this,header,mode,index);
-                itemName = transmutationDisplayableRecipe.RecipeData.Recipe.name;
-            }
-
-            if (!itemNameElementDict.ContainsKey(itemName))
-            {
-                itemNameElementDict[itemName] = new List<RecipeListElement>();
-            }
-            itemNameElementDict[itemName].Add(recipeListElement);
-            elements.Add(recipeListElement);
-        }
+        
         public RecipeObject GetCurrentRecipe()
         {
-            return modeRecipes[currentMode][currentIndex].RecipeData.Recipe;
+            return modeElementDict[currentMode].GetRecipe(currentIndex).RecipeData.Recipe;
         }
         public void Select(int mode, int index)
         {
             if (mode == currentMode && index == currentIndex) return;
-            if (!modeElementDict.ContainsKey(mode)) return;
-            var (header, recipeElements) = modeElementDict[mode];
-            if (recipeElements.Count < 0 || index >= recipeElements.Count) return;
-            recipeElements[index].SetColor(highLightColor);
-            if (currentIndex >= 0 && currentMode >= 0)
-            {
-                modeElementDict[currentMode].Item2[currentIndex].SetColor(defaultElementColor);
-            }
+            if (!modeElementDict.TryGetValue(mode, out var collection)) return;
+            DisplayableRecipe recipe = collection.GetRecipe(index);
+            if (recipe == null) return;
             currentIndex = index;
             currentMode = mode;
-            recipeProcessorUI.DisplayRecipe(modeRecipes[mode][index]);
-        }
-
-        public void ToggleHeader(int mode)
-        {
-            var (header, recipeElements) = modeElementDict[mode];
-            if (recipeElements.Count == 0) return;
-            bool toggleState = header.ElementsVisible;
-            foreach (RecipeListElement recipeElement in recipeElements)
-            {
-                bool newState = toggleState && recipeElement.Filter(workBenchData.CurrentSearch);
-                recipeElement.gameObject.SetActive(newState);
-            }
-        }
-
-        public void OnDestroy()
-        {
-            
+            recipeProcessorUI.DisplayRecipe(recipe);
         }
     }
 }

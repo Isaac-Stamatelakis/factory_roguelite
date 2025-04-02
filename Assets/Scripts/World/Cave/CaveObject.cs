@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Items;
 using UnityEngine;
 using Misc.Audio;
 using TileEntity;
@@ -34,6 +35,7 @@ namespace WorldModule.Caves {
         public List<FluidAreaDistribution> FluidAreaDistributions;
         public List<FluidPoolDistribution> FluidPoolDistributions;
         public CaveOptions CaveOptions;
+        public List<SerializedItemSlot> ResearchCost;
         
         public string GetId()
         {
