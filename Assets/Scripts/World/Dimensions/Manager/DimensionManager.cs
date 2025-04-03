@@ -101,8 +101,8 @@ namespace Dimensions {
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
             
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.ShowAll();
+            //ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            //catalogueControllers.ShowAll();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)

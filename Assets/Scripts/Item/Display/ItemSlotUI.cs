@@ -64,7 +64,11 @@ namespace Items {
         public bool ScaleItems = true;
         private ItemDisplayList currentDisplayList;
         [NonSerialized] public bool Paused;
-        
+        private bool staticTopText;
+        public bool StaticTopText
+        {
+            get => staticTopText; set => staticTopText = value;
+        }
         
         private int counter;
         private ItemSlot displayedSlot;
@@ -235,11 +239,12 @@ namespace Items {
         public void Display(ItemSlot itemSlot, string topText)
         {
             Display(itemSlot);
-            mTopText.text = topText;
+            if (!staticTopText) mTopText.text = topText;
         }
 
         public void SetTopText(string topText)
         {
+            if (staticTopText) return;
             if (ReferenceEquals(mTopText, null))
             {
                 return;
@@ -257,7 +262,7 @@ namespace Items {
             GlobalHelper.DeleteAllChildren(TagBehindContainer);
             GlobalHelper.DeleteAllChildren(TagFrontContainer);
             mBottomText.text = "";
-            if (!ReferenceEquals(mTopText,null)) mTopText.text = "";
+            if (!staticTopText && !ReferenceEquals(mTopText,null)) mTopText.text = "";
      
         }
         public void Unload()

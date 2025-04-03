@@ -48,15 +48,15 @@ public class PlayerToolListUI : MonoBehaviour
         {
             IRobotToolInstance current = tools[index];
             primaryIndicator.Display(current);
-            if (current is ISubModeRobotToolInstance)
-            {
-                secondaryIndicator.Display(current);
-                secondaryIndicator.gameObject.SetActive(true);
-            }
-            else
-            {
-                secondaryIndicator.gameObject.SetActive(false);
-            }
+            bool secondaryActive = current is ISubModeRobotToolInstance;
+            if (secondaryActive) secondaryIndicator.Display(current);
+            secondaryIndicator.gameObject.SetActive(secondaryActive);
+            
+            int yPosition = 12 - index * 80;
+            RectTransform toolIndicatorContainer = (RectTransform)primaryIndicator.transform.parent;
+            Vector3 localPosition = toolIndicatorContainer.anchoredPosition;
+            localPosition.y = yPosition;
+            toolIndicatorContainer.anchoredPosition = localPosition;
         }
         mToolCollectionUI.OverrideClickAction(SelectTool);
         List<string> topTexts = new List<string>();
