@@ -9,18 +9,7 @@ namespace Item.Slot
         Solid,
         Fluid
     }
-
-    public static class ItemStateExtension {
-        public static Color getSlotColor(this ItemState itemState) {
-            switch (itemState) {
-                case ItemState.Solid:
-                    return ItemDisplayUtils.SolidItemPanelColor;
-                case ItemState.Fluid:
-                    return ItemDisplayUtils.FluidItemPanelColor;
-            }
-            return ItemDisplayUtils.SolidItemPanelColor;
-        }
-    }
+    
     public interface SolidItem {
 
     }

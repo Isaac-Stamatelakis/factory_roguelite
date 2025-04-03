@@ -18,6 +18,10 @@ namespace WorldModule.Caves {
         public int MaxSize;
         public TilePlacementMode TilePlacementMode;
         public bool FillHoles = true;
+
+        [Header("Note: Fill still applies to total area")] 
+        [Range(0, 1)] public float MinY = 0f;
+        [Range(0, 1)] public float MaxY = 1f;
     }
 
     public interface IDistributorTileAggregator
@@ -54,7 +58,7 @@ namespace WorldModule.Caves {
         public int CalculateNumberOfVeins(int size)
         {
             chanceToFileTile = TileDistributionData.Fill/(((float)TileDistributionData.MinSize+TileDistributionData.MaxSize)/2);
-            float fNumberOfVeins = size * chanceToFileTile;
+            float fNumberOfVeins = size * chanceToFileTile * (TileDistributionData.MaxY - TileDistributionData.MinY);
             int numberOfVeins = (int)fNumberOfVeins;
             float dif = fNumberOfVeins - numberOfVeins;
             float ran = Random.Range(0, 1f);
@@ -89,10 +93,12 @@ namespace WorldModule.Caves {
             {
                 TileDistributionData tileDistributionData = tileDistribution.TileDistributionData;
                 int numberOfVeins = tileDistribution.CalculateNumberOfVeins(size);
+                int minY = (int)tileDistributionData.MinY * height;
+                int maxY = (int)tileDistributionData.MaxY * height;
                 while (numberOfVeins > 0) {
                     numberOfVeins--;
                     int x = UnityEngine.Random.Range(0,width);
-                    int y = UnityEngine.Random.Range(0,height);
+                    int y = UnityEngine.Random.Range(minY,maxY);
                     string id = ids[x,y];
                     if (id == null) { // don't fill into empty space
                         continue;

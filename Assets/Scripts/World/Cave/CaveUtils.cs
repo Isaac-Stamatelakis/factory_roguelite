@@ -122,7 +122,7 @@ namespace WorldModule.Caves {
                 List<TileDistribution> tileDistributions = new List<TileDistribution>();
                 foreach (OreDistribution oreDistribution in caveObject.OreDistributionObject.OreDistributions)
                 {
-                    OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material);
+                    OreTileAggregator oreTileAggregator = new OreTileAggregator(oreDistribution.Material,oreDistribution.SubDistrubtions);
                     tileDistributions.Add(new TileDistribution(oreTileAggregator,oreDistribution.TileDistributionData));
 
                 }

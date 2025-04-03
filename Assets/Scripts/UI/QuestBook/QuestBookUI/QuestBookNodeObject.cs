@@ -13,7 +13,6 @@ using UI.QuestBook.Data.Node;
 namespace UI.QuestBook {
     public class QuestBookNodeObject : NodeUI<QuestBookNode,QuestBookPageUI>
     {
-        private int counter;
         private ItemObject itemObject;
         public override void Initialize(QuestBookNode node, QuestBookPageUI nodeNetwork)
         {
@@ -24,19 +23,10 @@ namespace UI.QuestBook {
 
         public override void DisplayImage()
         {
-            
-            if (ReferenceEquals(itemObject,null) || !itemObject) return;
-            ItemDisplayUtils.DisplayItemSprite(image,itemObject,counter);
-            bool small = image.transform.localScale is { x: 0.5f, y: 0.5f };
-            if (small) image.transform.localScale = Vector3.one;
+            if (!itemObject) return;
+            mItemSlotUI.Display(new ItemSlot(itemObject,1,null));
         }
-
-        public void FixedUpdate()
-        {
-            counter++;
-            DisplayImage();
-        }
-
+        
         protected override void openContent()
         {
             UIAssetManager assetManager = nodeNetwork.QuestBookUI.AssetManager;

@@ -102,6 +102,13 @@ namespace Entities {
                 SpawnTagObjects();
             }
 
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                if (transmutableItemObject.getMaterial().OverlaySprite)
+                {
+                    AddOverlaySprite(transmutableItemObject.getMaterial().OverlaySprite,Color.white);
+                }
+            }
             if (itemSlot.itemObject is TileItem tileItem)
             {
                 var tileOverlay = tileItem.tileOptions.Overlay;

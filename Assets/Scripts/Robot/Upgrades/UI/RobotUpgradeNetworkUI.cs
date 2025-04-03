@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DevTools;
 using Robot.Upgrades.Network;
 using UI.NodeNetwork;
 using UnityEngine;
@@ -15,9 +16,16 @@ namespace Robot.Upgrades
         {
             this.robotUpgradeUI = robotUpgradeUI;
             nodeNetwork = robotUpgradeNodeNetwork;
-            editController.gameObject.SetActive(SceneManager.GetActiveScene().name == "DevTools");
+            bool inDevTools = DevToolUtils.OnDevToolScene;
+            editController.gameObject.SetActive(inDevTools);
             editController.Initialize(this);
-            movementEnabled = false;
+            lockHorizontalMovement = true;
+            lockZoom = true;
+            if (!inDevTools)
+            {
+                SetViewBounds();
+            }
+            
             Display();
         }
         protected override INodeUI GenerateNode(RobotUpgradeNode node)

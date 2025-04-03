@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Items;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -15,7 +16,7 @@ namespace UI.NodeNetwork {
         IPointerUpHandler, ILongClickable, INodeUI
     where TNode : INode where TNetworkUI : INodeNetworkUI
     {
-        [SerializeField] protected Image image;
+        [SerializeField] protected ItemSlotUI mItemSlotUI;
         [SerializeField] protected Button button;
         [SerializeField] protected Image panel;
         private LongClickHandler holdClickInstance;

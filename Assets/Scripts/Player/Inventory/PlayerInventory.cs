@@ -61,9 +61,16 @@ namespace PlayerModule {
 
         public void Initialize(string json) {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(json);
-            playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,10);
+            const int INVENTORY_SIZE = 10;
+            playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,INVENTORY_SIZE);
             playerInventoryGrid.HighlightSlot(0);
+            List<string> topText = new List<string>();
+            for (int i = 0; i < INVENTORY_SIZE; i++)
+            {
+                topText.Add(((i+1)%10).ToString());
+            }
             playerInventoryGrid.AddListener(this);
+            playerInventoryGrid.DisplayTopText(topText);
             
         }
 
@@ -116,7 +123,7 @@ namespace PlayerModule {
         {
             selectedTool = index;
             playerMouse.UpdateOnToolChange();
-            playerToolListUI.SetOffset(selectedTool);
+            playerToolListUI.HighLightTool(selectedTool);
         }
         
         
@@ -139,7 +146,7 @@ namespace PlayerModule {
                     ChangeSelectedSlot(selectedSlot); 
                     break;
                 case InventoryDisplayMode.Tools:
-                    selectedTool -= iterator; // This is reverse for some reason?
+                    selectedTool += iterator;
                     selectedTool = (int) Global.modInt(selectedTool,playerRobot.RobotTools.Count);
                     ChangeSelectedSlot(selectedTool); 
                     break;

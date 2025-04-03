@@ -18,9 +18,8 @@ namespace Robot.Upgrades
         public override void DisplayImage()
         {
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(node.NodeData?.IconItemId);
-            Sprite sprite = itemObject?.getSprite();
-            if (sprite) image.sprite = sprite;
-           
+            if (!itemObject) return;
+            mItemSlotUI.Display(new ItemSlot(itemObject,1,null));
         }
     }
 }

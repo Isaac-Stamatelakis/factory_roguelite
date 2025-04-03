@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Item.Inventory;
 using Item.Slot;
@@ -15,24 +16,23 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
     public class RecipeListElement : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] private InventoryUI mInventoryUI;
-        [SerializeField] private TextMeshProUGUI mNameText;
         private RecipeLookUpList recipeLookUpListParent;
-        private int mode;
+        private Action<int> clickAction;
         private int index;
-        private RecipeListHeader header;
-        public bool HeaderActive => header.ElementsVisible;
+        private string itemName;
         
-        public void Display(List<ItemSlot> outputs, RecipeObject recipeObject, RecipeLookUpList recipeLookUpList, RecipeListHeader header, int mode, int index)
+        public void Display(List<ItemSlot> outputs, RecipeObject recipeObject, Action<int> clickAction, int index, string itemName)
         {
-            recipeLookUpListParent = recipeLookUpList;
-            this.mode = mode;
             this.index = index;
-            this.header = header;
+            this.clickAction = clickAction;
+            this.itemName = itemName;
+            
+            mInventoryUI.InventoryInteractMode = InventoryInteractMode.UnInteractable;
+            mInventoryUI.OverrideClickAction(clickAction);
             
             if (outputs.Count == 1)
             {
                 mInventoryUI.DisplayInventory(new List<ItemSlot>{outputs[0]},false);
-                mNameText.text = outputs[0].itemObject.name;
                 return;
             }
             InventoryUIRotator rotator = mInventoryUI.GetComponent<InventoryUIRotator>();
@@ -46,8 +46,8 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
             {
                 inventoriesList.Add(new List<ItemSlot>{itemSlot});
             }
+            
             rotator.Initialize(inventoriesList,1,100,false);
-            mNameText.text = recipeObject.name;
             
         }
 
@@ -58,12 +58,12 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
 
         public bool Filter(string text)
         {
-            return mNameText.text.ToLower().Contains(text.ToLower());
+            return itemName.ToLower().Contains(text.ToLower());
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            recipeLookUpListParent.Select(mode,index);
+            clickAction.Invoke(index);
         }
     }
 }

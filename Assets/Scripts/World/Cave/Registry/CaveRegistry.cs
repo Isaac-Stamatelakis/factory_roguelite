@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using World.Cave.InfoUI;
+using World.Cave.TileDistributor.Ore;
 using WorldModule.Caves;
 
 namespace World.Cave.Registry
@@ -66,14 +67,31 @@ namespace World.Cave.Registry
             List<float> odds = new List<float>();
             List<string> ids = new List<string>();
             List<string> tileIds = new List<string>();
+            
+            void AppendIdAndChance(string id, float chance)
+            {
+                if (!ids.Contains(id))
+                {
+                    ids.Add(id);
+                    odds.Add(chance);
+                }
+                else
+                {
+                    int index = ids.IndexOf(id);
+                    odds[index] += chance;
+                }
+            }
+            
             if (caveObject.TileDistributorObject)
             {
                 foreach (var tileDistribution in caveObject.TileDistributorObject.TileDistributions)
                 {
                     float fill = tileDistribution.TileDistributionData.Fill;
+                    float cover = tileDistribution.TileDistributionData.MaxY - tileDistribution.TileDistributionData.MinY;
+                    float realFill = fill * cover;
                     if (tileDistribution.TileDistributionData.WriteAll)
                     {
-                        float reduction = 1 - fill;
+                        float reduction = 1 - realFill;
                         for (int i = 0; i < odds.Count; i++)
                         {
                             odds[i] *= reduction;
@@ -87,12 +105,16 @@ namespace World.Cave.Registry
                     }
                     if (cumulativeFrequency == 0) continue;
 
+                    
                     foreach (var tileFrequency in tileDistribution.Tiles)
                     {
-                        float chance = (tileFrequency.frequency * fill) / cumulativeFrequency;
-                        odds.Add(chance);
-                        ids.Add(tileFrequency.tileItem?.id);
-                        tileIds.Add(tileFrequency.tileItem?.id);
+                        float chance = (tileFrequency.frequency * realFill) / cumulativeFrequency;
+                        string tileId = tileFrequency.tileItem?.id;
+                        if (tileId != null)
+                        {
+                            AppendIdAndChance(tileId, chance);
+                            if (!tileIds.Contains(tileId)) tileIds.Add(tileId);
+                        }
                     }
                 }
             }
@@ -101,17 +123,39 @@ namespace World.Cave.Registry
             {
                 foreach (var oreDistribution in caveObject.OreDistributionObject.OreDistributions)
                 {
+                    float mainMaterialOdds = 1f;
                     float fill = oreDistribution.TileDistributionData.Fill;
+                    float cover = oreDistribution.TileDistributionData.MaxY - oreDistribution.TileDistributionData.MinY;
+                    float realFill = fill * cover;
+                    foreach (SubOreDistribution subOreDistribution in oreDistribution.SubDistrubtions)
+                    {
+                        mainMaterialOdds -= subOreDistribution.Fill;
+                        float chance = subOreDistribution.Fill;
+                        
+                        if (mainMaterialOdds < 0)
+                        {
+                            chance += mainMaterialOdds;
+                        }
+
+                        if (chance <= 0) continue;
+                        string subOreItemId = TransmutableItemUtils.GetStateId(subOreDistribution.Material,TransmutableItemState.Ore);
+                        AppendIdAndChance(subOreItemId,chance*realFill);
+                        if (mainMaterialOdds <= 0) break;
+                    }
+                    
                     string oreItemId = TransmutableItemUtils.GetStateId(oreDistribution.Material,TransmutableItemState.Ore);
-                    odds.Add(fill);
-                    ids.Add(oreItemId);
+                    
+                    if (mainMaterialOdds > 0)
+                    {
+                        AppendIdAndChance(oreItemId, mainMaterialOdds*realFill);
+                    }
                     for (var index = 0; index < tileIds.Count; index++)
                     {
                         var tileId = tileIds[index];
                         string tileOreId = TransmutableItemUtils.GetOreId(tileId, oreDistribution.Material);
                         TileItem tileItem = itemRegistry.GetTileItem(tileOreId);
                         if (!tileItem) continue;
-                        odds[index] *= 1 - fill;
+                        odds[index] *= 1 - realFill;
                     }
                 }
             }

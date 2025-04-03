@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -694,7 +694,7 @@ namespace Player {
 
         private bool IsOnGround()
         {
-            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05);
+            return CollisionStateActive(CollisionState.OnGround) || (CollisionStateActive(CollisionState.OnPlatform) || CollisionStateActive(CollisionState.OnSlope)) && ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
         }
 
         private bool WalkingIntoSlope(Direction direction)
@@ -981,7 +981,7 @@ namespace Player {
             
             
             
-            const float DAMAGE_RATE = 4;
+            const float DAMAGE_RATE = 2;
             const float MIN_DAMAGE = 1f;
 
             float damage = DAMAGE_RATE * fallTime * fallTime;
@@ -1057,6 +1057,7 @@ namespace Player {
 
         public void Respawn()
         {
+            spriteRenderer.enabled = true;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             robotData.Health = GetMaxHealth();
@@ -1065,6 +1066,7 @@ namespace Player {
 
         public void Die()
         {
+            spriteRenderer.enabled = false;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;

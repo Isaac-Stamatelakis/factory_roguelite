@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class EditorHelper
 {
-    public static readonly string EDITOR_SAVE_PATH = "Assets/EditorCreations";
+    public const string EDITOR_SAVE_PATH = "Assets/EditorCreations";
 
     public static string CreateFolder(string folderName)
     {
