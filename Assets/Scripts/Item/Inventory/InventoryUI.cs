@@ -39,6 +39,7 @@ namespace Items.Inventory {
         protected List<ItemSlot> inventory;
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
         protected List<Action<int>> callbacks = new List<Action<int>>();
+        protected Action<int> onHighlight;
         private int highlightedSlot = -1;
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
@@ -53,7 +54,9 @@ namespace Items.Inventory {
         private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
         private Action<int> overrideClickAction;
-        private Func<ItemObject, bool> validateInputCallback; 
+        private Func<ItemObject, bool> validateInputCallback;
+        private Color highlightColor = new Color(255 / 255f, 215 / 255f, 0, 100 / 255f);
+        private Color defaultItemPanelColor;
         
         public void Awake()
         {
@@ -71,6 +74,15 @@ namespace Items.Inventory {
                 clickHandler?.Initialize(this,slots.Count-1);
             }
 
+            if (itemSlotUIPrefab)
+            {
+                defaultItemPanelColor = itemSlotUIPrefab.GetComponent<Image>().color;
+            }
+            else
+            {
+                if (transform.childCount > 0) defaultItemPanelColor = transform.GetChild(0).gameObject.GetComponent<Image>().color;
+            }
+            
             foreach (GameObject go in toDestroy)
             {
                 Destroy(go);
@@ -89,6 +101,36 @@ namespace Items.Inventory {
             {
                 if (i >= slots.Count || i >= textList.Count) break;
                 slots[i].SetTopText(textList[i]);
+            }
+        }
+
+        public void SetHighlightColor(Color color)
+        {
+            highlightColor = color;
+            DisplayHighSlotSlot(highlightedSlot);
+        }
+
+        public void SetOnHighlight(Action<int> onHighlight)
+        {
+            this.onHighlight = onHighlight;
+        }
+        public void SetAllPanelColors(Color color)
+        {
+            defaultItemPanelColor = color;
+            Image[] panels = transform.GetComponentsInChildren<Image>();
+            foreach (Image image in panels)
+            {
+                image.color = color;
+            }
+        }
+        
+        public void SetAllTopTextColors(Color color)
+        {
+            defaultItemPanelColor = color;
+            foreach (ItemSlotUI slotUI in slots)
+            {
+                if (!slotUI.mTopText) continue;
+                slotUI.mTopText.color = color;
             }
         }
 
@@ -262,13 +304,15 @@ namespace Items.Inventory {
 
         private void DisplayHighSlotSlot(int n)
         {
+            if (n < 0 || n >= slots.Count) return;
             if (highlightedSlot >= 0 && n < slots.Count)
             {
-                slots[highlightedSlot].GetComponent<Image>().color = itemSlotUIPrefab.GetComponent<Image>().color;
+                slots[highlightedSlot].GetComponent<Image>().color = defaultItemPanelColor;
             }
             
             highlightedSlot = n;
-            slots[highlightedSlot].GetComponent<Image>().color = new Color(255/255f,215/255f,0,100/255f);
+            slots[highlightedSlot].GetComponent<Image>().color = highlightColor;
+            onHighlight?.Invoke(n);
         }
 
         public void AddTagRestriction(ItemTag itemTag)
