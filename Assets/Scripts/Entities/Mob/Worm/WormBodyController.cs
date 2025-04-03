@@ -98,7 +98,7 @@ namespace Entities.Mob.Display
             BoxCollider2D partHealthCollider = partObject.AddComponent<BoxCollider2D>();
             partObject.transform.SetParent(transform,false);
             Vector3 spawnPosition = partObject.transform.position;
-            spawnPosition.z = transform.childCount / 1024f;
+            spawnPosition.z += transform.childCount / 1024f;
             partObject.transform.position = spawnPosition;
             SpriteRenderer spriteRenderer = partObject.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;

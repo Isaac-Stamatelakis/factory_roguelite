@@ -153,8 +153,15 @@ namespace Items {
             displayedSlot = itemSlot;
             
             var toDisplay = new ItemDisplay[sprites.Length];
-            Color color = itemSlot.itemObject is TransmutableItemObject transmutableItemObject ? transmutableItemObject.getMaterial().color : Color.white;
-            
+            Color color = Color.white;
+            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
+            {
+                color = transmutableItemObject.getMaterial().color;
+                if (transmutableItemObject.getMaterial().OverlaySprite)
+                {
+                    AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay");
+                }
+            }
             if (itemSlot.itemObject is TileItem tileItem)
             {
                 if (tileItem.tileOptions?.Overlay)
@@ -214,6 +221,7 @@ namespace Items {
         {
             GameObject overlayObject = new GameObject(overlayName);
             Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
+            overlayImage.raycastTarget = false;
             overlayImage.sprite = sprite;
             overlayImage.color = color;
             RectTransform rectTransform = (RectTransform)overlayObject.transform;

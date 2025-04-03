@@ -96,14 +96,14 @@ namespace Entities.Mobs {
         }
 
         private void Spawn(SerializedMobEntityData serializedEntityData, Vector2 position,Transform container) {
-            MobEntity entity = Object.Instantiate(cache[serializedEntityData.Id], container, false);
+            MobEntity entity = Object.Instantiate(cache[serializedEntityData.Id], container, true);
             MobEntity mobEntity = entity.GetComponent<MobEntity>();
             if (!mobEntity) {
                 Debug.LogError("Tried to spawn mob with id '" + serializedEntityData.Id + "' which didn't have MobEntity Component");
                 Object.Destroy(entity);
                 return;
             }
-            entity.transform.position = position;
+            entity.transform.localPosition = position;
             mobEntity.initalize();
             mobEntity.Deseralize(serializedEntityData);
         }

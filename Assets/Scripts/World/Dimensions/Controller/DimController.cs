@@ -33,6 +33,7 @@ namespace Dimensions {
             entityContainerObject.transform.SetParent(transform);
             EntityContainer component = entityContainerObject.AddComponent<EntityContainer>();
             entityContainer = entityContainerObject.transform;
+            entityContainer.transform.localPosition = new Vector3(0, 0, 2);
         }
 
         public void ClearEntities()

@@ -13,10 +13,10 @@ namespace Items.Transmutable {
     [CreateAssetMenu(fileName ="New Transmutable Material",menuName="Item/Instances/Transmutable/Material")]
     public class TransmutableItemMaterial : ScriptableObject
     {
-        public string id;
         public Color color;
         public string chemicalFormula;
         public TieredGameStage gameStageObject;
+        public Sprite OverlaySprite;
         
         public TransmutableMaterialOptions MaterialOptions;
         public virtual List<TransmutableStateOptions> GetStates()
