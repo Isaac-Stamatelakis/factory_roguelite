@@ -38,7 +38,7 @@ namespace Dimensions {
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
             this.playerScript = playerScript;
             activeSystem.Initalize(this,coveredArea,-1);
-            caveIndicatorUI = playerScript.PlayerUIContainer.IndicatorManager.caveIndicatorUI;
+            caveIndicatorUI = playerScript.PlayerUIContainer.MiscStatusManager.CaveIndicatorUI;
             return activeSystem;
         }
         public void setCurrentCave(CaveObject caveObject, Vector2 returnPortalLocation) {

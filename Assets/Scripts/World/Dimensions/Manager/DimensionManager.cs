@@ -429,7 +429,7 @@ namespace Dimensions {
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
-            player.PlayerUIContainer.IndicatorManager.caveIndicatorUI.Display(dimension);
+            player.PlayerUIContainer.MiscStatusManager.CaveIndicatorUI.Display(dimension);
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             
             CanvasController.Instance.ClearStack();
