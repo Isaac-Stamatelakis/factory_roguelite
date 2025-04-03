@@ -73,6 +73,7 @@ public class TransmutableItemGenerator : EditorWindow
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
             Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
+           
             foreach (var asset in handle.Result)
             {
                 GenerateMaterialItems(asset);
@@ -101,6 +102,7 @@ public class TransmutableItemGenerator : EditorWindow
         TransmutableMaterialOptions options = material.MaterialOptions;
         if (options == null)
         {
+            Debug.LogWarning($"Material '{material}' options not set.");
             return;
         }
         string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
