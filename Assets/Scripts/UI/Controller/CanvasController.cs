@@ -126,7 +126,7 @@ namespace UI
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
-                transform.SetSiblingIndex(newTop.priority);
+                SetSiblingPriority(newTop.inventoryInteractable);
             }
             else
             {
@@ -138,15 +138,28 @@ namespace UI
             
         }
 
+        private void SetSiblingPriority(bool inventoryInteractable)
+        {
+            if (inventoryInteractable)
+            {
+                transform.SetAsFirstSibling();
+            }
+            else
+            {
+                transform.SetAsLastSibling();
+               
+            }
+        }
+
         public bool TopHasComponent<T>() where T : Component
         {
             if (uiObjectStack.Count == 0) return false;
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, int priority = 0, bool terminateOnEscape = true)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool inventoryInteractable = false, bool terminateOnEscape = true)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,priority,terminateOnEscape));
+            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,inventoryInteractable,terminateOnEscape));
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -172,7 +185,7 @@ namespace UI
             canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
-            transform.SetSiblingIndex(uiInfo.priority);
+            SetSiblingPriority(uiInfo.inventoryInteractable);
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)
@@ -206,17 +219,17 @@ namespace UI
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
-        public int priority;
+        public bool inventoryInteractable;
         public bool termianteOnEscape;
 
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, int priority, bool terminateOnEscape)
+        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, bool inventoryInteractable, bool terminateOnEscape)
         {
             this.gameObject = gameObject;
             this.additionalTerminators = additionalTerminators;
             this.hideOnStack = hideOnStack;
             this.hideParent = hideParent;
             this.originalParent = originalParent;
-            this.priority = priority;
+            this.inventoryInteractable = inventoryInteractable;
             this.termianteOnEscape = terminateOnEscape;
         }
     }

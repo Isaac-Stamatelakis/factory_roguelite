@@ -68,7 +68,7 @@ namespace UI.PauseScreen
 
         private void Display(string key, bool termianteOnEscape)
         {
-            uiAssetManager.DisplayObject(key,priority:1,terminateOnEscape:termianteOnEscape);
+            uiAssetManager.DisplayObject(key,inventoryInteractable:false, terminateOnEscape:termianteOnEscape);
         }
 
         public void OnDestroy()

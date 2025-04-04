@@ -1,3 +1,4 @@
+using UI.Catalogue.ItemSearch;
 using UI.Indicators;
 using UnityEngine;
 

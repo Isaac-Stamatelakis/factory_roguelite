@@ -4,6 +4,7 @@ using Items.Inventory;
 using Recipe.Viewer;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
@@ -31,7 +32,7 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
             });
                 
 
-            void ClickAction(int index)
+            void ClickAction(PointerEventData.InputButton inputButton, int index)
             {
                 recipeLookUpList.Select(mode, index);
             }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Player;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.LoadOut;
+using Robot.Upgrades.Network;
 using UI.GeneralUIElements.Sliders;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,7 +45,8 @@ namespace Robot.Upgrades
         private RobotStatLoadOutCollection robotStatLoadOutCollection;
         private Dictionary<int, int> statUpgradeDict;
         private RobotUpgradeInfo robotUpgradeInfo;
-        
+        private PlayerScript playerScript;
+        private Action<int> onLoadOutChange;
         
         private void Initialize(RobotUpgradeInfo upgradeInfo)
         {
@@ -65,18 +68,46 @@ namespace Robot.Upgrades
             upgradeEnergyCostElement.SetDisplayText(costText);
         }
 
-        private void SelectPreset(int index)
+        private void SelectPreset(int loadOut)
         {
-            if (robotStatLoadOutCollection == null || robotStatLoadOutCollection.Current == index) return;
+            if (robotStatLoadOutCollection == null || robotStatLoadOutCollection.Current == loadOut) return;
             presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = buttonColor;
-            robotStatLoadOutCollection.Current = index;
+            robotStatLoadOutCollection.Current = loadOut;
+            onLoadOutChange?.Invoke(loadOut);
             presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = highlightButtonColor;
             DisplayCurrentStatLoadOut();
         }
-        
 
-        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo)
+        internal bool Display(UpgradeDisplayData upgradeDisplayData)
         {
+            bool error = false;
+            if (upgradeDisplayData.StatLoadOutCollection == null)
+            {
+                error = true;
+                Debug.LogWarning("Tried to display null stat load out");
+            }
+
+            SerializedRobotUpgradeNodeNetwork network = RobotUpgradeUtils.DeserializeRobotNodeNetwork(upgradeDisplayData.UpgradePath);
+            if (network == null)
+            {
+                error = true;
+                Debug.LogWarning("Tried to display null network");
+            }
+
+            if (error)
+            {
+                GameObject.Destroy(gameObject);
+                return false;
+            }
+            
+            Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
+            Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,upgradeDisplayData.OnLoadOutChange);
+            return true;
+        }
+
+        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange)
+        {
+            this.onLoadOutChange = onLoadOutChange;
             Initialize(upgradeInfo);
             this.robotStatLoadOutCollection = statLoadOutCollection;
             this.statUpgradeDict = statUpgradeDict;
@@ -194,6 +225,25 @@ namespace Robot.Upgrades
             
             return slider;
         }
+        
+        internal struct UpgradeDisplayData
+        {
+            public string UpgradePath;
+            public RobotStatLoadOutCollection StatLoadOutCollection;
+            public List<RobotUpgradeData> UpgradeData;
+            public RobotUpgradeInfo RobotUpgradeInfo;
+            public Action<int> OnLoadOutChange;
+
+            public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo, Action<int> onLoadOutChange)
+            {
+                UpgradePath = upgradePath;
+                StatLoadOutCollection = statLoadOutCollection;
+                UpgradeData = upgradeData;
+                RobotUpgradeInfo = robotUpgradeInfo;
+                OnLoadOutChange = onLoadOutChange;
+            }
+        }
     }
+    
     
 }

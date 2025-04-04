@@ -4,6 +4,7 @@ using Item.GrabbedItem;
 using Item.Slot;
 using Items.Inventory;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace TileEntity.Instances.Creative.CreativeChest
 {
@@ -19,7 +20,7 @@ namespace TileEntity.Instances.Creative.CreativeChest
             mInventoryUI.OverrideClickAction(OnClick);
         }
 
-        private void OnClick(int index)
+        private void OnClick(PointerEventData.InputButton inputButton, int index)
         {
             ItemSlot grabbedItemSlot = GrabbedItemProperties.Instance.ItemSlot;
             if (ItemSlotUtils.IsItemSlotNull(grabbedItemSlot))

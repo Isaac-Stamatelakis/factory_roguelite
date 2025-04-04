@@ -25,7 +25,7 @@ namespace UI.Indicators
         public void OnPointerEnter(PointerEventData eventData)
         {
             string text = playerScript?.TilePlacementOptions?.Indiciator.ToString() ?? string.Empty;
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview: {text}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview: {text}",reverse:true);
         }
 
         public void OnPointerExit(PointerEventData eventData)

@@ -23,6 +23,7 @@ using PlayerModule.Mouse;
 using Robot;
 using Robot.Tool;
 using TileEntity;
+using UI.Indicators;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -31,11 +32,9 @@ namespace PlayerModule {
         
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
-        private PlayerPickUp playerPickUp;
         private PlayerRobot playerRobot;
         private PlayerMouse playerMouse;
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
-        private static int entityLayer;
         private int selectedSlot = 0;
         private int selectedTool = 0;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
@@ -53,8 +52,6 @@ namespace PlayerModule {
         // Start is called before the first frame update
         void Start()
         {
-            entityLayer = 1 << LayerMask.NameToLayer("Entity");
-            playerPickUp = GetComponentInChildren<PlayerPickUp>();
             playerRobot = GetComponent<PlayerRobot>();
             playerMouse = GetComponent<PlayerMouse>();
         }
@@ -74,7 +71,7 @@ namespace PlayerModule {
 
             void FreezeTopText(ItemSlotUI itemSlotUI)
             {
-                itemSlotUI.StaticTopText = true;
+                itemSlotUI.LockTopText = true;
             }
 
             playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
@@ -83,7 +80,7 @@ namespace PlayerModule {
         
         public void InitializeToolDisplay()
         {
-            playerToolListUI.Initialize(playerRobot.RobotTools, this);
+            playerToolListUI.Initialize(playerRobot.RobotTools, GetComponent<PlayerScript>());
         }
 
         public void Refresh()
@@ -118,6 +115,17 @@ namespace PlayerModule {
                 case InventoryDisplayMode.Inventory:
                     selectedSlot = slot;
                     playerInventoryGrid.HighlightSlot(slot);
+                    ItemSlot itemSlot = playerInventoryGrid.GetItemSlot(selectedSlot);
+                    
+                    IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
+                    indicatorManager.RemovePlaceBundles();
+                    if (itemSlot.itemObject is TileItem)
+                    {
+                        indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);
+                    } else if (itemSlot.itemObject is ConduitItem)
+                    {
+                        indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
+                    }
                     break;
                 case InventoryDisplayMode.Tools:
                     ChangeSelectedTool(slot % playerRobot.RobotTools.Count);

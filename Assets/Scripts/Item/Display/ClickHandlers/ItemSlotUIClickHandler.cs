@@ -28,7 +28,6 @@ namespace Item.Display.ClickHandlers
         public void OnPointerClick(PointerEventData eventData)
         {
             if (ReferenceEquals(inventoryUI, null)) return;
-            
             switch (inventoryUI.InventoryInteractMode)
             {
                 case InventoryInteractMode.Standard:
@@ -41,8 +40,8 @@ namespace Item.Display.ClickHandlers
                 case InventoryInteractMode.UnInteractable:
                     break;
                 case InventoryInteractMode.OverrideAction:
-                    Action<int> action = inventoryUI.GetOverrideAction();
-                    action?.Invoke(index);
+                    var action = inventoryUI.GetOverrideAction();
+                    action?.Invoke(eventData.button, index);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

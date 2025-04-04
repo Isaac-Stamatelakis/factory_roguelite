@@ -25,7 +25,7 @@ namespace UI.Indicators
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions?.Rotation}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions?.Rotation}",reverse:true);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -55,7 +55,7 @@ namespace UI.Indicators
 
         public PlayerControl? GetPlayerControl()
         {
-            return PlayerControl.Jump; // TODO
+            return null; // TODO
         }
     }
 }

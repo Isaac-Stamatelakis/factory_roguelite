@@ -71,7 +71,7 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(tilePlacementOption?.State ?? 0)}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(tilePlacementOption?.State ?? 0)}",reverse:true);
         }
 
         public void OnPointerExit(PointerEventData eventData)

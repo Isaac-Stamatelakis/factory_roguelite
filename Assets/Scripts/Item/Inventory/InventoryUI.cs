@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using TMPro;
 using Items;
 using Items.Tags;
+using UnityEngine.EventSystems;
 
 namespace Items.Inventory {
     public enum InventoryInteractMode
@@ -53,7 +54,7 @@ namespace Items.Inventory {
         public bool EnableToolTip => enableToolTip;
         private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
-        private Action<int> overrideClickAction;
+        private Action<PointerEventData.InputButton, int> overrideClickAction;
         private Func<ItemObject, bool> validateInputCallback;
         private Color highlightColor = new Color(255 / 255f, 215 / 255f, 0, 100 / 255f);
         private Color defaultItemPanelColor;
@@ -103,6 +104,15 @@ namespace Items.Inventory {
                 slots[i].SetTopText(textList[i]);
             }
         }
+        
+        public void DisplayBottomText(List<string> bottomText)
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (i >= slots.Count || i >= bottomText.Count) break;
+                slots[i].DisplayBottomText(bottomText[i]);
+            }
+        }
 
         public void SetHighlightColor(Color color)
         {
@@ -142,13 +152,13 @@ namespace Items.Inventory {
             }
         }
 
-        public void OverrideClickAction(Action<int> callback)
+        public void OverrideClickAction(Action<PointerEventData.InputButton,int> callback)
         {
             InventoryInteractMode = InventoryInteractMode.OverrideAction;
             overrideClickAction = callback;
         }
 
-        public Action<int> GetOverrideAction()
+        public Action<PointerEventData.InputButton, int> GetOverrideAction()
         {
             return overrideClickAction;
         }

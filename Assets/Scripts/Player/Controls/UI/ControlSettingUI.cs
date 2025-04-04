@@ -69,5 +69,12 @@ namespace Player.Controls.UI
                 CanvasController.Instance.PopStack();
             }
         }
+
+        public void OnDestroy()
+        {
+            PlayerScript playerScript = PlayerManager.Instance?.GetPlayer();
+            if (!playerScript) return;
+            playerScript.PlayerUIContainer.IndicatorManager.SyncKeyCodes(false);
+        }
     }
 }

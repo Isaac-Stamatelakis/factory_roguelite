@@ -40,7 +40,7 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode: Connect {conduitPlacementOptions?.PlacementMode}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode: Connect {conduitPlacementOptions?.PlacementMode}",reverse:true);
         }
 
         public void OnPointerExit(PointerEventData eventData)

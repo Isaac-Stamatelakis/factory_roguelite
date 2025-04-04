@@ -20,6 +20,7 @@ namespace Player.UI.Inventory
 {
     public class PlayerInventoryRobotInfo : MonoBehaviour
     {
+        /*
         [SerializeField] private AssetReference mStatSelectorUIPrefabRef;
         [SerializeField] private ItemSlotUI mRobotItemSlotUI;
         [SerializeField] private Button mModifyStatButton;
@@ -41,6 +42,7 @@ namespace Player.UI.Inventory
 
         public void Display(PlayerRobot playerRobot)
         {
+            PlayerScript playerScript = playerRobot.GetComponent<PlayerScript>();
             mRobotItemSlotUI.Display(playerRobot.robotItemSlot);
             mModifyStatButton.onClick.AddListener(() =>
             {
@@ -50,12 +52,12 @@ namespace Player.UI.Inventory
                     playerRobot.RobotData.RobotUpgrades,
                     RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Robot,0)
                 );
-                DisplayData(upgradeDisplayData);
+                DisplayData(upgradeDisplayData,null);
 
             });
             List<ItemSlot> toolItems = RobotToolFactory.ToolInstancesToItems(playerRobot.RobotTools);
             mToolInventoryUI.DisplayInventory(toolItems);
-            mToolInventoryUI.OverrideClickAction((int index) =>
+            mToolInventoryUI.OverrideClickAction((inputButton, index) =>
             {
                 string upgradePath = playerRobot.RobotTools[index].GetToolObject().UpgradePath;
                 List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
@@ -63,11 +65,16 @@ namespace Player.UI.Inventory
                 RobotStatLoadOutCollection statLoadOutCollection = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType);
                 RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
                 UpgradeDisplayData upgradeDisplayData = new UpgradeDisplayData(upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo);
-                DisplayData(upgradeDisplayData);
+
+                void OnLoadOutChange(int loadOut)
+                {
+                    playerScript.PlayerInventory.PlayerRobotToolUI.SetLoadOutText(index,loadOut+1);
+                }
+                DisplayData(upgradeDisplayData,OnLoadOutChange);
             });
         }
 
-        private void DisplayData(UpgradeDisplayData upgradeDisplayData)
+        private void DisplayData(UpgradeDisplayData upgradeDisplayData, Action<int> onLoadOutChange)
         {
             bool error = false;
             if (upgradeDisplayData.StatLoadOutCollection == null)
@@ -89,25 +96,11 @@ namespace Player.UI.Inventory
             
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(statSelectorUIPrefab);
-            statSelectorUI.Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo);
+            statSelectorUI.Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,onLoadOutChange);
             CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
         }
+        */
+
         
-
-        private struct UpgradeDisplayData
-        {
-            public string UpgradePath;
-            public RobotStatLoadOutCollection StatLoadOutCollection;
-            public List<RobotUpgradeData> UpgradeData;
-            public RobotUpgradeInfo RobotUpgradeInfo;
-
-            public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo)
-            {
-                UpgradePath = upgradePath;
-                StatLoadOutCollection = statLoadOutCollection;
-                UpgradeData = upgradeData;
-                RobotUpgradeInfo = robotUpgradeInfo;
-            }
-        }
     }
 }

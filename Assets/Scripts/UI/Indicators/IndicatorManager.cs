@@ -7,6 +7,7 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using TMPro;
+using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +33,7 @@ namespace UI.Indicators
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
         public GenericIndicatorUI loadOutIndicator;
+        public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
         private Transform indicatorTransform;
         private int viewMode;
@@ -56,6 +58,15 @@ namespace UI.Indicators
             }
             inventoryIndicator.Initialize(PlayerControl.OpenInventory, ()=> "Open Inventory", OnInventoryClick);
             
+            void OnSearchClick()
+            {
+                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+                ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
+                itemSearchUI.Initialize(playerScript);
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject,inventoryInteractable:true);
+            }
+            searchIndicator.Initialize(PlayerControl.OpenSearch, ()=> "Search Items", OnSearchClick);
+            
             
         }
 
@@ -74,7 +85,14 @@ namespace UI.Indicators
         {
             if ((viewMode & (int)bundle) != 0) return;
             viewMode += (int)bundle;
+            
             DisplayMode();
+        }
+
+        public void RemovePlaceBundles()
+        {
+            RemoveBundle(IndicatorDisplayBundle.ConduitPlace);
+            RemoveBundle(IndicatorDisplayBundle.TilePlace);
         }
 
         public void RemoveBundle(IndicatorDisplayBundle bundle)
@@ -95,6 +113,7 @@ namespace UI.Indicators
             questBookIndicator.gameObject.SetActive(true);
             inventoryIndicator.gameObject.SetActive(true);
             loadOutIndicator.gameObject.SetActive(true);
+            searchIndicator.gameObject.SetActive(true);
 
             bool ViewBundleActive(IndicatorDisplayBundle bundle)
             {
@@ -108,16 +127,15 @@ namespace UI.Indicators
                 tileStateIndicatorUI.gameObject.SetActive(true);
             }
             
-            if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
-            {
-                tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
-            }
-            
             if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
             {
                 conduitViewIndicatorUI.gameObject.SetActive(true);
                 conduitPortIndicatorUI.gameObject.SetActive(true);
+                if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
+                {
+                    tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                    conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
+                }
             }
             else
             {
@@ -134,6 +152,8 @@ namespace UI.Indicators
             {
                 GlobalHelper.DeleteAllChildren(keyCodeContainer);
             }
+
+            int idx = 0;
             for (int i = 0; i < indicatorTransform.childCount; i++)
             {
                 GameObject keyCodeObject = indicatorTransform.GetChild(i).gameObject;
@@ -146,8 +166,13 @@ namespace UI.Indicators
                     : string.Empty;
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)
-                    : keyCodeContainer.GetChild(i).gameObject;
+                    : keyCodeContainer.GetChild(idx).gameObject;
+                if (string.IsNullOrEmpty(text))
+                {
+                    keyCodeElement.GetComponent<Image>().enabled = false;
+                }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
+                idx++;
             }
         }
 

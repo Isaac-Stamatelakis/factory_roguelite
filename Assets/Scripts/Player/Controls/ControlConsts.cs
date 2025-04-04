@@ -24,6 +24,7 @@ namespace Player.Controls
         SwapRobotLoadOut = 18,
         OpenQuestBook = 19,
         OpenInventory = 20,
+        OpenSearch = 21,
         
     }
 }

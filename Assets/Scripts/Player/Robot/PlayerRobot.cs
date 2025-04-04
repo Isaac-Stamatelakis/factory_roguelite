@@ -167,7 +167,9 @@ namespace Player {
 
         public void Update()
         {
+            if (robotData == null) return; // Don't like this
             mPlayerRobotUI.Display(this);
+            if (robotData.Health <= 0) return;
             MoveUpdate();
             FluidDamageUpdate();
             MiscKeyListens();
@@ -955,6 +957,7 @@ namespace Player {
         private IEnumerator UnPausePlayer()
         {
             yield return new WaitForSeconds(0.1f);
+            fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
@@ -1035,11 +1038,15 @@ namespace Player {
             nanoBotParticles.Play();
             if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
-
+        
         public void RefreshNanoBots()
         {
             nanoBotParticles.Play();
             robotData.nanoBotTime = SelfRobotUpgradeInfo.NANO_BOT_TIME_PER_UPGRADE * RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut.SelfLoadOuts, (int)RobotUpgrade.NanoBots);
+            float maxHealth = GetMaxHealth();
+            if (robotData.Health >= maxHealth) return;
+            robotData.Health += maxHealth * 0.0025f;
+            if (robotData.Health > maxHealth) robotData.Health = maxHealth;
         }
 
         public bool Damage(float amount)

@@ -11,7 +11,7 @@ namespace Player.UI
 
         public void Display(PlayerScript playerScript)
         {
-            robotInfo.Display(playerScript.PlayerRobot);
+            //robotInfo.Display(playerScript.PlayerRobot);
         }
     }
 }
