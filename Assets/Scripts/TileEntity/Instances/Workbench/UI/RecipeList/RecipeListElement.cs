@@ -17,11 +17,11 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
     {
         [SerializeField] private InventoryUI mInventoryUI;
         private RecipeLookUpList recipeLookUpListParent;
-        private Action<int> clickAction;
+        private Action<PointerEventData.InputButton,int> clickAction;
         private int index;
         private string itemName;
         
-        public void Display(List<ItemSlot> outputs, RecipeObject recipeObject, Action<int> clickAction, int index, string itemName)
+        public void Display(List<ItemSlot> outputs, RecipeObject recipeObject, Action<PointerEventData.InputButton, int> clickAction, int index, string itemName)
         {
             this.index = index;
             this.clickAction = clickAction;
@@ -63,7 +63,7 @@ namespace TileEntity.Instances.Workbench.UI.RecipeList
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            clickAction.Invoke(index);
+            clickAction.Invoke(eventData.button,index);
         }
     }
 }

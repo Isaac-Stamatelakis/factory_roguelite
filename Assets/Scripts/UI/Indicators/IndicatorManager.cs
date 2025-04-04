@@ -140,6 +140,8 @@ namespace UI.Indicators
             {
                 GlobalHelper.DeleteAllChildren(keyCodeContainer);
             }
+
+            int idx = 0;
             for (int i = 0; i < indicatorTransform.childCount; i++)
             {
                 GameObject keyCodeObject = indicatorTransform.GetChild(i).gameObject;
@@ -152,12 +154,13 @@ namespace UI.Indicators
                     : string.Empty;
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)
-                    : keyCodeContainer.GetChild(i).gameObject;
+                    : keyCodeContainer.GetChild(idx).gameObject;
                 if (string.IsNullOrEmpty(text))
                 {
                     keyCodeElement.GetComponent<Image>().enabled = false;
                 }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
+                idx++;
             }
         }
 

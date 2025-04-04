@@ -19,6 +19,7 @@ using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
@@ -98,7 +99,7 @@ namespace TileEntity.Instances.Robot.Upgrader
         }
         
         
-        private void OnToolClick(int index)
+        private void OnToolClick(PointerEventData.InputButton inputButton, int index)
         {
             DisplayPath(toolClickDataList[index]);
         }

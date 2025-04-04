@@ -168,6 +168,7 @@ namespace Player {
         public void Update()
         {
             mPlayerRobotUI.Display(this);
+            if (robotData.Health <= 0) return;
             MoveUpdate();
             FluidDamageUpdate();
             MiscKeyListens();
