@@ -42,7 +42,7 @@ namespace UI.QuestBook
         {
             Transform child = transform.GetChild(0);
             child.gameObject.SetActive(true);
-            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: new List<KeyCode> { KeyCode.L}, hideParent:false, originalParent:transform, priority: 1);
+            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: new List<KeyCode> { KeyCode.L}, hideParent:false, originalParent:transform);
         }
         
     }

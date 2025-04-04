@@ -27,10 +27,10 @@ namespace UI {
             CanvasController.Instance.DisplayObject(uiObject);
         }
         
-        public void DisplayObject(string key, int priority, bool terminateOnEscape)
+        public void DisplayObject(string key, bool inventoryInteractable, bool terminateOnEscape)
         {
             GameObject uiObject = cloneGameObject(key);
-            CanvasController.Instance.DisplayObject(uiObject,priority:priority,terminateOnEscape:terminateOnEscape);
+            CanvasController.Instance.DisplayObject(uiObject,inventoryInteractable:inventoryInteractable,terminateOnEscape:terminateOnEscape);
         }
     }
 
