@@ -91,7 +91,7 @@ namespace UI.Indicators
         public void OnPointerEnter(PointerEventData eventData)
         {
             string text = GetToolTipText();
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode: {text}");
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode: {text}",reverse:true);
         }
 
         private string GetToolTipText()

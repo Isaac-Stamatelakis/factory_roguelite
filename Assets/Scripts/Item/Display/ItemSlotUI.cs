@@ -64,10 +64,16 @@ namespace Items {
         public bool ScaleItems = true;
         private ItemDisplayList currentDisplayList;
         [NonSerialized] public bool Paused;
-        private bool staticTopText;
-        public bool StaticTopText
+        private bool lockTopText;
+        private bool lockBottomText;
+        public bool LockTopText
         {
-            get => staticTopText; set => staticTopText = value;
+            get => lockTopText; set => lockTopText = value;
+        }
+
+        public bool LockBottomText
+        {
+            get => lockBottomText; set => lockBottomText = value;
         }
         
         private int counter;
@@ -136,7 +142,14 @@ namespace Items {
         
         public virtual void SetAmountText()
         {
+            if (lockBottomText) return;
             mBottomText.text = ItemDisplayUtils.FormatAmountText(displayedSlot.amount,itemState:ItemState);
+        }
+
+        public void DisplayBottomText(string text)
+        {
+            if (lockBottomText) return;
+            mBottomText.text = text;
         }
         
         public void Display(ItemSlot itemSlot)
@@ -239,12 +252,12 @@ namespace Items {
         public void Display(ItemSlot itemSlot, string topText)
         {
             Display(itemSlot);
-            if (!staticTopText) mTopText.text = topText;
+            if (!lockTopText) mTopText.text = topText;
         }
 
         public void SetTopText(string topText)
         {
-            if (staticTopText) return;
+            if (lockTopText) return;
             if (ReferenceEquals(mTopText, null))
             {
                 return;
@@ -262,7 +275,7 @@ namespace Items {
             GlobalHelper.DeleteAllChildren(TagBehindContainer);
             GlobalHelper.DeleteAllChildren(TagFrontContainer);
             mBottomText.text = "";
-            if (!staticTopText && !ReferenceEquals(mTopText,null)) mTopText.text = "";
+            if (!lockTopText && !ReferenceEquals(mTopText,null)) mTopText.text = "";
      
         }
         public void Unload()

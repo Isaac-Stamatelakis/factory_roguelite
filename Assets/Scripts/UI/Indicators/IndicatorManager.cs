@@ -74,7 +74,14 @@ namespace UI.Indicators
         {
             if ((viewMode & (int)bundle) != 0) return;
             viewMode += (int)bundle;
+            
             DisplayMode();
+        }
+
+        public void RemovePlaceBundles()
+        {
+            RemoveBundle(IndicatorDisplayBundle.ConduitPlace);
+            RemoveBundle(IndicatorDisplayBundle.TilePlace);
         }
 
         public void RemoveBundle(IndicatorDisplayBundle bundle)
@@ -108,16 +115,15 @@ namespace UI.Indicators
                 tileStateIndicatorUI.gameObject.SetActive(true);
             }
             
-            if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
-            {
-                tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
-            }
-            
             if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
             {
                 conduitViewIndicatorUI.gameObject.SetActive(true);
                 conduitPortIndicatorUI.gameObject.SetActive(true);
+                if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
+                {
+                    tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                    conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
+                }
             }
             else
             {
@@ -147,6 +153,10 @@ namespace UI.Indicators
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)
                     : keyCodeContainer.GetChild(i).gameObject;
+                if (string.IsNullOrEmpty(text))
+                {
+                    keyCodeElement.GetComponent<Image>().enabled = false;
+                }
                 keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
             }
         }

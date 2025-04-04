@@ -103,6 +103,15 @@ namespace Items.Inventory {
                 slots[i].SetTopText(textList[i]);
             }
         }
+        
+        public void DisplayBottomText(List<string> bottomText)
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (i >= slots.Count || i >= bottomText.Count) break;
+                slots[i].DisplayBottomText(bottomText[i]);
+            }
+        }
 
         public void SetHighlightColor(Color color)
         {

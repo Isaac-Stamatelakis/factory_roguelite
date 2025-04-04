@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using Item.Slot;
+using Items;
 using Items.Inventory;
+using Player;
 using Player.Tool;
 using Player.Tool.UI;
 using PlayerModule;
@@ -25,9 +27,9 @@ public class PlayerToolListUI : MonoBehaviour
         defaultColor = image.color;
     }
 
-    public void Initialize(List<IRobotToolInstance> tools, PlayerInventory playerInventory)
+    public void Initialize(List<IRobotToolInstance> tools, PlayerScript playerScript)
     {
-        this.playerInventory = playerInventory;
+        this.playerInventory = playerScript.PlayerInventory;
 
         List<ItemSlot> toolItemSlots = new List<ItemSlot>();
         foreach (IRobotToolInstance robotToolInstance in tools)
@@ -65,9 +67,32 @@ public class PlayerToolListUI : MonoBehaviour
             topTexts.Add((i+1).ToString());
         }
         mToolCollectionUI.DisplayTopText(topTexts);
+        
+        for (int i = 0; i < toolItemSlots.Count; i++)
+        {
+            var type =  playerScript.PlayerRobot.RobotData.ToolData.Types[i];
+            int loadOut = playerScript.PlayerRobot.RobotUpgradeLoadOut.ToolLoadOuts[type].Current+1;
+            SetLoadOutText(i, loadOut);
+        }
+        
+
+        void LockSlot(ItemSlotUI slotUI)
+        {
+            slotUI.LockBottomText = true;
+            slotUI.LockTopText = true;
+        }
+        mToolCollectionUI.ApplyFunctionToAllSlots(LockSlot);
         mToolCollectionUI.SetAllPanelColors(new Color(174/255f,203/255f,221/255f,1f));
         mToolCollectionUI.SetHighlightColor(new Color(222/255f,218/255f,91/255f,1f));
         mToolCollectionUI.SetOnHighlight(DisplayIndicators);
+    }
+
+    public void SetLoadOutText(int index, int loadOut)
+    {
+        ItemSlotUI itemSlotUI = mToolCollectionUI.GetItemSlotUI(index);
+        itemSlotUI.LockBottomText = false;
+        itemSlotUI.DisplayBottomText($"[{loadOut}]");
+        itemSlotUI.LockBottomText = false;
     }
     
     public void Update()
