@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DevTools;
+using Player.Controls;
 using PlayerModule.KeyPress;
 using UI.QuestBook.Data;
 using UnityEngine;
@@ -31,12 +32,17 @@ namespace UI.QuestBook
        
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.L) && !PlayerKeyPressUtils.BlockKeyInput && transform.childCount > 0)
+            if (ControlUtils.GetControlKey(PlayerControl.OpenQuestBook) && !PlayerKeyPressUtils.BlockKeyInput && transform.childCount > 0)
             {
-                Transform child = transform.GetChild(0);
-                child.gameObject.SetActive(true);
-                CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: new List<KeyCode> { KeyCode.L}, hideParent:false, originalParent:transform, priority: 1);
+                DisplayQuestBook();
             }
+        }
+
+        public void DisplayQuestBook()
+        {
+            Transform child = transform.GetChild(0);
+            child.gameObject.SetActive(true);
+            CanvasController.Instance.DisplayObject(child.gameObject,keyCodes: new List<KeyCode> { KeyCode.L}, hideParent:false, originalParent:transform, priority: 1);
         }
         
     }

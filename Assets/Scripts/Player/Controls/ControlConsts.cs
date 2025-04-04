@@ -22,5 +22,8 @@ namespace Player.Controls
         HideJEI = 16,
         SwapToolLoadOut = 17,
         SwapRobotLoadOut = 18,
+        OpenQuestBook = 19,
+        OpenInventory = 20,
+        
     }
 }

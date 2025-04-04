@@ -2,6 +2,7 @@ using System;
 using Conduit.View;
 using Conduits.Systems;
 using Player;
+using Player.Controls;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image conduitImage;
 
@@ -63,6 +64,11 @@ namespace UI.Indicators
             Refresh();
             OnPointerEnter(eventData);
            
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.SwitchConduitPlacementMode;
         }
     }
 }

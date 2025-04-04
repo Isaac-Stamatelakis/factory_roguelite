@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Conduit.View;
 using Player;
+using Player.Controls;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image mMatrixImage;
         [SerializeField] private Image mEnergyImage;
@@ -107,6 +108,11 @@ namespace UI.Indicators
         public void OnPointerClick(PointerEventData eventData)
         {
             playerScript.TileViewers.ConduitViewController?.DisplayRadialMenu();
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.ChangeConduitViewMode;
         }
     }
 }

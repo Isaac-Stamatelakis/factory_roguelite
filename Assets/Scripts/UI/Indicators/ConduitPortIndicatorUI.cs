@@ -3,6 +3,7 @@ using Conduit.View;
 using Conduits.Ports;
 using Conduits.PortViewer;
 using Player;
+using Player.Controls;
 using PlayerModule.KeyPress;
 using UI.ToolTip;
 using UnityEngine;
@@ -11,7 +12,11 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public interface IKeyCodeIndicator
+    {
+        public PlayerControl? GetPlayerControl();
+    }
+    public class ConduitPortIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image portImage;
         
@@ -63,6 +68,11 @@ namespace UI.Indicators
         public void OnPointerClick(PointerEventData eventData)
         {
             playerScript.GetComponent<PlayerKeyPress>().ChangePortModePress();
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.SwitchConduitPortView;
         }
     }
 }

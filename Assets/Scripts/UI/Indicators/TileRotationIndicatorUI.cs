@@ -1,5 +1,6 @@
 using System;
 using Player;
+using Player.Controls;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileRotationIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class TileRotationIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image tileImage;
         private PlayerTilePlacementOptions displayedOptions;
@@ -50,6 +51,11 @@ namespace UI.Indicators
             }
             DisplayRotation();
             OnPointerEnter(eventData);
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.Jump; // TODO
         }
     }
 }

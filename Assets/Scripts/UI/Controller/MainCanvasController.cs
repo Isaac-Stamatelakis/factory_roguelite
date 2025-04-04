@@ -28,7 +28,7 @@ namespace UI
         [SerializeField] private CatalogueInfoViewer catalogueInfoViewerPrefab;
         [SerializeField] private Canvas canvas;
         [SerializeField] private ItemCatalogueController mItemCatalogueController;
-        
+        public QuestBookUIManager QuestBookUIManager;
         public override void EmptyListen()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
