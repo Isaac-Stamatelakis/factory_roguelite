@@ -75,13 +75,21 @@ namespace UI.ToolTip {
             toolTipType = ToolTipType.World;
         }
         
-        public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null) {
+        public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null, bool reverse = false) {
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
             newToolTip.setText(text);   
-            Vector2 displayPosition = position + (useOffset ? offset : Vector2.zero);
-            newToolTip.transform.position = displayPosition;
+            Vector2 displayPosition = position + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
+            
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
+            if (reverse)
+            {
+                RectTransform rectTransform = (RectTransform)newToolTip.transform;
+                var pivot = rectTransform.pivot;
+                pivot.x = 1;
+                rectTransform.pivot = pivot;
+            }
+            newToolTip.transform.position = displayPosition;
             toolTipType = ToolTipType.UI;
         }
         

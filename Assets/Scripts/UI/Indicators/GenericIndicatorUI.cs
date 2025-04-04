@@ -11,11 +11,12 @@ namespace UI.Indicators
     {
         private PlayerControl? playerControl;
         private string highlightText;
+        private Func<string> highlightStringAction;
         private Action onClick;
-            public void Initialize(PlayerControl? playerControl, string highlightText, Action onClick)
+            public void Initialize(PlayerControl? playerControl, Func<string> highlightStringAction, Action onClick)
         {
             this.playerControl = playerControl;
-            this.highlightText = highlightText;
+            this.highlightStringAction = highlightStringAction;
             this.onClick = onClick;
         }
             
@@ -31,7 +32,7 @@ namespace UI.Indicators
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position,highlightText);
+            ToolTipController.Instance.ShowToolTip(transform.position,highlightStringAction?.Invoke());
         }
 
         public void OnPointerExit(PointerEventData eventData)

@@ -6,6 +6,7 @@ using Conduits.Systems;
 using Items;
 using Player;
 using Player.Controls;
+using PlayerModule.KeyPress;
 using UI;
 using UI.RingSelector;
 using UnityEngine;
@@ -65,6 +66,7 @@ namespace Conduit.View
 
         private void KeyPressListen()
         {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             if (!ControlUtils.GetControlKeyDown(PlayerControl.ChangeConduitViewMode) || ReferenceEquals(chunkSystem, null)) return;
             DisplayRadialMenu();
         }

@@ -13,11 +13,11 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public enum IndicatorManagerDisplayMode
+    public enum IndicatorDisplayBundle
     {
-        Default = 0,
         TilePlace = 1,
         ConduitPlace = 2,
+        ConduitSystem = 4,
     }
     public class IndicatorManager : MonoBehaviour
     {
@@ -32,8 +32,9 @@ namespace UI.Indicators
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
         public GenericIndicatorUI loadOutIndicator;
+        public CaveIndicatorUI caveIndicatorUI;
         private Transform indicatorTransform;
-        private IndicatorManagerDisplayMode currentDisplayMode = IndicatorManagerDisplayMode.Default;
+        private int viewMode;
 
         public void Start()
         {
@@ -44,16 +45,16 @@ namespace UI.Indicators
                 QuestBookUIManager questBookUIManager = MainCanvasController.TInstance.QuestBookUIManager;
                 questBookUIManager.DisplayQuestBook();
             }
-            questBookIndicator.Initialize(PlayerControl.OpenQuestBook, "Open Quest Book", OnQuestBookClick);
+            questBookIndicator.Initialize(PlayerControl.OpenQuestBook, ()=> "Open Quest Book", OnQuestBookClick);
             
             void OnInventoryClick()
             {
                 PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
                 PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
                 playerInventoryUI.Display(playerScript);
-                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E});
+                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
             }
-            inventoryIndicator.Initialize(PlayerControl.OpenInventory, "Open Inventory", OnInventoryClick);
+            inventoryIndicator.Initialize(PlayerControl.OpenInventory, ()=> "Open Inventory", OnInventoryClick);
             
             
         }
@@ -66,41 +67,65 @@ namespace UI.Indicators
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
             tilePreviewerIndicatorUI.Display(playerScript);
-            DisplayMode(IndicatorManagerDisplayMode.Default, force : true);
+            DisplayMode();
         }
 
-        public void DisplayMode(IndicatorManagerDisplayMode displayMode, bool force = false)
+        public void AddViewBundle(IndicatorDisplayBundle bundle)
         {
-            if (!force && currentDisplayMode == displayMode) return;
-            SyncKeyCodes(true);
-            currentDisplayMode = displayMode;
-            for (int i = 0; i < keyCodeContainer.childCount; i++)
+            if ((viewMode & (int)bundle) != 0) return;
+            viewMode += (int)bundle;
+            DisplayMode();
+        }
+
+        public void RemoveBundle(IndicatorDisplayBundle bundle)
+        {
+            if ((viewMode & (int)bundle) == 0) return;
+            viewMode -= (int)bundle;
+            DisplayMode();
+        }
+        
+
+        public void DisplayMode()
+        {
+            for (int i = 0; i < indicatorTransform.childCount; i++)
             {
                 indicatorTransform.transform.GetChild(i).gameObject.SetActive(false);
             }
-            conduitPortIndicatorUI.gameObject.SetActive(true);
-            conduitViewIndicatorUI.gameObject.SetActive(true);
+      
             questBookIndicator.gameObject.SetActive(true);
             inventoryIndicator.gameObject.SetActive(true);
             loadOutIndicator.gameObject.SetActive(true);
-            
-            
-            switch (displayMode)
+
+            bool ViewBundleActive(IndicatorDisplayBundle bundle)
             {
-                case IndicatorManagerDisplayMode.Default:
-                    break;
-                case IndicatorManagerDisplayMode.TilePlace:
-                    tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                    tileRotationIndicatorUI.gameObject.SetActive(true);
-                    tileStateIndicatorUI.gameObject.SetActive(true);
-                    break;
-                case IndicatorManagerDisplayMode.ConduitPlace:
-                    tilePreviewerIndicatorUI.gameObject.SetActive(true);
-                    conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(displayMode), displayMode, null);
+                return (viewMode & (int)bundle) != 0;
             }
+
+            if (ViewBundleActive(IndicatorDisplayBundle.TilePlace))
+            {
+                tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                tileRotationIndicatorUI.gameObject.SetActive(true);
+                tileStateIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
+            {
+                tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
+            {
+                conduitViewIndicatorUI.gameObject.SetActive(true);
+                conduitPortIndicatorUI.gameObject.SetActive(true);
+            }
+            else
+            {
+                caveIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            
+            SyncKeyCodes(true);
         }
         
         public void SyncKeyCodes(bool instantiate)
@@ -117,7 +142,7 @@ namespace UI.Indicators
                 IKeyCodeIndicator keyCodeIndicator = keyCodeObject.GetComponent<IKeyCodeIndicator>();
                 PlayerControl? nullableControl = keyCodeIndicator?.GetPlayerControl();
                 string text = nullableControl.HasValue
-                    ? ControlUtils.FormatKeyText(nullableControl.Value)
+                    ? ControlUtils.KeyCodeListAsString(ControlUtils.GetKeyCodes(nullableControl.Value),"\n")
                     : string.Empty;
                 GameObject keyCodeElement = instantiate ? 
                     Instantiate(keyCodePrefab, keyCodeContainer)

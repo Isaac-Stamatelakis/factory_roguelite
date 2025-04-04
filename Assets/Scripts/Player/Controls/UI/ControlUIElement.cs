@@ -87,7 +87,7 @@ namespace Player.Controls.UI
         {
             text.text = ControlUtils.FormatKeyText(key);
             List<KeyCode> keyCodes = ControlUtils.GetKeyCodes(key);
-            string formatString = ControlUtils.KeyCodeListAsString(keyCodes);
+            string formatString = ControlUtils.KeyCodeListAsString(keyCodes,"+");
             button.transform.GetComponentInChildren<TextMeshProUGUI>().text = formatString;
         }
         public void Initalize(PlayerControl key, ControlSettingUI controlSettingUI)
