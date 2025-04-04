@@ -22,6 +22,7 @@ using Recipe;
 using TileEntity;
 using TileMaps;
 using UI;
+using UI.Indicators;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
@@ -101,8 +102,8 @@ namespace Dimensions {
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
             
-            ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            catalogueControllers.ShowAll();
+            //ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
+            //catalogueControllers.ShowAll();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)
@@ -404,6 +405,20 @@ namespace Dimensions {
                 yield break;
             }
             
+            IndicatorManager indicatorManager = player.PlayerUIContainer.IndicatorManager;
+            switch (dimension)
+            {
+                case Dimension.OverWorld:
+                case Dimension.CompactMachine:
+                    indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitSystem);
+                    break;
+                case Dimension.Cave:
+                    indicatorManager.RemoveBundle(IndicatorDisplayBundle.ConduitSystem);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(dimension), dimension, null);
+            }
+            
             if (newSystem is not ConduitTileClosedChunkSystem && activeSystem is ConduitTileClosedChunkSystem)
             {
                 player.TileViewers.DisableConduitViewers();
@@ -411,6 +426,7 @@ namespace Dimensions {
             else
             {
                 player.TileViewers.ConduitPortViewer.enabled = true;
+                
             }
             
             currentDimension = controller;
@@ -429,6 +445,7 @@ namespace Dimensions {
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
+           
             player.PlayerUIContainer.IndicatorManager.caveIndicatorUI.Display(dimension);
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             

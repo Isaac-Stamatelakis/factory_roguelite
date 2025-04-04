@@ -65,7 +65,7 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, GetDimensionText());
+            ToolTipController.Instance.ShowToolTip(transform.position, GetDimensionText(),reverse:true);
         }
 
         public void OnPointerExit(PointerEventData eventData)

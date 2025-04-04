@@ -115,7 +115,7 @@ namespace Player.Controls
             return sum;
         }
 
-        public static string KeyCodeListAsString(List<KeyCode> keyCodes)
+        public static string KeyCodeListAsString(List<KeyCode> keyCodes, string seperator)
         {
             string resultString = "";
             for (int i = 0; i < keyCodes.Count; i++)
@@ -126,7 +126,7 @@ namespace Player.Controls
                 
                 if (i < keyCodes.Count - 1)
                 {
-                    resultString += "+";
+                    resultString += seperator;
                 }
             }
 

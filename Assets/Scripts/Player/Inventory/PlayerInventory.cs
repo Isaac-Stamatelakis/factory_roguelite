@@ -27,7 +27,7 @@ using TileEntity;
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
-        public const int COLUMNS = 10;
+        public const int INVENTORY_SIZE = 10;
         
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
@@ -61,19 +61,26 @@ namespace PlayerModule {
 
         public void Initialize(string json) {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(json);
-            const int INVENTORY_SIZE = 10;
             playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,INVENTORY_SIZE);
             playerInventoryGrid.HighlightSlot(0);
+            playerInventoryGrid.AddListener(this);
+            
             List<string> topText = new List<string>();
             for (int i = 0; i < INVENTORY_SIZE; i++)
             {
                 topText.Add(((i+1)%10).ToString());
             }
-            playerInventoryGrid.AddListener(this);
             playerInventoryGrid.DisplayTopText(topText);
-            
-        }
 
+            void FreezeTopText(ItemSlotUI itemSlotUI)
+            {
+                itemSlotUI.StaticTopText = true;
+            }
+
+            playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
+
+        }
+        
         public void InitializeToolDisplay()
         {
             playerToolListUI.Initialize(playerRobot.RobotTools, this);
@@ -142,7 +149,7 @@ namespace PlayerModule {
             {
                 case InventoryDisplayMode.Inventory:
                     selectedSlot += iterator;
-                    selectedSlot = (int) Global.modInt(selectedSlot,COLUMNS);
+                    selectedSlot = (int) Global.modInt(selectedSlot,INVENTORY_SIZE);
                     ChangeSelectedSlot(selectedSlot); 
                     break;
                 case InventoryDisplayMode.Tools:

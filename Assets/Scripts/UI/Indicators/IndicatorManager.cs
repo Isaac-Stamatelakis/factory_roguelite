@@ -1,32 +1,62 @@
 
 using System;
+using System.Collections.Generic;
 using Dimensions;
 using Player;
+using Player.Controls;
+using Player.UI;
+using PlayerModule;
+using TMPro;
+using UI.QuestBook;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.Indicators
 {
+    public enum IndicatorDisplayBundle
+    {
+        TilePlace = 1,
+        ConduitPlace = 2,
+        ConduitSystem = 4,
+    }
     public class IndicatorManager : MonoBehaviour
     {
-        [SerializeField]
+        public GameObject keyCodePrefab;
+        public Transform keyCodeContainer;
         public ConduitPortIndicatorUI conduitPortIndicatorUI;
         public ConduitViewIndicatorUI conduitViewIndicatorUI;
         public ConduitPlacementModeIndicatorUI conduitPlacementModeIndicatorUI;
         public TileRotationIndicatorUI tileRotationIndicatorUI;
         public TileStateIndicatorUI tileStateIndicatorUI;
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
+        public GenericIndicatorUI questBookIndicator;
+        public GenericIndicatorUI inventoryIndicator;
+        public GenericIndicatorUI loadOutIndicator;
         public CaveIndicatorUI caveIndicatorUI;
+        private Transform indicatorTransform;
+        private int viewMode;
 
         public void Start()
         {
-            conduitPortIndicatorUI = GetComponentInChildren<ConduitPortIndicatorUI>();
-            conduitViewIndicatorUI = GetComponentInChildren<ConduitViewIndicatorUI>();
-            conduitPlacementModeIndicatorUI = GetComponentInChildren<ConduitPlacementModeIndicatorUI>();
-            tileRotationIndicatorUI = GetComponentInChildren<TileRotationIndicatorUI>();
-            tileStateIndicatorUI = GetComponentInChildren<TileStateIndicatorUI>();
-            tilePreviewerIndicatorUI = GetComponentInChildren<TileHighligherIndicatorUI>();
-            caveIndicatorUI = GetComponentInChildren<CaveIndicatorUI>();
+            indicatorTransform = conduitPortIndicatorUI.transform.parent; // The indicator doesn't matter, they all share the same parent
+
+            void OnQuestBookClick()
+            {
+                QuestBookUIManager questBookUIManager = MainCanvasController.TInstance.QuestBookUIManager;
+                questBookUIManager.DisplayQuestBook();
+            }
+            questBookIndicator.Initialize(PlayerControl.OpenQuestBook, ()=> "Open Quest Book", OnQuestBookClick);
+            
+            void OnInventoryClick()
+            {
+                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+                PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
+                playerInventoryUI.Display(playerScript);
+                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
+            }
+            inventoryIndicator.Initialize(PlayerControl.OpenInventory, ()=> "Open Inventory", OnInventoryClick);
+            
+            
         }
 
         public void Initialize(PlayerScript playerScript)
@@ -37,7 +67,88 @@ namespace UI.Indicators
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
             tilePreviewerIndicatorUI.Display(playerScript);
-            caveIndicatorUI.Display((Dimension)DimensionManager.Instance.GetPlayerDimension());
+            DisplayMode();
+        }
+
+        public void AddViewBundle(IndicatorDisplayBundle bundle)
+        {
+            if ((viewMode & (int)bundle) != 0) return;
+            viewMode += (int)bundle;
+            DisplayMode();
+        }
+
+        public void RemoveBundle(IndicatorDisplayBundle bundle)
+        {
+            if ((viewMode & (int)bundle) == 0) return;
+            viewMode -= (int)bundle;
+            DisplayMode();
+        }
+        
+
+        public void DisplayMode()
+        {
+            for (int i = 0; i < indicatorTransform.childCount; i++)
+            {
+                indicatorTransform.transform.GetChild(i).gameObject.SetActive(false);
+            }
+      
+            questBookIndicator.gameObject.SetActive(true);
+            inventoryIndicator.gameObject.SetActive(true);
+            loadOutIndicator.gameObject.SetActive(true);
+
+            bool ViewBundleActive(IndicatorDisplayBundle bundle)
+            {
+                return (viewMode & (int)bundle) != 0;
+            }
+
+            if (ViewBundleActive(IndicatorDisplayBundle.TilePlace))
+            {
+                tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                tileRotationIndicatorUI.gameObject.SetActive(true);
+                tileStateIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            if (ViewBundleActive(IndicatorDisplayBundle.ConduitPlace))
+            {
+                tilePreviewerIndicatorUI.gameObject.SetActive(true);
+                conduitPlacementModeIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            if (ViewBundleActive(IndicatorDisplayBundle.ConduitSystem))
+            {
+                conduitViewIndicatorUI.gameObject.SetActive(true);
+                conduitPortIndicatorUI.gameObject.SetActive(true);
+            }
+            else
+            {
+                caveIndicatorUI.gameObject.SetActive(true);
+            }
+            
+            
+            SyncKeyCodes(true);
+        }
+        
+        public void SyncKeyCodes(bool instantiate)
+        {
+            if (instantiate)
+            {
+                GlobalHelper.DeleteAllChildren(keyCodeContainer);
+            }
+            for (int i = 0; i < indicatorTransform.childCount; i++)
+            {
+                GameObject keyCodeObject = indicatorTransform.GetChild(i).gameObject;
+                if (!keyCodeObject.activeInHierarchy) continue;
+                
+                IKeyCodeIndicator keyCodeIndicator = keyCodeObject.GetComponent<IKeyCodeIndicator>();
+                PlayerControl? nullableControl = keyCodeIndicator?.GetPlayerControl();
+                string text = nullableControl.HasValue
+                    ? ControlUtils.KeyCodeListAsString(ControlUtils.GetKeyCodes(nullableControl.Value),"\n")
+                    : string.Empty;
+                GameObject keyCodeElement = instantiate ? 
+                    Instantiate(keyCodePrefab, keyCodeContainer)
+                    : keyCodeContainer.GetChild(i).gameObject;
+                keyCodeElement.GetComponentInChildren<TextMeshProUGUI>().text = text;
+            }
         }
 
         public void SetColor(Color color)

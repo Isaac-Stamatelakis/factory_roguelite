@@ -60,11 +60,11 @@ namespace PlayerModule.KeyPress {
             if (PlayerKeyPressUtils.BlockKeyInput) return;
             ControlUtils.UpdateModifierCount();
             
-            if (Input.GetKeyDown(KeyCode.E))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
             {
                 PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
                 playerInventoryUI.Display(playerScript);
-                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: new List<KeyCode>{KeyCode.E});
+                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
             }
 
             if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPlacementMode))

@@ -117,10 +117,10 @@ namespace Items.Inventory {
         public void SetAllPanelColors(Color color)
         {
             defaultItemPanelColor = color;
-            Image[] panels = transform.GetComponentsInChildren<Image>();
-            foreach (Image image in panels)
+            foreach (ItemSlotUI slotUI in slots)
             {
-                image.color = color;
+                if (!slotUI.mTopText) continue;
+                slotUI.Panel.color = color;
             }
         }
         
@@ -131,6 +131,14 @@ namespace Items.Inventory {
             {
                 if (!slotUI.mTopText) continue;
                 slotUI.mTopText.color = color;
+            }
+        }
+
+        public void ApplyFunctionToAllSlots(Action<ItemSlotUI> action)
+        {
+            foreach (ItemSlotUI slotUI in slots)
+            {
+                action.Invoke(slotUI);
             }
         }
 
@@ -263,6 +271,13 @@ namespace Items.Inventory {
             return inventory?[index];
         }
         
+        public ItemSlotUI GetItemSlotUI(int index) {
+            if (index < 0 || index >= inventory?.Count) {
+                return null;
+            }
+            return slots[index];
+        }
+        
         public void RefreshSlots() {
             if (slots == null || inventory == null) {
                 return;
@@ -284,7 +299,7 @@ namespace Items.Inventory {
             
         }
         
-        public virtual void SetItem(int n, ItemSlot data) {
+        public void SetItem(int n, ItemSlot data) {
             if (n < 0 || n >= slots.Count) {
                 return;
             }
