@@ -80,10 +80,8 @@ public class PlayerToolListUI : MonoBehaviour
                 default:
                     throw new ArgumentOutOfRangeException(nameof(inputButton), inputButton, null);
             }
-            
-
         }
-
+        
         void DisplayIndicators(int index)
         {
             RefreshIndicator(tools[index]);
@@ -118,6 +116,8 @@ public class PlayerToolListUI : MonoBehaviour
         mToolCollectionUI.SetAllPanelColors(new Color(174/255f,203/255f,221/255f,1f));
         mToolCollectionUI.SetHighlightColor(new Color(222/255f,218/255f,91/255f,1f));
         mToolCollectionUI.SetOnHighlight(DisplayIndicators);
+        
+        SelectTool(PointerEventData.InputButton.Left,0);
     }
     
     public void RefreshIndicator(IRobotToolInstance current) 

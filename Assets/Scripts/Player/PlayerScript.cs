@@ -22,6 +22,7 @@ using TileMaps.Previewer;
 using Tiles;
 using Tiles.Highlight;
 using Tiles.Indicators;
+using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UI.RingSelector;
 using UI.Statistics;
@@ -67,6 +68,7 @@ namespace Player
         private Vector2 lastPosition;
         public bool Cheats;
         public DimensionData DimensionData;
+        [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
         
         public void Start()
         {
@@ -173,6 +175,7 @@ namespace Player
     {
         public UIRingSelector RingSelectorPrefab;
         public PlayerInventoryUI PlayerInventoryUIPrefab;
+        public ItemSearchUI ItemSearchUIPrefab;
     }
     [System.Serializable]
     public class ConduitPlacementOptions

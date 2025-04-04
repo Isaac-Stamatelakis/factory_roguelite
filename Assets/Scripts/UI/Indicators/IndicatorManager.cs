@@ -7,6 +7,7 @@ using Player.Controls;
 using Player.UI;
 using PlayerModule;
 using TMPro;
+using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +33,7 @@ namespace UI.Indicators
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
         public GenericIndicatorUI loadOutIndicator;
+        public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
         private Transform indicatorTransform;
         private int viewMode;
@@ -55,6 +57,15 @@ namespace UI.Indicators
                 CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
             }
             inventoryIndicator.Initialize(PlayerControl.OpenInventory, ()=> "Open Inventory", OnInventoryClick);
+            
+            void OnSearchClick()
+            {
+                PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
+                ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
+                itemSearchUI.Initialize(playerScript);
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject);
+            }
+            searchIndicator.Initialize(PlayerControl.OpenSearch, ()=> "Search Items", OnSearchClick);
             
             
         }
@@ -102,6 +113,7 @@ namespace UI.Indicators
             questBookIndicator.gameObject.SetActive(true);
             inventoryIndicator.gameObject.SetActive(true);
             loadOutIndicator.gameObject.SetActive(true);
+            searchIndicator.gameObject.SetActive(true);
 
             bool ViewBundleActive(IndicatorDisplayBundle bundle)
             {
