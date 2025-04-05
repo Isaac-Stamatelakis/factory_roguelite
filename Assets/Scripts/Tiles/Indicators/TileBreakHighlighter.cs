@@ -13,10 +13,16 @@ namespace Tiles.Indicators
         [SerializeField] private Color color;
         private bool highlighting = false;
         private Vector2Int lastTilePosition;
+        
         public void Start()
         { 
+            SetOutlineColor(color);
+        }
+
+        public void SetOutlineColor(Color outlineColor)
+        {
             int colorKey = Shader.PropertyToID("_Color");
-            mOutlineTilemap.GetComponent<TilemapRenderer>().materials[0].SetColor(colorKey,color);
+            mOutlineTilemap.GetComponent<TilemapRenderer>().materials[0].SetColor(colorKey,outlineColor);
         }
         public void Display(Dictionary<Vector2Int, OutlineTileMapCellData> tileDict)
         {
@@ -57,6 +63,10 @@ namespace Tiles.Indicators
             mOutlineTilemap.SetTransformMatrix(tilePosition,matrix4X4);
         }
 
+        public void ResetHistory()
+        {
+            lastTilePosition = Vector2Int.left * int.MaxValue;
+        }
         public void Clear()
         {
             if (!highlighting) return;

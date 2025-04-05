@@ -69,7 +69,6 @@ namespace Player
         public bool Cheats;
         public DimensionData DimensionData;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
-        
         public void Start()
         {
             PlayerManager.Instance.RegisterPlayer(this);

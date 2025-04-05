@@ -25,6 +25,6 @@ namespace Player.Controls
         OpenQuestBook = 19,
         OpenInventory = 20,
         OpenSearch = 21,
-        
+        AutoSelect = 22,
     }
 }

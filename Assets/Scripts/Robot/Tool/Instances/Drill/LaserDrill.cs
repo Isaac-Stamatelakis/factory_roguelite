@@ -65,7 +65,7 @@ namespace Robot.Tool.Instances
             if (mouseButtonKey == MouseButtonKey.Right) return;
             
             laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
 
@@ -84,7 +84,7 @@ namespace Robot.Tool.Instances
         private void HitFluid(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             FluidWorldTileMap fluidWorldTileMap = closedChunkSystem.GetFluidTileMap();
             float fill = fluidWorldTileMap.GetFill(mousePosition);
@@ -95,7 +95,7 @@ namespace Robot.Tool.Instances
         private void HitTile(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             particleSystem.transform.position = mousePosition;
 
             if (toolData.Layer == TileMapLayer.Base)
@@ -186,7 +186,7 @@ namespace Robot.Tool.Instances
 
             if (anyBroken)
             {
-                playerScript.PlayerMouse.UpdateOnToolChange();
+                playerScript.PlayerMouse.ClearToolPreview();
             }
         }
 
@@ -309,14 +309,14 @@ namespace Robot.Tool.Instances
             bool pass = time >= toolData.HitRate;
             if (!pass)
             {
-                laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+                laserManager.UpdateLineRenderer(mousePosition,GetColor());
                 return false;
             }
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
         }
 
-        private Color GetLaserColor()
+        public Color GetColor()
         {
             switch (toolData.Layer)
             {

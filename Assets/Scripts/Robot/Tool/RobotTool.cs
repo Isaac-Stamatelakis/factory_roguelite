@@ -28,7 +28,7 @@ namespace Robot.Tool
 
     public interface IAutoSelectTool
     {
-        
+        public Color GetColor(); 
     }
     
     public interface IRobotToolInstance : IPlayerClickHandler

@@ -54,7 +54,7 @@ namespace Robot.Tool.Instances
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
         }
 
         public override void TerminateClickHold()
@@ -66,7 +66,7 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
 
@@ -92,9 +92,10 @@ namespace Robot.Tool.Instances
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            playerScript.PlayerMouse.ClearToolPreview();
         }
 
-        private Color GetLaserColor()
+        public Color GetColor()
         {
             switch (toolData.Mode)
             {

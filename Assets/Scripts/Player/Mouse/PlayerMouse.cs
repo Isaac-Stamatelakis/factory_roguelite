@@ -24,6 +24,7 @@ using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
 using Player;
+using Player.Controls;
 using Player.Mouse;
 using Player.Robot;
 using Player.Tool;
@@ -35,6 +36,7 @@ using TileEntity.AssetManagement;
 using Tiles.Highlight;
 using Tiles.Indicators;
 using UI;
+using UI.Indicators;
 using UI.ToolTip;
 using MoveDirection = Robot.Tool.MoveDirection;
 
@@ -58,6 +60,8 @@ namespace PlayerModule.Mouse {
         private TileBreakHighlighter tileBreakHighlighter;
         private bool autoSelectableTool;
         private bool enableAutoSelect = true;
+        public bool AutoSelectEnabled => enableAutoSelect;
+        public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
         void Start()
         {
             mainCamera = Camera.main;
@@ -69,11 +73,22 @@ namespace PlayerModule.Mouse {
             autoTileFinder = new AutoTileFinder(transform);
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
             tileBreakHighlighter = playerScript.TileViewers.MainBreakHighlighter;
-            
+            enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
+        }
+
+        public void ToggleAutoSelect()
+        {
+            enableAutoSelect = !enableAutoSelect;
+            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
+            if (!enableAutoSelect) tileBreakHighlighter.Clear();
         }
         
         void Update()
-        {   
+        {
+            if (ControlUtils.GetControlKeyDown(PlayerControl.AutoSelect))
+            {
+                ToggleAutoSelect();
+            }
             InventoryControlUpdate();
             
             bool leftClick = Input.GetMouseButton(0);
@@ -93,10 +108,9 @@ namespace PlayerModule.Mouse {
             }
 
             Vector2 toolHitPosition;
-
             if (autoSelectableTool && enableAutoSelect)
             {
-                toolHitPosition = autoTileFinder.GetTilePosition(mousePosition);
+                toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,RobotUpgradeUtils.BASE_REACH);
                 IOutlineTileGridMap hitMap = autoTileFinder.GetHitTileMap();
                 if (hitMap == null || !hitMap.GetTilemap())
                 {
@@ -105,6 +119,8 @@ namespace PlayerModule.Mouse {
                 else
                 {
                     Vector2Int cellPosition = Global.getCellPositionFromWorld(toolHitPosition);
+                    IAutoSelectTool autoSelectTool = (IAutoSelectTool)playerInventory.CurrentTool;
+                    tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
                     tileBreakHighlighter.Display(cellPosition,hitMap.GetOutlineCellData(new Vector3Int(cellPosition.x,cellPosition.y,0)));
                 }
             }
@@ -444,13 +460,23 @@ namespace PlayerModule.Mouse {
 
         public void UpdateOnToolChange()
         {
-            tileBreakHighlighter.Clear();
             autoSelectableTool = playerInventory.CurrentTool is IAutoSelectTool;
+            IndicatorManager indicatorManager = playerScript.PlayerUIContainer.IndicatorManager;
+            if (autoSelectableTool)
+            {
+                indicatorManager.AddViewBundle(IndicatorDisplayBundle.AutoSelect);
+            }
+            else
+            {
+                indicatorManager.RemoveBundle(IndicatorDisplayBundle.AutoSelect);
+            }
             ClearToolPreview();
         }
 
         public void ClearToolPreview()
         {
+            tileBreakHighlighter.ResetHistory();
+            tileBreakHighlighter.Clear();
             previewController.ResetRecord();
         }
     }
@@ -468,9 +494,9 @@ namespace PlayerModule.Mouse {
             this.playerTransform = playerTransform;
         }
 
-        public Vector2 GetTilePosition(Vector2 mousePosition)
+        public Vector2 GetTilePosition(Vector2 mousePosition, float range)
         {
-            var nullableResult = HighlightBreakTile(mousePosition);
+            var nullableResult = HighlightBreakTile(mousePosition,range);
             return nullableResult ?? mousePosition;
         }
         
@@ -479,7 +505,7 @@ namespace PlayerModule.Mouse {
         {
             return hitTileMap;
         }
-        private Vector2? HighlightBreakTile(Vector2 mousePosition)
+        private Vector2? HighlightBreakTile(Vector2 mousePosition, float range)
         {
             Vector2 position = playerTransform.position;
             float defaultAngle = Mathf.Atan2(mousePosition.y - position.y, mousePosition.x - position.x);
@@ -490,9 +516,9 @@ namespace PlayerModule.Mouse {
             RaycastHit2D Cast(Vector2 direction)
             {
                 #if UNITY_EDITOR
-                if (debug)Debug.DrawLine(position, position + direction * 10, Color.red, 0.1f);
+                if (debug)Debug.DrawLine(position, position + direction * range, Color.red, 0.1f);
                 #endif
-                return Physics2D.Raycast(position, direction, 10f, tileLayer);
+                return Physics2D.Raycast(position, direction, range, tileLayer);
             }
 
             const float SPREAD = 30 * Mathf.Deg2Rad;
