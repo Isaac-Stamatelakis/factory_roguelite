@@ -30,6 +30,7 @@ namespace Robot.Tool.Instances
     public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool
     {
         private RobotToolLaserManager laserManager;
+        private int mouseBitMap;
         public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)
         {
          
@@ -53,20 +54,27 @@ namespace Robot.Tool.Instances
 
         public override void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
+            mouseBitMap |= (int)mouseButtonKey;
+            laserManager ??= new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
             laserManager.UpdateLineRenderer(mousePosition,GetColor());
         }
 
-        public override void TerminateClickHold()
+        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
+            mouseBitMap &= ~(int)mouseButtonKey;
             playerScript.TileViewers.TileBreakHighlighter.Clear();
-            laserManager?.Terminate();
-            playerScript.GetComponent<PlayerMouse>().ClearToolPreview();
+            if (laserManager != null && mouseBitMap == 0)
+            {
+                laserManager.Terminate();
+                laserManager = null;
+            }
+            
+            playerScript.PlayerMouse.ClearToolPreview();
         }
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            laserManager.UpdateLineRenderer(mousePosition,GetColor());
+            laserManager?.UpdateLineRenderer(mousePosition,GetColor());
             
             if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
 

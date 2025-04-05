@@ -69,8 +69,9 @@ namespace Robot.Tool.Instances
             audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
 
-        public override void TerminateClickHold()
+        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
+            if (mouseButtonKey == MouseButtonKey.Right) return;
             playerScript.TileViewers.TileBreakHighlighter.Clear();
             laserManager?.Terminate();
             if (audioController)
@@ -279,32 +280,9 @@ namespace Robot.Tool.Instances
                 hitting = false;
                 return false;
             }
+
+            UpdateParticles();
             
-            if (toolData.Layer == TileMapLayer.Base)
-            {
-                ParticleSystem.MainModule particleSystemMain = particleSystem.main;
-                if (!Mathf.Approximately(particleSystemMain.duration, toolData.HitRate))
-                {
-                    particleSystem.Stop();
-                    particleSystemMain.duration = toolData.HitRate; 
-                    particleSystem.Play();
-                }
-                if (hitting)
-                {
-                    if (!particleSystem.isPlaying)
-                    {
-                        particleSystem.Play();
-                    }
-                    //particleSystemMain.loop = true;
-                }
-            }
-            else
-            {
-                if (particleSystem.isPlaying)
-                {
-                    particleSystem.Stop();
-                }
-            }
             
             bool pass = time >= toolData.HitRate;
             if (!pass)
@@ -314,6 +292,30 @@ namespace Robot.Tool.Instances
             }
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
+        }
+
+        private void UpdateParticles()
+        {
+            if (!hitting || toolData.Layer != TileMapLayer.Base)
+            {
+                if (!particleSystem.isPlaying) return;
+                particleSystem.Stop();
+                return;
+            }
+            
+            if (!particleSystem.isPlaying)
+            {
+                particleSystem.Play();
+                return;
+            }
+            
+            ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+            if (!Mathf.Approximately(particleSystemMain.duration, toolData.HitRate)) return;
+            particleSystem.Stop();
+            particleSystemMain.duration = toolData.HitRate; 
+            particleSystem.Play();
+
+
         }
 
         public Color GetColor()
