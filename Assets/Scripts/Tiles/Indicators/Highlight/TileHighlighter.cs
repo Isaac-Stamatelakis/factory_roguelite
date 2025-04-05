@@ -1,3 +1,4 @@
+using System;
 using TileMaps.Place;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,9 +7,17 @@ namespace Tiles.Highlight
 {
     public class TileHighlighter : MonoBehaviour
     {
+        [SerializeField] private Color color;
+
         [SerializeField] private Tilemap mBaseMap;
         [SerializeField] private SpriteRenderer mOutline;
         private Vector3Int lastCellPosition;
+        
+        public void Start()
+        { 
+            int colorKey = Shader.PropertyToID("_Color");
+            mOutline.materials[0].SetColor(colorKey,color);
+        }
         public void Highlight(Vector2 worldPosition, Tilemap tilemap)
         {
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);

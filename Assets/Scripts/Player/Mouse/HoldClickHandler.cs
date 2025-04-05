@@ -7,7 +7,7 @@ namespace Player.Mouse
     public interface IPlayerClickHandler
     {
         public void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
-        public void TerminateClickHold();
+        public void TerminateClickHold(MouseButtonKey mouseButtonKey);
         public void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
     }
@@ -66,7 +66,7 @@ namespace Player.Mouse
         public void Terminate()
         {
             if (!active) return;
-            clickHandler.TerminateClickHold();
+            clickHandler.TerminateClickHold(mouseButtonKey);
             lastUse = Time.time;
             active = false;
         }

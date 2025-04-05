@@ -1073,6 +1073,11 @@ namespace Player {
 
         public void Die()
         {
+            CollisionState[] stateArray = collisionStates.ToArray();
+            foreach (CollisionState state in stateArray)
+            {
+                RemoveCollisionState(state);
+            }
             spriteRenderer.enabled = false;
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;

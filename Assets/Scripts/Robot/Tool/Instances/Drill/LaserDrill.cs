@@ -34,7 +34,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Robot.Tool.Instances
 {
-    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
+    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool
     {
         private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
@@ -65,12 +65,13 @@ namespace Robot.Tool.Instances
             if (mouseButtonKey == MouseButtonKey.Right) return;
             
             laserManager = new RobotToolLaserManager(GameObject.Instantiate(robotObject.LineRendererPrefab, playerScript.transform));
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             audioController = GameObject.Instantiate(base.robotObject.AudioControllerPrefab, playerScript.transform);
         }
 
-        public override void TerminateClickHold()
+        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
+            if (mouseButtonKey == MouseButtonKey.Right) return;
             playerScript.TileViewers.TileBreakHighlighter.Clear();
             laserManager?.Terminate();
             if (audioController)
@@ -84,7 +85,7 @@ namespace Robot.Tool.Instances
         private void HitFluid(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             FluidWorldTileMap fluidWorldTileMap = closedChunkSystem.GetFluidTileMap();
             float fill = fluidWorldTileMap.GetFill(mousePosition);
@@ -95,7 +96,7 @@ namespace Robot.Tool.Instances
         private void HitTile(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
             if (mouseButtonKey != MouseButtonKey.Left) return;
-            laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+            laserManager.UpdateLineRenderer(mousePosition,GetColor());
             particleSystem.transform.position = mousePosition;
 
             if (toolData.Layer == TileMapLayer.Base)
@@ -186,7 +187,7 @@ namespace Robot.Tool.Instances
 
             if (anyBroken)
             {
-                playerScript.PlayerMouse.UpdateOnToolChange();
+                playerScript.PlayerMouse.ClearToolPreview();
             }
         }
 
@@ -279,44 +280,45 @@ namespace Robot.Tool.Instances
                 hitting = false;
                 return false;
             }
+
+            UpdateParticles();
             
-            if (toolData.Layer == TileMapLayer.Base)
-            {
-                ParticleSystem.MainModule particleSystemMain = particleSystem.main;
-                if (!Mathf.Approximately(particleSystemMain.duration, toolData.HitRate))
-                {
-                    particleSystem.Stop();
-                    particleSystemMain.duration = toolData.HitRate; 
-                    particleSystem.Play();
-                }
-                if (hitting)
-                {
-                    if (!particleSystem.isPlaying)
-                    {
-                        particleSystem.Play();
-                    }
-                    //particleSystemMain.loop = true;
-                }
-            }
-            else
-            {
-                if (particleSystem.isPlaying)
-                {
-                    particleSystem.Stop();
-                }
-            }
             
             bool pass = time >= toolData.HitRate;
             if (!pass)
             {
-                laserManager.UpdateLineRenderer(mousePosition,GetLaserColor());
+                laserManager.UpdateLineRenderer(mousePosition,GetColor());
                 return false;
             }
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
         }
 
-        private Color GetLaserColor()
+        private void UpdateParticles()
+        {
+            if (!hitting || toolData.Layer != TileMapLayer.Base)
+            {
+                if (!particleSystem.isPlaying) return;
+                particleSystem.Stop();
+                return;
+            }
+            
+            if (!particleSystem.isPlaying)
+            {
+                particleSystem.Play();
+                return;
+            }
+            
+            ParticleSystem.MainModule particleSystemMain = particleSystem.main;
+            if (!Mathf.Approximately(particleSystemMain.duration, toolData.HitRate)) return;
+            particleSystem.Stop();
+            particleSystemMain.duration = toolData.HitRate; 
+            particleSystem.Play();
+
+
+        }
+
+        public Color GetColor()
         {
             switch (toolData.Layer)
             {

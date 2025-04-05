@@ -24,6 +24,7 @@ using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Slot;
 using Player;
+using Player.Controls;
 using Player.Mouse;
 using Player.Robot;
 using Player.Tool;
@@ -33,7 +34,9 @@ using Robot.Tool;
 using Robot.Upgrades;
 using TileEntity.AssetManagement;
 using Tiles.Highlight;
+using Tiles.Indicators;
 using UI;
+using UI.Indicators;
 using UI.ToolTip;
 using MoveDirection = Robot.Tool.MoveDirection;
 
@@ -52,10 +55,13 @@ namespace PlayerModule.Mouse {
         private EventSystem eventSystem;
         private ToolClickHandlerCollection toolClickHandlerCollection = new ToolClickHandlerCollection();
         private ToolPreviewController previewController = new ToolPreviewController();
-        [SerializeField] private TileHighlighter tileHighlighter;
-        [SerializeField] private LineRenderer t1;
-        [SerializeField] private LineRenderer t2;
-        
+        private AutoTileFinder autoTileFinder;
+        private TileHighlighter tileHighlighter;
+        private TileBreakHighlighter tileBreakHighlighter;
+        private bool autoSelectableTool;
+        private bool enableAutoSelect = true;
+        public bool AutoSelectEnabled => enableAutoSelect;
+        public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
         void Start()
         {
             mainCamera = Camera.main;
@@ -64,10 +70,25 @@ namespace PlayerModule.Mouse {
             playerScript = GetComponent<PlayerScript>();
             playerTransform = transform;
             eventSystem = EventSystem.current;
+            autoTileFinder = new AutoTileFinder(transform);
+            tileHighlighter = playerScript.TileViewers.TileHighlighter;
+            tileBreakHighlighter = playerScript.TileViewers.MainBreakHighlighter;
+            enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
+        }
+
+        public void ToggleAutoSelect()
+        {
+            enableAutoSelect = !enableAutoSelect;
+            PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
+            if (!enableAutoSelect) tileBreakHighlighter.Clear();
         }
         
         void Update()
-        {   
+        {
+            if (ControlUtils.GetControlKeyDown(PlayerControl.AutoSelect))
+            {
+                ToggleAutoSelect();
+            }
             InventoryControlUpdate();
             
             bool leftClick = Input.GetMouseButton(0);
@@ -86,6 +107,28 @@ namespace PlayerModule.Mouse {
                 return;
             }
 
+            Vector2 toolHitPosition;
+            if (autoSelectableTool && enableAutoSelect)
+            {
+                toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,RobotUpgradeUtils.BASE_REACH);
+                IOutlineTileGridMap hitMap = autoTileFinder.GetHitTileMap();
+                if (hitMap == null || !hitMap.GetTilemap())
+                {
+                    tileBreakHighlighter.Clear();
+                }
+                else
+                {
+                    Vector2Int cellPosition = Global.getCellPositionFromWorld(toolHitPosition);
+                    IAutoSelectTool autoSelectTool = (IAutoSelectTool)playerInventory.CurrentTool;
+                    tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+                    tileBreakHighlighter.Display(cellPosition,hitMap.GetOutlineCellData(new Vector3Int(cellPosition.x,cellPosition.y,0)));
+                }
+            }
+            else
+            {
+                toolHitPosition = mousePosition;
+            }
+            
             if (eventSystem.IsPointerOverGameObject()) return;
             
             if (!leftClick)
@@ -104,7 +147,7 @@ namespace PlayerModule.Mouse {
                 return;
             }
             
-            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
+            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, toolHitPosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
             ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             if (!closedChunkSystem) {
@@ -112,10 +155,10 @@ namespace PlayerModule.Mouse {
             }
             
             if (leftClick) {
-                LeftClickUpdate(mousePosition,closedChunkSystem);
+                LeftClickUpdate(mousePosition,toolHitPosition,closedChunkSystem);
             }
             if (rightClick) {
-                RightClickUpdate(mousePosition,closedChunkSystem);
+                RightClickUpdate(mousePosition,toolHitPosition,closedChunkSystem);
             }
             
         }
@@ -139,8 +182,8 @@ namespace PlayerModule.Mouse {
                 closedChunkSystem.GetTileMap(TileMapType.Block),
             };
             
-           
             previewController.Preview(playerInventory.CurrentTool,mousePosition);
+            
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
             if (result != null)
             {
@@ -149,6 +192,8 @@ namespace PlayerModule.Mouse {
             }
             tileHighlighter.Hide();
         }
+
+        
 
         private bool TryHighlight(ClosedChunkSystem system, (Vector2, IWorldTileMap) result)
         {
@@ -222,21 +267,21 @@ namespace PlayerModule.Mouse {
             gunController.AngleToPosition(mousePosition);
             gunController.OnClick(mouseButtonKey);
         }
-        private void LeftClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem) {
+        private void LeftClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem) {
             bool drop = HandleDrop(mousePosition);
             if (drop) {
                 return;
             }
-            ToolClickUpdate(mousePosition, closedChunkSystem, MouseButtonKey.Left);
+            ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Left);
         }
-        private void RightClickUpdate(Vector2 mousePosition, ClosedChunkSystem closedChunkSystem)
+        private void RightClickUpdate(Vector2 mousePosition, Vector2 toolHitPosition, ClosedChunkSystem closedChunkSystem)
         {
             if (HandlePlace(mousePosition, DimensionManager.Instance.GetPlayerSystem())) return;
             if (Input.GetMouseButtonDown(1)) {
                 if (RightClickPort(mousePosition)) return;
                 if (TryClickTileEntity(mousePosition)) return;
             }
-            ToolClickUpdate(mousePosition, closedChunkSystem, MouseButtonKey.Right);
+            ToolClickUpdate(toolHitPosition, closedChunkSystem, MouseButtonKey.Right);
         }
 
         private ConduitType? GetPortClickType()
@@ -415,12 +460,95 @@ namespace PlayerModule.Mouse {
 
         public void UpdateOnToolChange()
         {
+            autoSelectableTool = playerInventory.CurrentTool is IAutoSelectTool;
+            IndicatorManager indicatorManager = playerScript.PlayerUIContainer.IndicatorManager;
+            if (autoSelectableTool)
+            {
+                indicatorManager.AddViewBundle(IndicatorDisplayBundle.AutoSelect);
+            }
+            else
+            {
+                indicatorManager.RemoveBundle(IndicatorDisplayBundle.AutoSelect);
+            }
             ClearToolPreview();
         }
 
         public void ClearToolPreview()
         {
+            tileBreakHighlighter.ResetHistory();
+            tileBreakHighlighter.Clear();
             previewController.ResetRecord();
+        }
+    }
+
+    internal class AutoTileFinder
+    {
+        private IOutlineTileGridMap hitTileMap;
+        private Transform playerTransform;
+        #if UNITY_EDITOR
+        public bool debug = false;
+        #endif
+
+        public AutoTileFinder(Transform playerTransform)
+        {
+            this.playerTransform = playerTransform;
+        }
+
+        public Vector2 GetTilePosition(Vector2 mousePosition, float range)
+        {
+            var nullableResult = HighlightBreakTile(mousePosition,range);
+            return nullableResult ?? mousePosition;
+        }
+        
+
+        public IOutlineTileGridMap GetHitTileMap()
+        {
+            return hitTileMap;
+        }
+        private Vector2? HighlightBreakTile(Vector2 mousePosition, float range)
+        {
+            Vector2 position = playerTransform.position;
+            float defaultAngle = Mathf.Atan2(mousePosition.y - position.y, mousePosition.x - position.x);
+            int tileLayer = 1 << LayerMask.NameToLayer("Block");
+            Vector2 hitDirection = new Vector2(Mathf.Cos(defaultAngle), Mathf.Sin(defaultAngle));;
+            RaycastHit2D closestHit = Cast(hitDirection);
+            
+            RaycastHit2D Cast(Vector2 direction)
+            {
+                #if UNITY_EDITOR
+                if (debug)Debug.DrawLine(position, position + direction * range, Color.red, 0.1f);
+                #endif
+                return Physics2D.Raycast(position, direction, range, tileLayer);
+            }
+
+            const float SPREAD = 30 * Mathf.Deg2Rad;
+            const int CASTS = 6;
+            int r = 1;
+            while (r <= CASTS/2)
+            {
+                void UpdateHit(int dir)
+                {
+                    float castAngle = defaultAngle + dir * r * SPREAD / CASTS / 2;
+                    Vector2 direction = new Vector2(Mathf.Cos(castAngle), Mathf.Sin(castAngle));
+                    var hit = Cast(direction);
+                    if (!hit.collider) return;
+                    if (closestHit.collider && hit.distance >= closestHit.distance) return;
+                    hitDirection = direction;
+                    closestHit = hit;
+                }
+                UpdateHit(1);
+                UpdateHit(-1);
+                r++;
+            }
+            if (!closestHit) return null;
+            IWorldTileMap tilemap = closestHit.collider.GetComponent<IWorldTileMap>();
+            if (tilemap is not IOutlineTileGridMap outlineTileGridMap) return null;
+            hitTileMap = outlineTileGridMap;
+            Vector2 result = closestHit.point + hitDirection * 0.01f;
+            #if UNITY_EDITOR
+            if (debug) Debug.DrawLine(result,playerTransform.position,Color.green,0.1f);
+            #endif
+            return result;
         }
     }
 

@@ -23,7 +23,7 @@ namespace TileMaps {
             TileRotation = tileRotation;
         }
     }
-    public interface IOutlineTileGridMap
+    public interface IOutlineTileGridMap : IWorldTileMap
     {
         public OutlineTileMapCellData GetOutlineCellData(Vector3Int position);
     }

@@ -69,7 +69,6 @@ namespace Player
         public bool Cheats;
         public DimensionData DimensionData;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
-        
         public void Start()
         {
             PlayerManager.Instance.RegisterPlayer(this);
@@ -142,6 +141,7 @@ namespace Player
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
         public TileBreakHighlighter TileBreakHighlighter;
+        public TileBreakHighlighter MainBreakHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
         public void SetPlacePreviewerState(bool state)
         {

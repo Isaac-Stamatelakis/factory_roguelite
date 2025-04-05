@@ -19,6 +19,7 @@ namespace UI.Indicators
         TilePlace = 1,
         ConduitPlace = 2,
         ConduitSystem = 4,
+        AutoSelect = 8,
     }
     public class IndicatorManager : MonoBehaviour
     {
@@ -32,9 +33,10 @@ namespace UI.Indicators
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
-        public GenericIndicatorUI loadOutIndicator;
+        public RobotLoadOutIndicator loadOutIndicator;
         public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
+        public TileAutoSelectIndicatorUI autoSelectIndicator;
         private Transform indicatorTransform;
         private int viewMode;
 
@@ -67,7 +69,6 @@ namespace UI.Indicators
             }
             searchIndicator.Initialize(PlayerControl.OpenSearch, ()=> "Search Items", OnSearchClick);
             
-            
         }
 
         public void Initialize(PlayerScript playerScript)
@@ -78,6 +79,9 @@ namespace UI.Indicators
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
             tilePreviewerIndicatorUI.Display(playerScript);
+            loadOutIndicator.Initialize(playerScript);
+            autoSelectIndicator.Initialize(playerScript.PlayerMouse);
+
             DisplayMode();
         }
 
@@ -141,7 +145,11 @@ namespace UI.Indicators
             {
                 caveIndicatorUI.gameObject.SetActive(true);
             }
-            
+
+            if (ViewBundleActive(IndicatorDisplayBundle.AutoSelect))
+            {
+                autoSelectIndicator.gameObject.SetActive(true);
+            }
             
             SyncKeyCodes(true);
         }

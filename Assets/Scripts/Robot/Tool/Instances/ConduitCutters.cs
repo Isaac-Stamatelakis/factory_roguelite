@@ -47,8 +47,9 @@ namespace Robot.Tool.Instances
         }
 
         
-        public override void TerminateClickHold()
+        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
+            if (mouseButtonKey == MouseButtonKey.Right) return;
             laserManager?.Terminate();
         }
 

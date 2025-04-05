@@ -82,7 +82,7 @@ namespace Robot.Tool.Instances
             
         }
 
-        public override void TerminateClickHold()
+        public override void TerminateClickHold(MouseButtonKey mouseButtonKey)
         {
            
         }

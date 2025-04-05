@@ -44,6 +44,7 @@ namespace Robot.Upgrades.Instances.RocketBoots
         public IEnumerator Activate(AssetReference assetReference, Transform playerTransform)
         {
             Active = true;
+            if (RocketParticles) yield break;
             var handle = Addressables.LoadAssetAsync<GameObject>(assetReference);
             yield return handle;
             RocketParticles = GameObject.Instantiate(handle.Result, playerTransform,false).GetComponent<ParticleSystem>();

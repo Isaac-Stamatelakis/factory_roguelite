@@ -17,6 +17,11 @@ namespace Robot.Upgrades
     {
         public const int TILES_PER_VEIN_MINE_UPGRADE = 4;
         public const int BASE_REACH = 5;
+
+        public static string FormatLoadOut(int loadOut)
+        {
+            return $"[{loadOut + 1}]";
+        }
         public static SerializedRobotUpgradeNodeNetwork DeserializeRobotNodeNetwork(string upgradePath)
         {
             if (!upgradePath.EndsWith(".bin"))

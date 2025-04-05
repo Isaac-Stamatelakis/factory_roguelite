@@ -16,14 +16,19 @@ namespace Robot.Tool
 {
     public enum MouseButtonKey
     {
-        Left = 0,
-        Right = 1
+        Left = 1,
+        Right = 2
     }
 
     public enum MoveDirection
     {
         Left,
         Right
+    }
+
+    public interface IAutoSelectTool
+    {
+        public Color GetColor(); 
     }
     
     public interface IRobotToolInstance : IPlayerClickHandler
@@ -71,7 +76,7 @@ namespace Robot.Tool
         public abstract Sprite GetPrimaryModeSprite();
 
         public abstract void BeginClickHold(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
-        public abstract void TerminateClickHold();
+        public abstract void TerminateClickHold(MouseButtonKey mouseButtonKey);
         public abstract void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey);
         public abstract bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time);
         public abstract void ModeSwitch(MoveDirection moveDirection, bool subMode);
