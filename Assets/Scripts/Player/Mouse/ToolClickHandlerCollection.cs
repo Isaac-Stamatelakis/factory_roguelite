@@ -11,6 +11,7 @@ namespace Player.Mouse
        
         private Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>> clickHandlerDict =
             new Dictionary<RobotToolType, Dictionary<MouseButtonKey, HoldClickHandler>>();
+        
         public HoldClickHandler GetOrAddTool(RobotToolType robotToolType, MouseButtonKey mouseButtonKey, IRobotToolInstance toolInstance)
         {
             if (!clickHandlerDict.ContainsKey(robotToolType))

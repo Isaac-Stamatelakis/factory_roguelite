@@ -25,6 +25,11 @@ namespace Robot.Tool
         Left,
         Right
     }
+
+    public interface IAutoSelectTool
+    {
+        
+    }
     
     public interface IRobotToolInstance : IPlayerClickHandler
     {

@@ -142,6 +142,7 @@ namespace Player
         public TileHighlighter TileHighlighter;
         public PortViewerController ConduitPortViewer;
         public TileBreakHighlighter TileBreakHighlighter;
+        public TileBreakHighlighter MainBreakHighlighter;
         [HideInInspector] public ConduitViewController ConduitViewController;
         public void SetPlacePreviewerState(bool state)
         {

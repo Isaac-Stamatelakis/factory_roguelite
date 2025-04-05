@@ -27,7 +27,7 @@ using UnityEngine.Tilemaps;
 
 namespace Robot.Tool.Instances
 {
-    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool
+    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool
     {
         private RobotToolLaserManager laserManager;
         public Buildinator(BuildinatorData toolData, BuildinatorObject robotObject, RobotStatLoadOutCollection loadOut, PlayerScript playerScript) : base(toolData, robotObject, loadOut, playerScript)

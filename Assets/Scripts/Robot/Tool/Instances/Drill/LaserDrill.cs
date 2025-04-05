@@ -34,7 +34,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Robot.Tool.Instances
 {
-    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool
+    public class LaserDrill : RobotToolInstance<LaserDrillData, RobotDrillObject>, IAcceleratedClickHandler, IDestructiveTool, IAutoSelectTool
     {
         private RobotToolLaserManager laserManager;
         private ParticleSystem particleSystem;
