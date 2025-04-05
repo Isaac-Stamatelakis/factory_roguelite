@@ -139,6 +139,7 @@ namespace PlayerModule.Mouse {
                 closedChunkSystem.GetTileMap(TileMapType.Block),
             };
             
+            
            
             previewController.Preview(playerInventory.CurrentTool,mousePosition);
             var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);

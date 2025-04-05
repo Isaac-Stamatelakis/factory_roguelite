@@ -22,6 +22,7 @@ using Player.Tool;
 using PlayerModule.Mouse;
 using Robot;
 using Robot.Tool;
+using Robot.Tool.UI;
 using TileEntity;
 using UI.Indicators;
 
@@ -119,6 +120,7 @@ namespace PlayerModule {
                     
                     IndicatorManager indicatorManager = GetComponent<PlayerScript>().PlayerUIContainer.IndicatorManager;
                     indicatorManager.RemovePlaceBundles();
+                    if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
                     if (itemSlot.itemObject is TileItem)
                     {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.TilePlace);

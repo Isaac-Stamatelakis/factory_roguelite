@@ -32,7 +32,7 @@ namespace UI.Indicators
         public TileHighligherIndicatorUI tilePreviewerIndicatorUI;
         public GenericIndicatorUI questBookIndicator;
         public GenericIndicatorUI inventoryIndicator;
-        public GenericIndicatorUI loadOutIndicator;
+        public RobotLoadOutIndicator loadOutIndicator;
         public GenericIndicatorUI searchIndicator;
         public CaveIndicatorUI caveIndicatorUI;
         private Transform indicatorTransform;
@@ -78,6 +78,7 @@ namespace UI.Indicators
             tileRotationIndicatorUI.Display(playerScript.TilePlacementOptions);
             tileStateIndicatorUI.Display(playerScript.TilePlacementOptions);
             tilePreviewerIndicatorUI.Display(playerScript);
+            loadOutIndicator.Initialize(playerScript);
             DisplayMode();
         }
 
