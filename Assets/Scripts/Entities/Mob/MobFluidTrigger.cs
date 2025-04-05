@@ -1,4 +1,5 @@
 using System;
+using Entities.Mob.Movement;
 using Entities.Mobs;
 using Fluids;
 using Items;
@@ -10,21 +11,39 @@ namespace Entities.Mob
     public class MobFluidTrigger : MonoBehaviour
     {
         [SerializeField] private bool damagedByFluid = true;
+        [SerializeField] private bool drowns = true;
         private MobEntity mobEntity;
+        private bool inFluid;
         private FluidTileItem collidingFluid;
-        private float damageCounter;
         private float fluidDamage;
+        private float fluidCounter;
+        private const float DROWN_TIME = 10;
+        private const float DROWN_DAMAGE = 1f;
+        private uint drownCounter;
+        private uint damageCounter;
+        private IEnterFluidEntityMovement fluidEntityMovement;
 
         public void Start()
         {
             mobEntity = GetComponent<MobEntity>();
+            fluidEntityMovement = GetComponent<IEnterFluidEntityMovement>();
         }
 
         public void FixedUpdate()
         {
-            if (fluidDamage <= 0) return;
-            damageCounter += Time.fixedDeltaTime;
-            if (damageCounter < 1) return;
+            if (!collidingFluid) return;
+            if (fluidDamage > 0) damageCounter++;
+            fluidCounter += Time.fixedDeltaTime;
+            if (drowns && fluidCounter > DROWN_TIME)
+            {
+                drownCounter++;
+                if (drownCounter >= 50)
+                {
+                    drownCounter = 0;
+                    mobEntity.Damage(DROWN_DAMAGE,Vector2.zero);
+                }
+            }
+            if ( damageCounter < 50) return;
             mobEntity.Damage(fluidDamage,Vector2.zero);
             damageCounter = 0;
         }
@@ -36,7 +55,8 @@ namespace Entities.Mob
                 var vector3 = transform.localPosition;
                 vector3.z += 2;
                 transform.localPosition = vector3;
-                if (!damagedByFluid) return;
+                fluidCounter = 0;
+                
                 Vector2 bottomPosition = (Vector2)transform.position + Vector2.down * GetComponent<SpriteRenderer>().bounds.extents.y;
                 Vector2 collisionPoint = other.ClosestPoint(bottomPosition);
                 FluidWorldTileMap fluidWorldTileMap = other.GetComponent<FluidWorldTileMap>();
@@ -44,11 +64,13 @@ namespace Entities.Mob
                 if (!fluidWorldTileMap)
                 {
                     collidingFluid = null;
+                    collidingFluid = null;
                     fluidDamage = 0;
                     return;
                 }
                 collidingFluid = fluidWorldTileMap.GetFluidItem(collisionPoint);
-                if (!collidingFluid) return;
+                fluidEntityMovement?.OnEnterFluid(collisionPoint);
+                if (!collidingFluid || !damagedByFluid) return;
                 if (collidingFluid.fluidOptions.DamagePerSecond <= 0.05f)
                 {
                     fluidDamage = 0;
@@ -56,7 +78,7 @@ namespace Entities.Mob
                 }
                 fluidDamage = collidingFluid.fluidOptions.DamagePerSecond;
                 mobEntity.Damage(fluidDamage,Vector2.zero);
-                damageCounter = 0;
+                drownCounter = 0;
             }
         }
 
@@ -64,9 +86,11 @@ namespace Entities.Mob
         {
             if (other.tag == "Fluid")
             {
+                collidingFluid = null;
                 var vector3 = transform.localPosition;
                 vector3.z -= 2;
                 transform.localPosition = vector3;
+                fluidEntityMovement?.OnExitFluid();
             }
         }
     }

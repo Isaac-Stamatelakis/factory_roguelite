@@ -6,7 +6,12 @@ using UnityEngine;
 
 namespace Entities.Mob.Movement
 {
-    public class MobFlyChasePlayer : MonoBehaviour
+    public interface IEnterFluidEntityMovement
+    {
+        public void OnEnterFluid(Vector2 fluidPosition);
+        public void OnExitFluid();
+    }
+    public class MobFlyChasePlayer : MonoBehaviour, IEnterFluidEntityMovement
     {
         private SpriteRenderer spriteRenderer;
         private Transform playerTransform;
@@ -18,6 +23,9 @@ namespace Entities.Mob.Movement
         public float WanderRange = 3f;
         private float timeSinceLastDirectionChange = 0;
         private Vector2 randomNearPosition;
+        private bool inFluid;
+        private bool escapingFluid;
+        private const float FLUID_MOVE_RANGE = 0.5f;
 
         private static int PlayerLayer;
         private static int BlockLayer;
@@ -31,6 +39,24 @@ namespace Entities.Mob.Movement
 
         public void Update()
         {
+            if (escapingFluid)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, randomNearPosition, ChaseSpeed * Time.deltaTime);
+                spriteRenderer.flipX = randomNearPosition.x < transform.position.x;
+                float distance = Vector2.Distance(randomNearPosition, transform.position);
+                if (distance < 0.01f)
+                {
+                    if (inFluid)
+                    {
+                        randomNearPosition = GetRandomNearByPosition(FLUID_MOVE_RANGE);
+                    }
+                    else
+                    {
+                        escapingFluid = false;
+                    }
+                }
+                return;
+            }
             if (seesPlayer)
             {
                 ChasePlayer();
@@ -41,8 +67,21 @@ namespace Entities.Mob.Movement
             }
         }
 
+        public void OnEnterFluid(Vector2 fluidPosition)
+        {
+            escapingFluid = true;
+            inFluid = true;
+            Vector2 direction = ((Vector2)transform.position - fluidPosition).normalized;
+            randomNearPosition = (Vector2)transform.position + direction * FLUID_MOVE_RANGE;
+        }
+
+        public void OnExitFluid()
+        {
+            inFluid = false;
+        }
         void FixedUpdate()
         {
+            if (inFluid) return;
             counter++;
             if (counter < SEARCH_TIME) return;
             counter = 0;
@@ -61,7 +100,7 @@ namespace Entities.Mob.Movement
             
             if (timeSinceLastDirectionChange >= ChangeRandomDirectionTime)
             {
-                randomNearPosition = GetRandomNearByPosition();
+                randomNearPosition = GetRandomNearByPosition(WanderRange);
                 spriteRenderer.flipX = randomNearPosition.x < transform.position.x;
                 timeSinceLastDirectionChange = 0f;
             }
@@ -69,9 +108,9 @@ namespace Entities.Mob.Movement
             transform.position = Vector2.MoveTowards(transform.position, randomNearPosition, ChaseSpeed * Time.deltaTime);
         }
 
-        private Vector2 GetRandomNearByPosition()
+        private Vector2 GetRandomNearByPosition(float range)
         {
-            return (Vector2)transform.position + WanderRange * UnityEngine.Random.insideUnitCircle;
+            return (Vector2)transform.position + range * UnityEngine.Random.insideUnitCircle;
         }
         private bool CanSeePlayer()
         {
