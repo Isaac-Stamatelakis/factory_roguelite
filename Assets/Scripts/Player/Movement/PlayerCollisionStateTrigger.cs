@@ -68,21 +68,13 @@ namespace Player.Movement
                     if (!fluidWorldTileMap) return;
                     SpriteRenderer spriteRenderer = playerRobot.GetComponent<SpriteRenderer>();
                     Vector2 playerPosition = (Vector2)playerRobot.transform.position + Vector2.down * spriteRenderer.bounds.extents.y;
-                    //Vector2 left = playerPosition + Vector2.left * spriteRenderer.sprite.bounds.extents.x;
-                    //Vector2 right = playerPosition + Vector2.right * spriteRenderer.sprite.bounds.extents.x;
+                    
                     FluidTileItem leftFluid = GetTileItem(playerPosition);
                     if (leftFluid)
                     {
                         playerRobot.AddFluidCollisionData((CollisionState)CollisionState, leftFluid);
                         return;
                     }
-                    /*
-                    FluidTileItem rightFluid = GetTileItem(right);
-                    if (rightFluid)
-                    {
-                        playerRobot.AddFluidCollisionData((CollisionState)CollisionState, rightFluid);
-                    }
-                    */
                     
                     FluidTileItem GetTileItem(Vector2 position)
                     {

@@ -212,7 +212,9 @@ namespace Player {
             if (!collisionStates.Add(state)) return;
             if (state is CollisionState.OnGround or CollisionState.OnSlope or CollisionState.OnPlatform)
             {
-                liveYUpdates = 3;
+                // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
+                liveYUpdates = 2;
+                
                 var vector2 = rb.velocity;
                 vector2.y = 0;
                 rb.velocity = vector2;
