@@ -141,8 +141,16 @@ namespace PlayerModule.Mouse {
             {
                 toolHitPosition = mousePosition;
             }
+
+            if (eventSystem.IsPointerOverGameObject())
+            {
+                return;
+            }
             
-            if (eventSystem.IsPointerOverGameObject()) return;
+            if (!currentSystem) {
+                return;
+            }
+           
             
             if (!leftClick)
             {
@@ -162,9 +170,7 @@ namespace PlayerModule.Mouse {
             
             if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, toolHitPosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
-            if (!currentSystem) {
-                return;
-            }
+            
             
             if (leftClick) {
                 LeftClickUpdate(mousePosition,toolHitPosition,currentSystem);
@@ -176,29 +182,30 @@ namespace PlayerModule.Mouse {
 
         public void FixedUpdate()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            if (!closedChunkSystem) {
+            if (PlayerKeyPressUtils.BlockKeyInput)
+            {
+                return;
+            }
+            if (!currentSystem) {
                 return;
             }
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, mousePosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts))
-            {
-                tileHighlighter.Hide();
-                return;
-            }
-            
+            PreviewHighlight(mousePosition);
+        }
+
+        private void PreviewHighlight(Vector2 mousePosition)
+        {
             previewController.Preview(playerInventory.CurrentTool,mousePosition);
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 3);
                 if (!result.HasValue) continue;
-                bool highlight = TryHighlight(closedChunkSystem, (result.Value,worldTileMap));
+                bool highlight = TryHighlight(currentSystem, (result.Value,worldTileMap));
                 if (highlight) return;
             }
+            ToolTipController.Instance.HideToolTip(ToolTipType.World);
             tileHighlighter.Hide();
         }
-
         
 
         private bool TryHighlight(ClosedChunkSystem system, (Vector2, IWorldTileMap) result)
