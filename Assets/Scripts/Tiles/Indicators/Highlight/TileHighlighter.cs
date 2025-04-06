@@ -12,6 +12,7 @@ namespace Tiles.Highlight
         [SerializeField] private Tilemap mBaseMap;
         [SerializeField] private SpriteRenderer mOutline;
         private Vector3Int lastCellPosition;
+        private bool active;
         
         public void Start()
         { 
@@ -23,13 +24,17 @@ namespace Tiles.Highlight
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             cellPosition.z = 0;
             TileBase tileBase = tilemap.GetTile(cellPosition);
-
-            mBaseMap.SetTile(lastCellPosition,null);
-            if (ReferenceEquals(tileBase, null))
-            {
-                return;
-            }
             
+            if (active)
+            {
+                mBaseMap.SetTile(lastCellPosition,null);
+                if (ReferenceEquals(tileBase, null))
+                {
+                    active = false;
+                    return;
+                }
+            }
+            active = true;
             mBaseMap.SetTile(cellPosition,tileBase);
             lastCellPosition = cellPosition;
             Sprite sprite = GetSprite(tileBase);
@@ -64,8 +69,10 @@ namespace Tiles.Highlight
 
         public void Hide()
         {
+            if (!active) return;
             mBaseMap.SetTile(lastCellPosition, null);
-            mOutline.sprite = null; 
+            mOutline.sprite = null;
+            active = false;
         }
     }
 }

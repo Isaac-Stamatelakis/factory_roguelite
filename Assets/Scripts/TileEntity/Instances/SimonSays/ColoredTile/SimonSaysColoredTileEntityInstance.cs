@@ -4,7 +4,7 @@ using Chunks;
 using UnityEngine;
 
 namespace TileEntity.Instances.SimonSays {
-    public class SimonSaysColoredTileEntityInstance : TileEntityInstance<SimonSaysColoredTileEntityObject>, IConditionalRightClickableTileEntity
+    public class SimonSaysColoredTileEntityInstance : TileEntityInstance<SimonSaysColoredTileEntityObject>, IConditionalRightClickableTileEntity, IRightClickableTileEntity
     {
         public SimonSaysColoredTileEntityInstance(SimonSaysColoredTileEntityObject tileEntityObject, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntityObject, positionInChunk, tileItem, chunk)
         {

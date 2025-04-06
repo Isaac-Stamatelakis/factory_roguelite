@@ -16,17 +16,8 @@ namespace Player.Mouse
     }
     public static class MousePositionTileMapSearcher
     {
-        internal static (Vector2, IWorldTileMap)? FindTileNearestMousePosition(Vector2 mouseWorldPosition, List<IWorldTileMap> tilemaps, int searchRange)
-        {
-            foreach (IWorldTileMap tilemap in tilemaps)
-            {
-                Vector2? vector2 = GetNearestTileMapPosition(mouseWorldPosition,tilemap.GetTilemap(), searchRange);
-                if (vector2 != null) return ((Vector2)vector2, tilemap);
-            }
-            return null;
-        }
 
-        private static Vector2? GetNearestTileMapPosition(Vector2 mouseWorldPosition, Tilemap tilemap, int searchRange)
+        public static Vector2? GetNearestTileMapPosition(Vector2 mouseWorldPosition, Tilemap tilemap, int searchRange)
         {
             Vector2? nearestTileMapPosition = null;
             float closest = float.MaxValue;
@@ -71,31 +62,6 @@ namespace Player.Mouse
             nearest = worldPosition;
         }
         
-        
-        internal static (Vector2,Tilemap)? GetWorldPosition(Vector2 mouseWorldPosition, List<Tilemap> tilemaps, Vector2 startPosition, float angleRange, int maxSearchDistance, LineRenderer t1 = null, LineRenderer t2 = null)
-        {
-            Vector2 distanceFromPlayer = startPosition - mouseWorldPosition;
-            float angle = (Mathf.Atan2(distanceFromPlayer.y, distanceFromPlayer.x));
-            
-            float lowerAngle = Mathf.Repeat(angle - angleRange, 2 * Mathf.PI);
-            float upperAngle = Mathf.Repeat(angle + angleRange, 2 * Mathf.PI);
-            Vector2 lowerAnglePosition = new Vector2(Mathf.Cos(lowerAngle), Mathf.Sin(lowerAngle));
-            Vector2 upperAnglePosition = new Vector2(Mathf.Cos(upperAngle), Mathf.Sin(upperAngle));
-
-            if (!ReferenceEquals(t1, null) && !ReferenceEquals(t2,null))
-            {
-                t1.SetPositions(new Vector3[] { startPosition, startPosition+lowerAnglePosition * maxSearchDistance/2f });
-                t2.SetPositions(new Vector3[] { startPosition, startPosition+upperAnglePosition * maxSearchDistance/2f });
-            }
-            foreach (Tilemap tilemap in tilemaps)
-            {
-                Vector2? result = SearchTileMap(startPosition,mouseWorldPosition,upperAnglePosition,lowerAnglePosition,tilemap,maxSearchDistance);
-                if (result != null) return ((Vector2)result,tilemap);
-            }
-
-            return null;
-        }
-
         private static Vector2? SearchTileMap(Vector2 startPosition, Vector2 mouseWorldPosition, Vector2 upperPosition, Vector2 lowerPosition, Tilemap tilemap, int maxSearchDistance)
         {
             for (int i = 0; i < maxSearchDistance; i++)

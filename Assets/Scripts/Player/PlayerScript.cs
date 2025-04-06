@@ -68,6 +68,8 @@ namespace Player
         private Vector2 lastPosition;
         public bool Cheats;
         public DimensionData DimensionData;
+        private ClosedChunkSystem currentSystem;
+        public ClosedChunkSystem CurrentSystem => currentSystem;
         [FormerlySerializedAs("ItemCheat")] public bool ItemSearchCheat;
         public void Start()
         {
@@ -99,6 +101,12 @@ namespace Player
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
             return playerData.dimensionData;
+        }
+
+        public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
+        {
+            currentSystem = closedChunkSystem;
+            playerMouse.SyncToClosedChunkSystem(closedChunkSystem);
         }
 
         private void InitializeStages()

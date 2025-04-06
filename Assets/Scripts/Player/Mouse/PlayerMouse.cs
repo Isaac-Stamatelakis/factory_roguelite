@@ -62,6 +62,9 @@ namespace PlayerModule.Mouse {
         private bool enableAutoSelect = true;
         public bool AutoSelectEnabled => enableAutoSelect;
         public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
+        private List<IWorldTileMap> systemTileMaps = new List<IWorldTileMap>();
+        private ClosedChunkSystem currentSystem;
+       
         void Start()
         {
             mainCamera = Camera.main;
@@ -81,6 +84,16 @@ namespace PlayerModule.Mouse {
             enableAutoSelect = !enableAutoSelect;
             PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
             if (!enableAutoSelect) tileBreakHighlighter.Clear();
+        }
+
+        public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
+        {
+            systemTileMaps = new List<IWorldTileMap>
+            {
+                closedChunkSystem.GetTileMap(TileMapType.Block),
+                closedChunkSystem.GetTileMap(TileMapType.Object),
+            };
+            currentSystem = closedChunkSystem;
         }
         
         void Update()
@@ -149,18 +162,16 @@ namespace PlayerModule.Mouse {
             
             if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, toolHitPosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
             
-            ClosedChunkSystem closedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            if (!closedChunkSystem) {
+            if (!currentSystem) {
                 return;
             }
             
             if (leftClick) {
-                LeftClickUpdate(mousePosition,toolHitPosition,closedChunkSystem);
+                LeftClickUpdate(mousePosition,toolHitPosition,currentSystem);
             }
             if (rightClick) {
-                RightClickUpdate(mousePosition,toolHitPosition,closedChunkSystem);
+                RightClickUpdate(mousePosition,toolHitPosition,currentSystem);
             }
-            
         }
 
         public void FixedUpdate()
@@ -176,18 +187,13 @@ namespace PlayerModule.Mouse {
                 tileHighlighter.Hide();
                 return;
             }
-            List<IWorldTileMap> tilemaps = new List<IWorldTileMap>
-            {
-                closedChunkSystem.GetTileMap(TileMapType.Object),
-                closedChunkSystem.GetTileMap(TileMapType.Block),
-            };
             
             previewController.Preview(playerInventory.CurrentTool,mousePosition);
-            
-            var result = MousePositionTileMapSearcher.FindTileNearestMousePosition(mousePosition, tilemaps, 3);
-            if (result != null)
+            foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
-                bool highlight = TryHighlight(closedChunkSystem, result.Value);
+                var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 3);
+                if (!result.HasValue) continue;
+                bool highlight = TryHighlight(closedChunkSystem, (result.Value,worldTileMap));
                 if (highlight) return;
             }
             tileHighlighter.Hide();
@@ -206,9 +212,7 @@ namespace PlayerModule.Mouse {
             {
                 ToolTipController.Instance.HideToolTip(ToolTipType.World);
             }
-            
             if (!CanRightClickTileEntity(tileEntityInstance, system)) return false;
-            
             tileHighlighter.Highlight(position, tilemap.GetTilemap());
             return true;
         }

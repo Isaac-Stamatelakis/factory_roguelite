@@ -19,7 +19,7 @@ using UI.Chat;
 using Random = UnityEngine.Random;
 
 namespace TileEntity.Instances.SimonSays {
-    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IConditionalRightClickableTileEntity, ILoadableTileEntity, ISerializableTileEntity
+    public class SimonSaysControllerInstance : TileEntityInstance<SimonSaysController>, IConditionalRightClickableTileEntity, ILoadableTileEntity, ISerializableTileEntity, IRightClickableTileEntity
     {
         
         public SimonSaysControllerInstance(SimonSaysController tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
