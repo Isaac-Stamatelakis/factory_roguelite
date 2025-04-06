@@ -521,8 +521,8 @@ namespace PlayerModule.Mouse {
                 return Physics2D.Raycast(position, direction, range, tileLayer);
             }
 
-            const float SPREAD = 30 * Mathf.Deg2Rad;
-            const int CASTS = 6;
+            const float SPREAD = 15 * Mathf.Deg2Rad;
+            const int CASTS = 4;
             int r = 1;
             while (r <= CASTS/2)
             {

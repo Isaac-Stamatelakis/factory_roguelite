@@ -14,6 +14,7 @@ using Player.Controls;
 using Player.UI;
 using TMPro;
 using UI;
+using UI.Catalogue.ItemSearch;
 using UI.Chat;
 using UI.QuestBook;
 using UI.RingSelector;
@@ -65,6 +66,13 @@ namespace PlayerModule.KeyPress {
                 PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
                 playerInventoryUI.Display(playerScript);
                 CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenSearch))
+            {
+                ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
+                itemSearchUI.Initialize(playerScript);
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
             }
 
             if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPlacementMode))

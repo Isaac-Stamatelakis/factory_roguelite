@@ -35,7 +35,7 @@ namespace WorldModule.Caves {
         public List<FluidAreaDistribution> FluidAreaDistributions;
         public List<FluidPoolDistribution> FluidPoolDistributions;
         public CaveOptions CaveOptions;
-        public List<SerializedItemSlot> ResearchCost;
+        public List<EditorItemSlot> ResearchCost;
         
         public string GetId()
         {

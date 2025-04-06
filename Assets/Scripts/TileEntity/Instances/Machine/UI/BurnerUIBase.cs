@@ -39,7 +39,7 @@ namespace TileEntity.Instances.Machine.UI
 
             if (burnerMachineInstance.TileEntityObject.RecipeProcessor.ProcessorRestrictionObject is not RecipeProcessorFuelRestriction fuelRestriction) return;
 
-            bool ValidateFunction(ItemObject itemObject)
+            bool ValidateFunction(ItemObject itemObject, int index)
             {
                 if (!itemObject) return false;
                 foreach (ItemObject whiteListedFuel in fuelRestriction.WhiteListedFuels)

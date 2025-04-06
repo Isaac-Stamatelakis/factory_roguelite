@@ -42,9 +42,11 @@ namespace TileEntity.Instances.Caves.Researcher
                 throw new ChatParseException($"Cave already researched: {id}");
 
             Tier tier = GetCaveTier(id);
-            ResearchDriveProcess researchDriveProcess = new ResearchDriveProcess(tier,id);
+            ResearchDriveProcess researchDriveProcess = new ResearchDriveProcess(0f,false,id);
             caveProcessorUI.CaveProcessorInstance.ResearchDriveProcess = researchDriveProcess;
-            caveProcessorUI.SendTerminalMessage($"Research started of cave {id} of tier '{tier}'. Cost will be {researchDriveProcess.Cost}J");
+            caveProcessorUI.SendTerminalMessage($"Research of cave {id} of tier '{tier}' queued up. Insert required items to begin research");
+            caveProcessorUI.SetDisplayableCave(id);
+            caveProcessorUI.DisplayCaveResearchCost();
         }
 
         private string GetIdOfLowestUnresearchedTier(List<string> caveIds)
@@ -90,9 +92,14 @@ namespace TileEntity.Instances.Caves.Researcher
 
         public override List<string> GetAutoFill()
         {
-            List<string> values = caveProcessorUI.GetCaveIds();
+            List<string> values = new List<string>();
             values.Add(CANCEL_FLAG);
             values.Add(LOW_TIER_FLAG);
+            foreach (string id in caveProcessorUI.GetCaveIds())
+            {
+                if (caveProcessorUI.CaveProcessorInstance.ResearchedCaves.Contains(id)) continue;
+                values.Add(id);
+            }
             return values;
         }
     }
