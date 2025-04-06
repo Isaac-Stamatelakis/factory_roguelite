@@ -12,6 +12,7 @@ using TMPro;
 using UI.Chat;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using WorldModule.Caves;
 
@@ -26,7 +27,7 @@ namespace TileEntity.Instances.Caves.Researcher
         [SerializeField] private ArrowProgressController mProgressBar;
         [SerializeField] private TMP_InputField mTextInput;
         [SerializeField] private VerticalLayoutGroup mTextList;
-        [SerializeField] private TextMeshProUGUI mResearchText;
+        [FormerlySerializedAs("mResearchText")] [SerializeField] private TextMeshProUGUI mDownloadText;
         [SerializeField] private TextMeshProUGUI mStatusText;
         [SerializeField] private Button mTerminalBlocker;
         
@@ -108,16 +109,32 @@ namespace TileEntity.Instances.Caves.Researcher
             DisplayCaveResearchCost();
         }
 
+        public void SetDisplayableCave(string id)
+        {
+            foreach (CaveObject cave in caves)
+            {
+                if (id == cave.GetId())
+                {
+                    currentResearchCave = cave;
+                }
+            }
+        }
+
         public void DisplayCaveResearchCost()
         {
             if (!currentResearchCave) return;
-            
+
+            void OnResearchSuccess()
+            {
+                SendTerminalMessage($"Researched Cave {currentResearchCave.name}");
+                caveProcessorInstance.ResearchDriveProcess.Satisfied = true;
+                mResearchCostOverlayUI.gameObject.SetActive(false);
+                mResearchItemsUI.gameObject.SetActive(false);
+            }
             List<ItemSlot> requiredItems = ItemSlotFactory.FromEditorObjects(currentResearchCave?.ResearchCost);
             if (requiredItems == null || requiredItems.Count == 0)
             {
-                SendTerminalMessage($"Researched Cave {currentResearchCave.name}");
-                mResearchCostOverlayUI.gameObject.SetActive(false);
-                mResearchItemsUI.gameObject.SetActive(false);
+                OnResearchSuccess();
                 return;
             }
             /*
@@ -126,8 +143,15 @@ namespace TileEntity.Instances.Caves.Researcher
              * ResearchItems with an transparency layer to suggest to players to input items in the inventory.
              * ResearchItems amount text is locked and is set through a lambda function callback when the inventory is updated.
              */
-            
-            caveProcessorInstance.ResearchItems = ItemSlotFactory.createEmptyInventory(requiredItems.Count);
+            while (caveProcessorInstance.ResearchItems.Count < requiredItems.Count)
+            {
+                caveProcessorInstance.ResearchItems.Add(null);
+            }
+
+            while (caveProcessorInstance.ResearchItems.Count > requiredItems.Count)
+            {
+                caveProcessorInstance.ResearchItems.RemoveAt(caveProcessorInstance.ResearchItems.Count - 1);
+            }
             mResearchItemsUI.gameObject.SetActive(true);
             mResearchItemsUI.DisplayInventory(caveProcessorInstance.ResearchItems);
 
@@ -141,7 +165,7 @@ namespace TileEntity.Instances.Caves.Researcher
                 itemSlotUI.LockBottomText = true;
             });
             
-            void DisplayAmount(int index)
+            void OnItemSlotChange(int index)
             {
                 ItemSlot required = requiredItems[index];
                 ItemSlot current = caveProcessorInstance.ResearchItems[index];
@@ -149,25 +173,42 @@ namespace TileEntity.Instances.Caves.Researcher
                 uint requiredAmount = required.amount;
                 uint amount = current?.amount ?? 0;
                 Color color = amount >= requiredAmount ? Color.green : Color.red;
+                if (current != null && amount > requiredAmount)
+                {
+                    ItemSlot spliced = ItemSlotFactory.Splice(current, amount - requiredAmount);
+                    current.amount = requiredAmount;
+                    PlayerManager.Instance.GetPlayer().PlayerInventory.Give(spliced);
+                    amount = requiredAmount;
+                }
                 TextMeshProUGUI textMeshProUGUI = mResearchItemsUI.GetItemSlotUI(index).mBottomText;
                 textMeshProUGUI.text = $"{amount}/{requiredAmount}";
                 textMeshProUGUI.color = color;
             }
-            mResearchItemsUI.AddCallback(DisplayAmount);
-            mResearchItemsUI.AddCallback(IsResearchSatisfied);
+            mResearchItemsUI.AddCallback(OnItemSlotChange);
+            mResearchItemsUI.AddCallback(CheckResearchSatisfied);
             for (int i = 0; i < requiredItems.Count; i++)
             {
-                DisplayAmount(i);
+                OnItemSlotChange(i);
             }
             mResearchCostOverlayUI.gameObject.SetActive(true);
             mResearchCostOverlayUI.DisplayInventory(requiredItems);
             mResearchCostOverlayUI.InventoryInteractMode = InventoryInteractMode.UnInteractable;
+            
+            void CheckResearchSatisfied(int index)
+            {
+                for (int i = 0; i < requiredItems.Count; i++)
+                {
+                    ItemSlot required = requiredItems[i];
+                    ItemSlot current = caveProcessorInstance.ResearchItems[i];
+                    if (ItemSlotUtils.IsItemSlotNull(current)) return;
+                    if (current.amount < required.amount) return; 
+                }
+
+                OnResearchSuccess();
+            }
         }
 
-        void IsResearchSatisfied(int index)
-        {
-            
-        }
+        
         
         public List<string> GetCaveIds() {
             List<string> caveIds = new List<string>();
@@ -184,17 +225,15 @@ namespace TileEntity.Instances.Caves.Researcher
         {
             if (caveProcessorInstance.ResearchDriveProcess == null)
             {
-                mStatusText.text = "Awaiting Instruction";
+                mStatusText.text = "Researching: 'None'";
             }
             else
             {
-                mStatusText.text = !caveProcessorInstance.ResearchProgressing
-                    ? $"<color=red>INSUFFICIENT ENERGY: {caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>" 
-                    : $"<color=green>Systems Running: {caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>";
+                mStatusText.text = !caveProcessorInstance.ResearchDriveProcess.Satisfied
+                    ? $"Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nStatus:Awaiting Items" 
+                    : $"<color=green>Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nProgress:{caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>";
             }
-            mResearchText.text = caveProcessorInstance.ResearchDriveProcess == null 
-                ? "Researching: None" 
-                : $"Researching: {caveProcessorInstance.ResearchDriveProcess.ResearchId}";
+            mDownloadText.text = $"Downloading: '{caveProcessorInstance.CurrentlyCopyingCave ?? "None"}'";
         }
         public void Update()
         {

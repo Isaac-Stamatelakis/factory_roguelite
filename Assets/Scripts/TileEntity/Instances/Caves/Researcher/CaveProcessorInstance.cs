@@ -17,10 +17,8 @@ namespace TileEntity.Instances.Caves.Researcher {
         public List<ItemSlot> InputDrives;
         public List<ItemSlot> OutputDrives;
         public List<ItemSlot> ResearchItems;
-        public bool ResearchProgressing;
         private List<string> researchedCaves;
         public List<string> ResearchedCaves => researchedCaves;
-        
         public string CurrentlyCopyingCave;
         internal ResearchDriveProcess ResearchDriveProcess;
         internal CopyDriveProcess CopyDriveProcess;
