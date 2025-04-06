@@ -1,4 +1,5 @@
 using Robot.Tool;
+using Robot.Tool.Instances;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
@@ -24,35 +25,38 @@ namespace Player.Mouse
         private bool active;
         private float lastUse;
         private IAcceleratedClickHandler acceleratedClickHandler;
+        private bool resetCounterOnClick;
         public HoldClickHandler(IPlayerClickHandler clickHandler, MouseButtonKey mouseButtonKey)
         {
             this.clickHandler = clickHandler;
             this.mouseButtonKey = mouseButtonKey;
             lastUse = Time.time;
             acceleratedClickHandler = clickHandler as IAcceleratedClickHandler;
+            resetCounterOnClick = clickHandler is IClickSpammableTool;
         }
 
         public void Tick(Vector2 mousePosition, bool blockDestruction)
         {
-            if (blockDestruction && clickHandler is IDestructiveTool) return; 
+            if (blockDestruction && clickHandler is IDestructiveTool) return;
             if (!active)
             {
                 clickHandler.BeginClickHold(mousePosition, mouseButtonKey);
                 active = true;
                 float timeSinceLastUse = Time.time - lastUse;
                 counter -= timeSinceLastUse;
-                if (!(counter <= 0)) return;
-                
-                if (Input.GetMouseButtonDown((int)mouseButtonKey)) clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+                if (counter > 0 && !resetCounterOnClick) return;
+               
+                if (Input.GetMouseButtonDown(mouseButtonKey.ToMouseButton()))
+                {
+                    clickHandler.ClickUpdate(mousePosition,mouseButtonKey);
+                }
                 counter = 0;
                 return;
             }
             
             if (DevMode.Instance.noBreakCooldown)
             {
-                clickHandler.HoldClickUpdate(mousePosition, mouseButtonKey, int.MaxValue);
-                counter = 0;
-                return;
+                counter = 100000f;
             }
 
             float multipler = acceleratedClickHandler?.GetSpeedMultiplier() ?? 1;

@@ -35,11 +35,7 @@ namespace TileMaps.Place {
             DownLeft,
             Center
         }
-
-        public static void tilePlaceUpdate(Vector2Int position, TileMapType tileMapType) {
-
-        }
-
+        
         public static void RotateTileInMap(Tilemap tilemap, TileBase tileBase, Vector3Int cellPosition, int rotation, bool mirror)
         {
             tilemap.SetTile(cellPosition,null); // This is required to reset the transform matrix in the tilemap to the base 
