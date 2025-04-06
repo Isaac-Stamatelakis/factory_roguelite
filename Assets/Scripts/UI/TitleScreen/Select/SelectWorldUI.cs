@@ -121,8 +121,11 @@ namespace UI.TitleScreen.Select
 
         private string[] GetWorlds()
         {
-            string defaultWorldFolder =  Path.Combine(Application.persistentDataPath, WorldLoadUtils.DefaultWorldFolder);
-
+            string defaultWorldFolder =  Path.Combine(Application.persistentDataPath, WorldLoadUtils.DEFAULT_WORLD_FOLDER);
+            if (!Directory.Exists(defaultWorldFolder))
+            {
+                Directory.CreateDirectory(defaultWorldFolder);
+            }
             try
             {
                 return Directory.GetDirectories(defaultWorldFolder);
