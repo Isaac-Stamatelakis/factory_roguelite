@@ -49,4 +49,17 @@ namespace Player.Controls
             }
         }
     }
+
+    public class UserInterfaceBindingCollection : ControlBindingCollection
+    {
+        protected override List<ControlBinding> GetBindings()
+        {
+            return new List<ControlBinding>
+            {
+                new(PlayerControl.OpenInventory, new List<KeyCode> { KeyCode.Tab }),
+                new(PlayerControl.OpenSearch, new List<KeyCode> { KeyCode.I }),
+                new(PlayerControl.OpenQuestBook, new List<KeyCode> { KeyCode.L }),
+            };
+        }
+    }
 }

@@ -42,6 +42,7 @@ namespace Player.Controls
             Dictionary<string, ControlBindingCollection> sections = new Dictionary<string, ControlBindingCollection>
             {
                 ["Movement"] = new MovementControlBindings(),
+                ["General"] = new UserInterfaceBindingCollection(),
                 ["Equips"] = new EquipmentControlBindings(),
                 ["Conduit"] = new ConduitControlBindings(),
                 ["Misc"] = new MiscBindings()

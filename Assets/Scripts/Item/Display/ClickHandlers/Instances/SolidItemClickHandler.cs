@@ -26,7 +26,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             {
                 
                 if (ItemSlotUtils.IsItemSlotNull(grabbedSlot)) return;
-                if ((!inventoryUI.ValidateInput(grabbedSlot))) return;
+                if ((!inventoryUI.ValidateInput(grabbedSlot,index))) return;
                 ItemSlot newSlot = ItemSlotFactory.Splice(grabbedSlot,1);
                 inventoryUI.SetItem(index,newSlot);
                 grabbedItemProperties.SetDeIterateSlot(null);
@@ -99,7 +99,7 @@ namespace Item.Inventory.ClickHandlers.Instances
 
         private bool InputFromLeftClick(ItemSlot grabbedSlot, ItemSlot inventorySlot, GrabbedItemProperties grabbedItemProperties, List<ItemSlot> inventory)
         {
-            if (!inventoryUI.ValidateInput(grabbedSlot) || inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
+            if (!inventoryUI.ValidateInput(grabbedSlot,index) || inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
             
             if (ItemSlotUtils.AreEqual(grabbedSlot, inventorySlot))
             {
@@ -129,7 +129,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             
             if (ReferenceEquals(inventoryUI.Connection, null)) return false;
             ItemSlot transferItem = inventory[index];
-            if (!inventoryUI.Connection.ValidateInput(transferItem)) return false;
+            if (!inventoryUI.Connection.ValidateInput(transferItem,index)) return false;
             var connectionInventory = inventoryUI.Connection.GetInventory();
 
             if (!ItemSlotUtils.CanInsertIntoInventory(connectionInventory, transferItem, inventoryUI.Connection.MaxSize)) return false;
@@ -192,7 +192,7 @@ namespace Item.Inventory.ClickHandlers.Instances
             ItemSlot inventorySlot = inventory[index];
             var connectionInventory = inventoryUI.Connection.GetInventory();
             
-            if (!inventoryUI.Connection.ValidateInput(inventorySlot)) return;
+            if (!inventoryUI.Connection.ValidateInput(inventorySlot,index)) return;
             
             int firstNullSlot = -1;
             for (var i = 0; i < connectionInventory.Count; i++)

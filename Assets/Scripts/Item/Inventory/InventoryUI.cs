@@ -55,7 +55,7 @@ namespace Items.Inventory {
         private uint maxStackSize = Global.MAX_SIZE; // TODO Change this for fluids
         public uint MaxSize => maxStackSize;
         private Action<PointerEventData.InputButton, int> overrideClickAction;
-        private Func<ItemObject, bool> validateInputCallback;
+        private Func<ItemObject, int, bool> validateInputCallback;
         private Color highlightColor = new Color(255 / 255f, 215 / 255f, 0, 100 / 255f);
         private Color defaultItemPanelColor;
         
@@ -360,13 +360,13 @@ namespace Items.Inventory {
             this.restrictionMode = inventoryRestrictionMode;
         }
 
-        public bool ValidateInput(ItemSlot itemSlot)
+        public bool ValidateInput(ItemSlot itemSlot, int inputIndex)
         {
             // Many different options for this :)
             if (InventoryInteractMode == InventoryInteractMode.BlockInput) return false;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return false;
             if (restrictedItemId != null && itemSlot.itemObject.id != restrictedItemId) return false;
-            if (validateInputCallback != null && !validateInputCallback(itemSlot?.itemObject)) return false;
+            if (validateInputCallback != null && !validateInputCallback(itemSlot?.itemObject,inputIndex)) return false;
             if (restrictionMode == InventoryRestrictionMode.None) return true;
             
             switch (restrictionMode)
@@ -380,7 +380,7 @@ namespace Items.Inventory {
             }
         }
 
-        public void SetInputRestrictionCallBack(Func<ItemObject, bool> callback)
+        public void SetInputRestrictionCallBack(Func<ItemObject, int, bool> callback)
         {
             validateInputCallback = callback;
         }

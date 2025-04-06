@@ -77,7 +77,7 @@ namespace Items {
         }
         
         private int counter;
-        private ItemSlot displayedSlot;
+        protected ItemSlot displayedSlot;
         
         public void FixedUpdate() {
             if (currentDisplayList == null || Paused)
