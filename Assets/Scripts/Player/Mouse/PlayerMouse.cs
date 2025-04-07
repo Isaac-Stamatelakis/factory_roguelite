@@ -62,7 +62,7 @@ namespace PlayerModule.Mouse {
         private bool enableAutoSelect = true;
         public bool AutoSelectEnabled => enableAutoSelect;
         public const string AUTO_SELECT_PREF_KEY = "_mouse_auto_select";
-        private List<IWorldTileMap> systemTileMaps = new List<IWorldTileMap>();
+        private List<IWorldTileMap> systemTileMaps = new();
         private ClosedChunkSystem currentSystem;
        
         void Start()
@@ -169,8 +169,6 @@ namespace PlayerModule.Mouse {
             }
             
             if (!DevMode.Instance.NoReachLimit && !RobotUpgradeUtils.CanReach(transform.position, toolHitPosition, playerRobot.RobotUpgradeLoadOut.SelfLoadOuts)) return;
-            
-            
             
             if (leftClick) {
                 LeftClickUpdate(mousePosition,toolHitPosition,currentSystem);

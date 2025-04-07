@@ -32,8 +32,6 @@ namespace TileEntity {
     }
     public abstract class TileEntityObject : ScriptableObject
     {
-        [Header("TileEntityInstance will be created with extra partition load range. Useful for torches")]
-        public bool ExtraLoadRange;
         public abstract ITileEntityInstance CreateInstance(Vector2Int tilePosition, TileItem tileItem, IChunk chunk);
     }
 }

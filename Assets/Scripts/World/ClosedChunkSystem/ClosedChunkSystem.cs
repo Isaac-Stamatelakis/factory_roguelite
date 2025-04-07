@@ -191,20 +191,18 @@ namespace Chunks.Systems {
                     }
                     chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
                     chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
+                    /*
                     chunk.GetUnFarLoadedParititionsCloseTo(
                         currentPlayerPartition,
                         CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE),
                         partitionsToFarLoad
                     );
+                    */
                 }
             }
             partitionLoader.addToQueue(partitionsToLoad);
             partitionUnloader.addToQueue(partitionsToUnload);
-
-            foreach (IChunkPartition partition in partitionsToFarLoad)
-            {
-                partition.LoadFarLoadTileEntities();
-            }
+            
         }
 
         public List<Vector2Int> GetUnCachedChunkPositionsNearPlayer() {
