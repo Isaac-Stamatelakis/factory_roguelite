@@ -80,11 +80,12 @@ namespace PlayerModule.Mouse {
             enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
         }
 
-        public void ToggleAutoSelect()
+        public bool ToggleAutoSelect()
         {
             enableAutoSelect = !enableAutoSelect;
             PlayerPrefs.SetInt(AUTO_SELECT_PREF_KEY, enableAutoSelect ? 1 : 0);
             if (!enableAutoSelect) tileBreakHighlighter.Clear();
+            return enableAutoSelect;
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
@@ -99,10 +100,6 @@ namespace PlayerModule.Mouse {
         
         void Update()
         {
-            if (ControlUtils.GetControlKeyDown(PlayerControl.AutoSelect))
-            {
-                ToggleAutoSelect();
-            }
             InventoryControlUpdate();
             
             bool leftClick = Input.GetMouseButton(0);

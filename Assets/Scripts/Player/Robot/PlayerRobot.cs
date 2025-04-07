@@ -172,7 +172,6 @@ namespace Player {
             if (robotData.Health <= 0) return;
             MoveUpdate();
             FluidDamageUpdate();
-            MiscKeyListens();
             timeSinceDamaged += Time.deltaTime;
         }
 
@@ -196,16 +195,7 @@ namespace Player {
             Damage(fluidCollisionInformation.Damage);
             fluidCollisionInformation.DamageCounter = 0;
         }
-
-        private void MiscKeyListens()
-        {
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
-            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapRobotLoadOut))
-            {
-                int direction = Input.GetKey(KeyCode.LeftShift) ? -1 : 1;
-                RobotUpgradeLoadOut.SelfLoadOuts.IncrementCurrent(direction);
-            }
-        }
+        
 
         public void AddCollisionState(CollisionState state)
         {

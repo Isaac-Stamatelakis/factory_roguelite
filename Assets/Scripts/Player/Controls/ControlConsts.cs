@@ -9,6 +9,7 @@ namespace Player.Controls
         MoveUp = 4,
         Teleport = 5,
         Recall = 6,
+        SwitchToolMode = 7,
         OpenConduitOptions = 10,
         SwitchConduitPlacementMode = 11,
         TerminateConduitGroup = 12,

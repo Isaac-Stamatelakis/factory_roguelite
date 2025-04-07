@@ -1,5 +1,6 @@
 using System;
 using Player;
+using Player.Controls;
 using PlayerModule.Mouse;
 using Tiles;
 using UI.ToolTip;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 
 namespace UI.Indicators
 {
-    public class TileAutoSelectIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class TileAutoSelectIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         [SerializeField] private Image image;
         private bool autoSelectActive;
@@ -42,6 +43,11 @@ namespace UI.Indicators
             playerMouse.ToggleAutoSelect();
             autoSelectActive = !autoSelectActive;
             Display(autoSelectActive);
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.AutoSelect;
         }
     }
 }

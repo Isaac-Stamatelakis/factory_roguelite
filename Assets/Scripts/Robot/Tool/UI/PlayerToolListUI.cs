@@ -6,6 +6,7 @@ using Items.Inventory;
 using Player;
 using Player.Tool;
 using PlayerModule;
+using PlayerModule.Mouse;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.LoadOut;
@@ -27,6 +28,12 @@ namespace Robot.Tool.UI
         private PlayerInventory playerInventory;
         [SerializeField] private InventoryUI mToolCollectionUI;
         [SerializeField] public RobotUpgradeStatSelectorUI robotUpgradeStatSelectorUIPrefab;
+
+        public void UpdateIndicators()
+        {
+            IRobotToolInstance current = playerInventory.CurrentTool;
+            primaryIndicator.Display(current);   
+        }
         public void Start()
         {
             image = GetComponent<Image>();
@@ -132,18 +139,7 @@ namespace Robot.Tool.UI
             itemSlotUI.DisplayBottomText(RobotUpgradeUtils.FormatLoadOut(loadOut));
             itemSlotUI.LockBottomText = true;
         }
-    
-        public void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                IRobotToolInstance current = playerInventory?.CurrentTool;
-                if (current == null) return;
-                current.ModeSwitch(MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
-                primaryIndicator.Display(current);
-            }
-        }
-    
+        
         public void Highlight(bool state)
         {
             image.color = state ? highlightColor : defaultColor;
