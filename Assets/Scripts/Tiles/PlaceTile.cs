@@ -40,6 +40,11 @@ namespace TileMaps.Place {
         {
             tilemap.SetTile(cellPosition,null); // This is required to reset the transform matrix in the tilemap to the base 
             tilemap.SetTile(cellPosition,tileBase); 
+            SetTileMapMatrix(tilemap, cellPosition, rotation, mirror);
+        }
+
+        public static void SetTileMapMatrix(Tilemap tilemap, Vector3Int cellPosition, int rotation, bool mirror)
+        {
             Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(cellPosition);
             
             int rotationDeg = 90 * rotation;

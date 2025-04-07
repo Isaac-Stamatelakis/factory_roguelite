@@ -506,6 +506,8 @@ namespace PlayerModule.Mouse {
         {
             tileBreakHighlighter.ResetHistory();
             tileBreakHighlighter.Clear();
+            playerScript.TileViewers.TileBreakHighlighter.ResetHistory();
+            playerScript.TileViewers.TileBreakHighlighter.Clear();
             previewController.ResetRecord();
         }
     }

@@ -324,12 +324,10 @@ namespace TileMaps {
                 return;
             }
             if (tileBase is IStateRotationTile stateRotationTile) {
-                placementTilemap.SetTile(
-                    position, 
-                    stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
-                );
+                placementTilemap.SetTile(position, stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror));
                 return;
             }
+   
             PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
         
@@ -449,8 +447,20 @@ namespace TileMaps {
             int stateCount = hammerTile.getStateAmount();
             int newState = ((baseTileData.state+direction) % stateCount + stateCount) % stateCount;
             baseTileData.state = newState;
- 
+            
             SetTile(position.x,position.y,tileItem);
+            TileBase tile = tileItem.tile;
+            if (tile is IStateTile stateTile)
+            {
+                tile = stateTile.getTileAtState(baseTileData.state);
+            }
+
+            if (tile is IStateRotationTile)
+            {
+                // Switching to a none state tile will fuck up the rotation of state tiles so have to reset it to 0
+                PlaceTile.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
+            }
+            
         }
 
         /// <summary>
