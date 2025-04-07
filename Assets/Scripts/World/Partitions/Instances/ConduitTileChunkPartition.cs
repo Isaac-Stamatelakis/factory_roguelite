@@ -251,7 +251,7 @@ namespace Chunks.Partitions {
             ConduitItem conduitItem = itemRegistry.GetConduitItem(id);
             if (ReferenceEquals(conduitItem, null)) return;
             IWorldTileMap iWorldTileGridMap = tileGridMaps[conduitItem.GetConduitType().ToTileMapType()];
-            iWorldTileGridMap.placeItemTileAtLocation(
+            iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 conduitItem

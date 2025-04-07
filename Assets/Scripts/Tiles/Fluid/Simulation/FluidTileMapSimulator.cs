@@ -521,7 +521,7 @@ namespace Tiles.Fluid.Simulation
 			dominator.FluidTileItem = null;
 			dominated.Liquid = 0;
 			
-			blockTileMap.placeNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
+			blockTileMap.PlaceNewTileAtLocation(dominated.Position.x,dominated.Position.y,dominatorTile);
 			fluidWorldTileMap.BreakTile(dominated.Position);
 			fluidWorldTileMap.BreakTile(dominator.Position);
 			UnsettleNeighbors(dominated.Position);

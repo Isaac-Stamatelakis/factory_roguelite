@@ -63,7 +63,7 @@ namespace Robot.Upgrades.Instances.VeinMine
         {
             Vector2Int current = queue.Dequeue();
             if (!energyCostFunction.Invoke()) return false;
-            if (!hitableTileMap.hasTile(current)) return false;
+            if (!hitableTileMap.HasTile(current)) return false;
             Expand(current);
             if (DevMode.Instance.instantBreak)
             {
@@ -116,7 +116,7 @@ namespace Robot.Upgrades.Instances.VeinMine
                 if (!broken.Add(current)) continue;
                 breaks++;
                 safe++;
-                if (!hitableTileMap.hasTile(current)) continue;
+                if (!hitableTileMap.HasTile(current)) continue;
                 Expand(current);
             }
             return broken;

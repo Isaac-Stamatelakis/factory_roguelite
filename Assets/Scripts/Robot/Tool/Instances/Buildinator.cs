@@ -323,7 +323,7 @@ namespace Robot.Tool.Instances
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
                     foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
                     {
-                        if (!tileGridMap.hasTile(breakPosition)) continue;
+                        if (!tileGridMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
                         if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
                         {

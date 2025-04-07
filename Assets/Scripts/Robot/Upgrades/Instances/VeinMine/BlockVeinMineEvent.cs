@@ -23,7 +23,7 @@ namespace Robot.Upgrades.Instances.VeinMine
 
         protected override bool CanExpandTo(Vector2Int position, Vector2Int origin)
         {
-            if (!hitableTileMap.hasTile(position)) return false;
+            if (!hitableTileMap.HasTile(position)) return false;
             TileItem tileItem = hitableTileMap.getTileItem(position);
             if (!tileItem || tileItem.tileType != TileType.Block) return false;
             TileOptions tileOptions = tileItem.tileOptions;

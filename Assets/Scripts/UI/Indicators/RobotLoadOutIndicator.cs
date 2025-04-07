@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Player;
 using Player.Tool;
@@ -49,8 +50,12 @@ namespace UI.Indicators
                 SetLoadOut(loadOut);
             }
 
+            Dictionary<int, Action> callbacks = new Dictionary<int, Action>
+            {
+                [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange
+            };
             RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
-                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange);
+                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(playerScript.PlayerInventory.PlayerRobotToolUI.robotUpgradeStatSelectorUIPrefab);
             bool success = statSelectorUI.Display(upgradeDisplayData);
             if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);

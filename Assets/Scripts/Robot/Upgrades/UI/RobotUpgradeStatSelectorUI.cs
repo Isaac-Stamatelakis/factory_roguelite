@@ -47,6 +47,7 @@ namespace Robot.Upgrades
         private RobotUpgradeInfo robotUpgradeInfo;
         private PlayerScript playerScript;
         private Action<int> onLoadOutChange;
+        private Dictionary<int, Action> upgradeCallbackDict;
         
         private void Initialize(RobotUpgradeInfo upgradeInfo)
         {
@@ -66,6 +67,11 @@ namespace Robot.Upgrades
             string costText = upgradeInfo.GetDefaultCosts();
             upgradeEnergyCostElement.gameObject.SetActive(!string.IsNullOrEmpty(costText));
             upgradeEnergyCostElement.SetDisplayText(costText);
+        }
+
+        public void AddListener(Action callback, int upgrade)
+        {
+            upgradeCallbackDict[upgrade] = callback;
         }
 
         private void SelectPreset(int loadOut)
@@ -101,11 +107,11 @@ namespace Robot.Upgrades
             }
             
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
-            Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,upgradeDisplayData.OnLoadOutChange);
+            Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,upgradeDisplayData.OnLoadOutChange,upgradeDisplayData.UpgradeChangeCallbacks);
             return true;
         }
 
-        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange)
+        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange, Dictionary<int,Action> upgradeCallbacks)
         {
             this.onLoadOutChange = onLoadOutChange;
             Initialize(upgradeInfo);
@@ -113,6 +119,8 @@ namespace Robot.Upgrades
             this.statUpgradeDict = statUpgradeDict;
             this.robotUpgradeInfo = upgradeInfo;
             presetSelectButtons[robotStatLoadOutCollection.Current].GetComponent<Image>().color = highlightButtonColor;
+            this.upgradeCallbackDict = upgradeCallbacks;
+            upgradeCallbackDict ??= new Dictionary<int, Action>();
             DisplayCurrentStatLoadOut();
         }
 
@@ -180,6 +188,10 @@ namespace Robot.Upgrades
                 {
                     statLoadOut.DiscreteValues[upgrade] = newValue;
                     SetEnergyCostText(newValue);
+                    if (upgradeCallbackDict.ContainsKey(upgrade))
+                    {
+                        upgradeCallbackDict[upgrade].Invoke();
+                    }
                 };
                 if (maxValue == 1 && !isConstant)
                 {
@@ -219,6 +231,10 @@ namespace Robot.Upgrades
                 {
                     statLoadOut.ContinuousValues[upgrade] = newValue;
                     SetEnergyCostText(newValue);
+                    if (upgradeCallbackDict.ContainsKey(upgrade))
+                    {
+                        upgradeCallbackDict[upgrade].Invoke();
+                    }
                 }
                 slider.DisplayFloat(title,floatValue,maxValue,OnValueChanged,upgradeInfo.GetAmountFormatter(upgrade) as IContinousUpgradeAmountFormatter);
             }
@@ -233,14 +249,17 @@ namespace Robot.Upgrades
             public List<RobotUpgradeData> UpgradeData;
             public RobotUpgradeInfo RobotUpgradeInfo;
             public Action<int> OnLoadOutChange;
+            public Dictionary<int, Action> UpgradeChangeCallbacks;
 
-            public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, RobotUpgradeInfo robotUpgradeInfo, Action<int> onLoadOutChange)
+            public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, 
+                RobotUpgradeInfo robotUpgradeInfo, Action<int> onLoadOutChange, Dictionary<int, Action> upgradeChangeCallbacks)
             {
                 UpgradePath = upgradePath;
                 StatLoadOutCollection = statLoadOutCollection;
                 UpgradeData = upgradeData;
                 RobotUpgradeInfo = robotUpgradeInfo;
                 OnLoadOutChange = onLoadOutChange;
+                UpgradeChangeCallbacks = upgradeChangeCallbacks;
             }
         }
     }

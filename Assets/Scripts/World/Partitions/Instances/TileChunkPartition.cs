@@ -150,7 +150,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 return;
             }
             IWorldTileMap iWorldTileGridMap = tileGridMaps[tileItem.tileType.toTileMapType()];
-            iWorldTileGridMap.placeItemTileAtLocation(
+            iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem
@@ -164,7 +164,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 return;
             }
             IWorldTileMap iWorldTileGridMap = tileGridMaps[TileMapType.Fluid];
-            iWorldTileGridMap.placeItemTileAtLocation(
+            iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 fluidTileItem
@@ -188,7 +188,7 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
 
             TileType tileType = GetTileType(tileItem, positionInPartition.x, positionInPartition.y);
             IWorldTileMap iWorldTileGridMap = tileGridMaps[tileType.toTileMapType()];
-            iWorldTileGridMap.placeItemTileAtLocation(
+            iWorldTileGridMap.PlaceItemTileAtLocation(
                 realPosition,
                 positionInPartition,
                 tileItem

@@ -25,23 +25,25 @@ namespace TileMaps {
         public bool CanHitTile(int power, Vector2 position);
     }
     public interface IWorldTileMap {
-        public void addPartition(IChunkPartition partition);
-        public IEnumerator removePartition(Vector2Int partitionPosition);
-        public bool containsPartition(Vector2Int partitionPosition);
-        public void placeNewTileAtLocation(int x, int y, ItemObject itemObject);
-        public void placeItemTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, ItemObject itemObject);
-        public TileMapType getType();
-        public Vector2Int worldToTileMapPosition(Vector2 worldPosition);
-        public bool hasTile(Vector2Int position);
-        public void removeForSwitch(Vector2Int position);
-        public void placeTileAtLocation(Vector2Int position, TileBase tileBase);
-        public void addListener(ITileMapListener listener);
-        public void setHighlight(bool on);
+        public void AddPartition(IChunkPartition partition);
+        public IEnumerator RemovePartition(Vector2Int partitionPosition);
+        public bool ContainsPartition(Vector2Int partitionPosition);
+        public void PlaceNewTileAtLocation(int x, int y, ItemObject itemObject);
+        public void PlaceItemTileAtLocation(Vector2Int partition, Vector2Int partitionPosition, ItemObject itemObject);
+        public TileMapType GetTileMapType();
+        public Vector2Int WorldToTileMapPosition(Vector2 worldPosition);
+        public bool HasTile(Vector2Int position);
+        public void RemoveForSwitch(Vector2Int position);
+        public void PlaceTileAtLocation(Vector2Int position, TileBase tileBase);
+        public void AddListener(ITileMapListener listener);
+        public void SetHighlight(bool on);
         public Tilemap GetTilemap();
         public void Initialize(TileMapType type);
         public ClosedChunkSystem GetSystem();
         public void BreakTile(Vector2Int position);
         public ItemObject GetItemObject(Vector2Int position);
+        public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition);
+        public Vector2Int GetHitTilePosition(Vector2 position);
     }
     
 
@@ -77,11 +79,11 @@ namespace TileMaps {
             closedChunkSystem = transform.parent.GetComponentInParent<ClosedChunkSystem>();
         }
         
-        public virtual void addPartition(IChunkPartition partition) {
+        public virtual void AddPartition(IChunkPartition partition) {
             partitions.Add(partition.GetRealPosition());
         }
-        public virtual IEnumerator removePartition(Vector2Int partitionPosition) {
-            if (!containsPartition(partitionPosition)) {
+        public virtual IEnumerator RemovePartition(Vector2Int partitionPosition) {
+            if (!ContainsPartition(partitionPosition)) {
                 yield return null;
             }
             partitions.Remove(partitionPosition);
@@ -95,20 +97,20 @@ namespace TileMaps {
             }
         }
 
-        public void addListener(ITileMapListener listener) {
+        public void AddListener(ITileMapListener listener) {
             listeners.Add(listener);
         }
         protected virtual void RemoveTile(int x, int y) {
             tilemap.SetTile(new Vector3Int(x,y,0),null);
         }
-        public bool containsPartition(Vector2Int partitionPosition) {
+        public bool ContainsPartition(Vector2Int partitionPosition) {
             return this.partitions.Contains(partitionPosition);
         }
 
         /// <summary>
         /// Writes to partition on place
         /// </summary>
-        public virtual void placeNewTileAtLocation(int x, int y, ItemObject itemObject) {
+        public virtual void PlaceNewTileAtLocation(int x, int y, ItemObject itemObject) {
             if (itemObject is not TItem item) {
                 Debug.LogWarning($"Tried to place invalid item in {name}");
                 return;
@@ -141,12 +143,12 @@ namespace TileMaps {
         /// <summary>
         /// Doesn't write to partition on place as is called from partition
         /// </summary>
-        public void placeItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
+        public void PlaceItemTileAtLocation(Vector2Int partitionPosition, Vector2Int tilePartitionPosition, ItemObject item)
         {
             Vector2Int cellPosition = partitionPosition*Global.CHUNK_PARTITION_SIZE + tilePartitionPosition;
             SetTile(cellPosition.x, cellPosition.y, (TItem) item);
         }
-        public void placeTileAtLocation(Vector2Int position, TileBase tileBase) {
+        public void PlaceTileAtLocation(Vector2Int position, TileBase tileBase) {
             CallListeners(position);
             tilemap.SetTile((Vector3Int) position,tileBase);
         }
@@ -207,7 +209,7 @@ namespace TileMaps {
             Vector2 worldPosition = tilemap.CellToWorld(new Vector3Int(position.x, position.y, 0));
             return GetHitTilePosition(worldPosition);
         }
-        public Vector2Int worldToTileMapPosition(Vector2 position) {
+        public Vector2Int WorldToTileMapPosition(Vector2 position) {
             Vector3Int vect = tilemap.WorldToCell(position);
             return new Vector2Int(vect.x,vect.y);
         }
@@ -217,6 +219,10 @@ namespace TileMaps {
         }
 
         public abstract ItemObject GetItemObject(Vector2Int position);
+        public OutlineTileMapCellData FormatMainTileMapOutlineData(Vector3Int cellPosition)
+        {
+            return new OutlineTileMapCellData(tilemap.GetTile(cellPosition), null,tilemap.GetTransformMatrix(cellPosition).rotation,tilemap.GetTransformMatrix(cellPosition).rotation);
+        }
 
         public abstract bool BreakAndDropTile(Vector2Int position, bool dropItem);
 
@@ -242,26 +248,26 @@ namespace TileMaps {
             return closedChunkSystem.GetChunk(chunkPosition);
         }
     
-        public TileMapType getType()
+        public TileMapType GetTileMapType()
         {
             return type;
         }
 
-        public bool hasTile(Vector2Int position)
+        public bool HasTile(Vector2Int position)
         {
             return mTileMap.GetTile(new Vector3Int(position.x, position.y, 0));
         }
         /// <summary>
         /// Removes the tile from the tilemap without modifying any data
         /// </summary>
-        public void removeForSwitch(Vector2Int position) {
+        public void RemoveForSwitch(Vector2Int position) {
             tilemap.SetTile((Vector3Int)position,null);
         }
 
         /// <summary>
         /// Brings this tilemap to the foreground
         /// </summary>
-        public void setHighlight(bool on)
+        public void SetHighlight(bool on)
         {
             if (on) {
                 Vector3 position = transform.position;

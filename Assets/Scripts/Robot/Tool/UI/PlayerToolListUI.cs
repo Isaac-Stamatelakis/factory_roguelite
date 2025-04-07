@@ -67,7 +67,7 @@ namespace Robot.Tool.UI
                         }
 
                         RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
-                            upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange);
+                            upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,null);
                         RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(robotUpgradeStatSelectorUIPrefab);
                         bool success = statSelectorUI.Display(upgradeDisplayData);
                         if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);

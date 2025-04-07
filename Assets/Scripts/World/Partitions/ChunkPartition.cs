@@ -79,8 +79,8 @@ namespace Chunks.Partitions {
             loading = true;
             foreach (IWorldTileMap tileGridMap in tileGridMaps.Values) {
                 UnityEngine.Vector2Int realPartitionPosition = GetRealPosition();
-                if (!tileGridMap.containsPartition(realPartitionPosition)) {
-                    tileGridMap.addPartition(this);
+                if (!tileGridMap.ContainsPartition(realPartitionPosition)) {
+                    tileGridMap.AddPartition(this);
                 }
             }
             
@@ -142,7 +142,7 @@ namespace Chunks.Partitions {
                 {
                     yield break;
                 }
-                yield return tileMap.removePartition(realPosition);
+                yield return tileMap.RemovePartition(realPosition);
             }
             SetTileLoaded(false);
         }

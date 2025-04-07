@@ -424,7 +424,7 @@ namespace Robot.Tool.Instances
                     Vector2Int breakPosition = cellPosition + new Vector2Int(x, y);
                     foreach (IWorldTileMap tileGridMap in worldTileGridMaps)
                     {
-                        if (!tileGridMap.hasTile(breakPosition)) continue;
+                        if (!tileGridMap.HasTile(breakPosition)) continue;
                         Vector3Int vector3Int = new Vector3Int(breakPosition.x,breakPosition.y,0);
                         if (tileGridMap is IOutlineTileGridMap outlineTileGridMap)
                         {
@@ -432,8 +432,7 @@ namespace Robot.Tool.Instances
                         }
                         else
                         {
-                            Tilemap tilemap = tileGridMap.GetTilemap();
-                            tiles[breakPosition] = new OutlineTileMapCellData(tilemap.GetTile(vector3Int), null,tilemap.GetTransformMatrix(vector3Int).rotation,tilemap.GetTransformMatrix(vector3Int).rotation);
+                            tiles[breakPosition] = tileGridMap.FormatMainTileMapOutlineData(vector3Int);
                         }
                          
                     }
