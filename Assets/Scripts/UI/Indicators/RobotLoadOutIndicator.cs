@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Player;
+using Player.Controls;
 using Player.Tool;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
@@ -12,7 +14,7 @@ using UnityEngine.EventSystems;
 
 namespace UI.Indicators
 {
-    public class RobotLoadOutIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class RobotLoadOutIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
         private PlayerScript playerScript;
         public void Initialize(PlayerScript playerScript)
@@ -49,11 +51,20 @@ namespace UI.Indicators
                 SetLoadOut(loadOut);
             }
 
+            Dictionary<int, Action> callbacks = new Dictionary<int, Action>
+            {
+                [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange
+            };
             RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
-                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange);
+                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks);
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(playerScript.PlayerInventory.PlayerRobotToolUI.robotUpgradeStatSelectorUIPrefab);
             bool success = statSelectorUI.Display(upgradeDisplayData);
             if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
+        }
+
+        public PlayerControl? GetPlayerControl()
+        {
+            return PlayerControl.SwapRobotLoadOut;
         }
     }
 }

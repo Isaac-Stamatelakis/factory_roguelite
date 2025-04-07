@@ -12,6 +12,8 @@ using Items.Inventory;
 using Player;
 using Player.Controls;
 using Player.UI;
+using PlayerModule.Mouse;
+using Robot.Tool;
 using TMPro;
 using UI;
 using UI.Catalogue.ItemSearch;
@@ -20,6 +22,7 @@ using UI.QuestBook;
 using UI.RingSelector;
 using UI.ToolTip;
 using Unity.VisualScripting;
+using MoveDirection = UnityEngine.EventSystems.MoveDirection;
 
 
 namespace PlayerModule.KeyPress {
@@ -92,6 +95,37 @@ namespace PlayerModule.KeyPress {
             if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPortView))
             {
                 ChangePortModePress();
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchToolMode))
+            {
+                IRobotToolInstance current = playerInventory?.CurrentTool;
+                if (current != null)
+                {
+                    current.ModeSwitch(Robot.Tool.MoveDirection.Left,Input.GetKey(KeyCode.LeftControl));
+                    playerScript.PlayerMouse.UpdateOnToolChange();
+                    playerScript.PlayerInventory.PlayerRobotToolUI.UpdateIndicators();
+                }
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapRobotLoadOut))
+            {
+                var selfLoadout = playerScript.PlayerRobot.RobotUpgradeLoadOut.SelfLoadOuts;
+                selfLoadout.IncrementCurrent(1);
+                playerScript.PlayerUIContainer.IndicatorManager.loadOutIndicator.SetLoadOut(selfLoadout.Current);
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapToolLoadOut))
+            {
+                var loadOut = playerScript.PlayerRobot.RobotUpgradeLoadOut.ToolLoadOuts[playerScript.PlayerInventory.CurrentToolType];
+                loadOut.IncrementCurrent(1);
+                playerScript.PlayerInventory.PlayerRobotToolUI.SetLoadOutText(playerScript.PlayerInventory.CurrentToolIndex,loadOut.Current);
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.AutoSelect))
+            {
+                bool autoSelect = playerScript.PlayerMouse.ToggleAutoSelect();
+                playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Display(autoSelect);
             }
             
             

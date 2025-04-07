@@ -49,11 +49,11 @@ namespace Chunks.Systems {
                 InitTileMapContainer(tileMapType,container.transform,tileGridMaps);
             }
             InitTileMapContainer(TileMapType.Fluid,systemTransform,tileGridMaps);
-            tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
-            tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
-            tileGridMaps[TileMapType.Block].addListener((ITileMapListener)tileGridMaps[TileMapType.Block]);
-            tileGridMaps[TileMapType.Object].addListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
-            tileGridMaps[TileMapType.Object].addListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
+            tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
+            tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
+            tileGridMaps[TileMapType.Block].AddListener((ITileMapListener)tileGridMaps[TileMapType.Block]);
+            tileGridMaps[TileMapType.Object].AddListener((ITileMapListener)tileGridMaps[TileMapType.Object]);
+            tileGridMaps[TileMapType.Object].AddListener((ITileMapListener)tileGridMaps[TileMapType.Fluid]);
 
         }
 

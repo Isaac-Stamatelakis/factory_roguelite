@@ -191,7 +191,7 @@ namespace TileMaps.Conduit {
                 Debug.LogError("Conduit Tile Map belonged to non conduit tile chunk partition");
                 return;
             }
-            conduitTileChunkPartition.SetConduitItem(positionInPartition,getType().toConduitType(),item);
+            conduitTileChunkPartition.SetConduitItem(positionInPartition,GetTileMapType().toConduitType(),item);
         }
     }
 }

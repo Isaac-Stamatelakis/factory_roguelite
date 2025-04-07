@@ -40,6 +40,11 @@ namespace TileMaps.Place {
         {
             tilemap.SetTile(cellPosition,null); // This is required to reset the transform matrix in the tilemap to the base 
             tilemap.SetTile(cellPosition,tileBase); 
+            SetTileMapMatrix(tilemap, cellPosition, rotation, mirror);
+        }
+
+        public static void SetTileMapMatrix(Tilemap tilemap, Vector3Int cellPosition, int rotation, bool mirror)
+        {
             Matrix4x4 transformMatrix = tilemap.GetTransformMatrix(cellPosition);
             
             int rotationDeg = 90 * rotation;
@@ -281,7 +286,7 @@ namespace TileMaps.Place {
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
 
             ClearTilesOnPlace(tileItem, worldPosition, baseTileData.rotation);
-            iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
+            iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
             
             if (!ReferenceEquals(tileItem.tileEntity, null))
             {
@@ -347,7 +352,7 @@ namespace TileMaps.Place {
             if (ReferenceEquals(tileEntity, null)) return;
             
             ITileEntityInstance tileEntityInstance = presetTileEntity ?? TileEntityUtils.placeTileEntity(tileItem,positionInChunk,chunk,true, assembleMultiblocks: true, data: initialData);
-            TileMapLayer layer = iWorldTileMap.getType().toLayer();
+            TileMapLayer layer = iWorldTileMap.GetTileMapType().toLayer();
             partition.AddTileEntity(layer,tileEntityInstance,positionInPartition);
             
             if (tileEntityInstance is IMultiBlockTileAggregate multiBlockTileAggregate) // This has to be called after the tile entity is added to partition
@@ -363,7 +368,7 @@ namespace TileMaps.Place {
 
         private static bool PlaceConduit(PlayerScript playerScript, ConduitItem conduitItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap, ConduitTileClosedChunkSystem closedChunkSystem)
         {
-            Vector2Int placePosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
+            Vector2Int placePosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
             ConduitType conduitType = conduitItem.GetConduitType();
             IConduitSystemManager conduitSystemManager = closedChunkSystem.GetManager(conduitType);
             EntityPortType entityPortType = conduitSystemManager.GetPortTypeAtPosition(placePosition.x,placePosition.y);
@@ -374,7 +379,7 @@ namespace TileMaps.Place {
             placementOptions.AddPlacementPosition(placePosition);
             IConduit conduit = ConduitFactory.CreateNew(conduitItem,entityPortType,placePosition.x,placePosition.y,state,tileEntity);
             conduitSystemManager.SetConduit(placePosition.x,placePosition.y,conduit);
-            iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
+            iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,conduitItem);
             
             return true;
         }
@@ -384,21 +389,21 @@ namespace TileMaps.Place {
                 return false;
             }
             Vector2Int placePosition = Global.getCellPositionFromWorld(worldPosition);
-            iWorldTileMap.placeNewTileAtLocation(placePosition.x,placePosition.y,fluidTileItem);
+            iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,fluidTileItem);
             return true;
         }
 
         
 
         public static bool ConduitPlacable(ConduitItem conduitItem, Vector2 worldPosition, ConduitTileMap conduitTileMap) {
-            Vector2Int tileMapPosition = conduitTileMap.worldToTileMapPosition(worldPosition);
-            return !conduitTileMap.hasTile(tileMapPosition);
+            Vector2Int tileMapPosition = conduitTileMap.WorldToTileMapPosition(worldPosition);
+            return !conduitTileMap.HasTile(tileMapPosition);
         }
 
         private static bool fluidPlacable(FluidTileItem fluidTileItem, Vector2 worldPosition, IWorldTileMap iWorldTileMap) {
-            Vector2Int tileMapPosition = iWorldTileMap.worldToTileMapPosition(worldPosition);
+            Vector2Int tileMapPosition = iWorldTileMap.WorldToTileMapPosition(worldPosition);
             if (raycastTileInBox(worldPosition, TileMapLayer.Base.toRaycastLayers(), true)) return false;
-            return !iWorldTileMap.hasTile(tileMapPosition);
+            return !iWorldTileMap.HasTile(tileMapPosition);
         }
 
         public static UnityEngine.Vector2Int getPlacePosition(ItemObject item, float x, float y) {

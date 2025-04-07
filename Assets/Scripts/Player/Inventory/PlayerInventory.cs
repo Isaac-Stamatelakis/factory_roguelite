@@ -19,6 +19,7 @@ using Player;
 using Player.Controls;
 using Player.Inventory;
 using Player.Tool;
+using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using Robot;
 using Robot.Tool;
@@ -38,6 +39,7 @@ namespace PlayerModule {
         private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
         private int selectedSlot = 0;
         private int selectedTool = 0;
+        public int CurrentToolIndex => selectedTool;
         private static UnityEngine.Vector2Int inventorySize = new UnityEngine.Vector2Int(10,4);
         private PlayerInventoryData playerInventoryData;
         private GameObject inventoryContainer;
@@ -92,6 +94,7 @@ namespace PlayerModule {
         
         void Update()
         {
+            if (PlayerKeyPressUtils.BlockKeyInput) return;
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 mode = InventoryDisplayMode.Tools;
@@ -102,11 +105,6 @@ namespace PlayerModule {
             {
                 mode = InventoryDisplayMode.Inventory;
                 playerToolListUI.Highlight(false);
-            }
-            if (ControlUtils.GetControlKeyDown(PlayerControl.SwapToolLoadOut))
-            {
-                int direction = Input.GetKey(KeyCode.LeftShift) ? -1 : 1;
-                playerRobot.RobotUpgradeLoadOut.ToolLoadOuts[CurrentToolType].IncrementCurrent(direction);
             }
         }
         

@@ -9,6 +9,8 @@ namespace Player.Controls.Bindings
         {
             return new List<ControlBinding>
             {
+                new (PlayerControl.SwitchToolMode, new List<KeyCode>{KeyCode.C}),
+                new (PlayerControl.AutoSelect, new List<KeyCode>{KeyCode.P}),
                 new (PlayerControl.SwapRobotLoadOut, new List<KeyCode>{KeyCode.T}),
                 new (PlayerControl.SwapToolLoadOut, new List<KeyCode>{KeyCode.T,KeyCode.LeftControl}),
             };

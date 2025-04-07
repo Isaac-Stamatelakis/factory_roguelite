@@ -100,6 +100,8 @@ namespace Player
             ControlUtils.LoadBindings();
             playerUIContainer.IndicatorManager.Initialize(this);
             tileViewers.Initialize(this);
+            
+            OnReachUpgradeChange();
             return playerData.dimensionData;
         }
 
@@ -119,6 +121,11 @@ namespace Player
 
             HashSet<string> gameStages = GlobalHelper.DeserializeCompressedJson<HashSet<string>>(path);
             gameStageCollection = new PlayerGameStageCollection(gameStages);
+        }
+
+        public void OnReachUpgradeChange()
+        {
+            playerMouse.SetRange(RobotUpgradeUtils.BASE_REACH + RobotUpgradeUtils.GetContinuousValue(playerRobot.RobotUpgradeLoadOut.SelfLoadOuts,(int)RobotUpgrade.Reach));
         }
 
         public void FixedUpdate()

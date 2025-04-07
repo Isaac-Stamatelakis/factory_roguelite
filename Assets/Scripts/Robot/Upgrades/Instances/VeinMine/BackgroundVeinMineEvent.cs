@@ -18,7 +18,7 @@ namespace Robot.Upgrades.Instances.VeinMine
 
         protected override bool CanExpandTo(Vector2Int position, Vector2Int origin)
         {
-            return hitableTileMap.hasTile(position);
+            return hitableTileMap.HasTile(position);
         }
     }
 }

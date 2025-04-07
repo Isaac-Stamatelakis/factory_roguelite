@@ -80,7 +80,7 @@ namespace TileMaps {
         
         public override Vector2Int GetHitTilePosition(Vector2 position)
         {
-            Vector2Int hitPosition = worldToTileMapPosition(position);
+            Vector2Int hitPosition = WorldToTileMapPosition(position);
             int maxSearchWidth = 16;
             int searchWidth = 1;
             while (searchWidth < maxSearchWidth) {
@@ -324,12 +324,10 @@ namespace TileMaps {
                 return;
             }
             if (tileBase is IStateRotationTile stateRotationTile) {
-                placementTilemap.SetTile(
-                    position, 
-                    stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror)
-                );
+                placementTilemap.SetTile(position, stateRotationTile.getTile(baseTileData.rotation,baseTileData.mirror));
                 return;
             }
+   
             PlaceTile.RotateTileInMap(placementTilemap, tileBase, position, baseTileData.rotation,baseTileData.mirror);
         }
         
@@ -360,7 +358,7 @@ namespace TileMaps {
 
         protected override void WriteTile(IChunkPartition partition, Vector2Int positionInPartition, TileItem item)
         {
-            partition?.SetTile(positionInPartition,getType().toLayer(),item);
+            partition?.SetTile(positionInPartition,GetTileMapType().toLayer(),item);
         }
 
         public TileItem getTileItem(Vector2Int cellPosition) {
@@ -369,7 +367,7 @@ namespace TileMaps {
                 return null;
             }
             Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
-            TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().toLayer());
             return tileItem;
         }
         
@@ -381,7 +379,7 @@ namespace TileMaps {
                 return null;
             }
             Vector2Int positionInPartition = GetTilePositionInPartition(cellPosition);
-            TileItem tileItem = partition.GetTileItem(positionInPartition,getType().toLayer());
+            TileItem tileItem = partition.GetTileItem(positionInPartition,GetTileMapType().toLayer());
             return tileItem;
         }
         
@@ -449,8 +447,20 @@ namespace TileMaps {
             int stateCount = hammerTile.getStateAmount();
             int newState = ((baseTileData.state+direction) % stateCount + stateCount) % stateCount;
             baseTileData.state = newState;
- 
+            
             SetTile(position.x,position.y,tileItem);
+            TileBase tile = tileItem.tile;
+            if (tile is IStateTile stateTile)
+            {
+                tile = stateTile.getTileAtState(baseTileData.state);
+            }
+
+            if (tile is IStateRotationTile)
+            {
+                // Switching to a none state tile will fuck up the rotation of state tiles so have to reset it to 0
+                PlaceTile.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
+            }
+            
         }
 
         /// <summary>

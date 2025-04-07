@@ -42,10 +42,10 @@ namespace Player.Controls
             Dictionary<string, ControlBindingCollection> sections = new Dictionary<string, ControlBindingCollection>
             {
                 ["Movement"] = new MovementControlBindings(),
+                ["Tools"] = new EquipmentControlBindings(),
                 ["General"] = new UserInterfaceBindingCollection(),
-                ["Equips"] = new EquipmentControlBindings(),
                 ["Conduit"] = new ConduitControlBindings(),
-                ["Misc"] = new MiscBindings()
+                ["Other"] = new MiscBindings()
             };
             foreach (var kvp in sections)
             {

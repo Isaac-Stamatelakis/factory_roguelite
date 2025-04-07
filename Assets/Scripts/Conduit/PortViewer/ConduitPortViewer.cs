@@ -23,7 +23,7 @@ namespace Conduits.PortViewer {
         public void Display(IConduitSystemManager systemManager, Dictionary<EntityPortType,TileBase> portTypeToTile, Color color, TileMaps.IWorldTileMap conduitIWorldTileMap, Vector2Int playerChunkPosition) {
             this.systemManager = systemManager;
             this.conduitIWorldTileMap = conduitIWorldTileMap;
-            conduitIWorldTileMap.setHighlight(true);
+            conduitIWorldTileMap.SetHighlight(true);
             tilemap.color = color;
             nullConduitTileMap.color = color * 0.8f;
             const int CHUNK_VIEW_RANGE = 2;
@@ -51,7 +51,7 @@ namespace Conduits.PortViewer {
             if (!gameObject.activeInHierarchy || systemManager == null) {
                 return;
             }
-            conduitIWorldTileMap.setHighlight(false);
+            conduitIWorldTileMap.SetHighlight(false);
             tilemap.ClearAllTiles();
             nullConduitTileMap.ClearAllTiles();
             gameObject.SetActive(false);
