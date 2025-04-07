@@ -91,10 +91,6 @@ namespace TileMaps {
 
             int rotation = baseTileData.rotation;
             bool mirror = baseTileData.mirror;
-            bool rotate = rotation > 0 || mirror;
-            if (!rotate) {
-                return;
-            }
             Matrix4x4 transformMatrix = outlineTileMap.GetTransformMatrix(vec3);
             transformMatrix.SetTRS(Vector3.zero, !mirror ? Quaternion.Euler(0f, 0f, 90 * rotation) : Quaternion.Euler(0f, 180f, 90 * rotation), Vector3.one);
             outlineTileMap.SetTransformMatrix(vec3,transformMatrix);

@@ -143,15 +143,7 @@ namespace TileEntity.Instances.Caves.Researcher
              * ResearchItems with an transparency layer to suggest to players to input items in the inventory.
              * ResearchItems amount text is locked and is set through a lambda function callback when the inventory is updated.
              */
-            while (caveProcessorInstance.ResearchItems.Count < requiredItems.Count)
-            {
-                caveProcessorInstance.ResearchItems.Add(null);
-            }
-
-            while (caveProcessorInstance.ResearchItems.Count > requiredItems.Count)
-            {
-                caveProcessorInstance.ResearchItems.RemoveAt(caveProcessorInstance.ResearchItems.Count - 1);
-            }
+            caveProcessorInstance.ResearchItems = ItemSlotFactory.createEmptyInventory(requiredItems.Count);
             mResearchItemsUI.gameObject.SetActive(true);
             mResearchItemsUI.DisplayInventory(caveProcessorInstance.ResearchItems);
 
@@ -184,8 +176,16 @@ namespace TileEntity.Instances.Caves.Researcher
                 textMeshProUGUI.text = $"{amount}/{requiredAmount}";
                 textMeshProUGUI.color = color;
             }
+
+            string GetToolTip(int index)
+            {
+                ItemSlot required = requiredItems[index];
+                return required?.itemObject?.name;
+            }
             mResearchItemsUI.AddCallback(OnItemSlotChange);
             mResearchItemsUI.AddCallback(CheckResearchSatisfied);
+            
+            mResearchItemsUI.SetToolTipOverride(GetToolTip);
             for (int i = 0; i < requiredItems.Count; i++)
             {
                 OnItemSlotChange(i);

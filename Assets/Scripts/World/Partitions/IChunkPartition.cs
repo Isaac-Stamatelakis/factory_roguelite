@@ -35,12 +35,6 @@ namespace Chunks.Partitions {
         public void AddFluidDataToChunk(FluidCell[][] chunkFluidCells);
         public PartitionFluidData GetFluidData();
         public void UnloadEntities();
-        public bool GetFarLoaded();
-        public void SetFarLoaded(bool state);
-        public void LoadFarLoadTileEntities();
-        public void UnloadFarLoadTileEntities();
-        public bool GetScheduledForFarLoading();
-        public void SetScheduledForFarLoading(bool state);
         public BaseTileData GetBaseData(Vector2Int position);
         public bool DeIncrementHardness(Vector2Int position);
         public int GetHardness(Vector2Int positionInPartition);

@@ -33,8 +33,7 @@ namespace WorldModule {
         public const string META_DATA_PATH = "meta.bin";
         public const string BACKUP_FOLDER_PATH = "Backups";
         public const string CURRENT_FOLDER_PATH = "Main";
-
-        public static string DefaultWorldFolder => DEFAULT_WORLD_FOLDER;
+        
         public static string GetWorldComponentPath(WorldFileType worldFileType)
         {
             return GetWorldComponentPath(WorldManager.getInstance().GetWorldName(), worldFileType);

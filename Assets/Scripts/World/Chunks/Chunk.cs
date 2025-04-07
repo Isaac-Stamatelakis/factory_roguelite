@@ -200,15 +200,16 @@ namespace Chunks {
             }
         }
 
+        /*
         public void GetUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range, List<IChunkPartition> toFill)
         {
             foreach (IChunkPartition partition in partitions) {
-                if (!partition.GetFarLoaded() && !partition.GetScheduledForFarLoading() && partition.InRange(target,range.x,range.y)) {
-                    partition.SetScheduledForFarLoading(true);
+                if (!partition.GetLoaded() && !partition.GetFarLoaded() && partition.InRange(target,range.x,range.y)) {
                     toFill.Add(partition);
                 } 
             }
         }
+        */
 
         public bool InRange(Vector2Int target, int xRange, int yRange)
         {
@@ -224,21 +225,14 @@ namespace Chunks {
         {
             foreach (IChunkPartition partition in partitions) {
                 if (partition.GetLoaded() && !partition.GetScheduledForUnloading() && !partition.InRange(target,range.x,range.y)) {
-                    partition.SetScheduleForUnloading(true);
                     fill.Add(partition);
                 }
             }
         }
 
-        public List<IChunkPartition> getFarLoadedPartitionsFar(Vector2Int target, Vector2Int range)
+        public void GetUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range, List<IChunkPartition> fill)
         {
-            List<IChunkPartition> far = new List<IChunkPartition>();
-            foreach (IChunkPartition partition in partitions) {
-                if (partition.GetFarLoaded() && !partition.InRange(target,range.x,range.y)) {
-                    far.Add(partition);
-                } 
-            }
-            return far;
+            throw new System.NotImplementedException();
         }
 
         public Vector2Int GetPosition()

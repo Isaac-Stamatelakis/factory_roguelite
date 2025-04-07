@@ -27,7 +27,11 @@ using UnityEngine.Tilemaps;
 
 namespace Robot.Tool.Instances
 {
-    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool
+    public interface IClickSpammableTool
+    {
+        
+    }
+    public class Buildinator : RobotToolInstance<BuildinatorData, BuildinatorObject>, IDestructiveTool, IAutoSelectTool, IClickSpammableTool
     {
         private RobotToolLaserManager laserManager;
         private int mouseBitMap;
@@ -74,10 +78,8 @@ namespace Robot.Tool.Instances
 
         public override void ClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey)
         {
-            laserManager?.UpdateLineRenderer(mousePosition,GetColor());
+            if (!Input.GetMouseButton(mouseButtonKey.ToMouseButton())) return;
             
-            if (!Input.GetMouseButtonDown((int)mouseButtonKey)) return;
-
             Vector2 origin = TileHelper.getRealTileCenter(mousePosition);
             
             if (!PlaceTile.raycastTileInBox(origin, TileMapLayer.Base.toRaycastLayers(),true)) return;
@@ -275,7 +277,8 @@ namespace Robot.Tool.Instances
 
         public override bool HoldClickUpdate(Vector2 mousePosition, MouseButtonKey mouseButtonKey, float time)
         {
-            if (time < 0.125f) return false;
+            laserManager?.UpdateLineRenderer(mousePosition,GetColor());
+            if (time < 0.25f) return false;
             ClickUpdate(mousePosition, mouseButtonKey);
             return true;
         }

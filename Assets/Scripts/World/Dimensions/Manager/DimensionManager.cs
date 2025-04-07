@@ -102,8 +102,6 @@ namespace Dimensions {
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
             
-            //ItemCatalogueController catalogueControllers = GameObject.FindObjectOfType<ItemCatalogueController>();
-            //catalogueControllers.ShowAll();
         }
 
         private void InitializeMetaData(WorldManager worldManager, PlayerScript playerScript)
@@ -445,7 +443,7 @@ namespace Dimensions {
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
-           
+            player.SyncToClosedChunkSystem(newSystem);
             player.PlayerUIContainer.IndicatorManager.caveIndicatorUI.Display(dimension);
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             

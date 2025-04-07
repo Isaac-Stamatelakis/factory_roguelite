@@ -304,17 +304,14 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
         }
         
         
-
-        public override bool GetFarLoaded()
-        {
-            return farLoaded;
-        }
+        /*
 
         public override void LoadFarLoadTileEntities()
         {
             if (tileEntities == null || farLoaded) {
                 return;
             }
+            Debug.Log("Far Loading");
             farLoaded = true;
             ItemRegistry itemRegistry = ItemRegistry.GetInstance();
             string[,] baseIdArray = data.baseData.ids;
@@ -359,5 +356,6 @@ public class TileChunkPartition<T> : ChunkPartition<SeralizedWorldData> where T 
                 }
             }
         }
+        */
     }
 }

@@ -108,9 +108,15 @@ namespace Item.Display.ClickHandlers
     
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (ReferenceEquals(inventoryUI, null)) return;
+            if (ReferenceEquals(inventoryUI, null) || !inventoryUI.EnableToolTip) return;
+            if (inventoryUI.ToolTipOverride != null)
+            {
+                string overrideToolTip = inventoryUI.ToolTipOverride.Invoke(index);
+                ToolTipController.Instance.ShowToolTip(transform.position,overrideToolTip);
+                return;
+            }
             ItemSlot itemSlot = inventoryUI.GetItemSlot(index);
-            if (!inventoryUI.EnableToolTip || ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
             ToolTipController.Instance.ShowToolTip(transform.position,itemSlot);
         }
 

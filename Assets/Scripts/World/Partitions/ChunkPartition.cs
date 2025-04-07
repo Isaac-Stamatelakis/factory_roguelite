@@ -19,9 +19,7 @@ namespace Chunks.Partitions {
     {
         protected bool loaded;
         protected bool loading;
-        protected bool farLoaded;
         protected bool scheduledForUnloading = false;
-        protected bool scheduledForFarLoading = false;
         protected Vector2Int position;
         protected T data;
         
@@ -147,7 +145,6 @@ namespace Chunks.Partitions {
                 yield return tileMap.removePartition(realPosition);
             }
             SetTileLoaded(false);
-            SetFarLoaded(false);
         }
 
         public PartitionFluidData GetFluidData()
@@ -175,6 +172,11 @@ namespace Chunks.Partitions {
                 }
                 GameObject.Destroy(hit.collider.gameObject);
             }
+        }
+
+        public void LoadFarLoadTileEntities()
+        {
+            throw new System.NotImplementedException();
         }
 
         public void AddTileEntity(TileMapLayer layer,ITileEntityInstance tileEntity,Vector2Int positionInPartition)
@@ -273,25 +275,7 @@ namespace Chunks.Partitions {
         public abstract void SetTile(Vector2Int position, TileMapLayer layer, TileItem tileItem);
 
         public abstract void AddFluidDataToChunk(FluidCell[][] chunkFluidCells);
-        public abstract bool GetFarLoaded();
-        public abstract void LoadFarLoadTileEntities();
-        public abstract void UnloadFarLoadTileEntities();
-
-        public void SetFarLoaded(bool state)
-        {
-            this.farLoaded = state;
-        }
-
-        public bool GetScheduledForFarLoading()
-        {
-            return scheduledForFarLoading;
-        }
-
-        public void SetScheduledForFarLoading(bool state)
-        {
-            this.scheduledForFarLoading = state;
-        }
-
+        
         public BaseTileData GetBaseData(Vector2Int positionInPartition)
         {
             if (data.baseData.sTileOptions[positionInPartition.x, positionInPartition.y] == null)

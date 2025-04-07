@@ -28,7 +28,7 @@ namespace TileEntity.Instances.Caves.ReturnPortal
         public void Load()
         {
             if (lightObject || chunk is not ILoadedChunk loadedChunk) return;
-            lightObject = TileEntityUtils.SpawnLightObject(Color.white, 1f, 10f,
+            lightObject = TileEntityUtils.SpawnLightObject(Color.white, 1f, 7f,
             0.7f,
             GetWorldPositionInChunk(), loadedChunk.GetTileEntityContainer());
         }

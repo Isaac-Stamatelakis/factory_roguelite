@@ -45,7 +45,6 @@ namespace World.Cave.Distributors.FluidDistributor
                         HashSet<Vector2Int> fillPositions = CanFill(worldData, width, maxSize, minSize, new Vector2Int(x, y));
                         if (fillPositions != null)
                         {
-                            Debug.Log("Found fluid pool distribution");
                             foreach (Vector2Int fillPosition in fillPositions)
                             {
                                 fluidIds[fillPosition.x, fillPosition.y] = itemId;

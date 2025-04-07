@@ -20,6 +20,14 @@ namespace Robot.Tool
         Right = 2
     }
 
+    public static class MouseButtonKeyExtension
+    {
+        public static int ToMouseButton(this MouseButtonKey mouseButtonKey)
+        {
+            return (int)mouseButtonKey-1;
+        }
+    }
+
     public enum MoveDirection
     {
         Left,

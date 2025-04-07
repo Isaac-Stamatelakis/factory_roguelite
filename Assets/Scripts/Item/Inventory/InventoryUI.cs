@@ -41,6 +41,8 @@ namespace Items.Inventory {
         protected List<IInventoryListener> listeners = new List<IInventoryListener>();
         protected List<Action<int>> callbacks = new List<Action<int>>();
         protected Action<int> onHighlight;
+        protected Func<int, string> toolTipOverride;
+        public Func<int, string> ToolTipOverride => toolTipOverride;
         private int highlightedSlot = -1;
         private bool refresh;
         public InventoryInteractMode InventoryInteractMode = InventoryInteractMode.Standard;
@@ -358,6 +360,11 @@ namespace Items.Inventory {
         public void SetRestrictionMode(InventoryRestrictionMode inventoryRestrictionMode)
         {
             this.restrictionMode = inventoryRestrictionMode;
+        }
+
+        public void SetToolTipOverride(Func<int, string> toolTipOverride)
+        {
+            this.toolTipOverride = toolTipOverride;
         }
 
         public bool ValidateInput(ItemSlot itemSlot, int inputIndex)
