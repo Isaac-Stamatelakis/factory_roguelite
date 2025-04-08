@@ -34,7 +34,6 @@ namespace Tiles {
                 HammerTileState? optionalHammerTileValue = hammerTile.GetHammerTileState(baseTileData.state);
                 
                 if (!optionalHammerTileValue.HasValue) return;
-                Debug.Log(optionalHammerTileValue.Value);
                 HammerTileState hammerTileState = optionalHammerTileValue.Value;
                 if (hammerTileState != HammerTileState.Solid)
                 {
