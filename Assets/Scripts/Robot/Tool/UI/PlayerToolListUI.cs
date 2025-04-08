@@ -117,7 +117,8 @@ namespace Robot.Tool.UI
                 slotUI.LockTopText = true;
             }
             mToolCollectionUI.ApplyFunctionToAllSlots(LockSlot);
-            mToolCollectionUI.SetAllPanelColors(new Color(174/255f,203/255f,221/255f,1f));
+            
+            mToolCollectionUI.SetAllPanelColors(new Color(125/255f,202/255f,1f,1f));
             mToolCollectionUI.SetHighlightColor(new Color(222/255f,218/255f,91/255f,1f));
             mToolCollectionUI.SetOnHighlight(DisplayIndicators);
         
