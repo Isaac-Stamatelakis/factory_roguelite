@@ -105,10 +105,16 @@ namespace Player
             return playerData.dimensionData;
         }
 
-        public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem)
+        public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem, DimensionManager dimensionManager, Dimension dimension)
         {
             currentSystem = closedChunkSystem;
             playerMouse.SyncToClosedChunkSystem(closedChunkSystem);
+            if (dimension == Dimension.Cave)
+            {
+                CaveController caveController = (CaveController)dimensionManager.GetDimController(dimension);
+                PlayerUIContainer.IndicatorManager.caveIndicatorUI.SyncToSystem(this,caveController.ReturnPortalLocation);
+            }
+            
         }
 
         private void InitializeStages()

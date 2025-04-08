@@ -21,10 +21,9 @@ namespace Dimensions {
         private string caveId;
         private IntervalVector coveredArea;
         private TileClosedChunkSystem activeSystem;
-        private CaveIndicatorUI caveIndicatorUI;
-        private Vector2 returnPortalLocation;
-        private PlayerScript playerScript;
         
+        private Vector2 returnPortalLocation;
+        public Vector2 ReturnPortalLocation => returnPortalLocation;
 
         public string GetCurrentCaveId()
         {
@@ -36,9 +35,7 @@ namespace Dimensions {
             GameObject closedChunkSystemObject = new GameObject();
             closedChunkSystemObject.name="Cave";
             activeSystem = closedChunkSystemObject.AddComponent<TileClosedChunkSystem>();
-            this.playerScript = playerScript;
             activeSystem.Initalize(this,coveredArea,-1);
-            caveIndicatorUI = playerScript.PlayerUIContainer.IndicatorManager.caveIndicatorUI;
             return activeSystem;
         }
         public void setCurrentCave(CaveObject caveObject, Vector2 returnPortalLocation) {
@@ -69,13 +66,7 @@ namespace Dimensions {
             activeSystem?.TickUpdate();
         }
 
-        public void Update()
-        {
-            if (!playerScript) return;
-            Vector2 dif = returnPortalLocation-(Vector2)playerScript.transform.position;
-            caveIndicatorUI?.UpdateRotation(dif.normalized,dif.magnitude);
-        }
-
+        
         public SerializedCaveDimData GetSerializedCaveDimData()
         {
             return new SerializedCaveDimData

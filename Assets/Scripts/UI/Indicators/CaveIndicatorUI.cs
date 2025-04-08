@@ -12,55 +12,29 @@ namespace UI.Indicators
     public class CaveIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private Image mImage;
-        [SerializeField] private Sprite arrowSprite;
-        private Dimension currentDimension;
+        private Vector2 returnPortalLocation;
+        private PlayerScript playerScript;
         private float distance;
         
-        public void Display(Dimension currentDimension)
+        public void SyncToSystem(PlayerScript playerScript, Vector2 portalLocation)
         {
-            this.currentDimension = currentDimension;
-            mImage.sprite = GetSprite();
-            mImage.transform.rotation = Quaternion.identity;
-            mImage.color = this.currentDimension == Dimension.Cave ? Color.magenta : Color.white;
-            
-        }
-        
-
-        private Sprite GetSprite()
-        {
-            switch (currentDimension)
-            {
-                case Dimension.OverWorld:
-                    break;
-                case Dimension.Cave:
-                    return arrowSprite;
-                case Dimension.CompactMachine:
-                    break;
-            }
-
-            return null;
+            this.playerScript = playerScript;
+            returnPortalLocation = portalLocation;
         }
 
-        public void UpdateRotation(Vector2 direction, float distance)
+        public void Update()
         {
+            if (!playerScript) return;
+            Vector2 dif = returnPortalLocation-(Vector2)playerScript.transform.position;
+            Vector2 direction = dif.normalized;
+            distance = dif.magnitude;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             mImage.transform.rotation = Quaternion.Euler(0, 0, angle);
-            this.distance = distance;
         }
 
         private string GetDimensionText()
         {
-            switch (currentDimension)
-            {
-                case Dimension.OverWorld:
-                    return "HUB";
-                case Dimension.Cave:
-                    return $"Cave: Distance From Portal {distance:F1}";
-                case Dimension.CompactMachine:
-                    return "Compact Machine";
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return $"Distance From Portal: {distance:F1}m";
         }
         
         public void OnPointerEnter(PointerEventData eventData)
