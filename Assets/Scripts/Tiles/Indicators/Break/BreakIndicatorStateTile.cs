@@ -10,6 +10,7 @@ namespace Tiles.Indicators.Break
 
         public TileBase GetTileAtBreakPercent(float percent)
         {
+            if (percent < 0.05f) return null;
             int index = Mathf.RoundToInt(percent * (Tiles.Length-1));
             return Tiles[index];
         }

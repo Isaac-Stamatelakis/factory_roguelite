@@ -76,6 +76,17 @@ namespace Tiles {
             }
         }
 
+        public void RotateTile(Vector2Int cellPosition, int direction)
+        {
+            Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+            Matrix4x4 matrix4X4 = tilemap.GetTransformMatrix(vector3Int);
+            var quaternion = matrix4X4.rotation;
+            var newRotation = quaternion * Quaternion.Euler(0, 0, 90*direction);
+            matrix4X4.SetTRS(matrix4X4.GetPosition(), newRotation, Vector3.one);
+            tilemap.SetTransformMatrix(vector3Int, matrix4X4);
+            
+        }
+
         public void RemoveBreak(Vector2Int cellPosition) {
             tilemap.SetTile((Vector3Int) cellPosition,null);
         }

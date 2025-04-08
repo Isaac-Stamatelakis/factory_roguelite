@@ -407,6 +407,8 @@ namespace TileMaps {
             SetTile(position.x,position.y,tileItem);
             if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
             if (updateOnRotate) UpdateListeners(position,tileItem);
+            
+            closedChunkSystem.BreakIndicator.RotateTile(position,direction);
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)
@@ -426,6 +428,7 @@ namespace TileMaps {
             
             SetTile(position.x,position.y,tileItem);
             TileBase tile = tileItem.tile;
+            
             if (tile is IStateTile stateTile)
             {
                 tile = stateTile.getTileAtState(baseTileData.state);
@@ -433,12 +436,16 @@ namespace TileMaps {
 
             if (tile is IStateRotationTile)
             {
-                // Switching to a none state tile will fuck up the rotation of state tiles so have to reset it to 0
+                // Switching to a non-state tile will fuck up the rotation of state tiles so have to reset it to 0
                 PlaceTile.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
             }
             
+            closedChunkSystem.BreakIndicator.RemoveBreak(position);
+            int hardness = partition.GetHardness(tilePositionInPartition);
+            float breakRatio = 1f - ((float)hardness) / tileItem.tileOptions.hardness;
+            closedChunkSystem.BreakIndicator.SetBreak(breakRatio,position,tileItem,baseTileData);
         }
-
+        
         /// <summary>
         /// TileUpdate check if placement position restrictions are still satisfied.
         /// Note: Currently there is a "bug" where this doesn't work for large tiles (EG 32x16). Not sure if its worth
