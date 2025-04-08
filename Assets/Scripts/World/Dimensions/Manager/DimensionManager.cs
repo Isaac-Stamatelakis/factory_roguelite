@@ -443,8 +443,8 @@ namespace Dimensions {
             playerPosition.x = teleportPosition.x;
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
-            player.SyncToClosedChunkSystem(newSystem);
-            player.PlayerUIContainer.IndicatorManager.caveIndicatorUI.Display(dimension);
+            player.SyncToClosedChunkSystem(newSystem,this,dimension);
+            
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
             
             CanvasController.Instance.ClearStack();

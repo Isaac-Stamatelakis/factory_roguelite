@@ -238,14 +238,14 @@ namespace TileMaps {
             Vector2Int tilePositionInPartition = GetTilePositionInPartition(cellPosition);
             
             bool broken = partition.DeIncrementHardness(tilePositionInPartition);
-            if (tileItem.tileType.toTileMapType().toLayer() != TileMapLayer.Base || !CanShowBreakIndiciator(tileItem.tile, partition, tilePositionInPartition)) return broken;
+            if (tileItem.tileType != TileType.Block) return broken;
             
             if (!broken) {
                 int hardness = partition.GetHardness(tilePositionInPartition);
                 float breakRatio = 1f - ((float)hardness) / tileItem.tileOptions.hardness;
-                closedChunkSystem.BreakIndicator.setBreak(breakRatio,cellPosition);
+                closedChunkSystem.BreakIndicator.SetBreak(breakRatio,cellPosition,tileItem,partition.GetBaseData(tilePositionInPartition));
             } else {
-                closedChunkSystem.BreakIndicator.removeBreak(cellPosition);
+                closedChunkSystem.BreakIndicator.RemoveBreak(cellPosition);
             }
             return broken;
         }
@@ -256,31 +256,7 @@ namespace TileMaps {
             Vector3Int vector = new Vector3Int(x,y,0);
             if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
         }
-
-        private bool CanShowBreakIndiciator(TileBase tileBase, IChunkPartition partition, Vector2Int positionInPartition)
-        {
-            switch (tileBase)
-            {
-                case Tile tile:
-                    return tile.colliderType == Tile.ColliderType.Grid;
-                case AnimatedTile animatedTile:
-                    return animatedTile.m_TileColliderType == Tile.ColliderType.Grid;
-                case IStateRotationTile stateRotationTile:
-                {
-                    BaseTileData tileData = partition.GetBaseData(positionInPartition);
-                    TileBase rotTile = stateRotationTile.getTile(tileData.rotation,tileData.mirror);
-                    return CanShowBreakIndiciator(rotTile, partition, positionInPartition);
-                }
-                case IStateTile stateTile:
-                {
-                    BaseTileData tileData = partition.GetBaseData(positionInPartition);
-                    TileBase hammerTileState = stateTile.getTileAtState(tileData.state);
-                    return CanShowBreakIndiciator(hammerTileState, partition, positionInPartition);
-                }
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(tileBase));
-            }
-        }
+        
 
         protected override void SetTile(int x, int y,TileItem tileItem) {
             TileBase tileBase = tileItem.tile;
@@ -431,6 +407,8 @@ namespace TileMaps {
             SetTile(position.x,position.y,tileItem);
             if (updatePort) conduitTileClosedChunkSystem.TileEntityPlaceUpdate(tileEntityInstance);  
             if (updateOnRotate) UpdateListeners(position,tileItem);
+            
+            closedChunkSystem.BreakIndicator.RotateTile(position,direction);
         }
 
         public void IterateHammerTile(Vector2Int position, int direction)
@@ -450,6 +428,7 @@ namespace TileMaps {
             
             SetTile(position.x,position.y,tileItem);
             TileBase tile = tileItem.tile;
+            
             if (tile is IStateTile stateTile)
             {
                 tile = stateTile.getTileAtState(baseTileData.state);
@@ -457,12 +436,16 @@ namespace TileMaps {
 
             if (tile is IStateRotationTile)
             {
-                // Switching to a none state tile will fuck up the rotation of state tiles so have to reset it to 0
+                // Switching to a non-state tile will fuck up the rotation of state tiles so have to reset it to 0
                 PlaceTile.SetTileMapMatrix(tilemap, new Vector3Int(position.x,position.y,0), 0,false);
             }
             
+            closedChunkSystem.BreakIndicator.RemoveBreak(position);
+            int hardness = partition.GetHardness(tilePositionInPartition);
+            float breakRatio = 1f - ((float)hardness) / tileItem.tileOptions.hardness;
+            closedChunkSystem.BreakIndicator.SetBreak(breakRatio,position,tileItem,baseTileData);
         }
-
+        
         /// <summary>
         /// TileUpdate check if placement position restrictions are still satisfied.
         /// Note: Currently there is a "bug" where this doesn't work for large tiles (EG 32x16). Not sure if its worth

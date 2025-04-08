@@ -319,7 +319,7 @@ namespace Chunks.Systems {
             
             yield return StartCoroutine(chunkPartition.UnloadTiles(tileGridMaps));
           
-            breakIndicator.unloadPartition(chunkPartition.GetRealPosition());
+            breakIndicator.UnloadPartition(chunkPartition.GetRealPosition());
         }
         
         public void OnDisable()
