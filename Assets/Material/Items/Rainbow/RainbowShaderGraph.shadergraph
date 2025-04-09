@@ -5,6 +5,9 @@
     "m_Properties": [
         {
             "m_Id": "5d218604e4ba404dba9441a2e5d9d67a"
+        },
+        {
+            "m_Id": "2e16d89944174d6f8dd708202142335c"
         }
     ],
     "m_Keywords": [],
@@ -543,6 +546,33 @@
         "e31": 0.0,
         "e32": 0.0,
         "e33": 1.0
+    }
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "2e16d89944174d6f8dd708202142335c",
+    "m_Guid": {
+        "m_GuidSerialized": "e027c1c7-a610-478c-ac11-8dd6619491c6"
+    },
+    "m_Name": "_Stencil",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "_Stencil",
+    "m_DefaultReferenceName": "_Stencil",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": 0.0,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
     }
 }
 
@@ -1736,6 +1766,9 @@
     "m_ChildObjectList": [
         {
             "m_Id": "5d218604e4ba404dba9441a2e5d9d67a"
+        },
+        {
+            "m_Id": "2e16d89944174d6f8dd708202142335c"
         }
     ]
 }
