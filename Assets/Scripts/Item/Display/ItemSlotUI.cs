@@ -171,13 +171,24 @@ namespace Items {
             
             var toDisplay = new ItemDisplay[sprites.Length];
             Color color = Color.white;
+            ItemImage.material = null;
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
-                color = transmutableItemObject.getMaterial().color;
-                if (transmutableItemObject.getMaterial().OverlaySprite)
+                var transmutableMaterial = transmutableItemObject.getMaterial();
+                if (transmutableMaterial)
                 {
-                    AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay");
+                    color = transmutableMaterial.color;
+                    if (transmutableMaterial.OverlaySprite)
+                    {
+                        AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay");
+                    }
+
+                    if (transmutableMaterial.ShaderMaterial)
+                    {
+                        ItemImage.material = transmutableMaterial.ShaderMaterial;
+                    }
                 }
+                
             }
             if (itemSlot.itemObject is TileItem tileItem)
             {

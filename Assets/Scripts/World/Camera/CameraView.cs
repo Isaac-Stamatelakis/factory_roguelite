@@ -50,10 +50,22 @@ public class CameraView : MonoBehaviour
     
     public void SetViewRange(CameraViewSize cameraViewSize)
     {
+        int height = Screen.height;
+        int width = Screen.width;
+        float scale;
+        switch (camera)
+        {
+            
+        }
+        
         SetViewRange(GetCameraViewSizeWidth(cameraViewSize));
     }
-    public void SetViewRange(int width)
+    
+    private float GetCameraScale(CameraViewSize cameraViewSize) {}
+    public void SetViewRange(CameraViewSize cameraViewSize)
     {
+        
+        /*
         CameraViewSize cameraViewSize = GetNearestCameraViewSize(width);
         int cameraWidth = GetCameraViewSizeWidth(cameraViewSize);
         int cameraHeight = (int)(cameraWidth * HEIGHT_WIDTH_RATIO);
@@ -65,7 +77,8 @@ public class CameraView : MonoBehaviour
         pixelPerfectCamera.enabled = true;
         pixelPerfectCamera.refResolutionX = cameraWidth;
         pixelPerfectCamera.refResolutionY = cameraHeight;
-        
+        Debug.Log(cameraWidth);
+        Debug.Log(cameraHeight);
         const int PIXELS_PER_TILE = 16;
         const bool BONUS_LOAD_RANGE = true;
         
@@ -75,6 +88,7 @@ public class CameraView : MonoBehaviour
         {
             chunkPartitionLoadRange += Vector2Int.one;
         }
+        */
         
         Debug.Log($"Camera size set '{width} by {width*HEIGHT_WIDTH_RATIO}' pixels, ratio '{ratio:F2}', and partition load range '{chunkPartitionLoadRange}'");
         transform.localScale = new Vector3(ratio, ratio, 1);

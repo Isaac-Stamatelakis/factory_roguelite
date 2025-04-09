@@ -17,6 +17,7 @@ namespace Items.Transmutable {
         public string chemicalFormula;
         public TieredGameStage gameStageObject;
         public Sprite OverlaySprite;
+        public Material ShaderMaterial;
         
         public TransmutableMaterialOptions MaterialOptions;
         public virtual List<TransmutableStateOptions> GetStates()
