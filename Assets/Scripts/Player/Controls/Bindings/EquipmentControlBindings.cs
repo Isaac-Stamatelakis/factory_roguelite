@@ -11,8 +11,10 @@ namespace Player.Controls.Bindings
             {
                 new (PlayerControl.SwitchToolMode, new List<KeyCode>{KeyCode.C}),
                 new (PlayerControl.AutoSelect, new List<KeyCode>{KeyCode.P}),
-                new (PlayerControl.SwapRobotLoadOut, new List<KeyCode>{KeyCode.T}),
-                new (PlayerControl.SwapToolLoadOut, new List<KeyCode>{KeyCode.T,KeyCode.LeftControl}),
+                new (PlayerControl.OpenRobotLoadOut, new List<KeyCode>{KeyCode.T}),
+                new (PlayerControl.OpenToolLoadOut, new List<KeyCode>{KeyCode.T,KeyCode.LeftShift}),
+                new (PlayerControl.SwapRobotLoadOut, new List<KeyCode>{KeyCode.U}),
+                new (PlayerControl.SwapToolLoadOut, new List<KeyCode>{KeyCode.U,KeyCode.LeftShift}),
             };
         }
     }

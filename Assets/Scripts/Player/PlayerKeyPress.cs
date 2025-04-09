@@ -128,6 +128,15 @@ namespace PlayerModule.KeyPress {
                 playerScript.PlayerUIContainer.IndicatorManager.autoSelectIndicator.Display(autoSelect);
             }
             
+            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenRobotLoadOut))
+            {
+                playerScript.PlayerUIContainer.IndicatorManager.loadOutIndicator.OpenRobotLoadOut();
+            }
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenToolLoadOut))
+            {
+                playerScript.PlayerInventory.PlayerRobotToolUI.OpenToolLoadOut(playerScript.PlayerInventory.CurrentToolIndex);
+            }
             
             inventoryNavigationKeys();
         }

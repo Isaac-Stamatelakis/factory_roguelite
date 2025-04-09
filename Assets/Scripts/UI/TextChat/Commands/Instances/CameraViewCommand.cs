@@ -17,7 +17,7 @@ namespace UI.Chat {
 #if UNITY_EDITOR
             if (sizeName == "debug") {
                 double debugSize = System.Convert.ToDouble(parameters[1]);
-                CameraView.Instance.setDebugRange((float)debugSize);
+                CameraView.Instance.SetDebugRange((float)debugSize);
                 return;
             }
 #endif

@@ -42,6 +42,8 @@ namespace Entities.Mobs {
 
         public void Damage(float amount, Vector2 damageDirection)
         {
+            bool dead = Health <= float.MinValue;
+            if (dead) return;
             Health -= amount;
             if (Health <= 0)
             {
@@ -49,6 +51,7 @@ namespace Entities.Mobs {
                 {
                     ItemEntityFactory.SpawnLootTable(GetLootSpawnPosition(),LootTable,transform.parent);
                 }
+                Health = float.MinValue;
                 GameObject.Destroy(gameObject);
                 return;
             }

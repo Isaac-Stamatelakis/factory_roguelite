@@ -106,7 +106,7 @@ namespace Dimensions {
             if (hash == null) return;
             CompactMachineMetaData metaData = CompactMachineUtils.GetMetaDataFromHash(hash);
             string dimPath = CompactMachineUtils.GetPositionFolderPath(key.Path);
-            if (Directory.Exists(dimPath))
+            if (!Directory.Exists(dimPath))
             {
                 Debug.LogError($"Tried to remove system at path '{dimPath}' which doesn't exist.");
                 return;
@@ -114,7 +114,7 @@ namespace Dimensions {
             if (metaData.Instances <= 1)
             {
                 string hashPath = Path.Combine(CompactMachineUtils.GetCompactMachineHashFoldersPath(),hash);
-                if (Directory.Exists(hashPath))
+                if (!Directory.Exists(hashPath))
                 {
                     Debug.LogError($"Tried to remove system at hash path '{hashPath}' which doesn't exist.");
                     return;

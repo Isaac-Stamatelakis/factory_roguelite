@@ -23,5 +23,7 @@ namespace Player.Controls
         OpenInventory = 20,
         OpenSearch = 21,
         AutoSelect = 22,
+        OpenRobotLoadOut = 23,
+        OpenToolLoadOut = 24,
     }
 }

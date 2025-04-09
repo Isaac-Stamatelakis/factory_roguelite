@@ -85,20 +85,7 @@ namespace TileEntity.Instances {
             CaveTeleporterParticles caveTeleporterParticles = Instantiate(mParticlePrefab, playerScript.transform, false);
             caveTeleporterParticles.transform.localPosition = Vector3.zero;
             Canvas parentCanvas = CanvasController.Instance.GetComponentInParent<Canvas>();
-            bool restoreCanvas = parentCanvas.enabled;
-            if (parentCanvas.enabled) parentCanvas.enabled = false;
-            yield return StartCoroutine(caveTeleporterParticles.LoadParticles());
-            yield return StartCoroutine(CaveUtils.LoadCave(currentCaveObject, CaveUtils.GenerateAndTeleportToCave));
-            
-            // Have to use a callback here cause coroutines get fucked up, not really sure why
-            caveTeleporterParticles.StartFadeParticlesRoutine(OnParticlesFade);
-            void OnParticlesFade()
-            {
-                teleportAction.Invoke();
-                if (restoreCanvas) parentCanvas.enabled = true;
-            }
-           
-            
+            caveTeleporterParticles.StartTeleportIntoCaveRoutine(parentCanvas, currentCaveObject, teleportAction);
         }
     }
 }

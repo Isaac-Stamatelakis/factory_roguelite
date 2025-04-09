@@ -28,7 +28,7 @@ namespace Robot.Tool.UI
         private PlayerInventory playerInventory;
         [SerializeField] private InventoryUI mToolCollectionUI;
         [SerializeField] public RobotUpgradeStatSelectorUI robotUpgradeStatSelectorUIPrefab;
-
+        private PlayerScript playerScript;
         public void UpdateIndicators()
         {
             IRobotToolInstance current = playerInventory.CurrentTool;
@@ -42,6 +42,7 @@ namespace Robot.Tool.UI
 
         public void Initialize(List<IRobotToolInstance> tools, PlayerScript playerScript)
         {
+            this.playerScript = playerScript;
             this.playerInventory = playerScript.PlayerInventory;
 
             List<ItemSlot> toolItemSlots = new List<ItemSlot>();
@@ -61,23 +62,7 @@ namespace Robot.Tool.UI
                         DisplayIndicators(index);
                         break;
                     case PointerEventData.InputButton.Right:
-                        PlayerRobot playerRobot = playerScript.PlayerRobot;
-                        string upgradePath = playerRobot.RobotTools[index].GetToolObject().UpgradePath;
-                        List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
-                        RobotToolType toolType = playerRobot.ToolTypes[index];
-                        RobotStatLoadOutCollection statLoadOutCollection = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType);
-                        RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
-                    
-                        void OnLoadOutChange(int loadOut)
-                        {
-                            SetLoadOutText(index,loadOut);
-                        }
-
-                        RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
-                            upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,null);
-                        RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(robotUpgradeStatSelectorUIPrefab);
-                        bool success = statSelectorUI.Display(upgradeDisplayData);
-                        if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
+                        OpenToolLoadOut(index);
                         break;
                     case PointerEventData.InputButton.Middle:
                         break;
@@ -117,7 +102,8 @@ namespace Robot.Tool.UI
                 slotUI.LockTopText = true;
             }
             mToolCollectionUI.ApplyFunctionToAllSlots(LockSlot);
-            mToolCollectionUI.SetAllPanelColors(new Color(174/255f,203/255f,221/255f,1f));
+            
+            mToolCollectionUI.SetAllPanelColors(new Color(125/255f,202/255f,1f,1f));
             mToolCollectionUI.SetHighlightColor(new Color(222/255f,218/255f,91/255f,1f));
             mToolCollectionUI.SetOnHighlight(DisplayIndicators);
         
@@ -148,6 +134,30 @@ namespace Robot.Tool.UI
         public void HighLightTool(int index)
         {
             mToolCollectionUI.HighlightSlot(index);
+        }
+
+        public void OpenToolLoadOut(int index)
+        {
+            PlayerRobot playerRobot = playerScript.PlayerRobot;
+            string upgradePath = playerRobot.RobotTools[index].GetToolObject().UpgradePath;
+            List<RobotUpgradeData> upgradeData = playerRobot.RobotData.ToolData.Upgrades[index];
+            RobotToolType toolType = playerRobot.ToolTypes[index];
+            IRobotToolInstance robotToolInstance = playerRobot.RobotTools[index];
+            RobotStatLoadOutCollection statLoadOutCollection = playerRobot.RobotUpgradeLoadOut.GetToolLoadOut(toolType);
+            RobotUpgradeInfo robotUpgradeInfo = RobotUpgradeInfoFactory.GetRobotUpgradeInfo(RobotUpgradeType.Tool,(int)toolType);
+                    
+            void OnLoadOutChange(int loadOut)
+            {
+                SetLoadOutText(index,loadOut);
+            }
+
+            string title = $"{robotToolInstance.GetToolObject().name} Upgrades";
+
+            RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
+                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,null,title);
+            RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(robotUpgradeStatSelectorUIPrefab);
+            bool success = statSelectorUI.Display(upgradeDisplayData);
+            if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
         }
     }
 }

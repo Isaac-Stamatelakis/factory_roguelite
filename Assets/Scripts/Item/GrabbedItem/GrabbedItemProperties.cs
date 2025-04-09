@@ -12,6 +12,8 @@ namespace Item.GrabbedItem {
         private static GrabbedItemProperties instance;
         public void Awake() {
             instance = this;
+            mainCamera = Camera.main;
+            rectTransform = GetComponent<RectTransform>();
         }
         
         public ItemSlotUI ItemSlotUI;
@@ -23,12 +25,20 @@ namespace Item.GrabbedItem {
         private ItemSlotDoubleClickEvent doubleClickEvent;
         private ItemSlotUIDragEvent dragEvent;
         private ItemSlotUIClickHandler takeRightClickSlot;
+        private Camera mainCamera;
+        private RectTransform rectTransform;
         
         
         void Update()
         {
-            Vector2 position = Input.mousePosition;
-            transform.position = position;
+            Vector3 position = Input.mousePosition;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                (RectTransform)transform.parent,
+                position,
+                mainCamera,
+                out Vector2 localPos
+            );
+            rectTransform.anchoredPosition = localPos;
             bool leftClick = Input.GetMouseButtonDown(0);
             bool rightClick = Input.GetMouseButtonUp(0);
             

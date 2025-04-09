@@ -4,6 +4,7 @@ using Player;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.LoadOut;
 using Robot.Upgrades.Network;
+using TMPro;
 using UI.GeneralUIElements.Sliders;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,7 @@ namespace Robot.Upgrades
     
     public class RobotUpgradeStatSelectorUI : MonoBehaviour
     {
+        [SerializeField] private TextMeshProUGUI mTitleText;
         [SerializeField] private VerticalLayoutGroup mList;
         [SerializeField] private FormattedSlider mNumSliderPrefab;
         [SerializeField] private Transform presetList;
@@ -107,12 +109,13 @@ namespace Robot.Upgrades
             }
             
             Dictionary<int, int> upgradeDict = RobotUpgradeUtils.GetAmountOfUpgrades(network.NodeData, upgradeDisplayData.UpgradeData);
-            Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,upgradeDisplayData.OnLoadOutChange,upgradeDisplayData.UpgradeChangeCallbacks);
+            Display(upgradeDisplayData.StatLoadOutCollection,upgradeDict,upgradeDisplayData.RobotUpgradeInfo,upgradeDisplayData.OnLoadOutChange,upgradeDisplayData.UpgradeChangeCallbacks,upgradeDisplayData.Title);
             return true;
         }
 
-        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange, Dictionary<int,Action> upgradeCallbacks)
+        internal void Display(RobotStatLoadOutCollection statLoadOutCollection, Dictionary<int, int> statUpgradeDict, RobotUpgradeInfo upgradeInfo, Action<int> onLoadOutChange, Dictionary<int,Action> upgradeCallbacks, string title)
         {
+            mTitleText.text = title;
             this.onLoadOutChange = onLoadOutChange;
             Initialize(upgradeInfo);
             this.robotStatLoadOutCollection = statLoadOutCollection;
@@ -250,9 +253,10 @@ namespace Robot.Upgrades
             public RobotUpgradeInfo RobotUpgradeInfo;
             public Action<int> OnLoadOutChange;
             public Dictionary<int, Action> UpgradeChangeCallbacks;
+            public string Title;
 
             public UpgradeDisplayData(string upgradePath, RobotStatLoadOutCollection statLoadOutCollection, List<RobotUpgradeData> upgradeData, 
-                RobotUpgradeInfo robotUpgradeInfo, Action<int> onLoadOutChange, Dictionary<int, Action> upgradeChangeCallbacks)
+                RobotUpgradeInfo robotUpgradeInfo, Action<int> onLoadOutChange, Dictionary<int, Action> upgradeChangeCallbacks, string title)
             {
                 UpgradePath = upgradePath;
                 StatLoadOutCollection = statLoadOutCollection;
@@ -260,6 +264,7 @@ namespace Robot.Upgrades
                 RobotUpgradeInfo = robotUpgradeInfo;
                 OnLoadOutChange = onLoadOutChange;
                 UpgradeChangeCallbacks = upgradeChangeCallbacks;
+                Title = title;
             }
         }
     }

@@ -11,9 +11,7 @@ public enum CameraViewSize {
 }
 public class CameraView : MonoBehaviour
 {
-    private const int MAX_WIDTH = 960;
-    private const int MAX_HEIGHT = 540;
-    private const float HEIGHT_WIDTH_RATIO = 1080f / 1920f;
+    [SerializeField] private Camera uiCamera;
     private static CameraView instance;
     public static CameraView Instance => instance;
     public void Awake() {
@@ -27,80 +25,55 @@ public class CameraView : MonoBehaviour
     {
         SetViewRange(viewSize);
     }
-
-    public void FixedUpdate()
-    {
-        
-    }
-
-    private int GetCameraViewSizeWidth(CameraViewSize cameraViewSize)
-    {
-        switch (cameraViewSize)
-        {
-            case CameraViewSize.Small:
-                return 480;
-            case CameraViewSize.Medium:
-                return 640;
-            case CameraViewSize.Large:
-                return 960;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(cameraViewSize), cameraViewSize, null);
-        }
-    }
     
     public void SetViewRange(CameraViewSize cameraViewSize)
     {
-        SetViewRange(GetCameraViewSizeWidth(cameraViewSize));
-    }
-    public void SetViewRange(int width)
-    {
-        CameraViewSize cameraViewSize = GetNearestCameraViewSize(width);
-        int cameraWidth = GetCameraViewSizeWidth(cameraViewSize);
-        int cameraHeight = (int)(cameraWidth * HEIGHT_WIDTH_RATIO);
-        int pixelRatio = Screen.width / cameraWidth;
-        float t0 = (float) Screen.width / pixelRatio;
-        float ratio = cameraWidth / t0;
-        
+        int height = Screen.height;
+        int width = Screen.width;
+        float scale = GetCameraScale(cameraViewSize);
+        int cameraWidth = Mathf.RoundToInt(width * scale);
+        int cameraHeight = Mathf.RoundToInt(height * scale);
         PixelPerfectCamera pixelPerfectCamera = GetComponent<PixelPerfectCamera>();
         pixelPerfectCamera.enabled = true;
         pixelPerfectCamera.refResolutionX = cameraWidth;
         pixelPerfectCamera.refResolutionY = cameraHeight;
-        
         const int PIXELS_PER_TILE = 16;
         const bool BONUS_LOAD_RANGE = true;
         
-        Vector2 partitionsPerScreen = new Vector2(width,width*HEIGHT_WIDTH_RATIO) / (PIXELS_PER_TILE * Global.CHUNK_PARTITION_SIZE * 2);
+        Vector2 partitionsPerScreen = new Vector2(cameraWidth,cameraHeight) / (PIXELS_PER_TILE * Global.CHUNK_PARTITION_SIZE * 2);
         chunkPartitionLoadRange = new Vector2Int((int)partitionsPerScreen.x, (int)partitionsPerScreen.y)+Vector2Int.one;
         if (BONUS_LOAD_RANGE)   
         {
             chunkPartitionLoadRange += Vector2Int.one;
         }
         
-        Debug.Log($"Camera size set '{width} by {width*HEIGHT_WIDTH_RATIO}' pixels, ratio '{ratio:F2}', and partition load range '{chunkPartitionLoadRange}'");
-        transform.localScale = new Vector3(ratio, ratio, 1);
-        StartCoroutine(setCameraSizeDelayed());
+        Debug.Log($"Camera size set '{cameraWidth} by {cameraHeight}' pixels, and partition load range '{chunkPartitionLoadRange}'");
+        StartCoroutine(SetCameraSizeDelayed());
     }
 
-    private CameraViewSize GetNearestCameraViewSize(int width)
+    private float GetCameraScale(CameraViewSize cameraViewSize)
     {
-        
-        foreach (CameraViewSize size in Enum.GetValues(typeof(CameraViewSize)))
+        switch (cameraViewSize)
         {
-            int viewRange = GetCameraViewSizeWidth(size);
-            if (width <= viewRange) return size;
+            case CameraViewSize.Small:
+                return 1/4f;
+            case CameraViewSize.Medium:
+                return 1/3f;
+            case CameraViewSize.Large:
+                return 1/2f;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(cameraViewSize), cameraViewSize, null);
         }
-
-        return CameraViewSize.Large;
     }
-
-   
-
-    private IEnumerator setCameraSizeDelayed() {
+    
+    private IEnumerator SetCameraSizeDelayed() {
         yield return new WaitForEndOfFrame();
         GetComponent<CameraBounds>().SetSize();
+        Camera selfCamera = GetComponent<Camera>();
+        uiCamera.orthographicSize = selfCamera.orthographicSize;
     }
 
-    public void setDebugRange(float cameraSize) {
+    public void SetDebugRange(float cameraSize) {
         PixelPerfectCamera pixelPerfectCamera = GetComponent<PixelPerfectCamera>();
         pixelPerfectCamera.enabled = false;
         GetComponent<Camera>().orthographicSize = cameraSize;

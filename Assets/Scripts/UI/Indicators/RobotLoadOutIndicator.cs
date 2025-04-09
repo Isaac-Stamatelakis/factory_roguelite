@@ -40,6 +40,11 @@ namespace UI.Indicators
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            OpenRobotLoadOut();
+        }
+
+        public void OpenRobotLoadOut()
+        {
             PlayerRobot playerRobot = playerScript.PlayerRobot;
             string upgradePath = playerRobot.CurrentRobot.UpgradePath;
             List<RobotUpgradeData> upgradeData = playerRobot.RobotData.RobotUpgrades;
@@ -56,7 +61,7 @@ namespace UI.Indicators
                 [(int)RobotUpgrade.Reach] = playerScript.OnReachUpgradeChange
             };
             RobotUpgradeStatSelectorUI.UpgradeDisplayData upgradeDisplayData = new RobotUpgradeStatSelectorUI.UpgradeDisplayData(
-                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks);
+                upgradePath, statLoadOutCollection, upgradeData, robotUpgradeInfo, OnLoadOutChange,callbacks,"Robot Upgrades");
             RobotUpgradeStatSelectorUI statSelectorUI = GameObject.Instantiate(playerScript.PlayerInventory.PlayerRobotToolUI.robotUpgradeStatSelectorUIPrefab);
             bool success = statSelectorUI.Display(upgradeDisplayData);
             if (success) CanvasController.Instance.DisplayObject(statSelectorUI.gameObject);
@@ -64,7 +69,7 @@ namespace UI.Indicators
 
         public PlayerControl? GetPlayerControl()
         {
-            return PlayerControl.SwapRobotLoadOut;
+            return PlayerControl.OpenRobotLoadOut;
         }
     }
 }

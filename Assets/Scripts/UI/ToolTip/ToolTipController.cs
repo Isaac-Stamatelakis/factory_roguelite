@@ -28,6 +28,7 @@ namespace UI.ToolTip {
         private Color defaultToolTipColor;
         private Color defaultWorldToolTipColor;
         private ToolTipType toolTipType;
+        private Camera mainCamera;
 
         public static ToolTipController Instance { get => instance; }
 
@@ -35,6 +36,7 @@ namespace UI.ToolTip {
             instance = this;
             defaultToolTipColor = toolTipPrefab.GetComponent<Image>().color;
             defaultWorldToolTipColor = worldToolTipPrefab.GetComponent<Image>().color;
+            mainCamera = Camera.main;
         }
 
         public void ShowToolTip(Vector2 position, ItemSlot itemSlot)
@@ -69,27 +71,38 @@ namespace UI.ToolTip {
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(worldToolTipPrefab, transform, false);
             newToolTip.setText(text);
-            Vector2 displayPosition = position;
-            newToolTip.transform.position = displayPosition;
+            
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultWorldToolTipColor;
             toolTipType = ToolTipType.World;
+            SetToolTipPosition(position, newToolTip.transform);
         }
-        
+
+        private void SetToolTipPosition(Vector2 position, Transform toolTipTransform)
+        {
+            Canvas canvas = transform.parent.GetComponent<Canvas>();
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas.GetComponent<RectTransform>(),
+                position,
+                canvas.worldCamera, // Use 'null' for Overlay Canvas
+                out Vector2 localPoint
+            );
+            RectTransform rectTransform = (RectTransform)toolTipTransform;
+            rectTransform.anchoredPosition = localPoint;
+        }
         public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null, bool reverse = false) {
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
             newToolTip.setText(text);   
-            Vector2 displayPosition = position + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
+            RectTransform rectTransform = (RectTransform)newToolTip.transform;
             if (reverse)
             {
-                RectTransform rectTransform = (RectTransform)newToolTip.transform;
                 var pivot = rectTransform.pivot;
                 pivot.x = 1;
                 rectTransform.pivot = pivot;
             }
-            newToolTip.transform.position = displayPosition;
+            rectTransform.anchoredPosition = (Vector2)mainCamera.WorldToScreenPoint(position) + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
             toolTipType = ToolTipType.UI;
         }
         
