@@ -595,6 +595,8 @@ namespace Player {
         {
             if (PlayerKeyPressUtils.BlockKeyInput)
             {
+                if (climbing) return;
+                
                 rb.gravityScale = defaultGravityScale;   
                 jumpEvent = null;
                 return;
