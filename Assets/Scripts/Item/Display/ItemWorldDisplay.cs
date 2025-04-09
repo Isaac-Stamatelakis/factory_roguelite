@@ -10,9 +10,14 @@ namespace Item.Display
 {
     public class ItemWorldDisplay : MonoBehaviour
     {
+        private Sprite[] animateSprites;
         public void FixedUpdate()
         {
-            
+            if (animate)
+            {
+                int index = (int)(Time.fixedTime*10) % animateSprites.Length;
+                spriteRenderer.sprite = animateSprites[index];
+            }
         }
 
         private SpriteRenderer spriteRenderer;
@@ -29,12 +34,16 @@ namespace Item.Display
             this.itemSlot = displaySlot;
             animate = false;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot)) return;
-            animate = true;
-            
             Decorate();
         }
         private void Decorate()
         {
+            Sprite[] itemSprites = itemSlot.itemObject.getSprites();
+            if (itemSprites.Length > 1)
+            {
+                animate = true;
+                animateSprites = itemSprites;
+            }
             spriteRenderer.sprite = itemSlot.itemObject.getSprite();
 
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
