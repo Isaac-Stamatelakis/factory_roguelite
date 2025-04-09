@@ -21,7 +21,7 @@ namespace Player.Inventory
        
         public void Start()
         {
-            entityLayer = 1 << LayerMask.NameToLayer("Entity");
+            entityLayer = 1 << LayerMask.NameToLayer("ItemEntity");
             playerInventory = gameObject.GetComponentInParent<PlayerInventory>();
         }
 
