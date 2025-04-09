@@ -59,7 +59,11 @@ namespace Item.Display
                 if (material)
                 {
                     spriteRenderer.color = transmutableItemObject.getMaterial().color;
-                    spriteRenderer.material = material.ShaderMaterial;
+                    if (material.ShaderMaterial)
+                    {
+                        spriteRenderer.material = material.ShaderMaterial;
+                    }
+                    
                 }
                 
             } else if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.TileColor)

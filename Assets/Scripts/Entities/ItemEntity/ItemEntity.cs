@@ -35,7 +35,7 @@ namespace Entities {
 
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            gameObject.layer = LayerMask.NameToLayer("Entity");
+            gameObject.layer = LayerMask.NameToLayer("ItemEntity");
 
             BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
         
@@ -43,7 +43,7 @@ namespace Entities {
             itemWorldDisplay.Display(itemSlot);
             spriteRenderer = GetComponent<SpriteRenderer>();
             transform.localScale = new Vector3(0.5f, 0.5f,1f);
-            AddOverlays();
+           
             SetColliderSize(boxCollider);
         }
 
@@ -66,71 +66,6 @@ namespace Entities {
             }
             boxCollider2D.size = new Vector2(0.5f, 0.5f); // Default
         }
-        private void SpawnTagObjects()
-        {
-            foreach (var (itemTag, data) in itemSlot.tags.Dict)
-            {
-                GameObject tagObject = itemTag.GetWorldTagElement(itemSlot,data);
-                if (!tagObject) continue;
-                ItemTagVisualLayer visualLayer = itemTag.GetVisualLayer();
-                tagObject.transform.SetParent(transform,false);
-                switch (visualLayer)
-                {
-                    case ItemTagVisualLayer.Front:
-                        tagObject.transform.SetAsFirstSibling();
-                        break;
-                    case ItemTagVisualLayer.Back:
-                        tagObject.transform.SetAsLastSibling();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        private void AddOverlays()
-        {
-            if (itemSlot.tags?.Dict != null)
-            {
-                SpawnTagObjects();
-            }
-
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
-            {
-                if (transmutableItemObject.getMaterial().OverlaySprite)
-                {
-                    AddOverlaySprite(transmutableItemObject.getMaterial().OverlaySprite,Color.white);
-                }
-            }
-            if (itemSlot.itemObject is TileItem tileItem)
-            {
-                var tileOverlay = tileItem.tileOptions.Overlay;
-                if (tileOverlay)
-                {
-                    AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor());
-                }
-            }
-
-            if (itemSlot.itemObject.SpriteOverlays != null)
-            {
-                foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
-                {
-                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color);
-                }
-            }
-        }
-        
-        private void AddOverlaySprite(Sprite sprite, Color color)
-        {
-            GameObject overlayContainer = new GameObject("SpriteOverlay");
-            overlayContainer.tag = "SpriteOverlay";
-            SpriteRenderer spriteRenderer = overlayContainer.AddComponent<SpriteRenderer>();
-            spriteRenderer.sprite = sprite;
-            spriteRenderer.color = color;
-            overlayContainer.transform.SetParent(transform,false);
-            overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
-        }
-
         private void IterateLifeTime() {
             lifeTime += Time.fixedDeltaTime;
             if (lifeTime < LIFE_SPAN - BLINK_THRESHOLD) return;
@@ -161,7 +96,7 @@ namespace Entities {
             IterateLifeTime();
             if ((int)lifeTime % CAST_RATE == 0)
             {
-                RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("Entity"));
+                RaycastHit2D[] leftHits = Physics2D.RaycastAll(transform.position, Vector2.left, 0.25f, 1 << LayerMask.NameToLayer("ItemEntity"));
                 foreach (RaycastHit2D leftHit in leftHits) {
                     if (leftHit.collider.gameObject.Equals(gameObject)) continue;
                     if (ItemSlotUtils.IsItemSlotNull(itemSlot) || itemSlot.amount > Global.MAX_SIZE) break;
