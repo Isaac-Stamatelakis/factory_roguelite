@@ -13,6 +13,11 @@ namespace Item.Display
         private Sprite[] animateSprites;
         public void FixedUpdate()
         {
+            if (itemSlot.amount == 0)
+            {
+                
+                gameObject.SetActive(false);
+            }
             if (animate)
             {
                 int index = (int)(Time.fixedTime*10) % animateSprites.Length;
@@ -23,10 +28,12 @@ namespace Item.Display
         private SpriteRenderer spriteRenderer;
         private ItemSlot itemSlot;
         private bool animate;
+        private Material defaultMaterial;
 
         public void Awake()
         {
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+            defaultMaterial = spriteRenderer.material;
         }
 
         public void Display(ItemSlot displaySlot)
@@ -45,7 +52,7 @@ namespace Item.Display
                 animateSprites = itemSprites;
             }
             spriteRenderer.sprite = itemSlot.itemObject.getSprite();
-
+            spriteRenderer.material = defaultMaterial;
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
             {
                 var material = transmutableItemObject.getMaterial();

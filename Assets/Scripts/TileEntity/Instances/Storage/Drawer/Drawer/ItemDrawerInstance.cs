@@ -48,7 +48,6 @@ namespace TileEntity.Instances.Storage {
             
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
-                if (visualElement) visualElement.enabled = false;
                 return;
             } 
             
@@ -61,6 +60,7 @@ namespace TileEntity.Instances.Storage {
             }
             else
             {
+                visualElement.gameObject.SetActive(true);
                 visualElement.enabled = true;
             }
             visualElement.Display(itemSlot);
