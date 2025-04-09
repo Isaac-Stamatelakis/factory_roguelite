@@ -32,13 +32,8 @@ namespace Item.GrabbedItem {
         void Update()
         {
             Vector3 position = Input.mousePosition;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                (RectTransform)transform.parent,
-                position,
-                mainCamera,
-                out Vector2 localPos
-            );
-            rectTransform.anchoredPosition = localPos;
+            Vector2 viewportPoint = mainCamera.ScreenToViewportPoint(position);
+            rectTransform.anchoredPosition = (viewportPoint - Vector2.one*0.5f) * new Vector2(Screen.width, Screen.height);
             bool leftClick = Input.GetMouseButtonDown(0);
             bool rightClick = Input.GetMouseButtonUp(0);
             

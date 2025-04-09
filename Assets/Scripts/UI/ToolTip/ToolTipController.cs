@@ -28,7 +28,7 @@ namespace UI.ToolTip {
         private Color defaultToolTipColor;
         private Color defaultWorldToolTipColor;
         private ToolTipType toolTipType;
-        private Camera mainCamera;
+        private Camera canvasCamera;
 
         public static ToolTipController Instance { get => instance; }
 
@@ -36,7 +36,7 @@ namespace UI.ToolTip {
             instance = this;
             defaultToolTipColor = toolTipPrefab.GetComponent<Image>().color;
             defaultWorldToolTipColor = worldToolTipPrefab.GetComponent<Image>().color;
-            mainCamera = Camera.main;
+            canvasCamera = GetComponentInParent<Canvas>().worldCamera;
         }
 
         public void ShowToolTip(Vector2 position, ItemSlot itemSlot)
@@ -102,7 +102,10 @@ namespace UI.ToolTip {
                 pivot.x = 1;
                 rectTransform.pivot = pivot;
             }
-            rectTransform.anchoredPosition = (Vector2)mainCamera.WorldToScreenPoint(position) + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
+            Vector2 viewportPoint = canvasCamera.WorldToViewportPoint(position);
+            Debug.Log(viewportPoint);
+            rectTransform.anchoredPosition = (viewportPoint) * new Vector2(Screen.width, Screen.height) + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);;
+            //rectTransform.anchoredPosition = (Vector2)mainCamera.WorldToScreenPoint(position)
             toolTipType = ToolTipType.UI;
         }
         
