@@ -7,6 +7,7 @@ using PlayerModule;
 using Items;
 using Items.Inventory;
 using Entities;
+using Item.Display;
 using Item.Slot;
 using Items.Transmutable;
 using TileEntity.MultiBlock;
@@ -17,7 +18,7 @@ namespace TileEntity.Instances.Storage {
     {
         private const string SPRITE_SUFFIX = "_visual";
         private ItemSlot itemSlot;
-        private SpriteRenderer visualElement;
+        private ItemWorldDisplay visualElement;
         private float invincibilityFrames;
         private DrawerControllerInstance controller;
 
@@ -44,33 +45,31 @@ namespace TileEntity.Instances.Storage {
             if (chunk is not ILoadedChunk loadedChunk) {
                 return;
             }
-            if (ItemSlotUtils.IsItemSlotNull(itemSlot)) {
-                if (visualElement) visualElement.sprite = null;
+            
+            if (ItemSlotUtils.IsItemSlotNull(itemSlot))
+            {
+                if (visualElement) visualElement.enabled = false;
                 return;
             } 
+            
             if (!visualElement) {
                 GameObject visualElementObject = new GameObject();
+                visualElement = visualElementObject.AddComponent<ItemWorldDisplay>();
                 visualElementObject.name = itemSlot.itemObject.name + SPRITE_SUFFIX;
-                visualElement = visualElementObject.AddComponent<SpriteRenderer>();
                 visualElement.transform.SetParent(loadedChunk.GetTileEntityContainer(),false);
                 visualElement.transform.position = GetWorldPosition();
-                
-            }
-            
-            visualElement.sprite = itemSlot.itemObject.getSprite();
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
-            {
-                visualElement.color = transmutableItemObject.getMaterial()?.color ?? Color.white;
             }
             else
             {
-                visualElement.color = Color.white;
+                visualElement.enabled = true;
             }
+            visualElement.Display(itemSlot);
 
             const float TILE_COVER_RATIO = 0.7f;
-            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElement.sprite);
+            visualElement.transform.localScale = TILE_COVER_RATIO * ItemDisplayUtils.GetSpriteRenderItemScale(visualElement.GetComponent<SpriteRenderer>().sprite);
 
         }
+        
 
         public void OnLeftClick()
         {

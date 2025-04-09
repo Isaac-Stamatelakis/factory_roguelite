@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Item.Display;
 using Item.Slot;
 using Item.Tags.ItemTagManagers;
 using Items;
@@ -16,10 +17,10 @@ namespace Entities {
         private const float BLINK_THRESHOLD = 10;
         private const float LIFE_SPAN = 300;
         private const float MAX_FALL_SPEED = 10f;
-        private SpriteRenderer spriteRenderer;
         private Rigidbody2D rb;
         [SerializeField] public ItemSlot itemSlot;
         [SerializeField] protected float lifeTime = 0f;
+        private SpriteRenderer spriteRenderer;
         private float perservedSpeed = 0;
         private bool touchingBoundary = false;
         
@@ -29,7 +30,6 @@ namespace Entities {
 
         public override void initalize()
         {
-            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             gameObject.AddComponent<BoxCollider2D>();
             rb = gameObject.AddComponent<Rigidbody2D>();
 
@@ -39,17 +39,10 @@ namespace Entities {
 
             BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
         
-            spriteRenderer.sprite = itemSlot.itemObject.getSprite();
-
-            if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
-            {
-                spriteRenderer.color = transmutableItemObject.getMaterial().color;
-            } else if (itemSlot.itemObject is TileItem tileItem && tileItem.tileOptions.TileColor)
-            {
-                spriteRenderer.color = tileItem.tileOptions.TileColor.GetColor();
-            }
+            ItemWorldDisplay itemWorldDisplay = gameObject.AddComponent<ItemWorldDisplay>();
+            itemWorldDisplay.Display(itemSlot);
+            spriteRenderer = GetComponent<SpriteRenderer>();
             transform.localScale = new Vector3(0.5f, 0.5f,1f);
-            
             AddOverlays();
             SetColliderSize(boxCollider);
         }
