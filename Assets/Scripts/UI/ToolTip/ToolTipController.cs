@@ -103,9 +103,7 @@ namespace UI.ToolTip {
                 rectTransform.pivot = pivot;
             }
             Vector2 viewportPoint = canvasCamera.WorldToViewportPoint(position);
-            Debug.Log(viewportPoint);
             rectTransform.anchoredPosition = (viewportPoint) * new Vector2(Screen.width, Screen.height) + (useOffset ? (reverse ? -offset : offset) : Vector2.zero);;
-            //rectTransform.anchoredPosition = (Vector2)mainCamera.WorldToScreenPoint(position)
             toolTipType = ToolTipType.UI;
         }
         
