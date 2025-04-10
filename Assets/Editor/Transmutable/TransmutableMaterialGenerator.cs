@@ -94,7 +94,7 @@ public class TransmutableItemGenerator : EditorWindow
         string materialFolder = Path.GetDirectoryName(assetPath);
         
         string transmutableItemFolder = Path.GetDirectoryName(materialFolder);
-        Assert.AreEqual("Assets\\Objects\\Items\\TransmutableItems", transmutableItemFolder);
+        Assert.AreEqual("Assets\\Objects\\TransmutableItems", transmutableItemFolder);
         return transmutableItemFolder;
     }
     private void GenerateMaterialItems(TransmutableItemMaterial material)
@@ -199,12 +199,13 @@ public class TransmutableItemGenerator : EditorWindow
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
+                TileWrapperObject shaderOutlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(SHADER_OUTLINE_WRAPPER_PATH);
                 StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
                 GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
                 Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
                 foreach (var asset in handle.Result)
                 {
-                    GenerateOreItems(asset, outlineWrapper, stoneTileCollection, oreGameStage,reset);
+                    GenerateOreItems(asset, outlineWrapper, shaderOutlineWrapper,stoneTileCollection, oreGameStage,reset);
                 }
                 AssetDatabase.Refresh();
             }
@@ -216,7 +217,7 @@ public class TransmutableItemGenerator : EditorWindow
         Addressables.LoadAssetsAsync<TransmutableItemMaterial>("transmutable_material",null).Completed += OnOreLoadUpdate;
     }
 
-    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
+    private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
     {
         string transmutableItemFolder = GetMaterialItemPath(material);
         string instancePath = Path.Combine(transmutableItemFolder, GEN_PATH);
@@ -247,9 +248,8 @@ public class TransmutableItemGenerator : EditorWindow
             tileOverlay = CreateInstance<TransmutableTileOverlay>();
             tileOverlay.ItemMaterial = material;
             tileOverlay.name = ORE_OVERLAY_NAME;
-            tileOverlay.OverlayWrapper = outlineWrapper;
+            tileOverlay.OverlayWrapper = material.ShaderMaterial ? shaderOutlineWrapper : outlineWrapper;
             string savePath = overlayPath + ".asset";
-            Debug.Log(savePath);
             AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.SaveAssets();
             tileOverlay = AssetDatabase.LoadAssetAtPath<TransmutableTileOverlay>(savePath);
