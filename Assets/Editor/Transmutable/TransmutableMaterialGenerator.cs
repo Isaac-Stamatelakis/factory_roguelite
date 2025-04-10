@@ -17,9 +17,11 @@ using UnityEditor.VersionControl;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using World.Cave.Collections;
+using Object = UnityEngine.Object;
 
 public class TransmutableItemGenerator : EditorWindow
 {
+    private const string MATERIAL_PATH = "Assets/Objects/TransmutableItems/Materials";
     private const string OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/OutlineWrapper.asset";
     private const string SHADER_OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/ShaderOutlineWrapper.asset";
     private const string STONE_COLLECTION_PATH = "Assets/Objects/TransmutableItems/OreSource/StoneCollection.asset";
@@ -36,7 +38,7 @@ public class TransmutableItemGenerator : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Generates materials with from addressables with label 'transmutable_material' 'Transmutable Materials'", EditorStyles.boldLabel);
+        GUILayout.Label($"Generates items for materials inside {MATERIAL_PATH}", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         GUI.enabled = false;
         GUILayout.TextArea("Generates new materials, adds new states for existing materials and deletes states that no longer exist from existing materials.");
@@ -65,28 +67,19 @@ public class TransmutableItemGenerator : EditorWindow
     
     protected void UpdateExisting()
     {
-        Debug.Log("Loading assets from addrssables");
-        Addressables.LoadAssetsAsync<TransmutableItemMaterial>("transmutable_material",null).Completed += OnLoadUpdate;
+        string[] guids = AssetDatabase.FindAssets("", new[] { MATERIAL_PATH });
+        Debug.Log("Updating Transmutable Materials");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            Object asset = AssetDatabase.LoadAssetAtPath<Object>(path);
+            if (asset is not TransmutableItemMaterial transmutableItemMaterial) continue;
+            GenerateMaterialItems(transmutableItemMaterial);
+        }
+        AssetDatabase.Refresh();
+        Debug.Log("Complete");
     }
     
-    private void OnLoadUpdate(AsyncOperationHandle<IList<TransmutableItemMaterial>> handle)
-    {
-        if (handle.Status == AsyncOperationStatus.Succeeded)
-        {
-            Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
-           
-            foreach (var asset in handle.Result)
-            {
-                GenerateMaterialItems(asset);
-            }
-            AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.LogError("Failed to load assets.");
-        }
-    }
-
     private static string GetMaterialItemPath(TransmutableItemMaterial material)
     {
         string assetPath = AssetDatabase.GetAssetPath(material);
@@ -101,7 +94,7 @@ public class TransmutableItemGenerator : EditorWindow
     {
         string transmutableItemFolder = GetMaterialItemPath(material);
         TransmutableMaterialOptions options = material.MaterialOptions;
-        if (options == null)
+        if (!options)
         {
             Debug.LogWarning($"Material '{material}' options not set.");
             return;
@@ -142,6 +135,7 @@ public class TransmutableItemGenerator : EditorWindow
     private void CreateNew(TransmutableItemMaterial material, string materialItemsPath, Dictionary<TransmutableItemState, TransmutableItemObject> stateItemDict, out HashSet<TransmutableItemState> materialStates)
     {
         materialStates = new HashSet<TransmutableItemState>();
+        List<AssetLabel> labels = new List<AssetLabel> { AssetLabel.Item };
         foreach (TransmutableStateOptions stateOptions in material.MaterialOptions.States)
         {
             materialStates.Add(stateOptions.state);
@@ -157,7 +151,10 @@ public class TransmutableItemGenerator : EditorWindow
             transmutableItemObject.setMaterial(material);
             transmutableItemObject.setState(stateOptions.state);
             AssetDatabase.CreateAsset(transmutableItemObject,  savePath);
+            
             Debug.Log($"Created '{itemName}'");
+            string guid = AssetDatabase.AssetPathToGUID(savePath);
+            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             stateItemDict[stateOptions.state] = transmutableItemObject;
         }
     }
@@ -193,28 +190,22 @@ public class TransmutableItemGenerator : EditorWindow
 
     private void UpdateOres(bool reset)
     {
-        // It works :)
-        void OnOreLoadUpdate(AsyncOperationHandle<IList<TransmutableItemMaterial>> handle)
+        string[] guids = AssetDatabase.FindAssets("", new[] { MATERIAL_PATH });
+        TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
+        TileWrapperObject shaderOutlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(SHADER_OUTLINE_WRAPPER_PATH);
+        StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
+        GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
+        string debugText = reset ? "Deleting and Rebuilding all Ores" : "Updating Ores";
+        Debug.Log(debugText);
+        foreach (string guid in guids)
         {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                TileWrapperObject outlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(OUTLINE_WRAPPER_PATH);
-                TileWrapperObject shaderOutlineWrapper = AssetDatabase.LoadAssetAtPath<TileWrapperObject>(SHADER_OUTLINE_WRAPPER_PATH);
-                StoneTileCollection stoneTileCollection = AssetDatabase.LoadAssetAtPath<StoneTileCollection>(STONE_COLLECTION_PATH);
-                GameStageObject oreGameStage = AssetDatabase.LoadAssetAtPath<GameStageObject>(GAMESTAGE_PATH);
-                Debug.Log($"Loaded {handle.Result.Count} materials from addressable");
-                foreach (var asset in handle.Result)
-                {
-                    GenerateOreItems(asset, outlineWrapper, shaderOutlineWrapper,stoneTileCollection, oreGameStage,reset);
-                }
-                AssetDatabase.Refresh();
-            }
-            else
-            {
-                Debug.LogError("Failed to load assets.");
-            }
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            Object asset = AssetDatabase.LoadAssetAtPath<Object>(path);
+            if (asset is not TransmutableItemMaterial transmutableItemMaterial) continue;
+            GenerateOreItems(transmutableItemMaterial, outlineWrapper, shaderOutlineWrapper,stoneTileCollection, oreGameStage,reset);
         }
-        Addressables.LoadAssetsAsync<TransmutableItemMaterial>("transmutable_material",null).Completed += OnOreLoadUpdate;
+        AssetDatabase.Refresh();
+        Debug.Log("Complete");
     }
 
     private void GenerateOreItems(TransmutableItemMaterial material, TileWrapperObject outlineWrapper, TileWrapperObject shaderOutlineWrapper, StoneTileCollection stoneTileCollection, GameStageObject oreGameStage, bool reset)
@@ -271,8 +262,8 @@ public class TransmutableItemGenerator : EditorWindow
         HashSet<string> stoneIds = new HashSet<string>();
 
         var settings = AddressableAssetSettingsDefaultObject.Settings;
-        var group = settings.FindGroup("Items");
         
+        List<AssetLabel> labels = new List<AssetLabel> { AssetLabel.Item };
         foreach (TileItem tileItem in stoneTileCollection.Tiles)
         {
             if (!tileItem) continue;
@@ -309,10 +300,9 @@ public class TransmutableItemGenerator : EditorWindow
             string savePath = Path.Combine(oreFolderPath, oreTile.name + ".asset");
             AssetDatabase.CreateAsset(oreTile, savePath);
             AssetDatabase.SaveAssets();
+            string guid = AssetDatabase.AssetPathToGUID(savePath);
             
-            var entry = settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(savePath), group);
-            entry.labels.Add("item");
-            entry.SetAddress(oreTile.name);
+            EditorHelper.AssignAddressablesLabel(guid,labels,AssetGroup.Items);
             
         }
 
