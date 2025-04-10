@@ -21,6 +21,7 @@ public static class GlobalHelper
         }
     }
     
+    
     public static ulong BinaryExponentiation(ulong baseValue, int exponent)
     {
         if (exponent < 0)

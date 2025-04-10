@@ -21,7 +21,6 @@ namespace UI.QuestBook {
                 bool SuccessCallback(string cacheData) => cacheData.Contains(task.CaveId);
                 QuestBookCache cache = PlayerManager.Instance.GetPlayer().QuestBookCache;
                 taskData.Complete = cache.QueueSatisfiedCache(QuestTaskType.Dimension,SuccessCallback);
-                Debug.Log(taskData.Complete);
             }
             if (taskData.Complete) {
                 statusText.text = "Visited";

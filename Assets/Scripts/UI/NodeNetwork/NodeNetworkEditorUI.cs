@@ -11,6 +11,11 @@ namespace UI.NodeNetwork {
         [SerializeField] private Image toggleConnectionPanel;
         private GameObject spawnedNodeObject;
         protected INodeNetworkUI nodeNetworkUI;
+        private Camera canvasCamera;
+        public void Start()
+        {
+            canvasCamera = GetComponentInParent<Canvas>().worldCamera;
+        }
         public void Initialize(INodeNetworkUI nodeNetworkUI) {
             addNode.onClick.RemoveAllListeners();
             toggleConnectionMode.onClick.RemoveAllListeners();
@@ -59,10 +64,14 @@ namespace UI.NodeNetwork {
             if (!spawnedNodeObject) {
                 return;
             }
-            Vector2 mousePosition = Input.mousePosition;
+            
+            RectTransform parentRect = (RectTransform)transform.parent;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
-            Vector2 gridPosition = SnapGrid(mousePosition,contentContainer.position,contentContainer.localScale.x);
-            spawnedNodeObject.transform.position = gridPosition;
+            Vector2 offset = parentRect.anchoredPosition/contentContainer.localScale.x;
+            Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Input.mousePosition) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
+            Vector2 gridPosition = SnapGrid(mousePosition,((RectTransform)contentContainer).anchoredPosition,contentContainer.localScale.x);
+            RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
+            rectTransform.anchoredPosition = gridPosition;
             if (Input.GetMouseButton(0)) {
                 nodeNetworkUI.PlaceNewNode(spawnedNodeObject.transform.localPosition);
                 nodeNetworkUI.Display();
@@ -71,9 +80,9 @@ namespace UI.NodeNetwork {
         }
 
         private static Vector2 SnapGrid(Vector2 mousePosition, Vector2 containerPosition, float containerScale) {
-            float scaledGrid = NodeNetworkConfig.GRID_SIZE*containerScale;
-            float snappedX = Mathf.Round((mousePosition.x - containerPosition.x) / scaledGrid) * scaledGrid + containerPosition.x;
-            float snappedY = Mathf.Round((mousePosition.y - containerPosition.y) / scaledGrid) * scaledGrid + containerPosition.y;
+            float scaledGrid = NodeNetworkConfig.GRID_SIZE*1;
+            float snappedX = Mathf.Round((mousePosition.x-containerPosition.x/containerScale) / scaledGrid) * scaledGrid;
+            float snappedY = Mathf.Round((mousePosition.y-containerPosition.y/containerScale) / scaledGrid) * scaledGrid;
             return new Vector2(snappedX, snappedY);
         }
     }

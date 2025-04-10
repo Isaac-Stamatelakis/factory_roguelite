@@ -122,7 +122,8 @@ namespace Player {
 
         public const float BASE_MOVE_SPEED = 5f;
         public PlayerRobotLaserGunController gunController;
-        
+        private float defaultBoxColliderWidth;
+        private float defaultBoxColliderEdge;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -135,6 +136,9 @@ namespace Player {
             animator = GetComponent<Animator>();
             LoadAsyncAssets();
             gunController.Initialize(this);
+            BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+            defaultBoxColliderWidth = boxCollider.size.x;
+            defaultBoxColliderEdge = boxCollider.edgeRadius;
         }
 
         private void LoadAsyncAssets()
@@ -226,6 +230,16 @@ namespace Player {
                 {
                     rocketBoots = null;
                 }
+                
+            }
+
+            if (state is CollisionState.OnGround)
+            {
+                BoxCollider2D boxCollider2d = GetComponent<BoxCollider2D>();
+                boxCollider2d.edgeRadius = defaultBoxColliderEdge;
+                var size = boxCollider2d.size;
+                size.x = defaultBoxColliderWidth;
+                boxCollider2d.size = size;
             }
 
             if (state is CollisionState.OnSlope)
@@ -281,6 +295,14 @@ namespace Player {
                 fluidCollisionInformation.Clear();
             }
 
+            if (state is CollisionState.OnGround)
+            {
+                BoxCollider2D boxCollider2d = GetComponent<BoxCollider2D>();
+                boxCollider2d.edgeRadius = 0.0f;
+                var size = boxCollider2d.size;
+                size.x = defaultBoxColliderWidth + defaultBoxColliderEdge;
+                boxCollider2d.size = size;
+            }
             if (state is CollisionState.OnSlope)
             {
                 //rb.drag = defaultLinearDrag;

@@ -88,7 +88,7 @@ namespace Chunks.Systems {
                 throw new InvalidSystemException($"Tried to initialize closed chunk system with '{inactiveClosedChunkSystemAssembler.Chunks.Count}' chunks");
             }
             TileMapBundleFactory.LoadTileSystemMaps(transform,tileGridMaps);
-            TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.LitMaterial);
+            TileMapBundleFactory.LoadTileEntityMaps(transform,tileEntityMaps, DimensionManager.Instance.MiscDimAssets.UnlitMaterial);
             TileMapBundleFactory.LoadConduitSystemMaps(transform,tileGridMaps);
             InitializeObject(dimController,coveredArea,dim);
             InitalLoadChunks(inactiveClosedChunkSystemAssembler.Chunks);
