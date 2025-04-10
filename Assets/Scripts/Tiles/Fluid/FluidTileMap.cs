@@ -247,14 +247,21 @@ namespace Fluids {
             ILoadedChunkSystem chunkSystem = closedChunkSystem;
             var (partition, positionInPartition) = chunkSystem.GetPartitionAndPositionAtCellPosition(position);
             TileItem tileItem = partition.GetTileItem(positionInPartition,TileMapLayer.Base);
-            if (tileItem)
+            if (tileItem) // Place
             {
-                simulator.RemoveFluidCell(position);
+                if (tileItem.tileType == TileType.Block)
+                {
+                    simulator.RemoveFluidCell(position);
+                }
             }
-            else
+            else // Break
             {
-                FluidCell fluidCell = new FluidCell(null, 0, FLOW_ALL, position,true);
-                simulator.AddFluidCell(fluidCell,true);
+                FluidCell current = simulator.GetFluidCell(position);
+                if (current == null)
+                {
+                    FluidCell fluidCell = new FluidCell(null, 0, FLOW_ALL, position,true);
+                    simulator.AddFluidCell(fluidCell,true);
+                }
             }
             
             simulator.UnsettleNeighbors(position);
