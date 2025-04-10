@@ -138,13 +138,13 @@ namespace TileEntity.Instances {
                     break;
                 case FluidTileItem:
                     inputInventory = MinerData.FluidOutputs;
-                    maxSize = Global.MAX_SIZE;
-                    insertAmount = 1;
+                    maxSize = 256000;
+                    insertAmount = 1000;
                     break;
                 default:
                     inputInventory = MinerData.OreOutputs;
-                    maxSize = 256000;
-                    insertAmount = 1000;
+                    maxSize = Global.MAX_SIZE;
+                    insertAmount = 1;
                     break;
             }
 

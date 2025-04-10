@@ -100,9 +100,9 @@ namespace Item.Slot
             return true;
         }
         
-        public static bool InsertOneIdInventory(List<ItemSlot> contained, string id, uint maxSize, uint amount) {
+        public static void InsertOneIdInventory(List<ItemSlot> contained, string id, uint maxSize, uint amount) {
             if (contained == null) {
-                return false;
+                return;
             }
           
             int firstNullIndex = -1;
@@ -116,13 +116,13 @@ namespace Item.Slot
                 }
                 if (inputSlot.amount >= maxSize || inputSlot.itemObject.id != id) continue;
                 inputSlot.amount++;
-                return true;
+                return;
             }
 
-            if (firstNullIndex < 0) return false;
+            if (firstNullIndex < 0) return;
             ItemObject itemObject = ItemRegistry.GetInstance().GetItemObject(id);
             contained[firstNullIndex] = new ItemSlot(itemObject,1,null);
-            return true;
+            return;
         }
 
         public static void AppendToInventory(List<ItemSlot> to, ItemSlot toAppend, uint maxSize)
