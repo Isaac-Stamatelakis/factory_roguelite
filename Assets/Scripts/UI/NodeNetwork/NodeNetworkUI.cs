@@ -165,9 +165,11 @@ namespace UI.NodeNetwork {
             Vector3 changeVector = change * GetDirectionVector(direction);
             
             node.SetPosition(position+changeVector);
-            Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
-            nodeUIPosition += changeVector * transform.localScale.x;
-            nodeUI.GetGameObject().transform.position = nodeUIPosition;
+            RectTransform rectTransform = (RectTransform)nodeUI.GetGameObject().transform;
+            Vector3 nodeUIPosition = rectTransform.anchoredPosition;
+            //nodeUIPosition += changeVector * transform.localScale.x;
+            nodeUIPosition += changeVector;
+            ((RectTransform)nodeUI.GetGameObject().transform).anchoredPosition = nodeUIPosition;
             DisplayLines();
 
         }
