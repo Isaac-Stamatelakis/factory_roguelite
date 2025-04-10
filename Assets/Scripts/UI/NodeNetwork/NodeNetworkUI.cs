@@ -49,7 +49,12 @@ namespace UI.NodeNetwork {
         protected bool lockHorizontalMovement = false;
         protected bool lockZoom = false;
         protected Bounds? viewBounds;
-        
+        private Camera canvasCamera;
+
+        public void Start()
+        {
+            canvasCamera = GetComponentInParent<Canvas>().worldCamera;
+        }
 
         List<(KeyCode[], Direction)> moveDirections = new List<(KeyCode[], Direction)>
         {
@@ -159,7 +164,6 @@ namespace UI.NodeNetwork {
             Vector3 position = node.GetPosition();
             Vector3 changeVector = change * GetDirectionVector(direction);
             
-
             node.SetPosition(position+changeVector);
             Vector3 nodeUIPosition = nodeUI.GetGameObject().transform.position;
             nodeUIPosition += changeVector * transform.localScale.x;
@@ -278,7 +282,7 @@ namespace UI.NodeNetwork {
                 var (keycodes, direction) = moveDirections[i];
                 if (!IsPressed(keycodes)) continue;
                 Vector3 position = transform.position;
-                const int SPEED = 5;
+                const float SPEED = 0.05f;
                 position -= SPEED*GetDirectionVector(direction);
                 transform.position = position;
             }
@@ -291,7 +295,7 @@ namespace UI.NodeNetwork {
             float scrollInput = Input.GetAxis("Mouse ScrollWheel");
             if (scrollInput != 0)
             {
-                Vector3 mousePosition = Input.mousePosition;
+                Vector3 mousePosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
                 Transform containerTransform = ContentContainer;
                 Vector3 newScale = containerTransform.localScale + Vector3.one * (scrollInput * NodeNetworkConfig.ZOOM_SPEED);
                 newScale = new Vector3(
@@ -310,12 +314,14 @@ namespace UI.NodeNetwork {
             if (lockHorizontalMovement && lockVerticalMovement) return;
             if (Input.GetMouseButtonDown(1))
             {
-                rightClickEvent = new RightClickEvent(Input.mousePosition-ContentContainer.position);
+                Vector2 mouseWorldPosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
+                rightClickEvent = new RightClickEvent(mouseWorldPosition-(Vector2)ContentContainer.position);
             }
 
             if (rightClickEvent != null)
             {
-                Vector2 newPosition = rightClickEvent.GetNetworkPosition(Input.mousePosition);
+                Vector2 mousePosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 newPosition = rightClickEvent.GetNetworkPosition(mousePosition);
                 if (lockHorizontalMovement)
                 {
                     newPosition.x = transform.position.x;

@@ -11,6 +11,11 @@ namespace UI.NodeNetwork {
         [SerializeField] private Image toggleConnectionPanel;
         private GameObject spawnedNodeObject;
         protected INodeNetworkUI nodeNetworkUI;
+        private Camera canvasCamera;
+        public void Start()
+        {
+            canvasCamera = GetComponentInParent<Canvas>().worldCamera;
+        }
         public void Initialize(INodeNetworkUI nodeNetworkUI) {
             addNode.onClick.RemoveAllListeners();
             toggleConnectionMode.onClick.RemoveAllListeners();
@@ -59,7 +64,7 @@ namespace UI.NodeNetwork {
             if (!spawnedNodeObject) {
                 return;
             }
-            Vector2 mousePosition = Input.mousePosition;
+            Vector2 mousePosition = canvasCamera.ScreenToWorldPoint(Input.mousePosition);
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
             Vector2 gridPosition = SnapGrid(mousePosition,contentContainer.position,contentContainer.localScale.x);
             spawnedNodeObject.transform.position = gridPosition;

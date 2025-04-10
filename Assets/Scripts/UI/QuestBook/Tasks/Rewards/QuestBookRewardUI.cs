@@ -203,20 +203,16 @@ namespace UI.QuestBook.Tasks.Rewards
         {
             bool rewardClaimed = RewardClaimed();
             bool canClaim = !rewardClaimed && questBookNode.TaskData.Complete;
-            mClaimButton.GetComponent<Image>().color = canClaim ? Color.green : Color.gray;
             int pages = GetPages();
-            TextMeshProUGUI claimTextUI = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (pages == 0)
-            {
-                mClaimButton.interactable = false;
-                claimTextUI.text = "Nothing to Claim";
-            }
-            else
-            {
-                claimTextUI.text = rewardClaimed ? "Claimed" : "Claim";
-            }
             
-            mClaimButton.interactable = canClaim || DevToolUtils.OnDevToolScene;
+            Image buttonImage = mClaimButton.GetComponent<Image>();
+            buttonImage.color = pages == 0 || !canClaim ? Color.gray : Color.green;
+            TextMeshProUGUI claimTextUI = mClaimButton.GetComponentInChildren<TextMeshProUGUI>();
+            claimTextUI.text = pages == 0
+                ? "Nothing to Claim"
+                : (rewardClaimed ? "Claimed" : "Claim");
+            
+            mClaimButton.interactable = (pages > 0 && canClaim) || DevToolUtils.OnDevToolScene;
         }
 
         public void ClaimPress()
