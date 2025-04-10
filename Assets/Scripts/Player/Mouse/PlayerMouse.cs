@@ -65,6 +65,7 @@ namespace PlayerModule.Mouse {
         private List<IWorldTileMap> systemTileMaps = new();
         private ClosedChunkSystem currentSystem;
         private float range;
+        private Vector2 toolHitPosition;
        
         void Start()
         {
@@ -117,8 +118,7 @@ namespace PlayerModule.Mouse {
                 }
                 return;
             }
-
-            Vector2 toolHitPosition;
+            
             if (autoSelectableTool && enableAutoSelect)
             {
                 toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,range);
@@ -210,7 +210,7 @@ namespace PlayerModule.Mouse {
 
         private void PreviewHighlight(Vector2 mousePosition)
         {
-            previewController.Preview(playerInventory.CurrentTool,mousePosition);
+            previewController.Preview(playerInventory.CurrentTool,toolHitPosition);
             foreach (IWorldTileMap worldTileMap in systemTileMaps)
             {
                 var result = MousePositionTileMapSearcher.GetNearestTileMapPosition(mousePosition, worldTileMap.GetTilemap(), 3);
