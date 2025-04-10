@@ -253,6 +253,17 @@ namespace Fluids {
                 {
                     simulator.RemoveFluidCell(position);
                 }
+
+                if (tileItem.tileOptions.fluidBreakable)
+                {
+                    FluidCell current = simulator.GetFluidCell(position);
+                    if (current != null && current.Liquid > 0.05f)
+                    {
+                        var tileGridMap = closedChunkSystem.GetTileMap(tileItem.tileType.toTileMapType()) as WorldTileGridMap;
+                        tileGridMap?.BreakAndDropTile(position,true);
+                    }
+                    
+                }
             }
             else // Break
             {

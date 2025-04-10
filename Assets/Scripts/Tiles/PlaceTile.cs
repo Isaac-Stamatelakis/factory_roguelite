@@ -286,13 +286,13 @@ namespace TileMaps.Place {
             partition.SetHardness(positionInPartition,tileItem.tileOptions.hardness);
 
             ClearTilesOnPlace(tileItem, worldPosition, baseTileData.rotation);
-            iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
-            
             if (!ReferenceEquals(tileItem.tileEntity, null))
             {
                 string initialData = GetPlacementData(tileItem.tileEntity, itemTagCollection);
                 PlaceTileEntity(tileItem,closedChunkSystem,iWorldTileMap,worldPosition,presetTileEntity,initialData:initialData);
             }
+            iWorldTileMap.PlaceNewTileAtLocation(placePosition.x,placePosition.y,tileItem);
+            
             
             if (iWorldTileMap is not WorldTileGridMap tileGridMap) {
                 return;
