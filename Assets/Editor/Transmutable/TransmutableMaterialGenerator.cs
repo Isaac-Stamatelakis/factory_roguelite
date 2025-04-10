@@ -20,9 +20,10 @@ using World.Cave.Collections;
 
 public class TransmutableItemGenerator : EditorWindow
 {
-    private const string OUTLINE_WRAPPER_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/OutlineWrapper.asset";
-    private const string STONE_COLLECTION_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/StoneCollection.asset";
-    private const string GAMESTAGE_PATH = "Assets/Objects/Items/TransmutableItems/OreSource/ORE.asset";
+    private const string OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/OutlineWrapper.asset";
+    private const string SHADER_OUTLINE_WRAPPER_PATH = "Assets/Objects/TransmutableItems/OreSource/ShaderOutlineWrapper.asset";
+    private const string STONE_COLLECTION_PATH = "Assets/Objects/TransmutableItems/OreSource/StoneCollection.asset";
+    private const string GAMESTAGE_PATH = "Assets/Objects/TransmutableItems/OreSource/ORE.asset";
     private const string GEN_PATH = "Items";
     private const string ORE_PATH = "Ores";
     private const string ORE_OVERLAY_NAME = "_Overlay";

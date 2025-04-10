@@ -1,0 +1,2 @@
+Sprites within PackedTiles are packed into the sprite atlas. For most tiles this is the best option for draw call effiency.
+Sprites within UnpackedTiles are not packed into the sprite atlas. This is required for tiles with uv shaders (eg ore overlays)

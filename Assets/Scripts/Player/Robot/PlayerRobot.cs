@@ -597,13 +597,11 @@ namespace Player {
                     rb.gravityScale = fluidGravityModifer*defaultGravityScale;
                 }
             }
-            if (blockInput)
+            if (!blockInput)
             {
-                return;
+                const float BONUS_FALL_MODIFIER = 1.25f;
+                rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
             }
-
-            const float BONUS_FALL_MODIFIER = 1.25f;
-            rb.gravityScale = ControlUtils.GetControlKey(PlayerControl.MoveDown) ? defaultGravityScale * BONUS_FALL_MODIFIER : defaultGravityScale;
             rb.gravityScale *= fluidGravityModifer;
         }
 
