@@ -15,6 +15,7 @@ using PlayerModule.KeyPress;
 using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
+using Tiles.Options.Overlay;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -23,13 +24,15 @@ namespace TileMaps.Previewer {
         private Tilemap tilemap;
         private Tilemap unhighlightedTileMap;
         private Tilemap tileOverlayMap;
+        private Material defaultMaterialShader;
         private DevMode devMode;
         private Color placableColor = new Color(111f/255f,180f/255f,248f/255f);
         private Color nonPlacableColor = new Color(255f/255f,153f/255f,153/255f);
         private Camera mainCamera;
         private PlayerScript playerScript;
         private Transform playerTransform;
-
+        private TilemapRenderer overlayRenderer;
+        private Material mainMaterial;
         private int lastMousePlacement;
         // Start is called before the first frame update
         void Start()
@@ -37,7 +40,7 @@ namespace TileMaps.Previewer {
             mainCamera = Camera.main;
             tilemap = GetComponent<Tilemap>();
 
-            Material mainMaterial = GetComponent<TilemapRenderer>().material;
+            mainMaterial = GetComponent<TilemapRenderer>().material;
             GameObject unhighlightedContainer = new GameObject();
             unhighlightedContainer.transform.SetParent(transform,false);
             unhighlightedContainer.name = "UnhighlightedTilemap";
@@ -51,10 +54,10 @@ namespace TileMaps.Previewer {
             tileOverlayContainer.transform.SetParent(transform,false);
             tileOverlayContainer.name = "Overlay map";
             tileOverlayMap = tileOverlayContainer.AddComponent<Tilemap>();
-            TilemapRenderer overlayRenderer = tileOverlayContainer.AddComponent<TilemapRenderer>();
+            overlayRenderer = tileOverlayContainer.AddComponent<TilemapRenderer>();
             overlayRenderer.material = mainMaterial;
             tileOverlayContainer.transform.localPosition = new Vector3(0, 0, -1f);
-            
+
         }
 
         public void Initialize(PlayerScript playerScript)
@@ -147,14 +150,26 @@ namespace TileMaps.Previewer {
             {
                 DisplayTilePreview(tileOverlayMap,tileOverlay.GetTile(),state,placePosition,position,rotatable,tilePlacementOptions);
                 tileOverlayMap.color = tileOverlay.GetColor();
+                
+                if (tileOverlay is IShaderTileOverlay shaderTileOverlay)
+                {
+                    Material material = shaderTileOverlay.GetMaterial();
+                    overlayRenderer.material = material ?? mainMaterial;
+                }
+                else
+                {
+                    overlayRenderer.material = mainMaterial;
+                }
             }
             else
             {
                 tileOverlayMap.color = Color.white;
+                overlayRenderer.material = mainMaterial;
             }
             
             return record;
         }
+        
 
         private void DisplayTilePreview(Tilemap placementTilemap, TileBase tileBase, int autoState, Vector3Int placePosition, Vector2 position, bool rotatable, PlayerTilePlacementOptions tilePlacementOptions)
         {

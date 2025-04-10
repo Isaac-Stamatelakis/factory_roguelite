@@ -4,6 +4,7 @@ using Item.Tags.ItemTagManagers;
 using Items;
 using Items.Tags;
 using Items.Transmutable;
+using Tiles.Options.Overlay;
 using UnityEngine;
 
 namespace Item.Display
@@ -78,13 +79,17 @@ namespace Item.Display
         private void AddOverlays()
         {
             
-            void AddOverlaySprite(Sprite sprite, Color color)
+            void AddOverlaySprite(Sprite sprite, Color color, Material material)
             {
                 GameObject overlayContainer = new GameObject("SpriteOverlay");
                 overlayContainer.tag = "SpriteOverlay";
                 SpriteRenderer overlaySpriteRenderer = overlayContainer.AddComponent<SpriteRenderer>();
                 overlaySpriteRenderer.sprite = sprite;
                 overlaySpriteRenderer.color = color;
+                if (material)
+                {
+                    overlaySpriteRenderer.material = material;
+                }
                 overlayContainer.transform.SetParent(transform,false);
                 overlayContainer.transform.localPosition = new Vector3(0, 0, -0.1f);
             }
@@ -120,7 +125,7 @@ namespace Item.Display
             {
                 if (transmutableItemObject.getMaterial().OverlaySprite)
                 {
-                    AddOverlaySprite(transmutableItemObject.getMaterial().OverlaySprite,Color.white);
+                    AddOverlaySprite(transmutableItemObject.getMaterial().OverlaySprite,Color.white,null);
                 }
             }
             if (itemSlot.itemObject is TileItem tileItem)
@@ -128,7 +133,8 @@ namespace Item.Display
                 var tileOverlay = tileItem.tileOptions.Overlay;
                 if (tileOverlay)
                 {
-                    AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor());
+                    var material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial() : null;
+                    AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor(),material);
                 }
             }
 
@@ -136,7 +142,7 @@ namespace Item.Display
             {
                 foreach (SpriteOverlay spriteOverlay in itemSlot.itemObject.SpriteOverlays)
                 {
-                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color);
+                    AddOverlaySprite(spriteOverlay.Sprite,spriteOverlay.Color,null);
                 }
             }
         }

@@ -9,6 +9,7 @@ using TMPro;
 using Items.Inventory;
 using Items.Tags;
 using Items.Transmutable;
+using Tiles.Options.Overlay;
 using Unity.VisualScripting;
 using UnityEngine.Serialization;
 
@@ -180,7 +181,7 @@ namespace Items {
                     color = transmutableMaterial.color;
                     if (transmutableMaterial.OverlaySprite)
                     {
-                        AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay");
+                        AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
                     }
 
                     if (transmutableMaterial.ShaderMaterial)
@@ -192,11 +193,12 @@ namespace Items {
             }
             if (itemSlot.itemObject is TileItem tileItem)
             {
-                if (tileItem.tileOptions?.Overlay)
+                var tileOverlay = tileItem.tileOptions?.Overlay;
+                if (tileOverlay)
                 {
-                    var overlay = tileItem.tileOptions.Overlay;
-                    Sprite tileSprite = TileItem.GetDefaultSprite(overlay.GetDisplayTile());
-                    AddOverlay(tileSprite, overlay.GetColor(),$"TileOverlay");
+                    Sprite tileSprite = TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile());
+                    Material material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial() : null;
+                    AddOverlay(tileSprite, tileOverlay.GetColor(),$"TileOverlay",material);
                 }
 
                 if (tileItem.tileOptions?.TileColor)
@@ -209,7 +211,7 @@ namespace Items {
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
-                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}");
+                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}",null);
             }
 
             for (int i = 0; i < toDisplay.Length; i++)
@@ -245,10 +247,11 @@ namespace Items {
             }
         }
 
-        private void AddOverlay(Sprite sprite, Color color, string overlayName)
+        private void AddOverlay(Sprite sprite, Color color, string overlayName, Material material)
         {
             GameObject overlayObject = new GameObject(overlayName);
             Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
+            overlayImage.material = material;
             overlayImage.raycastTarget = false;
             overlayImage.sprite = sprite;
             overlayImage.color = color;

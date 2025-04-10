@@ -43,6 +43,7 @@ namespace TileMaps {
     public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
         private Tilemap overlayTileMap;
+        private ShaderOverlayTilemapManager shaderOverlayTilemapManager;
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
@@ -51,6 +52,7 @@ namespace TileMaps {
             overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
             overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+            shaderOverlayTilemapManager = new ShaderOverlayTilemapManager(transform);
 
         }
 
@@ -142,7 +144,12 @@ namespace TileMaps {
             tilemap.SetTile(vector, null);
             if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition, TileMapLayer.Base);
-            
+            var tileOverlay = tileItem.tileOptions.Overlay;
+            if (tileOverlay)
+            {
+                Tilemap placementTilemap = GetOverlayTileMap(tileOverlay);
+                placementTilemap.SetTile(vector,null);
+            }
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
             UpdateListeners(position, tileItem);
@@ -161,8 +168,13 @@ namespace TileMaps {
                 if (aggregator == null) return;
                 TileEntityUtils.RefreshMultiBlock(aggregator);
             }
-            
-            
+        }
+
+        private Tilemap GetOverlayTileMap(TileOverlay tileOverlay)
+        {
+            if (tileOverlay is not IShaderTileOverlay shaderTileOverlay) return overlayTileMap;
+            Material shaderMaterial = shaderTileOverlay.GetMaterial();
+            return !shaderMaterial ? overlayTileMap : shaderOverlayTilemapManager.GetTileMap(shaderMaterial);
         }
 
         public override ItemObject GetItemObject(Vector2Int position)
@@ -284,9 +296,11 @@ namespace TileMaps {
             var tileOverlay = tileItem.tileOptions?.Overlay;
             if (!tileOverlay) return;
             var overlayTile = tileOverlay.GetTile();
-            SetTileItemTile(overlayTileMap, overlayTile, vector3Int, rotatable, baseTileData);
-            overlayTileMap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-            overlayTileMap.SetColor(vector3Int,tileOverlay.GetColor());
+            Tilemap placementTilemap = GetOverlayTileMap(tileOverlay);
+            
+            SetTileItemTile(placementTilemap, overlayTile, vector3Int, rotatable, baseTileData);
+            placementTilemap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
+            placementTilemap.SetColor(vector3Int,tileOverlay.GetColor());
         }
 
         private void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
@@ -516,6 +530,51 @@ namespace TileMaps {
                 default:
                     return false;
             }
+        }
+    }
+
+    public class ShaderOverlayTilemapManager
+    {
+        private const int DEFAULT_COUNT = 3;
+        private Transform parentTransform;
+        public ShaderOverlayTilemapManager(Transform parent)
+        {
+            this.parentTransform = parent;
+            int i = 0;
+            while (i < DEFAULT_COUNT)
+            {
+                PushNewTilemap();
+                i++;
+            }
+        }   
+        
+        private void PushNewTilemap()
+        {
+            int count = unusedTileMaps.Count + materialTileMaps.Count;
+            GameObject overlayTileMapObject = new GameObject($"ShaderOverlayTileMap_{count}");
+            overlayTileMapObject.transform.SetParent(parentTransform,false);
+            var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
+            overlayTileMapObject.AddComponent<TilemapRenderer>();
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+            overlayTileMapObject.gameObject.SetActive(false);
+            unusedTileMaps.Push(overlayTileMap);
+        }
+        private Dictionary<Material, Tilemap> materialTileMaps = new();
+        private Stack<Tilemap> unusedTileMaps = new();
+        public Tilemap GetTileMap(Material material)
+        {
+            if (materialTileMaps.TryGetValue(material, out Tilemap tilemap)) return tilemap;
+            if (unusedTileMaps.Count == 0)
+            {
+                PushNewTilemap();
+            }
+            tilemap = unusedTileMaps.Pop();
+            tilemap.gameObject.SetActive(true);
+            tilemap.GetComponent<TilemapRenderer>().material = material;
+            materialTileMaps[material] = tilemap;
+
+            return tilemap;
+
         }
     }
 }
