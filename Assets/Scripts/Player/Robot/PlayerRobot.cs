@@ -664,7 +664,7 @@ namespace Player {
         
         private float GetFriction()
         {
-            if (currentTileMovementType == TileMovementType.Slippery || slipperyFrames > 0) return MovementStats.iceFriction;
+            if (slipperyFrames > 0) return MovementStats.iceFriction;
 
             return IsOnGround() ? MovementStats.friction : MovementStats.airFriction;
         }
@@ -831,11 +831,11 @@ namespace Player {
                     playerScript.PlayerStatisticCollection.ContinuousValues[PlayerStatistic.Flight_Time] += Time.fixedDeltaTime;
                 }
             }
-            
-            currentTileMovementType = IsOnGround() ? GetTileMovementModifier() : TileMovementType.None;
-            if (currentTileMovementType == TileMovementType.Slippery)
+
+            if (!InFluid() && IsOnGround())
             {
-                slipperyFrames = MovementStats.iceNoAirFrictionFrames;
+                currentTileMovementType = GetTileMovementModifier();
+                slipperyFrames = currentTileMovementType == TileMovementType.Slippery ? MovementStats.iceNoAirFrictionFrames : 0;
             }
             
             if (!DevMode.Instance.flight)
@@ -846,7 +846,6 @@ namespace Player {
                 
 
                 rb.constraints = GetFreezeConstraints();
-                Debug.Log(rb.constraints);
             }
         }
 
