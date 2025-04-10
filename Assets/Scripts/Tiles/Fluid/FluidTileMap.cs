@@ -14,19 +14,39 @@ using Robot.Tool.Instances.Gun;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Fluid.Simulation;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace Fluids {
     public class FluidWorldTileMap : AbstractIWorldTileMap<FluidTileItem>, ITileMapListener
     {
+        private class FluidParticles
+        {
+            public ParticleSystem Splash;
+            public ParticleSystem Standard;
+
+            public FluidParticles(ParticleSystem splashPrefab, ParticleSystem baseSystemPrefab, Transform container, Material material)
+            {
+                ParticleSystem InstanatiateSystem(ParticleSystem prefab)
+                {
+                    var system = Instantiate(prefab, container, false);
+                    var renderer = system.GetComponent<ParticleSystemRenderer>();
+                    if (material) renderer.material = material;
+                    return system;
+                }
+                Splash = InstanatiateSystem(splashPrefab);
+                Standard = InstanatiateSystem(baseSystemPrefab);
+            }
+        }
         private Tilemap unlitTileMap;
         private TilemapCollider2D unlitCollider2D;
         private TilemapCollider2D mapCollider2D;
         private int flashCounter = 0;
         private int ticksToTryFlash = 25;
 
-        private ParticleSystem splashParticles;
-        private ParticleSystem fluidParticles;
+        private FluidParticles litFluidParticles;
+        private FluidParticles unlitFluidParticles;
+        
         public override void Initialize(TileMapType type)
         {
             base.Initialize(type);
@@ -38,9 +58,10 @@ namespace Fluids {
             unlitContainer.layer = LayerMask.NameToLayer("Fluid");
             TilemapRenderer tilemapRenderer = unlitContainer.AddComponent<TilemapRenderer>();
             MiscDimAssets miscDimAssets = DimensionManager.Instance.MiscDimAssets;
-            tilemapRenderer.material = miscDimAssets.LitMaterial;
-            splashParticles = GameObject.Instantiate(miscDimAssets.SplashParticlePrefab, transform, false);
-            fluidParticles = GameObject.Instantiate(miscDimAssets.FluidParticlePrefab, transform, false);
+            tilemapRenderer.material = miscDimAssets.UnlitMaterial;
+            litFluidParticles = new FluidParticles(miscDimAssets.SplashParticlePrefab, miscDimAssets.FluidParticlePrefab, transform, null);
+            unlitFluidParticles = new FluidParticles(miscDimAssets.SplashParticlePrefab, miscDimAssets.FluidParticlePrefab, transform, miscDimAssets.UnlitMaterial);
+            
             unlitCollider2D = unlitContainer.AddComponent<TilemapCollider2D>();
             mapCollider2D = tilemap.GetComponent<TilemapCollider2D>();
             unlitCollider2D.isTrigger = true;
@@ -99,13 +120,22 @@ namespace Fluids {
         }
         public void Disrupt(Vector2 worldPosition, Vector2Int cellPosition, FluidTileItem fluidTileItem)
         {
-            if (splashParticles.isPlaying) return;
+            if (!fluidTileItem) return;
+            FluidParticles particles = GetFluidParticles(fluidTileItem.fluidOptions.Lit);
+            
+            if (particles.Splash.isPlaying) return;
             simulator.DisruptSurface(cellPosition);
             if (!fluidTileItem) return;
-            PlayParticles(splashParticles, worldPosition,fluidTileItem);
+            PlayParticles(particles.Splash, worldPosition,fluidTileItem);
             
         }
 
+        private FluidParticles GetFluidParticles(bool lit)
+        {
+            // Kind of confusing cause this is reversed. Probably when I made fluid tile items, I imagined lit as being lit all the time, but
+            // in reality lit particles are ones that are effected by light.
+            return !lit ? litFluidParticles : unlitFluidParticles;
+        }
         void PlayParticles(ParticleSystem particles, Vector2 position, FluidTileItem fluidTileItem)
         {
             particles.transform.position = position;
@@ -290,8 +320,9 @@ namespace Fluids {
             
             FluidCell fluidCell = simulator.GetFluidCell((Vector2Int)randomCellPosition);
             if (fluidCell == null || fluidCell.Liquid < 0.95f || !fluidCell.FluidTileItem) return;
-            
-            PlayParticles(fluidParticles, tileMapPositionInfo.WorldPosition, fluidCell.FluidTileItem);
+
+            FluidParticles particles = GetFluidParticles(fluidCell.FluidTileItem.fluidOptions.Lit);
+            PlayParticles(particles.Standard, tileMapPositionInfo.WorldPosition, fluidCell.FluidTileItem);
         }
         
 

@@ -67,12 +67,9 @@ namespace UI.NodeNetwork {
             
             RectTransform parentRect = (RectTransform)transform.parent;
             Transform contentContainer = nodeNetworkUI.GetContentContainer();
-            Vector2 offset = parentRect.anchoredPosition*contentContainer.localScale.x;
-            Vector2 mousePosition = new Vector2(Screen.width, Screen.height) *
-                ((Vector2)canvasCamera.ScreenToViewportPoint(Input.mousePosition) - Vector2.one * 0.5f) /
-                contentContainer.localScale.x - offset;
+            Vector2 offset = parentRect.anchoredPosition/contentContainer.localScale.x;
+            Vector2 mousePosition = new Vector2(Screen.width, Screen.height) * ((Vector2)canvasCamera.ScreenToViewportPoint(Input.mousePosition) - Vector2.one * 0.5f) / contentContainer.localScale.x - offset;
             Vector2 gridPosition = SnapGrid(mousePosition,((RectTransform)contentContainer).anchoredPosition,contentContainer.localScale.x);
-            Debug.Log(gridPosition);
             RectTransform rectTransform = spawnedNodeObject.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = gridPosition;
             if (Input.GetMouseButton(0)) {
@@ -84,9 +81,6 @@ namespace UI.NodeNetwork {
 
         private static Vector2 SnapGrid(Vector2 mousePosition, Vector2 containerPosition, float containerScale) {
             float scaledGrid = NodeNetworkConfig.GRID_SIZE*1;
-            //float snappedX = Mathf.Round((mousePosition.x - containerPosition.x) / scaledGrid) * scaledGrid;
-            //float snappedY = Mathf.Round((mousePosition.y - containerPosition.y) / scaledGrid) * scaledGrid;
-            
             float snappedX = Mathf.Round((mousePosition.x-containerPosition.x/containerScale) / scaledGrid) * scaledGrid;
             float snappedY = Mathf.Round((mousePosition.y-containerPosition.y/containerScale) / scaledGrid) * scaledGrid;
             return new Vector2(snappedX, snappedY);
