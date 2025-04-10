@@ -39,12 +39,13 @@ namespace Tiles {
             // If exists tile on bottom place bottom
             // If exists tile on background place background
             // If no condition return -1
+            Vector2 centered = TileHelper.getRealTileCenter(position);
+            if (PlaceTile.raycastTileInBox(centered, TileMapLayer.Base.toRaycastLayers(), true)) return -1;
             bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
             bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
             bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
             bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
-            //Debug.Log("Left" + left + "," + "Right" + right + "," + "Down" + down + "," + "Background" + background);
-            // Priotize placing down
+           
             int mousePosition = MousePositionUtils.GetMousePlacement(position);
             if (down && MousePositionUtils.MouseCentered(true,position)) {
                 return 0;

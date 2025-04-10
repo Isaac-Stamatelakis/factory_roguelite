@@ -510,9 +510,6 @@ namespace TileMaps.Place {
                     difVector = Vector2.up;
                     break;
             }
-
-            //position -= Vector2.one * width/2f; // Required to offset
-
             for (int xi = 0; xi < iterator.x; xi++)
             {
                 for (int yi = 0; yi < iterator.y; yi++)

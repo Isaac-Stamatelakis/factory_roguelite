@@ -98,10 +98,12 @@ namespace Player {
         private float moveDirTime;
         private int coyoteFrames;
         private int bonusJumps;
+        private int highDragFrames;
         private bool recalling;
         private RocketBoots rocketBoots;
         private PlayerScript playerScript;
         private bool isUsingTool;
+        private float defaultLinearDrag;
         
         [SerializeField] internal DirectionalMovementStats MovementStats;
         [SerializeField] internal JumpMovementStats JumpStats;
@@ -129,6 +131,7 @@ namespace Player {
             blockLayer = 1 << LayerMask.NameToLayer("Block");
             baseCollidableLayer = (1 << LayerMask.NameToLayer("Block") | 1 << LayerMask.NameToLayer("Platform"));
             defaultGravityScale = rb.gravityScale;
+            defaultLinearDrag = rb.drag;
             animator = GetComponent<Animator>();
             LoadAsyncAssets();
             gunController.Initialize(this);
@@ -225,6 +228,13 @@ namespace Player {
                 }
             }
 
+            if (state is CollisionState.OnSlope)
+            {
+                float bonusSpeed = RobotUpgradeUtils.GetContinuousValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Speed);
+                rb.drag = MovementStats.defaultDragOnSlope + bonusSpeed*MovementStats.speedUpgradeDragIncrease;
+                highDragFrames = int.MaxValue;
+            }
+
             if (state is CollisionState.FeetInFluid)
             {
                 var vector2 = rb.velocity;
@@ -269,6 +279,12 @@ namespace Player {
                 position.z = -5;
                 transform.position = position;
                 fluidCollisionInformation.Clear();
+            }
+
+            if (state is CollisionState.OnSlope)
+            {
+                //rb.drag = defaultLinearDrag;
+                highDragFrames = 3;
             }
         }
 
@@ -620,7 +636,7 @@ namespace Player {
                 velocity.y = fluidModifier*(JumpStats.jumpVelocity+bonusJumpHeight);
                 coyoteFrames = 0;
                 liveYUpdates = 3;
-                
+                rb.drag = defaultLinearDrag;
                 fallTime = 0;
                 jumpEvent = new JumpEvent();
                 return;
@@ -779,6 +795,7 @@ namespace Player {
             slipperyFrames--;
             ignorePlatformFrames--;
             iFrames--;
+            highDragFrames--;
             
             CanStartClimbing();
             if (timeSinceDamaged > SelfRobotUpgradeInfo.NANO_BOT_DELAY && robotData.nanoBotTime > 0)
@@ -788,6 +805,11 @@ namespace Player {
             if (climbing) {
                 HandleClimbing();
                 return;
+            }
+
+            if (highDragFrames == 0)
+            {
+                rb.drag = defaultLinearDrag;
             }
 
             platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
@@ -824,6 +846,7 @@ namespace Player {
                 
 
                 rb.constraints = GetFreezeConstraints();
+                Debug.Log(rb.constraints);
             }
         }
 
@@ -839,12 +862,12 @@ namespace Player {
 
             if (liveYUpdates > 0) return FREEZE_Z;
             
-            if (CollisionStateActive(CollisionState.OnSlope) && !ControlUtils.GetControlKey(PlayerControl.MoveLeft) && !ControlUtils.GetControlKey(PlayerControl.MoveRight))
+            if (CollisionStateActive(CollisionState.OnSlope))
             {
-                return FREEZE_Y;
+                bool moving = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight);
+                return moving ? FREEZE_Z : FREEZE_Y;
             }
             if (CollisionStateActive(CollisionState.OnWallLeft) || CollisionStateActive(CollisionState.OnWallRight)) return FREEZE_Z;
-            
             return IsOnGround() && rb.velocity.y < epilson
                 ? FREEZE_Y
                 : FREEZE_Z;
@@ -1296,6 +1319,8 @@ namespace Player {
         public float iceFriction = 0.1f;
         public float slowSpeedReduction = 0.25f;
         public int iceNoAirFrictionFrames = 10;
+        public float defaultDragOnSlope = 5f;
+        public float speedUpgradeDragIncrease = 5f;
     }
 
     [System.Serializable]
