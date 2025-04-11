@@ -40,13 +40,13 @@ namespace UI.QuestBook {
                 GameObject.Destroy(gameObject);
             });
             leftButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index-1,library.QuestBookDataList.Count);
+                int newIndex = Global.ModInt(index-1,library.QuestBookDataList.Count);
                 (library.QuestBookDataList[index], library.QuestBookDataList[newIndex]) = (library.QuestBookDataList[newIndex], library.QuestBookDataList[index]);
                 index = newIndex;
                 selectorUI.Display();
             });
             rightButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index+1,library.QuestBookDataList.Count);
+                int newIndex = Global.ModInt(index+1,library.QuestBookDataList.Count);
                 (library.QuestBookDataList[index], library.QuestBookDataList[newIndex]) = (library.QuestBookDataList[newIndex], library.QuestBookDataList[index]);
                 index = newIndex;
                 selectorUI.Display();

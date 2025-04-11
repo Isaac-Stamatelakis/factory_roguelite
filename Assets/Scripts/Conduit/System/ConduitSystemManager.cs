@@ -114,7 +114,7 @@ namespace Conduits.Systems {
                 return;
             }
 
-            Vector2Int partitionPosition = Global.getPartitionFromCell(tileEntity.GetCellPosition())-tileEntity.GetChunk().GetPosition()*Global.PARTITIONS_PER_CHUNK;
+            Vector2Int partitionPosition = Global.GetPartitionFromCell(tileEntity.GetCellPosition())-tileEntity.GetChunk().GetPosition()*Global.PARTITIONS_PER_CHUNK;
             var partition = tileEntity.GetChunk().GetPartition(partitionPosition);
             var entityPorts = ConduitPortFactory.GetEntityPorts(partition, tileEntity, type);
             if (entityPorts == null) return;
@@ -336,7 +336,7 @@ namespace Conduits.Systems {
 
         protected void TryDropConduitPortItems(IConduit conduit)
         {
-            Vector2Int chunkPosition = Global.getChunkFromCell(conduit.GetPosition());
+            Vector2Int chunkPosition = Global.GetChunkFromCell(conduit.GetPosition());
             ILoadedChunk chunk = ChunkSystem?.GetChunk(chunkPosition);
             if (chunk == null) return;
             

@@ -71,7 +71,7 @@ namespace TileMaps {
                 Debug.LogError("Tried to spawn item with no sprite");
                 return;
             }
-            Vector2 spriteSize =  Global.getSpriteSize(itemSprites[0]);
+            Vector2 spriteSize =  Global.GetSpriteSize(itemSprites[0]);
             if (PlaceTile.mod(spriteSize.x,2) == 0) {
                 realXPosition += 0.25f;
             }
@@ -87,7 +87,7 @@ namespace TileMaps {
             int maxSearchWidth = 16;
             int searchWidth = 1;
             while (searchWidth < maxSearchWidth) {
-                if (Global.modInt(searchWidth,2) == 0) {
+                if (Global.ModInt(searchWidth,2) == 0) {
                     for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                         TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y-(searchWidth/2),0));
                         if (isHitTile(tileBase,searchWidth)) {
@@ -121,11 +121,11 @@ namespace TileMaps {
         private bool isHitTile(TileBase tileBase, int searchWidth) {
             int spriteY = 0;
             if (tileBase is Tile) {
-                spriteY = (int) Global.getSpriteSize(((Tile) tileBase).sprite).y;
+                spriteY = (int) Global.GetSpriteSize(((Tile) tileBase).sprite).y;
             } else if (tileBase is RuleTile) {
-                spriteY = (int) Global.getSpriteSize(((RuleTile) tileBase).m_DefaultSprite).y;
+                spriteY = (int) Global.GetSpriteSize(((RuleTile) tileBase).m_DefaultSprite).y;
             } else if (tileBase is AnimatedTile) {
-                spriteY = (int) Global.getSpriteSize(((AnimatedTile) tileBase).m_AnimatedSprites[0]).y;
+                spriteY = (int) Global.GetSpriteSize(((AnimatedTile) tileBase).m_AnimatedSprites[0]).y;
             }
             return spriteY >= searchWidth;
         } 
@@ -200,7 +200,7 @@ namespace TileMaps {
         private void UpdateListeners(Vector2Int position, TileItem tileItem)
         {
             if (!tileItem) return;
-            Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
+            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.getSprite());
             if (spriteSize.x <= 1 && spriteSize.y <= 1)
             {
                 CallListeners(position);
@@ -397,13 +397,13 @@ namespace TileMaps {
            
             Vector2 worldPosition = tilemap.CellToWorld((Vector3Int)position);
             
-            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.getSpriteSize(tileItem.getSprite()), baseTileData.rotation);
+            FloatIntervalVector exclusion = TileHelper.getRealCoveredArea(worldPosition, Global.GetSpriteSize(tileItem.getSprite()), baseTileData.rotation);
             if (!PlaceTile.BaseTilePlacable(tileItem, worldPosition, closedChunkSystem, newRotation, exclusion))
             {
                 return;
             }
 
-            Vector2Int spriteSize = Global.getSpriteSize(tileItem.getSprite());
+            Vector2Int spriteSize = Global.GetSpriteSize(tileItem.getSprite());
             bool updateOnRotate = spriteSize.x != spriteSize.y;
             if (updateOnRotate) UpdateListeners(position,tileItem);
             

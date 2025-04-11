@@ -44,7 +44,7 @@ namespace TileEntity {
             return chunk.GetPartition(GetPartitionPositionInChunk());
         }
         public Vector2Int GetPartitionPositionInChunk() {
-            return Global.getPartitionFromCell(positionInChunk);
+            return Global.GetPartitionFromCell(positionInChunk);
         }
         public Vector2Int GetPositionInPartition() {
             return positionInChunk-GetPartitionPositionInChunk()*Global.CHUNK_PARTITION_SIZE;

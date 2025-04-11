@@ -153,7 +153,7 @@ namespace Tiles.Fluid.Simulation
 
         public void SetPartitionDisplayStatus(Vector2Int partitionPosition, bool display)
         {
-	        Vector2Int chunkPosition = Global.getChunkFromCell(partitionPosition * Global.CHUNK_PARTITION_SIZE);
+	        Vector2Int chunkPosition = Global.GetChunkFromCell(partitionPosition * Global.CHUNK_PARTITION_SIZE);
 	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
 	        Vector2Int partitionPositionInChunk = Global.CHUNK_PARTITION_SIZE * (partitionPosition - chunkPosition * Global.PARTITIONS_PER_CHUNK);
 	       
@@ -236,7 +236,7 @@ namespace Tiles.Fluid.Simulation
         }
         public void AddFluidCell(FluidCell fluidCell, bool replace)
         {
-	        Vector2Int chunkPosition = Global.getChunkFromCell(fluidCell.Position);
+	        Vector2Int chunkPosition = Global.GetChunkFromCell(fluidCell.Position);
 	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
 	        Vector2Int positionInChunk = fluidCell.Position - chunkPosition * Global.CHUNK_SIZE;
 	        FluidCell current = fluidCells[positionInChunk.x][positionInChunk.y];
@@ -251,7 +251,7 @@ namespace Tiles.Fluid.Simulation
         
         public void RemoveFluidCell(Vector2Int position)
         {
-	        Vector2Int chunkPosition = Global.getChunkFromCell(position);
+	        Vector2Int chunkPosition = Global.GetChunkFromCell(position);
 	        if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells)) return;
 	        Vector2Int positionInChunk = position - chunkPosition * Global.CHUNK_SIZE;
 	        fluidCells[positionInChunk.x][positionInChunk.y] = null;
@@ -580,7 +580,7 @@ namespace Tiles.Fluid.Simulation
 		
 		public FluidCell GetFluidCell(Vector2Int cellPosition)
 		{
-			Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+			Vector2Int chunkPosition = Global.GetChunkFromCell(cellPosition);
 			if (!chunkCellArrayDict.TryGetValue(chunkPosition, out FluidCell[][] fluidCells))return null;
 			Vector2Int positionInChunk = cellPosition - chunkPosition * Global.CHUNK_SIZE;
 			return fluidCells[positionInChunk.x][positionInChunk.y];

@@ -18,15 +18,11 @@ public static class Global
     public const uint FLUID_SPEED_PER_UPGRADE = 16;
     public const int CHUNK_LOAD_RANGE = 2;
     public const uint MAX_SIZE = 999;
-    public static string EditorCreationPath { get => Path.Combine("Assets",editorCreationPath); }
     public const bool ShowSystemParameter = false;
-    private static CaveObject currentCaveObject;
-    public const int EXTRA_TILE_ENTITY_LOAD_RANGE = 4;
-    public const string editorCreationPath = "EditorCreations";
     public const int PLAYER_LAYER = 8;
     public const int BLOCK_LAYER = 512;
     
-    public static GameObject findChild(Transform transform, string childName) {
+    public static GameObject FindChild(Transform transform, string childName) {
         for (int n = 0; n < transform.childCount; n ++) {
             if (transform.GetChild(n).name == childName) {
                 return transform.GetChild(n).gameObject;
@@ -35,54 +31,42 @@ public static class Global
         return null;
     }
 
-    public static float mod(float x, float m) {
+    public static float Mod(float x, float m) {
     return (x%m + m)%m;
     }
 
-    public static int modInt(float x, float m) {
-        return (int) mod(x,m);
+    public static int ModInt(float x, float m) {
+        return (int) Mod(x,m);
     }
 
-    public static Vector2Int getSpriteSize(Sprite sprite) {
-        if (!sprite) {
-            return Vector2Int.zero;
-        }
-        return new Vector2Int((int) (sprite.rect.width / Global.PIXELS_PER_BLOCK), (int) (sprite.rect.height / Global.PIXELS_PER_BLOCK));
+    public static Vector2Int GetSpriteSize(Sprite sprite)
+    {
+        return !sprite ? Vector2Int.zero : new Vector2Int((int) (sprite.rect.width / Global.PIXELS_PER_BLOCK), (int) (sprite.rect.height / Global.PIXELS_PER_BLOCK));
     }
+    
 
-    public static Vector2Int Vector3IntToVector2Int(Vector3Int vector3Int) {
-        return new Vector2Int(vector3Int.x, vector3Int.y);
-    }
-
-    public static Vector2Int getChunkFromWorld(Vector2 position) {
+    public static Vector2Int GetChunkFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.CHUNK_SIZE/2)), Mathf.FloorToInt(position.y/(Global.CHUNK_SIZE/2)));
     }
-    public static Vector2Int getChunkFromCell(Vector2Int cellPosition) {
+    public static Vector2Int GetChunkFromCell(Vector2Int cellPosition) {
         return new Vector2Int(Mathf.FloorToInt(((float)cellPosition.x)/(Global.CHUNK_SIZE)), Mathf.FloorToInt(((float) cellPosition.y)/(Global.CHUNK_SIZE)));
     }
-    public static Vector2Int getPartitionFromCell(Vector2Int cellPosition) {
+    public static Vector2Int GetPartitionFromCell(Vector2Int cellPosition) {
         return new Vector2Int(Mathf.FloorToInt(((float) cellPosition.x)/(Global.CHUNK_PARTITION_SIZE)), Mathf.FloorToInt(((float)cellPosition.y)/(Global.CHUNK_PARTITION_SIZE)));
     }
 
-    public static (Vector2Int, Vector2Int, Vector2Int) GetChunkPartitionAndPositionInPartitionPositions(Vector2Int cellPosition)
+  
+    public static Vector2Int GetPositionInPartition(Vector2Int cellPosition)
     {
-        Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
-        Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
-        Vector2Int positionInPartition = getPositionInPartition(cellPosition);
-        return (chunkPosition, partitionPosition, positionInPartition);
+        return GetPositionInObject(cellPosition,Global.CHUNK_PARTITION_SIZE);
     }
 
-    public static Vector2Int getPositionInPartition(Vector2Int cellPosition)
+    public static Vector2Int GetPositionInChunk(Vector2Int cellPosition)
     {
-        return getPositionInObject(cellPosition,Global.CHUNK_PARTITION_SIZE);
+        return GetPositionInObject(cellPosition,Global.CHUNK_SIZE);
     }
 
-    public static Vector2Int getPositionInChunk(Vector2Int cellPosition)
-    {
-        return getPositionInObject(cellPosition,Global.CHUNK_SIZE);
-    }
-
-    private static Vector2Int getPositionInObject(Vector2Int cellPosition, int objectSize) {
+    private static Vector2Int GetPositionInObject(Vector2Int cellPosition, int objectSize) {
         int x = Mathf.Abs(cellPosition.x) % objectSize;
         x = cellPosition.x < 0 && x != 0 ? objectSize - x : x;
 
@@ -93,27 +77,10 @@ public static class Global
     }
 
 
-    public static Vector2Int getPartitionFromWorld(Vector2 position) {
+    public static Vector2Int GetPartitionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(position.x/(Global.CHUNK_PARTITION_SIZE/2)), Mathf.FloorToInt(position.y/(Global.CHUNK_PARTITION_SIZE/2)));
     }
-    public static Vector2Int getCellPositionFromWorld(Vector2 position) {
+    public static Vector2Int GetCellPositionFromWorld(Vector2 position) {
         return new Vector2Int(Mathf.FloorToInt(2*position.x), Mathf.FloorToInt(2*position.y));
-    }
-}
-
-public struct Dim2Bounds {
-    public int XLowerBound;
-    public int XUpperBound;
-    public int YLowerBound;
-    public int YUpperBound;
-    public Dim2Bounds(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound) {
-        this.XLowerBound = xLowerBound;
-        this.YLowerBound = yLowerBound;
-        this.XUpperBound = xUpperBound;
-        this.YUpperBound = yUpperBound;
-    }
-
-    public Vector2Int size() {
-        return new Vector2Int(Mathf.Abs(XLowerBound-XUpperBound)+1,Mathf.Abs(YLowerBound-YUpperBound)+1);
     }
 }

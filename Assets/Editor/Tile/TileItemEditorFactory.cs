@@ -110,7 +110,7 @@ public static class ItemEditorFactory
     }
 
     public static void setTileTransformOffset(Sprite sprite, Tile tile) {
-        Vector2Int spriteSize = Global.getSpriteSize(sprite);
+        Vector2Int spriteSize = Global.GetSpriteSize(sprite);
         Matrix4x4 tileTransform = tile.transform;
         if (spriteSize.x % 2 == 0) {
             tileTransform.m03 = 0.25f;

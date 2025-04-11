@@ -39,7 +39,7 @@ namespace Tiles.Highlight
             lastCellPosition = cellPosition;
             Sprite sprite = GetSprite(tileBase);
             mOutline.sprite = sprite;
-            Vector2Int spriteSize = Global.getSpriteSize(sprite);
+            Vector2Int spriteSize = Global.GetSpriteSize(sprite);
             Vector2 outlinePosition = (Vector2)tilemap.GetCellCenterWorld(cellPosition);
             if (PlaceTile.mod(spriteSize.x,2) == 0) {
                 outlinePosition.x += 0.25f;

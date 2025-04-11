@@ -59,7 +59,7 @@ namespace TileMaps.Conduit {
             }
             
             BreakTile(position);
-            Vector2Int positionInPartition = Global.getPositionInPartition(position);
+            Vector2Int positionInPartition = Global.GetPositionInPartition(position);
             WriteTile(partition,positionInPartition,null);
             conduitSystemManager.SetConduit(position.x,position.y,null);
             return true;

@@ -44,7 +44,7 @@ namespace WorldModule.Caves {
                 }
                 
                 Vector2Int spriteSize = spriteRenderer
-                    ? Global.getSpriteSize(spriteRenderer.sprite)
+                    ? Global.GetSpriteSize(spriteRenderer.sprite)
                     : Vector2Int.one;
                 
                 int amount = StatUtils.getAmount(entityDistribution.mean,entityDistribution.standardDeviation);

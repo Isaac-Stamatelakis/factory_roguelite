@@ -237,7 +237,7 @@ namespace Robot.Tool.Instances
         private bool TryVeinMine(WorldTileGridMap worldTileGridMap, TileItem initialItem, bool drop, Vector2 mousePosition, int veinMinePower, int drillPower)
         {
             if (veinMinePower <= 1) return false;
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
             BlockVeinMineEvent blockVeinMineEvent = GetVeinMineEvent(worldTileGridMap, drop, initialItem, drillPower) as BlockVeinMineEvent;
             int? broken = blockVeinMineEvent?.Execute(cellPosition, veinMinePower);
             if (broken < 1) return false;

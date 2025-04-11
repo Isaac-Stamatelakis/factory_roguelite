@@ -187,11 +187,11 @@ namespace TileMaps {
             return new Vector2Int(Mathf.FloorToInt(x/Global.CHUNK_PARTITION_SIZE), Mathf.FloorToInt((y/Global.CHUNK_PARTITION_SIZE)));
         }
         protected Vector2Int GetTilePositionInPartition(Vector2Int position) {
-            return new Vector2Int(Global.modInt(position.x,Global.CHUNK_PARTITION_SIZE),Global.modInt(position.y,Global.CHUNK_PARTITION_SIZE));
+            return new Vector2Int(Global.ModInt(position.x,Global.CHUNK_PARTITION_SIZE),Global.ModInt(position.y,Global.CHUNK_PARTITION_SIZE));
         }
 
         protected IChunkPartition GetPartitionAtPosition(Vector2Int cellPosition) {
-            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            Vector2Int chunkPosition = Global.GetChunkFromCell(cellPosition);
             ILoadedChunk chunk = closedChunkSystem.GetChunk(chunkPosition);
             if (chunk == null) {
                 return null;

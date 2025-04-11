@@ -178,12 +178,12 @@ namespace DevTools.Structures {
                 }
                 foreach (Vector2Int vector in area) {
                     Vector2Int adjustedVector = vector+offset;
-                    Vector2Int chunkPosition = Global.getChunkFromCell(adjustedVector);
+                    Vector2Int chunkPosition = Global.GetChunkFromCell(adjustedVector);
                     IChunk chunk = chunkDict[chunkPosition];
-                    Vector2Int partitionPosition = Global.getPartitionFromCell(adjustedVector)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
+                    Vector2Int partitionPosition = Global.GetPartitionFromCell(adjustedVector)-chunkPosition*Global.PARTITIONS_PER_CHUNK;
                     IChunkPartition partition = chunk.GetPartition(partitionPosition);
                     WorldTileConduitData partitionData = (WorldTileConduitData) partition.GetData();
-                    Vector2Int posInPartition = Global.getPositionInPartition(adjustedVector);
+                    Vector2Int posInPartition = Global.GetPositionInPartition(adjustedVector);
                     Vector2Int posInArea = vector-areaOffset;
                     WorldGenerationFactory.MapWorldTileConduitData(areaData,partitionData,posInArea,posInPartition);
                 }

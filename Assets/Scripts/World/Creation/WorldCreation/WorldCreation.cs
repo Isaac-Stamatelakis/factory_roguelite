@@ -158,7 +158,7 @@ namespace WorldModule {
 
         public static IntervalVector GetTileMapChunkBounds(GameObject prefab)
         {
-            Tilemap baseTileMap = Global.findChild(prefab.transform, "Base").GetComponent<Tilemap>();
+            Tilemap baseTileMap = Global.FindChild(prefab.transform, "Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
             int xSize = (baseBounds.xMax - baseBounds.xMin) / Global.CHUNK_SIZE;
             int ySize = (baseBounds.yMax - baseBounds.yMin) / Global.CHUNK_SIZE;
