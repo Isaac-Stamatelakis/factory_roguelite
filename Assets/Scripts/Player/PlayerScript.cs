@@ -8,6 +8,7 @@ using Conduits.PortViewer;
 using Conduits.Systems;
 using Dimensions;
 using Item.GameStage;
+using Item.GrabbedItem;
 using Item.Slot;
 using Newtonsoft.Json;
 using Player.Controls;
@@ -80,7 +81,7 @@ namespace Player
             playerMouse = GetComponent<PlayerMouse>();
         }
         
-        public PlayerDimensionData Initialize()
+        public PlayerData Initialize()
         {
             InitializeStages();
             PlayerData playerData = playerIO.Deserialize();
@@ -102,7 +103,9 @@ namespace Player
             tileViewers.Initialize(this);
             
             OnReachUpgradeChange();
-            return playerData.dimensionData;
+
+            
+            return playerData;
         }
 
         public void SyncToClosedChunkSystem(ClosedChunkSystem closedChunkSystem, DimensionManager dimensionManager, Dimension dimension)

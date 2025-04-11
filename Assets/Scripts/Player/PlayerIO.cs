@@ -10,6 +10,7 @@ using Items;
 using TileMaps.Previewer;
 using TileEntity.Instances;
 using Dimensions;
+using Item.GrabbedItem;
 using Item.Slot;
 using Player;
 using Robot.Upgrades;
@@ -20,7 +21,6 @@ namespace PlayerModule.IO {
 
     public class PlayerIO : MonoBehaviour
     {
-        //[SerializeField] public PlayerData playerData;
        
         public PlayerData Deserialize() {
             string path = WorldLoadUtils.GetWorldComponentPath(WorldFileType.Player);
@@ -45,12 +45,14 @@ namespace PlayerModule.IO {
             PlayerRobot playerRobot = GetComponent<PlayerRobot>();
             PlayerScript playerScript = GetComponent<PlayerScript>();
             PlayerDimensionData playerDimensionData = new PlayerDimensionData(playerScript.DimensionData,transform.position.x,transform.position.y);
+            
             PlayerData playerData = new PlayerData(
                 playerDimensionData,
                 ItemSlotFactory.seralizeItemSlot(playerRobot.robotItemSlot),
                 PlayerInventoryFactory.Serialize(playerInventory.PlayerInventoryData),
                 JsonConvert.SerializeObject(playerRobot.RobotUpgradeLoadOut),
-                playerScript.PlayerStatisticCollection
+                playerScript.PlayerStatisticCollection,
+                ItemSlotFactory.seralizeItemSlot(GrabbedItemProperties.Instance.ItemSlot)
             );
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(playerData);
             WorldLoadUtils.SaveWorldFileJson(WorldFileType.Player,json);
@@ -63,12 +65,13 @@ namespace PlayerModule.IO {
 
     [System.Serializable]
     public class PlayerData {
-        public PlayerData(PlayerDimensionData dimensionData, string playerRobot, string sInventoryData, string sRobotLoadOut, PlayerStatisticCollection playerStatistics) {
+        public PlayerData(PlayerDimensionData dimensionData, string playerRobot, string sInventoryData, string sRobotLoadOut, PlayerStatisticCollection playerStatistics, string grabbedItemData) {
             this.dimensionData = dimensionData;
             this.playerRobot = playerRobot;
             this.sInventoryData = sInventoryData;
             this.sRobotLoadOut = sRobotLoadOut;
             this.playerStatistics = playerStatistics;
+            this.grabbedItemData = grabbedItemData;
         }
 
         public PlayerDimensionData dimensionData;
@@ -76,5 +79,6 @@ namespace PlayerModule.IO {
         public string sInventoryData;
         public string sRobotLoadOut;
         public PlayerStatisticCollection playerStatistics;
+        public string grabbedItemData;
     }
 }

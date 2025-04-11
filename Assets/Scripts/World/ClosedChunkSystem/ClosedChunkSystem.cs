@@ -355,7 +355,18 @@ namespace Chunks.Systems {
 
         public void SyncCaveRegistryTileEntities(CaveRegistry caveRegistry)
         {
-            // TODO
+            foreach (var chunk in cachedChunks.Values)
+            {
+                foreach (IChunkPartition partition in chunk.GetChunkPartitions())
+                {
+                    List<IOnCaveRegistryLoadActionTileEntity> caveRegistryLoadActionTileEntitys =
+                        partition.GetTileEntitiesOfType<IOnCaveRegistryLoadActionTileEntity>();
+                    foreach (var caveRegistryLoadActionTileEntity in caveRegistryLoadActionTileEntitys)
+                    {
+                        caveRegistryLoadActionTileEntity.OnCaveRegistryLoaded(caveRegistry);
+                    }
+                }
+            }
         }
 
         protected Vector2Int GetSize() {

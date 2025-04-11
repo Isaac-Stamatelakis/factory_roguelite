@@ -10,6 +10,7 @@ using Items.Tags;
 using LibNoise.Operator;
 using Newtonsoft.Json;
 using TileEntity.Instances.Caves.VoidMiners;
+using TileEntity.Instances.CompactMachines;
 using TileEntity.Instances.Storage;
 using UI;
 using UnityEngine;
@@ -18,7 +19,7 @@ using Random = System.Random;
 
 namespace TileEntity.Instances {
     public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
-        IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator
+        IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator, ICompactMachineInteractable
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
@@ -26,6 +27,7 @@ namespace TileEntity.Instances {
         private System.Random random;
         private ItemRegistry itemRegistry;
         private EnergyInventory EnergyInventory;
+        public int CompactMachineDepth;
         public VoidMinerInstance(VoidMinerObject tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
@@ -39,14 +41,18 @@ namespace TileEntity.Instances {
 
         public string Serialize()
         {
+            SerializedMinerOutput SerializeOutputs(List<ItemSlot> outputs, bool outputActive)
+            {
+               return new SerializedMinerOutput { Outputs = ItemSlotFactory.serializeList(outputs), Active = outputActive };
+            }
             SerializedVoidMinerData serializedVoidMinerData = new SerializedVoidMinerData
             {
                 Energy = EnergyInventory.Energy,
                 DriveData = ItemSlotFactory.seralizeItemSlot(MinerData.DriveSlot),
                 ItemFilter = MinerData.ItemFilter,
-                StoneOutputs = ItemSlotFactory.serializeList(MinerData.StoneOutputs),
-                OreOutputs = ItemSlotFactory.serializeList(MinerData.OreOutputs),
-                FluidOutputs = ItemSlotFactory.serializeList(MinerData.FluidOutputs),
+                StoneOutputs = SerializeOutputs(MinerData.StoneOutputs,MinerData.StoneActive),
+                OreOutputs = SerializeOutputs(MinerData.OreOutputs,MinerData.OreActive),
+                FluidOutputs = SerializeOutputs(MinerData.FluidOutputs,MinerData.FluidActive)
             };
             return JsonConvert.SerializeObject(serializedVoidMinerData);
         }
@@ -58,9 +64,12 @@ namespace TileEntity.Instances {
             {
                 DriveSlot = ItemSlotFactory.DeserializeSlot(serializedVoidMinerData.DriveData),
                 ItemFilter = serializedVoidMinerData.ItemFilter,
-                StoneOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.StoneOutputs),
-                OreOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.OreOutputs),
-                FluidOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.FluidOutputs),
+                StoneOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.StoneOutputs.Outputs),
+                StoneActive = serializedVoidMinerData.StoneOutputs.Active,
+                OreOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.OreOutputs.Outputs),
+                OreActive = serializedVoidMinerData.OreOutputs.Active,
+                FluidOutputs = ItemSlotFactory.Deserialize(serializedVoidMinerData.FluidOutputs.Outputs),
+                FluidActive = serializedVoidMinerData.FluidOutputs.Active,
             };
             EnergyInventory = new EnergyInventory(serializedVoidMinerData.Energy, 65365);
         }
@@ -132,42 +141,56 @@ namespace TileEntity.Instances {
             switch (itemObject)
             {
                 case TileItem:
+                    if (!MinerData.StoneActive) return;
                     inputInventory = MinerData.StoneOutputs;
                     maxSize = Global.MAX_SIZE;
                     insertAmount = 1;
                     break;
                 case FluidTileItem:
+                    if (!MinerData.FluidActive) return;
                     inputInventory = MinerData.FluidOutputs;
-                    maxSize = Global.MAX_SIZE;
-                    insertAmount = 1;
-                    break;
-                default:
-                    inputInventory = MinerData.OreOutputs;
                     maxSize = 256000;
                     insertAmount = 1000;
+                    break;
+                default:
+                    if (!MinerData.OreActive) return;
+                    inputInventory = MinerData.OreOutputs;
+                    maxSize = Global.MAX_SIZE;
+                    insertAmount = 1;
                     break;
             }
 
             ItemSlotUtils.InsertOneIdInventory(inputInventory, id, maxSize,insertAmount);
         }
-
+        
         internal class VoidMinerData
         {
             public ItemSlot DriveSlot;
             public ItemFilter ItemFilter;
             public List<ItemSlot> StoneOutputs;
+            public bool StoneActive;
             public List<ItemSlot> OreOutputs;
+            public bool OreActive;
             public List<ItemSlot> FluidOutputs;
+            public bool FluidActive;
         }
+        
+        
 
         private class SerializedVoidMinerData
         {
             public ulong Energy;
             public string DriveData;
             public ItemFilter ItemFilter;
-            public string StoneOutputs;
-            public string OreOutputs;
-            public string FluidOutputs;
+            public SerializedMinerOutput StoneOutputs;
+            public SerializedMinerOutput OreOutputs;
+            public SerializedMinerOutput FluidOutputs;
+        }
+
+        private class SerializedMinerOutput
+        {
+            public string Outputs;
+            public bool Active;
         }
 
 
@@ -206,6 +229,11 @@ namespace TileEntity.Instances {
         public IEnergyConduitInteractable GetEnergyConduitInteractable()
         {
             return EnergyInventory;
+        }
+
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
+        {
+            CompactMachineDepth = compactMachine.Depth;
         }
     }
     
