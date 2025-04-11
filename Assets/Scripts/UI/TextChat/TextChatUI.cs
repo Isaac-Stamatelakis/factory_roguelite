@@ -52,7 +52,7 @@ namespace UI.Chat {
             string message = $"Welcome to {title}! This is an alpha version of the game. Please report any and all bugs you find along with general feedback to our discord at LINK";
             SendAndRecordMessage(message);
             SendAndRecordMessage("Press [<b>L</b>] to open your quest book!");
-            PlayerKeyPressUtils.InitializeTypingListener(inputField);
+            CanvasController.Instance.AddTypingListener(inputField);
             defaultTextListPosition = textList.transform.localPosition.y;
         }
         

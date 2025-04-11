@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Player.Controls;
 using Player.Controls.Bindings;
+using TMPro;
 using UI.PauseScreen;
 using UI.ToolTip;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace UI
         protected static CanvasController instance;
         public static CanvasController Instance => instance;
         private Stack<DisplayedUIInfo> uiObjectStack = new Stack<DisplayedUIInfo>();
-        public bool IsActive => uiObjectStack.Count > 0;
+        public bool IsActive => uiObjectStack.Count > 0 && uiObjectStack.Peek().blockMovement;
         private bool canTerminate;
         private AudioSource audioSource;
         public void Awake()
@@ -37,7 +38,20 @@ namespace UI
         public abstract void EmptyListen();
         public abstract void ListenKeyPresses();
         
-        
+        public void AddTypingListener(TMP_InputField tmpInputField)
+        {
+            tmpInputField.onSelect.AddListener((text) =>
+            {
+                isTyping = true;
+            });
+            
+            tmpInputField.onDeselect.AddListener((text) =>
+            {
+                isTyping = false;
+            });
+        }
+        private bool isTyping;
+        public bool BlockKeyInput => IsActive || isTyping;
 
         public void Update()
         {
@@ -93,22 +107,22 @@ namespace UI
         public void ClearStack()
         {
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
+            isTyping = false;
             while (uiObjectStack.Count > 0)
             {
                 DisplayedUIInfo top = uiObjectStack.Pop();
                 Destroy(top.gameObject);
             }
-            transform.SetSiblingIndex(0);
             mBlocker?.gameObject.SetActive(false);
             
         }
         public void PopStack()
         {
-            
             if (uiObjectStack.Count == 0)
             {
                 return;
             }
+            isTyping = false;
             if (ToolTipController.Instance) ToolTipController.Instance.HideToolTip();
             DisplayedUIInfo top = uiObjectStack.Pop();
             if (ReferenceEquals(top.originalParent, null))
@@ -126,28 +140,10 @@ namespace UI
             {
                 DisplayedUIInfo newTop = uiObjectStack.Peek();
                 newTop.gameObject.SetActive(true);
-                SetSiblingPriority(newTop.inventoryInteractable);
             }
             else
             {
-                transform.SetSiblingIndex(0);
                 mBlocker?.gameObject.SetActive(false);
-            }
-            
-            
-            
-        }
-
-        private void SetSiblingPriority(bool inventoryInteractable)
-        {
-            if (inventoryInteractable)
-            {
-                transform.SetAsFirstSibling();
-            }
-            else
-            {
-                transform.SetAsLastSibling();
-               
             }
         }
 
@@ -157,9 +153,18 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool inventoryInteractable = false, bool terminateOnEscape = true)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true)
         {
-            DisplayObject(new DisplayedUIInfo(uiObject,keyCodes,hideOnStack,hideParent,originalParent,inventoryInteractable,terminateOnEscape));
+            DisplayObject(new DisplayedUIInfo
+            {
+                gameObject = uiObject,
+                additionalTerminators = keyCodes,
+                originalParent = originalParent,
+                hideOnStack = hideOnStack,
+                hideParent = hideParent,
+                termianteOnEscape = terminateOnEscape,
+                blockMovement = blockMovement
+            });
         }
 
         private void DisplayObject(DisplayedUIInfo uiInfo)
@@ -185,7 +190,6 @@ namespace UI
             canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
-            SetSiblingPriority(uiInfo.inventoryInteractable);
         }
         
         public void DisplayOnParentCanvas(GameObject displayObject)
@@ -219,19 +223,8 @@ namespace UI
         public bool hideOnStack;
         public bool hideParent;
         public Transform originalParent;
-        public bool inventoryInteractable;
         public bool termianteOnEscape;
-
-        public DisplayedUIInfo(GameObject gameObject, List<KeyCode> additionalTerminators, bool hideOnStack, bool hideParent, Transform originalParent, bool inventoryInteractable, bool terminateOnEscape)
-        {
-            this.gameObject = gameObject;
-            this.additionalTerminators = additionalTerminators;
-            this.hideOnStack = hideOnStack;
-            this.hideParent = hideParent;
-            this.originalParent = originalParent;
-            this.inventoryInteractable = inventoryInteractable;
-            this.termianteOnEscape = terminateOnEscape;
-        }
+        public bool blockMovement;
     }
     
 }

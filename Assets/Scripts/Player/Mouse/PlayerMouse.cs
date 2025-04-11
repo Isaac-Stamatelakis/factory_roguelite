@@ -66,7 +66,7 @@ namespace PlayerModule.Mouse {
         private ClosedChunkSystem currentSystem;
         private float range;
         private Vector2 toolHitPosition;
-       
+        private CanvasController canvasController;
         void Start()
         {
             mainCamera = Camera.main;
@@ -79,6 +79,7 @@ namespace PlayerModule.Mouse {
             tileHighlighter = playerScript.TileViewers.TileHighlighter;
             tileBreakHighlighter = playerScript.TileViewers.MainBreakHighlighter;
             enableAutoSelect = PlayerPrefs.GetInt(AUTO_SELECT_PREF_KEY) != 0;
+            canvasController = CanvasController.Instance;
         }
 
         public bool ToggleAutoSelect()
@@ -107,7 +108,7 @@ namespace PlayerModule.Mouse {
             bool rightClick = Input.GetMouseButton(1);
             bool scroll = Input.mouseScrollDelta.y != 0;
             Vector2 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            if (PlayerKeyPressUtils.BlockKeyInput)
+            if (canvasController.BlockKeyInput)
             {
                 if (eventSystem.IsPointerOverGameObject())
                 {
@@ -191,7 +192,7 @@ namespace PlayerModule.Mouse {
 
         public void FixedUpdate()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput)
+            if (canvasController.BlockKeyInput)
             {
                 return;
             }
@@ -472,7 +473,7 @@ namespace PlayerModule.Mouse {
 
         private void InventoryControlUpdate()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            if (canvasController.BlockKeyInput) return;
             if (Input.mouseScrollDelta.y != 0) {
                 float y = Input.mouseScrollDelta.y;
                 if (y < 0) {

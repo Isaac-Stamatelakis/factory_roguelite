@@ -16,6 +16,7 @@ using TileMaps.Conduit;
 using TileMaps.Layer;
 using TileMaps.Type;
 using Tiles.Options.Overlay;
+using UI;
 
 namespace TileMaps.Previewer {
     public class TilePlacePreviewer : MonoBehaviour
@@ -68,7 +69,7 @@ namespace TileMaps.Previewer {
         // Update is called once per frame
         void FixedUpdate()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput)
+            if (CanvasController.Instance.BlockKeyInput)
             {
                 if (placementRecord == null) return;
                 placementRecord.Clear();
