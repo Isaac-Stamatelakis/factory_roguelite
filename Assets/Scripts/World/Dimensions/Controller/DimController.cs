@@ -4,7 +4,9 @@ using Chunks;
 using UnityEngine;
 using Chunks.Systems;
 using Entities;
+using Entities.Mob;
 using Player;
+using Unity.VisualScripting;
 
 namespace Dimensions {
 
@@ -22,24 +24,9 @@ namespace Dimensions {
     
     public abstract class DimController : MonoBehaviour
     {
-        private Transform entityContainer;
         public abstract void TickUpdate();
-        public Transform EntityContainer { get => entityContainer;}
+        public abstract ClosedChunkSystem GetActiveSystem();
         public bool BoundCamera = false;
-
-        public virtual void Awake() {
-            GameObject entityContainerObject = new GameObject();
-            entityContainerObject.name = "Entities";
-            entityContainerObject.transform.SetParent(transform);
-            EntityContainer component = entityContainerObject.AddComponent<EntityContainer>();
-            entityContainer = entityContainerObject.transform;
-            entityContainer.transform.localPosition = new Vector3(0, 0, 2);
-        }
-
-        public void ClearEntities()
-        {
-            GlobalHelper.DeleteAllChildren(entityContainer);
-        }
         
         public abstract void DeActivateSystem();
     }

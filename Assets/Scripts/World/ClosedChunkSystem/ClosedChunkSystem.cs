@@ -15,6 +15,8 @@ using Tiles;
 using Fluids;
 using PlayerModule;
 using Dimensions;
+using Entities;
+using Entities.Mob;
 using Player;
 using TileEntity;
 using TileEntity.AssetManagement;
@@ -60,6 +62,8 @@ namespace Chunks.Systems {
         List<IChunkPartition> partitionsToLoad = new List<IChunkPartition>(128);
         List<IChunkPartition> partitionsToUnload = new List<IChunkPartition>(128);
         List<IChunkPartition> partitionsToFarLoad = new List<IChunkPartition>(128);
+        private Transform entityContainer;
+        public Transform EntityContainer => entityContainer;
         public virtual void Awake () {
             mainCamera = Camera.main;
             
@@ -131,12 +135,21 @@ namespace Chunks.Systems {
             chunkContainer.name = "Chunks";
             chunkContainer.transform.SetParent(transform,false);
             chunkContainerTransform = chunkContainer.transform;
+            
+            GameObject entityContainerObject = new GameObject();
+            entityContainerObject.name = "Entities";
+            entityContainerObject.transform.SetParent(transform);
+            MobEntityParticleController mobEntityParticleController = entityContainerObject.AddComponent<MobEntityParticleController>();
+            mobEntityParticleController.Initialize(DimensionManager.Instance.MiscDimAssets.EntityDeathParticlePrefab);
+            entityContainer = entityContainerObject.transform;
+            entityContainer.transform.localPosition = new Vector3(0, 0, 2);
+            
             player = PlayerManager.Instance.GetPlayer();
             cachedChunks = new Dictionary<Vector2Int, ILoadedChunk>();
             this.dim = dim;
             this.coveredArea = coveredArea;
             InitLoaders();
-
+            
             Debug.Log("Closed Chunk System '" + name + "' In Dimension " + dim + " Loaded");
 
             CameraBounds cameraBounds = CameraView.Instance.GetComponent<CameraBounds>();
@@ -151,10 +164,6 @@ namespace Chunks.Systems {
 
             partitionUnloader = chunkContainerTransform.gameObject.AddComponent<PartitionUnloader>();
             partitionUnloader.Initalize(this,LoadUtils.getPartitionUnloaderVariables());
-            
-            //partitionFarLoader = chunkContainerTransform.gameObject.AddComponent<PartitionFarLoader>();
-            //partitionFarLoader.Initalize(this,LoadUtils.getPartitionFarLoaderVariables());
-            
         }
 
         public IntervalVector GetBounds() {
@@ -191,13 +200,6 @@ namespace Chunks.Systems {
                     }
                     chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
                     chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
-                    /*
-                    chunk.GetUnFarLoadedParititionsCloseTo(
-                        currentPlayerPartition,
-                        CameraView.ChunkPartitionLoadRange+new Vector2Int(Global.EXTRA_TILE_ENTITY_LOAD_RANGE,Global.EXTRA_TILE_ENTITY_LOAD_RANGE),
-                        partitionsToFarLoad
-                    );
-                    */
                 }
             }
             partitionLoader.addToQueue(partitionsToLoad);
@@ -337,6 +339,7 @@ namespace Chunks.Systems {
         
         public virtual void Save()
         {
+            SaveEntities();
             foreach (ILoadedChunk chunk in cachedChunks.Values) {
                 fluidWorldTileMap?.Simulator.SaveToChunk(chunk);
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -366,6 +369,35 @@ namespace Chunks.Systems {
                         caveRegistryLoadActionTileEntity.OnCaveRegistryLoaded(caveRegistry);
                     }
                 }
+            }
+        }
+
+        public void SaveEntities()
+        {
+            for (int i = 0; i < entityContainer.childCount; i++) {
+                Transform entityTransform = entityContainer.GetChild(i);
+                Entity entity = entityTransform.GetComponent<Entity>();
+                if (entity is not ISerializableEntity serializableEntity) {
+                    continue;
+                }
+                SeralizedEntityData seralizedEntityData = serializableEntity.serialize();
+                if (seralizedEntityData == null) {
+                    continue;
+                }
+                Vector2 position = new Vector2(seralizedEntityData.x,seralizedEntityData.y);
+                Vector2Int chunkPosition = Global.getChunkFromWorld(position);
+                IChunk chunk = GetChunk(chunkPosition);
+                if (chunk == null) {
+                    continue;
+                }
+                Vector2Int partitionPosition = Global.getPartitionFromWorld(position) - chunkPosition*Global.PARTITIONS_PER_CHUNK;
+
+                IChunkPartition partition = chunk.GetPartition(partitionPosition);
+                IChunkPartitionData partitionData = partition.GetData();
+                if (partitionData is not SeralizedWorldData serializedTileData) {
+                    continue;
+                }
+                serializedTileData.entityData.Add(seralizedEntityData);
             }
         }
 
@@ -401,6 +433,7 @@ namespace Chunks.Systems {
         [FormerlySerializedAs("LitMaterial")] public Material UnlitMaterial;
         public ParticleSystem SplashParticlePrefab;
         public ParticleSystem FluidParticlePrefab;
+        public ParticleSystem EntityDeathParticlePrefab;
     }
 }
 

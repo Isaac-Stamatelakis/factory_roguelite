@@ -105,6 +105,11 @@ namespace Robot.Tool.Instances
             playerScript.PlayerMouse.ClearToolPreview();
         }
 
+        public TileMapLayer GetAutoSelectLayer()
+        {
+            return TileMapLayer.Base;
+        }
+
         public Color GetColor()
         {
             switch (toolData.Mode)

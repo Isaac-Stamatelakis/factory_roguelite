@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System;
 using Entities;
+using Entities.Mob;
 using Items;
 using Robot.Tool.Instances.Gun;
 
@@ -23,12 +24,19 @@ namespace Entities.Mobs {
     }
     public class MobEntity : Entity, ISerializableEntity, IDamageableEntity
     {
+        public enum MobDeathParticles
+        {
+            Standard = 0,
+            None = 1,
+            
+        }
         public MobSpawnCondition MobSpawnCondition = MobSpawnCondition.OnGround;
         public MobLootSpawnPlacement MobLootSpawnPlacement = MobLootSpawnPlacement.OnSelf;
         public bool TakesKnockback = true;
         public bool RayCastUnLoadable = true;
         public float Health = 10;
         public LootTable LootTable;
+        public MobDeathParticles DeathParticles = MobDeathParticles.None;
         
         private string id;
         public void Deseralize(SerializedMobEntityData entityData) {
@@ -51,6 +59,12 @@ namespace Entities.Mobs {
                 {
                     ItemEntityFactory.SpawnLootTable(GetLootSpawnPosition(),LootTable,transform.parent);
                 }
+
+                if (DeathParticles != MobDeathParticles.None)
+                {
+                    transform.parent.GetComponent<MobEntityParticleController>().PlayDeathParticles(transform.position, DeathParticles);
+                }
+                
                 Health = float.MinValue;
                 GameObject.Destroy(gameObject);
                 return;

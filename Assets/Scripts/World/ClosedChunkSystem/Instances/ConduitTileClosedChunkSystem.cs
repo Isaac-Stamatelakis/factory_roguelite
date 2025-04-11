@@ -198,6 +198,7 @@ namespace Chunks.Systems {
         
         public override void Save()
         {
+            SaveEntities();
             var fluidWorldTileMap = GetFluidTileMap();
             
             foreach (var (position, chunk) in cachedChunks) {

@@ -31,7 +31,7 @@ namespace Dimensions {
         private List<Vector2Int> currentSystemPath;
         public List<Vector2Int> CurrentSystemPath => currentSystemPath;
         
-        public ClosedChunkSystem GetActiveSystem()
+        public override ClosedChunkSystem GetActiveSystem()
         {
             return activeSystem;
         }

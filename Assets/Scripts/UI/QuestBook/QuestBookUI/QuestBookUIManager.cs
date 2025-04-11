@@ -12,6 +12,13 @@ namespace UI.QuestBook
     public class QuestBookUIManager : MonoBehaviour
     {
         [SerializeField] private QuestBookSelectorUI selectorPrefab;
+        private CanvasController canvasController;
+
+        public void Start()
+        {
+            canvasController = CanvasController.Instance;
+        }
+
         public void Initialize(string questBookName)
         {
             GlobalHelper.DeleteAllChildren(transform);
@@ -32,7 +39,7 @@ namespace UI.QuestBook
        
         void Update()
         {
-            if (ControlUtils.GetControlKey(PlayerControl.OpenQuestBook) && !PlayerKeyPressUtils.BlockKeyInput && transform.childCount > 0)
+            if (ControlUtils.GetControlKey(PlayerControl.OpenQuestBook) && !canvasController.BlockKeyInput && transform.childCount > 0)
             {
                 DisplayQuestBook();
             }

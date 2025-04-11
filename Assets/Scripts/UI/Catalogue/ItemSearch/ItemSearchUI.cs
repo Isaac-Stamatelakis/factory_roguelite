@@ -55,7 +55,7 @@ namespace UI.Catalogue.ItemSearch
             
             rightButton.onClick.AddListener(OnRightButtonPress);
             
-            PlayerKeyPressUtils.InitializeTypingListener(searchField);
+            CanvasController.Instance.AddTypingListener(searchField);
             
             horizontalInventories = new InventoryUI[ROWS];
 

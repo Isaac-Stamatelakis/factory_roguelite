@@ -318,6 +318,11 @@ namespace Robot.Tool.Instances
 
         }
 
+        public TileMapLayer GetAutoSelectLayer()
+        {
+            return toolData.Layer;
+        }
+
         public Color GetColor()
         {
             switch (toolData.Layer)

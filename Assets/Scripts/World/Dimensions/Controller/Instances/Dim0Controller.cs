@@ -61,7 +61,7 @@ namespace Dimensions {
             GameObject.Destroy(closedChunkSystem.gameObject);
         }
         
-        public ClosedChunkSystem GetActiveSystem()
+        public override ClosedChunkSystem GetActiveSystem()
         {
             return dim0System as ClosedChunkSystem;
         }

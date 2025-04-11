@@ -40,9 +40,11 @@ namespace UI.Chat {
             Transform player = PlayerManager.Instance.GetPlayer().transform;
             int dim = DimensionManager.Instance.GetPlayerDimension();
             DimController dimController = DimensionManager.Instance.GetDimController((Dimension)dim);
-            for (int i = 0; i < dimController.EntityContainer.childCount; i++)
+            Transform entityContainer = dimController.GetActiveSystem()?.EntityContainer;
+            if (!entityContainer) return;
+            for (int i = 0; i < entityContainer.childCount; i++)
             {
-                Transform child = dimController.EntityContainer.GetChild(i);
+                Transform child = entityContainer.GetChild(i);
                 if (child.tag == "ItemEntity") GameObject.Destroy(child.gameObject);
             }
         }

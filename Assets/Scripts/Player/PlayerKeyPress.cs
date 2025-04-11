@@ -26,42 +26,28 @@ using MoveDirection = UnityEngine.EventSystems.MoveDirection;
 
 
 namespace PlayerModule.KeyPress {
-
-    public static class PlayerKeyPressUtils
-    {
-        public static void InitializeTypingListener(TMP_InputField tmpInputField)
-        {
-            tmpInputField.onSelect.AddListener((text) =>
-            {
-                isTyping = true;
-            });
-            
-            tmpInputField.onDeselect.AddListener((text) =>
-            {
-                isTyping = false;
-            });
-        }
-        private static bool isTyping;
-        public static bool BlockKeyInput => CanvasController.Instance.IsActive || isTyping;
-    }
+    
     public class PlayerKeyPress : MonoBehaviour
     {
         [SerializeField] private UIRingSelector ringSelectorPrefab;
         private PlayerInventory playerInventory;
 
         private PlayerScript playerScript;
+
+        private CanvasController canvasController;
         // Start is called before the first frame update
         void Start()
         {
             playerInventory = GetComponent<PlayerInventory>();
             playerScript = GetComponent<PlayerScript>();
+            canvasController = CanvasController.Instance;
         }
 
         // Update is called once per frame
         void Update()
         {
             inventoryKeyPresses();
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            if (canvasController.BlockKeyInput) return;
             ControlUtils.UpdateModifierCount();
             
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))

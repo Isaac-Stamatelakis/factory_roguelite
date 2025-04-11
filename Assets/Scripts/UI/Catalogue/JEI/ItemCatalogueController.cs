@@ -56,7 +56,7 @@ namespace UI.JEI
             
             rightButton.onClick.AddListener(OnRightButtonPress);
             
-            PlayerKeyPressUtils.InitializeTypingListener(searchField);
+            CanvasController.Instance.AddTypingListener(searchField);
         }
 
         public void ShowAll() {

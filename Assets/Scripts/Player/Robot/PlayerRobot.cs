@@ -124,6 +124,7 @@ namespace Player {
         public PlayerRobotLaserGunController gunController;
         private float defaultBoxColliderWidth;
         private float defaultBoxColliderEdge;
+        private CanvasController canvasController;
         
         void Start() {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -139,6 +140,7 @@ namespace Player {
             BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
             defaultBoxColliderWidth = boxCollider.size.x;
             defaultBoxColliderEdge = boxCollider.edgeRadius;
+            canvasController = CanvasController.Instance;
         }
 
         private void LoadAsyncAssets()
@@ -322,7 +324,7 @@ namespace Player {
 
         private void MoveUpdate()
         {
-            if (!PlayerKeyPressUtils.BlockKeyInput)
+            if (!canvasController.BlockKeyInput)
             {
                 if (RobotUpgradeUtils.GetDiscreteValue(RobotUpgradeLoadOut?.SelfLoadOuts, (int)RobotUpgrade.Teleport) > 0)
                 {
@@ -337,7 +339,7 @@ namespace Player {
             if (DevMode.Instance.flight)
             {
                 animator.SetBool(Walk,false);
-                if (PlayerKeyPressUtils.BlockKeyInput) return;
+                if (canvasController.BlockKeyInput) return;
                 CreativeFlightMovementUpdate(transform);
                 return;
             }
@@ -415,7 +417,7 @@ namespace Player {
         private void FlightMoveUpdate()
         {
             rb.gravityScale = 0;
-            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
+            bool blockInput = canvasController.BlockKeyInput;
             if (blockInput)
             {
                 rb.velocity = Vector2.zero;
@@ -476,7 +478,7 @@ namespace Player {
 
         private void StandardMoveUpdate()
         {
-            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
+            bool blockInput = canvasController.BlockKeyInput;
             Vector2 velocity = rb.velocity;
             
             bool movedLeft = !CollisionStateActive(CollisionState.OnWallLeft) && !blockInput && DirectionalMovementUpdate(Direction.Left, PlayerControl.MoveLeft);
@@ -599,7 +601,7 @@ namespace Player {
             
             float fluidSpeedModifier = fluidCollisionInformation.Colliding ? fluidCollisionInformation.SpeedModifier : 1f;
             
-            bool blockInput = PlayerKeyPressUtils.BlockKeyInput;
+            bool blockInput = canvasController.BlockKeyInput;
             if (rocketBoots != null && rocketBoots.Active)
             {
                 if (blockInput)
@@ -629,7 +631,7 @@ namespace Player {
 
         private void SpaceBarMovementUpdate(ref Vector2 velocity)
         {
-            if (PlayerKeyPressUtils.BlockKeyInput)
+            if (canvasController.BlockKeyInput)
             {
                 if (climbing) return;
                 

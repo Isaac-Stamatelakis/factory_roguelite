@@ -44,7 +44,7 @@ namespace Dimensions {
             this.returnPortalLocation = returnPortalLocation;
         }
         
-        public ClosedChunkSystem GetActiveSystem()
+        public override ClosedChunkSystem GetActiveSystem()
         {
             return activeSystem;
         }

@@ -65,7 +65,7 @@ namespace UI.Indicators
                 PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
                 ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
                 itemSearchUI.Initialize(playerScript);
-                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject,inventoryInteractable:true);
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject);
             }
             searchIndicator.Initialize(PlayerControl.OpenSearch, ()=> "Search Items", OnSearchClick);
             

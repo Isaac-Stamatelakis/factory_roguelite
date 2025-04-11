@@ -25,6 +25,7 @@ using Robot;
 using Robot.Tool;
 using Robot.Tool.UI;
 using TileEntity;
+using UI;
 using UI.Indicators;
 
 namespace PlayerModule {
@@ -52,11 +53,14 @@ namespace PlayerModule {
         public RobotToolType CurrentToolType => playerRobot.ToolTypes[selectedTool];
         public InventoryDisplayMode Mode => mode;
         public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
+
+        private CanvasController canvasController;
         // Start is called before the first frame update
         void Start()
         {
             playerRobot = GetComponent<PlayerRobot>();
             playerMouse = GetComponent<PlayerMouse>();
+            canvasController = CanvasController.Instance;
         }
 
         public void Initialize(string json) {
@@ -94,7 +98,7 @@ namespace PlayerModule {
         
         void Update()
         {
-            if (PlayerKeyPressUtils.BlockKeyInput) return;
+            if (canvasController.BlockKeyInput) return;
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 mode = InventoryDisplayMode.Tools;
