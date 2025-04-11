@@ -49,22 +49,31 @@ namespace Entities {
 
         private void SetColliderSize(BoxCollider2D boxCollider2D)
         {
+            void SetSizeFrameSprite(Sprite sprite)
+            {
+                Vector2 size = sprite.bounds.size;
+                if (size.x * size.y >= 1)
+                {
+                    size.x *= 0.95f; // Slight down scaling so 32x32 pixel tiles don't get stuck in blocks
+                }
+                boxCollider2D.size = size;
+                
+            }
             if (spriteRenderer.sprite)
             {
-                boxCollider2D.size = spriteRenderer.sprite.bounds.size;
+                SetSizeFrameSprite(spriteRenderer.sprite);   
                 return;
             }
 
             for (int i = 0; i < transform.childCount; i++)
             {
-                if (transform.GetChild(i).tag == "SpriteOverlay")
-                {
-                    var overlaySpriteRenderer = transform.GetChild(i).GetComponent<SpriteRenderer>();
-                    boxCollider2D.size = overlaySpriteRenderer.sprite.bounds.size;
-                    return;
-                }
+                if (transform.GetChild(i).tag != "SpriteOverlay") continue;
+                var overlaySpriteRenderer = transform.GetChild(i).GetComponent<SpriteRenderer>();
+                SetSizeFrameSprite(overlaySpriteRenderer.sprite);
+                return;
             }
-            boxCollider2D.size = new Vector2(0.5f, 0.5f); // Default
+            // Default
+            boxCollider2D.size = Global.TILE_SIZE * Vector2.one;
         }
         private void IterateLifeTime() {
             lifeTime += Time.fixedDeltaTime;
