@@ -124,7 +124,7 @@ namespace Chunks {
 
         protected void initalizeContainers() {
             DimController dimController = ClosedChunkSystem.transform.parent.GetComponent<DimController>();
-            entityContainer = dimController.EntityContainer;
+            entityContainer = dimController.GetActiveSystem()?.EntityContainer;
             transform.SetParent(ClosedChunkSystem.ChunkContainerTransform,false);
             GameObject tileEntityContainerObject = new GameObject();
             tileEntityContainerObject.name = "TileEntities";

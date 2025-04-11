@@ -32,7 +32,7 @@ namespace UI.Chat {
             };
             while (amount > 0)
             {
-                EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.EntityContainer);
+                EntityRegistry.Instance.StartEntitySpawnCoroutine(spawnEntityData, playerPosition,dimController.GetActiveSystem()?.EntityContainer);
                 amount--;
             }
             

@@ -1,11 +1,10 @@
 fileFormatVersion: 2
-guid: 30af04ef8e3452d4d98983ca4506aea0
+guid: 774772016e8613d45afb1c78b564bbbd
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - LootTable: {instanceID: 0}
-  - DeathParticles: {fileID: 5820465740819111865, guid: fdf1d902f63dce94bbd4fa582ef2fff5,
+  - DeathParticlePrefab: {fileID: 5820465740819111865, guid: fdf1d902f63dce94bbd4fa582ef2fff5,
       type: 3}
   executionOrder: 0
   icon: {instanceID: 0}

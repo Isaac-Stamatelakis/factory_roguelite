@@ -388,7 +388,6 @@ namespace Dimensions {
             dimensionOptions ??= GetDimensionOptions(dimension);
             activeSystem?.Save();
             activeSystem?.DeactivateAllPartitions();
-            currentDimension?.ClearEntities();
             currentDimension?.DeActivateSystem();
             
             ClosedChunkSystem newSystem = GetControllerSystem(controller, player, key);
