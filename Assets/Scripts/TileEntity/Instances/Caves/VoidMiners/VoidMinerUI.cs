@@ -5,6 +5,7 @@ using Item.Slot;
 using Items;
 using Items.Inventory;
 using Items.Tags;
+using TMPro;
 using UnityEngine;
 using World.Cave.Registry;
 
@@ -12,19 +13,26 @@ namespace TileEntity.Instances.Caves.VoidMiners
 {
     public class VoidMinerUI : MonoBehaviour, ITileEntityUI
     {
+        [SerializeField] private TextMeshProUGUI mTitleText;
+        [SerializeField] private TextMeshProUGUI mDepthText;
+        [SerializeField] private TextMeshProUGUI mDataText;
+        
         [SerializeField] private InventoryUI mDriveInventoryUI;
         [SerializeField] private InventoryUI mFilterInventoryUI;
         [SerializeField] private InventoryUI mUpgradeInventoryUI;
-        [SerializeField] private InventoryUI mStoneOutputUI;
-        [SerializeField] private InventoryUI mOreOutputUI;
-        [SerializeField] private InventoryUI mFluidOutputUI;
+        [SerializeField] private VoidMinerOutputUI mStoneOutputUI;
+        [SerializeField] private VoidMinerOutputUI mOreOutputUI;
+        [SerializeField] private VoidMinerOutputUI mFluidOutputUI;
         private VoidMinerInstance voidMinerInstance;
         public void DisplayTileEntityInstance(ITileEntityInstance tileEntityInstance)
         {
             if (tileEntityInstance is not VoidMinerInstance voidMiner) return;
+            
             voidMinerInstance = voidMiner;
             VoidMinerInstance.VoidMinerData minerData = voidMinerInstance.MinerData;
-            
+
+            mTitleText.text = voidMinerInstance.TileEntityObject.name;
+            mDepthText.text = $"Depth: {voidMinerInstance.CompactMachineDepth}";
             mDriveInventoryUI.DisplayInventory(new List<ItemSlot>{minerData.DriveSlot},clear:false);
             mDriveInventoryUI.AddTagRestriction(ItemTag.CaveData);
             mDriveInventoryUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
@@ -44,20 +52,22 @@ namespace TileEntity.Instances.Caves.VoidMiners
             
             mUpgradeInventoryUI.gameObject.SetActive(false); // TODO If I still want to add upgrades
             
-            mStoneOutputUI.DisplayInventory(minerData.StoneOutputs);
-            mStoneOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mOreOutputUI.DisplayInventory(minerData.OreOutputs);
-            mOreOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mFluidOutputUI.DisplayInventory(minerData.FluidOutputs);
-            mFluidOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
+            // This hurts me but its slightly more efficent and miners are called very frequently
+            mStoneOutputUI.Display(minerData.StoneOutputs,minerData.StoneActive, (state) =>
+            {
+                minerData.StoneActive = state;
+            });
+            mOreOutputUI.Display(minerData.OreOutputs,minerData.OreActive, (state) =>
+            {
+                minerData.OreActive = state;
+            });
+            mFluidOutputUI.Display(minerData.FluidOutputs,minerData.FluidActive, (state) =>
+            {
+                minerData.FluidActive = state;
+            });
+            
         }
-
-        public void FixedUpdate()
-        {
-            mStoneOutputUI.RefreshSlots();
-            mOreOutputUI.RefreshSlots();
-            mFluidOutputUI.RefreshSlots();
-        }
+        
 
         private void OnDriveSlotChange(int index)
         {
