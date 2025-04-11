@@ -5,6 +5,7 @@ using UnityEditor;
 using Tiles;
 using Tiles.CustomTiles.IdTiles;
 using Tiles.CustomTiles.StateTiles.Instances;
+using UnityEngine.Tilemaps;
 
 public class TwoStateTileGenerator : EditorWindow
 
@@ -42,17 +43,17 @@ public class TwoStateTileGenerator : EditorWindow
     {
         ItemEditorFactory.createDirectory(tileName);
 
-        StandardTile inactiveTile = ItemEditorFactory.standardTileCreator(inactive,TileColliderType.Tile);
+        Tile inactiveTile = ItemEditorFactory.StandardTileCreator(inactive,TileColliderType.Tile);
         ItemEditorFactory.saveTileWithName(inactiveTile,tileName,"Inactive");
 
-        StandardTile activeTile = ItemEditorFactory.standardTileCreator(active,TileColliderType.Sprite);
+        Tile activeTile = ItemEditorFactory.StandardTileCreator(active,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(activeTile,tileName,"Active");
 
        
         TwoStateTile twoStateTile = ScriptableObject.CreateInstance<TwoStateTile>();
         twoStateTile.activeTile = activeTile;
         twoStateTile.inactiveTile = inactiveTile;
-        twoStateTile.setID(tileName.ToLower().Replace(" ", "_"));
+        
         ItemEditorFactory.saveTileWithName(twoStateTile,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(

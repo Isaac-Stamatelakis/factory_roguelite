@@ -403,9 +403,8 @@ public class EditorFactory
 
             TileColliderType tileColliderType = i == TILES_TO_CREATE -1 ? TileColliderType.Tile : TileColliderType.Sprite;
             
-            StandardTile tile = ItemEditorFactory.standardTileCreator(sprite1,tileColliderType);
+            Tile tile = ItemEditorFactory.StandardTileCreator(sprite1,tileColliderType);
             tiles[i] = tile;
-            tile.id = ItemEditorFactory.formatId(tileName);
             tile.name = tileName + "[" + i + "]";
             AssetDatabase.CreateAsset(tile,spritePath + tile.name + ".asset");
             AssetDatabase.Refresh();

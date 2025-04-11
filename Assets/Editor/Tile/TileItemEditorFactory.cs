@@ -28,15 +28,8 @@ public static class ItemEditorFactory
         tileItem.tile = tile;
         tileItem.outline = outline;
         
-        if (tileEntity != null) {
-            tileItem.tileEntity = tileEntity;
-        }
+        tileItem.tileEntity = tileEntity;
         
-        if (tile is not IIDTile idTile) {
-            Debug.LogWarning("Tile generated for  " + tileName + " is not IIDTile");
-        } else {
-            idTile.setID(tileItem.id);
-        }
         AssetDatabase.CreateAsset(tileItem, path + tileItem.name + ".asset");
         Debug.Log("Tile Created at Path: " + path);
         AssetDatabase.Refresh();
@@ -102,8 +95,8 @@ public static class ItemEditorFactory
         string savePath = path + tileName + "/";
         AssetDatabase.CreateAsset(tileEntity, savePath + "E~" +tileName + ".asset");
     }
-    public static StandardTile standardTileCreator(Sprite sprite,TileColliderType colliderType) {
-        StandardTile tile = ScriptableObject.CreateInstance<StandardTile>();
+    public static Tile StandardTileCreator(Sprite sprite,TileColliderType colliderType) {
+        Tile tile = ScriptableObject.CreateInstance<Tile>();
         tile.sprite = sprite;
         if (colliderType == TileColliderType.Tile) {
             tile.colliderType = Tile.ColliderType.Grid;

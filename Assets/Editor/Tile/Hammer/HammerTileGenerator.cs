@@ -140,7 +140,6 @@ namespace HammerTileEditor
 
         private void AssignStandardHammerTiles(HammerTile hammerTile, string path)
         {
-            hammerTile.id = ItemEditorFactory.formatId(tileName);
             hammerTile.baseTile = GenerateBase(texture, path);
             hammerTile.cleanSlab = GenerateStateTile(texture, multiType, hammerTileValues.Slab, path, tileName, "slab");
             hammerTile.cleanSlant = GenerateStateTile(texture, multiType, hammerTileValues.Slant,path, tileName, "slant");
@@ -206,9 +205,8 @@ namespace HammerTileEditor
             switch (multiType)
             {
                 case MultiTileType.Random:
-                    IDRandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
+                    RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
                     randomTile.name = tileName;
-                    randomTile.setID(ItemEditorFactory.formatId(tileName));
                     randomTile.sprite = sprites[0];
                     randomTile.m_Sprites = sprites;
                     randomTile.colliderType = Tile.ColliderType.Grid;

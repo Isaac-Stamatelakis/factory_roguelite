@@ -45,16 +45,16 @@ public class DoorTileGenerator : EditorWindow {
     {
         ItemEditorFactory.createDirectory(tileName);
 
-        StandardTile leftClosedTile = ItemEditorFactory.standardTileCreator(leftClosed,TileColliderType.Sprite);
+        Tile leftClosedTile = ItemEditorFactory.StandardTileCreator(leftClosed,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(leftClosedTile,tileName,"LeftClosed");
 
-        StandardTile leftOpenTile = ItemEditorFactory.standardTileCreator(leftOpen,TileColliderType.Sprite);
+        Tile leftOpenTile = ItemEditorFactory.StandardTileCreator(leftOpen,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(leftOpenTile,tileName,"LeftOpen");
 
-        StandardTile rightClosedTile = ItemEditorFactory.standardTileCreator(rightClosed,TileColliderType.Sprite);
+        Tile rightClosedTile = ItemEditorFactory.StandardTileCreator(rightClosed,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(rightClosedTile,tileName,"RightClosed");
 
-        StandardTile rightOpenTile = ItemEditorFactory.standardTileCreator(rightOpen,TileColliderType.Sprite);
+        Tile rightOpenTile = ItemEditorFactory.StandardTileCreator(rightOpen,TileColliderType.Sprite);
         ItemEditorFactory.saveTileWithName(rightOpenTile,tileName,"RightOpen");
 
         IMousePositionStateDoorTile doorTile = ScriptableObject.CreateInstance<IMousePositionStateDoorTile>();
@@ -62,7 +62,7 @@ public class DoorTileGenerator : EditorWindow {
         doorTile.leftOpen = leftOpenTile;
         doorTile.right = rightClosedTile;
         doorTile.rightOpen = rightOpenTile;
-        doorTile.setID(tileName.ToLower().Replace(" ", "_"));
+        
 
         Door door = ScriptableObject.CreateInstance<Door>();
         ItemEditorFactory.saveTileEntity(door,tileName);
