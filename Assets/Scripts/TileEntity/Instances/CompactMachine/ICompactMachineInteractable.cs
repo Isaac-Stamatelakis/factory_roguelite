@@ -16,6 +16,7 @@ namespace TileEntity.Instances.CompactMachines {
     public interface ICompactMachine
     {
         public void PlaceInitializeWithHash(string hash);
+        public int Depth {get; set;}
     }
 
 }

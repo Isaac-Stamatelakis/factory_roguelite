@@ -212,7 +212,7 @@ namespace TileEntity.Instances {
 
         public void SyncToCompactMachine(CompactMachineInstance compactMachine)
         {
-            compactMachineDepth = compactMachine.GetTeleportKey().Path.Count;
+            compactMachineDepth = compactMachine.Depth;
             Debug.Log(compactMachineDepth);
         }
     }

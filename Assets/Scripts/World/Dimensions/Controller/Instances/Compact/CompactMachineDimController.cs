@@ -17,7 +17,7 @@ using TileMaps.Layer;
 
 namespace Dimensions {
     public interface ICompactMachineDimension {
-        public void softLoadSystem(ClosedChunkSystemAssembler baseSystemAssembler,DimController dimController);
+        public void SoftLoadSystem(ClosedChunkSystemAssembler baseSystemAssembler,DimController dimController);
     }
     
 
@@ -51,7 +51,7 @@ namespace Dimensions {
             return systems;
         }
 
-        private void LoadCompactMachineSystem(CompactMachineTree<ClosedChunkSystemAssembler> tree, string path, bool blueprinted) {
+        private void LoadCompactMachineSystem(CompactMachineTree<ClosedChunkSystemAssembler> tree, string path, bool blueprinted, int depth) {
             ClosedChunkSystemAssembler systemAssembler = tree.Data;
             foreach (IChunk chunk in systemAssembler.Chunks) {
                 foreach (IChunkPartition partition in chunk.GetChunkPartitions()) {
@@ -64,6 +64,7 @@ namespace Dimensions {
                             {
                                 case CompactMachineInstance nestedCompactMachine when nestedCompactMachine.IsActive:
                                 {
+                                    nestedCompactMachine.Depth = depth + 1;
                                     Vector2Int newPosition = nestedCompactMachine.GetCellPosition();
                                     string nestedPath = Path.Combine(path,$"{newPosition.x},{newPosition.y}");
                                     string contentPath = Path.Combine(nestedPath,CompactMachineUtils.CONTENT_PATH);
@@ -73,10 +74,9 @@ namespace Dimensions {
                                         continue;
                                     }
                                     newSystemAssembler.LoadSystem();
-                                    //systems.Add(newSystemAssembler);
                                     CompactMachineTree<ClosedChunkSystemAssembler> newTree = new CompactMachineTree<ClosedChunkSystemAssembler>(newSystemAssembler,nestedCompactMachine);
                                     tree.Children[newPosition] = newTree;
-                                    LoadCompactMachineSystem(newTree,nestedPath, blueprinted);
+                                    LoadCompactMachineSystem(newTree,nestedPath, blueprinted,depth+1);
                                     break;
                                 }
                                 case IBluePrintModifiedTileEntity blueprintModifyTileEntity when blueprinted:
@@ -239,7 +239,7 @@ namespace Dimensions {
             
             string path = CompactMachineUtils.GetPositionFolderPath(systemPath);
     
-            LoadCompactMachineSystem(newAssemblerTree, path, blueprint);
+            LoadCompactMachineSystem(newAssemblerTree, path, blueprint,systemPath.Count);
 
             var newTree = SoftLoadTree(newAssemblerTree);
             parentTree.Children[placePosition] = newTree;
@@ -292,11 +292,11 @@ namespace Dimensions {
             return area;
         }
 
-        public void softLoadSystem(ClosedChunkSystemAssembler baseSystemAssembler, DimController baseDimController)
+        public void SoftLoadSystem(ClosedChunkSystemAssembler baseSystemAssembler, DimController baseDimController)
         {
             this.baseDimController =(ISingleSystemController) baseDimController;
             var assemblerTree = new CompactMachineTree<ClosedChunkSystemAssembler>(baseSystemAssembler,null);
-            LoadCompactMachineSystem(assemblerTree,WorldLoadUtils.GetDimPath(1),false);
+            LoadCompactMachineSystem(assemblerTree,WorldLoadUtils.GetDimPath(1),false,0);
             systemTree = SoftLoadTree(assemblerTree);
             
             // Remove dim0 data from tree

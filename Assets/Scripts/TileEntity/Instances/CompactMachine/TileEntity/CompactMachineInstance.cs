@@ -38,6 +38,7 @@ namespace TileEntity.Instances.CompactMachines {
         private CompactMachineData compactMachineData;
         private Dictionary<ConduitType, IConduitInteractable> inputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
         private Dictionary<ConduitType, IConduitInteractable> outputConduitPortMap = new Dictionary<ConduitType, IConduitInteractable>();
+        public int Depth { get; set; }
         public CompactMachineInstance(CompactMachine tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
             
@@ -132,22 +133,24 @@ namespace TileEntity.Instances.CompactMachines {
             }
             CompactMachineDimController dimController = compactMachineDimManager.GetCompactMachineDimController();
             
-            CompactMachineTeleportKey thisKey = GetTeleportKey();
-            if (thisKey == null)
+            CompactMachineTeleportKey teleportKey = GetTeleportKey();
+            
+            if (teleportKey == null)
             {
                 Debug.LogError("Tried to load compact machine with null key");
                 return;
             }
-
-            if (dimController.HasSystem(thisKey)) return;
+            Depth = teleportKey.Path.Count;
+            if (dimController.HasSystem(teleportKey)) return;
             
-            dimController.AddNewSystem(thisKey, this, newHash, true);
+            dimController.AddNewSystem(teleportKey, this, newHash, true);
             if (newHash == null || !CompactMachineUtils.HashExists(newHash) || DevMode.Instance.noPlaceCost)
             {
                 compactMachineData.Hash = CompactMachineUtils.GenerateHash();
                 CompactMachineUtils.InitializeHashFolder(compactMachineData.Hash, tileItem?.id);
             }
         }
+        
 
         public int GetSubSystems()
         {
