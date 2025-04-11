@@ -42,6 +42,7 @@ namespace TileMaps {
     }
     public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
+        public const float OVERLAY_Z = -3f;
         private Tilemap overlayTileMap;
         private ShaderOverlayTilemapManager shaderOverlayTilemapManager;
         public override void Initialize(TileMapType type)
@@ -51,7 +52,7 @@ namespace TileMaps {
             overlayTileMapObject.transform.SetParent(transform,false);
             overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, OVERLAY_Z);
             shaderOverlayTilemapManager = new ShaderOverlayTilemapManager(transform);
 
         }
@@ -555,7 +556,7 @@ namespace TileMaps {
             overlayTileMapObject.transform.SetParent(parentTransform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, -0.1f);
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, WorldTileGridMap.OVERLAY_Z);
             overlayTileMapObject.gameObject.SetActive(false);
             unusedTileMaps.Push(overlayTileMap);
         }

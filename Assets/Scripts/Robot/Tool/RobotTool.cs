@@ -36,6 +36,7 @@ namespace Robot.Tool
 
     public interface IAutoSelectTool
     {
+        public TileMapLayer GetAutoSelectLayer();
         public Color GetColor(); 
     }
     

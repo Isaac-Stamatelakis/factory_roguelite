@@ -119,40 +119,7 @@ namespace PlayerModule.Mouse {
                 return;
             }
             
-            if (autoSelectableTool && enableAutoSelect)
-            {
-                toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,range);
-                IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
-                if (hitMap == null || !hitMap.GetTilemap())
-                {
-                    tileBreakHighlighter.Clear();
-                }
-                else
-                {
-                    IAutoSelectTool autoSelectTool = (IAutoSelectTool)playerInventory.CurrentTool;
-                    tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
-                   
-                    OutlineTileMapCellData outlineTileMapCellData;
-                    Vector2Int cellPosition;
-                    if (hitMap is IOutlineTileGridMap outlineTileGridMap)
-                    {
-                        cellPosition = Global.getCellPositionFromWorld(toolHitPosition);
-                        Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
-                        outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
-                    }
-                    else
-                    {
-                        cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
-                        outlineTileMapCellData = hitMap.FormatMainTileMapOutlineData(new Vector3Int(cellPosition.x, cellPosition.y, 0));
-                    }
-                   
-                    tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
-                }
-            }
-            else
-            {
-                toolHitPosition = mousePosition;
-            }
+            toolHitPosition = autoSelectableTool && enableAutoSelect ? AutoSelectTile(mousePosition) : mousePosition;
 
             if (eventSystem.IsPointerOverGameObject())
             {
@@ -188,6 +155,38 @@ namespace PlayerModule.Mouse {
             if (rightClick) {
                 RightClickUpdate(mousePosition,toolHitPosition,currentSystem);
             }
+        }
+
+        private Vector2 AutoSelectTile(Vector2 mousePosition)
+        {
+            IAutoSelectTool autoSelectTool = (IAutoSelectTool)playerInventory.CurrentTool;
+            TileMapLayer layer = autoSelectTool.GetAutoSelectLayer();
+            if (layer != TileMapLayer.Base) return mousePosition;
+            toolHitPosition = autoTileFinder.GetTilePosition(mousePosition,range);
+            IWorldTileMap hitMap = autoTileFinder.GetHitTileMap();
+            if (hitMap == null || !hitMap.GetTilemap())
+            {
+                tileBreakHighlighter.Clear();
+                return toolHitPosition;
+            }
+            
+            tileBreakHighlighter.SetOutlineColor(autoSelectTool.GetColor());
+            OutlineTileMapCellData outlineTileMapCellData;
+            Vector2Int cellPosition;
+            if (hitMap is IOutlineTileGridMap outlineTileGridMap)
+            {
+                cellPosition = Global.getCellPositionFromWorld(toolHitPosition);
+                Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
+                outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
+            }
+            else
+            {
+                cellPosition = hitMap.GetHitTilePosition(toolHitPosition);
+                outlineTileMapCellData = hitMap.FormatMainTileMapOutlineData(new Vector3Int(cellPosition.x, cellPosition.y, 0));
+            }
+                   
+            tileBreakHighlighter.Display(cellPosition,outlineTileMapCellData);
+            return toolHitPosition;
         }
 
         public void FixedUpdate()
@@ -526,7 +525,7 @@ namespace PlayerModule.Mouse {
 
         public Vector2 GetTilePosition(Vector2 mousePosition, float range)
         {
-            var nullableResult = HighlightBreakTile(mousePosition,range);
+            var nullableResult = FindTile(mousePosition,range);
             return nullableResult ?? mousePosition;
         }
         
@@ -535,7 +534,7 @@ namespace PlayerModule.Mouse {
         {
             return hitTileMap;
         }
-        private Vector2? HighlightBreakTile(Vector2 mousePosition, float range)
+        private Vector2? FindTile(Vector2 mousePosition, float range)
         {
             Vector2 position = playerTransform.position;
             float defaultAngle = Mathf.Atan2(mousePosition.y - position.y, mousePosition.x - position.x);
