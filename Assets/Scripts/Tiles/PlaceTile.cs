@@ -13,6 +13,7 @@ using Chunks.Partitions;
 using Conduits;
 using Conduits.Ports;
 using Conduits.Systems;
+using Dimensions;
 using Tiles;
 using Fluids;
 using Item.Slot;
@@ -116,7 +117,10 @@ namespace TileMaps.Place {
             }
         }
         
-        public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem) {
+        public static bool TilePlacable(TilePlacementData tilePlacementData, TileItem tileItem,Vector2 worldPlaceLocation, ClosedChunkSystem closedChunkSystem)
+        {
+            if (!tileItem.tileOptions.placeableInCave && closedChunkSystem.Dim == (int)Dimension.Cave) return false;
+            
             TileMapType tileMapType = tileItem.tileType.toTileMapType();
             TileMapLayer layer = tileMapType.toLayer();
             switch (layer) {

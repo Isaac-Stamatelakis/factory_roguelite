@@ -7,6 +7,7 @@ using Robot.Tool.Instances.Drill;
 using TileEntity;
 using Tiles.Options.Colors;
 using Tiles.Options.Overlay;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 namespace Tiles {
@@ -40,7 +41,9 @@ namespace Tiles {
         }
     }
     [System.Serializable]
-    public class TileOptions {
+    public class TileOptions
+    {
+        public bool placeableInCave = true;
         public bool hitable = true;
         public bool rotatable = false;
         public int hardness = 8;
