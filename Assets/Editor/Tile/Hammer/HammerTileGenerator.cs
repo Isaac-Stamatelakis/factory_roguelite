@@ -8,6 +8,7 @@ using System.IO;
 using Tiles;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
+using Tiles.CustomTiles.IdTiles;
 
 namespace HammerTileEditor
 {

@@ -1,35 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
+using TileMaps.Layer;
+using TileMaps.Place;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using TileMaps.Place;
-using TileMaps.Layer;
 
-namespace Tiles {
+namespace Tiles.CustomTiles.StateTiles.Instances {
     
     [CreateAssetMenu(fileName ="T~Sign Tile",menuName="Tile/State/Sign")]
-    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile
+    public class RestrictedSignTile : TileBase, IMousePositionStateTile, IStateTile
     {
-        public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;
         public Tile hanging;
-
-        public override void GetTileData(Vector3Int position, ITilemap tilemap, ref UnityEngine.Tilemaps.TileData tileData)
-        {
-            base.GetTileData(position, tilemap, ref tileData);
-        }
-
-        public string getId()
-        {
-            return id;
-        }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
+        
         public int GetStateAtPosition(Vector2 position) {
             // If exists tile to left place left
             // If exists tile to right place right

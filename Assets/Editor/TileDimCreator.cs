@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 using UnityEngine.Tilemaps;
 
 public class TileDimCreatorWindow : EditorWindow {

@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using TileEntity;
 using Tiles;
+using Tiles.CustomTiles.IdTiles;
 
 public enum TileColliderType {
     Tile,

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 
 public class RandomTileGenerator : EditorWindow {
     private string tileName;

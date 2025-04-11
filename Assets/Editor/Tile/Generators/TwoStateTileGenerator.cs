@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Tiles;
+using Tiles.CustomTiles.IdTiles;
+using Tiles.CustomTiles.StateTiles.Instances;
 
 public class TwoStateTileGenerator : EditorWindow
 

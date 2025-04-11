@@ -12,22 +12,13 @@ namespace Tiles {
         public TileType GetTileType(int state);
     }
     [CreateAssetMenu(fileName ="T~Door Tile",menuName="Tile/State/Door")]
-    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, IIDTile, ITypeSwitchType, IStateTile, IStateLayerTile
+    public class IMousePositionStateDoorTile : TileBase, IMousePositionStateTile, ITypeSwitchType, IStateTile, IStateLayerTile
     {
-        public string id;
         public Tile left;
         public Tile leftOpen;
         public Tile right;
         public Tile rightOpen;
-        public string getId()
-        {
-            return id;
-        }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
+        
         public int GetStateAtPosition(Vector2 position)
         {
             int mousePosition = MousePositionUtils.GetMousePlacement(position);

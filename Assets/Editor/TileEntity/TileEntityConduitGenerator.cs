@@ -7,6 +7,7 @@ using System.IO;
 using TileEntity;
 using TileEntity.Instances.Machines;
 using Conduits.Ports;
+using Tiles.CustomTiles.IdTiles;
 
 public class TileEntityConduitGenerator : EditorWindow {
     private TileEntityObject tileEntity;

@@ -19,6 +19,7 @@ using PlayerModule;
 using TileEntity;
 using TileEntity.Instances.CompactMachines;
 using Tiles;
+using Tiles.CustomTiles.IdTiles;
 using UI.QuestBook;
 using UI.Statistics;
 using World.Serialization;

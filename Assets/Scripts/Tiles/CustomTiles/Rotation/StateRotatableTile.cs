@@ -4,18 +4,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Tiles {
-    public class StateRotatableTile : Tile, IIDTile, IStateRotationTile
+    public class StateRotatableTile : Tile, IStateRotationTile
     {
-        [SerializeField] private string id;
         [SerializeField] private TileBase[] tiles;
-        #if UNITY_EDITOR
         public TileBase[] Tiles {get => tiles; set=> tiles = value;}
-        #endif
-        public string getId()
-        {
-            return id;
-        }
-
+        
         public TileBase getTile(int rotation, bool mirror)
         {
             int index = rotation%4;
@@ -41,11 +34,7 @@ namespace Tiles {
             }
             return tiles[index];
         }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
+        
     }
 }
 

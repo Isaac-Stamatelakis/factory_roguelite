@@ -414,40 +414,32 @@ namespace TileMaps.Place {
             return new UnityEngine.Vector2Int(snap(x), snap(y));
         }
 
-        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer, bool requireFlat = true) {
-            float centeredX = (float)Math.Floor(position.x / 0.5f) * 0.5f + 0.25f;
-            float centeredY = (float)Math.Floor(position.y / 0.5f) * 0.5f + 0.25f;
+        public static bool tileInDirection(Vector2 position, Direction direction, TileMapLayer layer, bool requireFlat = true)
+        {
+            const float EPSILON = 0.01f;
+            float centeredX = (float)Math.Floor(position.x / Global.TILE_SIZE) * Global.TILE_SIZE +
+                              Global.TILE_SIZE / 2f;
+            float centeredY = (float)Math.Floor(position.y / Global.TILE_SIZE) * Global.TILE_SIZE +
+                              Global.TILE_SIZE / 2f;
             Vector2 centered = new Vector2(centeredX,centeredY);
-            switch (direction) {
-                case Direction.Down:
-                    if (requireFlat) {
-                        return raycastTileInLine(Direction.Down,centered,layer.toRaycastLayers());
-                    } else {
-                        return raycastTileInBox(centered+Vector2.down*0.5f,layer.toRaycastLayers());
-                    }
-                    
-                case Direction.Up:
-                    if (requireFlat) {
-                        return raycastTileInLine(Direction.Up,centered,layer.toRaycastLayers());
-                    } else {
-                        return raycastTileInBox(centered+Vector2.up*0.5f,layer.toRaycastLayers());
-                    }
-                case Direction.Left:
-                    if (requireFlat) {
-                        return raycastTileInLine(Direction.Left,centered,layer.toRaycastLayers());
-                    } else {
-                        return raycastTileInBox(centered+Vector2.left*0.5f,layer.toRaycastLayers());
-                    }  
-                case Direction.Right:
-                    if (requireFlat) {
-                        return raycastTileInLine(Direction.Right,centered,layer.toRaycastLayers());
-                    } else {
-                        return raycastTileInBox(centered+Vector2.right*0.5f,layer.toRaycastLayers());
-                    }  
-                case Direction.Center:
-                    return raycastTileInBox(centered,layer.toRaycastLayers());  
+            if (direction == Direction.Center)
+            {
+                return raycastTileInBox(centered,layer.toRaycastLayers());  
             }
-            return false;
+            if (requireFlat)
+            {
+                return RaycastTileInLine(direction,centered,layer.toRaycastLayers());
+            }
+
+            return direction switch
+            {
+                Direction.Down => raycastTileInBox(centered + Vector2.down * Global.TILE_SIZE, layer.toRaycastLayers()),
+                Direction.Up => raycastTileInBox(centered + Vector2.up * Global.TILE_SIZE, layer.toRaycastLayers()),
+                Direction.Left => raycastTileInBox(centered + Vector2.left * Global.TILE_SIZE, layer.toRaycastLayers()),
+                Direction.Right => raycastTileInBox(centered + Vector2.right * Global.TILE_SIZE,
+                    layer.toRaycastLayers()),
+                _ => false
+            };
         }
         
         public static int snap(float value) {
@@ -475,7 +467,7 @@ namespace TileMaps.Place {
             return !tile.tileOptions.placeBreakable;
         }
 
-        public static bool raycastTileInLine(Direction direction, Vector2 position, int layers) {
+        public static bool RaycastTileInLine(Direction direction, Vector2 position, int layers) {
             float width = Global.TILE_SIZE-0.02f;
             float directionDif = width/2f;
             float directionSize = width/8f; // Direciton size is about 2 pixels
@@ -483,22 +475,24 @@ namespace TileMaps.Place {
             const int SECTIONS = 3;
             float sectionSize = width / SECTIONS;
             Vector2 castSize = sectionSize * Vector2.one;
+            Vector2 positionOffset = Vector2.zero;
             switch (direction)
             {
                 case Direction.Left:
                 case Direction.Right:
                     iterator.y = SECTIONS;
                     castSize.x = directionSize;
+                    positionOffset += width / 2f * Vector2.up;
                     break;
                 case Direction.Down:
                 case Direction.Up:
                     iterator.x = SECTIONS;
                     castSize.y = directionSize;
+                    positionOffset += width / 2f * Vector2.right;
                     break;
             }
             
             Vector2 difVector = Vector2.zero;
-
             switch (direction)
             {
                 case Direction.Left:
@@ -514,12 +508,15 @@ namespace TileMaps.Place {
                     difVector = Vector2.up;
                     break;
             }
+            
             for (int xi = 0; xi < iterator.x; xi++)
             {
                 for (int yi = 0; yi < iterator.y; yi++)
                 {
                     Vector2 adjPosition = position + sectionSize * new Vector2(xi, yi);
-                    if (!Physics2D.BoxCast(adjPosition + difVector * directionDif, castSize, 0f, Vector2.zero, Mathf.Infinity, layers).collider) return false;
+                    Vector2 castPosition = adjPosition + difVector * directionDif-positionOffset;
+                    //Debug.DrawRay(castPosition, castSize, Color.red, 1f);
+                    if (!Physics2D.BoxCast(castPosition, castSize, 0f, Vector2.zero, Mathf.Infinity, layers).collider) return false;
                 }
             }
 

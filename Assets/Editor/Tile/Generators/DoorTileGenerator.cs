@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using Tiles;
 using TileEntity.Instances;
+using Tiles.CustomTiles.IdTiles;
 
 public class DoorTileGenerator : EditorWindow {
     private Sprite leftClosed;
