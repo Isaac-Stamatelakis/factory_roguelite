@@ -10,6 +10,7 @@ using Items.Tags;
 using LibNoise.Operator;
 using Newtonsoft.Json;
 using TileEntity.Instances.Caves.VoidMiners;
+using TileEntity.Instances.CompactMachines;
 using TileEntity.Instances.Storage;
 using UI;
 using UnityEngine;
@@ -18,7 +19,7 @@ using Random = System.Random;
 
 namespace TileEntity.Instances {
     public class VoidMinerInstance : TileEntityInstance<VoidMinerObject>, IRightClickableTileEntity, ISerializableTileEntity, IPlaceInitializable, IBreakActionTileEntity, ITickableTileEntity, 
-        IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator
+        IConduitPortTileEntity, IOnCaveRegistryLoadActionTileEntity, IItemConduitInteractable, IEnergyPortTileEntityAggregator, ICompactMachineInteractable
     {
         private const int OUTPUT_SIZE = 6;
         internal VoidMinerData MinerData;
@@ -26,6 +27,7 @@ namespace TileEntity.Instances {
         private System.Random random;
         private ItemRegistry itemRegistry;
         private EnergyInventory EnergyInventory;
+        private int compactMachineDepth;
         public VoidMinerInstance(VoidMinerObject tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {
         }
@@ -206,6 +208,12 @@ namespace TileEntity.Instances {
         public IEnergyConduitInteractable GetEnergyConduitInteractable()
         {
             return EnergyInventory;
+        }
+
+        public void SyncToCompactMachine(CompactMachineInstance compactMachine)
+        {
+            compactMachineDepth = compactMachine.GetTeleportKey().Path.Count;
+            Debug.Log(compactMachineDepth);
         }
     }
     

@@ -238,6 +238,7 @@ namespace Chunks.Partitions {
 
         public List<TTileEntityType> GetTileEntitiesOfType<TTileEntityType>()
         {
+            if (tileEntities == null) return new List<TTileEntityType>();
             List<TTileEntityType> typedTileEntities = new List<TTileEntityType>();
             for (int x = 0; x < Global.CHUNK_PARTITION_SIZE; x++)
             {

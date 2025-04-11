@@ -108,7 +108,8 @@ namespace WorldModule {
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
                 sRobotLoadOut: null,
-                playerStatistics: new PlayerStatisticCollection()
+                playerStatistics: new PlayerStatisticCollection(),
+                grabbedItemData: null
             );
         }
 

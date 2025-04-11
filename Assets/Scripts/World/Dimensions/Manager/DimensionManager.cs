@@ -84,10 +84,10 @@ namespace Dimensions {
             if (!TryExecuteInitialLoad(InlineLoadQuestBook,null, "QuestBook")) yield break;
             
             PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-            PlayerDimensionData playerDimensionData = null;
+            PlayerData playerData = null;
             void InlineLoadPlayer()
             {
-                playerDimensionData = playerScript.Initialize();
+                playerData = playerScript.Initialize();
             }
             if (!TryExecuteInitialLoad(InlineLoadPlayer, null, "Player")) yield break;
 
@@ -98,7 +98,9 @@ namespace Dimensions {
             if (!TryExecuteInitialLoad( InlineLoadMetaData, null, "MetaData")) yield break;
             
             if (!TryExecuteInitialLoad(SoftLoadSystems,null,"SoftLoad")) yield break;
-            yield return SetPlayerSystem(playerScript, playerDimensionData);
+            yield return SetPlayerSystem(playerScript, playerData.dimensionData);
+            playerScript.PlayerInventory.Give(ItemSlotFactory.DeserializeSlot(playerData.grabbedItemData));
+            
             WorldBackUpUtils.CleanUpBackups(worldManager.GetWorldName());
             WorldBackUpUtils.BackUpWorld(worldManager.GetWorldName());
             
