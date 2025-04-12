@@ -47,7 +47,7 @@ namespace TileEntity.Instances
         }
     }
     public class ChestInstance : TileEntityInstance<Chest>, ISerializableTileEntity, IBreakActionTileEntity, 
-        ISolidItemPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity, IConduitPortTileEntity
+        ISolidItemPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity, IConduitPortTileEntity, ISingleSolidInventoryTileEntity
     {
         public SingleItemInventory Inventory;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -95,6 +95,10 @@ namespace TileEntity.Instances
             }
             Inventory = new SingleItemInventory(items);
         }
-        
+
+        public List<ItemSlot> GetInventory()
+        {
+            return Inventory.Items;
+        }
     }
 }

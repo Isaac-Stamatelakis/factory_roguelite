@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Conduits.Ports;
+using Item.Slot;
 using Recipe.Objects.Restrictions;
 using RecipeModule;
 using World.Cave.Registry;
@@ -158,6 +159,17 @@ namespace TileEntity {
     public interface ITextPreviewTileEntity : ITileEntityInstance
     {
         public string GetTextPreview();
+    }
+    
+    public interface ISingleSolidInventoryTileEntity : ITileEntityInstance
+    {
+        public List<ItemSlot> GetInventory();
+    }
+    
+    public interface IMultiSolidItemStorageTileEntity : ITileEntityInstance
+    {
+        public List<ItemSlot> GetInputInventory();
+        public List<List<ItemSlot>> GetOutputInventories();
     }
     
 
