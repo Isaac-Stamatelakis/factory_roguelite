@@ -6,9 +6,8 @@ using UnityEngine.Tilemaps;
 
 namespace Tiles
 {
-    public class ConduitStateTile : TileBase, IStateTile, IIDTile, INoDelayPreviewTile
+    public class ConduitStateTile : TileBase, IStateTile, INoDelayPreviewTile
     {
-        public string Id;
         public Tile[] Tiles;
         
         public TileBase getTileAtState(int state)
@@ -30,16 +29,6 @@ namespace Tiles
         public int getStateAmount()
         {
             return Tiles.Length;
-        }
-
-        public string getId()
-        {
-            return Id;
-        }
-
-        public void setID(string id)
-        {
-            this.Id = id;
         }
     }
 }

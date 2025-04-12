@@ -1,22 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using Tiles;
 
-/// <summary>
-/// Checks tiles next 
-/// </summary>
-public class BackgroundRuleTile : RuleTile, IIDTile
+namespace Tiles.CustomTiles
 {
-    public string id;
-    public string getId()
+    /// <summary>
+    /// Checks tiles next 
+    /// </summary>
+    public class BackgroundRuleTile : RuleTile
     {
-        return id;
-    }
-
-    public override bool RuleMatch(int neighbor, TileBase other)
+        public override bool RuleMatch(int neighbor, TileBase other)
         {
             switch (neighbor)
             {
@@ -25,9 +17,5 @@ public class BackgroundRuleTile : RuleTile, IIDTile
             }
             return true;
         }
-
-    public void setID(string id)
-    {
-        this.id = id;
     }
 }

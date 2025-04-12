@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 
 public class TileMultiGeneratorWindow : EditorWindow {
     private string collectionName;
@@ -50,7 +51,7 @@ public class TileMultiGeneratorWindow : EditorWindow {
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + collectionName, collectionName,16,16);
         int index = 0;
         foreach (Sprite sprite in sprites) {
-            StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,TileColliderType.Tile);
+            Tile tile = ItemEditorFactory.StandardTileCreator(sprite,TileColliderType.Tile);
             string tileName = collectionName + index.ToString();
             string tilePath = collectionPath + "/" + tileName + "/";
 #pragma warning disable CS0618 // Type or member is obsolete

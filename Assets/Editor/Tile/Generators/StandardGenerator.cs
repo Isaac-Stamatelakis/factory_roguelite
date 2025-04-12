@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 
 public class Standard1TileGeneratorWindow : EditorWindow {
     private Sprite sprite;
@@ -53,9 +54,9 @@ public class Standard1TileGeneratorWindow : EditorWindow {
         }
     }
 
-    void createTileItem()
+    private void createTileItem()
     {
-        StandardTile tile = ItemEditorFactory.standardTileCreator(sprite,colliderType);
+        Tile tile = ItemEditorFactory.StandardTileCreator(sprite,colliderType);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(tileName,tile,tileType);
 #pragma warning restore CS0618 // Type or member is obsolete

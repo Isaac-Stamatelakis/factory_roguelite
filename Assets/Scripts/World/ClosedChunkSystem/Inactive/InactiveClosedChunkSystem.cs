@@ -313,8 +313,8 @@ namespace Chunks.Systems {
         
 
         public TileItem getTileItem(Vector2Int currentCellPosition, Dictionary<Vector2Int, IChunk> chunkCache, Dictionary<Vector2Int, IChunkPartition> partitionCache, TileMapLayer layer) {
-            Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
+            Vector2Int chunkPosition = Global.GetChunkFromCell(currentCellPosition);
+            Vector2Int partitionPosition = Global.GetPartitionFromCell(currentCellPosition);
             if (!chunkCache.ContainsKey(chunkPosition)) {
                 chunkCache[chunkPosition] = getChunk(chunkPosition);
             }
@@ -327,21 +327,21 @@ namespace Chunks.Systems {
                 partitionCache[partitionPosition] = chunk.GetPartition(adjustedPartitionPosition);
             }
             IChunkPartition partition = partitionCache[partitionPosition];
-            Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
+            Vector2Int cellPositionInPartition = Global.GetPositionInPartition(currentCellPosition);
             TileItem tileItem = partition.GetTileItem(cellPositionInPartition,layer);
             return tileItem;
         }
 
         public ITileEntityInstance GetTileEntity(Vector2Int currentCellPosition) {
-            Vector2Int chunkPosition = Global.getChunkFromCell(currentCellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(currentCellPosition);
+            Vector2Int chunkPosition = Global.GetChunkFromCell(currentCellPosition);
+            Vector2Int partitionPosition = Global.GetPartitionFromCell(currentCellPosition);
             IChunk chunk = getChunk(chunkPosition);
             if (chunk == null) {
                 return null;
             }
             Vector2Int adjustedPartitionPosition = partitionPosition-chunkPosition*Global.PARTITIONS_PER_CHUNK;
             IChunkPartition partition = chunk.GetPartition(adjustedPartitionPosition);
-            Vector2Int cellPositionInPartition = Global.getPositionInPartition(currentCellPosition);
+            Vector2Int cellPositionInPartition = Global.GetPositionInPartition(currentCellPosition);
             return partition.GetTileEntity(cellPositionInPartition);
         }
 

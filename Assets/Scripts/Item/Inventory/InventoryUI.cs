@@ -34,7 +34,6 @@ namespace Items.Inventory {
     }
     public class InventoryUI : MonoBehaviour
     {
-        
         [SerializeField] private ItemSlotUI itemSlotUIPrefab;
         protected List<ItemSlotUI> slots = new List<ItemSlotUI>();
         protected List<ItemSlot> inventory;

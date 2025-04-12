@@ -50,14 +50,14 @@ namespace UI.QuestBook {
             GameObject.Destroy(gameObject);
         }
         private void MoveUp() {
-            int newIndex = Global.modInt(index-1,pages.Count);
+            int newIndex = Global.ModInt(index-1,pages.Count);
             (pages[index], pages[newIndex]) = (pages[newIndex], pages[index]);
             index = newIndex;
             questBookUI.LoadPageChapters();
         }
 
         private void MoveDown() {
-            int newIndex = Global.modInt(index+1,pages.Count);
+            int newIndex = Global.ModInt(index+1,pages.Count);
             (pages[index], pages[newIndex]) = (pages[newIndex], pages[index]);
             index = newIndex;
             questBookUI.LoadPageChapters();

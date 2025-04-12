@@ -14,28 +14,18 @@ namespace Tiles {
 
     [CreateAssetMenu(fileName = "T~New Hammer Tile", menuName = "Tile/State/Hammer")]
     
-    public class HammerTile : TileBase, IIDTile, IStateTile
+    public class HammerTile : TileBase, IStateTile
     {
         public const int BASE_TILE_STATE = 0;
         public const int SLAB_TILE_STATE = 1;
         public const int SLANT_TILE_STATE = 2;
         public const int STAIR_TILE_STATE = 3;
         
-        [SerializeField] public string id;
         [SerializeField] public TileBase baseTile;
         [SerializeField] public Tile cleanSlab;
         [SerializeField] public Tile cleanSlant;
         [SerializeField] public Tile stairs;
         
-        public string getId()
-        {
-            return id;
-        }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
 
         public virtual TileBase getTileAtState(int state)
         {

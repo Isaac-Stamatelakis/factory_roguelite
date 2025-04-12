@@ -57,23 +57,23 @@ namespace Chunks {
         public IChunk GetChunkAtPosition(Vector2Int chunkPosition);
         public IChunk GetChunkAtCellPosition(Vector2Int cellPosition)
         {
-            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            Vector2Int chunkPosition = Global.GetChunkFromCell(cellPosition);
             return GetChunkAtPosition(chunkPosition);
         }
         
         public IChunkPartition GetChunkPartitionAtCellPosition(Vector2Int cellPosition)
         {
             IChunk chunk = GetChunkAtCellPosition(cellPosition);
-            Vector2Int position = Global.getPartitionFromCell(cellPosition);
+            Vector2Int position = Global.GetPartitionFromCell(cellPosition);
             return chunk.GetPartition(position);
         }
         
         public (IChunkPartition, Vector2Int) GetPartitionAndPositionAtCellPosition(Vector2Int cellPosition)
         {
-            Vector2Int chunkPosition = Global.getChunkFromCell(cellPosition);
+            Vector2Int chunkPosition = Global.GetChunkFromCell(cellPosition);
             IChunk chunk = GetChunkAtPosition(chunkPosition);
-            Vector2Int positionInPartition = Global.getPositionInPartition(cellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
+            Vector2Int positionInPartition = Global.GetPositionInPartition(cellPosition);
+            Vector2Int partitionPosition = Global.GetPartitionFromCell(cellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             return (chunk?.GetPartition(partitionPosition), positionInPartition);
         }
     }

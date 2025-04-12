@@ -16,76 +16,70 @@ namespace Tiles {
     }
     
     [CreateAssetMenu(fileName ="T~Torch Tile",menuName="Tile/State/Torch")]
-    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IIDTile, IStateTile, INoDelayPreviewTile, IDirectionStateTile
+    public class IMousePositionStateTorchTile : TileBase, IMousePositionStateTile, IStateTile, INoDelayPreviewTile, IDirectionStateTile
     {
+        private enum TorchTileState
+        {
+            Invalid = -1,
+            OnGround = 0,
+            WallLeft = 1,
+            WallRight = 2,
+            Background = 3,
+        }
         public string id;
         public Tile onBlock;
         public Tile onLeft;
         public Tile onRight;
         public Tile onBackground;
 
-        public string getId()
-        {
-            return id;
-        }
-
-        public void setID(string id)
-        {
-            this.id = id;
-        }
+       
+       
         public int GetStateAtPosition(Vector2 position) {
-            // If exists tile to left place left
-            // If exists tile to right place right
-            // If exists tile on bottom place bottom
-            // If exists tile on background place background
-            // If no condition return -1
-            Vector2 centered = TileHelper.getRealTileCenter(position);
-            if (PlaceTile.raycastTileInBox(centered, TileMapLayer.Base.toRaycastLayers(), true)) return -1;
-            bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
-            bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
             bool down = PlaceTile.tileInDirection(position,Direction.Down,TileMapLayer.Base);
-            bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
-           
+            
             int mousePosition = MousePositionUtils.GetMousePlacement(position);
             if (down && MousePositionUtils.MouseCentered(true,position)) {
-                return 0;
+                return (int)TorchTileState.OnGround;
             }
+            bool left = PlaceTile.tileInDirection(position,Direction.Left,TileMapLayer.Base);
             // If top 
             if (left && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Left)) {
-                return 1;
+                return (int)TorchTileState.WallLeft;
             }
+            bool right = PlaceTile.tileInDirection(position,Direction.Right,TileMapLayer.Base);
             if (right && MousePositionUtils.MouseBiasDirection(mousePosition,MousePlacement.Right)) {
-                return 2;
+                return (int)TorchTileState.WallRight;
             }
+            
+            bool background = PlaceTile.tileInDirection(position,Direction.Center,TileMapLayer.Background);
             if (!left && !right && !down && background) {
-                return 3;
+                return (int)TorchTileState.Background;
             }
             if (down) {
-                return 0;
+                return (int)TorchTileState.OnGround;
             }
             if (left) {
-                return 1;
+                return (int)TorchTileState.WallLeft;
             }
             if (right) {
-                return 2;
+                return (int)TorchTileState.WallRight;
             }
-            if (background) {
-                return 3;
-            }
-            return -1;
+            return (int)TorchTileState.Invalid;
         }
 
         public TileBase getTileAtState(int state)
         {
-            switch (state) {
-                case 0:
+            TorchTileState torchTileState = (TorchTileState)state;
+            switch (torchTileState) {
+                case TorchTileState.OnGround:
                     return onBlock;
-                case 1:
+                case TorchTileState.WallLeft:
                     return onLeft;
-                case 2:
+                case TorchTileState.WallRight:
                     return onRight;
-                case 3:
+                case TorchTileState.Background:
                     return onBackground;
+                case TorchTileState.Invalid:
                 default:
                     return null;
             }

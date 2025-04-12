@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Item.Display.ClickHandlers;
+using Item.Inventory.ClickHandlers.Instances;
 using Item.Slot;
+using Items;
 using Items.Inventory;
 using PlayerModule;
 using TileEntity.Instances.Machine.UI;
@@ -14,6 +17,9 @@ namespace UI.PlayerInvUI
         [SerializeField] private InventoryUI playerInventoryUI;
         [SerializeField] private InventoryUI trashCanUI;
         [SerializeField] private GameObject playerInventoryContainer;
+        [SerializeField] private Button takeAllButton;
+        [SerializeField] private Button giveAllButton;
+        [SerializeField] private Button quickStackButton;
 
         private InventoryUI originalPlayerInventoryUI;
         public void Start()
@@ -37,7 +43,6 @@ namespace UI.PlayerInvUI
 
         public void DisplayWithPlayerInventory(GameObject uiObject, bool below)
         {
-
             IInventoryUITileEntityUI inventoryUITileEntityUI = GetTileEntityUI(uiObject);
             SyncTileEntityUI(inventoryUITileEntityUI);
             
@@ -47,7 +52,7 @@ namespace UI.PlayerInvUI
                 uiObject.transform.SetAsFirstSibling();
             }
         }
-
+        
         private IInventoryUITileEntityUI GetTileEntityUI(GameObject uiObject)
         {
             IInventoryUITileEntityUI tileEntityUI = uiObject.GetComponent<IInventoryUITileEntityUI>();
@@ -59,8 +64,19 @@ namespace UI.PlayerInvUI
 
         private void SyncTileEntityUI(IInventoryUITileEntityUI inventoryUITileEntity)
         {
-            if (inventoryUITileEntity == null) return;
-            
+            bool inventoryConnected = inventoryUITileEntity != null;
+            giveAllButton.gameObject.SetActive(inventoryConnected);
+            giveAllButton.gameObject.SetActive(inventoryConnected);
+            if (!inventoryConnected) return;
+           
+            takeAllButton.onClick.AddListener(() =>
+            {
+                OnInventoryInteractPress(InventoryInteractType.Take);
+            });
+            giveAllButton.onClick.AddListener(() =>
+            {
+                OnInventoryInteractPress(InventoryInteractType.Give);
+            });
             playerInventoryUI.SetConnection(inventoryUITileEntity.GetInput());
             inventoryUITileEntity.GetInput().SetConnection(playerInventoryUI);
             List<InventoryUI> inventories = inventoryUITileEntity.GetAllInventoryUIs();
@@ -70,8 +86,40 @@ namespace UI.PlayerInvUI
             {
                 inventoryUI?.SetConnection(playerInventoryUI);
             }
+            return;
+            
+            void OnInventoryInteractPress(InventoryInteractType inventoryGiveMode)
+            {
+                foreach (InventoryUI inventoryUI in inventoryUITileEntity.GetAllInventoryUIs())
+                {
+                    List<ItemSlot> itemSlots = inventoryUI.GetInventory();
+                    if (itemSlots == null || itemSlots.Count == 0) continue;
+                    ItemState itemState = inventoryUI.GetItemSlotUI(0).ItemState;
+                    if (itemState != ItemState.Solid) continue; // Only need check the first item slot ui
+                    switch (inventoryGiveMode)
+                    {
+                        case InventoryInteractType.Take:
+                            ItemSlotUtils.InsertInventoryIntoInventory(playerInventoryUI.GetInventory(),itemSlots,Global.MAX_SIZE);
+                            break;
+                        case InventoryInteractType.Give:
+                            ItemSlotUtils.InsertInventoryIntoInventory(itemSlots,playerInventoryUI.GetInventory(),Global.MAX_SIZE);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(inventoryGiveMode), inventoryGiveMode, null);
+                    }
+                    inventoryUI.RefreshSlots();
+                }
+                playerInventoryUI.RefreshSlots();
+                originalPlayerInventoryUI.RefreshSlots();
+            }
         }
-
+        
+        private enum InventoryInteractType
+        {
+            Take,
+            Give,
+        }
+        
         public void SetBackgroundColor(Color color)
         {
             GetComponent<Image>().color = color;

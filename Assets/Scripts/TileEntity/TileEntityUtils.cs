@@ -209,8 +209,8 @@ namespace TileEntity {
             
             IChunk chunk = tileEntity.GetChunk();
             Vector2Int offsetCellPosition = tileEntity.GetCellPosition()+offset;
-            Vector2Int chunkPosition = Global.getChunkFromCell(offsetCellPosition);
-            Vector2Int partitionPosition = Global.getPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
+            Vector2Int chunkPosition = Global.GetChunkFromCell(offsetCellPosition);
+            Vector2Int partitionPosition = Global.GetPartitionFromCell(offsetCellPosition)-chunkPosition*Global.PARTITIONS_PER_CHUNK; 
             IChunkPartition partition = null;
             if (chunk is ILoadedChunk loadedChunk) {
                 ClosedChunkSystem closedChunkSystem = loadedChunk.GetSystem();
@@ -233,7 +233,7 @@ namespace TileEntity {
                 Debug.LogError("Attempted to locate adjcaent tile entity in null partition");
                 return null;
             }
-            Vector2Int positionInPartition = Global.getPositionInPartition(offsetCellPosition);
+            Vector2Int positionInPartition = Global.GetPositionInPartition(offsetCellPosition);
             return partition.GetTileEntity(positionInPartition);
             
         }

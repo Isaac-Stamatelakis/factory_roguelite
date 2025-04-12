@@ -47,7 +47,7 @@ namespace PlayerModule.KeyPress {
         void Update()
         {
             inventoryKeyPresses();
-            if (canvasController.BlockKeyInput) return;
+            if (canvasController.UIActive) return;
             ControlUtils.UpdateModifierCount();
             
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
@@ -61,7 +61,7 @@ namespace PlayerModule.KeyPress {
             {
                 ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);
                 itemSearchUI.Initialize(playerScript);
-                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory));
+                CanvasController.Instance.DisplayObject(itemSearchUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenSearch),blocker:false,blockMovement:false);
             }
 
             if (ControlUtils.GetControlKeyDown(PlayerControl.SwitchConduitPlacementMode))

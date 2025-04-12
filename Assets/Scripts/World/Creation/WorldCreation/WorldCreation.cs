@@ -19,6 +19,7 @@ using PlayerModule;
 using TileEntity;
 using TileEntity.Instances.CompactMachines;
 using Tiles;
+using Tiles.CustomTiles.IdTiles;
 using UI.QuestBook;
 using UI.Statistics;
 using World.Serialization;
@@ -40,12 +41,14 @@ namespace WorldModule {
             QuestBook = questBook;
         }
     }
-    
+
     public static class WorldCreation
     {
         public const bool ENABLE_PRESETS = true;
         public const string DIM_0_STRUCTURE_NAME = "Dim0";
-        public static IEnumerator CreateWorld(WorldCreationData worldCreationData) {
+
+        public static IEnumerator CreateWorld(WorldCreationData worldCreationData)
+        {
             yield return ItemRegistry.LoadItems();
             WorldManager.getInstance().SetWorldName(worldCreationData.WorldName);
             string path = WorldLoadUtils.GetCurrentWorldPath();
@@ -57,8 +60,8 @@ namespace WorldModule {
             Directory.CreateDirectory(backUpPath);
 
             CompactMachineUtils.InitializeCompactMachineFolder();
-            
-            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(worldCreationData.WorldName),worldCreationData);
+
+            InitializeMetaData(WorldLoadUtils.GetMetaDataPath(worldCreationData.WorldName), worldCreationData);
             InitializeQuestBook(mainPath);
             InititalizeGameStages(WorldLoadUtils.GetWorldComponentPath(WorldFileType.GameStage));
 
@@ -72,7 +75,8 @@ namespace WorldModule {
 
         public static void InitializeMetaData(string path, WorldCreationData worldCreationData)
         {
-            WorldMetaData worldMetaData = new WorldMetaData(DateTime.Now, DateTime.Now, worldCreationData.EnableCheats, worldCreationData.QuestBook);
+            WorldMetaData worldMetaData = new WorldMetaData(DateTime.Now, DateTime.Now, worldCreationData.EnableCheats,
+                worldCreationData.QuestBook);
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(worldMetaData);
             byte[] compressed = WorldLoadUtils.CompressString(json);
             File.WriteAllBytes(path, compressed);
@@ -84,7 +88,7 @@ namespace WorldModule {
             {
                 "0"
             };
-            GlobalHelper.SerializeCompressedJson(stages,path);
+            GlobalHelper.SerializeCompressedJson(stages, path);
         }
 
         public static void InitializeQuestBook(string mainPath)
@@ -104,7 +108,7 @@ namespace WorldModule {
         public static PlayerData GetDefaultPlayerData()
         {
             return new PlayerData(
-                dimensionData:null,
+                dimensionData: null,
                 playerRobot: RobotDataFactory.GetDefaultRobotData(),
                 sInventoryData: PlayerInventoryFactory.Serialize(PlayerInventoryFactory.GetDefault()),
                 sRobotLoadOut: null,
@@ -121,250 +125,67 @@ namespace WorldModule {
                 Debug.LogWarning("Tried to delete world which does not exist " + path);
                 return;
             }
+
             Debug.Log("World Folder Deleted at " + path);
             Directory.Delete(path, true);
         }
 
-        
-        public static IEnumerator InitDim0(string structureName) {
-            if (WorldLoadUtils.DimExists(0)) {
+
+        public static IEnumerator InitDim0(string structureName)
+        {
+            if (WorldLoadUtils.DimExists(0))
+            {
                 Debug.LogError("Attempted to Initialize dim 0 when already exists");
                 yield break;
             }
+
             WorldLoadUtils.createDimFolder(0);
-            
+
             Structure structure = StructureGeneratorHelper.LoadStructure(structureName);
             IntervalVector dim0Bounds = GetDim0Bounds();
-            
-            WorldGenerationFactory.SaveToJson(structure.variants[0].Data,dim0Bounds.getSize(),0,WorldLoadUtils.GetDimPath(0));
+
+            WorldGenerationFactory.SaveToJson(structure.variants[0].Data, dim0Bounds.getSize(), 0,
+                WorldLoadUtils.GetDimPath(0));
         }
 
-        public static IntervalVector GetDim0Bounds() {
+        public static IntervalVector GetDim0Bounds()
+        {
             return new IntervalVector(
-                new Interval<int>(-4,4),
-                new Interval<int>(-3,3)
+                new Interval<int>(-4, 4),
+                new Interval<int>(-3, 3)
             );
         }
-        
-        public static IntervalVector GetTileMapChunkBounds(GameObject prefab) {
-            Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
+
+        public static IntervalVector GetTileMapChunkBounds(GameObject prefab)
+        {
+            Tilemap baseTileMap = Global.FindChild(prefab.transform, "Base").GetComponent<Tilemap>();
             BoundsInt baseBounds = baseTileMap.cellBounds;
-            int xSize = (baseBounds.xMax-baseBounds.xMin)/Global.CHUNK_SIZE;
-            int ySize = (baseBounds.yMax-baseBounds.yMin)/Global.CHUNK_SIZE;
+            int xSize = (baseBounds.xMax - baseBounds.xMin) / Global.CHUNK_SIZE;
+            int ySize = (baseBounds.yMax - baseBounds.yMin) / Global.CHUNK_SIZE;
             int xLower = (xSize - 1) / 2;
             int xUpper = xSize / 2;
             int yLower = (ySize - 1) / 2;
             int yUpper = ySize / 2;
-            return new IntervalVector(new Interval<int>(xLower,xUpper), new Interval<int>(yLower,yUpper));
-        }
-        public static WorldTileConduitData PrefabToWorldTileConduitData(GameObject prefab, IntervalVector bounds) {
-            Tilemap baseTileMap = Global.findChild(prefab.transform,"Base").GetComponent<Tilemap>();
-            BoundsInt baseBounds = baseTileMap.cellBounds;
-            Vector2Int size = bounds.getSize();
-            int width = size.x * Global.CHUNK_SIZE;
-            int height = size.y * Global.CHUNK_SIZE;
-
-
-            Tilemap backgroundTileMap = Global.findChild(prefab.transform,"Background").GetComponent<Tilemap>();
-
-            Transform itemConduitTransform = prefab.transform.Find("ItemConduit");
-            Tilemap itemConduitTileMap = null;
-            if (itemConduitTransform != null) {
-                itemConduitTileMap = itemConduitTransform.GetComponent<Tilemap>();
-            }
-
-            Transform fluidConduitTransform = prefab.transform.Find("FluidConduit");
-            Tilemap fluidConduitTileMap = null;
-            if (fluidConduitTransform != null) {
-                fluidConduitTileMap = fluidConduitTransform.GetComponent<Tilemap>();
-            }
-
-            Transform energyConduitTransform = prefab.transform.Find("EnergyConduit");
-            Tilemap energyConduitTileMap = null;
-            if (energyConduitTransform != null) {
-                energyConduitTileMap = energyConduitTransform.GetComponent<Tilemap>();
-            }
-
-            Transform signalConduitTransform = prefab.transform.Find("SignalConduit");
-            Tilemap signalConduitTileMap = null;
-            if (signalConduitTransform != null) {
-                signalConduitTileMap = signalConduitTransform.GetComponent<Tilemap>();
-            }
-            Transform matrixConduitTransform = prefab.transform.Find("MatrixConduit");
-            Tilemap matrixConduitTileMap = null;
-            if (matrixConduitTransform != null) {
-                matrixConduitTileMap = matrixConduitTransform.GetComponent<Tilemap>();
-            }
-
-
-
-            SerializedBaseTileData baseData = TileMapToSerializedChunkTileData(baseTileMap,width,height);
-            SerializedBackgroundTileData backgroundData = TileMapToBackgroundTileData(backgroundTileMap,width,height);
-            SeralizedFluidTileData fluidTileData = EmptyTileFluidData(width,height);
-            SeralizedChunkConduitData itemData = TileMapToSerializedChunkConduitData(itemConduitTileMap,TileMapLayer.Item,width,height);
-            SeralizedChunkConduitData fluidData = TileMapToSerializedChunkConduitData(fluidConduitTileMap,TileMapLayer.Fluid,width,height);
-            SeralizedChunkConduitData energyData = TileMapToSerializedChunkConduitData(energyConduitTileMap,TileMapLayer.Energy,width,height);
-            SeralizedChunkConduitData signalData = TileMapToSerializedChunkConduitData(signalConduitTileMap,TileMapLayer.Signal,width,height);
-            SeralizedChunkConduitData matrixData = TileMapToSerializedChunkConduitData(matrixConduitTileMap,TileMapLayer.Matrix,width,height);
-            return new WorldTileConduitData(
-                baseData,
-                backgroundData,
-                new List<SeralizedEntityData>(),
-                fluidTileData,
-                itemData,
-                fluidData,
-                energyData,
-                signalData,
-                matrixData
-            );
+            return new IntervalVector(new Interval<int>(xLower, xUpper), new Interval<int>(yLower, yUpper));
         }
 
-        public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds) {
-            Vector2Int size = bounds.getSize()*Global.CHUNK_SIZE;
+
+        public static WorldTileConduitData CreateEmptyWorldData(IntervalVector bounds)
+        {
+            Vector2Int size = bounds.getSize() * Global.CHUNK_SIZE;
             int width = size.x;
             int height = size.y;
-            SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width,height);
-            SerializedBackgroundTileData backgroundData = SerializedTileDataFactory.createEmptyBackgroundData(width,height);
-            SeralizedFluidTileData fluidTileData = SerializedTileDataFactory.createEmptyFluidData(width,height);
-            SeralizedChunkConduitData itemData = SerializedTileDataFactory.createEmptyConduitData(width,height);
-            SeralizedChunkConduitData fluidData = SerializedTileDataFactory.createEmptyConduitData(width,height);
-            SeralizedChunkConduitData energyData = SerializedTileDataFactory.createEmptyConduitData(width,height);
-            SeralizedChunkConduitData signalData = SerializedTileDataFactory.createEmptyConduitData(width,height);
-            SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width,height);
-            return new WorldTileConduitData(baseData,backgroundData,new List<SeralizedEntityData>(),fluidTileData,itemData,fluidData,energyData,signalData,matrixData);
-        }
-    private static SerializedBaseTileData TileMapToSerializedChunkTileData(Tilemap tilemap, int width, int height) {
-        SerializedBaseTileData data = new SerializedBaseTileData();
-        string[,] ids = new string[width,height];
-        string[,] sTileEntityOptions = new string[width,height];
-        BaseTileData[,] sTileOptions = new BaseTileData[width,height];
-    
-        BoundsInt bounds = tilemap.cellBounds;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                if (tilemap.HasTile(tilePosition))
-                {
-                    TileBase tile = tilemap.GetTile(tilePosition);
-                    if (tile is IIDTile) {
-                        string id = ((IIDTile) tile).getId();
-                        if (string.IsNullOrEmpty(id)) {
-                            continue;
-                        }
-                        ids[x,y]= id;
-                    }
-                }
-            }
-            
-        }
-        data.ids = ids;
-        data.sTileEntityOptions = sTileEntityOptions;
-        data.sTileOptions = sTileOptions;
-        return data;
-    }
-
-    private static SerializedBackgroundTileData TileMapToBackgroundTileData(Tilemap tilemap, int width, int height) {
-        ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-        //Debug.Log("Generating SerializedBackgroundTileData");
-        SerializedBackgroundTileData data = new SerializedBackgroundTileData();
-        string[,] ids = new string[width,height];
-        if (tilemap != null) {
-            BoundsInt bounds = tilemap.cellBounds;
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                    if (tilemap.HasTile(tilePosition))
-                    {
-                        TileBase tile = tilemap.GetTile(tilePosition);
-                        if (tile is IIDTile) {
-                            string id = ((IIDTile) tile).getId();
-                            if (id is null or "") {
-                                continue;
-                            }
-                            ids[x,y]= id;
-                        }
-                    }
-                }
-            }
-        }
-        data.ids = ids;
-        return data;
-    }
-
-    private static SeralizedFluidTileData TileMapToFluidTileData(Tilemap tilemap, int width, int height) {
-        ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-        Debug.Log("Generating SeralizedFluidTileData");
-        SeralizedFluidTileData data = new SeralizedFluidTileData();
-        float[,] fill = new float[width,height];
-        string[,] ids = new string[width,height];
-        if (tilemap != null) {
-            BoundsInt bounds = tilemap.cellBounds;
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                    if (tilemap.HasTile(tilePosition))
-                    {
-                        TileBase tile = tilemap.GetTile(tilePosition);
-                        if (tile is IIDTile) {
-                            string id = ((IIDTile) tile).getId();
-                            if (id is null or "") {
-                                continue;
-                            }
-                            fill[x,y] = 1;
-                            ids[x,y]= id;
-                        }
-                    }
-                }
-            }
-        }
-        data.ids = ids;
-        data.fill = fill;
-        return data;
-    }
-
-    private static SeralizedFluidTileData EmptyTileFluidData(int width, int height) {
-        SeralizedFluidTileData data = new SeralizedFluidTileData();
-        data.ids = new string[width,height];
-        data.fill = new float[width,height];
-        return data;
-    }
-    private static SeralizedChunkConduitData TileMapToSerializedChunkConduitData(Tilemap tilemap, TileMapLayer layer, int width, int height) {
-            ItemRegistry itemRegistry = ItemRegistry.GetInstance();
-            //Debug.Log("Generating SerializedChunkConduitData for " + layer.ToString());
-            SeralizedChunkConduitData data = new SeralizedChunkConduitData();
-            string[,] ids = new string[width,height];
-            string[,] conduitOptions = new string[width,height];
-            
-            BoundsInt bounds = tilemap.cellBounds;
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Vector3Int tilePosition = new Vector3Int(x+bounds.xMin, y+bounds.yMin, 0);
-                    if (tilemap.HasTile(tilePosition))
-                    {
-                        TileBase tile = tilemap.GetTile(tilePosition);
-                        if (tile is StandardTile) {
-                            string id = ((StandardTile) tile).id;
-                            if (id is null or "") {
-                                continue;
-                            }
-                            ids[x,y]= id;
-                        }
-                    }
-                }
-            }
-            
-            data.ids = ids;
-            data.conduitOptions = conduitOptions;
-            return data;
+            SerializedBaseTileData baseData = SerializedTileDataFactory.createEmptyBaseData(width, height);
+            SerializedBackgroundTileData backgroundData =
+                SerializedTileDataFactory.createEmptyBackgroundData(width, height);
+            SeralizedFluidTileData fluidTileData = SerializedTileDataFactory.createEmptyFluidData(width, height);
+            SeralizedChunkConduitData itemData = SerializedTileDataFactory.createEmptyConduitData(width, height);
+            SeralizedChunkConduitData fluidData = SerializedTileDataFactory.createEmptyConduitData(width, height);
+            SeralizedChunkConduitData energyData = SerializedTileDataFactory.createEmptyConduitData(width, height);
+            SeralizedChunkConduitData signalData = SerializedTileDataFactory.createEmptyConduitData(width, height);
+            SeralizedChunkConduitData matrixData = SerializedTileDataFactory.createEmptyConduitData(width, height);
+            return new WorldTileConduitData(baseData, backgroundData, new List<SeralizedEntityData>(), fluidTileData,
+                itemData, fluidData, energyData, signalData, matrixData);
         }
     }
-
 }

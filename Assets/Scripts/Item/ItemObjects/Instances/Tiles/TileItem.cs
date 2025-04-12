@@ -9,6 +9,7 @@ using TileMaps.Type;
 using Tiles;
 using UnityEngine.AddressableAssets;
 using Items;
+using Tiles.CustomTiles.IdTiles;
 using Tiles.Fluid.Simulation;
 
 public enum TileMovementType
@@ -61,18 +62,13 @@ public class TileItem : ItemObject, IPlacableItem
     public TileOptions tileOptions;
     public override ItemDisplayType? getDisplayType()
     {
-        if (tile is StandardTile standardTile) {
-            return ItemDisplayType.Single;
-        } else if (tile is AnimatedTile animatedTile) {
-            return ItemDisplayType.Animated;
-        } else if (tile is RuleTile ruleTile) {
-            return ItemDisplayType.Single;
-        } else if (tile is RandomTile randomTile) {
-            return ItemDisplayType.Single;
-        } else if (tile is IStateTile stateTile) {
-            return ItemDisplayType.Single;
-        }
-        return null;
+        return tile switch
+        {
+            Tile => ItemDisplayType.Single,
+            AnimatedTile animatedTile => ItemDisplayType.Animated,
+            RuleTile ruleTile => ItemDisplayType.Single,
+            _ => null
+        };
     }
 
     public override GameStageObject GetGameStageObject()
@@ -101,10 +97,9 @@ public class TileItem : ItemObject, IPlacableItem
     {
         return tileBase switch
         {
-            StandardTile standardTile => new Sprite[] { standardTile.sprite },
+            Tile standardTile => new Sprite[] { standardTile.sprite },
             AnimatedTile animatedTile => animatedTile.m_AnimatedSprites,
             RuleTile ruleTile => new Sprite[] { ruleTile.m_DefaultSprite },
-            RandomTile randomTile => new Sprite[] { randomTile.sprite },
             IStateTile stateTile => GetDefaultSprites(stateTile.GetDefaultTile()),
             _ => null
         };

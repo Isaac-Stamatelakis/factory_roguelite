@@ -43,7 +43,7 @@ namespace Player.Movement
         /// <returns>True if on slope, false if not on slope, null if tile item is cached</returns>
         private bool? OnSlope(Collider2D other)
         {
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(other.ClosestPoint(transform.position));
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(other.ClosestPoint(transform.position));
             ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             TileItem tileItem = partition?.GetTileItem(positionInPartition,TileMapLayer.Base);

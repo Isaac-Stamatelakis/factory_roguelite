@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles;
 
 public class BackgroundGeneratorWindow : EditorWindow {
     private Texture2D texture;

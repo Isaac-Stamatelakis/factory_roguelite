@@ -10,7 +10,7 @@ using TileEntity.Instances.SimonSays;
 namespace Tiles {
     
     [CreateAssetMenu(fileName ="New Nature Tile",menuName="Tile/State/NatureHammer")]
-    public class NatureTile : HammerTile, IIDTile, IStateTile
+    public class NatureTile : HammerTile
     {
         [SerializeField] public Tile[] natureSlants;
         [SerializeField] public Tile[] natureSlabs;

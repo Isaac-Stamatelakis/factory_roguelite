@@ -209,7 +209,7 @@ namespace TileEntity.Instances.SimonSays {
                 }
 
                 Vector2Int chestPlacePosition = GetCellPosition() + position;
-                Vector2Int chestPositionInChunk = Global.getPositionInChunk(chestPlacePosition);
+                Vector2Int chestPositionInChunk = Global.GetPositionInChunk(chestPlacePosition);
                 if (ReferenceEquals(tileEntityObject.ChestTile?.tileEntity, null))
                 {
                     if (ReferenceEquals(tileEntityObject.ChestTile, null))
@@ -222,7 +222,7 @@ namespace TileEntity.Instances.SimonSays {
                     return;
                 }
 
-                Vector2Int chestChunkPosition = Global.getChunkFromCell(chestPlacePosition);
+                Vector2Int chestChunkPosition = Global.GetChunkFromCell(chestPlacePosition);
                 IChunk chestChunk = closedChunkSystem.GetChunk(chestChunkPosition);
                 ITileEntityInstance tileEntityInstance = TileEntityUtils.placeTileEntity(chestTile, chestPositionInChunk, chestChunk, true);
                 if (ConduitFactory.GetInteractableFromTileEntity(tileEntityInstance, ConduitType.Item) is not IItemConduitInteractable itemConduitInteractable)

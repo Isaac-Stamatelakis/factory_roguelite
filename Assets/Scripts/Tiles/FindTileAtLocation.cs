@@ -20,7 +20,7 @@ public static class FindTileAtLocation
     public static Vector2Int? find(Vector2Int hitPosition, Tilemap tilemap) {
         int searchWidth = 1;
         while (searchWidth < maxSearchWidth) {
-            if (Global.modInt(searchWidth,2) == 0) {
+            if (Global.ModInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                     TileBase tileBase = tilemap.GetTile(new Vector3Int(hitPosition.x+x,hitPosition.y-(searchWidth/2),0));
                     if (isHitTile(tileBase,searchWidth)) {
@@ -61,7 +61,7 @@ public static class FindTileAtLocation
         Dictionary<Vector2Int,IChunkPartition> partitionCache = new Dictionary<Vector2Int, IChunkPartition>();
         TileItem originTileItem = systemAssembler.getTileItem(hitPosition,chunkCache,partitionCache,TileMapLayer.Base);
         while (searchWidth < maxSearchWidth) {
-            if (Global.modInt(searchWidth,2) == 0) {
+            if (Global.ModInt(searchWidth,2) == 0) {
                 for (int x = searchWidth/2-1; x >= -searchWidth/2; x --) {
                     Vector2Int vec = new Vector2Int(hitPosition.x+x,hitPosition.y-(searchWidth/2));
                     TileItem tileItem = systemAssembler.getTileItem(vec,chunkCache,partitionCache,TileMapLayer.Base);
@@ -137,7 +137,7 @@ public static class FindTileAtLocation
     } 
 
     private static bool isHitTile(Sprite sprite, int searchWidth) {
-        Vector2Int spriteSize = Global.getSpriteSize(sprite);
+        Vector2Int spriteSize = Global.GetSpriteSize(sprite);
         return spriteSize.y >= searchWidth || spriteSize.x >= searchWidth;
     } 
 }

@@ -191,6 +191,7 @@ namespace Chunks.Systems {
             partitionsToLoad.Clear();
             partitionsToUnload.Clear();
             partitionsToFarLoad.Clear();
+            
             const int CHUNK_SEARCH_RANGE = Global.CHUNK_LOAD_RANGE + 1;
             for (int x = - CHUNK_SEARCH_RANGE; x <=  CHUNK_SEARCH_RANGE; x++) {
                 for (int y = - CHUNK_SEARCH_RANGE; y <=  CHUNK_SEARCH_RANGE; y++) {
@@ -198,7 +199,7 @@ namespace Chunks.Systems {
                     if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) {
                         continue;
                     }
-                    chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
+                    chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange+Vector2Int.one,partitionsToUnload);
                     chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
                 }
             }
@@ -253,7 +254,7 @@ namespace Chunks.Systems {
                 position.y <= coveredArea.Y.UpperBound;
         }
         public bool WorldPositionInBounds(Vector2 worldPosition) {
-            return ChunkInBounds(Global.getChunkFromWorld(worldPosition));
+            return ChunkInBounds(Global.GetChunkFromWorld(worldPosition));
         }   
         public bool ChunkIsCached(Vector2Int position) {
             return this.cachedChunks.ContainsKey(position);
@@ -385,12 +386,12 @@ namespace Chunks.Systems {
                     continue;
                 }
                 Vector2 position = new Vector2(seralizedEntityData.x,seralizedEntityData.y);
-                Vector2Int chunkPosition = Global.getChunkFromWorld(position);
+                Vector2Int chunkPosition = Global.GetChunkFromWorld(position);
                 IChunk chunk = GetChunk(chunkPosition);
                 if (chunk == null) {
                     continue;
                 }
-                Vector2Int partitionPosition = Global.getPartitionFromWorld(position) - chunkPosition*Global.PARTITIONS_PER_CHUNK;
+                Vector2Int partitionPosition = Global.GetPartitionFromWorld(position) - chunkPosition*Global.PARTITIONS_PER_CHUNK;
 
                 IChunkPartition partition = chunk.GetPartition(partitionPosition);
                 IChunkPartitionData partitionData = partition.GetData();

@@ -212,9 +212,9 @@ namespace Player {
             {
                 // Added this to prevent this player getting stuck, if they still get stuck might want to increase live updates
                 liveYUpdates = 2;
-                
+                //jumpEvent = null;
                 var vector2 = rb.velocity;
-                vector2.y = 0;
+                vector2.y = 0.005f;
                 rb.velocity = vector2;
                 if (bonusJumps <= 0)
                 {
@@ -242,6 +242,11 @@ namespace Player {
                 var size = boxCollider2d.size;
                 size.x = defaultBoxColliderWidth;
                 boxCollider2d.size = size;
+            }
+
+            if (state is CollisionState.OnWallLeft or CollisionState.OnWallRight)
+            {
+                slipperyFrames = 0;
             }
 
             if (state is CollisionState.OnSlope)
@@ -299,10 +304,12 @@ namespace Player {
 
             if (state is CollisionState.OnGround)
             {
+                const float EDGE_RADIUS = 0.005f;
+                
                 BoxCollider2D boxCollider2d = GetComponent<BoxCollider2D>();
-                boxCollider2d.edgeRadius = 0.0f;
+                boxCollider2d.edgeRadius = EDGE_RADIUS;
                 var size = boxCollider2d.size;
-                size.x = defaultBoxColliderWidth + defaultBoxColliderEdge;
+                size.x = defaultBoxColliderWidth + defaultBoxColliderEdge - EDGE_RADIUS/2f;
                 boxCollider2d.size = size;
             }
             if (state is CollisionState.OnSlope)
@@ -660,6 +667,7 @@ namespace Player {
                 liveYUpdates = 3;
                 rb.drag = defaultLinearDrag;
                 fallTime = 0;
+                slipperyFrames /= 2;
                 jumpEvent = new JumpEvent();
                 return;
             }
@@ -673,7 +681,18 @@ namespace Player {
 
                 if (rocketBoots.Active && TryConsumeEnergy(SelfRobotUpgradeInfo.ROCKET_BOOTS_COST_PER_SECOND * Time.deltaTime, 0))
                 {
+                    if (rocketBoots.Boost <= 0)
+                    {
+                        if (rb.velocity.y < 0)
+                        {
+                            var vector2 = rb.velocity;
+                            vector2.y = 0;
+                            rb.velocity = vector2;
+                        }
+                        rocketBoots.Boost = rb.velocity.y/2f;
+                    }
                     rocketBoots.UpdateBoost(ControlUtils.GetControlKey(PlayerControl.Jump));
+                    
                     if (rocketBoots.FlightTime < 0)
                     {
                         rocketBoots.Terminate();
@@ -777,7 +796,7 @@ namespace Player {
             WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
             ILoadedChunkSystem iLoadedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(adjacentTilePosition);
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(adjacentTilePosition);
             var (partition, positionInPartition) = iLoadedChunkSystem.GetPartitionAndPositionAtCellPosition(cellPosition);
             if (partition == null) return false;
 
@@ -986,20 +1005,25 @@ namespace Player {
             PlayerPickUp playerPickup = GetPlayerPick();
             playerPickup.CanPickUp = false;
             immuneToNextFall = true;
-            iFrames = 50;
+            iFrames = int.MaxValue;
             freezeY = true;
             StartCoroutine(UnPausePlayer());
         }
 
         private IEnumerator UnPausePlayer()
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
+            iFrames = 0;
             fluidCollisionInformation.Clear();
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             PlayerPickUp playerPickup = GetComponentInChildren<PlayerPickUp>();
             playerPickup.CanPickUp = true;
             freezeY = false;
-            collisionStates.Clear(); // Might do weird things
+            List<CollisionState> stateArray = collisionStates.ToList();
+            foreach (CollisionState collisionState in stateArray)
+            {
+                RemoveCollisionState(collisionState);
+            }
         }
 
         private void CalculateFallTime()
@@ -1164,7 +1188,7 @@ namespace Player {
             RaycastHit2D objHit = Physics2D.BoxCast(tileCenter,new Vector2(Global.TILE_SIZE-0.02f,Global.TILE_SIZE-0.02f),0,Vector2.zero,Mathf.Infinity,baseCollidableLayer);
             if (ReferenceEquals(objHit.collider, null)) return null;
             ILoadedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(tileCenter);
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(tileCenter);
             var (partition, positionInPartition) = system.GetPartitionAndPositionAtCellPosition(cellPosition);
             
             return partition?.GetTileItem(positionInPartition, TileMapLayer.Base);
@@ -1181,7 +1205,7 @@ namespace Player {
             WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
             if (ReferenceEquals(worldTileGridMap, null)) return null;
             
-            TileItem tileItem = worldTileGridMap.getTileItem(Global.getCellPositionFromWorld(transform.position));
+            TileItem tileItem = worldTileGridMap.getTileItem(Global.GetCellPositionFromWorld(transform.position));
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 

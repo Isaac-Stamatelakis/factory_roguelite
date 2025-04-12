@@ -112,13 +112,13 @@ namespace UI {
                 }
             });
             upButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index-1,itemSlots.Count);
+                int newIndex = Global.ModInt(index-1,itemSlots.Count);
                 (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 reloadable.reloadAll();
             });
             downButton.onClick.AddListener(() => {
-                int newIndex = Global.modInt(index+1,itemSlots.Count);
+                int newIndex = Global.ModInt(index+1,itemSlots.Count);
                 (itemSlots[index], itemSlots[newIndex]) = (itemSlots[newIndex], itemSlots[index]);
                 index = newIndex;
                 reloadable.reloadAll();

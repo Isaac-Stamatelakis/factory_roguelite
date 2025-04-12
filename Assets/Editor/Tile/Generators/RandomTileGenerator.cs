@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 
 public class RandomTileGenerator : EditorWindow {
     private string tileName;
@@ -64,7 +65,7 @@ public class RandomTileGenerator : EditorWindow {
         AssetDatabase.Refresh();
         Sprite[] sprites = EditorFactory.spritesFromTexture(texture,"Assets/EditorCreations/" + tileName, tileName,width*16,height*16);
         AssetDatabase.Refresh();
-        RandomTile randomTile = ScriptableObject.CreateInstance<IDRandomTile>();
+        RandomTile randomTile = ScriptableObject.CreateInstance<RandomTile>();
         randomTile.m_Sprites = sprites;
         randomTile.sprite = sprites[0];
         ItemEditorFactory.setTileTransformOffset(sprites[0],randomTile);

@@ -49,10 +49,10 @@ namespace UI.Catalogue.ItemSearch
             searchField.onValueChanged.AddListener(OnSearchChange);
             
             editButton.onClick.AddListener(OnEditButtonClick);
-            //editButton.interactable = playerScript.Cheats;
             mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
-            leftButton.onClick.AddListener(OnLeftButtonPress);
+            SetEditButtonColor();
             
+            leftButton.onClick.AddListener(OnLeftButtonPress);
             rightButton.onClick.AddListener(OnRightButtonPress);
             
             CanvasController.Instance.AddTypingListener(searchField);
@@ -150,14 +150,18 @@ namespace UI.Catalogue.ItemSearch
         {
             if (!Input.GetKey(KeyCode.LeftControl)) return;
             playerScript.ItemSearchCheat = !playerScript.ItemSearchCheat;
+            mode = playerScript.ItemSearchCheat ? CatalogueMode.Cheat : CatalogueMode.Recipe;
+            SetEditButtonColor();
+        }
+
+        private void SetEditButtonColor()
+        {
             switch (mode) {
                 case CatalogueMode.Cheat:
-                    mode = CatalogueMode.Recipe;
-                    editButtonImage.color = Color.gray;
+                    editButtonImage.color = Color.red;
                     break;
                 case CatalogueMode.Recipe:
-                    mode = CatalogueMode.Cheat;
-                    editButtonImage.color = Color.red;
+                    editButtonImage.color = Color.gray;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Tiles.CustomTiles.IdTiles;
 
 public class RuleTileGenerator : EditorWindow {
     private Texture2D texture;
@@ -47,7 +48,7 @@ public class RuleTileGenerator : EditorWindow {
             return;
         }
         AssetDatabase.CreateFolder("Assets/EditorCreations", tileName);
-        IdRuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
+        RuleTile ruleTile = EditorFactory.ruleTilefrom64x64Texture(texture,"Assets/EditorCreations/" + tileName, tileName);
         ItemEditorFactory.saveTileWithName(ruleTile,tileName);
 #pragma warning disable CS0618 // Type or member is obsolete
         ItemEditorFactory.GeneratedTileItem(

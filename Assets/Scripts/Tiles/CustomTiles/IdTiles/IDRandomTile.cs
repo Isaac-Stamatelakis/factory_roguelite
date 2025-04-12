@@ -1,21 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[CreateAssetMenu(fileName ="New Tile",menuName="Tile/Random")]
-public class IDRandomTile : RandomTile, IIDTile
+namespace Tiles.CustomTiles.IdTiles
 {
-    public string id;
-    public string getId()
+    [System.Obsolete("This class is deprecated. Use 'RandomTile' instead.")]
+    public class IDRandomTile : RandomTile
     {
-        return id;
-    }
-
-    public void setID(string id)
-    {
-        this.id = id;
-    }
-
     
+    }
 }

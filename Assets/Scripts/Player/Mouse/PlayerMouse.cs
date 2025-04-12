@@ -176,7 +176,7 @@ namespace PlayerModule.Mouse {
             Vector2Int cellPosition;
             if (hitMap is IOutlineTileGridMap outlineTileGridMap)
             {
-                cellPosition = Global.getCellPositionFromWorld(toolHitPosition);
+                cellPosition = Global.GetCellPositionFromWorld(toolHitPosition);
                 Vector3Int vector3Int = new Vector3Int(cellPosition.x, cellPosition.y, 0);
                 outlineTileMapCellData = outlineTileGridMap.GetOutlineCellData(vector3Int);
             }
@@ -241,7 +241,7 @@ namespace PlayerModule.Mouse {
 
         private bool DisplayTextPreviewToolTip(ITextPreviewTileEntity textPreviewTileEntity)
         {
-            Vector2Int spriteSize = Global.getSpriteSize(TileItem.GetDefaultSprite(textPreviewTileEntity.GetTile()));
+            Vector2Int spriteSize = Global.GetSpriteSize(TileItem.GetDefaultSprite(textPreviewTileEntity.GetTile()));
             float verticalOffset = (spriteSize.y / 2 + 1) * Global.TILE_SIZE;
             Vector2 worldPosition = textPreviewTileEntity.GetWorldPosition() + Vector2.up*verticalOffset;
             
@@ -275,7 +275,7 @@ namespace PlayerModule.Mouse {
             if (!closedChunkSystem) {
                 return null;
             }
-            Vector2Int chunkPosition = Global.getChunkFromWorld(mousePosition);
+            Vector2Int chunkPosition = Global.GetChunkFromWorld(mousePosition);
             return closedChunkSystem.GetChunk(chunkPosition);
         }
 
@@ -351,7 +351,7 @@ namespace PlayerModule.Mouse {
             
             IConduitSystemManager conduitSystemManager = conduitTileClosedChunkSystem.GetManager(conduitType.Value);
             if (conduitSystemManager is not PortConduitSystemManagerManager portConduitSystemManager) return false;
-            Vector2Int cellPosition = Global.getCellPositionFromWorld(mousePosition);
+            Vector2Int cellPosition = Global.GetCellPositionFromWorld(mousePosition);
             IPortConduit conduit = portConduitSystemManager.GetConduitWithPort(cellPosition);
             if (conduit == null) {
                 return false;
@@ -386,7 +386,7 @@ namespace PlayerModule.Mouse {
             if (chunk == null) {
                 return false;
             }
-            Vector2Int partitionPosition = Global.getPartitionFromWorld(worldPositionTile);
+            Vector2Int partitionPosition = Global.GetPartitionFromWorld(worldPositionTile);
             Vector2Int partitionPositionInChunk = partitionPosition -chunk.GetPosition()*Global.PARTITIONS_PER_CHUNK;
             Vector2Int tilePositionInPartition = nonNullPosition-partitionPosition*Global.CHUNK_PARTITION_SIZE;
             IChunkPartition chunkPartition = chunk.GetPartition(partitionPositionInChunk);
@@ -593,7 +593,7 @@ namespace PlayerModule.Mouse {
             if (robotToolInstance == null) return;
        
             if (mousePosition == lastMousePosition) return;
-            Vector2Int tilePosition = Global.getCellPositionFromWorld(mousePosition);
+            Vector2Int tilePosition = Global.GetCellPositionFromWorld(mousePosition);
             if (lastTilePosition == tilePosition) return;
             
             lastMousePosition = mousePosition;

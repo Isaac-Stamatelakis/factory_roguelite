@@ -52,6 +52,7 @@ namespace UI
         }
         private bool isTyping;
         public bool BlockKeyInput => IsActive || isTyping;
+        public bool UIActive => uiObjectStack.Count > 0 || isTyping;
 
         public void Update()
         {
@@ -153,7 +154,7 @@ namespace UI
             return !ReferenceEquals(uiObjectStack.Peek().gameObject.GetComponent<T>(), null);
         }
 
-        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true)
+        public void DisplayObject(GameObject uiObject, List<KeyCode> keyCodes = null, bool hideOnStack = true, bool hideParent = true, Transform originalParent = null, bool terminateOnEscape = true, bool blockMovement = true, bool blocker = true)
         {
             DisplayObject(new DisplayedUIInfo
             {
@@ -163,7 +164,8 @@ namespace UI
                 hideOnStack = hideOnStack,
                 hideParent = hideParent,
                 termianteOnEscape = terminateOnEscape,
-                blockMovement = blockMovement
+                blockMovement = blockMovement,
+                blocker = blocker
             });
         }
 
@@ -186,7 +188,7 @@ namespace UI
                 }
             }
 
-            mBlocker?.gameObject.SetActive(true);
+            mBlocker?.gameObject.SetActive(uiInfo.blocker);
             canTerminate = false;
             uiInfo.gameObject.transform.SetParent(transform,false);
             uiObjectStack.Push(uiInfo);
@@ -225,6 +227,7 @@ namespace UI
         public Transform originalParent;
         public bool termianteOnEscape;
         public bool blockMovement;
+        public bool blocker;
     }
     
 }

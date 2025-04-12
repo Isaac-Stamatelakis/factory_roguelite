@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Items.Transmutable;
+using Tiles.CustomTiles.IdTiles;
+using UnityEngine.Tilemaps;
 
 public static class TransmutableItemFactory
 {
@@ -27,9 +29,8 @@ public static class TransmutableItemFactory
     private static TransmutableTileItem generateTileItem(TransmutableItemState state, TransmutableItemMaterial material, string name, Sprite[] sprites, string id, string path) {
         TransmutableTileItem transmutableItemObject = ScriptableObject.CreateInstance<TransmutableTileItem>();
         transmutableItemObject.name = name;
-        StandardTile tile = ItemEditorFactory.standardTileCreator(sprites[0],TileColliderType.Tile);
+        Tile tile = ItemEditorFactory.StandardTileCreator(sprites[0],TileColliderType.Tile);
         tile.name = "T~" + name;
-        tile.id = id;
         transmutableItemObject.setState(state);
         transmutableItemObject.setMaterial(material);
         AssetDatabase.CreateAsset(tile,path);

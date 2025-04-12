@@ -1,19 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class IdAnimatedTile : AnimatedTile, IIDTile
+namespace Tiles.CustomTiles.IdTiles
 {
-    public string id;
-
-    public string getId()
+    [System.Obsolete("This class is deprecated. Use 'AnimatedTile' instead.")]
+    public class IdAnimatedTile : AnimatedTile
     {
-        return id;
-    }
-
-    public void setID(string id)
-    {
-        this.id = id;
+    
     }
 }

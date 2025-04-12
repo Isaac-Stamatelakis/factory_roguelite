@@ -161,12 +161,12 @@ namespace PlayerModule {
             {
                 case InventoryDisplayMode.Inventory:
                     selectedSlot += iterator;
-                    selectedSlot = (int) Global.modInt(selectedSlot,INVENTORY_SIZE);
+                    selectedSlot = (int) Global.ModInt(selectedSlot,INVENTORY_SIZE);
                     ChangeSelectedSlot(selectedSlot); 
                     break;
                 case InventoryDisplayMode.Tools:
                     selectedTool += iterator;
-                    selectedTool = (int) Global.modInt(selectedTool,playerRobot.RobotTools.Count);
+                    selectedTool = (int) Global.ModInt(selectedTool,playerRobot.RobotTools.Count);
                     ChangeSelectedSlot(selectedTool); 
                     break;
                 default:
@@ -183,7 +183,7 @@ namespace PlayerModule {
                 return;
             }
             
-            IChunk chunk = DimensionManager.Instance.GetPlayerSystem().GetChunk(Global.getChunkFromWorld(transform.position));
+            IChunk chunk = DimensionManager.Instance.GetPlayerSystem().GetChunk(Global.GetChunkFromWorld(transform.position));
             if (chunk is not ILoadedChunk loadedChunk) return;
             
             ItemEntityFactory.SpawnItemEntityWithRandomVelocity(transform.position,itemSlot,loadedChunk.GetEntityContainer());
