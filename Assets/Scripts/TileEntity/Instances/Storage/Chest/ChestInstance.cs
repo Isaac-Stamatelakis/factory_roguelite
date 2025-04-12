@@ -22,6 +22,7 @@ namespace TileEntity.Instances
     public class SingleItemInventory : IItemConduitInteractable
     {
         public List<ItemSlot> Items;
+        private int lastInsertSlot; // Always try to insert at first null slot
 
         public SingleItemInventory(List<ItemSlot> items)
         {
@@ -43,11 +44,60 @@ namespace TileEntity.Instances
 
         public void InsertItem(ItemState state, ItemSlot toInsert, Vector2Int portPosition)
         {
-            ItemSlotUtils.InsertIntoInventory(Items, toInsert, Global.MAX_SIZE);
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return;
+            
+            ItemSlot lastSlot = Items[lastInsertSlot];
+            // Always try to insert into last insert slot first
+            bool lastLastNull = ItemSlotUtils.IsItemSlotNull(lastSlot);
+            if (!lastLastNull && ItemSlotUtils.CanInsertIntoSlot(lastSlot, toInsert, Global.MAX_SIZE))
+            {
+                ItemSlotUtils.InsertIntoSlot(lastSlot,toInsert, Global.MAX_SIZE);
+                return;
+            }
+            
+            const int NO_NULL_SLOT = -1;
+            int firstNullIndex = lastLastNull ? lastInsertSlot : NO_NULL_SLOT;
+          
+            // Two loops to avoid try to insert into last insertion slot again
+            for (int i = 0; i < lastInsertSlot; i++) {
+                ItemSlot inputSlot = Items[i];
+                if (ItemSlotUtils.IsItemSlotNull(inputSlot))
+                {
+                    if (firstNullIndex < 0) firstNullIndex = i;
+                    continue;
+                }
+                if (!ItemSlotUtils.AreEqual(inputSlot,toInsert) || inputSlot.amount >= Global.MAX_SIZE) {
+                    continue;
+                }
+                ItemSlotUtils.InsertIntoSlot(inputSlot,toInsert,Global.MAX_SIZE);
+                lastInsertSlot = i;
+                return;
+            }
+            
+            for (int i = lastInsertSlot+1; i < Items.Count; i++) {
+                ItemSlot inputSlot = Items[i];
+                if (ItemSlotUtils.IsItemSlotNull(inputSlot))
+                {
+                    if (firstNullIndex < 0) firstNullIndex = i;
+                    continue;
+                }
+                if (!ItemSlotUtils.AreEqual(inputSlot,toInsert) || inputSlot.amount >= Global.MAX_SIZE) {
+                    continue;
+                }
+                ItemSlotUtils.InsertIntoSlot(inputSlot,toInsert,Global.MAX_SIZE);
+                lastInsertSlot = i;
+                return;
+            }
+
+            if (firstNullIndex == NO_NULL_SLOT) return;
+            
+            Items[firstNullIndex] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
+            toInsert.amount=0;
+            lastInsertSlot = firstNullIndex;
         }
     }
     public class ChestInstance : TileEntityInstance<Chest>, ISerializableTileEntity, IBreakActionTileEntity, 
-        ISolidItemPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity, IConduitPortTileEntity
+        ISolidItemPortTileEntityAggregator, IBluePrintPlaceInitializedTileEntity, IConduitPortTileEntity, ISingleSolidInventoryTileEntity
     {
         public SingleItemInventory Inventory;
         public ChestInstance(Chest tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
@@ -95,6 +145,10 @@ namespace TileEntity.Instances
             }
             Inventory = new SingleItemInventory(items);
         }
-        
+
+        public List<ItemSlot> GetInventory()
+        {
+            return Inventory.Items;
+        }
     }
 }

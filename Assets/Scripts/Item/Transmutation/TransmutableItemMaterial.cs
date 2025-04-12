@@ -4,6 +4,7 @@ using Item.GameStage;
 using UnityEngine;
 using TileEntity;
 using UI.Chat;
+using UnityEngine.Serialization;
 
 
 namespace Items.Transmutable {
@@ -17,7 +18,8 @@ namespace Items.Transmutable {
         public string chemicalFormula;
         public TieredGameStage gameStageObject;
         public Sprite OverlaySprite;
-        public Material ShaderMaterial;
+        [FormerlySerializedAs("ShaderMaterial")] public Material UIShaderMaterial;
+        public Material WorldShaderMaterial;
         
         public TransmutableMaterialOptions MaterialOptions;
         public virtual List<TransmutableStateOptions> GetStates()
@@ -35,6 +37,7 @@ namespace Items.Transmutable {
             {
                 stateOptionDict[stateOptions.state] = stateOptions;
             }
+            
             return stateOptionDict;
         }
     }

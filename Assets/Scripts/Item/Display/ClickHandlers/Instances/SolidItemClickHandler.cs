@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
@@ -142,17 +143,17 @@ namespace Item.Inventory.ClickHandlers.Instances
         }
         protected override void MiddleClick()
         {
-            
+            List<ItemSlot> sorted = ItemSlotUtils.SortInventory(inventoryUI.GetInventory(), ItemSlotUtils.InventorySortMode.Name);
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                inventoryUI.SetItem(i,sorted[i]);
+            }
         }
 
         public override void MiddleMouseScroll()
         {
             if (ReferenceEquals(inventoryUI?.Connection, null)) return;
-
-            var inventory = inventoryUI.GetInventory();
-            ItemSlot inventorySlot = inventory[index];
-            if (ItemSlotUtils.IsItemSlotNull(inventorySlot)) return;
-
+            
             bool isScrollingUp = Input.mouseScrollDelta.y > 0;
             bool takeFromConnection = !isScrollingUp;
             if (takeFromConnection)
@@ -170,10 +171,23 @@ namespace Item.Inventory.ClickHandlers.Instances
             if (inventoryUI.InventoryInteractMode == InventoryInteractMode.BlockInput) return;
             var inventory = inventoryUI.GetInventory();
             ItemSlot inventorySlot = inventory[index];
-
+            var connectionInventory = inventoryUI.Connection.GetInventory();
+            if (ItemSlotUtils.IsItemSlotNull(inventorySlot))
+            {
+                foreach (ItemSlot connectionSlot in connectionInventory)
+                {
+                    if (ItemSlotUtils.IsItemSlotNull(connectionSlot)) continue;
+                    ItemSlot splice = ItemSlotFactory.Splice(connectionSlot, 1);
+                    connectionSlot.amount--;
+                    inventory[index] = splice;
+                    CallInventoryUIListeners();
+                    return;
+                }
+                return;
+            }
+            
             if (inventorySlot.amount >= inventoryUI.MaxSize) return;
             
-            var connectionInventory = inventoryUI.Connection.GetInventory();
             foreach (ItemSlot connectionSlot in connectionInventory)
             {
                 if (ItemSlotUtils.IsItemSlotNull(connectionSlot)) continue;

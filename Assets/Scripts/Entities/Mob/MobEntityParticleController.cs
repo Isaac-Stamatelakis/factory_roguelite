@@ -11,7 +11,7 @@ namespace Entities.Mob
 
         public void Initialize(ParticleSystem prefab)
         {
-            DeathParticles = Instantiate(prefab);
+            DeathParticles = Instantiate(prefab,transform,false);
         }
 
         public void PlayDeathParticles(Vector2 position, MobEntity.MobDeathParticles particles)

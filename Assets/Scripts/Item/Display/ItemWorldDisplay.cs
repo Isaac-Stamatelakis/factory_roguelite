@@ -60,9 +60,9 @@ namespace Item.Display
                 if (material)
                 {
                     spriteRenderer.color = transmutableItemObject.getMaterial().color;
-                    if (material.ShaderMaterial)
+                    if (material.WorldShaderMaterial)
                     {
-                        spriteRenderer.material = material.ShaderMaterial;
+                        spriteRenderer.material = material.WorldShaderMaterial;
                     }
                     
                 }
@@ -133,7 +133,7 @@ namespace Item.Display
                 var tileOverlay = tileItem.tileOptions.Overlay;
                 if (tileOverlay)
                 {
-                    var material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial() : null;
+                    var material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World) : null;
                     AddOverlaySprite(TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile()),tileOverlay.GetColor(),material);
                 }
             }

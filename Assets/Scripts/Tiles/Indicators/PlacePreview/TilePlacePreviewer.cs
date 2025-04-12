@@ -154,7 +154,7 @@ namespace TileMaps.Previewer {
                 
                 if (tileOverlay is IShaderTileOverlay shaderTileOverlay)
                 {
-                    Material material = shaderTileOverlay.GetMaterial();
+                    Material material = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
                     overlayRenderer.material = material ?? mainMaterial;
                 }
                 else

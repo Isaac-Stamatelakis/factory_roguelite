@@ -32,6 +32,7 @@ namespace UI.Chat {
             { "itemtag", (parameters, ui) => new ItemTagCommand(parameters, ui) },
             { "clear", (parameters, ui) => new ClearInventoryCommand(parameters, ui) },
             { "damage", (parameters, ui) => new DamageCommand(parameters, ui) },
+            { MaxUpgradeCommand.NAME, (parameters, ui) => new MaxUpgradeCommand(parameters, ui) },
         };
 
         public static List<string> getAllCommands() {

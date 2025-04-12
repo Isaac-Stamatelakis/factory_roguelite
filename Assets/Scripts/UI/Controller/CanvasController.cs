@@ -78,7 +78,7 @@ namespace UI
                 return;
             }
 
-            
+            if (isTyping) return;
             DisplayedUIInfo top = uiObjectStack.Peek();
             List<KeyCode> additionalTerminators = top.additionalTerminators;
             if (additionalTerminators == null) return;

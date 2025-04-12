@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Item.Display.ClickHandlers;
 using Items;
 using Items.Tags;
@@ -70,12 +72,7 @@ namespace Item.Slot
             if (to == null || from == null) return;
             foreach (ItemSlot itemSlot in from)
             {
-                if (IsItemSlotNull(itemSlot)) continue;
-                while (itemSlot.amount > 0)
-                {
-                    if (!InsertIntoInventory(to,itemSlot,maxSize)) break;
-                }
-                
+                InsertIntoInventory(to, itemSlot, maxSize);
             }
         }
         public static bool InsertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
@@ -84,8 +81,8 @@ namespace Item.Slot
             }
 
             if (ItemSlotUtils.IsItemSlotNull(toInsert)) return false;
-          
             int firstNullIndex = -1;
+            
             // First pass look for matches
             for (int i = 0; i < contained.Count; i++) {
                 ItemSlot inputSlot = contained[i];
@@ -98,7 +95,7 @@ namespace Item.Slot
                     continue;
                 }
                 InsertIntoSlot(inputSlot,toInsert,maxSize);
-                return true;
+                if (toInsert.amount == 0) return true;
             }
 
             if (firstNullIndex < 0) return false;
@@ -106,6 +103,46 @@ namespace Item.Slot
             contained[firstNullIndex] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
             toInsert.amount=0;
             return true;
+        }
+
+        public static void QuickStackInventoryIntoInventory(List<ItemSlot> to, List<ItemSlot> from, uint maxSize)
+        {
+            if (to == null || from == null) return;
+            foreach (ItemSlot itemSlot in from)
+            {
+                InsertMatchingIntoInventory(to, itemSlot, maxSize);
+            }
+        }
+        public static void InsertMatchingIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
+            if (contained == null) return;
+
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return;
+            bool match = false;
+            for (int i = 0; i < contained.Count; i++) {
+                ItemSlot inputSlot = contained[i];
+                if (IsItemSlotNull(inputSlot)) continue;
+                
+                if (!AreEqual(inputSlot,toInsert)) continue;
+                
+                if (inputSlot.amount >= maxSize) 
+                {
+                    match = true;
+                    continue;
+                }
+                InsertIntoSlot(inputSlot,toInsert,maxSize);
+                if (toInsert.amount == 0) return;
+                match = true;
+            }
+            if (!match) return;
+            
+            for (int i = 0; i < contained.Count; i++) {
+                ItemSlot inputSlot = contained[i];
+                if (!IsItemSlotNull(inputSlot)) continue;
+                
+                contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
+                toInsert.amount=0;
+                return;
+            }
         }
         
         public static void InsertOneIdInventory(List<ItemSlot> contained, string id, uint maxSize, uint amount) {
@@ -398,6 +435,43 @@ namespace Item.Slot
             }
             
             return dictionary;
+        }
+
+        public enum InventorySortMode
+        {
+            Name
+        }
+
+        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortMode sortMode)
+        {
+            IComparer<ItemSlot> comparer = GetInventoryComparer(sortMode);
+            List<ItemSlot> sortedCopy = itemSlots
+                .OrderBy(slot => slot, new ItemSlotNameComparer())
+                .ToList();
+            return sortedCopy;
+        }
+        
+        private static IComparer<ItemSlot> GetInventoryComparer(InventorySortMode sortMode)
+        {
+            switch (sortMode)
+            {
+                case InventorySortMode.Name:
+                    return new ItemSlotNameComparer();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sortMode), sortMode, null);
+            }
+        }
+        private class ItemSlotNameComparer : IComparer<ItemSlot>
+        {
+            public int Compare(ItemSlot first, ItemSlot second)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(first)) return 1;
+                if (ItemSlotUtils.IsItemSlotNull(second)) return -1;
+                string firstName = first.itemObject.name;
+                string secondName = second.itemObject.name;
+    
+                return string.Compare(firstName, secondName, StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 }

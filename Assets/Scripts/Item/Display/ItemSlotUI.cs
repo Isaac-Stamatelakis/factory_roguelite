@@ -181,12 +181,14 @@ namespace Items {
                     color = transmutableMaterial.color;
                     if (transmutableMaterial.OverlaySprite)
                     {
+                        
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
+                        
                     }
 
-                    if (transmutableMaterial.ShaderMaterial)
+                    if (transmutableMaterial.UIShaderMaterial)
                     {
-                        ItemImage.material = transmutableMaterial.ShaderMaterial;
+                        ItemImage.material = transmutableMaterial.UIShaderMaterial;
                     }
                 }
                 
@@ -197,7 +199,7 @@ namespace Items {
                 if (tileOverlay)
                 {
                     Sprite tileSprite = TileItem.GetDefaultSprite(tileOverlay.GetDisplayTile());
-                    Material material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial() : null;
+                    Material material = tileOverlay is IShaderTileOverlay shaderTileOverlay ? shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.UI) : null;
                     AddOverlay(tileSprite, tileOverlay.GetColor(),$"TileOverlay",material);
                 }
 
