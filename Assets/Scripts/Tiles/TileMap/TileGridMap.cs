@@ -174,7 +174,7 @@ namespace TileMaps {
         private Tilemap GetOverlayTileMap(TileOverlay tileOverlay)
         {
             if (tileOverlay is not IShaderTileOverlay shaderTileOverlay) return overlayTileMap;
-            Material shaderMaterial = shaderTileOverlay.GetMaterial();
+            Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
             return !shaderMaterial ? overlayTileMap : shaderOverlayTilemapManager.GetTileMap(shaderMaterial);
         }
 

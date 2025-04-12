@@ -1,3 +1,4 @@
+using System;
 using Items.Transmutable;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,7 +7,12 @@ namespace Tiles.Options.Overlay
 {
     public interface IShaderTileOverlay
     {
-        public Material GetMaterial();
+        public enum ShaderType
+        {
+            World,
+            UI
+        }
+        public Material GetMaterial(ShaderType shaderType);
     }
     [CreateAssetMenu(fileName ="I~New RobotObject Item",menuName="Tile/Overlay/Transmutable")]
     
@@ -29,9 +35,18 @@ namespace Tiles.Options.Overlay
             return ItemMaterial?.color ?? Color.white;
         }
 
-        public Material GetMaterial()
+        public Material GetMaterial(IShaderTileOverlay.ShaderType shaderType)
         {
-            return ItemMaterial.ShaderMaterial;
+            switch (shaderType)
+            {
+                case IShaderTileOverlay.ShaderType.World:
+                    return ItemMaterial.WorldShaderMaterial;
+                case IShaderTileOverlay.ShaderType.UI:
+                    return ItemMaterial.UIShaderMaterial;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(shaderType), shaderType, null);
+            }
+            
         }
     }
 }

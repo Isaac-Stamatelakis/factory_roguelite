@@ -1,0 +1,4 @@
+_Stencil
+_StencilOp
+_StencilComp
+_StencilReadMask

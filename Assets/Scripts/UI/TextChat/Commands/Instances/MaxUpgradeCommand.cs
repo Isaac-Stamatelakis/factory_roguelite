@@ -90,6 +90,7 @@ namespace UI.Chat {
 
         void ResetUpgrades(List<RobotUpgradeData> upgradeDataList)
         {
+            Debug.Log("HI");
             foreach (RobotUpgradeData upgrade in upgradeDataList)
             {
                 upgrade.Amount = 0;

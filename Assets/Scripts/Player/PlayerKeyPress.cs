@@ -47,6 +47,7 @@ namespace PlayerModule.KeyPress {
         void Update()
         {
             inventoryKeyPresses();
+            
             if (canvasController.UIActive) return;
             ControlUtils.UpdateModifierCount();
             

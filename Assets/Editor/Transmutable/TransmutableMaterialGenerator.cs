@@ -239,7 +239,7 @@ public class TransmutableItemGenerator : EditorWindow
             tileOverlay = CreateInstance<TransmutableTileOverlay>();
             tileOverlay.ItemMaterial = material;
             tileOverlay.name = ORE_OVERLAY_NAME;
-            tileOverlay.OverlayWrapper = material.ShaderMaterial ? shaderOutlineWrapper : outlineWrapper;
+            tileOverlay.OverlayWrapper = material.WorldShaderMaterial ? shaderOutlineWrapper : outlineWrapper;
             string savePath = overlayPath + ".asset";
             AssetDatabase.CreateAsset(tileOverlay, savePath);
             AssetDatabase.SaveAssets();
