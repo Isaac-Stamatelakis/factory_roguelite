@@ -60,7 +60,7 @@ namespace TileEntity.Instances.Caves.Teleporter
             }
 
             var outMain = outer.main;
-            outMain.simulationSpeed *= 1 / 2f; // Makes outer particles fade last
+            outMain.simulationSpeed *= 3 / 4f; // Makes outer particles fade last
             TurnOffLooping(outer);
             TurnOffLooping(mid);
             inner.gameObject.SetActive(false); // Having inner fade instantly looks nicer

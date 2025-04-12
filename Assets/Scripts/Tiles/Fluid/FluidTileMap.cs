@@ -273,6 +273,10 @@ namespace Fluids {
                     FluidCell fluidCell = new FluidCell(null, 0, FLOW_ALL, position,true);
                     simulator.AddFluidCell(fluidCell,true);
                 }
+                else
+                {
+                    current.FlowBitMap = FLOW_ALL;
+                }
             }
             
             simulator.UnsettleNeighbors(position);

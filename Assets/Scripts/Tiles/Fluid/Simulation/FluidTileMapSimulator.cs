@@ -22,7 +22,7 @@ namespace Tiles.Fluid.Simulation
 	{
 		public FluidTileItem FluidTileItem;
 		public float Liquid;
-		private readonly int flowBitMap;
+		public int FlowBitMap;
 		public Vector2Int Position;
 		public float Diff;
 		public bool QueuedForUpdate;
@@ -30,14 +30,14 @@ namespace Tiles.Fluid.Simulation
 
 		public bool CanFlow(FluidFlowDirection fluidFlowDirection)
 		{
-			return (flowBitMap & (int)fluidFlowDirection) != 0;
+			return (FlowBitMap & (int)fluidFlowDirection) != 0;
 		}
 
 		public FluidCell(FluidTileItem fluidTileItem, float liquid, int flowBitMap, Vector2Int position, bool displayable)
 		{
 			FluidTileItem = fluidTileItem;
 			Liquid = liquid;
-			this.flowBitMap = flowBitMap;
+			this.FlowBitMap = flowBitMap;
 			Position = position;
 			Displayable = displayable;
 		}

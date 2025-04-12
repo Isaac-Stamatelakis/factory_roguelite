@@ -82,8 +82,8 @@ namespace UI.ToolTip {
             Canvas canvas = transform.parent.GetComponent<Canvas>();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvas.GetComponent<RectTransform>(),
-                position,
-                canvas.worldCamera, // Use 'null' for Overlay Canvas
+                 position,
+                canvas.worldCamera,
                 out Vector2 localPoint
             );
             RectTransform rectTransform = (RectTransform)toolTipTransform;
@@ -104,7 +104,7 @@ namespace UI.ToolTip {
             }
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rectTransform.parent as RectTransform,
-                Input.mousePosition,
+                canvasCamera.WorldToScreenPoint(position),
                 canvasCamera,
                 out Vector2 localPos
             );

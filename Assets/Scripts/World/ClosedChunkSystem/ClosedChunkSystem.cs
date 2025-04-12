@@ -191,6 +191,7 @@ namespace Chunks.Systems {
             partitionsToLoad.Clear();
             partitionsToUnload.Clear();
             partitionsToFarLoad.Clear();
+            
             const int CHUNK_SEARCH_RANGE = Global.CHUNK_LOAD_RANGE + 1;
             for (int x = - CHUNK_SEARCH_RANGE; x <=  CHUNK_SEARCH_RANGE; x++) {
                 for (int y = - CHUNK_SEARCH_RANGE; y <=  CHUNK_SEARCH_RANGE; y++) {
@@ -198,7 +199,7 @@ namespace Chunks.Systems {
                     if (!cachedChunks.TryGetValue(chunkPosition, out var chunk)) {
                         continue;
                     }
-                    chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToUnload);
+                    chunk.GetLoadedPartitionsFar(currentPlayerPartition,CameraView.ChunkPartitionLoadRange+Vector2Int.one,partitionsToUnload);
                     chunk.GetUnloadedPartitionsCloseTo(currentPlayerPartition,CameraView.ChunkPartitionLoadRange,partitionsToLoad);
                 }
             }

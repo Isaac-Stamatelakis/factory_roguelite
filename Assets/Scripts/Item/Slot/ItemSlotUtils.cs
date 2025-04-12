@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Item.Display.ClickHandlers;
 using Items;
 using Items.Tags;
 using Tiles;
@@ -69,13 +70,20 @@ namespace Item.Slot
             if (to == null || from == null) return;
             foreach (ItemSlot itemSlot in from)
             {
-                InsertIntoInventory(to,itemSlot,maxSize);
+                if (IsItemSlotNull(itemSlot)) continue;
+                while (itemSlot.amount > 0)
+                {
+                    if (!InsertIntoInventory(to,itemSlot,maxSize)) break;
+                }
+                
             }
         }
         public static bool InsertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
             if (contained == null) {
                 return false;
             }
+
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return false;
           
             int firstNullIndex = -1;
             // First pass look for matches
