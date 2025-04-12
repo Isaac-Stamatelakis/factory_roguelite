@@ -67,16 +67,13 @@ namespace UI.PlayerInvUI
             bool inventoryConnected = inventoryUITileEntity != null;
             giveAllButton.gameObject.SetActive(inventoryConnected);
             giveAllButton.gameObject.SetActive(inventoryConnected);
+            quickStackButton.gameObject.SetActive(inventoryConnected);
             if (!inventoryConnected) return;
-           
-            takeAllButton.onClick.AddListener(() =>
-            {
-                OnInventoryInteractPress(InventoryInteractType.Take);
-            });
-            giveAllButton.onClick.AddListener(() =>
-            {
-                OnInventoryInteractPress(InventoryInteractType.Give);
-            });
+
+            takeAllButton.onClick.AddListener(TakeAllPress);
+            giveAllButton.onClick.AddListener(GiveAllPress);
+            quickStackButton.onClick.AddListener(OnQuickStackPress);
+            
             playerInventoryUI.SetConnection(inventoryUITileEntity.GetInput());
             inventoryUITileEntity.GetInput().SetConnection(playerInventoryUI);
             List<InventoryUI> inventories = inventoryUITileEntity.GetAllInventoryUIs();
@@ -87,38 +84,56 @@ namespace UI.PlayerInvUI
                 inventoryUI?.SetConnection(playerInventoryUI);
             }
             return;
-            
-            void OnInventoryInteractPress(InventoryInteractType inventoryGiveMode)
+
+            void OnQuickStackPress()
             {
-                foreach (InventoryUI inventoryUI in inventoryUITileEntity.GetAllInventoryUIs())
+                InventoryUI inputInventoryUI = inventoryUITileEntity.GetInput();
+                if (!inputInventoryUI || !CanInsertIntoInventory(inputInventoryUI)) return;
+                ItemSlotUtils.QuickStackInventoryIntoInventory(inputInventoryUI.GetInventory(),playerInventoryUI.GetInventory(),Global.MAX_SIZE);
+                inputInventoryUI.RefreshSlots();
+                RefreshPlayerInventoryUI();
+            }
+
+            void GiveAllPress()
+            {
+                InventoryUI inputInventoryUI = inventoryUITileEntity.GetInput();
+                if (!inputInventoryUI || !CanInsertIntoInventory(inputInventoryUI)) return;
+                ItemSlotUtils.InsertInventoryIntoInventory(inputInventoryUI.GetInventory(),playerInventoryUI.GetInventory(),Global.MAX_SIZE);
+                inputInventoryUI.RefreshSlots();
+                RefreshPlayerInventoryUI();
+            }
+
+            void TakeAllPress()
+            {
+                InventoryUI inputInventoryUI = inventoryUITileEntity.GetInput();
+                List<InventoryUI> connections = inventoryUITileEntity.GetAllInventoryUIs();
+                foreach (InventoryUI inventoryUI in connections)
                 {
-                    List<ItemSlot> itemSlots = inventoryUI.GetInventory();
-                    if (itemSlots == null || itemSlots.Count == 0) continue;
-                    ItemState itemState = inventoryUI.GetItemSlotUI(0).ItemState;
-                    if (itemState != ItemState.Solid) continue; // Only need check the first item slot ui
-                    switch (inventoryGiveMode)
-                    {
-                        case InventoryInteractType.Take:
-                            ItemSlotUtils.InsertInventoryIntoInventory(playerInventoryUI.GetInventory(),itemSlots,Global.MAX_SIZE);
-                            break;
-                        case InventoryInteractType.Give:
-                            ItemSlotUtils.InsertInventoryIntoInventory(itemSlots,playerInventoryUI.GetInventory(),Global.MAX_SIZE);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(inventoryGiveMode), inventoryGiveMode, null);
-                    }
+                    if (!inventoryUI || !CanInsertIntoInventory(inventoryUI)) continue;
+                    bool isInput = ReferenceEquals(inventoryUI, inputInventoryUI);
+                    if (isInput && connections.Count > 1) continue;
+                    
+                    ItemSlotUtils.InsertInventoryIntoInventory(playerInventoryUI.GetInventory(),inventoryUI.GetInventory(),Global.MAX_SIZE);
                     inventoryUI.RefreshSlots();
                 }
+                RefreshPlayerInventoryUI();
+            }
+
+            void RefreshPlayerInventoryUI()
+            {
                 playerInventoryUI.RefreshSlots();
                 originalPlayerInventoryUI.RefreshSlots();
             }
+            
+            bool CanInsertIntoInventory(InventoryUI inventoryUI)
+            {
+                List<ItemSlot> itemSlots = inventoryUI.GetInventory();
+                if (itemSlots == null || itemSlots.Count == 0) return false;
+                ItemState itemState = inventoryUI.GetItemSlotUI(0).ItemState;
+                return itemState == ItemState.Solid; // Only need check the first item slot ui
+            }
         }
         
-        private enum InventoryInteractType
-        {
-            Take,
-            Give,
-        }
         
         public void SetBackgroundColor(Color color)
         {
