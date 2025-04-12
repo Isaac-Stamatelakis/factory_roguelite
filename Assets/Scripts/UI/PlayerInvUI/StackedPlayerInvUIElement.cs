@@ -193,6 +193,7 @@ namespace UI.PlayerInvUI
                 }
             }
             playerInventoryUI.RefreshSlots();
+            originalPlayerInventoryUI.RefreshSlots();
 
             return;
 
@@ -222,13 +223,13 @@ namespace UI.PlayerInvUI
                 switch (inventoryInteractionType)
                 {
                     case InventoryInteractionType.Take:
-                        ItemSlotUtils.InsertInventoryIntoInventory(inputInventory,playerInventory,Global.MAX_SIZE);
-                        break;
-                    case InventoryInteractionType.Give:
                         foreach (List<ItemSlot> outputInventory in outputInventories)
                         {
                             ItemSlotUtils.InsertInventoryIntoInventory(playerInventory,outputInventory,Global.MAX_SIZE);
                         }
+                        break;
+                    case InventoryInteractionType.Give:
+                        ItemSlotUtils.InsertInventoryIntoInventory(inputInventory,playerInventory,Global.MAX_SIZE);
                         break;
                     case InventoryInteractionType.QuickStack:
                         ItemSlotUtils.QuickStackInventoryIntoInventory(inputInventory,playerInventory,Global.MAX_SIZE);

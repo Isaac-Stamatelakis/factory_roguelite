@@ -35,6 +35,7 @@ namespace Items.Transmutable {
             {
                 stateOptionDict[stateOptions.state] = stateOptions;
             }
+            
             return stateOptionDict;
         }
     }

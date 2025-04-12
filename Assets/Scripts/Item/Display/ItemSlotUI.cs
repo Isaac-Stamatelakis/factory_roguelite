@@ -181,7 +181,9 @@ namespace Items {
                     color = transmutableMaterial.color;
                     if (transmutableMaterial.OverlaySprite)
                     {
+                        
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
+                        
                     }
 
                     if (transmutableMaterial.ShaderMaterial)

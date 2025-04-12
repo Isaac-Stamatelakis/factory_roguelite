@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Item.Display.ClickHandlers;
 using Items;
 using Items.Tags;
@@ -433,6 +435,43 @@ namespace Item.Slot
             }
             
             return dictionary;
+        }
+
+        public enum InventorySortMode
+        {
+            Name
+        }
+
+        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortMode sortMode)
+        {
+            IComparer<ItemSlot> comparer = GetInventoryComparer(sortMode);
+            List<ItemSlot> sortedCopy = itemSlots
+                .OrderBy(slot => slot, new ItemSlotNameComparer())
+                .ToList();
+            return sortedCopy;
+        }
+        
+        private static IComparer<ItemSlot> GetInventoryComparer(InventorySortMode sortMode)
+        {
+            switch (sortMode)
+            {
+                case InventorySortMode.Name:
+                    return new ItemSlotNameComparer();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sortMode), sortMode, null);
+            }
+        }
+        private class ItemSlotNameComparer : IComparer<ItemSlot>
+        {
+            public int Compare(ItemSlot first, ItemSlot second)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(first)) return 1;
+                if (ItemSlotUtils.IsItemSlotNull(second)) return -1;
+                string firstName = first.itemObject.name;
+                string secondName = second.itemObject.name;
+    
+                return string.Compare(firstName, secondName, StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 }
