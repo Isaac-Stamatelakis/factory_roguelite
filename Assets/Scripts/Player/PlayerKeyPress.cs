@@ -53,9 +53,7 @@ namespace PlayerModule.KeyPress {
             
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
             {
-                PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
-                playerInventoryUI.Display(playerScript);
-                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory), blockMovement:false);
+                playerScript.PlayerInventory.ToggleInventoryMode();
             }
             
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenSearch))

@@ -14,6 +14,8 @@ using Player;
 using PlayerModule;
 using TileEntity;
 using TileEntity.Instances.Machine.UI;
+using UI.ToolTip;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +29,7 @@ namespace UI.PlayerInvUI
         [SerializeField] private Button takeAllButton;
         [SerializeField] private Button giveAllButton;
         [SerializeField] private Button quickStackButton;
-
+        [SerializeField] private Button sortModeButton;
         private InventoryUI originalPlayerInventoryUI;
         public void Start()
         {
@@ -36,6 +38,16 @@ namespace UI.PlayerInvUI
             originalPlayerInventoryUI = playerInventory.InventoryUI;
             trashCanUI.DisplayInventory(new List<ItemSlot>{null},false);
             playerInventoryUI.AddCallback(RefreshBaseUI);
+
+            ToolTipUIDisplayer uiDisplayer = takeAllButton.AddComponent<ToolTipUIDisplayer>();
+            uiDisplayer.SetMessage("Take All");
+            uiDisplayer = giveAllButton.AddComponent<ToolTipUIDisplayer>();
+            uiDisplayer.SetMessage("Give All");
+            uiDisplayer = quickStackButton.AddComponent<ToolTipUIDisplayer>();
+            uiDisplayer.SetMessage("Quick Stack");
+            //uiDisplayer = sortModeButton.AddComponent<ToolTipUIDisplayer>();
+            //uiDisplayer.SetAction("Quick Stack");
+            
         }
 
         public void Update()
