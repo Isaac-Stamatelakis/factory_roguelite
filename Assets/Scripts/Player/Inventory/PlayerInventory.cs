@@ -19,6 +19,7 @@ using Player;
 using Player.Controls;
 using Player.Inventory;
 using Player.Tool;
+using Player.UI.Inventory;
 using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using Robot;
@@ -27,6 +28,7 @@ using Robot.Tool.UI;
 using TileEntity;
 using UI;
 using UI.Indicators;
+using UI.Indicators.General;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -59,6 +61,8 @@ namespace PlayerModule {
         public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
         private CanvasController canvasController;
         private InventoryMode inventoryMode = InventoryMode.Closed;
+
+        private GameObject inventoryIndicator;
         // Start is called before the first frame update
         void Start()
         {
@@ -71,18 +75,6 @@ namespace PlayerModule {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(json);
             playerInventoryGrid.AddListener(this);
             DisplayInventory();
-            List<string> topText = new List<string>();
-            for (int i = 0; i < INVENTORY_SIZE; i++)
-            {
-                topText.Add(((i+1)%10).ToString());
-            }
-            playerInventoryGrid.DisplayTopText(topText);
-
-            void FreezeTopText(ItemSlotUI itemSlotUI)
-            {
-                itemSlotUI.LockTopText = true;
-            }
-            playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
         }
         
         
@@ -148,19 +140,48 @@ namespace PlayerModule {
 
         private void DisplayInventory()
         {
+            PlayerScript playerScript = GetComponent<PlayerScript>();
             switch (inventoryMode)
             {
                 case InventoryMode.Open:
                     playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,4*INVENTORY_SIZE);
                     playerInventoryGrid.HighlightSlot(selectedSlot);
+
+                    if (!inventoryIndicator)
+                    {
+                        inventoryIndicator = GameObject.Instantiate(
+                            playerScript.PlayerUIContainer.InventoryIndicatorPrefab,
+                            playerScript.PlayerUIContainer.IndicatorContainer
+                        );
+                        inventoryIndicator.transform.SetAsFirstSibling();
+                        inventoryIndicator.GetComponentInChildren<InventoryUtilUI>().DisplayWorldMode(playerScript);
+                    }
+                    
                     break;
                 case InventoryMode.Closed:
                     playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,INVENTORY_SIZE);
                     playerInventoryGrid.HighlightSlot(selectedSlot);
+                    if (inventoryIndicator)
+                    {
+                        GameObject.Destroy(inventoryIndicator);
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            List<string> topText = new List<string>();
+            for (int i = 0; i < INVENTORY_SIZE; i++)
+            {
+                topText.Add(((i+1)%10).ToString());
+            }
+            
+            playerInventoryGrid.DisplayTopText(topText);
+
+            void FreezeTopText(ItemSlotUI itemSlotUI)
+            {
+                itemSlotUI.LockTopText = true;
+            }
+            playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
         }
 
         public void ChangeSelectedTool(int index)

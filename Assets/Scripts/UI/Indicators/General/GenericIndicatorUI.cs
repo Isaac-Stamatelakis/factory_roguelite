@@ -1,11 +1,10 @@
 using System;
 using Player.Controls;
 using UI.ToolTip;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class GenericIndicatorUI : MonoBehaviour, IKeyCodeIndicator, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {

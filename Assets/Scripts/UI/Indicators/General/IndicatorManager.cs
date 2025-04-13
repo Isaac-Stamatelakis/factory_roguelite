@@ -1,18 +1,12 @@
-
-using System;
-using System.Collections.Generic;
-using Dimensions;
 using Player;
 using Player.Controls;
-using Player.UI;
-using PlayerModule;
 using TMPro;
 using UI.Catalogue.ItemSearch;
 using UI.QuestBook;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public enum IndicatorDisplayBundle
     {
@@ -54,9 +48,7 @@ namespace UI.Indicators
             void OnInventoryClick()
             {
                 PlayerScript playerScript = PlayerManager.Instance.GetPlayer();
-                PlayerInventoryUI playerInventoryUI = Instantiate(playerScript.Prefabs.PlayerInventoryUIPrefab);
-                playerInventoryUI.Display(playerScript);
-                CanvasController.Instance.DisplayObject(playerInventoryUI.gameObject, keyCodes: ControlUtils.GetKeyCodes(PlayerControl.OpenInventory), blockMovement:false);
+                playerScript.PlayerInventory.ToggleInventoryMode();
             }
             inventoryIndicator.Initialize(PlayerControl.OpenInventory, ()=> "Open Inventory", OnInventoryClick);
             

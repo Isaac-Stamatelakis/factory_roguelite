@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Conduit.View;
 using Player;
@@ -8,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class ConduitViewIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
@@ -91,7 +90,7 @@ namespace UI.Indicators
         public void OnPointerEnter(PointerEventData eventData)
         {
             string text = GetToolTipText();
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode: {text}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit View Mode: {text}");
         }
 
         private string GetToolTipText()

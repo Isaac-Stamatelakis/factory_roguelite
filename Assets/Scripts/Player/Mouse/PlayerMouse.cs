@@ -37,6 +37,7 @@ using Tiles.Highlight;
 using Tiles.Indicators;
 using UI;
 using UI.Indicators;
+using UI.Indicators.General;
 using UI.ToolTip;
 using MoveDirection = Robot.Tool.MoveDirection;
 

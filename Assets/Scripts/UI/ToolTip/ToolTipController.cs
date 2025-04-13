@@ -89,25 +89,35 @@ namespace UI.ToolTip {
             RectTransform rectTransform = (RectTransform)toolTipTransform;
             rectTransform.anchoredPosition = localPoint;
         }
-        public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null, bool reverse = false) {
+        public void ShowToolTip(Vector2 position, string text, bool useOffset = true, Color? backGroundColor = null) {
             HideToolTip();
             ToolTipUI newToolTip = GameObject.Instantiate(toolTipPrefab, transform, false);
             newToolTip.setText(text);   
             
             newToolTip.GetComponent<Image>().color = backGroundColor ?? defaultToolTipColor;
             RectTransform rectTransform = (RectTransform)newToolTip.transform;
-            if (reverse)
-            {
-                var pivot = rectTransform.pivot;
-                pivot.x = 1;
-                rectTransform.pivot = pivot;
-            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rectTransform.parent as RectTransform,
                 canvasCamera.WorldToScreenPoint(position),
                 canvasCamera,
                 out Vector2 localPos
             );
+            Vector3 rightEdgeWorldPos = rectTransform.TransformPoint(
+                new Vector3(localPos.x + rectTransform.sizeDelta.x, 0, 0)
+            );
+            Vector3 rightEdgeViewport = canvasCamera.WorldToViewportPoint(rightEdgeWorldPos);
+          
+            // For some reason my viewport calculation returns a viewport in range [-0.5f,0.5f]
+            bool reverse = rightEdgeViewport.x > 0.4f; // Choose a value a bit less than 0.5f
+            if (reverse)
+            {
+                var pivot = rectTransform.pivot;
+                pivot.x = 1;
+                rectTransform.pivot = pivot;
+            }
+           
             rectTransform.anchoredPosition = localPos+ (useOffset ? (reverse ? -offset : offset) : Vector2.zero);
             toolTipType = ToolTipType.UI;
         }

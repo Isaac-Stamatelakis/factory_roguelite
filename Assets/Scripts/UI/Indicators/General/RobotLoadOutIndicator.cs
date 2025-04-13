@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Player;
 using Player.Controls;
-using Player.Tool;
 using Robot.Upgrades;
 using Robot.Upgrades.Info;
 using Robot.Upgrades.LoadOut;
@@ -12,7 +11,7 @@ using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class RobotLoadOutIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
