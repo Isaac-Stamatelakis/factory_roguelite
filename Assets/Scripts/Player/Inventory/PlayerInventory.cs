@@ -29,6 +29,7 @@ using TileEntity;
 using UI;
 using UI.Indicators;
 using UI.Indicators.General;
+using UI.ToolTip;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
@@ -163,6 +164,7 @@ namespace PlayerModule {
                     playerInventoryGrid.HighlightSlot(selectedSlot);
                     if (inventoryIndicator)
                     {
+                        ToolTipController.Instance.HideToolTip();
                         GameObject.Destroy(inventoryIndicator);
                     }
                     break;

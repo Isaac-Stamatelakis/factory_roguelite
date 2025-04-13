@@ -8,6 +8,7 @@ namespace UI.ToolTip
     {
         private string message;
         private Func<string> messageAction;
+        private bool focused;
 
         public void SetMessage(string message)
         {
@@ -20,13 +21,24 @@ namespace UI.ToolTip
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
+            focused = true;
+            Refresh();
+        }
+
+        public void Refresh()
+        {
             string text = messageAction != null ? messageAction.Invoke() : message;
             ToolTipController.Instance.ShowToolTip(transform.position,text);
         }
-
         public void OnPointerExit(PointerEventData eventData)
         {
+            focused = false;
             ToolTipController.Instance.HideToolTip();
+        }
+
+        public void OnDestroy()
+        {
+            if (focused) ToolTipController.Instance.HideToolTip();
         }
     }
 }

@@ -7,15 +7,18 @@ using Items.Inventory;
 using PlayerModule;
 using TileEntity;
 using TileEntity.Instances.Machine.UI;
+using TMPro;
 using UI.ToolTip;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Player.UI.Inventory
 {
     public class InventoryUtilUI : MonoBehaviour
     {
+        private const string SORT_MODE_LOOKUP = "inventory_sort_mode";
         [SerializeField] private InventoryUI trashCanUI;
         [SerializeField] private Button takeAllButton;
         [SerializeField] private Button giveAllButton;
@@ -39,6 +42,45 @@ namespace Player.UI.Inventory
             uiDisplayer.SetMessage("Give All");
             uiDisplayer = quickStackButton.AddComponent<ToolTipUIDisplayer>();
             uiDisplayer.SetMessage("Quick Stack");
+            uiDisplayer = sortModeButton.AddComponent<ToolTipUIDisplayer>();
+            uiDisplayer.SetAction(GetSortModeTooltip);
+
+            sortModeButton.GetComponentInChildren<TextMeshProUGUI>().text = GetSortModeText();
+            string GetSortModeTooltip()
+            {
+                int current = PlayerPrefs.GetInt(SORT_MODE_LOOKUP);
+                InventorySortingMode sortingMode = (InventorySortingMode)current;
+                return $"Sort Mode: {sortingMode.ToString()}";
+            }
+
+            string GetSortModeText()
+            {
+                int current = PlayerPrefs.GetInt(SORT_MODE_LOOKUP);
+                InventorySortingMode sortingMode = (InventorySortingMode)current;
+                switch (sortingMode)
+                {
+                    case InventorySortingMode.Alphabetical:
+                        return "a-Z";
+                    case InventorySortingMode.Tier:
+                        return "Tier";
+                    case InventorySortingMode.ItemType:
+                        return "Type";
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            void IterateSortMode()
+            {
+                int current = PlayerPrefs.GetInt(SORT_MODE_LOOKUP);
+                InventorySortingMode sortingMode = (InventorySortingMode)current;
+                sortingMode = GlobalHelper.ShiftEnum(1, sortingMode);
+                PlayerPrefs.SetInt(SORT_MODE_LOOKUP, (int)sortingMode);
+                uiDisplayer.Refresh();
+                sortModeButton.GetComponentInChildren<TextMeshProUGUI>().text = GetSortModeText();
+            }
+
+            sortModeButton.onClick.AddListener(IterateSortMode);
 
         }
 
@@ -245,7 +287,13 @@ namespace Player.UI.Inventory
             ToPlayer,
             FromPlayer
         }
+    }
 
+    public enum InventorySortingMode
+    {
+        Alphabetical,
+        Tier,
+        ItemType
     }
     
 }
