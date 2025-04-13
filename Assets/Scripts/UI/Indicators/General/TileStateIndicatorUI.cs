@@ -1,4 +1,3 @@
-using System;
 using Player;
 using Tiles;
 using UI.ToolTip;
@@ -6,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class TileStateIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
@@ -71,7 +70,7 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:  {GetStateName(tilePlacementOption?.State ?? 0)}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Place State:{GetStateName(tilePlacementOption?.State ?? 0)}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

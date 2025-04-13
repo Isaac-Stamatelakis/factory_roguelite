@@ -1,5 +1,4 @@
 using System;
-using Conduit.View;
 using Conduits.Systems;
 using Player;
 using Player.Controls;
@@ -8,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class ConduitPlacementModeIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
@@ -40,7 +39,7 @@ namespace UI.Indicators
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode: Connect {conduitPlacementOptions?.PlacementMode}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Conduit Placement Mode: Connect {conduitPlacementOptions?.PlacementMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

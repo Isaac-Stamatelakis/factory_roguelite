@@ -198,7 +198,6 @@ namespace Player
     public class PlayerUIPrefabs
     {
         public UIRingSelector RingSelectorPrefab;
-        public PlayerInventoryUI PlayerInventoryUIPrefab;
         public ItemSearchUI ItemSearchUIPrefab;
     }
     [System.Serializable]

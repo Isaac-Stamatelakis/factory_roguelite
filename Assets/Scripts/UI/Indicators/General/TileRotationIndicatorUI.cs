@@ -1,4 +1,3 @@
-using System;
 using Player;
 using Player.Controls;
 using UI.ToolTip;
@@ -6,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class TileRotationIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
@@ -25,7 +24,7 @@ namespace UI.Indicators
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions?.Rotation}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Tile Rotation:  {90*displayedOptions?.Rotation}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

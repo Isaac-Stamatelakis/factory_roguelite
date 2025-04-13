@@ -1,13 +1,10 @@
-using System;
-using Dimensions;
 using Player;
-using Tiles;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class CaveIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
@@ -34,12 +31,12 @@ namespace UI.Indicators
 
         private string GetDimensionText()
         {
-            return $"Distance From Portal: {distance:F1}m";
+            return $"Distance From Portal:{distance:F1}m";
         }
         
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, GetDimensionText(),reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, GetDimensionText());
         }
 
         public void OnPointerExit(PointerEventData eventData)

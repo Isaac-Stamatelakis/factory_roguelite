@@ -19,6 +19,7 @@ using Player;
 using Player.Controls;
 using Player.Inventory;
 using Player.Tool;
+using Player.UI.Inventory;
 using PlayerModule.KeyPress;
 using PlayerModule.Mouse;
 using Robot;
@@ -27,17 +28,24 @@ using Robot.Tool.UI;
 using TileEntity;
 using UI;
 using UI.Indicators;
+using UI.Indicators.General;
+using UI.ToolTip;
 
 namespace PlayerModule {
     public class PlayerInventory : MonoBehaviour, IInventoryListener
     {
+        public enum InventoryMode
+        {
+            Open,
+            Closed
+        }
         public const int INVENTORY_SIZE = 10;
         
         [SerializeField] private InventoryUI playerInventoryGrid;
         [SerializeField] private PlayerToolListUI playerToolListUI;
         private PlayerRobot playerRobot;
         private PlayerMouse playerMouse;
-        private InventoryDisplayMode mode = InventoryDisplayMode.Inventory;
+        private InteractMode mode = InteractMode.Inventory;
         private int selectedSlot = 0;
         private int selectedTool = 0;
         public int CurrentToolIndex => selectedTool;
@@ -51,10 +59,11 @@ namespace PlayerModule {
         public InventoryUI InventoryUI => playerInventoryGrid;
         public IRobotToolInstance CurrentTool => playerRobot.RobotTools[selectedTool];
         public RobotToolType CurrentToolType => playerRobot.ToolTypes[selectedTool];
-        public InventoryDisplayMode Mode => mode;
         public PlayerToolListUI PlayerRobotToolUI => playerToolListUI;
-
         private CanvasController canvasController;
+        private InventoryMode inventoryMode = InventoryMode.Closed;
+
+        private GameObject inventoryIndicator;
         // Start is called before the first frame update
         void Start()
         {
@@ -65,25 +74,10 @@ namespace PlayerModule {
 
         public void Initialize(string json) {
             playerInventoryData = PlayerInventoryFactory.DeserializePlayerInventory(json);
-            playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,INVENTORY_SIZE);
-            playerInventoryGrid.HighlightSlot(0);
             playerInventoryGrid.AddListener(this);
-            
-            List<string> topText = new List<string>();
-            for (int i = 0; i < INVENTORY_SIZE; i++)
-            {
-                topText.Add(((i+1)%10).ToString());
-            }
-            playerInventoryGrid.DisplayTopText(topText);
-
-            void FreezeTopText(ItemSlotUI itemSlotUI)
-            {
-                itemSlotUI.LockTopText = true;
-            }
-
-            playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
-
+            DisplayInventory();
         }
+        
         
         public void InitializeToolDisplay()
         {
@@ -101,13 +95,13 @@ namespace PlayerModule {
             if (canvasController.BlockKeyInput) return;
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
-                mode = InventoryDisplayMode.Tools;
+                mode = InteractMode.Tools;
                 playerToolListUI.Highlight(true);
             }
 
             if (Input.GetKeyUp(KeyCode.LeftShift))
             {
-                mode = InventoryDisplayMode.Inventory;
+                mode = InteractMode.Inventory;
                 playerToolListUI.Highlight(false);
             }
         }
@@ -115,7 +109,7 @@ namespace PlayerModule {
         public void ChangeSelectedSlot(int slot) {
             switch (mode)
             {
-                case InventoryDisplayMode.Inventory:
+                case InteractMode.Inventory:
                     selectedSlot = slot;
                     playerInventoryGrid.HighlightSlot(slot);
                     ItemSlot itemSlot = playerInventoryGrid.GetItemSlot(selectedSlot);
@@ -131,11 +125,65 @@ namespace PlayerModule {
                         indicatorManager.AddViewBundle(IndicatorDisplayBundle.ConduitPlace);
                     }
                     break;
-                case InventoryDisplayMode.Tools:
+                case InteractMode.Tools:
                     ChangeSelectedTool(slot % playerRobot.RobotTools.Count);
                     break;
             }
             
+        }
+
+        public void ToggleInventoryMode()
+        {
+            inventoryMode = GlobalHelper.ShiftEnum(1, inventoryMode);
+            DisplayInventory();
+
+        }
+
+        private void DisplayInventory()
+        {
+            PlayerScript playerScript = GetComponent<PlayerScript>();
+            switch (inventoryMode)
+            {
+                case InventoryMode.Open:
+                    playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,4*INVENTORY_SIZE);
+                    playerInventoryGrid.HighlightSlot(selectedSlot);
+
+                    if (!inventoryIndicator)
+                    {
+                        inventoryIndicator = GameObject.Instantiate(
+                            playerScript.PlayerUIContainer.InventoryIndicatorPrefab,
+                            playerScript.PlayerUIContainer.IndicatorContainer
+                        );
+                        inventoryIndicator.transform.SetAsFirstSibling();
+                        inventoryIndicator.GetComponentInChildren<InventoryUtilUI>().DisplayWorldMode(playerScript);
+                    }
+                    
+                    break;
+                case InventoryMode.Closed:
+                    playerInventoryGrid.DisplayInventory(playerInventoryData.Inventory,INVENTORY_SIZE);
+                    playerInventoryGrid.HighlightSlot(selectedSlot);
+                    if (inventoryIndicator)
+                    {
+                        ToolTipController.Instance.HideToolTip();
+                        GameObject.Destroy(inventoryIndicator);
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            List<string> topText = new List<string>();
+            for (int i = 0; i < INVENTORY_SIZE; i++)
+            {
+                topText.Add(((i+1)%10).ToString());
+            }
+            
+            playerInventoryGrid.DisplayTopText(topText);
+
+            void FreezeTopText(ItemSlotUI itemSlotUI)
+            {
+                itemSlotUI.LockTopText = true;
+            }
+            playerInventoryGrid.ApplyFunctionToAllSlots(FreezeTopText);
         }
 
         public void ChangeSelectedTool(int index)
@@ -159,12 +207,12 @@ namespace PlayerModule {
         public void IterateSelectedTile(int iterator) {
             switch (mode)
             {
-                case InventoryDisplayMode.Inventory:
+                case InteractMode.Inventory:
                     selectedSlot += iterator;
                     selectedSlot = (int) Global.ModInt(selectedSlot,INVENTORY_SIZE);
                     ChangeSelectedSlot(selectedSlot); 
                     break;
-                case InventoryDisplayMode.Tools:
+                case InteractMode.Tools:
                     selectedTool += iterator;
                     selectedTool = (int) Global.ModInt(selectedTool,playerRobot.RobotTools.Count);
                     ChangeSelectedSlot(selectedTool); 
@@ -374,7 +422,7 @@ namespace PlayerModule {
         
     }
 
-    public enum InventoryDisplayMode {
+    public enum InteractMode {
         Inventory,
         Tools
     }

@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public interface IKeyCodeIndicator
     {
@@ -57,7 +57,7 @@ namespace UI.Indicators
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode:  {playerScript?.ConduitViewOptions?.PortViewMode}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Port View Mode: {playerScript?.ConduitViewOptions?.PortViewMode}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

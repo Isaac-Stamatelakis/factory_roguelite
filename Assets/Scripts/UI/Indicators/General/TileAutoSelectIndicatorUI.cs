@@ -1,14 +1,11 @@
-using System;
-using Player;
 using Player.Controls;
 using PlayerModule.Mouse;
-using Tiles;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class TileAutoSelectIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IKeyCodeIndicator
     {
@@ -30,7 +27,7 @@ namespace UI.Indicators
         public void OnPointerEnter(PointerEventData eventData)
         {
             string stateText = autoSelectActive ? "On" : "Off";
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Auto Select: {stateText}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Auto Select: {stateText}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

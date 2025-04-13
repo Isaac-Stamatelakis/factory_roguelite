@@ -1,11 +1,10 @@
 using Player;
-using Tiles;
 using UI.ToolTip;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UI.Indicators
+namespace UI.Indicators.General
 {
     public class TileHighligherIndicatorUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
@@ -25,7 +24,7 @@ namespace UI.Indicators
         public void OnPointerEnter(PointerEventData eventData)
         {
             string text = playerScript?.TilePlacementOptions?.Indiciator.ToString() ?? string.Empty;
-            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview: {text}",reverse:true);
+            ToolTipController.Instance.ShowToolTip(transform.position, $"Placement Preview: {text}");
         }
 
         public void OnPointerExit(PointerEventData eventData)

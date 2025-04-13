@@ -23,6 +23,7 @@ using TileEntity;
 using TileMaps;
 using UI;
 using UI.Indicators;
+using UI.Indicators.General;
 using UI.JEI;
 using UI.QuestBook;
 using UnityEngine.AddressableAssets;
