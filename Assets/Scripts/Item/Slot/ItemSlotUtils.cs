@@ -75,6 +75,27 @@ namespace Item.Slot
                 InsertIntoInventory(to, itemSlot, maxSize);
             }
         }
+
+        private static List<ItemSlot> InsertInventoryIntoInventoryRecordAction(List<ItemSlot> to, List<ItemSlot> from,
+            uint maxSize, Func<List<ItemSlot>, ItemSlot, uint, bool> func)
+        {
+            List<ItemSlot> recordedItems = new List<ItemSlot>();
+            if (to == null || from == null) return recordedItems;
+            for (var index = 0; index < from.Count; index++)
+            {
+                var itemSlot = from[index];
+                bool added = func.Invoke(to, itemSlot, maxSize);
+                // If added itemSlot amount is now 0, but all other data is maintainted, so we can just record a clone with amount 1 for display
+                if (added) recordedItems.Add(new ItemSlot(itemSlot.itemObject,1,itemSlot.tags));
+            }
+
+            return recordedItems;
+        }
+        
+        public static List<ItemSlot> InsertInventoryIntoInventoryRecordItems(List<ItemSlot> to, List<ItemSlot> from, uint maxSize)
+        {
+            return InsertInventoryIntoInventoryRecordAction(to,from,maxSize,InsertIntoInventory);
+        }
         public static bool InsertIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
             if (contained == null) {
                 return false;
@@ -113,10 +134,16 @@ namespace Item.Slot
                 InsertMatchingIntoInventory(to, itemSlot, maxSize);
             }
         }
-        public static void InsertMatchingIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
-            if (contained == null) return;
+        
+        public static List<ItemSlot> QuickStackInventoryIntoInventoryRecordItems(List<ItemSlot> to, List<ItemSlot> from, uint maxSize)
+        {
+            return InsertInventoryIntoInventoryRecordAction(to,from,maxSize,InsertMatchingIntoInventory);
+        }
+        
+        public static bool InsertMatchingIntoInventory(List<ItemSlot> contained, ItemSlot toInsert, uint maxSize) {
+            if (contained == null) return false;
 
-            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return;
+            if (ItemSlotUtils.IsItemSlotNull(toInsert)) return false;
             bool match = false;
             for (int i = 0; i < contained.Count; i++) {
                 ItemSlot inputSlot = contained[i];
@@ -130,10 +157,10 @@ namespace Item.Slot
                     continue;
                 }
                 InsertIntoSlot(inputSlot,toInsert,maxSize);
-                if (toInsert.amount == 0) return;
+                if (toInsert.amount == 0) return true;
                 match = true;
             }
-            if (!match) return;
+            if (!match) return false;
             
             for (int i = 0; i < contained.Count; i++) {
                 ItemSlot inputSlot = contained[i];
@@ -141,8 +168,10 @@ namespace Item.Slot
                 
                 contained[i] = new ItemSlot(toInsert.itemObject,toInsert.amount,toInsert.tags);
                 toInsert.amount=0;
-                return;
+                return true;
             }
+
+            return false;
         }
         
         public static void InsertOneIdInventory(List<ItemSlot> contained, string id, uint maxSize, uint amount) {
@@ -233,7 +262,6 @@ namespace Item.Slot
             } else {
                 toCombineInto.amount = sum;
                 toTakeFrom.amount = 0;
-                toTakeFrom.itemObject = null;
             }
         }
         

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Chunks;
 using Chunks.Systems;
 using Conduits.Ports;
+using Item.Display;
 using Item.Display.ClickHandlers;
 using Item.GrabbedItem;
 using Item.Inventory.ClickHandlers.Instances;
@@ -220,19 +221,23 @@ namespace UI.PlayerInvUI
                         return;
                 }
 
+                
                 switch (inventoryInteractionType)
                 {
                     case InventoryInteractionType.Take:
                         foreach (List<ItemSlot> outputInventory in outputInventories)
                         {
-                            ItemSlotUtils.InsertInventoryIntoInventory(playerInventory,outputInventory,Global.MAX_SIZE);
+                            List<ItemSlot> takenItems = ItemSlotUtils.InsertInventoryIntoInventoryRecordItems(playerInventory,outputInventory,Global.MAX_SIZE);
+                            if (takenItems.Count > 0) DisplayTransport(takenItems,position,TransportDirection.ToPlayer);
                         }
                         break;
                     case InventoryInteractionType.Give:
-                        ItemSlotUtils.InsertInventoryIntoInventory(inputInventory,playerInventory,Global.MAX_SIZE);
+                        List<ItemSlot> given = ItemSlotUtils.InsertInventoryIntoInventoryRecordItems(inputInventory,playerInventory,Global.MAX_SIZE);
+                        if (given.Count > 0) DisplayTransport(given,position,TransportDirection.FromPlayer);
                         break;
                     case InventoryInteractionType.QuickStack:
-                        ItemSlotUtils.QuickStackInventoryIntoInventory(inputInventory,playerInventory,Global.MAX_SIZE);
+                        List<ItemSlot> quickStacked = ItemSlotUtils.QuickStackInventoryIntoInventoryRecordItems(inputInventory,playerInventory,Global.MAX_SIZE);
+                        if (quickStacked.Count > 0) DisplayTransport(quickStacked,position,TransportDirection.FromPlayer);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(inventoryInteractionType), inventoryInteractionType, null);
@@ -243,11 +248,35 @@ namespace UI.PlayerInvUI
                     inventoryListener.InventoryUpdate(0);
                 }
             }
+
+            void DisplayTransport(List<ItemSlot> items, Vector2Int tileEntityPosition, TransportDirection transportDirection)
+            {
+                Vector2 worldPosition = Global.TILE_SIZE * Vector2.one * tileEntityPosition + Vector2.one*Global.TILE_SIZE/2f;
+                const int MAX_DISPLAY = 3;
+                GameObject transport = new GameObject("ItemTransport");
+                ItemTransportWorldDisplay transportDisplay = transport.AddComponent<ItemTransportWorldDisplay>();
+                
+                switch (transportDirection)
+                {
+                    case TransportDirection.ToPlayer:
+                        transportDisplay.DisplayTransport(worldPosition,playerScript.transform.position,items,MAX_DISPLAY);
+                        transportDisplay.SetMovingTarget(playerScript.transform);
+                        break;
+                    case TransportDirection.FromPlayer:
+                        transportDisplay.DisplayTransport(playerScript.transform.position,worldPosition,items,MAX_DISPLAY);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(transportDirection), transportDirection, null);
+                }
+            }
         }
         
+        enum TransportDirection
+        {
+            ToPlayer,
+            FromPlayer
+        }
         
-        
-
         public void SetBackgroundColor(Color color)
         {
             GetComponent<Image>().color = color;
