@@ -193,9 +193,7 @@ namespace UI.PlayerInvUI
                     CheckSpot(-r, y);
                 }
             }
-            playerInventoryUI.RefreshSlots();
-            originalPlayerInventoryUI.RefreshSlots();
-
+           
             return;
 
             void CheckSpot(int x, int y)
@@ -259,11 +257,11 @@ namespace UI.PlayerInvUI
                 switch (transportDirection)
                 {
                     case TransportDirection.ToPlayer:
-                        transportDisplay.DisplayTransport(worldPosition,playerScript.transform.position,items,MAX_DISPLAY);
+                        transportDisplay.DisplayTransport(playerScript,playerInventoryUI,worldPosition,playerScript.transform.position,items,MAX_DISPLAY);
                         transportDisplay.SetMovingTarget(playerScript.transform);
                         break;
                     case TransportDirection.FromPlayer:
-                        transportDisplay.DisplayTransport(playerScript.transform.position,worldPosition,items,MAX_DISPLAY);
+                        transportDisplay.DisplayTransport(playerScript,playerInventoryUI,playerScript.transform.position,worldPosition,items,MAX_DISPLAY);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(transportDirection), transportDirection, null);

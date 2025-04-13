@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Item.Slot;
+using Items.Inventory;
 using JetBrains.Annotations;
+using Player;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -14,16 +16,20 @@ namespace Item.Display
         private Vector2 target;
         private Transform movingTarget;
         private float speed;
+        private PlayerScript playerScript;
+        private InventoryUI cloneInventory;
         
-        public void DisplayTransport(Vector2 origin, Vector2 target, List<ItemSlot> itemSlots, int maxSample)
+        public void DisplayTransport(PlayerScript playerScript, InventoryUI cloneInventory, Vector2 origin, Vector2 target, List<ItemSlot> itemSlots, int maxSample)
         {
             int sampleSize = Mathf.Min(maxSample, itemSlots.Count);
             var sample = itemSlots.OrderBy(x => UnityEngine.Random.Range(0,1f)).Take(sampleSize).ToList();
-            DisplayTransport(origin, target, sample);
+            DisplayTransport(playerScript,cloneInventory,origin, target, sample);
         }
-        public void DisplayTransport(Vector2 origin, Vector2 target, List<ItemSlot> itemSlots)
+        public void DisplayTransport(PlayerScript playerScript,InventoryUI cloneInventory, Vector2 origin, Vector2 target, List<ItemSlot> itemSlots)
         {
             speed = 2;
+            this.playerScript = playerScript;
+            this.cloneInventory = cloneInventory;
             this.target = target;
             transform.position = origin;
             worldDisplays = new List<ItemWorldDisplay>();
@@ -60,7 +66,15 @@ namespace Item.Display
             if (movingTarget) target = movingTarget.position;
             transform.position = Vector2.MoveTowards(transform.position,target,speed*Time.deltaTime);
             Vector2 dif = (Vector2)transform.position - target;
-            if (dif.magnitude < 0.01f) Destroy(gameObject);
+            if (dif.magnitude < 0.01f)
+            {
+                if (cloneInventory)
+                {
+                    cloneInventory.RefreshSlots();
+                }
+                Destroy(gameObject);
+                playerScript.PlayerInventory.Refresh();
+            }
         }
     }
 }
