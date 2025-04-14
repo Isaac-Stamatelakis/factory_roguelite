@@ -91,7 +91,7 @@ namespace Robot.Tool.UI
             for (int i = 0; i < toolItemSlots.Count; i++)
             {
                 var type =  playerScript.PlayerRobot.RobotData.ToolData.Types[i];
-                int loadOut = playerScript.PlayerRobot.RobotUpgradeLoadOut.ToolLoadOuts[type].Current+1;
+                int loadOut = playerScript.PlayerRobot.RobotUpgradeLoadOut.ToolLoadOuts[type].Current;
                 SetLoadOutText(i, loadOut);
             }
         
