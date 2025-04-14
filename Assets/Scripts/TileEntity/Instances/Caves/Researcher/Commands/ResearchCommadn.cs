@@ -36,15 +36,22 @@ namespace TileEntity.Instances.Caves.Researcher
             
             if (caveProcessorUI.CaveProcessorInstance.ResearchDriveProcess != null)
                 throw new ChatParseException("Already researching cave");
-            if (!ids.Contains(id)) 
+            
+            CaveObject caveObject = caveProcessorUI.LookUpCave(id);
+            if (!ids.Contains(id) || !caveObject) 
                 throw new ChatParseException($"Invalid research cave ID: {id}");
+            
             if (caveProcessorUI.CaveProcessorInstance.ResearchedCaves.Contains(id))
                 throw new ChatParseException($"Cave already researched: {id}");
 
             Tier tier = GetCaveTier(id);
             ResearchDriveProcess researchDriveProcess = new ResearchDriveProcess(0f,false,id);
             caveProcessorUI.CaveProcessorInstance.ResearchDriveProcess = researchDriveProcess;
-            caveProcessorUI.SendTerminalMessage($"Research of cave {id} of tier '{tier}' queued up. Insert required items to begin research");
+            if (caveObject.ResearchCost != null && caveObject.ResearchCost.Count > 0)
+            {
+                caveProcessorUI.SendTerminalMessage($"Research of cave {id} of tier '{tier}' queued up. Insert required items to begin research");
+            }
+            
             caveProcessorUI.SetDisplayableCave(id);
             caveProcessorUI.DisplayCaveResearchCost();
         }

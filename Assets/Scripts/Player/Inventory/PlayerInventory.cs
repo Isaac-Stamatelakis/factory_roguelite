@@ -93,6 +93,11 @@ namespace PlayerModule {
         void Update()
         {
             if (canvasController.BlockKeyInput) return;
+            
+            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
+            {
+                ToggleInventoryMode();
+            }
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 mode = InteractMode.Tools;

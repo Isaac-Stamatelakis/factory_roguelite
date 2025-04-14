@@ -35,8 +35,8 @@ namespace UI.Catalogue.ItemSearch
         private CatalogueMode mode = CatalogueMode.Recipe;
         private string lastSearch;
         private List<ItemSlot> queriedItems;
-        private const int ROWS = 9;
-        private const int COLUMNS = 10;
+        private const int ROWS = 7;
+        private const int COLUMNS = 15;
         private const int ITEMS_PER_PAGE = ROWS * COLUMNS;
         private int page = 1;
         private int maxPages = 1;

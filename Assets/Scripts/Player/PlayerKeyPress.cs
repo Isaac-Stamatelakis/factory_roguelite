@@ -51,11 +51,6 @@ namespace PlayerModule.KeyPress {
             if (canvasController.UIActive) return;
             ControlUtils.UpdateModifierCount();
             
-            if (ControlUtils.GetControlKeyDown(PlayerControl.OpenInventory))
-            {
-                playerScript.PlayerInventory.ToggleInventoryMode();
-            }
-            
             if (ControlUtils.GetControlKeyDown(PlayerControl.OpenSearch))
             {
                 ItemSearchUI itemSearchUI = Instantiate(playerScript.Prefabs.ItemSearchUIPrefab);

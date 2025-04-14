@@ -13,7 +13,7 @@ using WorldModule.Caves;
 using UnityEngine.AddressableAssets;
 
 namespace TileEntity.Instances {
-    public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI, IInventoryUpdateListener
+    public class CaveTeleporterUIController : MonoBehaviour, ITileEntityUI, IInventoryUpdateListener, IInventoryUITileEntityUI
     {
         public InventoryUI mInventoryUI;
         public CaveSelectController caveSelectController;
@@ -102,6 +102,7 @@ namespace TileEntity.Instances {
                 caveSelectController.DisplayEmpty();
             }
         }
+        
 
         private bool CaveDataInTeleporter(CaveObject caveObject)
         {
@@ -130,6 +131,7 @@ namespace TileEntity.Instances {
         {
             return new List<InventoryUI> { mInventoryUI };
         }
+        
     }
 }
 
