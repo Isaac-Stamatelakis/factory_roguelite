@@ -30,9 +30,6 @@ namespace Chunks.Systems {
     /// A closed system of chunks is defined as a system of chunks where every chunk in the system is traversable from every other chunk in the system.
     /// A Dimension can have a collection of ClosedChunkSystems 
     /// </summary>
-
-    
-
     public abstract class ClosedChunkSystem : MonoBehaviour, ILoadedChunkSystem
     {
         protected Dictionary<TileMapType, IWorldTileMap> tileGridMaps = new Dictionary<TileMapType, IWorldTileMap>();

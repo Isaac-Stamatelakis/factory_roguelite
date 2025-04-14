@@ -75,6 +75,7 @@ namespace Chunks.Systems {
             if (tileType.hasCollider()) {
                 container.layer = LayerMask.NameToLayer(tileType.ToString());
             }
+            
             container.transform.localPosition = new Vector3(0,0,tileType.getZValue());
             Grid grid = container.AddComponent<Grid>();
             grid.cellSize = new Vector3(TILE_SIZE,TILE_SIZE,1f);
@@ -82,6 +83,23 @@ namespace Chunks.Systems {
             var worldTileMap = CreateTileMap(tileType, container.transform);
             tileGridMaps[tileType] = worldTileMap;
             tileGridMaps[tileType].Initialize(tileType);
+            
+            if (tileType is TileMapType.Block or TileMapType.Platform or TileMapType.Fluid)
+            {
+                GameObject gameObject = worldTileMap.GetTilemap().gameObject;
+                Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
+                rb.bodyType = RigidbodyType2D.Static;
+                gameObject.GetComponent<TilemapCollider2D>().usedByComposite = true;
+                CompositeCollider2D compositeCollider2D = gameObject.AddComponent<CompositeCollider2D>();
+                compositeCollider2D.geometryType = CompositeCollider2D.GeometryType.Polygons;
+                if (tileType is TileMapType.Fluid)
+                {
+                    compositeCollider2D.isTrigger = true;
+                }
+            }
+
+            
+            
         }
 
         
@@ -129,18 +147,16 @@ namespace Chunks.Systems {
 
         private static IWorldTileMap CreateTileMap(TileMapType tileType, Transform container)
         {
-            if (tileType.isTile()) {
-                WorldTileGridMap worldTileGridMap;
-                if (tileType == TileMapType.Block) {
-                    worldTileGridMap = container.AddComponent<OutlineWorldTileGridMap>();
-                } else if (tileType == TileMapType.Background) {
-                    worldTileGridMap = container.AddComponent<BackgroundWorldTileMap>();
-                } else {
-                    worldTileGridMap = container.AddComponent<WorldTileGridMap>();
-                }
+            if (tileType.isTile())
+            {
+                WorldTileGridMap worldTileGridMap = tileType switch
+                {
+                    TileMapType.Block => container.AddComponent<OutlineWorldTileGridMap>(),
+                    TileMapType.Background => container.AddComponent<BackgroundWorldTileMap>(),
+                    _ => container.AddComponent<WorldTileGridMap>()
+                };
 
                 return worldTileGridMap;
-                
             } else if (tileType.isConduit()) {
                 return container.AddComponent<ConduitTileMap>();
             } else if (tileType.isFluid()) {
@@ -149,6 +165,7 @@ namespace Chunks.Systems {
 
             throw new ArgumentOutOfRangeException();
         }
+        
     }
 }
 
