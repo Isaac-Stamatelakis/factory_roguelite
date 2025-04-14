@@ -777,7 +777,6 @@ namespace Player {
             Vector2 bottomCenter = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y - spriteRenderer.sprite.bounds.extents.y+Global.TILE_SIZE/2f);
             Vector2 adjacentTilePosition = bottomCenter + (spriteRenderer.sprite.bounds.extents.x) * (direction == Direction.Left ? Vector2.left : Vector2.right);
             
-
             const float EPSILON = 0.02f;
             
             var cast = Physics2D.BoxCast(adjacentTilePosition, 
@@ -792,6 +791,8 @@ namespace Player {
                 0f, Vector2.zero, Mathf.Infinity, blockLayer
             );
             if (!ReferenceEquals(wallCast.collider,null)) return false;
+            Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
+            
             
             WorldTileMap worldTileMap = cast.collider.GetComponent<WorldTileMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
@@ -801,12 +802,19 @@ namespace Player {
             if (partition == null) return false;
 
             TileItem tileItem = partition.GetTileItem(positionInPartition, TileMapLayer.Base);
-            if (tileItem?.tile is not HammerTile) return false;
+            if (tileItem?.tile is not HammerTile hammerTile) return false;
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-     
-            if (baseTileData.state != 1 && baseTileData.state != 3) return false;
+            HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
+            if (hammerTileState is HammerTileState.Stair) 
+            {
+                Vector2 dif = tileCenter - (Vector2)transform.position;
+                bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
+                if (standingOnGround && PlaceTile.tileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
+            }
+            if (hammerTileState is not (HammerTileState.Slab or HammerTileState.Stair)) return false;
             StartCoroutine(AutoJumpCoroutine());
             return true;
+
         }
         
         private IEnumerator AutoJumpCoroutine()
@@ -843,6 +851,7 @@ namespace Player {
             {
                 NanoBotHeal();
             }
+            
             if (climbing) {
                 HandleClimbing();
                 return;
@@ -853,8 +862,8 @@ namespace Player {
                 rb.drag = defaultLinearDrag;
             }
 
-            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.05;
-
+            
+            platformCollider.enabled = ignorePlatformFrames < 0 && rb.velocity.y < 0.01f;
             if (currentRobot is IEnergyRechargeRobot energyRechargeRobot) EnergyRechargeUpdate(energyRechargeRobot);
 
             bool grounded = IsGrounded();
@@ -1155,8 +1164,8 @@ namespace Player {
                 return;
             }
             bool climbKeyInput = ControlUtils.GetControlKey(PlayerControl.MoveUp) || ControlUtils.GetControlKey(PlayerControl.MoveDown);
-            if (climbing || !climbKeyInput || GetClimbable() == null) return;
-            
+            if (climbing || !climbKeyInput || GetClimbable(transform.position) == null) return;
+            animator.Play("Air");
             climbing = true;
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             rb.gravityScale = 0;
@@ -1199,19 +1208,19 @@ namespace Player {
             TileItem tileItem = GetTileItemBelow(position);
             return tileItem?.tileOptions.movementModifier ?? TileMovementType.None;
         }
-        private IClimableTileEntity GetClimbable() {
+        private IClimableTileEntity GetClimbable(Vector2 position) {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
-            RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
+            RaycastHit2D objHit = Physics2D.BoxCast(position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
             
             WorldTileMap worldTileMap = objHit.collider?.GetComponent<WorldTileMap>();
             if (ReferenceEquals(worldTileMap, null)) return null;
             
-            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(transform.position));
+            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(position));
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 
         private void HandleClimbing() {
-            IClimableTileEntity climableTileEntity = GetClimbable();
+            IClimableTileEntity climableTileEntity = GetClimbable(transform.position);
             bool exitKeyCode = ControlUtils.GetControlKey(PlayerControl.MoveLeft) || ControlUtils.GetControlKey(PlayerControl.MoveRight) || ControlUtils.GetControlKey(PlayerControl.Jump);
             if (climableTileEntity == null || exitKeyCode)
             {
@@ -1220,6 +1229,9 @@ namespace Player {
                 rb.gravityScale = defaultGravityScale;
                 return;
             }
+
+            IClimableTileEntity below = GetClimbable((Vector2)transform.position + Vector2.down);
+            platformCollider.enabled = below == null;
             Vector2 velocity = rb.velocity;
             fallTime = 0;
             if (ControlUtils.GetControlKey(PlayerControl.MoveUp)) {

@@ -471,7 +471,7 @@ namespace TileMaps.Place {
             float directionDif = width/2f;
             float directionSize = width/8f; // Direciton size is about 2 pixels
             Vector2Int iterator = Vector2Int.one;
-            const int SECTIONS = 3;
+            const int SECTIONS = 4;
             float sectionSize = width / SECTIONS;
             Vector2 castSize = sectionSize * Vector2.one;
             Vector2 positionOffset = Vector2.zero;
@@ -514,7 +514,7 @@ namespace TileMaps.Place {
                 {
                     Vector2 adjPosition = position + sectionSize * new Vector2(xi, yi);
                     Vector2 castPosition = adjPosition + difVector * directionDif-positionOffset;
-                    //Debug.DrawRay(castPosition, castSize, Color.red, 1f);
+                    Debug.DrawRay(castPosition, castSize, Color.red, 1f);
                     if (!Physics2D.BoxCast(castPosition, castSize, 0f, Vector2.zero, Mathf.Infinity, layers).collider) return false;
                 }
             }
