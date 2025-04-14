@@ -63,7 +63,6 @@ namespace Items {
             counter ++;
             if (!displaying) return;
             
-            
             RefreshDisplay();
         }
 
@@ -122,6 +121,7 @@ namespace Items {
         
         public void Display(ItemSlot itemSlot)
         {
+            Debug.Log("HI");
             if (Paused) return;
             if (ItemSlotUtils.IsItemSlotNull(itemSlot))
             {
@@ -145,6 +145,7 @@ namespace Items {
 
             animationSpeedValue = GetAnimationSpeedValue();
             GlobalHelper.DeleteAllChildren(ItemImage.transform);
+            animatedItemDisplays.Clear();
             displayedSlot = itemSlot;
             SetImageSprite(ItemImage, sprites[0]);
             
@@ -285,18 +286,16 @@ namespace Items {
         {
             GlobalHelper.DeleteAllChildren(TagBehindContainer);
             GlobalHelper.DeleteAllChildren(TagFrontContainer);
-            
-     
         }
         public void Unload()
         {
-            GlobalHelper.DeleteAllChildren(ItemImage.transform);
+            displaying = false;
             animatedItemDisplays.Clear();
+            GlobalHelper.DeleteAllChildren(ItemImage.transform);
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
             if (!lockTopText && !ReferenceEquals(mTopText,null)) mTopText.text = string.Empty;
             if (!lockBottomText) mBottomText.text = string.Empty;
-            displaying = false;
         }
         
 

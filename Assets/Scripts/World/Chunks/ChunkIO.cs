@@ -45,7 +45,7 @@ namespace Chunks.IO {
             GameObject chunkGameObject = new GameObject();
             chunkGameObject.name = chunkName;
             Chunk chunk = chunkGameObject.AddComponent<Chunk>();
-            chunk.initalizeFromUnloaded(closedChunkSystem.Dim,unloadedConduitTileChunk.Partitions,unloadedConduitTileChunk.Position,closedChunkSystem);
+            chunk.InitalizeFromUnloaded(closedChunkSystem.Dim,unloadedConduitTileChunk.Partitions,unloadedConduitTileChunk.Position,closedChunkSystem);
             return chunk;
         }
         public static ILoadedChunk GetChunkFromJson(Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
@@ -67,7 +67,7 @@ namespace Chunks.IO {
             GameObject chunkGameObject = new GameObject();
             chunkGameObject.name = chunkName;
             Chunk chunk = chunkGameObject.AddComponent<Chunk>();
-            chunk.initalize(closedChunkSystem.Dim,chunkPartitionData,chunkPosition,closedChunkSystem);
+            chunk.Initalize(closedChunkSystem.Dim,chunkPartitionData,chunkPosition,closedChunkSystem);
             return chunk;
 
             

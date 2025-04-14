@@ -37,7 +37,7 @@ namespace Chunks {
     public interface IChunk {
         public Vector2Int GetPosition();
         public IChunkPartition[,] GetChunkPartitions();
-        public IChunkPartition GetPartition(Vector2Int position);
+        public IChunkPartition GetPartition(Vector2Int partitionPosition);
         public int GetDim();
         public List<IChunkPartitionData> GetChunkPartitionData();
         public ILoadedChunkSystem GetChunkSystem();
@@ -80,49 +80,39 @@ namespace Chunks {
     
     public class Chunk : MonoBehaviour, ILoadedChunk
     {
-        protected IChunkPartition[,] partitions;
-
-        
-        /// <summary>
-        /// a chunk is soft loaded if all tile entity machines inside of it are loaded
-        /// </summary>
-        [SerializeField] protected bool softLoaded = false;
-        
-        /// <summary>
-        /// a chunk is chunk loaded if it remains softloaded whilst the player is far away
-        /// </summary>
+        private IChunkPartition[,] partitions;
         [SerializeField] protected bool chunkLoaded = false;
         public bool ScheduleForUnloading;
-        protected Transform entityContainer;
-        protected ClosedChunkSystem ClosedChunkSystem;
-        protected Vector2Int position; 
-        protected int dim;
-        protected Transform tileEntityContainer;
+        private Transform entityContainer;
+        private ClosedChunkSystem ClosedChunkSystem;
+        private Vector2Int position;
+        private int dim;
+        private Transform tileEntityContainer;
         public float DistanceFrom(Vector2Int target)
         {
             return Mathf.Pow(target.x-position.x,2) + Mathf.Pow(target.y-position.y,2);
         }
-        public virtual void initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
+        public virtual void Initalize(int dim, List<IChunkPartitionData> chunkPartitionDataList, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = new IChunkPartition[Global.PARTITIONS_PER_CHUNK,Global.PARTITIONS_PER_CHUNK];
             this.ClosedChunkSystem = closedChunkSystem;
-            generatePartitions(chunkPartitionDataList);
+            GeneratePartitions(chunkPartitionDataList);
             transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
-            initalizeContainers();
+            InitalizeContainers();
             
         }
 
-        public virtual void initalizeFromUnloaded(int dim, IChunkPartition[,] partitions, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
+        public virtual void InitalizeFromUnloaded(int dim, IChunkPartition[,] partitions, Vector2Int chunkPosition, ClosedChunkSystem closedChunkSystem) {
             this.dim = dim;
             this.position = chunkPosition;
             this.partitions = partitions;
             this.ClosedChunkSystem = closedChunkSystem;
             transform.localPosition = new Vector3(chunkPosition.x*Global.CHUNK_SIZE/2,chunkPosition.y*Global.CHUNK_SIZE/2,0);
-            initalizeContainers();
+            InitalizeContainers();
         }
 
-        protected void initalizeContainers() {
+        protected void InitalizeContainers() {
             DimController dimController = ClosedChunkSystem.transform.parent.GetComponent<DimController>();
             entityContainer = dimController.GetActiveSystem()?.EntityContainer;
             transform.SetParent(ClosedChunkSystem.ChunkContainerTransform,false);
@@ -132,11 +122,11 @@ namespace Chunks {
             tileEntityContainer.transform.SetParent(transform,false);
         }
 
-        protected void generatePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
+        protected void GeneratePartitions(List<IChunkPartitionData> chunkPartitionDataList) {
             for (int x = 0; x < Global.PARTITIONS_PER_CHUNK; x ++) {
                 List<IChunkPartition> chunkPartitions = new List<IChunkPartition>();
                 for (int y = 0; y < Global.PARTITIONS_PER_CHUNK; y ++) {
-                    partitions[x,y] = generatePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
+                    partitions[x,y] = GeneratePartition(chunkPartitionDataList[x*Global.PARTITIONS_PER_CHUNK + y], new Vector2Int(x,y));
                 }
             }
         }
@@ -145,13 +135,15 @@ namespace Chunks {
         /// <summary>
         /// Generates a partition
         /// </summary>
-        protected virtual IChunkPartition generatePartition(IChunkPartitionData data, Vector2Int position) {
-            if (data is SeralizedWorldData) {
-                if (data is WorldTileConduitData) {
-                    return new ConduitChunkPartition<WorldTileConduitData>((WorldTileConduitData) data,position,this);
-                }
-                return new TileChunkPartition<SeralizedWorldData>((SeralizedWorldData) data,position,this);
-            } else 
+        protected virtual IChunkPartition GeneratePartition(IChunkPartitionData data, Vector2Int partitionPosition) {
+            if (data is WorldTileConduitData worldTileConduitData) {
+                return new ConduitChunkPartition<WorldTileConduitData>(worldTileConduitData,partitionPosition,this);
+            }
+            if (data is SeralizedWorldData seralizedWorldData)
+            {
+                return new TileChunkPartition<SeralizedWorldData>(seralizedWorldData,partitionPosition,this);
+            }
+            
             return null;
         }
         public List<IChunkPartitionData> GetChunkPartitionData()
@@ -199,18 +191,7 @@ namespace Chunks {
                 } 
             }
         }
-
-        /*
-        public void GetUnFarLoadedParititionsCloseTo(Vector2Int target, Vector2Int range, List<IChunkPartition> toFill)
-        {
-            foreach (IChunkPartition partition in partitions) {
-                if (!partition.GetLoaded() && !partition.GetFarLoaded() && partition.InRange(target,range.x,range.y)) {
-                    toFill.Add(partition);
-                } 
-            }
-        }
-        */
-
+        
         public bool InRange(Vector2Int target, int xRange, int yRange)
         {
             return Mathf.Abs(target.x-position.x) <= xRange && Mathf.Abs(target.y-position.y) <= yRange;
@@ -247,8 +228,7 @@ namespace Chunks {
 
         public Transform GetEntityContainer()
         {
-            
-            return entityContainer;
+            return ClosedChunkSystem.EntityContainer;
         }
 
         public Transform GetTileEntityContainer()
@@ -266,9 +246,9 @@ namespace Chunks {
             return true;
         }
 
-        public IChunkPartition GetPartition(Vector2Int position)
+        public IChunkPartition GetPartition(Vector2Int partitionPosition)
         {
-            return this.partitions[position.x,position.y];
+            return this.partitions[partitionPosition.x,partitionPosition.y];
         }
 
         public IWorldTileMap GetTileMap(TileMapType type)
