@@ -14,37 +14,13 @@ using Unity.VisualScripting;
 using UnityEngine.Serialization;
 
 namespace Items {
-    public class ItemDisplayList
-    {
-        public ItemDisplay[] Elements;
-        public int RefreshRate;
-
-        public ItemDisplayList(ItemDisplay[] elements, int refreshRate)
-        {
-            Elements = elements;
-            RefreshRate = refreshRate;
-        }
-
-        public ItemDisplay GetItemToDisplay(int counter)
-        {
-            int index = (counter/RefreshRate) % Elements.Length;
-            return Elements[index];
-        }
-        
-    }
-    public class ItemDisplay
-    {
-        public Sprite Sprite;
-        public Color Color;
-
-        public ItemDisplay(Sprite sprite, Color color)
-        {
-            Sprite = sprite;
-            Color = color;
-        }
-    }
     public class ItemSlotUI : MonoBehaviour
     {
+        private class AnimatedItemDisplay
+        {
+            public Image Image;
+            public Sprite[] Sprites;
+        }
         private enum ItemAnimationSpeed
         {
             VerySlow = -1,
@@ -63,10 +39,11 @@ namespace Items {
         public Transform TagFrontContainer;
         [SerializeField] private ItemAnimationSpeed animationSpeed = ItemAnimationSpeed.Normal;
         public bool ScaleItems = true;
-        private ItemDisplayList currentDisplayList;
+        private readonly List<AnimatedItemDisplay> animatedItemDisplays = new();
         [NonSerialized] public bool Paused;
         private bool lockTopText;
         private bool lockBottomText;
+        private bool displaying;
         public bool LockTopText
         {
             get => lockTopText; set => lockTopText = value;
@@ -79,13 +56,14 @@ namespace Items {
         
         private int counter;
         protected ItemSlot displayedSlot;
+        private int animationSpeedValue;
         
         public void FixedUpdate() {
-            if (currentDisplayList == null || Paused)
-            {
-                return;
-            }
+            if (Paused) return;
             counter ++;
+            if (!displaying) return;
+            
+            
             RefreshDisplay();
         }
 
@@ -98,43 +76,32 @@ namespace Items {
 
         public void RefreshDisplay()
         {
-            bool displayingItemSlot = displayedSlot != null;
-            if (displayingItemSlot)
+            if (ItemSlotUtils.IsItemSlotNull(displayedSlot))
             {
-                if (ItemSlotUtils.IsItemSlotNull(displayedSlot))
-                {
-                    mBottomText.text = string.Empty;
-                    ItemImage.gameObject.SetActive(false);
-                    return;
-                }
-                SetAmountText();
-            }
-
-            if (currentDisplayList == null)
-            {
-                mBottomText.text = string.Empty;
-                ItemImage.gameObject.SetActive(false);
+                Unload();
                 return;
             }
+            SetAmountText();
             
-            
-            DisplayItem(currentDisplayList,ItemImage);
+            foreach (AnimatedItemDisplay animatedItemDisplay in animatedItemDisplays)
+            {
+                int index = counter / animationSpeedValue % animatedItemDisplay.Sprites.Length;
+                SetImageSprite(animatedItemDisplay.Image,animatedItemDisplay.Sprites[index]);
+            }
         }
 
-        private void DisplayItem(ItemDisplayList itemDisplayList, Image image)
+        private void SetImageSprite(Image image, Sprite sprite)
         {
-            ItemDisplay display = itemDisplayList.GetItemToDisplay(counter);
             if (ScaleItems)
             {
-                ItemDisplayUtils.SetImageItemSprite(image, display.Sprite);
+                ItemDisplayUtils.SetImageItemSprite(image, sprite);
             }
             else
             {
-                image.sprite = display.Sprite;
+                image.sprite = sprite;
             }
-            
-            image.color = display.Color;
         }
+        
 
         public void SetPanelColor(Color color)
         {
@@ -167,10 +134,20 @@ namespace Items {
                 Unload();
                 return;
             }
+
+            if (displaying && ItemSlotUtils.AreEqual(itemSlot, displayedSlot))
+            {
+                this.displayedSlot = itemSlot;
+                SetAmountText();
+                return;
+            }
+            displaying = true;
+
+            animationSpeedValue = GetAnimationSpeedValue();
             GlobalHelper.DeleteAllChildren(ItemImage.transform);
             displayedSlot = itemSlot;
+            SetImageSprite(ItemImage, sprites[0]);
             
-            var toDisplay = new ItemDisplay[sprites.Length];
             Color color = Color.white;
             ItemImage.material = null;
             if (itemSlot.itemObject is TransmutableItemObject transmutableItemObject)
@@ -181,9 +158,7 @@ namespace Items {
                     color = transmutableMaterial.color;
                     if (transmutableMaterial.OverlaySprite)
                     {
-                        
                         AddOverlay(transmutableItemObject.getMaterial().OverlaySprite, Color.white,$"TransmutableOverlay",null);
-                        
                     }
 
                     if (transmutableMaterial.UIShaderMaterial)
@@ -191,9 +166,7 @@ namespace Items {
                         ItemImage.material = transmutableMaterial.UIShaderMaterial;
                     }
                 }
-                
-            }
-            if (itemSlot.itemObject is TileItem tileItem)
+            } else if (itemSlot.itemObject is TileItem tileItem)
             {
                 var tileOverlay = tileItem.tileOptions?.Overlay;
                 if (tileOverlay)
@@ -207,22 +180,43 @@ namespace Items {
                 {
                     color = tileItem.tileOptions.TileColor.GetColor();
                 }
+            } else if (itemSlot.itemObject is IColorableItem colorableItem)
+            {
+                color = colorableItem.Color;
             }
-            
+
+            ItemImage.color = color;
+            if (sprites.Length > 1)
+            {
+                animatedItemDisplays.Add(new AnimatedItemDisplay
+                {
+                    Image = ItemImage,
+                    Sprites = sprites
+                });
+            }
             
             for (var index = 0; index < itemSlot.itemObject.SpriteOverlays?.Length; index++)
             {
                 var spriteOverlay = itemSlot.itemObject.SpriteOverlays[index];
-                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay{index}",null);
+                AddOverlay(spriteOverlay.Sprite, spriteOverlay.Color,$"SpriteOverlay:{index}",null);
             }
 
-            for (int i = 0; i < toDisplay.Length; i++)
+            if (itemSlot.itemObject is IAnimatedOverlayItem animatedOverlayItem)
             {
-                toDisplay[i] = new ItemDisplay(sprites[i], color);
+                SpriteCollection[] spriteCollections = animatedOverlayItem.SpriteCollectionOverlays;
+                for (var index = 0; index < spriteCollections.Length; index++)
+                {
+                    var spriteCollection = spriteCollections[index];
+                    if (!spriteCollection || spriteCollection.Sprites.Length == 0) continue;
+                    Image overlayImage = AddOverlay(sprites[0], Color.white, $"AnimatedSpriteOverlay:{index}", null);
+                    animatedItemDisplays.Add(new AnimatedItemDisplay
+                    {
+                        Image = overlayImage,
+                        Sprites = spriteCollection.Sprites
+                    });
+                }
             }
             
-            currentDisplayList = new ItemDisplayList(toDisplay, GetAnimationSpeedValue());
-            counter = 0;
             RefreshDisplay();
             ItemImage.enabled = ItemImage.sprite;
             ItemImage.gameObject.SetActive(true);
@@ -249,7 +243,7 @@ namespace Items {
             }
         }
 
-        private void AddOverlay(Sprite sprite, Color color, string overlayName, Material material)
+        private Image AddOverlay(Sprite sprite, Color color, string overlayName, Material material)
         {
             GameObject overlayObject = new GameObject(overlayName);
             Image overlayImage = overlayObject.gameObject.AddComponent<Image>();
@@ -263,6 +257,7 @@ namespace Items {
             rectTransform.sizeDelta = Vector2.zero;
             
             overlayObject.transform.SetParent(ItemImage.transform, false);
+            return overlayImage;
         }
         
         public void Display(ItemSlot itemSlot, string topText)
@@ -290,16 +285,18 @@ namespace Items {
         {
             GlobalHelper.DeleteAllChildren(TagBehindContainer);
             GlobalHelper.DeleteAllChildren(TagFrontContainer);
-            mBottomText.text = "";
-            if (!lockTopText && !ReferenceEquals(mTopText,null)) mTopText.text = "";
+            
      
         }
         public void Unload()
         {
-            currentDisplayList = null;
             GlobalHelper.DeleteAllChildren(ItemImage.transform);
+            animatedItemDisplays.Clear();
             ItemImage.gameObject.SetActive(false);
             DisableItemSlotVisuals();
+            if (!lockTopText && !ReferenceEquals(mTopText,null)) mTopText.text = string.Empty;
+            if (!lockBottomText) mBottomText.text = string.Empty;
+            displaying = false;
         }
         
 

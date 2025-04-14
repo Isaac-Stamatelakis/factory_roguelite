@@ -58,7 +58,7 @@ public class FluidTileGeneratorWindow : EditorWindow {
 
     void createTileItem()
     {
-        ItemEditorFactory.createDirectory(tileName);
+        ItemEditorFactory.CreateDirectory(tileName);
         FluidTileItem fluidTileItem = ScriptableObject.CreateInstance<FluidTileItem>();
         FluidOptions fluidOptions = new FluidOptions(
             viscosity: viscosity,

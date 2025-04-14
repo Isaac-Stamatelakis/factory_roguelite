@@ -59,6 +59,8 @@ namespace Player.Controls
                 new(PlayerControl.OpenInventory, new List<KeyCode> { KeyCode.Tab }),
                 new(PlayerControl.OpenSearch, new List<KeyCode> { KeyCode.I }),
                 new(PlayerControl.OpenQuestBook, new List<KeyCode> { KeyCode.L }),
+                new(PlayerControl.SwitchPlacementMode, new List<KeyCode> { KeyCode.H }),
+                new(PlayerControl.SwitchPlacementSubMode, new List<KeyCode> { KeyCode.H, KeyCode.LeftControl}),
             };
         }
     }

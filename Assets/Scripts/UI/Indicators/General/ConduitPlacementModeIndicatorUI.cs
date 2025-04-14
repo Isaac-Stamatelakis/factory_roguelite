@@ -67,7 +67,7 @@ namespace UI.Indicators.General
 
         public PlayerControl? GetPlayerControl()
         {
-            return PlayerControl.SwitchConduitPlacementMode;
+            return PlayerControl.SwitchPlacementMode;
         }
     }
 }
