@@ -58,7 +58,7 @@ namespace TileEntity {
         {
             ItemSlot extracted = tileEntityInventory.ExtractFromInventory(state,filter);
             if (ItemSlotUtils.IsItemSlotNull(extracted)) return null;
-            parent.InventoryUpdate(0);
+            parent.InventoryUpdate();
             return extracted;
         }
 
@@ -69,7 +69,7 @@ namespace TileEntity {
             switch (state)
             {
                 case ItemState.Solid:
-                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.itemInputs, toInsert, Global.MAX_SIZE)) parent.InventoryUpdate(0);;
+                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.itemInputs, toInsert, Global.MAX_SIZE)) parent.InventoryUpdate();;
                     break;
                 case ItemState.Fluid:
                     Tier tier = Tier.Basic;
@@ -77,7 +77,7 @@ namespace TileEntity {
                     {
                         tier = tieredTileEntity.GetTier();
                     }
-                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate(0);
+                    if(ItemSlotUtils.InsertIntoInventory(tileEntityInventory.fluidInputs, toInsert, tier.GetFluidStorage())) parent.InventoryUpdate();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -91,7 +91,7 @@ namespace TileEntity {
             bool recipeConsumed = RecipeUtils.OutputsUsed(itemRecipe);
             if (!recipeConsumed) return;
             parent.ResetRecipe();
-            parent.InventoryUpdate(0);
+            parent.InventoryUpdate();
         }
     }
 
@@ -106,7 +106,7 @@ namespace TileEntity {
                 tier = tieredTileEntity.GetTier();
             }
             
-            EnergyInventory = new CallBackEnergyInventory(energy, tier.GetEnergyStorage(),() => {parent.InventoryUpdate(0);});
+            EnergyInventory = new CallBackEnergyInventory(energy, tier.GetEnergyStorage(), parent.InventoryUpdate);
         }
         
         public IEnergyConduitInteractable GetEnergyConduitInteractable()

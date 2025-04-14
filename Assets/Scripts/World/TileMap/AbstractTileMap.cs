@@ -51,7 +51,7 @@ namespace TileMaps {
         void TileUpdate(Vector2Int position);
     }
     
-    public abstract class AbstractIWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
+    public abstract class AbstractWorldTileMap<TItem> : MonoBehaviour, IHitableTileMap, IWorldTileMap where TItem : ItemObject
     {
         protected TileMapType type;
         public TileMapType Type => type;

@@ -67,7 +67,7 @@ namespace TileEntity.Instances.Machine.Instances.Passive
         public void Tick()
         {
             if (RemainingDuration > 0) RemainingDuration--;
-            if (RemainingDuration == 0) Parent.InventoryUpdate(0);
+            if (RemainingDuration == 0) Parent.InventoryUpdate();
         }
 
         public float GetBurnPercent()
@@ -148,10 +148,10 @@ namespace TileEntity.Instances.Machine.Instances.Passive
                 RecipeType.Machine
             );
             BurnerFuelInventory = MachineInventoryFactory.DeserializeMachineBurnerInventory(this, serializedBurnerMachine.SerializedBurnerInventory);
-            InventoryUpdate(0);
+            InventoryUpdate();
         }
 
-        public override void InventoryUpdate(int n)
+        public override void InventoryUpdate()
         {
             if (currentRecipe != null)
             {

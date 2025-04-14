@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Robot.Upgrades.Instances.VeinMine
 {
-    public class BackGroundVeinMineEvent : VeinMineEvent<WorldTileGridMap>
+    public class BackGroundVeinMineEvent : VeinMineEvent<WorldTileMap>
     {
-        public BackGroundVeinMineEvent(WorldTileGridMap hitableTileMap, bool drop, Func<bool> energyCostFunction) : base(hitableTileMap, drop,energyCostFunction)
+        public BackGroundVeinMineEvent(WorldTileMap hitableTileMap, bool drop, Func<bool> energyCostFunction) : base(hitableTileMap, drop,energyCostFunction)
         {
            
         }

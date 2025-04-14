@@ -163,14 +163,14 @@ namespace Robot.Tool.Instances
 
             int multiHits = RobotUpgradeUtils.GetDiscreteValue(statLoadOutCollection, (int)BuildinatorUpgrade.MultiHit);
             HashSet<Vector2Int> hitPositions = new HashSet<Vector2Int>();
-            List<WorldTileGridMap> worldTileGridMaps = new List<WorldTileGridMap>
+            List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
             {
-                system.GetTileMap(TileMapType.Block) as WorldTileGridMap,
-                system.GetTileMap(TileMapType.Object) as WorldTileGridMap
+                system.GetTileMap(TileMapType.Block) as WorldTileMap,
+                system.GetTileMap(TileMapType.Object) as WorldTileMap
             };
             if (multiHits == 0) // No need for all the fancy stuff below when multi hits are zero
             {
-                foreach (WorldTileGridMap worldTileGridMap in worldTileGridMaps)
+                foreach (WorldTileMap worldTileGridMap in worldTileGridMaps)
                 {
                     Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(position);
                     if (!hitPositions.Add(tilePosition)) continue;
@@ -211,7 +211,7 @@ namespace Robot.Tool.Instances
             foreach (Vector2Int sortedTilePosition in sortedTiles)
             {
                 Vector2Int cellPosition = position + sortedTilePosition;
-                foreach (WorldTileGridMap worldTileGridMap in worldTileGridMaps)
+                foreach (WorldTileMap worldTileGridMap in worldTileGridMaps)
                 {
                     Vector2Int tilePosition = worldTileGridMap.GetHitTilePosition(cellPosition);
                     if (!searchedTiles.Add(tilePosition)) continue;
@@ -260,15 +260,15 @@ namespace Robot.Tool.Instances
             playerScript.TileViewers.TileBreakHighlighter.Clear();
         }
 
-        private void RotateTile(TileItem tileItem, WorldTileGridMap worldTileGridMap, Vector2Int tilePosition, IChunkPartition partition, Vector2Int positionInPartition, int direction)
+        private void RotateTile(TileItem tileItem, WorldTileMap worldTileMap, Vector2Int tilePosition, IChunkPartition partition, Vector2Int positionInPartition, int direction)
         {
             if (tileItem.tileOptions.placeBreakable)
             {
-                worldTileGridMap.BreakAndDropTile(tilePosition, true);
+                worldTileMap.BreakAndDropTile(tilePosition, true);
                 return;
             }
             BaseTileData baseTileData = partition.GetBaseData(positionInPartition);
-            worldTileGridMap.IterateRotatableTile(tilePosition, direction, baseTileData);
+            worldTileMap.IterateRotatableTile(tilePosition, direction, baseTileData);
         }
         
 
@@ -310,14 +310,14 @@ namespace Robot.Tool.Instances
             }
             
             ClosedChunkSystem system = DimensionManager.Instance.GetPlayerSystem();
-            List<WorldTileGridMap> worldTileGridMaps = new List<WorldTileGridMap>
+            List<WorldTileMap> worldTileGridMaps = new List<WorldTileMap>
             {
-                system.GetTileMap(TileMapType.Block) as WorldTileGridMap
+                system.GetTileMap(TileMapType.Block) as WorldTileMap
             };
             
             if (toolData.Mode == BuildinatorMode.Rotator)
             {
-                worldTileGridMaps.Add(system.GetTileMap(TileMapType.Object) as WorldTileGridMap);
+                worldTileGridMaps.Add(system.GetTileMap(TileMapType.Object) as WorldTileMap);
             }
             
             Dictionary<Vector2Int, OutlineTileMapCellData> tiles = new Dictionary<Vector2Int, OutlineTileMapCellData>();

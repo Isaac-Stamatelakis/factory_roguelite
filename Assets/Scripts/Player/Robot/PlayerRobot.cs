@@ -652,7 +652,7 @@ namespace Player {
                 return;
             }
             
-            if (ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0) && ControlUtils.GetControlKeyDown(PlayerControl.Jump))
+            if (ControlUtils.GetControlKeyDown(PlayerControl.Jump) && ignorePlatformFrames <= 0 && (CanJump() || coyoteFrames > 0))
             {
                 if (bonusJumps > 0 && coyoteFrames <= 0)
                 {
@@ -793,7 +793,7 @@ namespace Player {
             );
             if (!ReferenceEquals(wallCast.collider,null)) return false;
             
-            WorldTileGridMap worldTileMap = cast.collider.GetComponent<WorldTileGridMap>();
+            WorldTileMap worldTileMap = cast.collider.GetComponent<WorldTileMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
             ILoadedChunkSystem iLoadedChunkSystem = DimensionManager.Instance.GetPlayerSystem();
             Vector2Int cellPosition = Global.GetCellPositionFromWorld(adjacentTilePosition);
@@ -1202,10 +1202,10 @@ namespace Player {
             int objectLayer = (1 << LayerMask.NameToLayer("Object"));
             RaycastHit2D objHit = Physics2D.BoxCast(transform.position,new Vector2(0.5f,0.1f),0,Vector2.zero,Mathf.Infinity,objectLayer);
             
-            WorldTileGridMap worldTileGridMap = objHit.collider?.GetComponent<WorldTileGridMap>();
-            if (ReferenceEquals(worldTileGridMap, null)) return null;
+            WorldTileMap worldTileMap = objHit.collider?.GetComponent<WorldTileMap>();
+            if (ReferenceEquals(worldTileMap, null)) return null;
             
-            TileItem tileItem = worldTileGridMap.getTileItem(Global.GetCellPositionFromWorld(transform.position));
+            TileItem tileItem = worldTileMap.getTileItem(Global.GetCellPositionFromWorld(transform.position));
             return tileItem?.tileEntity as IClimableTileEntity;
         }
 

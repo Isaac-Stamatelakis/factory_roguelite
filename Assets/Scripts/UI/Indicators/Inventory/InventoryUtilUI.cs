@@ -254,7 +254,7 @@ namespace Player.UI.Inventory
                         throw new ArgumentOutOfRangeException(nameof(inventoryInteractionType), inventoryInteractionType, null);
                 }
 
-                if (tileEntityInstance is IInventoryListener inventoryListener)
+                if (tileEntityInstance is IIndexInventoryListener inventoryListener)
                 {
                     inventoryListener.InventoryUpdate(0);
                 }

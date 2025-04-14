@@ -36,7 +36,7 @@ namespace TileEntity.Instances.Caves.Researcher
                 throw new ChatParseException($"Already downloading '{cave}'");
             
             caveProcessorUI.CaveProcessorInstance.CurrentlyCopyingCave = cave;
-            caveProcessorUI.CaveProcessorInstance.InventoryUpdate(0);
+            caveProcessorUI.CaveProcessorInstance.InventoryUpdate();
         }
 
         public override string GetHelpText()

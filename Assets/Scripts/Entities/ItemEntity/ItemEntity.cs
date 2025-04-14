@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fluids;
 using Item.Display;
 using Item.Slot;
 using Item.Tags.ItemTagManagers;
@@ -9,6 +10,7 @@ using Items.Tags;
 using Items.Transmutable;
 using UnityEngine;
 using Newtonsoft.Json;
+using Unity.VisualScripting;
 
 namespace Entities {
     public class ItemEntity : Entity, ISerializableEntity
@@ -165,7 +167,38 @@ namespace Entities {
                 touchingBoundary = false;
             }
         }
-        
+
+        public void OnTriggerEnter2D(Collider2D other)
+        {
+            if (other.gameObject.tag == "Fluid")
+            {
+                Debug.Log("In Fluid!");
+                Vector2 bottomPosition = (Vector2)transform.position + Vector2.down * GetComponent<SpriteRenderer>().bounds.extents.y;
+                Vector2 collisionPoint = other.ClosestPoint(bottomPosition);
+                FluidTileMap fluidTileMap = other.GetComponent<FluidTileMap>();
+                fluidTileMap ??= other.GetComponentInParent<FluidTileMap>();
+                FluidTileItem collidingFluid = fluidTileMap.GetFluidItem(collisionPoint);
+                if (!collidingFluid) return;
+                if (collidingFluid.fluidOptions.DestroysItems)
+                {
+                    GameObject.Destroy(gameObject);
+                    return;
+                }
+
+                float slowFactor = collidingFluid.fluidOptions.SpeedSlowFactor;
+                
+                rb.gravityScale = slowFactor * slowFactor;
+                rb.velocity *= rb.gravityScale;
+            }
+        }
+
+        public void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.gameObject.tag == "Fluid")
+            {
+                rb.gravityScale = 1;
+            }
+        }
 
         private void MergeItemEntities(ItemEntity other)
         {

@@ -56,7 +56,7 @@ namespace TileEntity.Instances.Machines
             );
             MachineEnergyInventory = MachineInventoryFactory.DeserializeEnergyMachineInventory(serializedProcessingMachine.SerializedEnergyInventory, this);
             BatteryInventory = ItemSlotFactory.Deserialize(serializedProcessingMachine.SerializedBatteryInventory);
-            InventoryUpdate(0);
+            InventoryUpdate();
         }
 
         public override void TickUpdate()
@@ -78,7 +78,7 @@ namespace TileEntity.Instances.Machines
 
         
 
-        public override void InventoryUpdate(int n) {
+        public override void InventoryUpdate() {
             if (currentRecipe != null)
             {
                 bool complete = currentRecipe.InputEnergy == 0;

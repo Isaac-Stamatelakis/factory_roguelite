@@ -13,7 +13,7 @@ using UI;
 
 namespace TileEntity.Instances.Matrix {
     public class MatrixDriveInstance : TileEntityInstance<MatrixDrive>, IMatrixConduitInteractable, ISerializableTileEntity, IRightClickableTileEntity, 
-        ILoadableTileEntity, ITickableTileEntity, IBreakActionTileEntity, IInventoryListener
+        ILoadableTileEntity, ITickableTileEntity, IBreakActionTileEntity, IIndexInventoryListener
     {
         public MatrixDriveInstance(MatrixDrive tileEntity, Vector2Int positionInChunk, TileItem tileItem, IChunk chunk) : base(tileEntity, positionInChunk, tileItem, chunk)
         {

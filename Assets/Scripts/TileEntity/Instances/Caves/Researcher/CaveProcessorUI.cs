@@ -22,6 +22,7 @@ namespace TileEntity.Instances.Caves.Researcher
     {
         [SerializeField] private InventoryUI mDriveInputUI;
         [SerializeField] private InventoryUI mDriveOutputUI;
+        [SerializeField] private Transform mCostContainer;
         [SerializeField] private InventoryUI mResearchCostOverlayUI;
         [SerializeField] private InventoryUI mResearchItemsUI;
         [SerializeField] private ArrowProgressController mProgressBar;
@@ -55,7 +56,6 @@ namespace TileEntity.Instances.Caves.Researcher
             DisplayText();
             SendTerminalMessage(START_MESSAGE);
             SendTerminalMessage("Welcome Back!\n");
-            //SendTerminalMessage("Current Status: ");
             SendTerminalMessage("Available Commands:");
             List<string> commands = CaveProcessorCommandFactory.GetCommands();
             foreach (string command in commands)
@@ -69,18 +69,17 @@ namespace TileEntity.Instances.Caves.Researcher
                 mTextInput.Select();
             });
 
-            mResearchItemsUI.gameObject.SetActive(false);
-            mResearchCostOverlayUI.gameObject.SetActive(false);
+            mCostContainer.gameObject.SetActive(false);
             
             mDriveInputUI.DisplayInventory(caveProcessorInstance.InputDrives);
             mDriveInputUI.SetRestrictionMode(InventoryRestrictionMode.WhiteList);
             mDriveInputUI.AddTagRestriction(ItemTag.CaveData);
             
-            mDriveInputUI.AddListener(caveProcessorInstance);
+            mDriveInputUI.AddCallback(caveProcessorInstance.InventoryUpdate);
             
             mDriveOutputUI.DisplayInventory(caveProcessorInstance.OutputDrives);
             mDriveOutputUI.SetInteractMode(InventoryInteractMode.BlockInput);
-            mDriveOutputUI.AddListener(caveProcessorInstance);
+            mDriveOutputUI.AddCallback(caveProcessorInstance.InventoryUpdate);
             
             mTextInput.ActivateInputField();
             mTextInput.Select();
@@ -119,6 +118,19 @@ namespace TileEntity.Instances.Caves.Researcher
                 }
             }
         }
+        
+        public CaveObject LookUpCave(string id)
+        {
+            foreach (CaveObject cave in caves)
+            {
+                if (id == cave.GetId())
+                {
+                    return cave;
+                }
+            }
+
+            return null;
+        }
 
         public void DisplayCaveResearchCost()
         {
@@ -126,10 +138,9 @@ namespace TileEntity.Instances.Caves.Researcher
 
             void OnResearchSuccess()
             {
-                SendTerminalMessage($"Researched Cave {currentResearchCave.name}");
+                SendTerminalMessage($"Researching Cave {currentResearchCave.name}");
                 caveProcessorInstance.ResearchDriveProcess.Satisfied = true;
-                mResearchCostOverlayUI.gameObject.SetActive(false);
-                mResearchItemsUI.gameObject.SetActive(false);
+                mCostContainer.gameObject.SetActive(false);
             }
             List<ItemSlot> requiredItems = ItemSlotFactory.FromEditorObjects(currentResearchCave?.ResearchCost);
             if (requiredItems == null || requiredItems.Count == 0)
@@ -143,8 +154,8 @@ namespace TileEntity.Instances.Caves.Researcher
              * ResearchItems with an transparency layer to suggest to players to input items in the inventory.
              * ResearchItems amount text is locked and is set through a lambda function callback when the inventory is updated.
              */
+            mCostContainer.gameObject.SetActive(true);
             caveProcessorInstance.ResearchItems = ItemSlotFactory.createEmptyInventory(requiredItems.Count);
-            mResearchItemsUI.gameObject.SetActive(true);
             mResearchItemsUI.DisplayInventory(caveProcessorInstance.ResearchItems);
 
             bool Restriction(ItemObject itemObject, int index)
@@ -190,7 +201,7 @@ namespace TileEntity.Instances.Caves.Researcher
             {
                 OnItemSlotChange(i);
             }
-            mResearchCostOverlayUI.gameObject.SetActive(true);
+    
             mResearchCostOverlayUI.DisplayInventory(requiredItems);
             mResearchCostOverlayUI.InventoryInteractMode = InventoryInteractMode.UnInteractable;
             
@@ -207,8 +218,6 @@ namespace TileEntity.Instances.Caves.Researcher
                 OnResearchSuccess();
             }
         }
-
-        
         
         public List<string> GetCaveIds() {
             List<string> caveIds = new List<string>();
@@ -226,9 +235,14 @@ namespace TileEntity.Instances.Caves.Researcher
             if (caveProcessorInstance.ResearchDriveProcess == null)
             {
                 mStatusText.text = "Researching: 'None'";
+                mCostContainer.gameObject.SetActive(false);
             }
             else
             {
+                if (caveProcessorInstance.ResearchDriveProcess.Satisfied)
+                {
+                    mCostContainer.gameObject.SetActive(false);
+                }
                 mStatusText.text = !caveProcessorInstance.ResearchDriveProcess.Satisfied
                     ? $"Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nStatus:Awaiting Items" 
                     : $"<color=green>Researching '{caveProcessorInstance.ResearchDriveProcess.ResearchId}'\nProgress:{caveProcessorInstance.ResearchDriveProcess.Progress:P2}</color>";

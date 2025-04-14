@@ -227,7 +227,7 @@ namespace PlayerModule.Mouse {
         private bool TryHighlight(ClosedChunkSystem system, (Vector2, IWorldTileMap) result)
         {
             (Vector2 position, IWorldTileMap tilemap) = result;
-            if (tilemap is not WorldTileGridMap worldTileGridMap) return false;
+            if (tilemap is not WorldTileMap worldTileGridMap) return false;
                 
             Vector3Int cellPosition = tilemap.GetTilemap().WorldToCell(position);
             ITileEntityInstance tileEntityInstance = worldTileGridMap.GetTileEntityAtPosition((Vector2Int)cellPosition);

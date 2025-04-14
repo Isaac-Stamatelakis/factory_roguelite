@@ -40,22 +40,10 @@ namespace TileMaps {
     {
         public void IterateHammerTile(Vector2Int position, int direction);
     }
-    public class WorldTileGridMap : AbstractIWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
+    public class WorldTileMap : AbstractWorldTileMap<TileItem>, ITileGridMap, IChiselableTileMap, IRotatableTileMap, IHammerTileMap, IConditionalHitableTileMap, ITileMapListener
     {
         public const float OVERLAY_Z = -3f;
-        private Tilemap overlayTileMap;
-        private ShaderOverlayTilemapManager shaderOverlayTilemapManager;
-        public override void Initialize(TileMapType type)
-        {
-            base.Initialize(type);
-            GameObject overlayTileMapObject = new GameObject("OverlayTileMap");
-            overlayTileMapObject.transform.SetParent(transform,false);
-            overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
-            overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, OVERLAY_Z);
-            shaderOverlayTilemapManager = new ShaderOverlayTilemapManager(transform);
-
-        }
+        
 
         protected override void SpawnItemEntity(ItemObject itemObject, uint amount, Vector2Int hitTilePosition) {
             SpawnItemEntity(new ItemSlot(itemObject,amount,null), hitTilePosition);
@@ -143,14 +131,8 @@ namespace TileMaps {
             }
             Vector3Int vector = new Vector3Int(position.x,position.y,0);
             tilemap.SetTile(vector, null);
-            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
             TileItem tileItem = partition.GetTileItem(tilePositionInPartition, TileMapLayer.Base);
-            var tileOverlay = tileItem.tileOptions.Overlay;
-            if (tileOverlay)
-            {
-                Tilemap placementTilemap = GetOverlayTileMap(tileOverlay);
-                placementTilemap.SetTile(vector,null);
-            }
+            
             WriteTile(partition,tilePositionInPartition,null);
             TileHelper.tilePlaceTileEntityUpdate(position, null,this);
             UpdateListeners(position, tileItem);
@@ -170,13 +152,7 @@ namespace TileMaps {
                 TileEntityUtils.RefreshMultiBlock(aggregator);
             }
         }
-
-        private Tilemap GetOverlayTileMap(TileOverlay tileOverlay)
-        {
-            if (tileOverlay is not IShaderTileOverlay shaderTileOverlay) return overlayTileMap;
-            Material shaderMaterial = shaderTileOverlay.GetMaterial(IShaderTileOverlay.ShaderType.World);
-            return !shaderMaterial ? overlayTileMap : shaderOverlayTilemapManager.GetTileMap(shaderMaterial);
-        }
+        
 
         public override ItemObject GetItemObject(Vector2Int position)
         {
@@ -262,13 +238,6 @@ namespace TileMaps {
             }
             return broken;
         }
-
-        protected override void RemoveTile(int x, int y)
-        {
-            base.RemoveTile(x, y);
-            Vector3Int vector = new Vector3Int(x,y,0);
-            if (overlayTileMap.GetTile(vector)) overlayTileMap.SetTile(vector, null);
-        }
         
 
         protected override void SetTile(int x, int y,TileItem tileItem) {
@@ -293,18 +262,9 @@ namespace TileMaps {
                 tilemap.SetColor(vector3Int,Color.white);
                 tilemap.SetTileFlags(vector3Int, TileFlags.LockColor);
             }
-            
-            var tileOverlay = tileItem.tileOptions?.Overlay;
-            if (!tileOverlay) return;
-            var overlayTile = tileOverlay.GetTile();
-            Tilemap placementTilemap = GetOverlayTileMap(tileOverlay);
-            
-            SetTileItemTile(placementTilemap, overlayTile, vector3Int, rotatable, baseTileData);
-            placementTilemap.SetTileFlags(vector3Int, TileFlags.None); // Required to get color to work
-            placementTilemap.SetColor(vector3Int,tileOverlay.GetColor());
         }
 
-        private void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
+        protected void SetTileItemTile(Tilemap placementTilemap, TileBase tileBase, Vector3Int position, bool rotatable, BaseTileData baseTileData)
         {
             if (tileBase is IStateTile stateTile) {
                 tileBase = stateTile.getTileAtState(baseTileData.state);
@@ -556,12 +516,13 @@ namespace TileMaps {
             overlayTileMapObject.transform.SetParent(parentTransform,false);
             var overlayTileMap = overlayTileMapObject.AddComponent<Tilemap>();
             overlayTileMapObject.AddComponent<TilemapRenderer>();
-            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, WorldTileGridMap.OVERLAY_Z);
+            overlayTileMapObject.transform.localPosition = new Vector3(0, 0, WorldTileMap.OVERLAY_Z);
             overlayTileMapObject.gameObject.SetActive(false);
             unusedTileMaps.Push(overlayTileMap);
         }
         private Dictionary<Material, Tilemap> materialTileMaps = new();
         private Stack<Tilemap> unusedTileMaps = new();
+        private List<Tilemap> usedTileMaps = new();
         public Tilemap GetTileMap(Material material)
         {
             if (materialTileMaps.TryGetValue(material, out Tilemap tilemap)) return tilemap;
@@ -573,9 +534,20 @@ namespace TileMaps {
             tilemap.gameObject.SetActive(true);
             tilemap.GetComponent<TilemapRenderer>().material = material;
             materialTileMaps[material] = tilemap;
+            usedTileMaps.Add(tilemap);
 
             return tilemap;
+        }
 
+        public void ClearAllOnTile(ref Vector3Int cellPosition)
+        {
+            foreach (Tilemap tilemap in usedTileMaps)
+            {
+                if (tilemap.HasTile(cellPosition))
+                {
+                    tilemap.SetTile(cellPosition, null);
+                }
+            }
         }
     }
 }

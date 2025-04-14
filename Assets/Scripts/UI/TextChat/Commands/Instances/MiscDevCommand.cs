@@ -8,70 +8,105 @@ namespace UI.Chat {
     public class MiscDevCommand : ChatCommand, IAutoFillChatCommand
     {
         private const string INSTA_BREAK = "instabreak";
-        private const string NO_BREAK_CD = "nobreakcd";
+        private const string NO_BREAK_CD = "cooldown";
         private const string NO_HIT = "nohit";
-        private const string NO_PLACE_COST = "nobreak";
-        private const string NO_PLACE_LIMIT = "noplacelimit";
-        private const string NO_ENERGY_COST = "noenergycost";
+        private const string NO_PLACE_COST = "breakcost";
+        private const string NO_PLACE_LIMIT = "placelimit";
+        private const string NO_ENERGY_COST = "energycost";
+        private const string TOGGLE_LIGHT = "light";
+        private const string NO_TELEPORT_COOLDOWN = "teleportcooldown";
         public MiscDevCommand(string[] parameters, TextChatUI textChatUI) : base(parameters, textChatUI)
         {
         }
 
         public override void execute()
         {
-            string parameter = parameters[0];
-            bool? state = (parameters.Length > 1) ? ChatCommandParameterParser.parseBool(parameters,1,"state") : null;
-            
-            DevMode devMode = DevMode.Instance;
-            switch (parameter)
+            bool? defaultState = null;
+            if (parameters.Length > 1)
             {
-                case INSTA_BREAK:
-                    SetState(ref devMode.instantBreak, state);
-                    break;
-                case NO_BREAK_CD:
-                    SetState(ref devMode.noBreakCooldown, state);
-                    break;
-                case NO_HIT:
-                    SetState(ref devMode.noHit, state);
-                    break;
-                case NO_PLACE_LIMIT:
-                    SetState(ref devMode.noPlaceLimit, state);
-                    break;
-                case NO_PLACE_COST:
-                    SetState(ref devMode.noPlaceCost, state);
-                    break;
-                case NO_ENERGY_COST:
-                    SetState(ref devMode.NoEnergyCost, state);
-                    break;
+                try 
+                {
+                    defaultState = (parameters.Length > 1) ? ChatCommandParameterParser.parseBool(parameters,parameters.Length-1,"state") : null;
+                } catch (ChatParseException) 
+                {
+                    // Just toggle
+                }
+            }
+
+            int iterations = parameters.Length;
+            if (defaultState.HasValue)
+            {
+                iterations--;
+            }
+            DevMode devMode = DevMode.Instance;
+            for (int i = 0; i < iterations; i++)
+            {
+                bool newValue = SetState(ref GetBoolValue(parameters[i],devMode), defaultState);
+                string stateMessage = newValue ? "on" : "off";
+                chatUI.SendChatMessage($"Set {parameters[i]} to {stateMessage}");
             }
         }
 
-        private void SetState(ref bool value, bool? state)
+        private ref bool GetBoolValue(string parameter, DevMode devMode)
+        {
+            switch (parameter)
+            {
+                case INSTA_BREAK:
+                    return ref devMode.instantBreak;
+                case NO_BREAK_CD:
+                    return ref devMode.noBreakCooldown;
+                case NO_HIT:
+                    return ref devMode.noHit;
+                case NO_PLACE_LIMIT:
+                    return ref devMode.noPlaceLimit;
+                case NO_PLACE_COST:
+                    return ref devMode.noPlaceCost;
+                case NO_ENERGY_COST:
+                    return ref devMode.NoEnergyCost;
+                case TOGGLE_LIGHT:
+                    return ref devMode.LightOn;
+                case NO_TELEPORT_COOLDOWN:
+                    return ref devMode.NoTeleportCoolDown;
+                default:
+                    throw new ChatParseException("Invalid command parameter: " + parameter);
+            }
+        }
+
+        private bool SetState(ref bool value, bool? state)
         {
             if (state == null)
             {
                 value = !value;
-                return;
+                return value;
             }
             value = (bool)state;
+            return value;
         }
 
         public override string getDescription()
         {
-            return "/devmode (option) (optional bool) \nToggles various devmodes";
+            return "/devmode (option)+ (on|off)? \nToggles various devmodes";
         }
 
         public List<string> getAutoFill(int paramIndex)
         {
-            return new List<string>
+            List<string> options = new List<string>
             {
                 INSTA_BREAK,
                 NO_BREAK_CD,
                 NO_HIT,
                 NO_PLACE_LIMIT,
                 NO_PLACE_LIMIT,
-                NO_ENERGY_COST
+                NO_ENERGY_COST,
+                TOGGLE_LIGHT,
+                NO_TELEPORT_COOLDOWN,
             };
+            if (paramIndex > 0)
+            {
+                options.Add("on");
+                options.Add("off");
+            }
+            return options;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace TileEntity.Instances.Machines
         }
         
 
-        public override void InventoryUpdate(int n) {
+        public override void InventoryUpdate() {
             if (currentRecipe != null) {
                 bool complete = currentRecipe.RemainingTicks == 0;
                 if (complete)

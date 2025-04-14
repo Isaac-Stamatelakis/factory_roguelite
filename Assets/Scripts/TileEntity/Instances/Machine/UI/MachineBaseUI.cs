@@ -25,7 +25,7 @@ namespace TileEntity.Instances.Machine.UI
         public IInventoryUITileEntityUI GetUITileEntityUI();
     }
     
-    public interface IMachineInstance : ITileEntityInstance, IInventoryListener
+    public interface IMachineInstance : ITileEntityInstance, IInventoryUpdateListener
     {
         public float GetProgressPercent();
         public TileEntityLayoutObject GetMachineLayout();
@@ -73,7 +73,7 @@ namespace TileEntity.Instances.Machine.UI
             else
             {
                 batteryInventoryUI.DisplayInventory(batterySlotMachine.GetBatteryInventory());
-                batteryInventoryUI.AddListener(machineInstance);
+                batteryInventoryUI.AddCallback(machineInstance.InventoryUpdate);
             }
         }
 

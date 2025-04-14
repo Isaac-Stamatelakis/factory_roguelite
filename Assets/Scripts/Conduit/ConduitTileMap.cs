@@ -12,7 +12,7 @@ using Tiles;
 using UnityEngine.Tilemaps;
 
 namespace TileMaps.Conduit {
-    public class ConduitTileMap : AbstractIWorldTileMap<ConduitItem>
+    public class ConduitTileMap : AbstractWorldTileMap<ConduitItem>
     {
         private IConduitSystemManager conduitSystemManager;
 
