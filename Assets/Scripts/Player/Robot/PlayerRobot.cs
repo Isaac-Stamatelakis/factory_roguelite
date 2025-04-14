@@ -791,8 +791,6 @@ namespace Player {
                 0f, Vector2.zero, Mathf.Infinity, blockLayer
             );
             if (!ReferenceEquals(wallCast.collider,null)) return false;
-            Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
-            
             
             WorldTileMap worldTileMap = cast.collider.GetComponent<WorldTileMap>();
             if (ReferenceEquals(worldTileMap, null)) return false;
@@ -807,7 +805,9 @@ namespace Player {
             HammerTileState? hammerTileState = hammerTile.GetHammerTileState(baseTileData.state);
             if (hammerTileState is HammerTileState.Stair) 
             {
+                Vector2 tileCenter = TileHelper.getRealTileCenter(transform.position);
                 Vector2 dif = tileCenter - (Vector2)transform.position;
+                Debug.Log(dif.x);
                 bool standingOnGround = dif.x < 0.1f; // This check makes it so you can't auto jump when walking into the back side of a stair
                 if (standingOnGround && PlaceTile.tileInDirection(bottomCenter, direction, TileMapLayer.Base)) return false;
             }

@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Item.Display.ClickHandlers;
+using Item.GameStage;
 using Items;
 using Items.Tags;
+using Items.Transmutable;
+using Player.UI.Inventory;
 using Tiles;
 using UnityEngine;
 
@@ -464,27 +467,27 @@ namespace Item.Slot
             
             return dictionary;
         }
+        
 
-        public enum InventorySortMode
-        {
-            Name
-        }
-
-        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortMode sortMode)
+        public static List<ItemSlot> SortInventory(List<ItemSlot> itemSlots, InventorySortingMode sortMode)
         {
             IComparer<ItemSlot> comparer = GetInventoryComparer(sortMode);
             List<ItemSlot> sortedCopy = itemSlots
-                .OrderBy(slot => slot, new ItemSlotNameComparer())
+                .OrderBy(slot => slot, comparer)
                 .ToList();
             return sortedCopy;
         }
         
-        private static IComparer<ItemSlot> GetInventoryComparer(InventorySortMode sortMode)
+        private static IComparer<ItemSlot> GetInventoryComparer(InventorySortingMode sortMode)
         {
             switch (sortMode)
             {
-                case InventorySortMode.Name:
+                case InventorySortingMode.Alphabetical:
                     return new ItemSlotNameComparer();
+                case InventorySortingMode.Tier:
+                    return new ItemSlotTierComparer();
+                case InventorySortingMode.ItemType:
+                    return new ItemSlotTypeComparer();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sortMode), sortMode, null);
             }
@@ -499,6 +502,70 @@ namespace Item.Slot
                 string secondName = second.itemObject.name;
     
                 return string.Compare(firstName, secondName, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        
+        private class ItemSlotTierComparer : IComparer<ItemSlot>
+        {
+            public int Compare(ItemSlot first, ItemSlot second)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(first)) return 1;
+                if (ItemSlotUtils.IsItemSlotNull(second)) return -1;
+                GameStageObject firstStage = first.itemObject.GetGameStageObject();
+                GameStageObject secondStage = second.itemObject.GetGameStageObject();
+
+                if (firstStage is TieredGameStage firstTiered && secondStage is TieredGameStage secondTiered)
+                {
+                    if (firstTiered.Tier == secondTiered.Tier)
+                    {
+                        return string.Compare(first.itemObject.name, second.itemObject.name, StringComparison.OrdinalIgnoreCase);
+                    }
+                    return firstTiered.Tier.CompareTo(secondTiered.Tier);
+                }
+             
+                if (firstStage is TieredGameStage)
+                {
+                    return -1;
+                }
+                if (secondStage is TieredGameStage)
+                {
+                    return 1;
+                }
+                return string.Compare(first.itemObject.name, second.itemObject.name, StringComparison.OrdinalIgnoreCase);
+                
+            }
+        }
+        
+        private class ItemSlotTypeComparer : IComparer<ItemSlot>
+        {
+            public int Compare(ItemSlot first, ItemSlot second)
+            {
+                if (ItemSlotUtils.IsItemSlotNull(first)) return 1;
+                if (ItemSlotUtils.IsItemSlotNull(second)) return -1;
+                
+                
+                int typeComparison = GetTypeGroupOrder(first.itemObject).CompareTo(GetTypeGroupOrder(second.itemObject));
+                if (typeComparison != 0)
+                {
+                    return typeComparison;
+                }
+                return string.Compare(first.itemObject.name, second.itemObject.name, StringComparison.OrdinalIgnoreCase);
+            }
+            private int GetTypeGroupOrder(ItemObject itemObject)
+            {
+                switch (itemObject)
+                {
+                    case TransmutableItemObject:
+                        return 1;
+                    case TileItem:
+                        return 2;
+                    case ConduitItem:
+                        return 3;
+                    case FluidTileItem:
+                        return 4;
+                    default:
+                        return 0;
+                }
             }
         }
     }
