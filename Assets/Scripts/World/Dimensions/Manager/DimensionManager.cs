@@ -358,7 +358,7 @@ namespace Dimensions {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            SetPlayerSystem(playerScript,dimension,new Vector2(playerDimensionData.X,playerDimensionData.Y),key,dimensionOptions);
+            yield return SetPlayerSystemCoroutine(playerScript,dimension,new Vector2(playerDimensionData.X,playerDimensionData.Y),key,dimensionOptions);
             
         }
 
@@ -378,7 +378,7 @@ namespace Dimensions {
             if (player.PlayerRobot.Dead)
             {
                 controller = GetDimController(Dimension.OverWorld);
-                player.PlayerRobot.Heal(258124);
+                player.PlayerRobot.Heal(9999);
             }
             if (activeSystem && activeSystem.Dim == (int)dimension && controller is ISingleSystemController)
             {
@@ -446,8 +446,8 @@ namespace Dimensions {
             playerPosition.y = teleportPosition.y;
             player.transform.position = playerPosition;
             player.SyncToClosedChunkSystem(newSystem,this,dimension);
-            
             player.DimensionData = PlayerDimensionDataFactory.SerializeDimensionData(this);
+            GlobalHelper.DeleteAllChildren(player.TemporaryObjectContainer);
             
             CanvasController.Instance.ClearStack();
             
